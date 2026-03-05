@@ -2701,6 +2701,73 @@ a {
   gap: 12px;
 }
 
+/* Day-of-week bar (Repeat Weekly mode) */
+.left-dow-bar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.left-dow-pill {
+  border: 1px solid var(--border-stronger);
+  background: var(--surface-top);
+  color: var(--text-tertiary);
+  min-height: 36px;
+  cursor: pointer;
+  font-size: var(--font-size-sub);
+}
+
+.left-dow-pill:first-child {
+  border-radius: 8px 0 0 8px;
+}
+
+.left-dow-pill:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+.left-dow-pill.active {
+  background: color-mix(in srgb, var(--brand-main) 10%, white);
+  color: var(--brand-strong);
+}
+
+/* Filter accordions */
+.left-accordion {
+  border-top: 1px solid var(--border-stronger);
+}
+
+.left-accordion-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-weight: var(--weight-medium);
+  text-align: left;
+}
+
+.left-accordion-btn .accordion-caret {
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.left-accordion-btn.open .accordion-caret {
+  transform: rotate(180deg);
+}
+
+.left-accordion-body {
+  display: none;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  padding-bottom: 12px;
+}
+
+.left-accordion-body.open {
+  display: grid;
+}
+
 .results-list {
   overflow-y: auto;
   background: var(--surface-inset);
@@ -4481,6 +4548,19 @@ a {
 
   body.styleguide .app-nav-shell {
     display: block;
+  }
+
+  /* Guest routes (/ and /signup/*): keep top nav visible and never show bottom nav */
+  body.guest-route {
+    --nav-height: 56px;
+  }
+
+  body.guest-route .app-nav-shell {
+    display: block;
+  }
+
+  body.guest-route .bottom-nav {
+    display: none;
   }
 
   /* ── Show bottom nav ── */

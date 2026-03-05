@@ -2,13 +2,13 @@
 
 > Format: `T-NNN · [P1/P2/P3] · area · title`
 > P1 = blocks demo/correctness · P2 = important but not blocking · P3 = polish / nice-to-have
-> Last audited: 2026-03-05 (updated after docs pass + styleguide additions)
+> Last audited: 2026-03-05 (updated after service-aware filter panels)
 
 ---
 
 ## 🔄 In Progress
 
-_Nothing actively in progress — pick from P1 backlog._
+_Nothing actively in progress — pick from P2 backlog._
 
 ---
 
@@ -21,6 +21,8 @@ _All P1 items complete. See Done section._
 ---
 
 ### Explore (P2)
+
+_All current explore tasks complete. See Done section._
 
 ---
 
@@ -169,3 +171,6 @@ Profile page: `locationTouched` state, `onBlur` on location input, "Location is 
 
 **T-D25 · signup** — Pricing step (Option B)
 `ServicePrices` interface added to `SignupDraft`. `/signup/pricing` page: shows only services the provider offers, Kč input per service, market rate hints, required before continuing. `signupSteps.ts` updated to insert `pricing` after walking/hosting. Walking → pricing → (pet/success), hosting → pricing → (pet/success). `draftToProfile.ts` uses real `draft.prices` values; `FALLBACK_PRICE` only if step was skipped.
+
+**T-D37 · explore** — Service-aware filter panels + price label alignment
+`components/explore/FilterBody.tsx` introduced as a shared service-aware filter body used by both Desktop and Mobile panels. Walks & Check-ins: address placeholder "Pick up location", "How often?" toggle (One Time → date range; Repeat Weekly → day-of-week bar Su/Mo/Tu/We/Th/Fr/Sa + Start Date), Available times pills, Rate per visit slider + Min/Max. In-home Sitting: "Your location", Dates, Rate per night, Services accordion (Sitter home full-time, Special feeding, Medication, Walking, Walking +30 mins). Boarding: same as Sitting plus Home features accordion + Type of home accordion. CSS added: `.left-dow-bar`, `.left-dow-pill`, `.left-accordion`, `.left-accordion-btn`, `.left-accordion-body`. Rate unit label ("per visit"/"per night") propagates through slider heading and Min/Max labels. `ExploreFilterPanelDesktop` and `ExploreFilterPanelMobile` slimmed to wrappers around FilterBody.

@@ -16,8 +16,8 @@ function BottomNavInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Hide during signup flow
-  if (pathname.startsWith("/signup")) return null;
+  // Bottom nav is for logged-in explore experience only.
+  if (!pathname.startsWith("/explore")) return null;
 
   // Hide on styleguide (uses top nav only at all viewports)
   if (pathname.startsWith("/styleguide")) return null;

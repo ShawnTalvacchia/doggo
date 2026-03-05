@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ButtonIcon } from "@/components/ui/ButtonIcon";
@@ -128,6 +129,14 @@ function LoggedNavLinks() {
 export function AppNav() {
   const pathname = usePathname();
   const mode = pathname.startsWith("/explore") ? "logged" : "guest";
+  const isGuestRoute = pathname === "/" || pathname.startsWith("/signup");
+
+  useEffect(() => {
+    document.body.classList.toggle("guest-route", isGuestRoute);
+    return () => {
+      document.body.classList.remove("guest-route");
+    };
+  }, [isGuestRoute]);
 
   return (
     <header className="app-nav-shell">
