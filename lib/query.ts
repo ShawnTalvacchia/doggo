@@ -1,4 +1,5 @@
 import { defaultExploreFilters } from "@/lib/mockData";
+import { FILTER_RATE_MIN_KC } from "@/lib/pricing";
 import { ExploreFilters, ServiceType } from "@/lib/types";
 
 const SERVICE_VALUES = new Set<ServiceType>(["walk_checkin", "inhome_sitting", "boarding"]);
@@ -7,7 +8,7 @@ const TIME_VALUES = new Set<"6-11" | "11-15" | "15-22">(["6-11", "11-15", "15-22
 
 // Stale-value thresholds. The old dollar-based pricing ran 1–250.
 // Any minRate below 1 or maxRate at or below 250 is a legacy value and is discarded.
-const MIN_VALID_MIN_RATE = 1;
+const MIN_VALID_MIN_RATE = FILTER_RATE_MIN_KC;
 const MIN_VALID_MAX_RATE = 251; // old default max was 250
 
 export function parseFiltersFromQuery(searchParams: URLSearchParams): Partial<ExploreFilters> {

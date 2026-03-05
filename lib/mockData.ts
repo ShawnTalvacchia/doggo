@@ -1,4 +1,5 @@
 import { ExploreFilters, ProviderCard, SignupDraft } from "@/lib/types";
+import { FILTER_RATE_MAX_KC, FILTER_RATE_MIN_KC } from "@/lib/pricing";
 
 export const defaultSignupDraft: SignupDraft = {
   firstName: "",
@@ -50,9 +51,10 @@ export const defaultExploreFilters: ExploreFilters = {
   service: null,
   address: "",
   dateRange: { start: null, end: null },
+  startDate: null,
   times: [],
-  minRate: 1,
-  maxRate: 2500,
+  minRate: FILTER_RATE_MIN_KC,
+  maxRate: FILTER_RATE_MAX_KC,
   pets: ["Spot", "Goldie"],
 };
 
@@ -73,7 +75,7 @@ export const providers: ProviderCard[] = [
     neighborhood: "Smichov",
     rating: 4.8,
     reviewCount: 12,
-    priceFrom: 350,
+    priceFrom: 390,
     priceUnit: "per_walk",
     blurb: "Clean, fun & safe home for your pup",
     avatarUrl:
@@ -91,7 +93,7 @@ export const providers: ProviderCard[] = [
     neighborhood: "Vinohrady",
     rating: 4.9,
     reviewCount: 20,
-    priceFrom: 420,
+    priceFrom: 470,
     priceUnit: "per_walk",
     blurb: "Structured walks and calm routines",
     avatarUrl:
@@ -109,7 +111,7 @@ export const providers: ProviderCard[] = [
     neighborhood: "Dejvice",
     rating: 4.7,
     reviewCount: 9,
-    priceFrom: 290,
+    priceFrom: 330,
     priceUnit: "per_visit",
     blurb: "Patient care for shy and senior dogs",
     avatarUrl:

@@ -2,7 +2,7 @@
 
 > Format: `T-NNN · [P1/P2/P3] · area · title`
 > P1 = blocks demo/correctness · P2 = important but not blocking · P3 = polish / nice-to-have
-> Last audited: 2026-03-05 (updated after service-aware filter panels)
+> Last audited: 2026-03-05 (updated after booking CTA + modal)
 
 ---
 
@@ -174,3 +174,9 @@ Profile page: `locationTouched` state, `onBlur` on location input, "Location is 
 
 **T-D37 · explore** — Service-aware filter panels + price label alignment
 `components/explore/FilterBody.tsx` introduced as a shared service-aware filter body used by both Desktop and Mobile panels. Walks & Check-ins: address placeholder "Pick up location", "How often?" toggle (One Time → date range; Repeat Weekly → day-of-week bar Su/Mo/Tu/We/Th/Fr/Sa + Start Date), Available times pills, Rate per visit slider + Min/Max. In-home Sitting: "Your location", Dates, Rate per night, Services accordion (Sitter home full-time, Special feeding, Medication, Walking, Walking +30 mins). Boarding: same as Sitting plus Home features accordion + Type of home accordion. CSS added: `.left-dow-bar`, `.left-dow-pill`, `.left-accordion`, `.left-accordion-btn`, `.left-accordion-body`. Rate unit label ("per visit"/"per night") propagates through slider heading and Min/Max labels. `ExploreFilterPanelDesktop` and `ExploreFilterPanelMobile` slimmed to wrappers around FilterBody.
+
+**T-D39 · explore · booking** — Book CTA + BookingModal on provider profile
+`components/ui/BookingModal.tsx` created. Reuses `ModalSheet` and `DatePicker`. Desktop: "Book [firstName]" button + price preview pinned at the bottom of the left profile column. Mobile: sticky bottom bar with price label and Book button (bottom nav is already hidden on profile pages). Modal: multi-service selector (only shown when provider offers >1 service, deduped by serviceType), date range via `DatePicker`, free-text message to provider. "Send Request" enabled only once both dates are selected. Success state: `CheckCircle` icon, confirmation copy, Done button. State resets after modal close animation. `defaultService` pre-populated from the Explore URL `service` param. TypeScript clean.
+
+**T-D38 · explore · ui** — Date picker (modal/bottom-sheet) + ModalSheet pattern
+`components/ui/ModalSheet.tsx` — reusable overlay pattern: desktop = centered modal card with blurred backdrop; mobile (< 804px) = bottom sheet that slides up. Props: `open`, `onClose`, `title`, `footer?`, `children`. `components/ui/DatePicker.tsx` — calendar component using ModalSheet. Two modes: `single` (start date, brand circle on selected day) and `range` (connected pill visual: start circle → brand-subtle bar → end circle). Shows 12 scrollable months from today. Day states: past (light), today (gray circle), open, selected, range-start/middle/end. Footer shows formatted date label + "Apply Date". `DateTrigger` component replaces static readOnly inputs in FilterBody. `ExploreFilters` type extended with `startDate: string | null`. Both filter panels and `results/page.tsx` wired. CSS added: `.modal-sheet-*`, `.cal-*`, `.date-trigger`.

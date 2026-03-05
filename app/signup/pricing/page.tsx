@@ -36,7 +36,7 @@ const SERVICE_CONFIGS: ServiceConfig[] = [
     label: "Walks & Check-ins",
     unit: "per visit",
     hint: "A single walk or drop-in visit. Owners compare this first.",
-    marketRange: "Typical in Prague: 200–550 Kč",
+    marketRange: "Typical in Prague: 250–700 Kč",
     Icon: PersonSimpleWalk,
   },
   {
@@ -44,7 +44,7 @@ const SERVICE_CONFIGS: ServiceConfig[] = [
     label: "In-home Sitting",
     unit: "per night",
     hint: "You stay at the owner's home overnight.",
-    marketRange: "Typical in Prague: 450–900 Kč",
+    marketRange: "Typical in Prague: 700–1,400 Kč",
     Icon: House,
   },
   {
@@ -52,7 +52,7 @@ const SERVICE_CONFIGS: ServiceConfig[] = [
     label: "Boarding",
     unit: "per night",
     hint: "The dog stays at your home.",
-    marketRange: "Typical in Prague: 400–850 Kč",
+    marketRange: "Typical in Prague: 600–1,200 Kč",
     Icon: PawPrint,
   },
 ];
@@ -83,10 +83,10 @@ function PriceInput({
           <input
             className="input pricing-input"
             type="number"
-            min={50}
-            max={5000}
+            min={150}
+            max={2500}
             step={10}
-            placeholder="e.g. 350"
+            placeholder="e.g. 450"
             value={value ?? ""}
             onChange={(e) => {
               const raw = e.target.value;

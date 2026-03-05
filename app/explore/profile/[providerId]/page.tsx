@@ -16,6 +16,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { ProviderHeaderState } from "@/components/explore/ProviderHeaderState";
+import { ContactModal } from "@/components/ui/ContactModal";
 import { DEFAULT_ABOUT_BANNER_URL } from "@/lib/data/providerContent";
 
 /** Default first image in the Photos section (dog only). Kept separate from the About banner. */
@@ -235,6 +236,7 @@ function ExploreProfileContent() {
   const [isLoadingProvider, setIsLoadingProvider] = useState(true);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [contactOpen, setContactOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -450,7 +452,7 @@ function ExploreProfileContent() {
                 {backLabel}
               </Link>
             </div>
-            <ProviderHeaderState provider={provider} state="condensed" />
+            <ProviderHeaderState provider={provider} state="condensed" onContact={() => setContactOpen(true)} />
             <div className="profile-gallery-bar">
               <h2 className="profile-gallery-bar-title">
                 Photos{" "}
@@ -546,7 +548,7 @@ function ExploreProfileContent() {
               </Link>
             </div>
             <div className="profile-desktop-profile">
-              <ProviderHeaderState provider={provider} state="expanded" />
+              <ProviderHeaderState provider={provider} state="expanded" onContact={() => setContactOpen(true)} />
             </div>
           </aside>
 
@@ -598,7 +600,7 @@ function ExploreProfileContent() {
                 {backLabel}
               </Link>
             </div>
-            <ProviderHeaderState provider={provider} state="condensed" />
+            <ProviderHeaderState provider={provider} state="condensed" onContact={() => setContactOpen(true)} />
             <div className="profile-tabs" role="tablist" aria-label="Profile sections">
               <button
                 type="button"
@@ -632,6 +634,15 @@ function ExploreProfileContent() {
 
           <div className="profile-scroll-body">{activeContent}</div>
         </section>
+      )}
+
+      {provider && (
+        <ContactModal
+          open={contactOpen}
+          onClose={() => setContactOpen(false)}
+          providerName={provider.name}
+          service={service as ServiceType | null}
+        />
       )}
     </main>
   );

@@ -2390,8 +2390,19 @@ a {
   display: grid;
   /* filter col fixed 390px | results — map col only appears at >= 1024px */
   grid-template-columns: 390px 1fr;
-  gap: 8px;
-  padding: 8px;
+  /* Force the single row to fill available height — without this the row
+     auto-sizes to content and columns overflow the viewport */
+  grid-template-rows: 1fr;
+  gap: 12px;
+  padding: 12px;
+}
+
+/* All three grid children need min-height: 0 so they can shrink below their
+   content size (grid items default to min-height: auto, same gotcha as flex) */
+.explore-filter-col,
+.explore-results-panel,
+.explore-map-col {
+  min-height: 0;
 }
 
 .explore-page {
@@ -2437,6 +2448,63 @@ a {
   min-width: 0;
   height: 100%;
   overflow-y: auto;
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+/* Chrome / Safari / Edge */
+.left-panel-page::-webkit-scrollbar {
+  width: 4px;
+}
+.left-panel-page::-webkit-scrollbar-track {
+  background: transparent;
+}
+.left-panel-page::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+}
+.left-panel-page::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+.left-panel-page--filters {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.left-panel-content--filters {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  background: var(--surface-popout);
+}
+
+.left-filter-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  padding: 16px;
+  background: var(--surface-popout);
+}
+
+.left-filter-scroll {
+  flex: none;
+  display: grid;
+  gap: 24px;
+  align-content: start;
+  padding: 0 16px 24px;
+}
+
+.left-filter-scroll::after {
+  content: "";
+  display: block;
+  height: 40px;
 }
 
 .left-panel-title {
@@ -2503,6 +2571,7 @@ a {
   color: var(--text-primary);
   height: 40px;
   padding: 0 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -2511,6 +2580,7 @@ a {
   justify-self: start;
   cursor: pointer;
   transition: border-color 120ms ease;
+  position: static;
 }
 
 .left-service-pill:hover {
@@ -2553,7 +2623,7 @@ a {
   border: 1px solid var(--border-stronger);
   border-radius: 8px;
   background: var(--surface-top);
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
   display: grid;
   gap: 2px;
   text-align: left;
@@ -2562,11 +2632,19 @@ a {
 }
 
 .left-option-card.active {
-  border-color: var(--text-secondary);
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+  background: var(--surface-popout);
+  box-shadow: var(--shadow-xs);
 }
 
 .left-option-card strong {
   font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.left-option-card.active strong {
+  color: var(--text-primary);
 }
 
 .left-time-row {
@@ -2591,8 +2669,10 @@ a {
 }
 
 .left-time-pill.active {
-  background: color-mix(in srgb, var(--brand-main) 10%, white);
-  color: var(--brand-strong);
+  background: var(--surface-popout);
+  color: var(--text-primary);
+  border-color: var(--text-primary);
+  box-shadow: var(--shadow-xs);
 }
 
 .left-range-labels {
@@ -2731,7 +2811,9 @@ a {
 
 /* Filter accordions */
 .left-accordion {
-  border-top: 1px solid var(--border-stronger);
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+  padding: 8px 0;
 }
 
 .left-accordion-btn {
@@ -2739,12 +2821,15 @@ a {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 12px 0;
+  min-height: 40px;
+  padding: 0;
   background: none;
   border: none;
-  color: var(--text-primary);
+  color: var(--text-secondary);
   cursor: pointer;
-  font-weight: var(--weight-medium);
+  font-size: var(--font-size-body-reg);
+  font-weight: var(--weight-semibold);
+  line-height: 1.35;
   text-align: left;
 }
 
@@ -2760,17 +2845,344 @@ a {
 .left-accordion-body {
   display: none;
   grid-template-columns: 1fr;
-  gap: 10px;
-  padding-bottom: 12px;
+  gap: 8px;
+  padding-top: 8px;
 }
 
 .left-accordion-body.open {
   display: grid;
 }
 
+.left-accordion-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-size: var(--font-size-body-reg);
+  line-height: 20px;
+  min-height: 48px;
+  cursor: pointer;
+}
+
+.left-accordion-option-label {
+  flex: 1;
+}
+
+.left-accordion-option input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-xxs);
+  border: 1px solid var(--border-strongest);
+  background: transparent;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.left-accordion-option input[type="checkbox"]:checked {
+  background: var(--surface-base-inverse);
+  border-color: var(--surface-base-inverse);
+}
+
+.left-accordion-option input[type="checkbox"]:checked::after {
+  content: "✓";
+  color: var(--text-white);
+  font-size: 16px;
+  font-weight: var(--weight-semibold);
+  line-height: 1;
+}
+
+/* ─── ModalSheet — reusable modal (desktop) / bottom-sheet (mobile) ──────── */
+
+.modal-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(237, 237, 237, 0.85);
+  backdrop-filter: blur(4px);
+  padding: 40px 24px;
+}
+
+.modal-sheet-card {
+  background: var(--surface-popout);
+  border-radius: 24px;
+  box-shadow:
+    0px 2px 48px 0px rgba(0, 0, 0, 0.12),
+    0px 4px 12px 0px rgba(0, 0, 0, 0.08);
+  max-width: 480px;
+  width: 100%;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: calc(100vh - 80px);
+}
+
+.modal-sheet-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-regular);
+  flex-shrink: 0;
+}
+
+.modal-sheet-title {
+  flex: 1;
+  font-weight: var(--weight-semibold);
+  font-size: var(--font-size-body-md, 16px);
+  color: var(--text-secondary);
+}
+
+.modal-sheet-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--surface-inset);
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--text-secondary);
+}
+
+.modal-sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+.modal-sheet-footer {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-regular);
+  background: var(--surface-popout);
+  box-shadow: 0px -3px 12px 0px rgba(188, 188, 188, 0.06);
+  flex-shrink: 0;
+}
+
+.modal-sheet-footer-label {
+  flex: 1;
+  font-weight: var(--weight-semibold);
+  font-size: var(--font-size-body-md, 16px);
+  color: var(--text-secondary);
+}
+
+/* Mobile: slide up as bottom sheet */
+@media (max-width: 803px) {
+  .modal-sheet-overlay {
+    align-items: flex-end;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: none;
+  }
+
+  .modal-sheet-card {
+    max-width: 100%;
+    border-radius: 24px 24px 0 0;
+    min-height: 72vh;
+    max-height: 94vh;
+  }
+}
+
+/* ─── DatePicker calendar ────────────────────────────────────────────────── */
+
+.cal-week-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-popout);
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding: 0 8px;
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+  flex-shrink: 0;
+}
+
+.cal-weekday {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  font-weight: var(--weight-bold);
+  font-size: var(--font-size-body-reg, 14px);
+  color: var(--text-tertiary);
+}
+
+.cal-body {
+  padding: 24px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cal-month {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-bottom: 1px solid var(--border-regular);
+  padding-bottom: 8px;
+}
+
+.cal-month:last-child {
+  border-bottom: none;
+}
+
+.cal-month-label {
+  padding: 4px 12px 8px;
+  font-weight: var(--weight-bold);
+  font-size: var(--font-size-body-reg, 14px);
+  color: var(--text-secondary);
+}
+
+.cal-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+/* Day cell — square, relative for pseudo-element range bar */
+.cal-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+}
+
+.cal-day.empty,
+.cal-day.past {
+  cursor: default;
+}
+
+/* Inner circle */
+.cal-day-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  font-weight: var(--weight-semibold);
+  font-size: 16px;
+  color: var(--text-secondary);
+  position: relative;
+  z-index: 1;
+  transition: background 0.1s;
+}
+
+.cal-day.past .cal-day-inner {
+  color: var(--text-light);
+}
+
+.cal-day.today .cal-day-inner {
+  background: var(--surface-gray);
+  color: var(--text-tertiary);
+}
+
+.cal-day.open:hover .cal-day-inner,
+.cal-day.today:hover .cal-day-inner {
+  background: var(--surface-inset);
+}
+
+.cal-day.selected .cal-day-inner {
+  background: var(--brand-main);
+  color: white;
+}
+
+/* Range: start — circle + bar extending right */
+.cal-day.range-start::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  right: 0;
+  top: 5px;
+  bottom: 5px;
+  background: var(--brand-subtle);
+  z-index: 0;
+}
+
+.cal-day.range-start .cal-day-inner {
+  background: var(--brand-main);
+  color: white;
+}
+
+/* Range: end — bar extending left + circle */
+.cal-day.range-end::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 50%;
+  top: 5px;
+  bottom: 5px;
+  background: var(--brand-subtle);
+  z-index: 0;
+}
+
+.cal-day.range-end .cal-day-inner {
+  background: var(--brand-main);
+  color: white;
+}
+
+/* Range: middle — full-width bar */
+.cal-day.range-middle::before {
+  content: "";
+  position: absolute;
+  inset: 5px 0;
+  background: var(--brand-subtle);
+  z-index: 0;
+}
+
+.cal-day.range-middle .cal-day-inner {
+  background: none;
+  color: var(--brand-strong);
+}
+
+/* Date trigger button — looks like an input, opens the picker */
+.date-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--surface-top);
+  border: 1px solid var(--border-stronger);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  text-align: left;
+  font-size: var(--font-size-body-reg, 14px);
+  font-family: inherit;
+}
+
+.date-trigger.has-value {
+  color: var(--text-secondary);
+}
+
+.date-trigger svg {
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+  margin-left: auto;
+}
+
 .results-list {
   overflow-y: auto;
-  background: var(--surface-inset);
 }
 
 .explore-results-panel {
@@ -3936,6 +4348,394 @@ a {
   background: var(--on-hover-darken);
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   BOOKING CTA — desktop left col + mobile sticky bar
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.booking-cta-desktop {
+  margin-top: 24px;
+  display: grid;
+  gap: 12px;
+}
+
+.booking-cta-price {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.booking-cta-price-from {
+  font-size: var(--font-size-body-reg);
+  color: var(--text-tertiary);
+}
+
+.booking-cta-price-amount {
+  font-size: var(--font-size-body-xl);
+  font-weight: var(--weight-bold);
+  color: var(--brand-main);
+  line-height: 1;
+}
+
+.booking-cta-price-unit {
+  font-size: var(--font-size-body-reg);
+  color: var(--text-tertiary);
+}
+
+.booking-cta-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Mobile sticky bar — sits at the bottom of the mobile profile */
+.booking-bar-mobile {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 20px;
+  background: var(--surface-popout);
+  border-top: 1px solid var(--border-strong);
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.booking-bar-price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.booking-bar-price-amount {
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--weight-bold);
+  color: var(--brand-main);
+  line-height: 1;
+}
+
+.booking-bar-price-unit {
+  font-size: var(--font-size-body-reg);
+  color: var(--text-tertiary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   BOOKING MODAL — form + success state
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.booking-modal-form {
+  display: grid;
+  gap: 20px;
+  padding: 4px 0;
+}
+
+/* Each labelled section inside the form */
+.booking-section {
+  display: grid;
+  gap: 8px;
+}
+
+.booking-section-label {
+  font-size: var(--font-size-body-reg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Service selector — radio-style rows */
+.booking-service-list {
+  display: grid;
+  gap: 8px;
+}
+
+.booking-service-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border-regular);
+  border-radius: 10px;
+  background: var(--surface-base);
+  cursor: pointer;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease;
+  text-align: left;
+  gap: 12px;
+}
+
+.booking-service-item:hover {
+  border-color: var(--brand-main);
+  background: var(--brand-subtle);
+}
+
+.booking-service-item.selected {
+  border-color: var(--brand-main);
+  background: var(--brand-subtle);
+}
+
+.booking-service-name {
+  font-size: var(--font-size-body-md);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+}
+
+.booking-service-price {
+  font-size: var(--font-size-body-reg);
+  font-weight: var(--weight-semibold);
+  color: var(--brand-main);
+  white-space: nowrap;
+}
+
+.booking-service-unit {
+  font-weight: var(--weight-regular);
+  color: var(--text-secondary);
+}
+
+/* Message textarea */
+.booking-message {
+  width: 100%;
+  resize: vertical;
+  min-height: 96px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border-regular);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: var(--font-size-body-md);
+  color: var(--text-primary);
+  background: var(--surface-base);
+  line-height: var(--leading-relaxed);
+  transition: border-color 120ms ease;
+  box-sizing: border-box;
+}
+
+.booking-message:focus {
+  outline: none;
+  border-color: var(--brand-main);
+}
+
+.booking-message::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Footer price + button row */
+.booking-footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 16px;
+}
+
+.booking-price-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.booking-price-from {
+  font-size: var(--font-size-body-reg);
+  color: var(--text-tertiary);
+}
+
+.booking-price-amount {
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--weight-bold);
+  color: var(--brand-main);
+  line-height: 1;
+}
+
+.booking-price-unit {
+  font-size: var(--font-size-body-reg);
+  color: var(--text-tertiary);
+}
+
+/* Success state */
+.booking-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px 8px 8px;
+  gap: 12px;
+}
+
+.booking-success-icon {
+  color: var(--brand-main);
+  flex-shrink: 0;
+}
+
+.booking-success-heading {
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.booking-success-body {
+  font-size: var(--font-size-body-md);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+  max-width: 320px;
+}
+
+.booking-done-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CONTACT MODAL
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.contact-modal-body {
+  display: grid;
+  gap: 12px;
+}
+
+.contact-modal-hint {
+  font-size: var(--font-size-body-reg);
+  color: var(--text-tertiary);
+  margin: 0;
+  line-height: var(--leading-relaxed);
+}
+
+.contact-modal-textarea {
+  width: 100%;
+  resize: vertical;
+  min-height: 120px;
+  padding: 12px;
+  border: 1.5px solid var(--border-regular);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: var(--font-size-body-md);
+  color: var(--text-primary);
+  background: var(--surface-base);
+  line-height: var(--leading-relaxed);
+  transition: border-color 120ms ease;
+  box-sizing: border-box;
+}
+
+.contact-modal-textarea:focus {
+  outline: none;
+  border-color: var(--brand-main);
+}
+
+/* Success state */
+.contact-modal-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px 8px 8px;
+  gap: 12px;
+}
+
+.contact-modal-success-icon {
+  color: var(--brand-main);
+  flex-shrink: 0;
+}
+
+.contact-modal-success-heading {
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.contact-modal-success-body {
+  font-size: var(--font-size-body-md);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+  max-width: 300px;
+}
+
+.contact-modal-send-btn,
+.contact-modal-done-btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* -------- Temporary profile menu view (mobile bottom-nav destination) -------- */
+.profile-menu-page {
+  justify-content: flex-start;
+  padding-top: 24px;
+  padding-bottom: 88px;
+}
+
+.profile-menu-wrap {
+  max-width: 720px;
+}
+
+.profile-menu-card {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-panel);
+  background: var(--surface-top);
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+}
+
+.profile-menu-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--font-size-h4);
+  color: var(--text-primary);
+}
+
+.profile-menu-subtitle {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-body-reg);
+  line-height: 1.45;
+}
+
+.profile-menu-groups {
+  display: grid;
+  gap: 16px;
+}
+
+.profile-menu-group {
+  display: grid;
+  gap: 8px;
+}
+
+.profile-menu-group-title {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.profile-menu-links {
+  display: grid;
+  gap: 8px;
+}
+
+.profile-menu-link {
+  display: block;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-popout);
+  color: var(--text-secondary);
+  font-weight: var(--weight-semibold);
+  padding: 10px 12px;
+}
+
+.profile-menu-link:hover {
+  border-color: var(--brand-main);
+  color: var(--text-primary);
+}
+
 /* Switch profile to one-column before squeeze range. */
 @media (max-width: 620px) {
   .profile-desktop-layout {
@@ -4003,6 +4803,16 @@ a {
 
   .profile-main.condensed .profile-contact-btn.btn {
     min-height: 32px;
+  }
+
+  .profile-menu-page {
+    padding: 12px 0 88px;
+  }
+
+  .profile-menu-card {
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
   }
 
   .profile-card-title {
@@ -4161,17 +4971,23 @@ a {
 .mobile-slide-body {
   flex: 1;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 20px 16px;
   display: grid;
   gap: 20px;
   align-content: start;
+  background: var(--surface-popout);
 }
 
 .mobile-slide-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
   flex-shrink: 0;
   padding: 12px 16px;
   border-top: 1px solid var(--border-strong);
   background: var(--surface-base);
+  box-shadow: 0 -8px 24px var(--transparent-dark-16);
 }
 
 @media (max-width: 767px) {
@@ -4463,9 +5279,6 @@ a {
 @media (min-width: 804px) and (max-width: 1023px) {
   .explore-layout {
     grid-template-columns: 390px 1fr;
-    height: 100%;
-    padding: 8px;
-    gap: 8px;
   }
 
   .explore-filter-col {
@@ -4483,7 +5296,7 @@ a {
     padding: 0 16px;
     height: 56px;
     background: var(--surface-top);
-    border-bottom: 1px solid var(--border-strong);
+    border-bottom: none;
     position: sticky;
     top: var(--nav-height);
     z-index: 10;

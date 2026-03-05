@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ButtonIcon } from "@/components/ui/ButtonIcon";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { PAGE_MENU_GROUPS } from "@/lib/navigation/pageMenuGroups";
 import {
   Bell,
   CalendarDots,
@@ -12,33 +13,6 @@ import {
   MagnifyingGlass,
   Sparkle,
 } from "@phosphor-icons/react";
-
-const PAGE_GROUPS = [
-  {
-    title: "Sign Up",
-    items: [
-      { label: "Start", value: "/signup/start" },
-      { label: "Role", value: "/signup/role" },
-      { label: "Profile", value: "/signup/profile" },
-      { label: "Care Preferences", value: "/signup/care-preferences" },
-      { label: "Walking", value: "/signup/walking" },
-      { label: "Hosting", value: "/signup/hosting" },
-      { label: "Pet", value: "/signup/pet" },
-      { label: "Success", value: "/signup/success" },
-    ],
-  },
-  {
-    title: "Explore",
-    items: [
-      { label: "Results", value: "/explore/results" },
-      { label: "Profile", value: "/explore/profile/olga-m" },
-    ],
-  },
-  {
-    title: "System",
-    items: [{ label: "Styleguide", value: "/styleguide" }],
-  },
-];
 
 function PageMenu({
   trigger,
@@ -51,7 +25,7 @@ function PageMenu({
     <details className="app-nav-menu">
       <summary className="app-nav-menu-summary">{trigger}</summary>
       <div className={`app-nav-menu-panel ${align === "left" ? "align-left" : "align-right"}`}>
-        {PAGE_GROUPS.map((group) => (
+        {PAGE_MENU_GROUPS.map((group) => (
           <div key={group.title} className="app-nav-menu-group">
             <div className="app-nav-menu-group-title">{group.title}</div>
             {group.items.map((option) => (

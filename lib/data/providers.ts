@@ -1,4 +1,5 @@
 import { providers as localProviders } from "@/lib/mockData";
+import { normalizeKcPrice } from "@/lib/pricing";
 import { ProviderCard } from "@/lib/types";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -24,7 +25,7 @@ function rowToProviderCard(row: ProviderRow): ProviderCard {
     neighborhood: row.neighborhood,
     rating: row.rating,
     reviewCount: row.review_count,
-    priceFrom: row.price_from,
+    priceFrom: normalizeKcPrice(row.price_from),
     priceUnit: row.price_unit,
     blurb: row.blurb,
     avatarUrl: row.avatar_url,

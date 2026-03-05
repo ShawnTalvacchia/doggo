@@ -15,9 +15,10 @@ const tabs = [
 function BottomNavInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const isLoggedMobileRoute = pathname.startsWith("/explore") || pathname === "/profile";
 
   // Bottom nav is for logged-in explore experience only.
-  if (!pathname.startsWith("/explore")) return null;
+  if (!isLoggedMobileRoute) return null;
 
   // Hide on styleguide (uses top nav only at all viewports)
   if (pathname.startsWith("/styleguide")) return null;

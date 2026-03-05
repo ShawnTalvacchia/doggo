@@ -5,9 +5,11 @@ import { ButtonAction } from "@/components/ui/ButtonAction";
 type ProviderHeaderStateProps = {
   provider: ProviderCard;
   state: HeaderState;
+  /** Called when the Contact button is tapped — opens the contact modal */
+  onContact?: () => void;
 };
 
-export function ProviderHeaderState({ provider, state }: ProviderHeaderStateProps) {
+export function ProviderHeaderState({ provider, state, onContact }: ProviderHeaderStateProps) {
   const firstName = provider.name.split(" ")[0];
   const isCondensed = state === "condensed";
 
@@ -57,6 +59,7 @@ export function ProviderHeaderState({ provider, state }: ProviderHeaderStateProp
             size={isCondensed ? "sm" : "md"}
             className="profile-contact-btn"
             rightIcon={<ChatCircleDots size={16} weight="fill" />}
+            onClick={onContact}
           >
             {isCondensed ? "Contact" : `Contact ${firstName}`}
           </ButtonAction>

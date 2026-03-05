@@ -3,11 +3,13 @@
 import { useState, type CSSProperties } from "react";
 import { CaretDown } from "@phosphor-icons/react";
 import { ExploreFilters, ServiceType } from "@/lib/types";
+import { FILTER_RATE_MAX_KC, FILTER_RATE_MIN_KC, getExploreRateBounds } from "@/lib/pricing";
+import { DatePicker, DateTrigger, type DateRange } from "@/components/ui/DatePicker";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-export const RATE_MIN = 1;
-export const RATE_MAX = 2500;
+export const RATE_MIN = FILTER_RATE_MIN_KC;
+export const RATE_MAX = FILTER_RATE_MAX_KC;
 
 const TIME_OPTIONS: Array<"6-11" | "11-15" | "15-22"> = ["6-11", "11-15", "15-22"];
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"] as const;
@@ -53,6 +55,21 @@ function Accordion({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
+function AccordionOption({
+  label,
+  defaultChecked = false,
+}: {
+  label: string;
+  defaultChecked?: boolean;
+}) {
+  return (
+    <label className="left-accordion-option">
+      <span className="left-accordion-option-label">{label}</span>
+      <input type="checkbox" defaultChecked={defaultChecked} />
+    </label>
+  );
+}
+
 // ─── FilterBody ───────────────────────────────────────────────────────────────
 
 export type FilterBodyProps = {
@@ -60,6 +77,8 @@ export type FilterBodyProps = {
   onMinRateChange: (value: number) => void;
   onMaxRateChange: (value: number) => void;
   onTimeToggle: (value: "6-11" | "11-15" | "15-22") => void;
+  onDateRangeChange: (range: DateRange) => void;
+  onStartDateChange: (iso: string | null) => void;
   /** Pass dual-thumb slider style from parent (desktop only). Omit for simple stacked sliders. */
   rangeRowStyle?: CSSProperties;
   dualSlider?: boolean;
@@ -70,15 +89,21 @@ export function FilterBody({
   onMinRateChange,
   onMaxRateChange,
   onTimeToggle,
+  onDateRangeChange,
+  onStartDateChange,
   rangeRowStyle,
   dualSlider = false,
 }: FilterBodyProps) {
   const [visitMode, setVisitMode] = useState<"one_time" | "repeat">("one_time");
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [datePickerOpen, setDatePickerOpen] = useState<"range" | "start" | null>(null);
 
   const service = filters.service;
   const isWalk = !service || service === "walk_checkin";
   const unit = rateUnit(service);
+  const rateBounds = getExploreRateBounds(service);
+  const minRateValue = Math.max(rateBounds.min, Math.min(filters.minRate, rateBounds.max));
+  const maxRateValue = Math.max(minRateValue, Math.min(filters.maxRate, rateBounds.max));
 
   const toggleDay = (day: string) =>
     setSelectedDays((prev) =>
@@ -140,7 +165,11 @@ export function FilterBody({
       {isWalk && visitMode === "one_time" && (
         <div className="left-field">
           <div className="label">Dates you need visits</div>
-          <input className="input" placeholder="Select date range" readOnly />
+          <DateTrigger
+            label="Select date range"
+            value={filters.dateRange}
+            onClick={() => setDatePickerOpen("range")}
+          />
         </div>
       )}
 
@@ -164,7 +193,11 @@ export function FilterBody({
           </div>
           <div className="left-field">
             <div className="label">Start Date</div>
-            <input className="input" placeholder="Select start date" readOnly />
+            <DateTrigger
+              label="Select start date"
+              value={filters.startDate}
+              onClick={() => setDatePickerOpen("start")}
+            />
           </div>
         </>
       )}
@@ -173,9 +206,37 @@ export function FilterBody({
       {!isWalk && (
         <div className="left-field">
           <div className="label">Dates</div>
-          <input className="input" placeholder="Select date range" readOnly />
+          <DateTrigger
+            label="Select date range"
+            value={filters.dateRange}
+            onClick={() => setDatePickerOpen("range")}
+          />
         </div>
       )}
+
+      {/* ── Date pickers (portal-rendered modals / bottom sheets) ─────────── */}
+      <DatePicker
+        mode="range"
+        open={datePickerOpen === "range"}
+        onClose={() => setDatePickerOpen(null)}
+        value={filters.dateRange}
+        onChange={(range) => {
+          onDateRangeChange(range);
+          setDatePickerOpen(null);
+        }}
+        title={isWalk ? "Dates you need visits" : "Dates"}
+      />
+      <DatePicker
+        mode="single"
+        open={datePickerOpen === "start"}
+        onClose={() => setDatePickerOpen(null)}
+        value={filters.startDate}
+        onChange={(iso) => {
+          onStartDateChange(iso);
+          setDatePickerOpen(null);
+        }}
+        title="Start Date"
+      />
 
       {/* ── Available times (Walks only) ─────────────────────────────────── */}
       {isWalk && (
@@ -200,33 +261,33 @@ export function FilterBody({
       <div className="left-field">
         <div className="label">Rate {unit}</div>
         <div className="left-range-labels">
-          <span>{filters.minRate} Kč</span>
-          <span>{filters.maxRate} Kč</span>
+          <span>{minRateValue} Kč</span>
+          <span>{maxRateValue} Kč</span>
         </div>
         {dualSlider ? (
           <div className="left-range-row left-range-row-dual" style={rangeRowStyle}>
             <input
               className="left-range-input left-range-input-min"
               type="range"
-              min={RATE_MIN}
-              max={RATE_MAX}
+              min={rateBounds.min}
+              max={rateBounds.max}
               step={50}
-              value={filters.minRate}
+              value={minRateValue}
               onChange={(e) => {
-                const nextMin = Number(e.target.value) || RATE_MIN;
-                onMinRateChange(Math.min(nextMin, filters.maxRate));
+                const nextMin = Number(e.target.value) || rateBounds.min;
+                onMinRateChange(Math.min(Math.max(nextMin, rateBounds.min), maxRateValue));
               }}
             />
             <input
               className="left-range-input left-range-input-max"
               type="range"
-              min={RATE_MIN}
-              max={RATE_MAX}
+              min={rateBounds.min}
+              max={rateBounds.max}
               step={50}
-              value={filters.maxRate}
+              value={maxRateValue}
               onChange={(e) => {
-                const nextMax = Number(e.target.value) || RATE_MAX;
-                onMaxRateChange(Math.max(nextMax, filters.minRate));
+                const nextMax = Number(e.target.value) || rateBounds.max;
+                onMaxRateChange(Math.max(Math.min(nextMax, rateBounds.max), minRateValue));
               }}
             />
           </div>
@@ -234,19 +295,33 @@ export function FilterBody({
           <div className="left-range-row">
             <input
               type="range"
-              min={RATE_MIN}
-              max={RATE_MAX}
+              min={rateBounds.min}
+              max={rateBounds.max}
               step={50}
-              value={filters.minRate}
-              onChange={(e) => onMinRateChange(Number(e.target.value) || RATE_MIN)}
+              value={minRateValue}
+              onChange={(e) =>
+                onMinRateChange(
+                  Math.min(
+                    Math.max(Number(e.target.value) || rateBounds.min, rateBounds.min),
+                    maxRateValue,
+                  ),
+                )
+              }
             />
             <input
               type="range"
-              min={RATE_MIN}
-              max={RATE_MAX}
+              min={rateBounds.min}
+              max={rateBounds.max}
               step={50}
-              value={filters.maxRate}
-              onChange={(e) => onMaxRateChange(Number(e.target.value) || RATE_MAX)}
+              value={maxRateValue}
+              onChange={(e) =>
+                onMaxRateChange(
+                  Math.max(
+                    Math.min(Number(e.target.value) || rateBounds.max, rateBounds.max),
+                    minRateValue,
+                  ),
+                )
+              }
             />
           </div>
         )}
@@ -259,8 +334,13 @@ export function FilterBody({
           <input
             className="input"
             type="number"
-            value={filters.minRate}
-            onChange={(e) => onMinRateChange(Number(e.target.value) || RATE_MIN)}
+            min={rateBounds.min}
+            max={rateBounds.max}
+            value={minRateValue}
+            onChange={(e) => {
+              const nextMin = Number(e.target.value) || rateBounds.min;
+              onMinRateChange(Math.min(Math.max(nextMin, rateBounds.min), maxRateValue));
+            }}
           />
         </div>
         <div className="left-field">
@@ -268,8 +348,13 @@ export function FilterBody({
           <input
             className="input"
             type="number"
-            value={filters.maxRate}
-            onChange={(e) => onMaxRateChange(Number(e.target.value) || RATE_MAX)}
+            min={rateBounds.min}
+            max={rateBounds.max}
+            value={maxRateValue}
+            onChange={(e) => {
+              const nextMax = Number(e.target.value) || rateBounds.max;
+              onMaxRateChange(Math.max(Math.min(nextMax, rateBounds.max), minRateValue));
+            }}
           />
         </div>
       </div>
@@ -282,9 +367,11 @@ export function FilterBody({
             ? SITTING_SERVICES
             : BOARDING_SERVICES
         ).map((s) => (
-          <label key={s} className="left-inline-check">
-            <input type="checkbox" /> {s}
-          </label>
+          <AccordionOption
+            key={s}
+            label={s}
+            defaultChecked={service === "inhome_sitting" && s === "Walking"}
+          />
         ))}
       </Accordion>
 
@@ -293,16 +380,12 @@ export function FilterBody({
         <>
           <Accordion title="Home features">
             {BOARDING_HOME_FEATURES.map((f) => (
-              <label key={f} className="left-inline-check">
-                <input type="checkbox" /> {f}
-              </label>
+              <AccordionOption key={f} label={f} />
             ))}
           </Accordion>
           <Accordion title="Type of home">
             {BOARDING_HOME_TYPES.map((t) => (
-              <label key={t} className="left-inline-check">
-                <input type="checkbox" /> {t}
-              </label>
+              <AccordionOption key={t} label={t} />
             ))}
           </Accordion>
         </>

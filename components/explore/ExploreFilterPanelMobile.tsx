@@ -5,6 +5,7 @@ import { X } from "@phosphor-icons/react";
 import { ExploreFilters, ServiceType } from "@/lib/types";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { FilterBody } from "./FilterBody";
+import { type DateRange } from "@/components/ui/DatePicker";
 
 function serviceLabel(service: ServiceType | null) {
   if (service === "inhome_sitting") return "In-home Sitting";
@@ -20,6 +21,8 @@ type ExploreFilterPanelMobileProps = {
   onMinRateChange: (value: number) => void;
   onMaxRateChange: (value: number) => void;
   onTimeToggle: (value: "6-11" | "11-15" | "15-22") => void;
+  onDateRangeChange: (range: DateRange) => void;
+  onStartDateChange: (iso: string | null) => void;
 };
 
 export function ExploreFilterPanelMobile({
@@ -29,6 +32,8 @@ export function ExploreFilterPanelMobile({
   onMinRateChange,
   onMaxRateChange,
   onTimeToggle,
+  onDateRangeChange,
+  onStartDateChange,
 }: ExploreFilterPanelMobileProps) {
   // Lock body scroll while panel is open
   useEffect(() => {
@@ -68,6 +73,9 @@ export function ExploreFilterPanelMobile({
           onMinRateChange={onMinRateChange}
           onMaxRateChange={onMaxRateChange}
           onTimeToggle={onTimeToggle}
+          onDateRangeChange={onDateRangeChange}
+          onStartDateChange={onStartDateChange}
+          dualSlider
         />
       </div>
 

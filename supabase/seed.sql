@@ -19,7 +19,7 @@ values
     'Smichov',
     4.8,
     12,
-    350,
+    390,
     'per_walk',
     'Clean, fun & safe home for your pup',
     'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80',
@@ -32,7 +32,7 @@ values
     'Vinohrady',
     4.9,
     20,
-    420,
+    470,
     'per_walk',
     'Structured walks and calm routines',
     'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=200&q=80',
@@ -45,7 +45,7 @@ values
     'Dejvice',
     4.7,
     9,
-    290,
+    330,
     'per_visit',
     'Patient care for shy and senior dogs',
     'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=200&q=80',
@@ -189,11 +189,11 @@ insert into public.provider_service_offerings (
   sort_order
 )
 values
-  ('olga-service-1', 'olga-m', 'walk_checkin', 'Walks and Check-ins', 'Neighborhood walks and check-ins with photo updates.', 350, 'per_walk', 1),
-  ('olga-service-2', 'olga-m', 'inhome_sitting', 'In-home Sitting', 'In-home care that follows your feeding and comfort routines.', 550, 'per_visit', 2),
-  ('nikola-service-1', 'nikola-r', 'walk_checkin', 'Structured Walks', 'Energy-focused walks with routine consistency.', 420, 'per_walk', 1),
-  ('nikola-service-2', 'nikola-r', 'boarding', 'Overnight Boarding', 'Calm overnight care for one household at a time.', 650, 'per_night', 2),
-  ('jana-service-1', 'jana-k', 'inhome_sitting', 'Senior-focused Home Visits', 'Gentle pace and medication-aware home visits.', 290, 'per_visit', 1)
+  ('olga-service-1', 'olga-m', 'walk_checkin', 'Walks and Check-ins', 'Neighborhood walks and check-ins with photo updates.', 390, 'per_visit', 1),
+  ('olga-service-2', 'olga-m', 'inhome_sitting', 'In-home Sitting', 'In-home care that follows your feeding and comfort routines.', 980, 'per_night', 2),
+  ('nikola-service-1', 'nikola-r', 'walk_checkin', 'Structured Walks', 'Energy-focused walks with routine consistency.', 470, 'per_visit', 1),
+  ('nikola-service-2', 'nikola-r', 'boarding', 'Overnight Boarding', 'Calm overnight care for one household at a time.', 1100, 'per_night', 2),
+  ('jana-service-1', 'jana-k', 'inhome_sitting', 'Senior-focused Home Visits', 'Gentle pace and medication-aware home visits.', 850, 'per_night', 1)
 on conflict (id) do update set
   provider_id = excluded.provider_id,
   service_type = excluded.service_type,

@@ -50,7 +50,7 @@ const AGE_LABELS: Record<string, string> = {
 };
 
 // ── Fallback price used only if the pricing step was somehow skipped ───────────
-const FALLBACK_PRICE = 350;
+const FALLBACK_PRICE = 450;
 
 // ── About title logic ──────────────────────────────────────────────────────────
 

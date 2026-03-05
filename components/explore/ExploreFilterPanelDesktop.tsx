@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { PawPrint, PersonSimpleWalk, House, CaretDown } from "@phosphor-icons/react";
 import { ExploreFilters, ServiceType } from "@/lib/types";
-import { FilterBody, RATE_MIN, RATE_MAX } from "./FilterBody";
+import { getExploreRateBounds } from "@/lib/pricing";
+import { FilterBody } from "./FilterBody";
+import { type DateRange } from "@/components/ui/DatePicker";
 
 type ExploreFilterPanelDesktopProps = {
   filters: ExploreFilters;
@@ -11,6 +13,8 @@ type ExploreFilterPanelDesktopProps = {
   onMinRateChange: (value: number) => void;
   onMaxRateChange: (value: number) => void;
   onTimeToggle: (value: "6-11" | "11-15" | "15-22") => void;
+  onDateRangeChange: (range: DateRange) => void;
+  onStartDateChange: (iso: string | null) => void;
 };
 
 type PanelView = "service" | "filters";
@@ -59,6 +63,8 @@ export function ExploreFilterPanelDesktop({
   onMinRateChange,
   onMaxRateChange,
   onTimeToggle,
+  onDateRangeChange,
+  onStartDateChange,
 }: ExploreFilterPanelDesktopProps) {
   const [panelView, setPanelView] = useState<PanelView>(filters.service ? "filters" : "service");
 
@@ -67,16 +73,19 @@ export function ExploreFilterPanelDesktop({
   }, [filters.service]);
 
   const selectedService = useMemo(() => filters.service || "walk_checkin", [filters.service]);
+  const rateBounds = useMemo(() => getExploreRateBounds(filters.service), [filters.service]);
 
   const rangeRowStyle = useMemo(() => {
-    const span = RATE_MAX - RATE_MIN;
-    const minPct = ((filters.minRate - RATE_MIN) / span) * 100;
-    const maxPct = ((filters.maxRate - RATE_MIN) / span) * 100;
+    const span = rateBounds.max - rateBounds.min;
+    const clampedMin = Math.max(rateBounds.min, Math.min(filters.minRate, rateBounds.max));
+    const clampedMax = Math.max(clampedMin, Math.min(filters.maxRate, rateBounds.max));
+    const minPct = ((clampedMin - rateBounds.min) / span) * 100;
+    const maxPct = ((clampedMax - rateBounds.min) / span) * 100;
     return {
       "--min-pct": `${Math.max(0, Math.min(100, minPct))}%`,
       "--max-pct": `${Math.max(0, Math.min(100, maxPct))}%`,
     } as CSSProperties;
-  }, [filters.minRate, filters.maxRate]);
+  }, [filters.minRate, filters.maxRate, rateBounds]);
 
   return (
     <aside className="panel explore-left-panel" aria-label="Explore left panel">
@@ -120,28 +129,34 @@ export function ExploreFilterPanelDesktop({
         </section>
 
         {/* ── Filters page ─────────────────────────────────────────────── */}
-        <section className="left-panel-page">
-          <div className="panel-content">
-            {/* Service switcher pill */}
-            <button
-              type="button"
-              className="left-service-pill"
-              onClick={() => setPanelView("service")}
-            >
-              <ServiceIcon service={selectedService} />
-              <span>{serviceLabel(selectedService)}</span>
-              <CaretDown size={14} weight="bold" />
-            </button>
+        <section className="left-panel-page left-panel-page--filters">
+          <div className="panel-content left-panel-content--filters">
+            <div className="left-filter-header">
+              {/* Service switcher pill */}
+              <button
+                type="button"
+                className="left-service-pill"
+                onClick={() => setPanelView("service")}
+              >
+                <ServiceIcon service={selectedService} />
+                <span>{serviceLabel(selectedService)}</span>
+                <CaretDown size={14} weight="bold" />
+              </button>
+            </div>
 
-            {/* Service-aware filter fields */}
-            <FilterBody
-              filters={filters}
-              onMinRateChange={onMinRateChange}
-              onMaxRateChange={onMaxRateChange}
-              onTimeToggle={onTimeToggle}
-              rangeRowStyle={rangeRowStyle}
-              dualSlider
-            />
+            <div className="left-filter-scroll">
+              {/* Service-aware filter fields */}
+              <FilterBody
+                filters={filters}
+                onMinRateChange={onMinRateChange}
+                onMaxRateChange={onMaxRateChange}
+                onTimeToggle={onTimeToggle}
+                onDateRangeChange={onDateRangeChange}
+                onStartDateChange={onStartDateChange}
+                rangeRowStyle={rangeRowStyle}
+                dualSlider
+              />
+            </div>
           </div>
         </section>
       </div>

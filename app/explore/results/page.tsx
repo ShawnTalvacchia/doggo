@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   CaretLeft,
@@ -14,6 +14,7 @@ import { ExploreFilterPanelDesktop } from "@/components/explore/ExploreFilterPan
 import { ExploreFilterPanelMobile } from "@/components/explore/ExploreFilterPanelMobile";
 import { defaultExploreFilters } from "@/lib/mockData";
 import { fetchProviders } from "@/lib/data/providersClient";
+import { getExploreRateBounds } from "@/lib/pricing";
 import { buildQueryFromFilters, parseFiltersFromQuery } from "@/lib/query";
 import { ExploreFilters, ProviderCard, ServiceType } from "@/lib/types";
 import { Suspense } from "react";
@@ -149,11 +150,24 @@ function ExploreResultsContent() {
     };
   }, []);
 
-  const updateFilters = (next: Partial<ExploreFilters>) => {
-    const merged = { ...filters, ...next };
-    const query = buildQueryFromFilters(merged);
-    router.replace(`${pathname}?${query}`);
-  };
+  const updateFilters = useCallback(
+    (next: Partial<ExploreFilters>) => {
+      const merged = { ...filters, ...next };
+      const query = buildQueryFromFilters(merged);
+      router.replace(`${pathname}?${query}`);
+    },
+    [filters, pathname, router],
+  );
+
+  useEffect(() => {
+    const bounds = getExploreRateBounds(filters.service);
+    const clampedMin = Math.max(bounds.min, Math.min(filters.minRate, bounds.max));
+    const clampedMax = Math.max(clampedMin, Math.min(filters.maxRate, bounds.max));
+
+    if (clampedMin !== filters.minRate || clampedMax !== filters.maxRate) {
+      updateFilters({ minRate: clampedMin, maxRate: clampedMax });
+    }
+  }, [filters.service, filters.minRate, filters.maxRate, updateFilters]);
 
   const filteredProviders = useMemo(() => {
     return providers.filter((provider) => {
@@ -233,6 +247,10 @@ function ExploreResultsContent() {
             onMinRateChange={(minRate) => updateFilters({ minRate })}
             onMaxRateChange={(maxRate) => updateFilters({ maxRate })}
             onTimeToggle={onTimeToggle}
+            onDateRangeChange={(dateRange) => updateFilters({ dateRange })}
+            onStartDateChange={(startDate) =>
+              updateFilters({ dateRange: { ...filters.dateRange, start: startDate } })
+            }
           />
         </div>
 
@@ -287,6 +305,10 @@ function ExploreResultsContent() {
         onMinRateChange={(minRate) => updateFilters({ minRate })}
         onMaxRateChange={(maxRate) => updateFilters({ maxRate })}
         onTimeToggle={onTimeToggle}
+        onDateRangeChange={(dateRange) => updateFilters({ dateRange })}
+        onStartDateChange={(startDate) =>
+          updateFilters({ dateRange: { ...filters.dateRange, start: startDate } })
+        }
       />
     </main>
   );

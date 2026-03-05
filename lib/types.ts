@@ -57,6 +57,8 @@ export interface ExploreFilters {
   service: ServiceType | null;
   address: string;
   dateRange: { start: string | null; end: string | null };
+  /** Start date for Repeat Weekly mode (ISO string YYYY-MM-DD) */
+  startDate: string | null;
   times: Array<"6-11" | "11-15" | "15-22">;
   minRate: number;
   maxRate: number;

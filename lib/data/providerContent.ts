@@ -1,4 +1,5 @@
 import { providers as localProviders } from "@/lib/mockData";
+import { normalizeKcPrice } from "@/lib/pricing";
 import {
   ProviderCard,
   ProviderProfileContent,
@@ -188,7 +189,7 @@ const providerFallbackDetails: Record<
         serviceType: "walk_checkin",
         title: "Walks & Check-ins",
         shortDescription: "Neighborhood walks, potty breaks, and photo updates.",
-        priceFrom: 350,
+        priceFrom: 390,
         priceUnit: "per_visit",
         rates: walkRates(350),
         acceptedWeightBands: [WEIGHT_TINY, WEIGHT_SMALL, WEIGHT_MEDIUM],
@@ -199,7 +200,7 @@ const providerFallbackDetails: Record<
         serviceType: "inhome_sitting",
         title: "In-home Sitting",
         shortDescription: "Overnight care at your home with full routine support.",
-        priceFrom: 650,
+        priceFrom: 980,
         priceUnit: "per_night",
         rates: hostRates(650, true),
         acceptedWeightBands: [WEIGHT_CAT, WEIGHT_TINY, WEIGHT_SMALL],
@@ -275,7 +276,7 @@ const providerFallbackDetails: Record<
         title: "Walks & Check-ins",
         shortDescription:
           "Purposeful, structured walks for dogs that need calm, confident handling.",
-        priceFrom: 420,
+        priceFrom: 470,
         priceUnit: "per_visit",
         rates: walkRates(420),
         acceptedWeightBands: [WEIGHT_MEDIUM, WEIGHT_LARGE],
@@ -286,7 +287,7 @@ const providerFallbackDetails: Record<
         serviceType: "boarding",
         title: "Boarding",
         shortDescription: "Your dog stays with me and Rex in a spacious Vinohrady apartment.",
-        priceFrom: 500,
+        priceFrom: 1100,
         priceUnit: "per_night",
         subtitle: "at Nikola's home",
         rates: hostRates(500, false),
@@ -370,7 +371,7 @@ const providerFallbackDetails: Record<
         serviceType: "walk_checkin",
         title: "Walks & Check-ins",
         shortDescription: "Gentle, patient walks suited to shy, elderly, or recovering dogs.",
-        priceFrom: 290,
+        priceFrom: 330,
         priceUnit: "per_visit",
         rates: walkRates(290),
         acceptedWeightBands: [WEIGHT_TINY, WEIGHT_SMALL],
@@ -382,7 +383,7 @@ const providerFallbackDetails: Record<
         title: "In-home Sitting",
         shortDescription:
           "Overnight care at your home. Medication, special diets, and post-surgical care welcome.",
-        priceFrom: 580,
+        priceFrom: 850,
         priceUnit: "per_night",
         rates: hostRates(580, true),
         acceptedWeightBands: [WEIGHT_TINY, WEIGHT_SMALL, WEIGHT_CAT],
@@ -393,7 +394,7 @@ const providerFallbackDetails: Record<
         serviceType: "boarding",
         title: "Boarding",
         shortDescription: "Your dog stays in my quiet Dejvice house with a private garden.",
-        priceFrom: 450,
+        priceFrom: 760,
         priceUnit: "per_night",
         subtitle: "at Jana's home",
         rates: hostRates(450, true),
@@ -559,7 +560,7 @@ export async function getProviderProfileContent(
         serviceType: row.service_type,
         title: row.title,
         shortDescription: row.short_description,
-        priceFrom: row.price_from,
+        priceFrom: normalizeKcPrice(row.price_from),
         priceUnit: row.price_unit,
         // Enrich with locally-defined rate tiers and weight bands
         subtitle: match?.subtitle,
