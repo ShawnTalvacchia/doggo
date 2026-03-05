@@ -67,6 +67,12 @@ const resultsHeaderCopy: Record<ServiceType, { heading: string; subtitle: string
   },
 };
 
+const expectedPriceUnitByService: Record<ServiceType, ProviderCard["priceUnit"]> = {
+  walk_checkin: "per_walk",
+  inhome_sitting: "per_night",
+  boarding: "per_night",
+};
+
 function EmptyState({ onClear }: { onClear: () => void }) {
   return (
     <div className="results-empty-state">
@@ -172,8 +178,14 @@ function ExploreResultsContent() {
   const filteredProviders = useMemo(() => {
     return providers.filter((provider) => {
       const serviceMatches = filters.service ? provider.services.includes(filters.service) : true;
-      const priceMatches =
-        provider.priceFrom >= filters.minRate && provider.priceFrom <= filters.maxRate;
+      const expectedUnit = filters.service ? expectedPriceUnitByService[filters.service] : null;
+      const hasComparablePrice = !expectedUnit || provider.priceUnit === expectedUnit;
+      // Keep legacy rows visible when service/price-unit data is inconsistent (e.g. boarding
+      // provider with an old per_walk summary price). This prevents empty states caused by
+      // stale seed/prototype data while preserving rate filtering for comparable prices.
+      const priceMatches = hasComparablePrice
+        ? provider.priceFrom >= filters.minRate && provider.priceFrom <= filters.maxRate
+        : true;
       const timesMatches =
         filters.times.length === 0 ||
         !provider.availableTimes ||

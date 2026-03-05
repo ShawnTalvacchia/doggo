@@ -452,7 +452,11 @@ function ExploreProfileContent() {
                 {backLabel}
               </Link>
             </div>
-            <ProviderHeaderState provider={provider} state="condensed" onContact={() => setContactOpen(true)} />
+            <ProviderHeaderState
+              provider={provider}
+              state="condensed"
+              onContact={() => setContactOpen(true)}
+            />
             <div className="profile-gallery-bar">
               <h2 className="profile-gallery-bar-title">
                 Photos{" "}
@@ -548,7 +552,11 @@ function ExploreProfileContent() {
               </Link>
             </div>
             <div className="profile-desktop-profile">
-              <ProviderHeaderState provider={provider} state="expanded" onContact={() => setContactOpen(true)} />
+              <ProviderHeaderState
+                provider={provider}
+                state="expanded"
+                onContact={() => setContactOpen(true)}
+              />
             </div>
           </aside>
 
@@ -600,7 +608,11 @@ function ExploreProfileContent() {
                 {backLabel}
               </Link>
             </div>
-            <ProviderHeaderState provider={provider} state="condensed" onContact={() => setContactOpen(true)} />
+            <ProviderHeaderState
+              provider={provider}
+              state="condensed"
+              onContact={() => setContactOpen(true)}
+            />
             <div className="profile-tabs" role="tablist" aria-label="Profile sections">
               <button
                 type="button"

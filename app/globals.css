@@ -2810,10 +2810,19 @@ a {
 }
 
 /* Filter accordions */
+.left-accordion-stack {
+  display: grid;
+  gap: 0;
+}
+
 .left-accordion {
   border-top: 1px solid var(--border-strong);
-  border-bottom: 1px solid var(--border-strong);
+  border-bottom: 0;
   padding: 8px 0;
+}
+
+.left-accordion:last-child {
+  border-bottom: 1px solid var(--border-strong);
 }
 
 .left-accordion-btn {
@@ -2835,6 +2844,8 @@ a {
 
 .left-accordion-btn .accordion-caret {
   flex-shrink: 0;
+  width: 24px;
+  height: 24px;
   transition: transform 0.2s;
 }
 
@@ -2859,20 +2870,26 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--text-secondary);
   font-size: var(--font-size-body-reg);
   line-height: 20px;
   min-height: 48px;
+  text-align: left;
   cursor: pointer;
+}
+
+.left-accordion-option.active {
+  color: var(--text-primary);
 }
 
 .left-accordion-option-label {
   flex: 1;
 }
 
-.left-accordion-option input[type="checkbox"] {
-  appearance: none;
-  -webkit-appearance: none;
+.left-accordion-option-check {
   width: 24px;
   height: 24px;
   border-radius: var(--radius-xxs);
@@ -2880,21 +2897,12 @@ a {
   background: transparent;
   display: grid;
   place-items: center;
-  margin: 0;
   flex-shrink: 0;
 }
 
-.left-accordion-option input[type="checkbox"]:checked {
+.left-accordion-option.active .left-accordion-option-check {
   background: var(--surface-base-inverse);
   border-color: var(--surface-base-inverse);
-}
-
-.left-accordion-option input[type="checkbox"]:checked::after {
-  content: "✓";
-  color: var(--text-white);
-  font-size: 16px;
-  font-weight: var(--weight-semibold);
-  line-height: 1;
 }
 
 /* ─── ModalSheet — reusable modal (desktop) / bottom-sheet (mobile) ──────── */

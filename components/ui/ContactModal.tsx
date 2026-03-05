@@ -16,10 +16,7 @@ const SERVICE_LABELS: Record<ServiceType, string> = {
  * Build a natural opening message from whatever context we have.
  * The owner edits it before sending — this just saves them the blank-page problem.
  */
-function buildInitialMessage(
-  firstName: string,
-  service: ServiceType | null,
-): string {
+function buildInitialMessage(firstName: string, service: ServiceType | null): string {
   const serviceStr = service ? SERVICE_LABELS[service] : null;
 
   if (serviceStr) {
@@ -36,12 +33,7 @@ export type ContactModalProps = {
   service?: ServiceType | null;
 };
 
-export function ContactModal({
-  open,
-  onClose,
-  providerName,
-  service,
-}: ContactModalProps) {
+export function ContactModal({ open, onClose, providerName, service }: ContactModalProps) {
   const firstName = providerName.split(" ")[0];
   const [step, setStep] = useState<"compose" | "sent">("compose");
   const [message, setMessage] = useState(() => buildInitialMessage(firstName, service ?? null));
@@ -67,11 +59,7 @@ export function ContactModal({
         onClose={handleClose}
         title="Message sent"
         footer={
-          <ButtonAction
-            variant="primary"
-            onClick={handleClose}
-            className="contact-modal-done-btn"
-          >
+          <ButtonAction variant="primary" onClick={handleClose} className="contact-modal-done-btn">
             Done
           </ButtonAction>
         }

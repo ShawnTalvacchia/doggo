@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type CSSProperties } from "react";
-import { CaretDown } from "@phosphor-icons/react";
+import { CaretDown, Check } from "@phosphor-icons/react";
 import { ExploreFilters, ServiceType } from "@/lib/types";
 import { FILTER_RATE_MAX_KC, FILTER_RATE_MIN_KC, getExploreRateBounds } from "@/lib/pricing";
 import { DatePicker, DateTrigger, type DateRange } from "@/components/ui/DatePicker";
@@ -48,7 +48,7 @@ function Accordion({ title, children }: { title: string; children: React.ReactNo
         onClick={() => setOpen((v) => !v)}
       >
         {title}
-        <CaretDown size={16} weight="bold" className="accordion-caret" />
+        <CaretDown size={14} weight="regular" className="accordion-caret" />
       </button>
       <div className={`left-accordion-body${open ? " open" : ""}`}>{children}</div>
     </div>
@@ -62,11 +62,19 @@ function AccordionOption({
   label: string;
   defaultChecked?: boolean;
 }) {
+  const [checked, setChecked] = useState(defaultChecked);
   return (
-    <label className="left-accordion-option">
+    <button
+      type="button"
+      className={`left-accordion-option${checked ? " active" : ""}`}
+      onClick={() => setChecked((v) => !v)}
+      aria-pressed={checked}
+    >
       <span className="left-accordion-option-label">{label}</span>
-      <input type="checkbox" defaultChecked={defaultChecked} />
-    </label>
+      <span className="left-accordion-option-check" aria-hidden>
+        {checked ? <Check size={12} weight="bold" color="white" /> : null}
+      </span>
+    </button>
   );
 }
 
@@ -359,37 +367,39 @@ export function FilterBody({
         </div>
       </div>
 
-      {/* ── Services accordion (all services) ───────────────────────────── */}
-      <Accordion title="Services">
-        {(isWalk
-          ? WALK_SERVICES
-          : service === "inhome_sitting"
-            ? SITTING_SERVICES
-            : BOARDING_SERVICES
-        ).map((s) => (
-          <AccordionOption
-            key={s}
-            label={s}
-            defaultChecked={service === "inhome_sitting" && s === "Walking"}
-          />
-        ))}
-      </Accordion>
+      <div className="left-accordion-stack">
+        {/* ── Services accordion (all services) ───────────────────────────── */}
+        <Accordion title="Services">
+          {(isWalk
+            ? WALK_SERVICES
+            : service === "inhome_sitting"
+              ? SITTING_SERVICES
+              : BOARDING_SERVICES
+          ).map((s) => (
+            <AccordionOption
+              key={s}
+              label={s}
+              defaultChecked={service === "inhome_sitting" && s === "Walking"}
+            />
+          ))}
+        </Accordion>
 
-      {/* ── Boarding-only accordions ─────────────────────────────────────── */}
-      {service === "boarding" && (
-        <>
-          <Accordion title="Home features">
-            {BOARDING_HOME_FEATURES.map((f) => (
-              <AccordionOption key={f} label={f} />
-            ))}
-          </Accordion>
-          <Accordion title="Type of home">
-            {BOARDING_HOME_TYPES.map((t) => (
-              <AccordionOption key={t} label={t} />
-            ))}
-          </Accordion>
-        </>
-      )}
+        {/* ── Boarding-only accordions ─────────────────────────────────────── */}
+        {service === "boarding" && (
+          <>
+            <Accordion title="Home features">
+              {BOARDING_HOME_FEATURES.map((f) => (
+                <AccordionOption key={f} label={f} />
+              ))}
+            </Accordion>
+            <Accordion title="Type of home">
+              {BOARDING_HOME_TYPES.map((t) => (
+                <AccordionOption key={t} label={t} />
+              ))}
+            </Accordion>
+          </>
+        )}
+      </div>
     </>
   );
 }
