@@ -4814,6 +4814,9 @@ a {
   }
 
   .profile-menu-page {
+    height: calc(100dvh - var(--nav-height));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 12px 0 88px;
   }
 
