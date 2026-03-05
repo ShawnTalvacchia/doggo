@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__Claude_Preview__preview_start",
+      "Bash(lsof -i :3000)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/styleguide)",
+      "Bash(curl -s http://localhost:3000/styleguide)",
+      "WebFetch(domain:www.figma.com)",
+      "mcp__Figma__get_design_context",
+      "Bash(python3 -c \":*)",
+      "mcp__Figma__get_screenshot"
+    ]
+  }
+}
