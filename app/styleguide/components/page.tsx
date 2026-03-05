@@ -4,6 +4,10 @@ import { useState } from "react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { InputField } from "@/components/ui/InputField";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
+import { CheckOptionRow } from "@/components/ui/CheckOptionRow";
+import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
+import { DualRangeSlider } from "@/components/ui/DualRangeSlider";
+import { RangeSlider } from "@/components/ui/RangeSlider";
 import {
   Bell,
   CalendarDots,
@@ -49,15 +53,13 @@ export default function ComponentsPage() {
   const [inputVal, setInputVal] = useState("");
   const [checked, setChecked] = useState(false);
   const [toggleOn, setToggleOn] = useState(false);
-  const [sliderVal, setSliderVal] = useState(10);
-  const [segSize, setSegSize] = useState<string[]>([]);
-  const [segAge, setSegAge] = useState<string>("Adult");
+  const [radiusKm, setRadiusKm] = useState(10);
+  const [priceMin, setPriceMin] = useState(250);
+  const [priceMax, setPriceMax] = useState(900);
+  const [accordionServices, setAccordionServices] = useState<string[]>(["Walking"]);
+  const [segAge, setSegAge] = useState<string[]>(["Adult"]);
+  const [segDays, setSegDays] = useState<string[]>(["Mo", "We"]);
 
-  function toggleSeg(arr: string[], val: string) {
-    return arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val];
-  }
-
-  const DOG_SIZES = ["0–5", "5–10", "10–25", "25–45", "45+"];
   const DOG_AGES = [
     { label: "Puppy", sub: "0–1 yr" },
     { label: "Adult", sub: "1–7 yrs" },
@@ -217,6 +219,11 @@ export default function ComponentsPage() {
 
       <section className="sg-section">
         <h2 className="sg-section-title">Form Elements</h2>
+        <p style={{ margin: "0 0 12px", fontSize: 13, color: "var(--text-tertiary)" }}>
+          Shared controls should map 1:1 to product usage. Segment controls are multi-select only,
+          checkbox rows expose two visual variants for different information density, and sliders
+          share one visual language.
+        </p>
         <div style={{ display: "grid", gap: 16 }}>
           <DemoCard title="InputField">
             <div style={{ width: "100%", maxWidth: 400 }}>
@@ -232,14 +239,48 @@ export default function ComponentsPage() {
             </div>
           </DemoCard>
 
-          <DemoCard title="CheckboxRow">
-            <div style={{ display: "grid", gap: 8, width: "100%" }}>
+          <DemoCard title="Checkbox Controls" subtitle="CheckboxRow (care-preferences flow)">
+            <div
+              style={{
+                width: "100%",
+                maxWidth: 560,
+                display: "flex",
+                flexDirection: "column",
+                gap: 0,
+              }}
+            >
               <CheckboxRow id="demo-check-1" checked={checked} onChange={setChecked}>
-                I agree to the terms and conditions
+                Aggressive toward dogs
               </CheckboxRow>
               <CheckboxRow id="demo-check-2" checked={true} onChange={() => {}}>
-                Email me about booking updates
+                Reactive (barks/lunges on leash)
               </CheckboxRow>
+            </div>
+          </DemoCard>
+
+          <DemoCard title="CheckOptionRow" subtitle="Explore filter accordion row">
+            <div className="left-accordion-stack" style={{ width: "100%", maxWidth: 560 }}>
+              <div className="left-accordion">
+                <button type="button" className="left-accordion-btn">
+                  Services
+                </button>
+                <div className="left-accordion-body open">
+                  {["Drop-in visit", "Group walk", "Solo walk", "Walking"].map((option) => (
+                    <CheckOptionRow
+                      key={option}
+                      label={option}
+                      checked={accordionServices.includes(option)}
+                      onChange={() =>
+                        setAccordionServices((prev) =>
+                          prev.includes(option)
+                            ? prev.filter((value) => value !== option)
+                            : [...prev, option],
+                        )
+                      }
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           </DemoCard>
 
@@ -265,97 +306,98 @@ export default function ComponentsPage() {
             </div>
           </DemoCard>
 
-          <DemoCard
-            title="Segment Bar (single-select)"
-            subtitle="segment-bar · segment-btn · .active modifier + .seg-sub"
-          >
+          <DemoCard title="Segment Controls" subtitle="base labels + sublabel variant">
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div>
+              <div style={{ display: "grid", gap: 8 }}>
+                <label className="label">
+                  <span className="label-primary-group">
+                    <span>Walk days</span>
+                  </span>
+                </label>
+                <MultiSelectSegmentBar
+                  ariaLabel="Walk days"
+                  options={["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => ({
+                    value: day,
+                    label: day,
+                  }))}
+                  selectedValues={segDays}
+                  onToggle={(value) =>
+                    setSegDays((prev) =>
+                      prev.includes(value) ? prev.filter((existing) => existing !== value) : [...prev, value],
+                    )
+                  }
+                />
+              </div>
+              <div style={{ display: "grid", gap: 8 }}>
                 <label className="label">
                   <span className="label-primary-group">
                     <span>Dog age</span>
                   </span>
                 </label>
-                <div className="segment-bar">
-                  {DOG_AGES.map(({ label, sub }) => (
-                    <button
-                      key={label}
-                      type="button"
-                      className={`segment-btn${segAge === label ? " active" : ""}`}
-                      onClick={() => setSegAge(label)}
-                    >
-                      {label}
-                      <span className="seg-sub">{sub}</span>
-                    </button>
-                  ))}
-                </div>
+                <MultiSelectSegmentBar
+                  ariaLabel="Dog age"
+                  options={DOG_AGES.map(({ label, sub }) => ({
+                    value: label,
+                    label,
+                    subLabel: sub,
+                  }))}
+                  selectedValues={segAge}
+                  onToggle={(value) =>
+                    setSegAge((prev) =>
+                      prev.includes(value)
+                        ? prev.filter((existing) => existing !== value)
+                        : [...prev, value],
+                    )
+                  }
+                />
               </div>
               <div style={{ fontSize: 12, color: "var(--text-tertiary)" }}>
-                Selected: <code>{segAge}</code>
+                Days: <code>{segDays.length ? segDays.join(", ") : "none"}</code> · Age:{" "}
+                <code>{segAge.length ? segAge.join(", ") : "none"}</code>
               </div>
             </div>
           </DemoCard>
 
-          <DemoCard title="Segment Bar (multi-select)" subtitle="multiple .active items allowed">
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div>
-                <label className="label">
-                  <span className="label-primary-group">
-                    <span>Dog size (kg)</span>
-                  </span>
-                </label>
-                <div className="segment-bar">
-                  {DOG_SIZES.map((size) => (
-                    <button
-                      key={size}
-                      type="button"
-                      className={`segment-btn${segSize.includes(size) ? " active" : ""}`}
-                      onClick={() => setSegSize((prev) => toggleSeg(prev, size))}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div style={{ fontSize: 12, color: "var(--text-tertiary)" }}>
-                Selected: <code>{segSize.length ? segSize.join(", ") : "none"}</code>
-              </div>
-            </div>
-          </DemoCard>
-
-          <DemoCard title="Slider" subtitle="slider-block · slider-row · slider-value-box">
+          <DemoCard title="Sliders" subtitle="Walking + Explore rate controls">
             <div
               style={{
                 width: "100%",
-                maxWidth: 400,
+                maxWidth: 520,
                 display: "flex",
                 flexDirection: "column",
-                gap: 16,
+                gap: 20,
               }}
             >
-              <div className="input-block">
-                <label className="label" htmlFor="demo-slider">
+              <div style={{ display: "grid", gap: 8 }}>
+                <label className="label">
                   <span className="label-primary-group">
-                    <span>Walking radius (km)</span>
+                    <span>Where can you offer walks? (km)</span>
                   </span>
                 </label>
-                <div className="slider-block">
-                  <div className="slider-row">
-                    <input
-                      id="demo-slider"
-                      type="range"
-                      min={1}
-                      max={40}
-                      step={1}
-                      value={sliderVal}
-                      onChange={(e) => setSliderVal(Number(e.target.value))}
-                    />
-                    <div className="slider-value-box">{sliderVal}</div>
-                  </div>
+                <div className="slider-row">
+                  <RangeSlider min={1} max={40} step={1} value={radiusKm} onChange={setRadiusKm} />
+                  <div className="slider-value-box">{radiusKm}</div>
                 </div>
               </div>
-              <div style={{ fontSize: 12, color: "var(--text-tertiary)" }}>
-                Value: <code>{sliderVal} km</code>
+              <div style={{ display: "grid", gap: 8 }}>
+                <label className="label">
+                  <span className="label-primary-group">
+                    <span>Rate per visit</span>
+                  </span>
+                </label>
+                <div className="left-range-labels">
+                  <span>{priceMin} Kč</span>
+                  <span>{priceMax} Kč</span>
+                </div>
+                <DualRangeSlider
+                  min={150}
+                  max={1200}
+                  step={50}
+                  minValue={priceMin}
+                  maxValue={priceMax}
+                  onMinChange={setPriceMin}
+                  onMaxChange={setPriceMax}
+                />
               </div>
             </div>
           </DemoCard>
@@ -376,10 +418,9 @@ export default function ComponentsPage() {
       </section>
 
       <section className="sg-section">
-        <h2 className="sg-section-title">Inventory — Not Yet Previewed</h2>
+        <h2 className="sg-section-title">Shared Component Inventory</h2>
         <p style={{ margin: "0 0 12px", fontSize: 13, color: "var(--text-tertiary)" }}>
-          These components exist and are in active use — full interactive demos not yet added to the
-          styleguide.
+          Keep this list aligned with reusable building blocks in active product flows.
         </p>
         <div
           style={{
@@ -391,6 +432,11 @@ export default function ComponentsPage() {
           {[
             "FormHeader",
             "FormFooter",
+            "MultiSelectSegmentBar",
+            "DualRangeSlider",
+            "RangeSlider",
+            "CheckboxRow",
+            "CheckOptionRow",
             "CardExploreResult",
             "ExploreFilterPanelDesktop",
             "ExploreFilterPanelMobile",

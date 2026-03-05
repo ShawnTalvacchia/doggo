@@ -2229,7 +2229,69 @@ a {
   color: var(--brand-strong);
 }
 
-/* ---- Segment bar (multi-select joined button row) ---- */
+/* ---- Multi-select segment bar (shared) ---- */
+.multi-segment {
+  display: flex;
+  width: 100%;
+  isolation: isolate;
+  border: 1px solid var(--border-stronger);
+  border-radius: var(--radius-sm);
+  background: var(--surface-top);
+  overflow: hidden;
+}
+
+.multi-segment-btn {
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  padding: 8px 10px;
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--border-stronger);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.2;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition:
+    background 0.12s,
+    color 0.12s,
+    border-color 0.12s;
+  white-space: nowrap;
+  position: relative;
+}
+.multi-segment-btn:last-child {
+  border-right: 0;
+}
+
+.multi-segment-btn.active {
+  background: var(--surface-top);
+  color: var(--text-primary);
+  z-index: 2;
+}
+
+.multi-segment-btn.active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--text-primary);
+  pointer-events: none;
+}
+
+.multi-segment-btn .seg-sub {
+  font-size: var(--font-size-fine);
+  font-weight: var(--weight-semibold);
+  line-height: 1.3;
+  color: inherit;
+  opacity: 0.75;
+}
+
+/* Legacy aliases kept while pages migrate */
 .segment-bar {
   display: flex;
   width: 100%;
@@ -2238,53 +2300,6 @@ a {
 
 .segment-btn {
   flex: 1;
-  min-width: 0;
-  height: 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0px;
-  padding: 6px 8px;
-  background: var(--surface-top);
-  border: 1px solid var(--neutral-150);
-  font-family: var(--font-body);
-  font-size: 16px;
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition:
-    background 0.12s,
-    color 0.12s,
-    border-color 0.12s;
-  white-space: nowrap;
-}
-
-.segment-btn + .segment-btn {
-  border-left: 0;
-}
-
-.segment-btn:first-child {
-  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
-}
-
-.segment-btn:last-child {
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-}
-
-.segment-btn.active {
-  background: var(--brand-subtle);
-  color: var(--brand-strong);
-  border-color: var(--brand-main);
-  position: relative;
-  z-index: 2;
-}
-
-.segment-btn .seg-sub {
-  font-size: var(--font-size-fine);
-  font-weight: var(--weight-semibold);
-  line-height: 1.3;
-  color: inherit;
-  opacity: 0.75;
 }
 
 /* ---- Slider input (walking radius) ---- */
@@ -2687,9 +2702,62 @@ a {
   gap: 8px;
 }
 
-.left-range-row input[type="range"] {
+.left-range-row-single {
+  display: block;
+}
+
+.left-range-row-single .left-range-input {
   width: 100%;
-  accent-color: var(--brand-main);
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+.left-range-row-single .left-range-input::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--brand-main) 0%,
+    var(--brand-main) var(--range-pct, 0%),
+    var(--border-strong) var(--range-pct, 0%),
+    var(--border-strong) 100%
+  );
+}
+
+.left-range-row-single .left-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--brand-main);
+  background: var(--surface-top);
+  cursor: pointer;
+}
+
+.left-range-row-single .left-range-input::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--brand-main) 0%,
+    var(--brand-main) var(--range-pct, 0%),
+    var(--border-strong) var(--range-pct, 0%),
+    var(--border-strong) 100%
+  );
+  border: none;
+}
+
+.left-range-row-single .left-range-input::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--brand-main);
+  background: var(--surface-top);
+  cursor: pointer;
 }
 
 .left-range-row-dual {
@@ -5372,6 +5440,11 @@ a {
 
   body.styleguide .app-nav-shell {
     display: block;
+  }
+
+  /* Styleguide: keep bottom content reachable above fixed mobile bottom nav */
+  body.styleguide .sg-scroll {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
   }
 
   /* Guest routes (/ and /signup/*): keep top nav visible and never show bottom nav */
