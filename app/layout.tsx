@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Open_Sans, Poppins } from "next/font/google";
 import "./globals.css";
 import { SignupProvider } from "@/contexts/SignupContext";
+import { GuestLayout } from "@/components/GuestLayout";
 import { AppNav } from "@/components/AppNav";
 import { BottomNav } from "@/components/BottomNav";
 
@@ -30,9 +31,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         style={{ fontFamily: "var(--font-body), sans-serif" }}
       >
         <SignupProvider>
-          <AppNav />
-          {children}
-          <BottomNav />
+          <GuestLayout>
+            <AppNav />
+            {children}
+            <BottomNav />
+          </GuestLayout>
         </SignupProvider>
       </body>
     </html>

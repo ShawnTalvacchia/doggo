@@ -1,13 +1,20 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+import { SignupProgressBar } from "@/components/signup/SignupProgressBar";
+
 type FormHeaderProps = {
   title: string;
   subtitle: string;
+  // step/totalSteps are no longer used here — progress is handled by SignupProgressBar
   step?: number;
   totalSteps?: number;
 };
 
-export function FormHeader({ title, subtitle, step, totalSteps }: FormHeaderProps) {
-  const showProgress = step !== undefined && totalSteps !== undefined && totalSteps > 0;
-  const progressPct = showProgress ? Math.round((step / totalSteps) * 100) : 0;
+export function FormHeader({ title, subtitle }: FormHeaderProps) {
+  const pathname = usePathname();
+  const isSignupRoute = pathname.startsWith("/signup");
+  const slug = isSignupRoute ? pathname.split("/").pop() || "start" : "";
 
   return (
     <header className="form-header">
@@ -15,16 +22,7 @@ export function FormHeader({ title, subtitle, step, totalSteps }: FormHeaderProp
         {title}
       </h1>
       <p className="subheading">{subtitle}</p>
-      {showProgress && (
-        <>
-          <div className="form-progress">
-            <div className="form-progress-bar" style={{ width: `${progressPct}%` }} />
-          </div>
-          <p className="form-step-label">
-            Step {step} of {totalSteps}
-          </p>
-        </>
-      )}
+      {isSignupRoute && <SignupProgressBar slug={slug} showMeta={false} />}
     </header>
   );
 }

@@ -26,6 +26,9 @@ export const PAGE_MENU_GROUPS: PageMenuGroup[] = [
   },
   {
     title: "System",
-    items: [{ label: "Styleguide", value: "/styleguide" }],
+    items: [
+      { label: "Landing", value: "/" },
+      { label: "Styleguide", value: "/styleguide" },
+    ],
   },
 ];

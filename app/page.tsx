@@ -43,7 +43,7 @@ function ServiceCard({
           href={`/explore/results?service=${service}`}
           className="landing-service-link"
         >
-          Browse →
+          View sitters →
         </Link>
       </div>
     </div>
@@ -160,24 +160,18 @@ export default function LandingPage() {
       <section className="landing-hero">
         <div className="landing-hero-inner">
           <div className="landing-hero-content">
-            <span className="landing-hero-eyebrow">Prague · Dog Care</span>
             <h1 className="landing-hero-heading">
-              Trusted dog care,
-              <br />
-              from your
-              <br />
-              <span className="landing-hero-accent">neighbours.</span>
+              Trusted dog care from people nearby.
             </h1>
             <p className="landing-hero-sub">
-              Browse walkers, sitters, and boarders who live nearby. Message
-              first — book when you're ready.
+              Find trusted dog sitters near you. Message first. Book when you're ready.
             </p>
             <div className="landing-hero-ctas">
               <Link href="/explore/results" className="landing-btn-primary">
-                Find care nearby
+                Find a sitter
               </Link>
               <Link href="/signup/start" className="landing-btn-outline">
-                Earn on the side
+                Become a sitter
               </Link>
             </div>
           </div>
@@ -185,26 +179,39 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Trust strip ──────────────────────────────────────────────── */}
+      {/* ── Trust badges (row on desktop, column on mobile) ───────────── */}
+      <section className="landing-trust-badges" aria-label="Trust signals">
+        <div className="landing-inner">
+          <div className="landing-trust-badges-row">
+            <span className="landing-trust-badge">ID verified sitters</span>
+            <span className="landing-trust-badge">Real reviews from dog owners</span>
+            <span className="landing-trust-badge">Local meet &amp; greets encouraged</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Stats bar ────────────────────────────────────────────────── */}
       <div className="landing-trust-strip">
-        <div className="landing-trust-item">
-          <span className="landing-trust-value">{providers.length}</span>
-          <span className="landing-trust-label">Helpers in Prague</span>
-        </div>
-        <div className="landing-trust-sep" aria-hidden="true" />
-        <div className="landing-trust-item">
-          <span className="landing-trust-value">Free</span>
-          <span className="landing-trust-label">to message &amp; browse</span>
-        </div>
-        <div className="landing-trust-sep" aria-hidden="true" />
-        <div className="landing-trust-item">
-          <span className="landing-trust-value">No</span>
-          <span className="landing-trust-label">booking fees</span>
-        </div>
-        <div className="landing-trust-sep" aria-hidden="true" />
-        <div className="landing-trust-item">
-          <span className="landing-trust-value">Local</span>
-          <span className="landing-trust-label">&amp; neighbour-vetted</span>
+        <div className="landing-inner landing-trust-strip-inner">
+          <div className="landing-trust-item">
+            <span className="landing-trust-value">7</span>
+            <span className="landing-trust-label">sitters in Prague</span>
+          </div>
+          <div className="landing-trust-sep" aria-hidden="true" />
+          <div className="landing-trust-item">
+            <span className="landing-trust-value">Free</span>
+            <span className="landing-trust-label">to browse</span>
+          </div>
+          <div className="landing-trust-sep" aria-hidden="true" />
+          <div className="landing-trust-item">
+            <span className="landing-trust-value">No</span>
+            <span className="landing-trust-label">booking fees</span>
+          </div>
+          <div className="landing-trust-sep" aria-hidden="true" />
+          <div className="landing-trust-item">
+            <span className="landing-trust-value">Local</span>
+            <span className="landing-trust-label">dog lovers</span>
+          </div>
         </div>
       </div>
 
@@ -214,7 +221,7 @@ export default function LandingPage() {
           <div className="landing-section-header">
             <h2 className="landing-section-heading">How we can help</h2>
             <p className="landing-section-sub">
-              Three services, all arranged directly with your carer.
+              Three ways to get help with your dog.
             </p>
           </div>
           <div className="landing-services-grid">
@@ -254,48 +261,48 @@ export default function LandingPage() {
           </div>
           <div className="landing-how-grid">
             <div className="landing-how-col">
-              <h3 className="landing-how-col-heading">For dog owners</h3>
+              <h3 className="landing-how-col-heading">For Dog Owners</h3>
               <div className="landing-steps">
                 <Step
                   n="01"
-                  title="Browse carers"
+                  title="Browse sitters"
                   body="Search by service, neighbourhood, and price. Every profile shows real rates, experience, and reviews."
                 />
                 <Step
                   n="02"
-                  title="Message directly"
-                  body="No middleman. Send a message, ask your questions, and get a feel for the person before committing."
+                  title="Message first"
+                  body="Send a message, ask questions, and get to know them before booking."
                 />
                 <Step
                   n="03"
-                  title="Arrange on your terms"
-                  body="Agree dates, details, and payment directly with your carer. Simple."
+                  title="Arrange directly"
+                  body="Agree on dates, details, and payment directly with your sitter."
                 />
               </div>
               <Link href="/explore/results" className="landing-how-cta">
-                Find care →
+                Find a sitter →
               </Link>
             </div>
 
             <div className="landing-how-divider" aria-hidden="true" />
 
             <div className="landing-how-col">
-              <h3 className="landing-how-col-heading">For dog lovers</h3>
+              <h3 className="landing-how-col-heading">For Dog Sitters</h3>
               <div className="landing-steps">
                 <Step
                   n="01"
                   title="Create your profile"
-                  body="Tell owners about your home, your experience, and the dogs you love to care for. Takes about 5 minutes."
+                  body="Tell owners about your home, your experience, and the dogs you love to care for."
                 />
                 <Step
                   n="02"
-                  title="Set your own prices"
-                  body="You decide what you charge. No platform fee eats into your earnings."
+                  title="Set your prices"
+                  body="You decide what to charge. No platform fees take a cut."
                 />
                 <Step
                   n="03"
-                  title="Choose who you take on"
-                  body="Owners message you first. You review their dog's profile and only accept the ones that are a great fit."
+                  title="Choose who you help"
+                  body="Owners message you first. Accept the dogs that are the right fit."
                 />
               </div>
               <Link href="/signup/start" className="landing-how-cta">
@@ -311,13 +318,13 @@ export default function LandingPage() {
         <div className="landing-inner">
           <div className="landing-section-header landing-section-header--row">
             <div>
-              <h2 className="landing-section-heading">Meet some carers</h2>
+              <h2 className="landing-section-heading">Meet local sitters</h2>
               <p className="landing-section-sub">
                 A few of the people looking after Prague's dogs.
               </p>
             </div>
             <Link href="/explore/results" className="landing-browse-all">
-              Browse all →
+              Browse all sitters →
             </Link>
           </div>
           <div className="landing-featured-grid">
@@ -325,6 +332,18 @@ export default function LandingPage() {
               <FeaturedCard key={p.id} provider={p} />
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── Why Doggo ────────────────────────────────────────────────── */}
+      <section className="landing-section landing-section--alt">
+        <div className="landing-inner">
+          <p className="landing-why-tagline">Dog care should feel simple and local.</p>
+          <ul className="landing-why-list">
+            <li className="landing-why-li">No booking fees</li>
+            <li className="landing-why-li">Talk directly with sitters</li>
+            <li className="landing-why-li">Built for neighbourhood dog owners</li>
+          </ul>
         </div>
       </section>
 
@@ -339,10 +358,10 @@ export default function LandingPage() {
           </p>
           <div className="landing-cta-close-btns">
             <Link href="/explore/results" className="landing-btn-white">
-              Start searching
+              Find a sitter
             </Link>
             <Link href="/signup/start" className="landing-btn-outline-white">
-              Earn on the side
+              Become a sitter
             </Link>
           </div>
         </div>

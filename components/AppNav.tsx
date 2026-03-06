@@ -1,44 +1,17 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ButtonIcon } from "@/components/ui/ButtonIcon";
 import { ButtonAction } from "@/components/ui/ButtonAction";
-import { PAGE_MENU_GROUPS } from "@/lib/navigation/pageMenuGroups";
 import {
   Bell,
   CalendarDots,
   ChatCircleDots,
+  DotsThree,
   MagnifyingGlass,
   Sparkle,
 } from "@phosphor-icons/react";
-
-function PageMenu({
-  trigger,
-  align = "right",
-}: {
-  trigger: React.ReactNode;
-  align?: "left" | "right";
-}) {
-  return (
-    <details className="app-nav-menu">
-      <summary className="app-nav-menu-summary">{trigger}</summary>
-      <div className={`app-nav-menu-panel ${align === "left" ? "align-left" : "align-right"}`}>
-        {PAGE_MENU_GROUPS.map((group) => (
-          <div key={group.title} className="app-nav-menu-group">
-            <div className="app-nav-menu-group-title">{group.title}</div>
-            {group.items.map((option) => (
-              <Link key={option.value} href={option.value} className="app-nav-menu-item">
-                {option.label}
-              </Link>
-            ))}
-          </div>
-        ))}
-      </div>
-    </details>
-  );
-}
 
 function GuestNavLinks() {
   return (
@@ -49,14 +22,24 @@ function GuestNavLinks() {
       <Link href="/signup/start" className="app-nav-link app-nav-link--primary">
         Sign Up
       </Link>
-      <PageMenu
-        align="right"
-        trigger={
-          <span className="app-nav-dev-trigger" aria-label="Open page menu" title="Dev navigation">
-            ···
-          </span>
-        }
-      />
+      <Link href="/profile" className="app-nav-dev-trigger" aria-label="Open menu" title="Menu">
+        ···
+      </Link>
+    </div>
+  );
+}
+
+function SignupNavLinks() {
+  return (
+    <div className="app-nav-right" aria-label="Signup navigation">
+      <Link
+        href="/profile"
+        className="app-nav-dev-trigger"
+        aria-label="Open menu"
+        title="Menu"
+      >
+        <DotsThree size={24} weight="bold" />
+      </Link>
     </div>
   );
 }
@@ -94,17 +77,13 @@ function LoggedNavLinks() {
         <ButtonIcon label="Calendar">
           <CalendarDots size={32} weight="light" />
         </ButtonIcon>
-        <PageMenu
-          trigger={
-            <span className="app-nav-avatar-trigger" aria-label="Open page menu">
-              <img
-                className="app-nav-avatar-img"
-                src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80"
-                alt="User avatar"
-              />
-            </span>
-          }
-        />
+        <Link href="/profile" className="app-nav-avatar-trigger" aria-label="Open menu" title="Menu">
+          <img
+            className="app-nav-avatar-img"
+            src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80"
+            alt="Menu"
+          />
+        </Link>
       </div>
     </div>
   );
@@ -113,34 +92,42 @@ function LoggedNavLinks() {
 export function AppNav() {
   const pathname = usePathname();
   const mode = pathname.startsWith("/explore") ? "logged" : "guest";
-  const isGuestRoute =
+  const isSignupRoute = pathname.startsWith("/signup");
+  const isStyleguideRoute = pathname.startsWith("/styleguide");
+  const isContainedNav =
     pathname === "/" ||
     pathname === "/signin" ||
-    pathname.startsWith("/signup");
-
-  useEffect(() => {
-    document.body.classList.toggle("guest-route", isGuestRoute);
-    return () => {
-      document.body.classList.remove("guest-route");
-    };
-  }, [isGuestRoute]);
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/styleguide");
+  const navContent = (
+    <>
+      <div className="app-nav-brand-wrap">
+        <Link
+          href="/"
+          className="app-nav-brand"
+          style={{ fontFamily: "var(--font-heading), sans-serif" }}
+        >
+          DOGGO
+        </Link>
+      </div>
+      <div className="app-nav-mode">
+        {mode === "guest" ? (isSignupRoute || isStyleguideRoute ? <SignupNavLinks /> : <GuestNavLinks />) : <LoggedNavLinks />}
+      </div>
+    </>
+  );
 
   return (
-    <header className="app-nav-shell">
-      <nav className="app-nav">
-        <div className="app-nav-brand-wrap">
-          <Link
-            href="/"
-            className="app-nav-brand"
-            style={{ fontFamily: "var(--font-heading), sans-serif" }}
-          >
-            DOGGO
-          </Link>
-        </div>
-
-        <div className="app-nav-mode">
-          {mode === "guest" ? <GuestNavLinks /> : <LoggedNavLinks />}
-        </div>
+    <header
+      className={`app-nav-shell${
+        isSignupRoute ? " app-nav-shell--signup" : ""
+      }${isStyleguideRoute ? " app-nav-shell--styleguide" : ""}`}
+    >
+      <nav className={`app-nav${isContainedNav ? " app-nav--contained" : ""}`}>
+        {isContainedNav ? (
+          <div className="app-nav-inner">{navContent}</div>
+        ) : (
+          navContent
+        )}
       </nav>
     </header>
   );

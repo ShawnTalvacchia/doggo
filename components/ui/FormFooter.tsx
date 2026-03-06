@@ -16,7 +16,8 @@ export function FormFooter({
 }: FormFooterProps) {
   return (
     <footer className="form-footer">
-      <ButtonAction
+      <div className="form-footer-inner">
+        <ButtonAction
         variant="tertiary"
         size="md"
         cta
@@ -35,6 +36,7 @@ export function FormFooter({
       >
         {continueLabel}
       </ButtonAction>
+      </div>
     </footer>
   );
 }

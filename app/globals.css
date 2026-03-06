@@ -347,23 +347,20 @@ body {
   padding: 0;
   background: var(--surface-base);
   color: var(--text-primary);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   overscroll-behavior: none;
 }
 
-/* Landing, sign-in, and signup pages need normal document scroll.
-   Both html AND body must be unlocked — html:has() targets the root
-   when body carries the guest-route class. */
+/* Guest routes: full height so flex layout (guest-layout) can fill and control scroll */
 html:has(body.guest-route) {
-  height: auto;
-  overflow-y: auto;
-  overscroll-behavior: auto;
+  height: 100%;
+  overflow: hidden;
 }
 
 body.guest-route {
-  height: auto;
-  overflow-y: auto;
-  overscroll-behavior: auto;
+  height: 100%;
+  overflow: hidden;
 }
 
 a {
@@ -379,12 +376,72 @@ a {
   border-bottom: 1px solid var(--border-strong);
 }
 
+.app-nav-shell.app-nav-shell--signup {
+  background: var(--surface-top);
+}
+
+.app-nav-shell.app-nav-shell--signup .app-nav-inner {
+  max-width: 720px;
+}
+
+.app-nav-shell.app-nav-shell--styleguide {
+  background: var(--surface-top);
+}
+
+.app-nav-shell.app-nav-shell--styleguide .app-nav-inner {
+  max-width: 1200px;
+}
+
+/* Guest layout: flex column so only main area scrolls (or signup inner scroll) */
+.guest-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.guest-main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.guest-main.guest-main--noscroll {
+  overflow: hidden;
+  /* Ensure nested flex layouts (signup) can fill the viewport */
+  display: flex;
+  flex-direction: column;
+}
+
+.guest-main.guest-main--noscroll > * {
+  flex: 1;
+  min-height: 0;
+}
+
 .app-nav {
+  height: 65px;
   min-height: 65px;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 40px;
   padding: 12px 16px;
+}
+
+.app-nav.app-nav--contained {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+.app-nav-inner {
+  max-width: 1140px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 40px;
 }
 
 .app-nav-mode {
@@ -504,19 +561,6 @@ a {
   padding: 0 4px;
 }
 
-.app-nav-menu {
-  position: relative;
-}
-
-.app-nav-menu-summary {
-  list-style: none;
-  cursor: pointer;
-}
-
-.app-nav-menu-summary::-webkit-details-marker {
-  display: none;
-}
-
 .app-nav-signin-trigger {
   border-radius: 8px;
   background: var(--surface-inset);
@@ -544,67 +588,66 @@ a {
   object-fit: cover;
 }
 
-.app-nav-menu-panel {
-  position: absolute;
-  top: calc(100% + 8px);
-  min-width: 220px;
-  border: 1px solid var(--border-strong);
-  border-radius: 10px;
-  background: var(--surface-popout);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  padding: 8px;
-  display: grid;
-  gap: 4px;
-  z-index: 30;
+/* ── Signup: fixed progress strip (sits just below AppNav) ── */
+
+.signup-progress-strip {
+  flex-shrink: 0;
+  background: var(--surface-top);
+  border-bottom: 1px solid var(--border-regular);
 }
 
-.app-nav-menu-group {
-  display: grid;
-  gap: 2px;
+.signup-progress-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 10px 24px 12px;
 }
 
-.app-nav-menu-group + .app-nav-menu-group {
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 1px solid var(--border-regular);
+.form-header .signup-progress-strip {
+  border-bottom: none;
+  background: transparent;
 }
 
-.app-nav-menu-group-title {
+.form-header .signup-progress-inner {
+  max-width: none;
+  margin: 0;
+  padding: 16px 0 0;
+}
+
+.signup-progress-meta {
+  font-size: var(--font-size-body-sm);
   color: var(--text-tertiary);
-  font-size: 12px;
-  font-weight: var(--weight-semibold);
-  padding: 4px 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  margin: 0 0 8px;
+  line-height: 1;
 }
 
-.app-nav-menu-panel.align-right {
-  right: 0;
+.signup-progress-track {
+  height: 3px;
+  background: var(--border-regular);
+  border-radius: var(--radius-full);
+  overflow: hidden;
 }
 
-.app-nav-menu-panel.align-left {
-  left: 0;
+.signup-progress-fill {
+  height: 100%;
+  background: var(--brand-main);
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
 }
 
-.app-nav-menu-item {
-  padding: 8px 10px;
-  border-radius: 8px;
-  color: var(--text-secondary);
-  font-size: 14px;
-}
+/* ── Page shell: signup + form steps ── */
 
-.app-nav-menu-item:hover {
-  background: color-mix(in srgb, var(--surface-inset) 45%, white);
+body.guest-route {
+  --signup-progress-height: 48px;
 }
 
 .page-shell {
   min-height: calc(100vh - var(--nav-height));
   background: var(--surface-base);
-  padding: 40px 24px;
+  padding: 40px 24px 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .page-width {
@@ -615,11 +658,11 @@ a {
 .form-shell {
   max-width: 720px;
   width: 100%;
-  height: min(760px, calc(100dvh - var(--nav-height) - 80px));
+  /* Natural height — form scrolls as a page, not an inner container */
   margin: 0 auto;
   border-radius: var(--radius-form);
-  box-shadow: var(--shadow-modal);
   overflow: hidden;
+  box-shadow: var(--shadow-modal);
   display: flex;
   flex-direction: column;
   background: var(--surface-top);
@@ -659,20 +702,24 @@ a {
   padding: 24px;
   display: grid;
   gap: 24px;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
+  /* No internal scroll — page scrolls instead */
 }
 
 .form-footer {
   border-top: 1px solid var(--border-regular);
   box-shadow: var(--shadow-footer);
   padding: 16px 24px;
+  position: sticky;
+  bottom: 0;
+  background: var(--surface-top);
+}
+
+.form-footer-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  flex-shrink: 0;
+  width: 100%;
 }
 
 .label {
@@ -1672,6 +1719,7 @@ a {
   display: flex;
   align-items: center;
   gap: 8px;
+  height: fit-content;
 }
 .role-card-title {
   font-family: var(--font-heading);
@@ -1688,6 +1736,9 @@ a {
   font-weight: var(--weight-regular);
   line-height: 1.35;
   color: var(--text-secondary);
+  margin-top: 12px;
+  margin-bottom: 0px;
+  box-sizing: content-box;
 }
 .role-card.active .role-card-desc {
   color: var(--brand-strong);
@@ -1695,6 +1746,7 @@ a {
 .role-card-checkbox {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 12px;
   font-size: 16px;
   color: var(--text-secondary);
@@ -2348,6 +2400,12 @@ a {
   align-items: center;
   gap: 24px;
   height: 40px;
+}
+
+.slider-row .left-range-row,
+.slider-row .left-range-row-single {
+  flex: 1;
+  min-width: 0;
 }
 
 .slider-row input[type="range"] {
@@ -4921,6 +4979,9 @@ a {
 
 /* -------- Temporary profile menu view (mobile bottom-nav destination) -------- */
 .profile-menu-page {
+  height: calc(100vh - var(--nav-height));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   justify-content: flex-start;
   padding-top: 24px;
   padding-bottom: 88px;
@@ -4931,12 +4992,17 @@ a {
 }
 
 .profile-menu-card {
-  border: 1px solid var(--border-strong);
+  border-width: 0px;
+  border-style: none;
+  border-color: rgba(0, 0, 0, 0);
+  border-image: none;
   border-radius: var(--radius-panel);
-  background: var(--surface-top);
-  padding: 20px;
-  display: grid;
-  gap: 16px;
+  background: transparent;
+  padding: 20px 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  column-gap: 24px;
 }
 
 .profile-menu-title {
@@ -4944,6 +5010,13 @@ a {
   font-family: var(--font-heading);
   font-size: var(--font-size-h4);
   color: var(--text-primary);
+}
+
+.profile-menu-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  column-gap: 8px;
 }
 
 .profile-menu-subtitle {
@@ -4955,26 +5028,19 @@ a {
 
 .profile-menu-groups {
   display: grid;
-  gap: 16px;
-}
-
-.profile-menu-group {
-  display: grid;
-  gap: 8px;
+  gap: 28px;
 }
 
 .profile-menu-group-title {
   margin: 0;
-  color: var(--text-tertiary);
-  font-size: 12px;
-  font-weight: var(--weight-semibold);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  min-height: 24px;
+  justify-content: center;
 }
 
 .profile-menu-links {
   display: grid;
   gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .profile-menu-link {
@@ -4990,6 +5056,13 @@ a {
 .profile-menu-link:hover {
   border-color: var(--brand-main);
   color: var(--text-primary);
+}
+
+/* Tablet: collapse tiles into a simple list */
+@media (max-width: 960px) {
+  .profile-menu-links {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Switch profile to one-column before squeeze range. */
@@ -5062,9 +5135,6 @@ a {
   }
 
   .profile-menu-page {
-    height: calc(100dvh - var(--nav-height));
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
     padding: 12px 0 88px;
   }
 
@@ -5271,6 +5341,7 @@ a {
   }
 
   .app-nav {
+    height: 56px;
     min-height: 56px;
     gap: 10px;
     padding: 10px 12px;
@@ -5396,20 +5467,10 @@ a {
     height: 30px;
   }
 
-  /* Page shell: no centering, card fills edge-to-edge */
-  .page-shell {
-    padding: 0;
-    align-items: stretch;
-    justify-content: flex-start;
-  }
-
-  /* Form shell: invisible card — no border, shadow, or radius */
-  .form-shell {
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
+  /* Progress strip: full width, smaller text on mobile */
+  .signup-progress-inner {
+    padding: 8px 16px 10px;
     max-width: 100%;
-    height: calc(100dvh - var(--nav-height));
   }
 
   .form-header {
@@ -5421,11 +5482,8 @@ a {
     gap: 20px;
   }
 
-  /* Sticky footer stays at bottom of viewport as content scrolls */
   .form-footer {
     padding: 12px 16px;
-    position: sticky;
-    bottom: 0;
     background: var(--surface-top);
   }
 
@@ -5511,6 +5569,26 @@ a {
 
   .results-list {
     max-height: none;
+  }
+}
+
+/* Small mobile only: signup card fills body (no radius) */
+@media (max-width: 480px) {
+  .page-shell {
+    padding: 0;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
+  .form-shell {
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+    max-width: 100%;
+  }
+
+  .form-footer {
+    border-radius: 0;
   }
 }
 
@@ -5737,7 +5815,7 @@ a {
 
 .landing-hero {
   background: linear-gradient(155deg, var(--brand-12) 0%, var(--surface-base) 55%);
-  padding: 72px 24px 80px;
+  padding: 48px 24px 80px;
   position: relative;
   overflow: hidden;
 }
@@ -5886,17 +5964,44 @@ a {
   font-weight: var(--weight-semibold);
 }
 
-/* ── Trust strip ── */
+/* ── Trust badges (row desktop, column mobile) ── */
+
+.landing-trust-badges {
+  padding: 40px 0 48px;
+}
+
+.landing-trust-badges-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.landing-trust-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 18px;
+  background: var(--brand-8);
+  color: var(--brand-main);
+  border-radius: 999px;
+  font-size: var(--font-size-sub);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
 
 .landing-trust-strip {
+  padding: 40px 0 48px;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-popout);
+}
+
+.landing-trust-strip-inner {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0;
-  padding: 24px;
-  border-top: 1px solid var(--border-subtle);
-  border-bottom: 1px solid var(--border-subtle);
-  background: var(--surface-popout);
   flex-wrap: wrap;
 }
 
@@ -5964,6 +6069,41 @@ a {
   font-size: var(--font-size-body);
   color: var(--text-secondary);
   margin: 0;
+}
+
+/* ── Why Doggo ── */
+
+.landing-why-tagline {
+  font-family: var(--font-heading), sans-serif;
+  font-size: 24px;
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 24px;
+  max-width: 480px;
+}
+
+.landing-why-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+  max-width: 560px;
+}
+
+.landing-why-li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--text-secondary);
+  font-size: var(--font-size-body);
+}
+
+.landing-why-li::before {
+  content: "•";
+  color: var(--brand-main);
+  line-height: 1.2;
+  margin-top: 1px;
 }
 
 /* ── Service cards ── */
@@ -6423,8 +6563,21 @@ a {
     align-items: flex-start;
   }
 
-  .landing-trust-strip {
-    gap: 0;
+  .landing-trust-badges-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .landing-trust-badge {
+    text-align: center;
+    white-space: normal;
+  }
+
+  .landing-trust-strip-inner {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
   }
 
   .landing-trust-sep {
@@ -6672,5 +6825,102 @@ a {
   .signin-card {
     padding: 32px 24px 24px;
     border-radius: var(--radius-lg);
+  }
+}
+
+/* ================================================================
+   Signup layout: Nav > Progress > scroll (only form-body scrolls)
+   ================================================================ */
+.signup-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+}
+
+.signup-scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--surface-top);
+}
+
+.signup-scroll .page-shell {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  justify-content: flex-start;
+  align-items: stretch;
+  background: var(--surface-top);
+}
+
+.signup-scroll .form-shell {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.signup-scroll .form-header {
+  flex-shrink: 0;
+  width: min(720px, 100%);
+  margin: 0 auto;
+  padding: 24px 24px 16px;
+}
+
+.signup-scroll .form-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  width: min(720px, 100%);
+  margin: 0 auto;
+  padding: 16px 24px 104px;
+}
+
+.signup-scroll .form-footer {
+  flex-shrink: 0;
+  width: 100%;
+  border-top: 1px solid var(--border-regular);
+  box-shadow: var(--shadow-footer);
+  background: var(--surface-top);
+  position: static;
+  padding: 12px 0 calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+.signup-scroll .form-footer .form-footer-inner {
+  width: min(720px, 100%);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+@media (max-width: 767px) {
+  .signup-scroll .form-header {
+    padding: 20px 16px 14px;
+  }
+
+  .signup-scroll .form-body {
+    padding: 14px 16px 104px;
+  }
+
+  .signup-scroll .form-footer {
+    padding: 12px 0;
+  }
+
+  .signup-scroll .form-footer .form-footer-inner {
+    width: 100%;
+    padding: 0 16px;
   }
 }
