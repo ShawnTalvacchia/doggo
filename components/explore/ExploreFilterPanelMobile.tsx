@@ -66,7 +66,7 @@ export function ExploreFilterPanelMobile({
         </button>
       </div>
 
-      {/* Scrollable body — service-aware filter fields */}
+      {/* Scrollable body — service-aware filter fields; content scrolls behind fixed button */}
       <div className="mobile-slide-body">
         <FilterBody
           filters={filters}
@@ -79,12 +79,14 @@ export function ExploreFilterPanelMobile({
         />
       </div>
 
-      {/* Footer */}
-      <div className="mobile-slide-footer">
-        <ButtonAction variant="primary" cta onClick={onClose}>
-          View Results
-        </ButtonAction>
-      </div>
+      <ButtonAction
+        variant="primary"
+        cta
+        onClick={onClose}
+        className="mobile-slide-fixed-btn"
+      >
+        View Results
+      </ButtonAction>
     </div>
   );
 }

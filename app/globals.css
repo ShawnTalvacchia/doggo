@@ -5321,22 +5321,23 @@ body.guest-route {
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 20px 16px;
+  padding: 20px 16px 80px;
   display: grid;
   gap: 20px;
   align-content: start;
   background: var(--surface-popout);
 }
 
-.mobile-slide-footer {
-  position: sticky;
-  bottom: 0;
+.mobile-slide-fixed-btn {
+  position: absolute;
+  bottom: 12px;
+  left: 16px;
+  right: 16px;
   z-index: 2;
-  flex-shrink: 0;
-  padding: 12px 16px;
-  border-top: 1px solid var(--border-strong);
-  background: var(--surface-base);
-  box-shadow: 0 -8px 24px var(--transparent-dark-16);
+  width: auto;
+  box-sizing: border-box;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
 }
 
 @media (max-width: 767px) {
