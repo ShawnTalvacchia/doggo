@@ -32,7 +32,17 @@ export function parseFiltersFromQuery(searchParams: URLSearchParams): Partial<Ex
   const maxRate =
     Number.isFinite(maxRateRaw) && maxRateRaw >= MIN_VALID_MAX_RATE ? maxRateRaw : undefined;
 
-  return { service, minRate, maxRate, times };
+  const dateStart = searchParams.get("dateStart") || undefined;
+  const dateEnd = searchParams.get("dateEnd") || undefined;
+  const startDate = searchParams.get("startDate") || undefined;
+
+  const result: Partial<ExploreFilters> = { service, minRate, maxRate, times };
+  if (dateStart || dateEnd) {
+    result.dateRange = { start: dateStart ?? null, end: dateEnd ?? null };
+  }
+  if (startDate) result.startDate = startDate;
+
+  return result;
 }
 
 export function buildQueryFromFilters(filters: ExploreFilters): string {
@@ -50,6 +60,10 @@ export function buildQueryFromFilters(filters: ExploreFilters): string {
   }
 
   if (filters.times.length) params.set("times", filters.times.join(","));
+
+  if (filters.dateRange?.start) params.set("dateStart", filters.dateRange.start);
+  if (filters.dateRange?.end) params.set("dateEnd", filters.dateRange.end);
+  if (filters.startDate) params.set("startDate", filters.startDate);
 
   return params.toString();
 }

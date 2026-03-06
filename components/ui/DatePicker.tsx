@@ -250,21 +250,31 @@ export function DatePicker(props: DatePickerProps) {
   const [draftSingle, setDraftSingle] = useState<string | null>(
     props.mode === "single" ? props.value : null,
   );
-  const [draftRange, setDraftRange] = useState<DateRange>(
-    props.mode === "range" ? props.value : { start: null, end: null },
+  const [draftRange, setDraftRange] = useState<DateRange>(() =>
+    props.mode === "range"
+      ? (props.value && typeof props.value === "object" && "start" in props.value
+          ? props.value
+          : { start: null, end: null })
+      : { start: null, end: null },
   );
 
   // Sync draft when picker opens
   const handleOpen = () => {
     if (props.mode === "single") setDraftSingle(props.value);
-    else setDraftRange(props.value);
+    else
+      setDraftRange(
+        props.value && typeof props.value === "object" && "start" in props.value
+          ? props.value
+          : { start: null, end: null },
+      );
   };
 
   const handleDayClick = (iso: string) => {
     if (props.mode === "single") {
       setDraftSingle(iso);
     } else {
-      const { start, end } = draftRange;
+      const range = draftRange ?? { start: null, end: null };
+      const { start, end } = range;
       if (!start || (start && end)) {
         // Start fresh
         setDraftRange({ start: iso, end: null });
@@ -282,7 +292,7 @@ export function DatePicker(props: DatePickerProps) {
   const handleApply = () => {
     if (props.mode === "single" && draftSingle) {
       props.onChange(draftSingle);
-    } else if (props.mode === "range") {
+    } else if (props.mode === "range" && draftRange?.start && draftRange?.end) {
       props.onChange(draftRange);
     }
     onClose();
@@ -293,13 +303,15 @@ export function DatePicker(props: DatePickerProps) {
     if (props.mode === "single") {
       return draftSingle ? formatShortDate(draftSingle, true) : "Select a start date";
     }
-    const { start, end } = draftRange;
+    const range = draftRange ?? { start: null, end: null };
+    const { start, end } = range;
     if (start && end) return formatRangeLabel(start, end);
     if (start) return formatShortDate(start, true);
     return "Select dates";
   }, [props.mode, draftSingle, draftRange]);
 
-  const canApply = props.mode === "single" ? !!draftSingle : !!(draftRange.start && draftRange.end);
+  const canApply =
+    props.mode === "single" ? !!draftSingle : !!((draftRange ?? {}).start && (draftRange ?? {}).end);
 
   return (
     <ModalSheet
@@ -320,8 +332,8 @@ export function DatePicker(props: DatePickerProps) {
     >
       <Calendar
         mode={props.mode}
-        pending={props.mode === "single" ? draftSingle : draftRange.start}
-        range={props.mode === "range" ? draftRange : { start: null, end: null }}
+        pending={props.mode === "single" ? draftSingle : (draftRange ?? { start: null, end: null }).start}
+        range={props.mode === "range" ? (draftRange ?? { start: null, end: null }) : { start: null, end: null }}
         onDayClick={handleDayClick}
       />
     </ModalSheet>
