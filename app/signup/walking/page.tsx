@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { FormFooter } from "@/components/ui/FormFooter";
 import { FormHeader } from "@/components/ui/FormHeader";
+import { RangeSlider } from "@/components/ui/RangeSlider";
+import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { useSignupDraft } from "@/contexts/SignupContext";
 import { type Role } from "@/lib/types";
 import { getStepInfo } from "@/lib/signupSteps";
@@ -62,14 +64,13 @@ export default function SignupWalkingPage() {
                 </label>
                 <div className="slider-block">
                   <div className="slider-row">
-                    <input
+                    <RangeSlider
                       id="walking-radius"
-                      type="range"
                       min={1}
                       max={40}
                       step={1}
                       value={draft.walkingRadius}
-                      onChange={(e) => updateDraft({ walkingRadius: Number(e.target.value) })}
+                      onChange={(value) => updateDraft({ walkingRadius: value })}
                     />
                     <div className="slider-value-box">{draft.walkingRadius}</div>
                   </div>
@@ -105,35 +106,21 @@ export default function SignupWalkingPage() {
                       <span className="required">*</span>
                     </span>
                   </label>
-                  <div className="segment-bar">
-                    {DAYS.map((day) => (
-                      <button
-                        key={day}
-                        type="button"
-                        className={`segment-btn${draft.walkingDays.includes(day) ? " active" : ""}`}
-                        onClick={() => updateDraft({ walkingDays: toggle(draft.walkingDays, day) })}
-                      >
-                        {day}
-                      </button>
-                    ))}
-                  </div>
+                  <MultiSelectSegmentBar
+                    ariaLabel="Walk days"
+                    options={DAYS.map((day) => ({ value: day, label: day }))}
+                    selectedValues={draft.walkingDays}
+                    onToggle={(value) => updateDraft({ walkingDays: toggle(draft.walkingDays, value) })}
+                  />
                 </div>
 
                 {/* Time slots */}
-                <div className="segment-bar">
-                  {TIMES.map((time) => (
-                    <button
-                      key={time}
-                      type="button"
-                      className={`segment-btn${draft.walkingTimes.includes(time) ? " active" : ""}`}
-                      onClick={() =>
-                        updateDraft({ walkingTimes: toggle(draft.walkingTimes, time) })
-                      }
-                    >
-                      {time}
-                    </button>
-                  ))}
-                </div>
+                <MultiSelectSegmentBar
+                  ariaLabel="Walk times"
+                  options={TIMES.map((time) => ({ value: time, label: time }))}
+                  selectedValues={draft.walkingTimes}
+                  onToggle={(value) => updateDraft({ walkingTimes: toggle(draft.walkingTimes, value) })}
+                />
               </div>
             </div>
           </div>

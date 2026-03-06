@@ -5,6 +5,7 @@ import { FormFooter } from "@/components/ui/FormFooter";
 import { FormHeader } from "@/components/ui/FormHeader";
 import { useSignupDraft } from "@/contexts/SignupContext";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
+import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { type Role } from "@/lib/types";
 import { getStepInfo } from "@/lib/signupSteps";
 
@@ -75,18 +76,12 @@ export default function SignupCarePreferencesPage() {
                     <span>Select sizes (kg)</span>
                   </span>
                 </label>
-                <div className="segment-bar">
-                  {DOG_SIZES.map((size) => (
-                    <button
-                      key={size}
-                      type="button"
-                      className={`segment-btn${draft.dogSizes.includes(size) ? " active" : ""}`}
-                      onClick={() => updateDraft({ dogSizes: toggle(draft.dogSizes, size) })}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
+                <MultiSelectSegmentBar
+                  ariaLabel="Dog sizes"
+                  options={DOG_SIZES.map((size) => ({ value: size, label: size }))}
+                  selectedValues={draft.dogSizes}
+                  onToggle={(value) => updateDraft({ dogSizes: toggle(draft.dogSizes, value) })}
+                />
               </div>
             </div>
           </div>
@@ -116,19 +111,16 @@ export default function SignupCarePreferencesPage() {
                     <span>Select ages you accept</span>
                   </span>
                 </label>
-                <div className="segment-bar">
-                  {DOG_AGES.map(({ label, sub }) => (
-                    <button
-                      key={label}
-                      type="button"
-                      className={`segment-btn${draft.dogAges.includes(label) ? " active" : ""}`}
-                      onClick={() => updateDraft({ dogAges: toggle(draft.dogAges, label) })}
-                    >
-                      {label}
-                      <span className="seg-sub">{sub}</span>
-                    </button>
-                  ))}
-                </div>
+                <MultiSelectSegmentBar
+                  ariaLabel="Dog ages"
+                  options={DOG_AGES.map(({ label, sub }) => ({
+                    value: label,
+                    label,
+                    subLabel: sub,
+                  }))}
+                  selectedValues={draft.dogAges}
+                  onToggle={(value) => updateDraft({ dogAges: toggle(draft.dogAges, value) })}
+                />
               </div>
             </div>
           </div>

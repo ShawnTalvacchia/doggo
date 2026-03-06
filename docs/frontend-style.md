@@ -35,6 +35,18 @@ This document defines how styling should be authored and reviewed in this repo.
 - Preserve focus visibility; do not remove focus styles without replacement.
 - Prefer tokenized typography scale over ad-hoc numeric font sizes.
 
+## Shared control components (required)
+
+- Prefer shared UI controls over ad-hoc markup in pages.
+- Current control primitives:
+  - `MultiSelectSegmentBar` for joined multi-select segmented buttons.
+  - `RangeSlider` for single-value slider with left-to-right active fill.
+  - `DualRangeSlider` for min/max range slider.
+  - `CheckboxRow` for compact inline label + checkbox rows.
+  - `CheckOptionRow` for full-width option rows with trailing check affordance.
+- Do not create location-based component names (for example `*-filter-panel-*`). Name by behavior and intent.
+- Styleguide demos must reference these shared components directly.
+
 ## Migration checklist for style updates
 
 - Replace static inline style with class-based tokenized CSS.

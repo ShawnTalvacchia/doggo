@@ -82,6 +82,9 @@ export interface ProviderCard {
   distanceKm?: number;
   neighbourhoodMatch?: boolean;
   mutualConnections?: number;
+  // Map coordinates (WGS84) — client-side only, not stored in DB
+  lat?: number;
+  lng?: number;
 }
 
 /** A single rate row inside a service block (e.g. Holiday Rate, Additional Dog Rate) */

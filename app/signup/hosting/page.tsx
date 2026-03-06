@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { FormFooter } from "@/components/ui/FormFooter";
 import { FormHeader } from "@/components/ui/FormHeader";
+import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { useSignupDraft } from "@/contexts/SignupContext";
 import { getStepInfo } from "@/lib/signupSteps";
 
@@ -71,18 +72,12 @@ export default function SignupHostingPage() {
                       <span className="required">*</span>
                     </span>
                   </label>
-                  <div className="segment-bar">
-                    {DAYS.map((day) => (
-                      <button
-                        key={day}
-                        type="button"
-                        className={`segment-btn${draft.hostDays.includes(day) ? " active" : ""}`}
-                        onClick={() => updateDraft({ hostDays: toggle(draft.hostDays, day) })}
-                      >
-                        {day}
-                      </button>
-                    ))}
-                  </div>
+                  <MultiSelectSegmentBar
+                    ariaLabel="Hosting days"
+                    options={DAYS.map((day) => ({ value: day, label: day }))}
+                    selectedValues={draft.hostDays}
+                    onToggle={(value) => updateDraft({ hostDays: toggle(draft.hostDays, value) })}
+                  />
                 </div>
 
                 {/* Time slots */}
@@ -92,18 +87,12 @@ export default function SignupHostingPage() {
                       <span>Drop-off / pickup windows</span>
                     </span>
                   </label>
-                  <div className="segment-bar">
-                    {TIMES.map((time) => (
-                      <button
-                        key={time}
-                        type="button"
-                        className={`segment-btn${draft.hostTimes.includes(time) ? " active" : ""}`}
-                        onClick={() => updateDraft({ hostTimes: toggle(draft.hostTimes, time) })}
-                      >
-                        {time}
-                      </button>
-                    ))}
-                  </div>
+                  <MultiSelectSegmentBar
+                    ariaLabel="Hosting time windows"
+                    options={TIMES.map((time) => ({ value: time, label: time }))}
+                    selectedValues={draft.hostTimes}
+                    onToggle={(value) => updateDraft({ hostTimes: toggle(draft.hostTimes, value) })}
+                  />
                 </div>
               </div>
             </div>

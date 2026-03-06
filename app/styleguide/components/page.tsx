@@ -405,6 +405,82 @@ export default function ComponentsPage() {
       </section>
 
       <section className="sg-section">
+        <h2 className="sg-section-title">Landing CTA Buttons</h2>
+        <p
+          style={{
+            margin: "0 0 16px",
+            color: "var(--text-secondary)",
+            fontSize: 14,
+            lineHeight: 1.45,
+            maxWidth: "60ch",
+          }}
+        >
+          CSS-only classes applied to <code>&lt;Link&gt;</code> elements on the landing page. These
+          are <strong>not</strong> <code>ButtonAction</code> instances — they are larger, always
+          pill-shaped, and tuned for marketing contexts. Do not use in app flows; use{" "}
+          <code>ButtonAction</code> there instead.
+        </p>
+        <div style={{ display: "grid", gap: 16 }}>
+          <DemoCard title="On light background" subtitle=".landing-btn-primary · .landing-btn-outline">
+            <a href="#" className="landing-btn-primary" onClick={(e) => e.preventDefault()}>
+              Find care nearby
+            </a>
+            <a href="#" className="landing-btn-outline" onClick={(e) => e.preventDefault()}>
+              Earn on the side
+            </a>
+          </DemoCard>
+
+          <DemoCard title="On brand/dark background" subtitle=".landing-btn-white · .landing-btn-outline-white">
+            <div
+              style={{
+                display: "flex",
+                gap: 12,
+                flexWrap: "wrap",
+                background: "var(--brand-main)",
+                padding: "20px 24px",
+                borderRadius: "var(--radius-md)",
+              }}
+            >
+              <a href="#" className="landing-btn-white" onClick={(e) => e.preventDefault()}>
+                Start searching
+              </a>
+              <a href="#" className="landing-btn-outline-white" onClick={(e) => e.preventDefault()}>
+                Earn on the side
+              </a>
+            </div>
+          </DemoCard>
+        </div>
+      </section>
+
+      <section className="sg-section">
+        <h2 className="sg-section-title">Nav Link Variants</h2>
+        <p
+          style={{
+            margin: "0 0 16px",
+            color: "var(--text-secondary)",
+            fontSize: 14,
+            lineHeight: 1.45,
+            maxWidth: "60ch",
+          }}
+        >
+          Used in <code>AppNav</code> guest mode only. The primary variant is a teal pill (Sign Up).
+          The dev trigger is intentionally muted — it is a prototype tool, not a product element.
+          Logged mode uses <code>ButtonAction variant="tertiary"</code> instead of these classes.
+        </p>
+        <DemoCard title="Guest Nav Links" subtitle=".app-nav-link · .app-nav-link--primary · .app-nav-dev-trigger">
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            <a href="#" className="app-nav-link" onClick={(e) => e.preventDefault()}>
+              Sign In
+            </a>
+            <a href="#" className="app-nav-link app-nav-link--primary" onClick={(e) => e.preventDefault()}>
+              Sign Up
+            </a>
+            <span className="app-nav-dev-trigger" title="Dev navigation">···</span>
+          </div>
+        </DemoCard>
+      </section>
+
+      <section className="sg-section">
         <h2 className="sg-section-title">Pill / Tag</h2>
         <DemoCard title="Filter Pills" subtitle="active · inactive">
           <div className="pill-group">
@@ -444,6 +520,12 @@ export default function ComponentsPage() {
             "AppNav",
             "BottomNav",
             "SignupProfilePreview",
+            "MapView (Leaflet, SSR-safe)",
+            "LandingPage / HeroVisual",
+            "LandingPage / FeaturedCard",
+            "LandingPage / ServiceCard",
+            "LandingPage / Step",
+            "SignIn (mock auth form)",
           ].map((name) => (
             <div
               key={name}

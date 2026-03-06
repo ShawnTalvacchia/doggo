@@ -43,10 +43,20 @@ function PageMenu({
 function GuestNavLinks() {
   return (
     <div className="app-nav-right" aria-label="Guest navigation">
-      <Link href="/signup/start" className="app-nav-link">
+      <Link href="/signin" className="app-nav-link">
+        Sign In
+      </Link>
+      <Link href="/signup/start" className="app-nav-link app-nav-link--primary">
         Sign Up
       </Link>
-      <PageMenu trigger={<span className="app-nav-signin-trigger">Sign In</span>} />
+      <PageMenu
+        align="right"
+        trigger={
+          <span className="app-nav-dev-trigger" aria-label="Open page menu" title="Dev navigation">
+            ···
+          </span>
+        }
+      />
     </div>
   );
 }
@@ -103,7 +113,10 @@ function LoggedNavLinks() {
 export function AppNav() {
   const pathname = usePathname();
   const mode = pathname.startsWith("/explore") ? "logged" : "guest";
-  const isGuestRoute = pathname === "/" || pathname.startsWith("/signup");
+  const isGuestRoute =
+    pathname === "/" ||
+    pathname === "/signin" ||
+    pathname.startsWith("/signup");
 
   useEffect(() => {
     document.body.classList.toggle("guest-route", isGuestRoute);
@@ -117,7 +130,7 @@ export function AppNav() {
       <nav className="app-nav">
         <div className="app-nav-brand-wrap">
           <Link
-            href="/signup/start"
+            href="/"
             className="app-nav-brand"
             style={{ fontFamily: "var(--font-heading), sans-serif" }}
           >

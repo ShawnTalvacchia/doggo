@@ -10,6 +10,7 @@ import {
   SlidersHorizontal,
 } from "@phosphor-icons/react";
 import { CardExploreResult } from "@/components/explore/CardExploreResult";
+import MapView from "@/components/explore/MapView";
 import { ExploreFilterPanelDesktop } from "@/components/explore/ExploreFilterPanelDesktop";
 import { ExploreFilterPanelMobile } from "@/components/explore/ExploreFilterPanelMobile";
 import { defaultExploreFilters } from "@/lib/mockData";
@@ -167,11 +168,19 @@ function ExploreResultsContent() {
 
   useEffect(() => {
     const bounds = getExploreRateBounds(filters.service);
-    const clampedMin = Math.max(bounds.min, Math.min(filters.minRate, bounds.max));
-    const clampedMax = Math.max(clampedMin, Math.min(filters.maxRate, bounds.max));
+    let nextMin = filters.minRate;
+    let nextMax = filters.maxRate;
 
-    if (clampedMin !== filters.minRate || clampedMax !== filters.maxRate) {
-      updateFilters({ minRate: clampedMin, maxRate: clampedMax });
+    if (nextMin < bounds.min || nextMin > bounds.max) nextMin = bounds.min;
+    if (nextMax < bounds.min || nextMax > bounds.max) nextMax = bounds.max;
+
+    if (nextMin > nextMax) {
+      nextMin = bounds.min;
+      nextMax = bounds.max;
+    }
+
+    if (nextMin !== filters.minRate || nextMax !== filters.maxRate) {
+      updateFilters({ minRate: nextMin, maxRate: nextMax });
     }
   }, [filters.service, filters.minRate, filters.maxRate, updateFilters]);
 
@@ -303,9 +312,9 @@ function ExploreResultsContent() {
           </div>
         </div>
 
-        {/* Map — visible at >= 1024px only */}
-        <aside className="panel explore-map-col explore-map-placeholder">
-          <div className="explore-map-placeholder-inner">Map Placeholder (Static for V1)</div>
+        {/* Interactive map — visible at >= 1024px only */}
+        <aside className="panel explore-map-col">
+          <MapView providers={filteredProviders} service={filters.service} />
         </aside>
       </section>
 
