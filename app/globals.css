@@ -523,6 +523,15 @@ a {
   gap: 16px;
 }
 
+/* Logged-in nav: 32px between logo and links; 32px between icon group and profile */
+.app-nav.app-nav--logged {
+  gap: 32px;
+}
+
+.app-nav.app-nav--logged .app-nav-avatar-trigger {
+  margin-left: 16px;
+}
+
 .button-icon {
   width: 40px;
   height: 40px;

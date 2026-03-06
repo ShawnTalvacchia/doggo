@@ -122,7 +122,9 @@ export function AppNav() {
         isSignupRoute ? " app-nav-shell--signup" : ""
       }${isStyleguideRoute ? " app-nav-shell--styleguide" : ""}`}
     >
-      <nav className={`app-nav${isContainedNav ? " app-nav--contained" : ""}`}>
+      <nav
+        className={`app-nav${isContainedNav ? " app-nav--contained" : ""}${mode === "logged" ? " app-nav--logged" : ""}`}
+      >
         {isContainedNav ? (
           <div className="app-nav-inner">{navContent}</div>
         ) : (
