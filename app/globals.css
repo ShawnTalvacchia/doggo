@@ -415,6 +415,7 @@ a {
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
 }
 
 .guest-main.guest-main--noscroll {
@@ -5370,6 +5371,10 @@ body.guest-route {
 
   .app-nav-brand {
     font-size: 20px;
+  }
+
+  .app-nav-link--hide-mobile {
+    display: none;
   }
 
   .profile-page-shell {

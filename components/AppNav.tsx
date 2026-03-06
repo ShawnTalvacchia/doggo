@@ -16,7 +16,7 @@ import {
 function GuestNavLinks() {
   return (
     <div className="app-nav-right" aria-label="Guest navigation">
-      <Link href="/signin" className="app-nav-link">
+      <Link href="/signin" className="app-nav-link app-nav-link--hide-mobile">
         Sign In
       </Link>
       <Link href="/signup/start" className="app-nav-link app-nav-link--primary">
