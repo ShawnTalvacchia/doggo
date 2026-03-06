@@ -1,10 +1,14 @@
 "use client";
 
 import { useState, type CSSProperties } from "react";
-import { CaretDown, Check } from "@phosphor-icons/react";
+import { CaretDown } from "@phosphor-icons/react";
 import { ExploreFilters, ServiceType } from "@/lib/types";
 import { FILTER_RATE_MAX_KC, FILTER_RATE_MIN_KC, getExploreRateBounds } from "@/lib/pricing";
 import { DatePicker, DateTrigger, type DateRange } from "@/components/ui/DatePicker";
+import { DualRangeSlider } from "@/components/ui/DualRangeSlider";
+import { CheckOptionRow } from "@/components/ui/CheckOptionRow";
+import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
+import { RangeSlider } from "@/components/ui/RangeSlider";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -63,19 +67,7 @@ function AccordionOption({
   defaultChecked?: boolean;
 }) {
   const [checked, setChecked] = useState(defaultChecked);
-  return (
-    <button
-      type="button"
-      className={`left-accordion-option${checked ? " active" : ""}`}
-      onClick={() => setChecked((v) => !v)}
-      aria-pressed={checked}
-    >
-      <span className="left-accordion-option-label">{label}</span>
-      <span className="left-accordion-option-check" aria-hidden>
-        {checked ? <Check size={12} weight="bold" color="white" /> : null}
-      </span>
-    </button>
-  );
+  return <CheckOptionRow label={label} checked={checked} onChange={setChecked} />;
 }
 
 // ─── FilterBody ───────────────────────────────────────────────────────────────
@@ -112,11 +104,6 @@ export function FilterBody({
   const rateBounds = getExploreRateBounds(service);
   const minRateValue = Math.max(rateBounds.min, Math.min(filters.minRate, rateBounds.max));
   const maxRateValue = Math.max(minRateValue, Math.min(filters.maxRate, rateBounds.max));
-
-  const toggleDay = (day: string) =>
-    setSelectedDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
-    );
 
   return (
     <>
@@ -186,18 +173,16 @@ export function FilterBody({
         <>
           <div className="left-field">
             <div className="label">For which days?</div>
-            <div className="left-dow-bar">
-              {DAYS.map((day) => (
-                <button
-                  key={day}
-                  type="button"
-                  className={`left-dow-pill${selectedDays.includes(day) ? " active" : ""}`}
-                  onClick={() => toggleDay(day)}
-                >
-                  {day}
-                </button>
-              ))}
-            </div>
+            <MultiSelectSegmentBar
+              ariaLabel="Repeat weekly days"
+              options={DAYS.map((day) => ({ value: day, label: day }))}
+              selectedValues={selectedDays}
+              onToggle={(day) =>
+                setSelectedDays((prev) =>
+                  prev.includes(day) ? prev.filter((existing) => existing !== day) : [...prev, day],
+                )
+              }
+            />
           </div>
           <div className="left-field">
             <div className="label">Start Date</div>
@@ -250,18 +235,15 @@ export function FilterBody({
       {isWalk && (
         <div className="left-field">
           <div className="label">Available times</div>
-          <div className="left-time-row">
-            {TIME_OPTIONS.map((option) => (
-              <button
-                key={option}
-                type="button"
-                className={`left-time-pill${filters.times.includes(option) ? " active" : ""}`}
-                onClick={() => onTimeToggle(option)}
-              >
-                {option === "6-11" ? "6am–11am" : option === "11-15" ? "11am–3pm" : "3pm–10pm"}
-              </button>
-            ))}
-          </div>
+          <MultiSelectSegmentBar
+            ariaLabel="Available times"
+            options={TIME_OPTIONS.map((option) => ({
+              value: option,
+              label: option === "6-11" ? "6am–11am" : option === "11-15" ? "11am–3pm" : "3pm–10pm",
+            }))}
+            selectedValues={filters.times}
+            onToggle={onTimeToggle}
+          />
         </div>
       )}
 
@@ -273,62 +255,34 @@ export function FilterBody({
           <span>{maxRateValue} Kč</span>
         </div>
         {dualSlider ? (
-          <div className="left-range-row left-range-row-dual" style={rangeRowStyle}>
-            <input
-              className="left-range-input left-range-input-min"
-              type="range"
-              min={rateBounds.min}
-              max={rateBounds.max}
-              step={50}
-              value={minRateValue}
-              onChange={(e) => {
-                const nextMin = Number(e.target.value) || rateBounds.min;
-                onMinRateChange(Math.min(Math.max(nextMin, rateBounds.min), maxRateValue));
-              }}
-            />
-            <input
-              className="left-range-input left-range-input-max"
-              type="range"
-              min={rateBounds.min}
-              max={rateBounds.max}
-              step={50}
-              value={maxRateValue}
-              onChange={(e) => {
-                const nextMax = Number(e.target.value) || rateBounds.max;
-                onMaxRateChange(Math.max(Math.min(nextMax, rateBounds.max), minRateValue));
-              }}
-            />
-          </div>
+          <DualRangeSlider
+            min={rateBounds.min}
+            max={rateBounds.max}
+            step={50}
+            minValue={minRateValue}
+            maxValue={maxRateValue}
+            onMinChange={onMinRateChange}
+            onMaxChange={onMaxRateChange}
+            style={rangeRowStyle}
+          />
         ) : (
           <div className="left-range-row">
-            <input
-              type="range"
+            <RangeSlider
               min={rateBounds.min}
               max={rateBounds.max}
               step={50}
               value={minRateValue}
-              onChange={(e) =>
-                onMinRateChange(
-                  Math.min(
-                    Math.max(Number(e.target.value) || rateBounds.min, rateBounds.min),
-                    maxRateValue,
-                  ),
-                )
+              onChange={(next) =>
+                onMinRateChange(Math.min(Math.max(next, rateBounds.min), maxRateValue))
               }
             />
-            <input
-              type="range"
+            <RangeSlider
               min={rateBounds.min}
               max={rateBounds.max}
               step={50}
               value={maxRateValue}
-              onChange={(e) =>
-                onMaxRateChange(
-                  Math.max(
-                    Math.min(Number(e.target.value) || rateBounds.max, rateBounds.max),
-                    minRateValue,
-                  ),
-                )
+              onChange={(next) =>
+                onMaxRateChange(Math.max(Math.min(next, rateBounds.max), minRateValue))
               }
             />
           </div>
