@@ -46,11 +46,7 @@ export default function SignupCarePreferencesPage() {
           <div className="form-row">
             <div className="form-col">
               <p className="form-section-label">Dog Size</p>
-              <p
-                className="form-row-hint"
-              >
-                Choose the types of dogs you can safely care for.
-              </p>
+              <p className="form-row-hint">Choose the types of dogs you can safely care for.</p>
             </div>
             <div className="form-col">
               <div className="input-block">
@@ -73,9 +69,7 @@ export default function SignupCarePreferencesPage() {
           <div className="form-row">
             <div className="form-col">
               <p className="form-section-label">Dog Age</p>
-              <p
-                className="form-row-hint"
-              >
+              <p className="form-row-hint">
                 Let owners know which age groups you can confidently care for. Puppies and seniors
                 may require additional handling.
               </p>
@@ -105,9 +99,7 @@ export default function SignupCarePreferencesPage() {
           <div className="form-row">
             <div className="form-col">
               <p className="form-section-label">Dogs I&apos;m not able to accept</p>
-              <p
-                className="form-row-hint"
-              >
+              <p className="form-row-hint">
                 Let owners know if there are any dog behaviors you<em>cannot</em>care for. These
                 help keep pets safe by matching you with the right dogs.
               </p>
@@ -143,9 +135,7 @@ export default function SignupCarePreferencesPage() {
           <div className="form-row">
             <div className="form-col">
               <p className="form-section-label">Special Considerations</p>
-              <p
-                className="form-row-hint"
-              >
+              <p className="form-row-hint">
                 Some caregivers cannot accept certain cases due to safety, space, or experience. Let
                 owners know upfront.
               </p>

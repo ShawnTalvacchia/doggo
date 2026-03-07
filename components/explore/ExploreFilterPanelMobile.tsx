@@ -79,12 +79,7 @@ export function ExploreFilterPanelMobile({
         />
       </div>
 
-      <ButtonAction
-        variant="primary"
-        cta
-        onClick={onClose}
-        className="mobile-slide-fixed-btn"
-      >
+      <ButtonAction variant="primary" cta onClick={onClose} className="mobile-slide-fixed-btn">
         View Results
       </ButtonAction>
     </div>

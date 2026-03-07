@@ -72,12 +72,7 @@ export default function SignInPage() {
               <label className="signin-label" htmlFor="signin-password">
                 Password
               </label>
-              <button
-                type="button"
-                className="signin-forgot"
-                onClick={() => {}}
-                tabIndex={-1}
-              >
+              <button type="button" className="signin-forgot" onClick={() => {}} tabIndex={-1}>
                 Forgot password?
               </button>
             </div>
@@ -108,11 +103,7 @@ export default function SignInPage() {
             </div>
           </div>
 
-          <button
-            type="submit"
-            className="signin-submit"
-            disabled={loading}
-          >
+          <button type="submit" className="signin-submit" disabled={loading}>
             {loading ? "Signing in…" : "Sign in"}
           </button>
         </form>

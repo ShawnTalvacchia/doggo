@@ -82,7 +82,7 @@ type ProviderReviewRow = {
 function defaultServices(provider: ProviderCard): ProviderServiceOffering[] {
   const firstName = provider.name.split(" ")[0];
   // Derive per-night base from per-visit/walk price (sitting/boarding costs ~2.5× a single walk)
-  const nightBase = Math.round(provider.priceFrom * 2.5 / 10) * 10;
+  const nightBase = Math.round((provider.priceFrom * 2.5) / 10) * 10;
 
   return provider.services.map((service, index) => {
     if (service === "walk_checkin") {
@@ -98,18 +98,18 @@ function defaultServices(provider: ProviderCard): ProviderServiceOffering[] {
         rates: [
           {
             label: "Holiday Rate",
-            price: `${Math.round(base * 1.25 / 5) * 5} Kč`,
+            price: `${Math.round((base * 1.25) / 5) * 5} Kč`,
             unit: "per visit",
             hasTooltip: true,
           },
           {
             label: "Additional Dog Rate",
-            price: `+ ${Math.round(base * 0.35 / 5) * 5} Kč`,
+            price: `+ ${Math.round((base * 0.35) / 5) * 5} Kč`,
             unit: "per dog, per visit",
           },
           {
             label: "Puppy Rate",
-            price: `${Math.round(base * 1.1 / 5) * 5} Kč`,
+            price: `${Math.round((base * 1.1) / 5) * 5} Kč`,
             unit: "per visit",
           },
         ],
@@ -134,28 +134,28 @@ function defaultServices(provider: ProviderCard): ProviderServiceOffering[] {
         rates: [
           {
             label: "Holiday Rate",
-            price: `${Math.round(base * 1.2 / 10) * 10} Kč`,
+            price: `${Math.round((base * 1.2) / 10) * 10} Kč`,
             unit: "per night",
             hasTooltip: true,
           },
           {
             label: "Additional Dog Rate",
-            price: `+ ${Math.round(base * 0.4 / 10) * 10} Kč`,
+            price: `+ ${Math.round((base * 0.4) / 10) * 10} Kč`,
             unit: "per dog, per night",
           },
           {
             label: "Puppy Rate",
-            price: `${Math.round(base * 1.1 / 10) * 10} Kč`,
+            price: `${Math.round((base * 1.1) / 10) * 10} Kč`,
             unit: "per night",
           },
           {
             label: "Cat Care",
-            price: `${Math.round(base * 0.7 / 10) * 10} Kč`,
+            price: `${Math.round((base * 0.7) / 10) * 10} Kč`,
             unit: "per night",
           },
           {
             label: "Additional Cat",
-            price: `+ ${Math.round(base * 0.3 / 10) * 10} Kč`,
+            price: `+ ${Math.round((base * 0.3) / 10) * 10} Kč`,
             unit: "per cat, per night",
           },
           {
@@ -186,28 +186,28 @@ function defaultServices(provider: ProviderCard): ProviderServiceOffering[] {
       rates: [
         {
           label: "Holiday Rate",
-          price: `${Math.round(base * 1.2 / 10) * 10} Kč`,
+          price: `${Math.round((base * 1.2) / 10) * 10} Kč`,
           unit: "per night",
           hasTooltip: true,
         },
         {
           label: "Additional Dog Rate",
-          price: `+ ${Math.round(base * 0.4 / 10) * 10} Kč`,
+          price: `+ ${Math.round((base * 0.4) / 10) * 10} Kč`,
           unit: "per dog, per night",
         },
         {
           label: "Puppy Rate",
-          price: `${Math.round(base * 1.1 / 10) * 10} Kč`,
+          price: `${Math.round((base * 1.1) / 10) * 10} Kč`,
           unit: "per night",
         },
         {
           label: "Cat Care",
-          price: `${Math.round(base * 0.7 / 10) * 10} Kč`,
+          price: `${Math.round((base * 0.7) / 10) * 10} Kč`,
           unit: "per night",
         },
         {
           label: "Additional Cat",
-          price: `+ ${Math.round(base * 0.3 / 10) * 10} Kč`,
+          price: `+ ${Math.round((base * 0.3) / 10) * 10} Kč`,
           unit: "per cat, per night",
         },
         {
@@ -589,7 +589,8 @@ const providerFallbackDetails: Record<
         providerId,
         serviceType: "boarding",
         title: "Boarding",
-        shortDescription: "Stay in Markéta's spacious Old Town apartment — one household at a time.",
+        shortDescription:
+          "Stay in Markéta's spacious Old Town apartment — one household at a time.",
         priceFrom: 1350,
         priceUnit: "per_night",
         subtitle: "at Markéta's home",
@@ -676,7 +677,8 @@ const providerFallbackDetails: Record<
         providerId,
         serviceType: "walk_checkin",
         title: "Walks & Check-ins",
-        shortDescription: "High-energy walks and potty check-ins through Karlín's parks and trails.",
+        shortDescription:
+          "High-energy walks and potty check-ins through Karlín's parks and trails.",
         priceFrom: 440,
         priceUnit: "per_visit",
         rates: walkRates(395),
@@ -710,10 +712,7 @@ const providerFallbackDetails: Record<
       "Dogs comfortable around children",
       "Dogs that enjoy off-leash play",
     ],
-    medicalCare: [
-      "Comfortable giving oral medication",
-      "Will follow written vet care plans",
-    ],
+    medicalCare: ["Comfortable giving oral medication", "Will follow written vet care plans"],
     homeEnvironment: [
       "Family house with garden",
       "Two resident dogs (Labrador + Beagle)",

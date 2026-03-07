@@ -3498,10 +3498,15 @@ body.guest-route {
   font-weight: var(--weight-semibold);
   line-height: 1;
   border-radius: 999px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18), 0 0 0 1.5px rgba(0, 0, 0, 0.07);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.18),
+    0 0 0 1.5px rgba(0, 0, 0, 0.07);
   white-space: nowrap;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease,
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease,
     transform 0.15s ease;
 }
 
@@ -3525,7 +3530,9 @@ body.guest-route {
 .map-popup-shell .leaflet-popup-content-wrapper {
   padding: 0;
   border-radius: var(--radius-lg);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.1);
   border: 1px solid var(--border-subtle);
   overflow: hidden;
 }
@@ -5988,7 +5995,9 @@ body.guest-route {
   background: var(--surface-popout);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl, 20px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.05);
   padding: 20px;
   width: 100%;
   max-width: 340px;
@@ -6223,7 +6232,9 @@ body.guest-route {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
 .landing-service-card:hover {
@@ -6398,7 +6409,9 @@ body.guest-route {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-lg);
   text-decoration: none;
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  transition:
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
 .landing-featured-card:hover {
@@ -6541,7 +6554,9 @@ body.guest-route {
   padding: 4px 6px;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: color 0.12s ease, background 0.12s ease;
+  transition:
+    color 0.12s ease,
+    background 0.12s ease;
   user-select: none;
 }
 
@@ -6669,10 +6684,18 @@ body.guest-route {
   animation: landing-row-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.landing-hero-provider-row:nth-child(1) { animation-delay: 0.3s; }
-.landing-hero-provider-row:nth-child(2) { animation-delay: 0.42s; }
-.landing-hero-provider-row:nth-child(3) { animation-delay: 0.54s; }
-.landing-hero-provider-row:nth-child(4) { animation-delay: 0.66s; }
+.landing-hero-provider-row:nth-child(1) {
+  animation-delay: 0.3s;
+}
+.landing-hero-provider-row:nth-child(2) {
+  animation-delay: 0.42s;
+}
+.landing-hero-provider-row:nth-child(3) {
+  animation-delay: 0.54s;
+}
+.landing-hero-provider-row:nth-child(4) {
+  animation-delay: 0.66s;
+}
 
 /* ── Hero provider avatar: status dot ─────────────────────────────────────── */
 
@@ -6725,7 +6748,10 @@ body.guest-route {
   font-weight: var(--weight-semibold);
   color: var(--text-tertiary);
   cursor: pointer;
-  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
   white-space: nowrap;
 }
 
@@ -6733,7 +6759,9 @@ body.guest-route {
 .landing-tab-btn[aria-selected="true"] {
   background: var(--surface-top);
   color: var(--text-primary);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
 .landing-how-tab-content {
@@ -6870,7 +6898,9 @@ body.guest-route {
   background: var(--surface-popout);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-xl, 20px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.07), 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.07),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   padding: 40px 36px 32px;
   display: flex;
   flex-direction: column;
@@ -6967,7 +6997,9 @@ body.guest-route {
   font-size: var(--font-size-body);
   color: var(--text-primary);
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
   box-sizing: border-box;
 }
 
@@ -7022,7 +7054,9 @@ body.guest-route {
   font-size: var(--font-size-body);
   font-weight: var(--weight-semibold);
   cursor: pointer;
-  transition: background 0.15s ease, opacity 0.15s ease;
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease;
   margin-top: 4px;
 }
 

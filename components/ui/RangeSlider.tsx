@@ -25,7 +25,9 @@ export function RangeSlider({
   const clampedValue = Math.max(min, Math.min(value, max));
   const rangePct = ((clampedValue - min) / span) * 100;
 
-  const rootClass = className ? `left-range-row left-range-row-single ${className}` : "left-range-row left-range-row-single";
+  const rootClass = className
+    ? `left-range-row left-range-row-single ${className}`
+    : "left-range-row left-range-row-single";
   const sliderStyle = {
     "--range-pct": `${Math.max(0, Math.min(100, rangePct))}%`,
   } as CSSProperties;

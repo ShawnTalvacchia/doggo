@@ -252,9 +252,9 @@ export function DatePicker(props: DatePickerProps) {
   );
   const [draftRange, setDraftRange] = useState<DateRange>(() =>
     props.mode === "range"
-      ? (props.value && typeof props.value === "object" && "start" in props.value
-          ? props.value
-          : { start: null, end: null })
+      ? props.value && typeof props.value === "object" && "start" in props.value
+        ? props.value
+        : { start: null, end: null }
       : { start: null, end: null },
   );
 
@@ -311,7 +311,9 @@ export function DatePicker(props: DatePickerProps) {
   }, [props.mode, draftSingle, draftRange]);
 
   const canApply =
-    props.mode === "single" ? !!draftSingle : !!((draftRange ?? {}).start && (draftRange ?? {}).end);
+    props.mode === "single"
+      ? !!draftSingle
+      : !!((draftRange ?? {}).start && (draftRange ?? {}).end);
 
   return (
     <ModalSheet
@@ -332,8 +334,14 @@ export function DatePicker(props: DatePickerProps) {
     >
       <Calendar
         mode={props.mode}
-        pending={props.mode === "single" ? draftSingle : (draftRange ?? { start: null, end: null }).start}
-        range={props.mode === "range" ? (draftRange ?? { start: null, end: null }) : { start: null, end: null }}
+        pending={
+          props.mode === "single" ? draftSingle : (draftRange ?? { start: null, end: null }).start
+        }
+        range={
+          props.mode === "range"
+            ? (draftRange ?? { start: null, end: null })
+            : { start: null, end: null }
+        }
         onDayClick={handleDayClick}
       />
     </ModalSheet>

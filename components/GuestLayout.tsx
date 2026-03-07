@@ -6,10 +6,7 @@ import { useEffect } from "react";
 
 export function GuestLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isGuestRoute =
-    pathname === "/" ||
-    pathname === "/signin" ||
-    pathname.startsWith("/signup");
+  const isGuestRoute = pathname === "/" || pathname === "/signin" || pathname.startsWith("/signup");
   const isSignupRoute = pathname.startsWith("/signup");
 
   useEffect(() => {
@@ -27,9 +24,7 @@ export function GuestLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="guest-layout">
       {nav}
-      <main
-        className={`guest-main${isSignupRoute ? " guest-main--noscroll" : ""}`}
-      >
+      <main className={`guest-main${isSignupRoute ? " guest-main--noscroll" : ""}`}>
         {mainContent}
       </main>
       {bottom}

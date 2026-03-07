@@ -81,9 +81,7 @@ export default function SignupProfilePage() {
           <div className="form-row">
             <div className="form-col">
               <p className="form-section-label">Location</p>
-              <p
-                className="form-row-hint"
-              >
+              <p className="form-row-hint">
                 Used to match you with nearby services.
                 <br />
                 Your exact address stays private.
@@ -125,9 +123,7 @@ export default function SignupProfilePage() {
           <div className="form-row">
             <div className="form-col">
               <p className="form-section-label">Visibility</p>
-              <p
-                className="form-row-hint"
-              >
+              <p className="form-row-hint">
                 Public profiles can appear to nearby owners for playdates and meetups. If disabled,
                 only caregivers you hire will see your profile.
                 <br />

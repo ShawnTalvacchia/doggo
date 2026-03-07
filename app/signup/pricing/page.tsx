@@ -123,9 +123,7 @@ export default function SignupPricingPage() {
           <div className="form-row">
             <div className="form-col">
               <p className="form-section-label">Your Pricing</p>
-              <p
-                className="form-row-hint"
-              >
+              <p className="form-row-hint">
                 This is the minimum owners will see on your listing. You can always adjust or add
                 service tiers later.
               </p>

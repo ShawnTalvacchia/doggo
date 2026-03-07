@@ -3,9 +3,7 @@ import Link from "next/link";
 export function TopNavDesktop() {
   return (
     <nav className="top-nav desktop-only">
-      <div className="brand">
-        DOGGO
-      </div>
+      <div className="brand">DOGGO</div>
       <Link href="/explore/results">Search</Link>
       <a href="#" aria-disabled>
         Offer Care

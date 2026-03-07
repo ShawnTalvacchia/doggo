@@ -97,9 +97,7 @@ export function ExploreFilterPanelDesktop({
         {/* ── Service chooser page ──────────────────────────────────────── */}
         <section className="left-panel-page">
           <div className="panel-content">
-            <h2 className="left-panel-title">
-              Choose how care is provided
-            </h2>
+            <h2 className="left-panel-title">Choose how care is provided</h2>
             <div className="left-service-list">
               {serviceOptions.map((option) => (
                 <button

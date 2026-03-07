@@ -33,9 +33,7 @@ export default function SignupWalkingPage() {
           <div className="form-row">
             <div className="form-col">
               <p className="form-section-label">Service Area</p>
-              <p
-                className="form-row-hint"
-              >
+              <p className="form-row-hint">
                 Help local owners find you within a comfortable walking radius.
               </p>
             </div>
@@ -67,9 +65,7 @@ export default function SignupWalkingPage() {
           <div className="form-row">
             <div className="form-col">
               <p className="form-section-label">Availability</p>
-              <p
-                className="form-row-hint"
-              >
+              <p className="form-row-hint">
                 Choose the time windows and days you&apos;re available.
               </p>
             </div>

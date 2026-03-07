@@ -38,9 +38,7 @@ export default function SignupHostingPage() {
           <div className="form-row">
             <div className="form-col">
               <p className="form-section-label">Availability</p>
-              <p
-                className="form-row-hint"
-              >
+              <p className="form-row-hint">
                 Choose when you&apos;re available to welcome dogs into your home.
               </p>
             </div>
@@ -83,9 +81,7 @@ export default function SignupHostingPage() {
           <div className="form-row">
             <div className="form-col">
               <p className="form-section-label">Home Type</p>
-              <p
-                className="form-row-hint"
-              >
+              <p className="form-row-hint">
                 Describe the space where you host pets so owners know what to expect.
               </p>
             </div>

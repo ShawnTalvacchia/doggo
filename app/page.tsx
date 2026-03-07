@@ -45,10 +45,7 @@ function ServiceCard({
           From {from}
           <span className="landing-service-unit"> / {unit}</span>
         </span>
-        <Link
-          href={`/explore/results?service=${service}`}
-          className="landing-service-link"
-        >
+        <Link href={`/explore/results?service=${service}`} className="landing-service-link">
           View sitters →
         </Link>
       </div>
@@ -74,11 +71,7 @@ function FeatureCard({
   );
 }
 
-function FeaturedCard({
-  provider,
-}: {
-  provider: (typeof providers)[number];
-}) {
+function FeaturedCard({ provider }: { provider: (typeof providers)[number] }) {
   const topService = provider.services[0];
   const serviceLabel =
     topService === "walk_checkin"
@@ -88,15 +81,8 @@ function FeaturedCard({
         : "Boarding";
 
   return (
-    <Link
-      href={`/explore/profile/${provider.id}`}
-      className="landing-featured-card"
-    >
-      <img
-        src={provider.avatarUrl}
-        alt={provider.name}
-        className="landing-featured-avatar"
-      />
+    <Link href={`/explore/profile/${provider.id}`} className="landing-featured-card">
+      <img src={provider.avatarUrl} alt={provider.name} className="landing-featured-avatar" />
       <div className="landing-featured-info">
         <span className="landing-featured-name">{provider.name}</span>
         <span className="landing-featured-location">
@@ -108,9 +94,7 @@ function FeaturedCard({
           <span className="landing-featured-dot">·</span>
           {serviceLabel}
         </span>
-        <span className="landing-featured-price">
-          From {provider.priceFrom} Kč
-        </span>
+        <span className="landing-featured-price">From {provider.priceFrom} Kč</span>
         <span className="landing-featured-available" aria-label="Available now">
           <span className="landing-featured-available-dot" aria-hidden="true" />
           Available
@@ -132,18 +116,12 @@ function HeroVisual() {
           {preview.map((p) => (
             <div key={p.id} className="landing-hero-provider-row">
               <div className="landing-hero-avatar-wrap">
-                <img
-                  src={p.avatarUrl}
-                  alt=""
-                  className="landing-hero-provider-avatar"
-                />
+                <img src={p.avatarUrl} alt="" className="landing-hero-provider-avatar" />
                 <span className="landing-hero-status-dot" aria-hidden="true" />
               </div>
               <div className="landing-hero-provider-info">
                 <span className="landing-hero-provider-name">{p.name}</span>
-                <span className="landing-hero-provider-loc">
-                  {p.neighborhood}
-                </span>
+                <span className="landing-hero-provider-loc">{p.neighborhood}</span>
               </div>
               <span className="landing-hero-provider-rating">
                 <Star size={11} weight="fill" className="landing-star-icon" />
@@ -173,12 +151,10 @@ export default function LandingPage() {
           <div className="landing-hero-content">
             <span className="landing-hero-eyebrow">Available in Prague</span>
             <h1 className="landing-hero-heading">
-              Trusted dog care from{" "}
-              <span className="landing-hero-accent">people nearby.</span>
+              Trusted dog care from <span className="landing-hero-accent">people nearby.</span>
             </h1>
             <p className="landing-hero-sub">
-              Find trusted dog sitters near you. Message first. Book when
-              you&apos;re ready.
+              Find trusted dog sitters near you. Message first. Book when you&apos;re ready.
             </p>
             <div className="landing-hero-ctas">
               <ButtonAction variant="primary" cta size="lg" href="/explore/results">
@@ -243,9 +219,7 @@ export default function LandingPage() {
         <div className="landing-inner">
           <div className="landing-section-header">
             <h2 className="landing-section-heading">How we can help</h2>
-            <p className="landing-section-sub">
-              Three ways to get help with your dog.
-            </p>
+            <p className="landing-section-sub">Three ways to get help with your dog.</p>
           </div>
           <div className="landing-services-grid">
             <ServiceCard
@@ -312,9 +286,7 @@ export default function LandingPage() {
       <section className="landing-section landing-section--alt">
         <div className="landing-inner">
           <div className="landing-section-header">
-            <h2 className="landing-section-heading">
-              Dog care should feel simple and local.
-            </h2>
+            <h2 className="landing-section-heading">Dog care should feel simple and local.</h2>
           </div>
           <div className="landing-features-grid">
             <FeatureCard
@@ -339,9 +311,7 @@ export default function LandingPage() {
       {/* ── Bottom CTA ───────────────────────────────────────────────── */}
       <section className="landing-cta-close">
         <div className="landing-cta-close-inner">
-          <h2 className="landing-cta-close-heading">
-            Ready to find care for your dog?
-          </h2>
+          <h2 className="landing-cta-close-heading">Ready to find care for your dog?</h2>
           <p className="landing-cta-close-sub">
             Browsing is free. No account needed to look around.
           </p>

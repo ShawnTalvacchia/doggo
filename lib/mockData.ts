@@ -86,7 +86,7 @@ export const providers: ProviderCard[] = [
     neighbourhoodMatch: true,
     mutualConnections: 2,
     lat: 50.0757,
-    lng: 14.4020,
+    lng: 14.402,
   },
   {
     id: "nikola-r",
@@ -125,7 +125,7 @@ export const providers: ProviderCard[] = [
     distanceKm: 3.7,
     neighbourhoodMatch: false,
     mutualConnections: 0,
-    lat: 50.1010,
+    lat: 50.101,
     lng: 14.3888,
   },
   {
@@ -146,7 +146,7 @@ export const providers: ProviderCard[] = [
     neighbourhoodMatch: false,
     mutualConnections: 0,
     lat: 50.0834,
-    lng: 14.4510,
+    lng: 14.451,
   },
   {
     id: "marketa-h",
@@ -165,7 +165,7 @@ export const providers: ProviderCard[] = [
     distanceKm: 3.2,
     neighbourhoodMatch: false,
     mutualConnections: 1,
-    lat: 50.0880,
+    lat: 50.088,
     lng: 14.4189,
   },
   {
@@ -186,7 +186,7 @@ export const providers: ProviderCard[] = [
     neighbourhoodMatch: false,
     mutualConnections: 0,
     lat: 50.0944,
-    lng: 14.4500,
+    lng: 14.45,
   },
   {
     id: "simona-v",
@@ -205,7 +205,7 @@ export const providers: ProviderCard[] = [
     distanceKm: 2.0,
     neighbourhoodMatch: false,
     mutualConnections: 3,
-    lat: 50.0620,
-    lng: 14.4280,
+    lat: 50.062,
+    lng: 14.428,
   },
 ];
