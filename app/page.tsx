@@ -158,10 +158,10 @@ export default function LandingPage() {
             </p>
             <div className="landing-hero-ctas">
               <ButtonAction variant="primary" cta size="lg" href="/explore/results">
-                Find a sitter
+                Find a dog carer
               </ButtonAction>
               <ButtonAction variant="outline" cta size="lg" href="/signup/start">
-                Become a sitter
+                Become a carer
               </ButtonAction>
             </div>
           </div>
@@ -193,8 +193,8 @@ export default function LandingPage() {
       <div className="landing-trust-strip">
         <div className="landing-inner landing-trust-strip-inner">
           <div className="landing-trust-item">
-            <span className="landing-trust-value">7</span>
-            <span className="landing-trust-label">sitters in Prague</span>
+            <span className="landing-trust-value">127</span>
+            <span className="landing-trust-label">carers in Prague</span>
           </div>
           <div className="landing-trust-sep" aria-hidden="true" />
           <div className="landing-trust-item">
@@ -203,8 +203,8 @@ export default function LandingPage() {
           </div>
           <div className="landing-trust-sep" aria-hidden="true" />
           <div className="landing-trust-item">
-            <span className="landing-trust-value">No</span>
-            <span className="landing-trust-label">booking fees</span>
+            <span className="landing-trust-value">Transparent</span>
+            <span className="landing-trust-label">carer-set prices</span>
           </div>
           <div className="landing-trust-sep" aria-hidden="true" />
           <div className="landing-trust-item">
@@ -217,7 +217,7 @@ export default function LandingPage() {
       {/* ── Services ─────────────────────────────────────────────────── */}
       <section className="landing-section">
         <div className="landing-inner">
-          <div className="landing-section-header">
+          <div className="landing-section-header landing-section-header--centered">
             <h2 className="landing-section-heading">How we can help</h2>
             <p className="landing-section-sub">Three ways to get help with your dog.</p>
           </div>
@@ -253,7 +253,7 @@ export default function LandingPage() {
       {/* ── How it works (interactive tab switcher) ───────────────────── */}
       <section className="landing-section landing-section--alt">
         <div className="landing-inner">
-          <div className="landing-section-header">
+          <div className="landing-section-header landing-section-header--centered">
             <h2 className="landing-section-heading">How it works</h2>
           </div>
           <HowItWorksTabs />
@@ -291,8 +291,8 @@ export default function LandingPage() {
           <div className="landing-features-grid">
             <FeatureCard
               icon={<CurrencyCircleDollar size={28} weight="light" />}
-              title="No booking fees"
-              body="Arrange care and payment directly with your sitter. We don't take a cut."
+              title="Transparent pricing"
+              body="Arrange care and payment directly with your carer. Clear, upfront prices from the people who look after your dog."
             />
             <FeatureCard
               icon={<ChatCircleDots size={28} weight="light" />}

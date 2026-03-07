@@ -5,6 +5,13 @@ export type PageMenuGroup = {
 
 export const PAGE_MENU_GROUPS: PageMenuGroup[] = [
   {
+    title: "System",
+    items: [
+      { label: "Landing", value: "/" },
+      { label: "Styleguide", value: "/styleguide" },
+    ],
+  },
+  {
     title: "Sign Up",
     items: [
       { label: "Start", value: "/signup/start" },
@@ -22,13 +29,6 @@ export const PAGE_MENU_GROUPS: PageMenuGroup[] = [
     items: [
       { label: "Results", value: "/explore/results" },
       { label: "Profile", value: "/explore/profile/olga-m" },
-    ],
-  },
-  {
-    title: "System",
-    items: [
-      { label: "Landing", value: "/" },
-      { label: "Styleguide", value: "/styleguide" },
     ],
   },
 ];
