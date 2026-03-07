@@ -96,9 +96,9 @@ function formatPriceUnit(unit: ProviderCard["priceUnit"]) {
 }
 
 function ServiceIcon({ type }: { type: ServiceType }) {
-  if (type === "inhome_sitting") return <House size={22} weight="duotone" />;
-  if (type === "boarding") return <PawPrint size={22} weight="duotone" />;
-  return <PersonSimpleWalk size={22} weight="duotone" />;
+  if (type === "inhome_sitting") return <House size={28} weight="regular" />;
+  if (type === "boarding") return <PawPrint size={28} weight="regular" />;
+  return <PersonSimpleWalk size={28} weight="regular" />;
 }
 
 function WeightIcon({ size }: { size: ServiceWeightBand["size"] }) {

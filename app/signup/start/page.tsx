@@ -1,12 +1,190 @@
-"use client"; import { useMemo, useState } from "react";
+"use client";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { FormFooter } from "@/components/ui/FormFooter";
 import { FormHeader } from "@/components/ui/FormHeader";
 import { InputField } from "@/components/ui/InputField";
 import { useSignupDraft } from "@/contexts/SignupContext";
- function FacebookIcon() { return (<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M20 10C20 4.477 15.523 0 10 0S0 4.477 0 10c0 4.991 3.657 9.128 8.438 9.878v-6.987H5.898V10h2.54V7.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V10h2.773l-.443 2.89h-2.33v6.988C16.343 19.128 20 14.991 20 10z" fill="#1877F2" /></svg>);
-} function GoogleIcon() { return (<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M19.6 10.227c0-.709-.064-1.39-.182-2.045H10v3.868h5.382a4.6 4.6 0 01-1.996 3.018v2.51h3.232c1.891-1.742 2.982-4.305 2.982-7.35z" fill="#4285F4" /><path d="M10 20c2.7 0 4.964-.895 6.618-2.423l-3.232-2.509c-.895.6-2.04.954-3.386.954-2.605 0-4.81-1.76-5.595-4.123H1.064v2.59A9.996 9.996 0 0010 20z" fill="#34A853" /><path d="M4.405 11.9A6.01 6.01 0 014.09 10c0-.663.114-1.305.314-1.9V5.51H1.064A9.996 9.996 0 000 10c0 1.614.386 3.14 1.064 4.49L4.405 11.9z" fill="#FBBC05" /><path d="M10 3.977c1.468 0 2.786.505 3.822 1.496l2.868-2.868C14.959.99 12.695 0 10 0 6.09 0 2.71 2.24 1.064 5.51l3.34 2.59C5.191 5.736 7.395 3.977 10 3.977z" fill="#EA4335" /></svg>);
-} function AppleIcon() { return (<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M14.93 10.646c-.015-1.684.76-2.96 2.32-3.897-1.002-1.418-2.508-2.2-4.506-2.356-1.888-.15-3.946 1.1-4.698 1.1-.793 0-2.64-1.048-4.07-1.048C1.437 4.49 0 6.46 0 10.462c0 1.196.22 2.43.66 3.702.588 1.67 2.71 5.765 4.92 5.7 1.35-.033 2.305-.95 4.063-.95 1.703 0 2.588.95 4.063.95 2.23-.033 4.147-3.756 4.706-5.43-2.99-1.399-2.483-4.094-2.483-4.738zM12.527 3.15c1.25-1.47 1.127-2.806 1.086-3.15-1.086.064-2.342.742-3.065 1.59-.793.915-1.258 2.05-1.155 3.33 1.183.09 2.272-.5 3.134-1.77z" fill="black" /></svg>);
-} export default function SignupStartPage() { const router = useRouter(); const { draft, updateDraft } = useSignupDraft(); const [passwordTouched, setPasswordTouched] = useState(false); const [confirmTouched, setConfirmTouched] = useState(false); const passwordError = useMemo(() =>{ if (!passwordTouched || !draft.password) return undefined; if (draft.password.trim().length< 8) return "Password must be at least 8 characters"; return undefined; }, [passwordTouched, draft.password]); const confirmError = useMemo(() =>{ if (!confirmTouched || !draft.confirmPassword) return undefined; if (draft.confirmPassword !== draft.password) return "Passwords don't match"; return undefined; }, [confirmTouched, draft.confirmPassword, draft.password]); const canContinue = useMemo(() =>{ return Boolean( draft.firstName.trim() && draft.lastName.trim() && draft.email.trim() && draft.password.trim().length >= 8 && draft.confirmPassword === draft.password && draft.acceptTos && draft.acceptPrivacy, ); }, [draft]); return (<main className="page-shell"><div className="form-shell"><FormHeader title="Create your Doggo Account" subtitle="Join our community of dog lovers and trusted caregivers in Prague." /><section className="form-body"><div style={{ display: "flex", flexDirection: "column", gap: 12 }}><p className="form-section-label">Continue With</p><div className="social-row"><button className="social-btn"><FacebookIcon />Facebook</button><button className="social-btn"><GoogleIcon />Google</button><button className="social-btn"><AppleIcon />Apple</button></div></div><div className="or-divider">OR</div><div style={{ display: "flex", flexDirection: "column", gap: 16 }}><p className="form-section-label">Sign up with your email</p><div className="two-col"><InputField id="first-name" label="First Name" required value={draft.firstName} onChange={(firstName) =>updateDraft({ firstName })} placeholder="John" /><InputField id="last-name" label="Last Name" required value={draft.lastName} onChange={(lastName) =>updateDraft({ lastName })} placeholder="Smith" /></div><div className="form-row"><div className="form-col"><InputField id="email" label="Email" required value={draft.email} onChange={(email) =>updateDraft({ email })} placeholder="johnsmith@email.com" type="email" /></div><div className="form-col form-inline-helper-col"><p className="form-inline-helper">We'll send confirmations and updates here</p></div></div><div className="two-col"><InputField id="password" label="Password" required value={draft.password} onChange={(password) =>updateDraft({ password })} onBlur={() =>setPasswordTouched(true)} placeholder="Minimum of 8 characters" type="password" error={passwordError} /><InputField id="confirm-password" label="Confirm Password" required value={draft.confirmPassword} onChange={(confirmPassword) =>updateDraft({ confirmPassword })} onBlur={() =>setConfirmTouched(true)} placeholder="Re-enter your password" type="password" error={confirmError} /></div></div><div style={{ display: "grid", gap: 8 }}><CheckboxRow id="tos" checked={draft.acceptTos} onChange={(acceptTos) =>updateDraft({ acceptTos })} >I agree to the<strong>Terms of Service</strong></CheckboxRow><CheckboxRow id="privacy" checked={draft.acceptPrivacy} onChange={(acceptPrivacy) =>updateDraft({ acceptPrivacy })} >I acknowledge the<strong>Privacy Policy</strong>and consent to the processing of my personal data</CheckboxRow></div></section><FormFooter onBack={() =>router.back()} onContinue={() =>router.push("/signup/role")} disableContinue={!canContinue} /></div></main>);
+function FacebookIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <path
+        d="M20 10C20 4.477 15.523 0 10 0S0 4.477 0 10c0 4.991 3.657 9.128 8.438 9.878v-6.987H5.898V10h2.54V7.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V10h2.773l-.443 2.89h-2.33v6.988C16.343 19.128 20 14.991 20 10z"
+        fill="#1877F2"
+      />
+    </svg>
+  );
+}
+function GoogleIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <path
+        d="M19.6 10.227c0-.709-.064-1.39-.182-2.045H10v3.868h5.382a4.6 4.6 0 01-1.996 3.018v2.51h3.232c1.891-1.742 2.982-4.305 2.982-7.35z"
+        fill="#4285F4"
+      />
+      <path
+        d="M10 20c2.7 0 4.964-.895 6.618-2.423l-3.232-2.509c-.895.6-2.04.954-3.386.954-2.605 0-4.81-1.76-5.595-4.123H1.064v2.59A9.996 9.996 0 0010 20z"
+        fill="#34A853"
+      />
+      <path
+        d="M4.405 11.9A6.01 6.01 0 014.09 10c0-.663.114-1.305.314-1.9V5.51H1.064A9.996 9.996 0 000 10c0 1.614.386 3.14 1.064 4.49L4.405 11.9z"
+        fill="#FBBC05"
+      />
+      <path
+        d="M10 3.977c1.468 0 2.786.505 3.822 1.496l2.868-2.868C14.959.99 12.695 0 10 0 6.09 0 2.71 2.24 1.064 5.51l3.34 2.59C5.191 5.736 7.395 3.977 10 3.977z"
+        fill="#EA4335"
+      />
+    </svg>
+  );
+}
+function AppleIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <path
+        d="M14.93 10.646c-.015-1.684.76-2.96 2.32-3.897-1.002-1.418-2.508-2.2-4.506-2.356-1.888-.15-3.946 1.1-4.698 1.1-.793 0-2.64-1.048-4.07-1.048C1.437 4.49 0 6.46 0 10.462c0 1.196.22 2.43.66 3.702.588 1.67 2.71 5.765 4.92 5.7 1.35-.033 2.305-.95 4.063-.95 1.703 0 2.588.95 4.063.95 2.23-.033 4.147-3.756 4.706-5.43-2.99-1.399-2.483-4.094-2.483-4.738zM12.527 3.15c1.25-1.47 1.127-2.806 1.086-3.15-1.086.064-2.342.742-3.065 1.59-.793.915-1.258 2.05-1.155 3.33 1.183.09 2.272-.5 3.134-1.77z"
+        fill="black"
+      />
+    </svg>
+  );
+}
+export default function SignupStartPage() {
+  const router = useRouter();
+  const { draft, updateDraft } = useSignupDraft();
+  const [passwordTouched, setPasswordTouched] = useState(false);
+  const [confirmTouched, setConfirmTouched] = useState(false);
+  const passwordError = useMemo(() => {
+    if (!passwordTouched || !draft.password) return undefined;
+    if (draft.password.trim().length < 8) return "Password must be at least 8 characters";
+    return undefined;
+  }, [passwordTouched, draft.password]);
+  const confirmError = useMemo(() => {
+    if (!confirmTouched || !draft.confirmPassword) return undefined;
+    if (draft.confirmPassword !== draft.password) return "Passwords don't match";
+    return undefined;
+  }, [confirmTouched, draft.confirmPassword, draft.password]);
+  const canContinue = useMemo(() => {
+    return Boolean(
+      draft.firstName.trim() &&
+      draft.lastName.trim() &&
+      draft.email.trim() &&
+      draft.password.trim().length >= 8 &&
+      draft.confirmPassword === draft.password &&
+      draft.acceptTos &&
+      draft.acceptPrivacy,
+    );
+  }, [draft]);
+  return (
+    <main className="page-shell">
+      <div className="form-shell">
+        <FormHeader
+          title="Create your Doggo Account"
+          subtitle="Join our community of dog lovers and trusted caregivers in Prague."
+        />
+        <section className="form-body">
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <p className="form-section-label">Continue With</p>
+            <div className="social-row">
+              <button className="social-btn">
+                <FacebookIcon />
+                Facebook
+              </button>
+              <button className="social-btn">
+                <GoogleIcon />
+                Google
+              </button>
+              <button className="social-btn">
+                <AppleIcon />
+                Apple
+              </button>
+            </div>
+          </div>
+          <div className="or-divider">OR</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <p className="form-section-label">Sign up with your email</p>
+            <div className="two-col">
+              <InputField
+                id="first-name"
+                label="First Name"
+                required
+                value={draft.firstName}
+                onChange={(firstName) => updateDraft({ firstName })}
+                placeholder="John"
+              />
+              <InputField
+                id="last-name"
+                label="Last Name"
+                required
+                value={draft.lastName}
+                onChange={(lastName) => updateDraft({ lastName })}
+                placeholder="Smith"
+              />
+            </div>
+            <div className="form-row">
+              <div className="form-col">
+                <InputField
+                  id="email"
+                  label="Email"
+                  required
+                  value={draft.email}
+                  onChange={(email) => updateDraft({ email })}
+                  placeholder="johnsmith@email.com"
+                  type="email"
+                />
+              </div>
+              <div className="form-col form-inline-helper-col">
+                <p className="form-inline-helper">We'll send confirmations and updates here</p>
+              </div>
+            </div>
+            <div className="two-col">
+              <InputField
+                id="password"
+                label="Password"
+                required
+                value={draft.password}
+                onChange={(password) => updateDraft({ password })}
+                onBlur={() => setPasswordTouched(true)}
+                placeholder="Minimum of 8 characters"
+                type="password"
+                error={passwordError}
+              />
+              <InputField
+                id="confirm-password"
+                label="Confirm Password"
+                required
+                value={draft.confirmPassword}
+                onChange={(confirmPassword) => updateDraft({ confirmPassword })}
+                onBlur={() => setConfirmTouched(true)}
+                placeholder="Re-enter your password"
+                type="password"
+                error={confirmError}
+              />
+            </div>
+          </div>
+          <div style={{ display: "grid", gap: 8 }}>
+            <CheckboxRow
+              id="tos"
+              checked={draft.acceptTos}
+              onChange={(acceptTos) => updateDraft({ acceptTos })}
+            >
+              I agree to the<strong>Terms of Service</strong>
+            </CheckboxRow>
+            <CheckboxRow
+              id="privacy"
+              checked={draft.acceptPrivacy}
+              onChange={(acceptPrivacy) => updateDraft({ acceptPrivacy })}
+            >
+              I acknowledge the<strong>Privacy Policy</strong>and consent to the processing of my
+              personal data
+            </CheckboxRow>
+          </div>
+        </section>
+        <FormFooter
+          onBack={() => router.back()}
+          onContinue={() => router.push("/signup/role")}
+          disableContinue={!canContinue}
+        />
+      </div>
+    </main>
+  );
 }

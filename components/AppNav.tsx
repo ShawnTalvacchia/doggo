@@ -32,12 +32,7 @@ function GuestNavLinks() {
 function SignupNavLinks() {
   return (
     <div className="app-nav-right" aria-label="Signup navigation">
-      <Link
-        href="/profile"
-        className="app-nav-dev-trigger"
-        aria-label="Open menu"
-        title="Menu"
-      >
+      <Link href="/profile" className="app-nav-dev-trigger" aria-label="Open menu" title="Menu">
         <DotsThree size={24} weight="bold" />
       </Link>
     </div>
@@ -77,7 +72,12 @@ function LoggedNavLinks() {
         <ButtonIcon label="Calendar">
           <CalendarDots size={32} weight="light" />
         </ButtonIcon>
-        <Link href="/profile" className="app-nav-avatar-trigger" aria-label="Open menu" title="Menu">
+        <Link
+          href="/profile"
+          className="app-nav-avatar-trigger"
+          aria-label="Open menu"
+          title="Menu"
+        >
           <img
             className="app-nav-avatar-img"
             src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80"
@@ -102,16 +102,20 @@ export function AppNav() {
   const navContent = (
     <>
       <div className="app-nav-brand-wrap">
-        <Link
-          href="/"
-          className="app-nav-brand"
-          style={{ fontFamily: "var(--font-heading), sans-serif" }}
-        >
+        <Link href="/" className="app-nav-brand">
           DOGGO
         </Link>
       </div>
       <div className="app-nav-mode">
-        {mode === "guest" ? (isSignupRoute || isStyleguideRoute ? <SignupNavLinks /> : <GuestNavLinks />) : <LoggedNavLinks />}
+        {mode === "guest" ? (
+          isSignupRoute || isStyleguideRoute ? (
+            <SignupNavLinks />
+          ) : (
+            <GuestNavLinks />
+          )
+        ) : (
+          <LoggedNavLinks />
+        )}
       </div>
     </>
   );
@@ -125,11 +129,7 @@ export function AppNav() {
       <nav
         className={`app-nav${isContainedNav ? " app-nav--contained" : ""}${mode === "logged" ? " app-nav--logged" : ""}`}
       >
-        {isContainedNav ? (
-          <div className="app-nav-inner">{navContent}</div>
-        ) : (
-          navContent
-        )}
+        {isContainedNav ? <div className="app-nav-inner">{navContent}</div> : navContent}
       </nav>
     </header>
   );

@@ -7,10 +7,19 @@ export type ButtonVariant =
   | "tertiary"
   | "outline"
   | "disabled"
-  | "destructive";
+  | "destructive"
+  | "white"
+  | "outline-white";
 
-/** Variants when CTA is true (subset) */
-export type CTAButtonVariant = "primary" | "secondary" | "tertiary" | "disabled";
+/** Variants when CTA is true (subset — pill shape) */
+export type CTAButtonVariant =
+  | "primary"
+  | "secondary"
+  | "tertiary"
+  | "outline"
+  | "white"
+  | "outline-white"
+  | "disabled";
 
 type ButtonActionProps = {
   children: React.ReactNode;
@@ -53,6 +62,8 @@ export function ButtonAction({
     normalizedVariant === "outline" ? "btn-outline" : "",
     normalizedVariant === "disabled" ? "btn-disabled-variant" : "",
     normalizedVariant === "destructive" ? "btn-destructive" : "",
+    normalizedVariant === "white" ? "btn-white" : "",
+    normalizedVariant === "outline-white" ? "btn-outline-white" : "",
     cta ? "btn-cta" : "",
     size === "sm" ? "btn-sm" : "",
     size === "md" ? "btn-md" : "",

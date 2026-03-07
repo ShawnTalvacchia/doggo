@@ -3,7 +3,7 @@ import Link from "next/link";
 export function TopNavDesktop() {
   return (
     <nav className="top-nav desktop-only">
-      <div className="brand" style={{ fontFamily: "var(--font-heading), sans-serif" }}>
+      <div className="brand">
         DOGGO
       </div>
       <Link href="/explore/results">Search</Link>

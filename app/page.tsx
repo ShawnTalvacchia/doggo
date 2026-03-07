@@ -4,8 +4,14 @@ import {
   PawPrint,
   PersonSimpleWalk,
   Star,
+  ShieldCheck,
+  MapPin,
+  CurrencyCircleDollar,
+  ChatCircleDots,
 } from "@phosphor-icons/react/dist/ssr";
 import { providers } from "@/lib/mockData";
+import { HowItWorksTabs } from "@/components/landing/HowItWorksTabs";
+import { ButtonAction } from "@/components/ui/ButtonAction";
 
 // ── Static featured provider picks ───────────────────────────────────────────
 
@@ -50,22 +56,20 @@ function ServiceCard({
   );
 }
 
-function Step({
-  n,
+function FeatureCard({
+  icon,
   title,
   body,
 }: {
-  n: string;
+  icon: React.ReactNode;
   title: string;
   body: string;
 }) {
   return (
-    <div className="landing-step">
-      <span className="landing-step-n">{n}</span>
-      <div className="landing-step-body">
-        <strong className="landing-step-title">{title}</strong>
-        <p className="landing-step-text">{body}</p>
-      </div>
+    <div className="landing-feature-card">
+      <div className="landing-feature-icon">{icon}</div>
+      <strong className="landing-feature-title">{title}</strong>
+      <p className="landing-feature-body">{body}</p>
     </div>
   );
 }
@@ -107,6 +111,10 @@ function FeaturedCard({
         <span className="landing-featured-price">
           From {provider.priceFrom} Kč
         </span>
+        <span className="landing-featured-available" aria-label="Available now">
+          <span className="landing-featured-available-dot" aria-hidden="true" />
+          Available
+        </span>
       </div>
     </Link>
   );
@@ -123,11 +131,14 @@ function HeroVisual() {
         <div className="landing-hero-provider-list">
           {preview.map((p) => (
             <div key={p.id} className="landing-hero-provider-row">
-              <img
-                src={p.avatarUrl}
-                alt=""
-                className="landing-hero-provider-avatar"
-              />
+              <div className="landing-hero-avatar-wrap">
+                <img
+                  src={p.avatarUrl}
+                  alt=""
+                  className="landing-hero-provider-avatar"
+                />
+                <span className="landing-hero-status-dot" aria-hidden="true" />
+              </div>
               <div className="landing-hero-provider-info">
                 <span className="landing-hero-provider-name">{p.name}</span>
                 <span className="landing-hero-provider-loc">
@@ -160,32 +171,44 @@ export default function LandingPage() {
       <section className="landing-hero">
         <div className="landing-hero-inner">
           <div className="landing-hero-content">
+            <span className="landing-hero-eyebrow">Available in Prague</span>
             <h1 className="landing-hero-heading">
-              Trusted dog care from people nearby.
+              Trusted dog care from{" "}
+              <span className="landing-hero-accent">people nearby.</span>
             </h1>
             <p className="landing-hero-sub">
-              Find trusted dog sitters near you. Message first. Book when you're ready.
+              Find trusted dog sitters near you. Message first. Book when
+              you&apos;re ready.
             </p>
             <div className="landing-hero-ctas">
-              <Link href="/explore/results" className="landing-btn-primary">
+              <ButtonAction variant="primary" cta size="lg" href="/explore/results">
                 Find a sitter
-              </Link>
-              <Link href="/signup/start" className="landing-btn-outline">
+              </ButtonAction>
+              <ButtonAction variant="outline" cta size="lg" href="/signup/start">
                 Become a sitter
-              </Link>
+              </ButtonAction>
             </div>
           </div>
           <HeroVisual />
         </div>
       </section>
 
-      {/* ── Trust badges (row on desktop, column on mobile) ───────────── */}
+      {/* ── Trust badges ─────────────────────────────────────────────── */}
       <section className="landing-trust-badges" aria-label="Trust signals">
         <div className="landing-inner">
           <div className="landing-trust-badges-row">
-            <span className="landing-trust-badge">ID verified sitters</span>
-            <span className="landing-trust-badge">Real reviews from dog owners</span>
-            <span className="landing-trust-badge">Local meet &amp; greets encouraged</span>
+            <span className="landing-trust-badge">
+              <ShieldCheck size={16} weight="bold" aria-hidden="true" />
+              ID verified sitters
+            </span>
+            <span className="landing-trust-badge">
+              <Star size={16} weight="bold" aria-hidden="true" />
+              Real reviews from dog owners
+            </span>
+            <span className="landing-trust-badge">
+              <MapPin size={16} weight="bold" aria-hidden="true" />
+              Local meet &amp; greets encouraged
+            </span>
           </div>
         </div>
       </section>
@@ -253,63 +276,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── How it works ─────────────────────────────────────────────── */}
+      {/* ── How it works (interactive tab switcher) ───────────────────── */}
       <section className="landing-section landing-section--alt">
         <div className="landing-inner">
           <div className="landing-section-header">
             <h2 className="landing-section-heading">How it works</h2>
           </div>
-          <div className="landing-how-grid">
-            <div className="landing-how-col">
-              <h3 className="landing-how-col-heading">For Dog Owners</h3>
-              <div className="landing-steps">
-                <Step
-                  n="01"
-                  title="Browse sitters"
-                  body="Search by service, neighbourhood, and price. Every profile shows real rates, experience, and reviews."
-                />
-                <Step
-                  n="02"
-                  title="Message first"
-                  body="Send a message, ask questions, and get to know them before booking."
-                />
-                <Step
-                  n="03"
-                  title="Arrange directly"
-                  body="Agree on dates, details, and payment directly with your sitter."
-                />
-              </div>
-              <Link href="/explore/results" className="landing-how-cta">
-                Find a sitter →
-              </Link>
-            </div>
-
-            <div className="landing-how-divider" aria-hidden="true" />
-
-            <div className="landing-how-col">
-              <h3 className="landing-how-col-heading">For Dog Sitters</h3>
-              <div className="landing-steps">
-                <Step
-                  n="01"
-                  title="Create your profile"
-                  body="Tell owners about your home, your experience, and the dogs you love to care for."
-                />
-                <Step
-                  n="02"
-                  title="Set your prices"
-                  body="You decide what to charge. No platform fees take a cut."
-                />
-                <Step
-                  n="03"
-                  title="Choose who you help"
-                  body="Owners message you first. Accept the dogs that are the right fit."
-                />
-              </div>
-              <Link href="/signup/start" className="landing-how-cta">
-                Start earning →
-              </Link>
-            </div>
-          </div>
+          <HowItWorksTabs />
         </div>
       </section>
 
@@ -320,7 +293,7 @@ export default function LandingPage() {
             <div>
               <h2 className="landing-section-heading">Meet local sitters</h2>
               <p className="landing-section-sub">
-                A few of the people looking after Prague's dogs.
+                A few of the people looking after Prague&apos;s dogs.
               </p>
             </div>
             <Link href="/explore/results" className="landing-browse-all">
@@ -335,15 +308,31 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Why Doggo ────────────────────────────────────────────────── */}
+      {/* ── Why Doggo — feature card grid ────────────────────────────── */}
       <section className="landing-section landing-section--alt">
         <div className="landing-inner">
-          <p className="landing-why-tagline">Dog care should feel simple and local.</p>
-          <ul className="landing-why-list">
-            <li className="landing-why-li">No booking fees</li>
-            <li className="landing-why-li">Talk directly with sitters</li>
-            <li className="landing-why-li">Built for neighbourhood dog owners</li>
-          </ul>
+          <div className="landing-section-header">
+            <h2 className="landing-section-heading">
+              Dog care should feel simple and local.
+            </h2>
+          </div>
+          <div className="landing-features-grid">
+            <FeatureCard
+              icon={<CurrencyCircleDollar size={28} weight="light" />}
+              title="No booking fees"
+              body="Arrange care and payment directly with your sitter. We don't take a cut."
+            />
+            <FeatureCard
+              icon={<ChatCircleDots size={28} weight="light" />}
+              title="Message before you commit"
+              body="Ask questions, arrange a meet & greet, and get to know your sitter before anything is confirmed."
+            />
+            <FeatureCard
+              icon={<MapPin size={28} weight="light" />}
+              title="Built for your neighbourhood"
+              body="Every sitter is local. Real people in your district, not a faceless marketplace."
+            />
+          </div>
         </div>
       </section>
 
@@ -357,12 +346,12 @@ export default function LandingPage() {
             Browsing is free. No account needed to look around.
           </p>
           <div className="landing-cta-close-btns">
-            <Link href="/explore/results" className="landing-btn-white">
+            <ButtonAction variant="white" cta size="lg" href="/explore/results">
               Find a sitter
-            </Link>
-            <Link href="/signup/start" className="landing-btn-outline-white">
+            </ButtonAction>
+            <ButtonAction variant="outline-white" cta size="lg" href="/signup/start">
               Become a sitter
-            </Link>
+            </ButtonAction>
           </div>
         </div>
       </section>

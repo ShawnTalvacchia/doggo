@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { ButtonIcon } from "@/components/ui/ButtonIcon";
 import { InputField } from "@/components/ui/InputField";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { CheckOptionRow } from "@/components/ui/CheckOptionRow";
@@ -192,28 +193,20 @@ export default function ComponentsPage() {
         <h2 className="sg-section-title">Button / Icon</h2>
         <DemoCard
           title="Navbar Icons"
-          subtitle="Phosphor weight:light · 32px glyph · 40px touch target"
+          subtitle="Phosphor weight:light · 32px glyph · 40px touch target · badge variant"
         >
-          <span className="button-icon">
-            <span className="button-icon-glyph">
-              <Bell size={32} weight="light" />
-            </span>
-          </span>
-          <span className="button-icon">
-            <span className="button-icon-glyph">
-              <ChatCircleDots size={32} weight="light" />
-            </span>
-          </span>
-          <span className="button-icon">
-            <span className="button-icon-glyph">
-              <CalendarDots size={32} weight="light" />
-            </span>
-          </span>
-          <span className="button-icon">
-            <span className="button-icon-glyph">
-              <Sparkle size={32} weight="light" />
-            </span>
-          </span>
+          <ButtonIcon label="Notifications" showBadge>
+            <Bell size={32} weight="light" />
+          </ButtonIcon>
+          <ButtonIcon label="Messages">
+            <ChatCircleDots size={32} weight="light" />
+          </ButtonIcon>
+          <ButtonIcon label="Calendar">
+            <CalendarDots size={32} weight="light" />
+          </ButtonIcon>
+          <ButtonIcon label="Sparkle">
+            <Sparkle size={32} weight="light" />
+          </ButtonIcon>
         </DemoCard>
       </section>
 
@@ -323,7 +316,9 @@ export default function ComponentsPage() {
                   selectedValues={segDays}
                   onToggle={(value) =>
                     setSegDays((prev) =>
-                      prev.includes(value) ? prev.filter((existing) => existing !== value) : [...prev, value],
+                      prev.includes(value)
+                        ? prev.filter((existing) => existing !== value)
+                        : [...prev, value],
                     )
                   }
                 />
@@ -405,7 +400,7 @@ export default function ComponentsPage() {
       </section>
 
       <section className="sg-section">
-        <h2 className="sg-section-title">Landing CTA Buttons</h2>
+        <h2 className="sg-section-title">CTA Buttons</h2>
         <p
           style={{
             margin: "0 0 16px",
@@ -415,22 +410,32 @@ export default function ComponentsPage() {
             maxWidth: "60ch",
           }}
         >
-          CSS-only classes applied to <code>&lt;Link&gt;</code> elements on the landing page. These
-          are <strong>not</strong> <code>ButtonAction</code> instances — they are larger, always
-          pill-shaped, and tuned for marketing contexts. Do not use in app flows; use{" "}
-          <code>ButtonAction</code> there instead.
+          Use <code>ButtonAction</code> with <code>cta</code> prop for pill-shaped call-to-action
+          buttons. Pass <code>href</code> to render as a <code>&lt;Link&gt;</code>. Use{" "}
+          <code>size="lg"</code> for hero/marketing contexts, <code>size="md"</code> for in-app
+          CTAs. The <code>white</code> and <code>outline-white</code> variants are intended for use
+          on dark or brand-coloured backgrounds.
         </p>
         <div style={{ display: "grid", gap: 16 }}>
-          <DemoCard title="On light background" subtitle=".landing-btn-primary · .landing-btn-outline">
-            <a href="#" className="landing-btn-primary" onClick={(e) => e.preventDefault()}>
+          <DemoCard
+            title="On light background"
+            subtitle='variant="primary" · variant="outline" — with cta prop'
+          >
+            <ButtonAction variant="primary" cta size="lg">
               Find care nearby
-            </a>
-            <a href="#" className="landing-btn-outline" onClick={(e) => e.preventDefault()}>
-              Earn on the side
-            </a>
+            </ButtonAction>
+            <ButtonAction variant="outline" cta size="lg">
+              Become a sitter
+            </ButtonAction>
+            <ButtonAction variant="secondary" cta size="lg">
+              Learn more
+            </ButtonAction>
           </DemoCard>
 
-          <DemoCard title="On brand/dark background" subtitle=".landing-btn-white · .landing-btn-outline-white">
+          <DemoCard
+            title="On brand/dark background"
+            subtitle='variant="white" · variant="outline-white" — with cta prop'
+          >
             <div
               style={{
                 display: "flex",
@@ -441,12 +446,12 @@ export default function ComponentsPage() {
                 borderRadius: "var(--radius-md)",
               }}
             >
-              <a href="#" className="landing-btn-white" onClick={(e) => e.preventDefault()}>
-                Start searching
-              </a>
-              <a href="#" className="landing-btn-outline-white" onClick={(e) => e.preventDefault()}>
-                Earn on the side
-              </a>
+              <ButtonAction variant="white" cta size="lg">
+                Find a sitter
+              </ButtonAction>
+              <ButtonAction variant="outline-white" cta size="lg">
+                Become a sitter
+              </ButtonAction>
             </div>
           </DemoCard>
         </div>
@@ -467,15 +472,24 @@ export default function ComponentsPage() {
           The dev trigger is intentionally muted — it is a prototype tool, not a product element.
           Logged mode uses <code>ButtonAction variant="tertiary"</code> instead of these classes.
         </p>
-        <DemoCard title="Guest Nav Links" subtitle=".app-nav-link · .app-nav-link--primary · .app-nav-dev-trigger">
+        <DemoCard
+          title="Guest Nav Links"
+          subtitle=".app-nav-link · .app-nav-link--primary · .app-nav-dev-trigger"
+        >
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <a href="#" className="app-nav-link" onClick={(e) => e.preventDefault()}>
               Sign In
             </a>
-            <a href="#" className="app-nav-link app-nav-link--primary" onClick={(e) => e.preventDefault()}>
+            <a
+              href="#"
+              className="app-nav-link app-nav-link--primary"
+              onClick={(e) => e.preventDefault()}
+            >
               Sign Up
             </a>
-            <span className="app-nav-dev-trigger" title="Dev navigation">···</span>
+            <span className="app-nav-dev-trigger" title="Dev navigation">
+              ···
+            </span>
           </div>
         </DemoCard>
       </section>
@@ -506,19 +520,26 @@ export default function ComponentsPage() {
           }}
         >
           {[
-            "FormHeader",
-            "FormFooter",
-            "MultiSelectSegmentBar",
-            "DualRangeSlider",
-            "RangeSlider",
+            "ButtonAction",
+            "ButtonIcon",
+            "InputField",
             "CheckboxRow",
             "CheckOptionRow",
+            "MultiSelectSegmentBar",
+            "RangeSlider",
+            "DualRangeSlider",
+            "FormHeader",
+            "FormFooter",
+            "ModalSheet",
+            "DatePicker",
+            "BookingModal",
+            "ContactModal",
+            "AppNav",
+            "BottomNav",
             "CardExploreResult",
             "ExploreFilterPanelDesktop",
             "ExploreFilterPanelMobile",
             "ProviderHeaderState",
-            "AppNav",
-            "BottomNav",
             "SignupProfilePreview",
             "MapView (Leaflet, SSR-safe)",
             "LandingPage / HeroVisual",

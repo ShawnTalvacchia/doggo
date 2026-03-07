@@ -192,7 +192,7 @@ export default function ColorsPage() {
     <main className="sg-content">
       <section className="sg-section">
         <h2 className="sg-section-title">Usage Rules</h2>
-        <p className="profile-card-copy">
+        <p className="sg-body-copy">
           Prefer semantic tokens and class-based styling in product code. Static inline styles
           should be moved into shared classes. See <code>docs/frontend-style.md</code> for the full
           standard.
@@ -222,7 +222,7 @@ export default function ColorsPage() {
 
       <section className="sg-section">
         <h2 className="sg-section-title">Migration Notes</h2>
-        <p className="profile-card-copy">
+        <p className="sg-body-copy">
           Current focus is product flows first (`explore`, `signup`), then styleguide/demo cleanup.
           Compatibility aliases are documented when legacy token names remain in use.
         </p>

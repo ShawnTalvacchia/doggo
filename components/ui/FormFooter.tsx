@@ -18,24 +18,24 @@ export function FormFooter({
     <footer className="form-footer">
       <div className="form-footer-inner">
         <ButtonAction
-        variant="tertiary"
-        size="md"
-        cta
-        onClick={onBack}
-        leftIcon={<CaretLeft size={16} weight="bold" />}
-      >
-        Back
-      </ButtonAction>
-      <ButtonAction
-        variant="primary"
-        size="md"
-        cta
-        onClick={onContinue}
-        disabled={disableContinue}
-        rightIcon={<CaretRight size={20} weight="bold" />}
-      >
-        {continueLabel}
-      </ButtonAction>
+          variant="tertiary"
+          size="md"
+          cta
+          onClick={onBack}
+          leftIcon={<CaretLeft size={16} weight="bold" />}
+        >
+          Back
+        </ButtonAction>
+        <ButtonAction
+          variant="primary"
+          size="md"
+          cta
+          onClick={onContinue}
+          disabled={disableContinue}
+          rightIcon={<CaretRight size={20} weight="bold" />}
+        >
+          {continueLabel}
+        </ButtonAction>
       </div>
     </footer>
   );

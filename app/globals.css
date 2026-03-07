@@ -466,6 +466,7 @@ a {
 }
 
 .app-nav-brand {
+  font-family: var(--font-heading), sans-serif;
   font-size: 24px;
   line-height: 1;
   font-weight: var(--weight-semibold);
@@ -992,6 +993,42 @@ body.guest-route {
   background: var(--on-hover-darken);
 }
 
+/* Outline pill — neutral border/text, for use on light backgrounds */
+.btn-cta.btn-outline {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-strong);
+}
+
+.btn-cta.btn-outline:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--text-tertiary);
+}
+
+/* White pill — solid white bg with brand text, for use on dark/brand backgrounds */
+.btn-cta.btn-white {
+  background: #fff;
+  color: var(--brand-main);
+  border: none;
+}
+
+.btn-cta.btn-white:hover:not(:disabled) {
+  background: var(--brand-4);
+  transform: translateY(-1px);
+}
+
+/* Outline-white pill — transparent bg, white border/text, for use on dark backgrounds */
+.btn-cta.btn-outline-white {
+  background: transparent;
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+}
+
+.btn-cta.btn-outline-white:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
 /* ---- Non-CTA buttons (6px corners) ---- */
 .btn-primary:not(.btn-cta) {
   background: var(--surface-base-inverse);
@@ -1204,6 +1241,14 @@ body.guest-route {
   display: grid;
   gap: 20px;
   min-width: 0;
+}
+
+/* Body copy for styleguide descriptive paragraphs */
+.sg-body-copy {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-body-reg);
+  line-height: 20px;
 }
 
 .sg-section-title {
@@ -1661,6 +1706,14 @@ body.guest-route {
 }
 
 /* ---- Signup form layout ---- */
+
+/* Hint text below a form-section-label — replaces repeated inline style declarations */
+.form-row-hint {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--text-tertiary);
+  line-height: 20px;
+}
 
 /* Section label (Poppins SemiBold 16px — Figma: Heading/Tagline) */
 .form-section-label {
@@ -2158,6 +2211,22 @@ body.guest-route {
   text-align: center;
 }
 
+.success-offer-title {
+  margin: 4px 0 12px;
+  font-family: var(--font-heading), sans-serif;
+  font-size: 18px;
+  font-weight: var(--weight-semibold);
+  line-height: 1.35;
+  color: var(--text-secondary);
+}
+
+.success-body-text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--text-secondary);
+}
+
 /* ── Pricing step ─────────────────────────────────────────── */
 .pricing-services-list {
   display: flex;
@@ -2275,6 +2344,7 @@ body.guest-route {
 
 .heading {
   margin: 0;
+  font-family: var(--font-heading), sans-serif;
   font-size: 24px;
   line-height: 1.2;
 }
@@ -2489,6 +2559,7 @@ body.guest-route {
 }
 
 .brand {
+  font-family: var(--font-heading), sans-serif;
   font-size: 24px;
   line-height: 1.2;
   font-weight: var(--weight-semibold);
@@ -2634,6 +2705,7 @@ body.guest-route {
 
 .left-panel-title {
   margin: 4px 0 0;
+  font-family: var(--font-heading), sans-serif;
   font-size: 20px;
   line-height: 1.2;
 }
@@ -4156,6 +4228,9 @@ body.guest-route {
 
 /* Each service occupies its own block; a divider separates non-last blocks */
 .svc-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   padding: 16px 0;
 }
 
@@ -6008,7 +6083,7 @@ body.guest-route {
   display: inline-flex;
   align-items: center;
   padding: 10px 18px;
-  background: var(--brand-8);
+  background: var(--brand-12);
   color: var(--brand-main);
   border-radius: 999px;
   font-size: var(--font-size-sub);
@@ -6246,14 +6321,23 @@ body.guest-route {
 
 .landing-steps {
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  flex-direction: row;
+  gap: 0;
+  align-items: flex-start;
 }
 
 .landing-step {
   display: flex;
-  gap: 16px;
-  align-items: flex-start;
+  flex-direction: column;
+  flex: 1;
+  gap: 10px;
+  padding: 0 32px;
+  border-left: 1px solid var(--border-subtle);
+}
+
+.landing-step:first-child {
+  padding-left: 0;
+  border-left: none;
 }
 
 .landing-step-n {
@@ -6264,7 +6348,6 @@ body.guest-route {
   line-height: 1;
   flex-shrink: 0;
   min-width: 40px;
-  padding-top: 2px;
 }
 
 .landing-step-body {
@@ -6431,90 +6514,6 @@ body.guest-route {
   justify-content: center;
 }
 
-/* ── Shared button styles (landing-specific variants) ── */
-
-.landing-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 13px 26px;
-  background: var(--brand-main);
-  color: #fff;
-  border-radius: 999px;
-  font-size: var(--font-size-body);
-  font-weight: var(--weight-semibold);
-  text-decoration: none;
-  transition: background 0.15s ease, transform 0.12s ease;
-  white-space: nowrap;
-}
-
-.landing-btn-primary:hover {
-  background: var(--brand-strong);
-  transform: translateY(-1px);
-}
-
-.landing-btn-outline {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 26px;
-  background: transparent;
-  color: var(--text-primary);
-  border: 1.5px solid var(--border-strong);
-  border-radius: 999px;
-  font-size: var(--font-size-body);
-  font-weight: var(--weight-semibold);
-  text-decoration: none;
-  transition: background 0.15s ease, border-color 0.15s ease;
-  white-space: nowrap;
-}
-
-.landing-btn-outline:hover {
-  background: var(--surface-hover);
-  border-color: var(--text-tertiary);
-}
-
-.landing-btn-white {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 13px 26px;
-  background: #fff;
-  color: var(--brand-main);
-  border-radius: 999px;
-  font-size: var(--font-size-body);
-  font-weight: var(--weight-semibold);
-  text-decoration: none;
-  transition: background 0.15s ease, transform 0.12s ease;
-  white-space: nowrap;
-}
-
-.landing-btn-white:hover {
-  background: var(--brand-4);
-  transform: translateY(-1px);
-}
-
-.landing-btn-outline-white {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 26px;
-  background: transparent;
-  color: #fff;
-  border: 1.5px solid rgba(255, 255, 255, 0.5);
-  border-radius: 999px;
-  font-size: var(--font-size-body);
-  font-weight: var(--weight-semibold);
-  text-decoration: none;
-  transition: background 0.15s ease, border-color 0.15s ease;
-  white-space: nowrap;
-}
-
-.landing-btn-outline-white:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.8);
-}
-
 /* ── Nav: Sign Up primary pill (guest mode) ── */
 
 .app-nav-link--primary {
@@ -6634,6 +6633,222 @@ body.guest-route {
 
   .landing-cta-close-heading {
     font-size: 26px;
+  }
+}
+
+/* ── Hero card entrance animation ─────────────────────────────────────────── */
+
+@keyframes landing-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.landing-hero-card {
+  animation: landing-card-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+/* Staggered entrance for each provider row in the hero card */
+@keyframes landing-row-in {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.landing-hero-provider-row {
+  animation: landing-row-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-hero-provider-row:nth-child(1) { animation-delay: 0.3s; }
+.landing-hero-provider-row:nth-child(2) { animation-delay: 0.42s; }
+.landing-hero-provider-row:nth-child(3) { animation-delay: 0.54s; }
+.landing-hero-provider-row:nth-child(4) { animation-delay: 0.66s; }
+
+/* ── Hero provider avatar: status dot ─────────────────────────────────────── */
+
+.landing-hero-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.landing-hero-status-dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--success-300);
+  border: 1.5px solid var(--surface-popout);
+}
+
+/* ── Trust badge: icon support ─────────────────────────────────────────────── */
+
+.landing-trust-badge {
+  gap: 6px;
+}
+
+/* ── How it works: tab switcher ────────────────────────────────────────────── */
+
+.landing-how-tab-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.landing-tab-row {
+  display: inline-flex;
+  background: var(--surface-inset);
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.landing-tab-btn {
+  padding: 9px 24px;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: var(--font-size-sub);
+  font-weight: var(--weight-semibold);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+  white-space: nowrap;
+}
+
+.landing-tab-btn.active,
+.landing-tab-btn[aria-selected="true"] {
+  background: var(--surface-top);
+  color: var(--text-primary);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.landing-how-tab-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  /* Fade on tab change — driven by key remount */
+  animation: landing-card-in 0.2s ease both;
+}
+
+/* ── Feature cards (Why Doggo replacement) ─────────────────────────────────── */
+
+.landing-features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.landing-feature-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 28px 24px;
+  background: var(--surface-top);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.landing-feature-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--brand-12);
+  display: grid;
+  place-items: center;
+  color: var(--brand-main);
+  flex-shrink: 0;
+}
+
+.landing-feature-title {
+  font-family: var(--font-heading), sans-serif;
+  font-size: 16px;
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.landing-feature-body {
+  font-size: var(--font-size-body);
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ── Featured sitter card: "Available" badge ───────────────────────────────── */
+
+.landing-featured-available {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  background: var(--success-25);
+  color: var(--success-600);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.01em;
+  margin-top: 2px;
+  width: fit-content;
+}
+
+.landing-featured-available-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success-500);
+  flex-shrink: 0;
+}
+
+/* ── Responsive additions ──────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .landing-features-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .landing-steps {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .landing-step {
+    flex-direction: row;
+    flex: unset;
+    width: 100%;
+    padding: 0;
+    border-left: none;
+    gap: 16px;
+  }
+
+  .landing-step:first-child {
+    padding-left: 0;
+  }
+
+  .landing-step-n {
+    padding-top: 2px;
+  }
+}
+
+@media (max-width: 600px) {
+  .landing-tab-btn {
+    padding: 8px 16px;
+    font-size: 13px;
   }
 }
 

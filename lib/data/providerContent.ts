@@ -80,25 +80,149 @@ type ProviderReviewRow = {
 };
 
 function defaultServices(provider: ProviderCard): ProviderServiceOffering[] {
-  return provider.services.map((service, index) => ({
-    id: `${provider.id}-default-service-${index + 1}`,
-    providerId: provider.id,
-    serviceType: service,
-    title:
-      service === "walk_checkin"
-        ? "Walks and Check-ins"
-        : service === "inhome_sitting"
-          ? "In-home Sitting"
-          : "Boarding",
-    shortDescription:
-      service === "walk_checkin"
-        ? "Neighborhood walks, potty breaks, and quick updates."
-        : service === "inhome_sitting"
-          ? "Care in your home with feeding and routine support."
-          : "Overnight care in a calm, dog-friendly home.",
-    priceFrom: provider.priceFrom,
-    priceUnit: provider.priceUnit,
-  }));
+  const firstName = provider.name.split(" ")[0];
+  // Derive per-night base from per-visit/walk price (sitting/boarding costs ~2.5× a single walk)
+  const nightBase = Math.round(provider.priceFrom * 2.5 / 10) * 10;
+
+  return provider.services.map((service, index) => {
+    if (service === "walk_checkin") {
+      const base = provider.priceFrom;
+      return {
+        id: `${provider.id}-default-service-${index + 1}`,
+        providerId: provider.id,
+        serviceType: service,
+        title: "Walks & Check-ins",
+        shortDescription: "Short visits at your home",
+        priceFrom: base,
+        priceUnit: "per_visit" as const,
+        rates: [
+          {
+            label: "Holiday Rate",
+            price: `${Math.round(base * 1.25 / 5) * 5} Kč`,
+            unit: "per visit",
+            hasTooltip: true,
+          },
+          {
+            label: "Additional Dog Rate",
+            price: `+ ${Math.round(base * 0.35 / 5) * 5} Kč`,
+            unit: "per dog, per visit",
+          },
+          {
+            label: "Puppy Rate",
+            price: `${Math.round(base * 1.1 / 5) * 5} Kč`,
+            unit: "per visit",
+          },
+        ],
+        acceptedWeightBands: [
+          { label: "0–7 kg", size: "tiny" as const },
+          { label: "7–20 kg", size: "small" as const },
+          { label: "20–40 kg", size: "medium" as const },
+        ],
+      };
+    }
+
+    if (service === "inhome_sitting") {
+      const base = nightBase;
+      return {
+        id: `${provider.id}-default-service-${index + 1}`,
+        providerId: provider.id,
+        serviceType: service,
+        title: "In-home Sitting",
+        shortDescription: "Overnight care at your home",
+        priceFrom: base,
+        priceUnit: "per_night" as const,
+        rates: [
+          {
+            label: "Holiday Rate",
+            price: `${Math.round(base * 1.2 / 10) * 10} Kč`,
+            unit: "per night",
+            hasTooltip: true,
+          },
+          {
+            label: "Additional Dog Rate",
+            price: `+ ${Math.round(base * 0.4 / 10) * 10} Kč`,
+            unit: "per dog, per night",
+          },
+          {
+            label: "Puppy Rate",
+            price: `${Math.round(base * 1.1 / 10) * 10} Kč`,
+            unit: "per night",
+          },
+          {
+            label: "Cat Care",
+            price: `${Math.round(base * 0.7 / 10) * 10} Kč`,
+            unit: "per night",
+          },
+          {
+            label: "Additional Cat",
+            price: `+ ${Math.round(base * 0.3 / 10) * 10} Kč`,
+            unit: "per cat, per night",
+          },
+          {
+            label: "Extended Care",
+            price: "50–100%",
+            unit: "of nightly rate",
+            hasTooltip: true,
+          },
+        ],
+        acceptedWeightBands: [
+          { label: "Cats", size: "cat" as const },
+          { label: "0–7 kg", size: "tiny" as const },
+          { label: "7–20 kg", size: "small" as const },
+        ],
+      };
+    }
+
+    // boarding
+    const base = nightBase;
+    return {
+      id: `${provider.id}-default-service-${index + 1}`,
+      providerId: provider.id,
+      serviceType: service,
+      title: "Boarding",
+      shortDescription: `at ${firstName}'s home`,
+      priceFrom: base,
+      priceUnit: "per_night" as const,
+      rates: [
+        {
+          label: "Holiday Rate",
+          price: `${Math.round(base * 1.2 / 10) * 10} Kč`,
+          unit: "per night",
+          hasTooltip: true,
+        },
+        {
+          label: "Additional Dog Rate",
+          price: `+ ${Math.round(base * 0.4 / 10) * 10} Kč`,
+          unit: "per dog, per night",
+        },
+        {
+          label: "Puppy Rate",
+          price: `${Math.round(base * 1.1 / 10) * 10} Kč`,
+          unit: "per night",
+        },
+        {
+          label: "Cat Care",
+          price: `${Math.round(base * 0.7 / 10) * 10} Kč`,
+          unit: "per night",
+        },
+        {
+          label: "Additional Cat",
+          price: `+ ${Math.round(base * 0.3 / 10) * 10} Kč`,
+          unit: "per cat, per night",
+        },
+        {
+          label: "Extended Care",
+          price: "50–100%",
+          unit: "of nightly rate",
+          hasTooltip: true,
+        },
+      ],
+      acceptedWeightBands: [
+        { label: "0–7 kg", size: "tiny" as const },
+        { label: "7–20 kg", size: "small" as const },
+      ],
+    };
+  });
 }
 
 type PerProviderContent = Pick<

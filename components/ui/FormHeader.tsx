@@ -18,9 +18,7 @@ export function FormHeader({ title, subtitle }: FormHeaderProps) {
 
   return (
     <header className="form-header">
-      <h1 className="heading" style={{ fontFamily: "var(--font-heading), sans-serif" }}>
-        {title}
-      </h1>
+      <h1 className="heading">{title}</h1>
       <p className="subheading">{subtitle}</p>
       {isSignupRoute && <SignupProgressBar slug={slug} showMeta={false} />}
     </header>

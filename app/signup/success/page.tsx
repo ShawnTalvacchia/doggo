@@ -17,9 +17,7 @@ export default function SignupSuccessPage() {
         {/* ── Left: Main CTA ── */}
         <div className="success-main">
           <h1 className="success-heading">🎉 You&apos;re all set!</h1>
-          <p style={{ fontSize: 16, color: "var(--text-secondary)", lineHeight: 1.35 }}>
-            Your profile is ready. You can edit it anytime.
-          </p>
+          <p className="success-body-text">Your profile is ready. You can edit it anytime.</p>
           <div className="success-btn-row">
             <ButtonAction
               variant="primary"
@@ -42,21 +40,9 @@ export default function SignupSuccessPage() {
           {/* Offer care upsell — only shown for owners who haven't added caregiver role */}
           {!isCaregiver && (
             <div className="success-offer-card">
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%" }}>
-                <p
-                  style={{
-                    fontFamily: "var(--font-heading), sans-serif",
-                    fontSize: 18,
-                    fontWeight: 600,
-                    lineHeight: 1.35,
-                    color: "var(--text-secondary)",
-                    marginTop: 4,
-                    marginBottom: 12,
-                  }}
-                >
-                  Want to offer care too?
-                </p>
-                <p style={{ fontSize: 16, color: "var(--text-secondary)", lineHeight: 1.35 }}>
+              <div>
+                <p className="success-offer-title">Want to offer care too?</p>
+                <p className="success-body-text">
                   Offer walking, sitting, or boarding whenever you&apos;re ready.
                 </p>
               </div>
