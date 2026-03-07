@@ -17,13 +17,14 @@ import { defaultExploreFilters } from "@/lib/mockData";
 import { fetchProviders } from "@/lib/data/providersClient";
 import { getExploreRateBounds } from "@/lib/pricing";
 import { buildQueryFromFilters, parseFiltersFromQuery } from "@/lib/query";
+import { SERVICE_LABELS } from "@/lib/constants/services";
 import { ExploreFilters, ProviderCard, ServiceType } from "@/lib/types";
 import { Suspense } from "react";
 
 const serviceNavLabels: Record<ServiceType, string> = {
-  walk_checkin: "Walks & Check-ins",
-  inhome_sitting: "In-home Sitting",
-  boarding: "Boarding",
+  walk_checkin: SERVICE_LABELS.walk_checkin,
+  inhome_sitting: SERVICE_LABELS.inhome_sitting,
+  boarding: SERVICE_LABELS.boarding,
 };
 
 // Service options for the mobile landing chooser
@@ -35,19 +36,19 @@ const mobileServiceOptions: {
 }[] = [
   {
     value: "walk_checkin",
-    label: "Walks & Check-ins",
+    label: SERVICE_LABELS.walk_checkin,
     helper: "Short visits at your home",
     Icon: PersonSimpleWalk,
   },
   {
     value: "inhome_sitting",
-    label: "In-home Sitting",
+    label: SERVICE_LABELS.inhome_sitting,
     helper: "Overnight care at your home",
     Icon: House,
   },
   {
     value: "boarding",
-    label: "Boarding",
+    label: SERVICE_LABELS.boarding,
     helper: "Your dog stays with a trusted host",
     Icon: PawPrint,
   },

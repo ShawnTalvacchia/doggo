@@ -10,6 +10,7 @@ import {
   ChatCircleDots,
 } from "@phosphor-icons/react/dist/ssr";
 import { providers } from "@/lib/mockData";
+import { SERVICE_LABELS } from "@/lib/constants/services";
 import { HowItWorksTabs } from "@/components/landing/HowItWorksTabs";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 
@@ -74,11 +75,11 @@ function FeatureCard({
 function FeaturedCard({ provider }: { provider: (typeof providers)[number] }) {
   const topService = provider.services[0];
   const serviceLabel =
-    topService === "walk_checkin"
-      ? "Walks & Check-ins"
+      topService === "walk_checkin"
+      ? SERVICE_LABELS.walk_checkin
       : topService === "inhome_sitting"
-        ? "In-home Sitting"
-        : "Boarding";
+        ? SERVICE_LABELS.inhome_sitting
+        : SERVICE_LABELS.boarding;
 
   return (
     <Link href={`/explore/profile/${provider.id}`} className="landing-featured-card">
@@ -224,7 +225,7 @@ export default function LandingPage() {
           <div className="landing-services-grid">
             <ServiceCard
               icon={<PersonSimpleWalk size={28} weight="light" />}
-              title="Walks & Check-ins"
+              title={SERVICE_LABELS.walk_checkin}
               description="A daily walk or drop-in visit. Your dog gets exercise and company; you get peace of mind and photo updates."
               from="330 Kč"
               unit="visit"
@@ -232,7 +233,7 @@ export default function LandingPage() {
             />
             <ServiceCard
               icon={<House size={28} weight="light" />}
-              title="In-home Sitting"
+              title={SERVICE_LABELS.inhome_sitting}
               description="Your carer moves into your home. Minimal disruption to your dog's routine — same sofa, same schedule."
               from="850 Kč"
               unit="night"
@@ -240,7 +241,7 @@ export default function LandingPage() {
             />
             <ServiceCard
               icon={<PawPrint size={28} weight="light" />}
-              title="Boarding"
+              title={SERVICE_LABELS.boarding}
               description="Your dog stays with a carer in their home. A calm, warm environment while you're away."
               from="760 Kč"
               unit="night"

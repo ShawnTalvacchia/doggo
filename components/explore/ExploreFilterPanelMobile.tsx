@@ -2,15 +2,14 @@
 
 import { useEffect } from "react";
 import { X } from "@phosphor-icons/react";
+import { SERVICE_LABELS } from "@/lib/constants/services";
 import { ExploreFilters, ServiceType } from "@/lib/types";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { FilterBody } from "./FilterBody";
 import { type DateRange } from "@/components/ui/DatePicker";
 
 function serviceLabel(service: ServiceType | null) {
-  if (service === "inhome_sitting") return "In-home Sitting";
-  if (service === "boarding") return "Boarding";
-  return "Walks & Check-ins";
+  return service ? SERVICE_LABELS[service] : "";
 }
 
 type ExploreFilterPanelMobileProps = {

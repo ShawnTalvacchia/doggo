@@ -4088,6 +4088,7 @@ body.guest-route {
 .profile-content-width.profile-section-stack {
   gap: 8px;
   width: 100%;
+  padding-top: 0;
 }
 
 .profile-info-card {

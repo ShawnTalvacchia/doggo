@@ -1,3 +1,4 @@
+import { RATE_TYPE_LABELS, SERVICE_LABELS } from "@/lib/constants/services";
 import { providers as localProviders } from "@/lib/mockData";
 import { normalizeKcPrice } from "@/lib/pricing";
 import {
@@ -79,6 +80,30 @@ type ProviderReviewRow = {
   created_at: string;
 };
 
+type ProviderServiceRateRow = {
+  service_offering_id: string;
+  rate_type: string;
+  amount_kc: number | null;
+  is_add_on: boolean;
+  percent_display: string | null;
+  unit: string;
+  has_tooltip: boolean;
+  sort_order: number;
+};
+
+function dbRateToServiceRateRow(row: ProviderServiceRateRow): ServiceRateRow {
+  const label = RATE_TYPE_LABELS[row.rate_type] ?? row.rate_type;
+  let price: string;
+  if (row.percent_display) {
+    price = `${row.percent_display}%`;
+  } else if (row.amount_kc != null) {
+    price = row.is_add_on ? `+ ${row.amount_kc} Kč` : `${row.amount_kc} Kč`;
+  } else {
+    price = "";
+  }
+  return { label, price, unit: row.unit, hasTooltip: row.has_tooltip };
+}
+
 function defaultServices(provider: ProviderCard): ProviderServiceOffering[] {
   const firstName = provider.name.split(" ")[0];
   // Derive per-night base from per-visit/walk price (sitting/boarding costs ~2.5× a single walk)
@@ -91,7 +116,7 @@ function defaultServices(provider: ProviderCard): ProviderServiceOffering[] {
         id: `${provider.id}-default-service-${index + 1}`,
         providerId: provider.id,
         serviceType: service,
-        title: "Walks & Check-ins",
+        title: SERVICE_LABELS.walk_checkin,
         shortDescription: "Short visits at your home",
         priceFrom: base,
         priceUnit: "per_visit" as const,
@@ -127,7 +152,7 @@ function defaultServices(provider: ProviderCard): ProviderServiceOffering[] {
         id: `${provider.id}-default-service-${index + 1}`,
         providerId: provider.id,
         serviceType: service,
-        title: "In-home Sitting",
+        title: SERVICE_LABELS.inhome_sitting,
         shortDescription: "Overnight care at your home",
         priceFrom: base,
         priceUnit: "per_night" as const,
@@ -179,7 +204,7 @@ function defaultServices(provider: ProviderCard): ProviderServiceOffering[] {
       id: `${provider.id}-default-service-${index + 1}`,
       providerId: provider.id,
       serviceType: service,
-      title: "Boarding",
+      title: SERVICE_LABELS.boarding,
       shortDescription: `at ${firstName}'s home`,
       priceFrom: base,
       priceUnit: "per_night" as const,
@@ -311,7 +336,7 @@ const providerFallbackDetails: Record<
         id: `${providerId}-svc-walk`,
         providerId,
         serviceType: "walk_checkin",
-        title: "Walks & Check-ins",
+        title: SERVICE_LABELS.walk_checkin,
         shortDescription: "Neighborhood walks, potty breaks, and photo updates.",
         priceFrom: 390,
         priceUnit: "per_visit",
@@ -322,7 +347,7 @@ const providerFallbackDetails: Record<
         id: `${providerId}-svc-sitting`,
         providerId,
         serviceType: "inhome_sitting",
-        title: "In-home Sitting",
+        title: SERVICE_LABELS.inhome_sitting,
         shortDescription: "Overnight care at your home with full routine support.",
         priceFrom: 980,
         priceUnit: "per_night",
@@ -397,7 +422,7 @@ const providerFallbackDetails: Record<
         id: `${providerId}-svc-walk`,
         providerId,
         serviceType: "walk_checkin",
-        title: "Walks & Check-ins",
+        title: SERVICE_LABELS.walk_checkin,
         shortDescription:
           "Purposeful, structured walks for dogs that need calm, confident handling.",
         priceFrom: 470,
@@ -409,7 +434,7 @@ const providerFallbackDetails: Record<
         id: `${providerId}-svc-boarding`,
         providerId,
         serviceType: "boarding",
-        title: "Boarding",
+        title: SERVICE_LABELS.boarding,
         shortDescription: "Your dog stays with me and Rex in a spacious Vinohrady apartment.",
         priceFrom: 1100,
         priceUnit: "per_night",
@@ -493,7 +518,7 @@ const providerFallbackDetails: Record<
         id: `${providerId}-svc-walk`,
         providerId,
         serviceType: "walk_checkin",
-        title: "Walks & Check-ins",
+        title: SERVICE_LABELS.walk_checkin,
         shortDescription:
           "Solo, focused walks — never grouped. Each dog gets undivided attention and a structured route.",
         priceFrom: 520,
@@ -566,7 +591,7 @@ const providerFallbackDetails: Record<
         id: `${providerId}-svc-walk`,
         providerId,
         serviceType: "walk_checkin",
-        title: "Walks & Check-ins",
+        title: SERVICE_LABELS.walk_checkin,
         shortDescription: "Attentive solo walks through central Prague parks, with photo updates.",
         priceFrom: 600,
         priceUnit: "per_visit",
@@ -577,7 +602,7 @@ const providerFallbackDetails: Record<
         id: `${providerId}-svc-sitting`,
         providerId,
         serviceType: "inhome_sitting",
-        title: "In-home Sitting",
+        title: SERVICE_LABELS.inhome_sitting,
         shortDescription: "Overnight care in your home — full routine, medication, and updates.",
         priceFrom: 1200,
         priceUnit: "per_night",
@@ -588,7 +613,7 @@ const providerFallbackDetails: Record<
         id: `${providerId}-svc-boarding`,
         providerId,
         serviceType: "boarding",
-        title: "Boarding",
+        title: SERVICE_LABELS.boarding,
         shortDescription:
           "Stay in Markéta's spacious Old Town apartment — one household at a time.",
         priceFrom: 1350,
@@ -676,7 +701,7 @@ const providerFallbackDetails: Record<
         id: `${providerId}-svc-walk`,
         providerId,
         serviceType: "walk_checkin",
-        title: "Walks & Check-ins",
+        title: SERVICE_LABELS.walk_checkin,
         shortDescription:
           "High-energy walks and potty check-ins through Karlín's parks and trails.",
         priceFrom: 440,
@@ -688,7 +713,7 @@ const providerFallbackDetails: Record<
         id: `${providerId}-svc-boarding`,
         providerId,
         serviceType: "boarding",
-        title: "Boarding",
+        title: SERVICE_LABELS.boarding,
         shortDescription: "Big family home with two friendly resident dogs and a garden.",
         priceFrom: 950,
         priceUnit: "per_night",
@@ -769,7 +794,7 @@ const providerFallbackDetails: Record<
         id: `${providerId}-svc-walk`,
         providerId,
         serviceType: "walk_checkin",
-        title: "Walks & Check-ins",
+        title: SERVICE_LABELS.walk_checkin,
         shortDescription: "Gentle, patient walks suited to shy, elderly, or recovering dogs.",
         priceFrom: 330,
         priceUnit: "per_visit",
@@ -780,7 +805,7 @@ const providerFallbackDetails: Record<
         id: `${providerId}-svc-sitting`,
         providerId,
         serviceType: "inhome_sitting",
-        title: "In-home Sitting",
+        title: SERVICE_LABELS.inhome_sitting,
         shortDescription:
           "Overnight care at your home. Medication, special diets, and post-surgical care welcome.",
         priceFrom: 850,
@@ -792,7 +817,7 @@ const providerFallbackDetails: Record<
         id: `${providerId}-svc-boarding`,
         providerId,
         serviceType: "boarding",
-        title: "Boarding",
+        title: SERVICE_LABELS.boarding,
         shortDescription: "Your dog stays in my quiet Dejvice house with a private garden.",
         priceFrom: 760,
         priceUnit: "per_night",
@@ -858,7 +883,7 @@ const providerFallbackDetails: Record<
         id: `${providerId}-svc-sitting`,
         providerId,
         serviceType: "inhome_sitting",
-        title: "In-home Sitting",
+        title: SERVICE_LABELS.inhome_sitting,
         shortDescription: "Overnight care in your home — I follow your routines to the letter.",
         priceFrom: 990,
         priceUnit: "per_night",
@@ -869,7 +894,7 @@ const providerFallbackDetails: Record<
         id: `${providerId}-svc-boarding`,
         providerId,
         serviceType: "boarding",
-        title: "Boarding",
+        title: SERVICE_LABELS.boarding,
         shortDescription: "Quiet Nusle flat with a calm resident cat and a balcony garden.",
         priceFrom: 880,
         priceUnit: "per_night",
@@ -1020,6 +1045,25 @@ export async function getProviderProfileContent(
     return fallbackContent(providerId);
   }
 
+  // Fetch rates for all service offerings (canonical extras from DB)
+  const offeringIds = ((serviceRows ?? []) as ProviderServiceRow[]).map((r) => r.id);
+  let rateRows: ProviderServiceRateRow[] = [];
+  if (offeringIds.length > 0) {
+    const { data } = await supabase
+      .from("provider_service_rates")
+      .select("*")
+      .in("service_offering_id", offeringIds)
+      .order("sort_order");
+    rateRows = (data ?? []) as ProviderServiceRateRow[];
+  }
+
+  const ratesByOfferingId = new Map<string, ServiceRateRow[]>();
+  for (const r of rateRows) {
+    const list = ratesByOfferingId.get(r.service_offering_id) ?? [];
+    list.push(dbRateToServiceRateRow(r));
+    ratesByOfferingId.set(r.service_offering_id, list);
+  }
+
   const rows = (experienceRows ?? []) as ProviderExperienceRow[];
   const careExperience = rows
     .filter((row) => row.category === "care_experience")
@@ -1040,17 +1084,18 @@ export async function getProviderProfileContent(
   const services: ProviderServiceOffering[] = ((serviceRows ?? []) as ProviderServiceRow[]).map(
     (row) => {
       const match = fallbackDetails?.services?.find((f) => f.serviceType === row.service_type);
+      const dbRates = ratesByOfferingId.get(row.id);
       return {
         id: row.id,
         providerId: row.provider_id,
         serviceType: row.service_type,
-        title: row.title,
+        title: SERVICE_LABELS[row.service_type],
         shortDescription: row.short_description,
         priceFrom: normalizeKcPrice(row.price_from),
         priceUnit: row.price_unit,
-        // Enrich with locally-defined rate tiers and weight bands
         subtitle: match?.subtitle,
-        rates: match?.rates,
+        // Use DB rates when available, else fallback
+        rates: (dbRates?.length ? dbRates : match?.rates) ?? undefined,
         acceptedWeightBands: match?.acceptedWeightBands,
       };
     },

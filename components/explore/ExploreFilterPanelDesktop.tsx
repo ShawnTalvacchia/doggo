@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { PawPrint, PersonSimpleWalk, House, CaretDown } from "@phosphor-icons/react";
+import { SERVICE_LABELS } from "@/lib/constants/services";
 import { ExploreFilters, ServiceType } from "@/lib/types";
 import { getExploreRateBounds } from "@/lib/pricing";
 import { FilterBody } from "./FilterBody";
@@ -27,28 +28,27 @@ const serviceOptions: {
 }[] = [
   {
     value: "walk_checkin",
-    label: "Walks & Check-ins",
+    label: SERVICE_LABELS.walk_checkin,
     helper: "Short visits at your home",
     CardIcon: PersonSimpleWalk,
   },
   {
     value: "inhome_sitting",
-    label: "In-home Sitting",
+    label: SERVICE_LABELS.inhome_sitting,
     helper: "Overnight care at your home",
     CardIcon: House,
   },
   {
     value: "boarding",
-    label: "Boarding",
+    label: SERVICE_LABELS.boarding,
     helper: "Your dog stays with a trusted host",
     CardIcon: PawPrint,
   },
 ];
 
 function serviceLabel(service: ServiceType | null) {
-  if (service === "inhome_sitting") return "In-home Sitting";
-  if (service === "boarding") return "Boarding";
-  return "Walks & Check-ins";
+  if (!service) return "";
+  return SERVICE_LABELS[service];
 }
 
 function ServiceIcon({ service }: { service: ServiceType }) {

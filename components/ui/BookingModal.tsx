@@ -5,13 +5,8 @@ import { CheckCircle } from "@phosphor-icons/react";
 import { ModalSheet } from "@/components/ui/ModalSheet";
 import { DatePicker, DateTrigger, type DateRange } from "@/components/ui/DatePicker";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { SERVICE_LABELS } from "@/lib/constants/services";
 import type { ProviderCard, ProviderServiceOffering, ServiceType } from "@/lib/types";
-
-const SERVICE_LABELS: Record<ServiceType, string> = {
-  walk_checkin: "Walks & Check-ins",
-  inhome_sitting: "In-home Sitting",
-  boarding: "Boarding",
-};
 
 function formatPriceUnit(unit: ProviderCard["priceUnit"]): string {
   if (unit === "per_visit") return "per visit";

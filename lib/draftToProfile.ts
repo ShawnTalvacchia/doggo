@@ -30,6 +30,7 @@
  */
 
 import { DEFAULT_ABOUT_BANNER_URL } from "@/lib/data/providerContent";
+import { SERVICE_LABELS } from "@/lib/constants/services";
 import { SignupDraft } from "@/lib/types";
 import { ProviderProfileContent, ProviderServiceOffering } from "@/lib/types";
 
@@ -108,7 +109,7 @@ function buildServices(draft: SignupDraft): ProviderServiceOffering[] {
       id: `draft-service-${index++}`,
       providerId: "draft",
       serviceType: "walk_checkin",
-      title: "Walks & Check-ins",
+      title: SERVICE_LABELS.walk_checkin,
       shortDescription: `Available ${daysLabel} · ${timesLabel} · within ${draft.walkingRadius} km.`,
       priceFrom: draft.prices.walk_checkin ?? FALLBACK_PRICE,
       priceUnit: "per_visit" as const,
@@ -121,7 +122,7 @@ function buildServices(draft: SignupDraft): ProviderServiceOffering[] {
       id: `draft-service-${index++}`,
       providerId: "draft",
       serviceType: "inhome_sitting",
-      title: "In-home Sitting",
+      title: SERVICE_LABELS.inhome_sitting,
       shortDescription:
         `Overnight care in your home. Available ${daysLabel} · ${draft.homeType || ""}.`.trim(),
       priceFrom: draft.prices.inhome_sitting ?? FALLBACK_PRICE,
@@ -131,7 +132,7 @@ function buildServices(draft: SignupDraft): ProviderServiceOffering[] {
       id: `draft-service-${index++}`,
       providerId: "draft",
       serviceType: "boarding",
-      title: "Boarding",
+      title: SERVICE_LABELS.boarding,
       shortDescription:
         `Your dog stays with me. ${draft.homeType || ""} · ${draft.outdoorSpace || ""}.`.trim(),
       priceFrom: draft.prices.boarding ?? FALLBACK_PRICE,

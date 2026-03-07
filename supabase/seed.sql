@@ -203,6 +203,53 @@ on conflict (id) do update set
   price_unit = excluded.price_unit,
   sort_order = excluded.sort_order;
 
+-- ── provider_service_rates (extras per offering) ─────────────────────────────────
+-- Uses canonical rate_type enum; labels come from app constants.
+insert into public.provider_service_rates (service_offering_id, rate_type, amount_kc, is_add_on, percent_display, unit, has_tooltip, sort_order)
+values
+  -- olga-service-1 (walk_checkin, 390)
+  ('olga-service-1', 'walk_rate', 113, true, null, 'per 30 min walk', false, 1),
+  ('olga-service-1', 'holiday_rate', 534, false, null, 'per visit', true, 2),
+  ('olga-service-1', 'additional_dog_rate', 144, true, null, 'per dog, per walk', false, 3),
+  ('olga-service-1', 'puppy_rate', 433, false, null, 'per visit', false, 4),
+  -- olga-service-2 (inhome_sitting, 980)
+  ('olga-service-2', 'holiday_rate', 1176, false, null, 'per night', true, 1),
+  ('olga-service-2', 'additional_dog_rate', 529, true, null, 'per dog, per night', false, 2),
+  ('olga-service-2', 'puppy_rate', 1078, false, null, 'per night', false, 3),
+  ('olga-service-2', 'cat_care', 637, false, null, 'per night', false, 4),
+  ('olga-service-2', 'additional_cat', 333, true, null, 'per cat, per night', false, 5),
+  ('olga-service-2', 'extended_care', null, false, '50–100', 'of nightly rate', true, 6),
+  -- nikola-service-1 (walk_checkin, 470)
+  ('nikola-service-1', 'walk_rate', 136, true, null, 'per 30 min walk', false, 1),
+  ('nikola-service-1', 'holiday_rate', 644, false, null, 'per visit', true, 2),
+  ('nikola-service-1', 'additional_dog_rate', 174, true, null, 'per dog, per walk', false, 3),
+  ('nikola-service-1', 'puppy_rate', 522, false, null, 'per visit', false, 4),
+  -- nikola-service-2 (boarding, 1100)
+  ('nikola-service-2', 'holiday_rate', 1320, false, null, 'per night', true, 1),
+  ('nikola-service-2', 'additional_dog_rate', 594, true, null, 'per dog, per night', false, 2),
+  ('nikola-service-2', 'puppy_rate', 1210, false, null, 'per night', false, 3),
+  ('nikola-service-2', 'extended_care', null, false, '50–100', 'of nightly rate', true, 4),
+  -- jana-service-1 (inhome_sitting, 850)
+  ('jana-service-1', 'holiday_rate', 1020, false, 'per night', true, 1),
+  ('jana-service-1', 'additional_dog_rate', 459, true, 'per dog, per night', false, 2),
+  ('jana-service-1', 'puppy_rate', 935, false, 'per night', false, 3),
+  ('jana-service-1', 'cat_care', 553, false, 'per night', false, 4),
+  ('jana-service-1', 'additional_cat', 289, true, 'per cat, per night', false, 5),
+  ('jana-service-1', 'extended_care', null, false, '50–100', 'of nightly rate', true, 6),
+  -- jana-service-2 (walk_checkin, 330)
+  ('jana-service-2', 'walk_rate', 96, true, null, 'per 30 min walk', false, 1),
+  ('jana-service-2', 'holiday_rate', 452, false, null, 'per visit', true, 2),
+  ('jana-service-2', 'additional_dog_rate', 122, true, null, 'per dog, per walk', false, 3),
+  ('jana-service-2', 'puppy_rate', 366, false, null, 'per visit', false, 4),
+  -- jana-service-3 (boarding, 760)
+  ('jana-service-3', 'holiday_rate', 912, false, null, 'per night', true, 1),
+  ('jana-service-3', 'additional_dog_rate', 410, true, null, 'per dog, per night', false, 2),
+  ('jana-service-3', 'puppy_rate', 836, false, null, 'per night', false, 3),
+  ('jana-service-3', 'cat_care', 494, false, null, 'per night', false, 4),
+  ('jana-service-3', 'additional_cat', 258, true, null, 'per cat, per night', false, 5),
+  ('jana-service-3', 'extended_care', null, false, '50–100', 'of nightly rate', true, 6)
+on conflict (service_offering_id, rate_type) do nothing;
+
 insert into public.provider_reviews (id, provider_id, author_name, rating, review_text, created_at)
 values
   (
@@ -362,6 +409,45 @@ values
     'Calm, attentive home sitter — always available',
     'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=200&q=80',
     array['inhome_sitting', 'boarding']::service_type[]
+  ),
+  (
+    'martin-k',
+    'Martin K.',
+    'Prague 7',
+    'Holešovice',
+    4.7,
+    11,
+    480,
+    'per_walk',
+    'Active walks and reliable boarding by the river',
+    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
+    array['walk_checkin', 'boarding']::service_type[]
+  ),
+  (
+    'lenka-s',
+    'Lenka S.',
+    'Prague 10',
+    'Vršovice',
+    4.6,
+    8,
+    310,
+    'per_visit',
+    'Affordable care for all dogs — walks and overnight',
+    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
+    array['walk_checkin', 'inhome_sitting', 'boarding']::service_type[]
+  ),
+  (
+    'petr-v',
+    'Petr V.',
+    'Prague 9',
+    'Vysočany',
+    4.9,
+    18,
+    720,
+    'per_night',
+    'Home away from home — sitting and boarding only',
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+    array['inhome_sitting', 'boarding']::service_type[]
   )
 on conflict (id) do update set
   name = excluded.name,
@@ -415,6 +501,33 @@ values
     'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=800&q=80',
     '(67 photos)'
+  ),
+  (
+    'martin-k',
+    'Riverside walks and cosy overnight stays.',
+    'About Martin',
+    'I work from home in Holešovice and love getting out for walks along the Vltava. I offer both drop-in visits and boarding — my flat is calm and dog-friendly, with a small balcony.',
+    'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80',
+    '(38 photos)'
+  ),
+  (
+    'lenka-s',
+    'Friendly, affordable care for every dog.',
+    'About Lenka',
+    'I am a student in Vršovice with a flexible schedule. I offer walks, home sitting, and boarding at fair prices. I grew up with dogs and miss having one around — happy to help out.',
+    'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=800&q=80',
+    '(24 photos)'
+  ),
+  (
+    'petr-v',
+    'Professional care in a quiet Vysočany home.',
+    'About Petr',
+    'I work in IT and work from home most days. I specialise in overnight care — sitting in your home or boarding in mine. No walks-only; I focus on giving dogs a calm, predictable stay.',
+    'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=800&q=80',
+    '(52 photos)'
   )
 on conflict (provider_id) do update set
   about_title = excluded.about_title,
@@ -482,7 +595,29 @@ values
   ('simona-home-3', 'simona-v', 'home_environment', 'One resident cat (calm, dog-friendly)', 3),
   ('simona-home-4', 'simona-v', 'home_environment', 'Balcony with small garden area', 4),
   ('simona-home-5', 'simona-v', 'home_environment', 'Work-from-home — always present', 5),
-  ('simona-home-6', 'simona-v', 'home_environment', 'Nusle valley trails nearby', 6)
+  ('simona-home-6', 'simona-v', 'home_environment', 'Nusle valley trails nearby', 6),
+  -- Martin K.
+  ('martin-care-1', 'martin-k', 'care_experience', 'Adult dogs', 1),
+  ('martin-care-2', 'martin-k', 'care_experience', 'High-energy breeds', 2),
+  ('martin-care-3', 'martin-k', 'care_experience', 'Medium and large dogs', 3),
+  ('martin-med-1', 'martin-k', 'medical_care', 'Comfortable giving oral medication', 1),
+  ('martin-home-1', 'martin-k', 'home_environment', 'Holešovice apartment near Stromovka', 1),
+  ('martin-home-2', 'martin-k', 'home_environment', 'Non-smoking household', 2),
+  ('martin-home-3', 'martin-k', 'home_environment', 'Riverside and park walks', 3),
+  -- Lenka S.
+  ('lenka-care-1', 'lenka-s', 'care_experience', 'Puppies and adult dogs', 1),
+  ('lenka-care-2', 'lenka-s', 'care_experience', 'All sizes and breeds', 2),
+  ('lenka-med-1', 'lenka-s', 'medical_care', 'Comfortable following vet instructions', 1),
+  ('lenka-home-1', 'lenka-s', 'home_environment', 'Vršovice flat near Riegrovy sady', 1),
+  ('lenka-home-2', 'lenka-s', 'home_environment', 'Non-smoking, no other pets', 2),
+  -- Petr V.
+  ('petr-care-1', 'petr-v', 'care_experience', 'Adult and senior dogs', 1),
+  ('petr-care-2', 'petr-v', 'care_experience', 'Calm, low-energy dogs', 2),
+  ('petr-care-3', 'petr-v', 'care_experience', 'Dogs with predictable routines', 3),
+  ('petr-med-1', 'petr-v', 'medical_care', 'Comfortable giving oral and topical medication', 1),
+  ('petr-home-1', 'petr-v', 'home_environment', 'Quiet Vysočany house with garden', 1),
+  ('petr-home-2', 'petr-v', 'home_environment', 'Overnight care only — no walks', 2),
+  ('petr-home-3', 'petr-v', 'home_environment', 'One household at a time', 3)
 on conflict (id) do update set
   provider_id = excluded.provider_id,
   category = excluded.category,
@@ -540,6 +675,26 @@ values
     '3 years',
     'https://images.unsplash.com/photo-1495360010541-f48722b34f7d?auto=format&fit=crop&w=200&q=80',
     1
+  ),
+  (
+    'martin-pet-1',
+    'martin-k',
+    'Štěpán',
+    'Border Collie',
+    '22 kg',
+    '4 years',
+    'https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=200&q=80',
+    1
+  ),
+  (
+    'lenka-pet-1',
+    'lenka-s',
+    'Bonča',
+    'Golden Retriever',
+    '28 kg',
+    '5 years',
+    'https://images.unsplash.com/photo-1633722715463-d30f4f325e24?auto=format&fit=crop&w=200&q=80',
+    1
   )
 on conflict (id) do update set
   provider_id = excluded.provider_id,
@@ -565,7 +720,17 @@ values
   ('pavel-service-2', 'pavel-d', 'boarding', 'Boarding', 'Big family home with two friendly resident dogs and a garden.', 950, 'per_night', 2),
   -- Simona V.
   ('simona-service-1', 'simona-v', 'inhome_sitting', 'In-home Sitting', 'Overnight care in your home — I follow your routines to the letter.', 990, 'per_night', 1),
-  ('simona-service-2', 'simona-v', 'boarding', 'Boarding', 'Quiet Nusle flat with a calm resident cat and a balcony garden.', 880, 'per_night', 2)
+  ('simona-service-2', 'simona-v', 'boarding', 'Boarding', 'Quiet Nusle flat with a calm resident cat and a balcony garden.', 880, 'per_night', 2),
+  -- Martin K.
+  ('martin-service-1', 'martin-k', 'walk_checkin', 'Walks & Check-ins', 'Riverside and Stromovka walks — energetic and reliable.', 480, 'per_visit', 1),
+  ('martin-service-2', 'martin-k', 'boarding', 'Boarding', 'Calm Holešovice flat with balcony — one dog at a time.', 900, 'per_night', 2),
+  -- Lenka S.
+  ('lenka-service-1', 'lenka-s', 'walk_checkin', 'Walks & Check-ins', 'Solo walks around Vršovice and Riegrovy sady.', 310, 'per_visit', 1),
+  ('lenka-service-2', 'lenka-s', 'inhome_sitting', 'In-home Sitting', 'Overnight care in your home — flexible and attentive.', 750, 'per_night', 2),
+  ('lenka-service-3', 'lenka-s', 'boarding', 'Boarding', 'Cosy flat for one dog — great for smaller breeds.', 680, 'per_night', 3),
+  -- Petr V.
+  ('petr-service-1', 'petr-v', 'inhome_sitting', 'In-home Sitting', 'Full-time presence in your home — routines followed exactly.', 720, 'per_night', 1),
+  ('petr-service-2', 'petr-v', 'boarding', 'Boarding', 'Quiet Vysočany house with garden — one household only.', 800, 'per_night', 2)
 on conflict (id) do update set
   provider_id = excluded.provider_id,
   service_type = excluded.service_type,
@@ -652,6 +817,57 @@ values
     4.7,
     'She cared for our small Spitz for 10 days while we were abroad. Knowing someone was home with him all day was such a relief.',
     '2026-01-30T16:00:00.000Z'
+  ),
+  -- Martin K.
+  (
+    'martin-review-1',
+    'martin-k',
+    'Eva K.',
+    4.7,
+    'Martin took our Border Collie for daily riverside walks. Great energy, always on time, and our dog came back exhausted in the best way.',
+    '2026-02-18T12:00:00.000Z'
+  ),
+  (
+    'martin-review-2',
+    'martin-k',
+    'David M.',
+    4.6,
+    'Boarded our dog for a long weekend. Flat was calm and clean, and Martin sent regular photo updates. Would book again.',
+    '2026-01-25T09:30:00.000Z'
+  ),
+  -- Lenka S.
+  (
+    'lenka-review-1',
+    'lenka-s',
+    'Tereza N.',
+    4.6,
+    'Lenka is sweet and reliable. She sat at our place for three nights — our dog was happy and the flat was spotless when we returned.',
+    '2026-02-08T14:00:00.000Z'
+  ),
+  (
+    'lenka-review-2',
+    'lenka-s',
+    'Ondřej P.',
+    4.5,
+    'Good value and flexible with times. Our Jack Russell had a great stay.',
+    '2026-01-12T11:00:00.000Z'
+  ),
+  -- Petr V.
+  (
+    'petr-review-1',
+    'petr-v',
+    'Marie S.',
+    4.9,
+    'Petr stayed in our home for a week with our anxious Labrador. He followed every detail of our routine and our dog was completely at ease.',
+    '2026-02-25T10:00:00.000Z'
+  ),
+  (
+    'petr-review-2',
+    'petr-v',
+    'Jan T.',
+    4.9,
+    'Professional and calm. Our senior dog boarded at his place and came back relaxed. Highly recommend.',
+    '2026-02-02T15:30:00.000Z'
   )
 on conflict (id) do update set
   provider_id = excluded.provider_id,
@@ -659,3 +875,36 @@ on conflict (id) do update set
   rating = excluded.rating,
   review_text = excluded.review_text,
   created_at = excluded.created_at;
+
+-- ── provider_service_rates for Martin K., Lenka S., Petr V. ─────────────────────
+insert into public.provider_service_rates (service_offering_id, rate_type, amount_kc, is_add_on, percent_display, unit, has_tooltip, sort_order)
+values
+  ('martin-service-1', 'walk_rate', 139, true, null, 'per 30 min walk', false, 1),
+  ('martin-service-1', 'holiday_rate', 658, false, null, 'per visit', true, 2),
+  ('martin-service-1', 'additional_dog_rate', 178, true, null, 'per dog, per walk', false, 3),
+  ('martin-service-1', 'puppy_rate', 533, false, null, 'per visit', false, 4),
+  ('martin-service-2', 'holiday_rate', 1080, false, null, 'per night', true, 1),
+  ('martin-service-2', 'additional_dog_rate', 486, true, null, 'per dog, per night', false, 2),
+  ('martin-service-2', 'puppy_rate', 990, false, null, 'per night', false, 3),
+  ('martin-service-2', 'extended_care', null, false, '50–100', 'of nightly rate', true, 4),
+  ('lenka-service-1', 'walk_rate', 90, true, null, 'per 30 min walk', false, 1),
+  ('lenka-service-1', 'holiday_rate', 425, false, null, 'per visit', true, 2),
+  ('lenka-service-1', 'additional_dog_rate', 115, true, null, 'per dog, per walk', false, 3),
+  ('lenka-service-1', 'puppy_rate', 344, false, null, 'per visit', false, 4),
+  ('lenka-service-2', 'holiday_rate', 900, false, null, 'per night', true, 1),
+  ('lenka-service-2', 'additional_dog_rate', 405, true, null, 'per dog, per night', false, 2),
+  ('lenka-service-2', 'puppy_rate', 825, false, null, 'per night', false, 3),
+  ('lenka-service-2', 'extended_care', null, false, '50–100', 'of nightly rate', true, 4),
+  ('lenka-service-3', 'holiday_rate', 816, false, null, 'per night', true, 1),
+  ('lenka-service-3', 'additional_dog_rate', 367, true, null, 'per dog, per night', false, 2),
+  ('lenka-service-3', 'puppy_rate', 748, false, null, 'per night', false, 3),
+  ('lenka-service-3', 'extended_care', null, false, '50–100', 'of nightly rate', true, 4),
+  ('petr-service-1', 'holiday_rate', 864, false, null, 'per night', true, 1),
+  ('petr-service-1', 'additional_dog_rate', 389, true, null, 'per dog, per night', false, 2),
+  ('petr-service-1', 'puppy_rate', 792, false, null, 'per night', false, 3),
+  ('petr-service-1', 'extended_care', null, false, '50–100', 'of nightly rate', true, 4),
+  ('petr-service-2', 'holiday_rate', 960, false, null, 'per night', true, 1),
+  ('petr-service-2', 'additional_dog_rate', 432, true, null, 'per dog, per night', false, 2),
+  ('petr-service-2', 'puppy_rate', 880, false, null, 'per night', false, 3),
+  ('petr-service-2', 'extended_care', null, false, '50–100', 'of nightly rate', true, 4)
+on conflict (service_offering_id, rate_type) do nothing;

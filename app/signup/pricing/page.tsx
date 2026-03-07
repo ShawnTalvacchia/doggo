@@ -4,6 +4,7 @@ import { House, PawPrint, PersonSimpleWalk } from "@phosphor-icons/react";
 import { FormFooter } from "@/components/ui/FormFooter";
 import { FormHeader } from "@/components/ui/FormHeader";
 import { useSignupDraft } from "@/contexts/SignupContext";
+import { SERVICE_LABELS } from "@/lib/constants/services";
 import { ServiceType } from "@/lib/types";
 // Back-destination: last completed service setup step
 function prevStep(roles: string[]): string {
@@ -26,7 +27,7 @@ type ServiceConfig = {
 const SERVICE_CONFIGS: ServiceConfig[] = [
   {
     type: "walk_checkin",
-    label: "Walks & Check-ins",
+    label: SERVICE_LABELS.walk_checkin,
     unit: "per visit",
     hint: "A single walk or drop-in visit. Owners compare this first.",
     marketRange: "Typical in Prague: 250–700 Kč",
@@ -34,7 +35,7 @@ const SERVICE_CONFIGS: ServiceConfig[] = [
   },
   {
     type: "inhome_sitting",
-    label: "In-home Sitting",
+    label: SERVICE_LABELS.inhome_sitting,
     unit: "per night",
     hint: "You stay at the owner's home overnight.",
     marketRange: "Typical in Prague: 700–1,400 Kč",
@@ -42,7 +43,7 @@ const SERVICE_CONFIGS: ServiceConfig[] = [
   },
   {
     type: "boarding",
-    label: "Boarding",
+    label: SERVICE_LABELS.boarding,
     unit: "per night",
     hint: "The dog stays at your home.",
     marketRange: "Typical in Prague: 600–1,200 Kč",

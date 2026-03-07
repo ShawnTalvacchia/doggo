@@ -154,6 +154,54 @@ begin
   end if;
 end$$;
 
+-- ── service_rate_type (canonical extras list) ───────────────────────────────────
+
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'service_rate_type') then
+    create type service_rate_type as enum (
+      'walk_rate',
+      'holiday_rate',
+      'additional_dog_rate',
+      'puppy_rate',
+      'cat_care',
+      'additional_cat',
+      'extended_care'
+    );
+  end if;
+end$$;
+
+-- ── provider_service_rates ─────────────────────────────────────────────────────
+
+create table if not exists public.provider_service_rates (
+  id                   uuid primary key default gen_random_uuid(),
+  service_offering_id  text not null references public.provider_service_offerings(id) on delete cascade,
+  rate_type            service_rate_type not null,
+  amount_kc            integer check (amount_kc is null or amount_kc >= 0),
+  is_add_on            boolean not null default false,
+  percent_display      text check (percent_display is null or length(percent_display) <= 20),
+  unit                 text not null,
+  has_tooltip          boolean not null default false,
+  sort_order           integer not null default 0,
+  unique(service_offering_id, rate_type)
+);
+
+create index if not exists idx_provider_service_rates_offering
+  on public.provider_service_rates(service_offering_id, sort_order);
+
+alter table public.provider_service_rates enable row level security;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public' and tablename = 'provider_service_rates' and policyname = 'public_read_provider_service_rates'
+  ) then
+    create policy public_read_provider_service_rates
+      on public.provider_service_rates for select to anon, authenticated using (true);
+  end if;
+end$$;
+
 -- ── provider_reviews ──────────────────────────────────────────────────────────
 
 create table if not exists public.provider_reviews (
