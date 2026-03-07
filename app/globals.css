@@ -6657,6 +6657,15 @@ body.guest-route {
     width: 100%;
   }
 
+  .landing-cta-close-btns {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .landing-cta-close-btns .btn-action {
+    width: 100%;
+  }
+
   .landing-section {
     padding: 56px 0;
   }
@@ -6882,7 +6891,7 @@ body.guest-route {
 
   .landing-steps {
     flex-direction: column;
-    gap: 20px;
+    gap: 28px;
   }
 
   .landing-step {

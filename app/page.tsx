@@ -317,10 +317,10 @@ export default function LandingPage() {
           </p>
           <div className="landing-cta-close-btns">
             <ButtonAction variant="white" cta size="lg" href="/explore/results">
-              Find a sitter
+              Find a dog carer
             </ButtonAction>
             <ButtonAction variant="outline-white" cta size="lg" href="/signup/start">
-              Become a sitter
+              Become a carer
             </ButtonAction>
           </div>
         </div>
