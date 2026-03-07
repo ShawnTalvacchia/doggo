@@ -193,7 +193,9 @@ values
   ('olga-service-2', 'olga-m', 'inhome_sitting', 'In-home Sitting', 'In-home care that follows your feeding and comfort routines.', 980, 'per_night', 2),
   ('nikola-service-1', 'nikola-r', 'walk_checkin', 'Structured Walks', 'Energy-focused walks with routine consistency.', 470, 'per_visit', 1),
   ('nikola-service-2', 'nikola-r', 'boarding', 'Overnight Boarding', 'Calm overnight care for one household at a time.', 1100, 'per_night', 2),
-  ('jana-service-1', 'jana-k', 'inhome_sitting', 'Senior-focused Home Visits', 'Gentle pace and medication-aware home visits.', 850, 'per_night', 1)
+  ('jana-service-1', 'jana-k', 'inhome_sitting', 'Senior-focused Home Visits', 'Gentle pace and medication-aware home visits.', 850, 'per_night', 1),
+  ('jana-service-2', 'jana-k', 'walk_checkin', 'Walks & Check-ins', 'Gentle, patient walks suited to shy, elderly, or recovering dogs.', 330, 'per_visit', 2),
+  ('jana-service-3', 'jana-k', 'boarding', 'Boarding', 'Your dog stays in Jana''s quiet Dejvice house with a private garden.', 760, 'per_night', 3)
 on conflict (id) do update set
   provider_id = excluded.provider_id,
   service_type = excluded.service_type,
@@ -230,11 +232,11 @@ values
   ('nikola-service-2', 'puppy_rate', 1210, false, null, 'per night', false, 3),
   ('nikola-service-2', 'extended_care', null, false, '50–100', 'of nightly rate', true, 4),
   -- jana-service-1 (inhome_sitting, 850)
-  ('jana-service-1', 'holiday_rate', 1020, false, 'per night', true, 1),
-  ('jana-service-1', 'additional_dog_rate', 459, true, 'per dog, per night', false, 2),
-  ('jana-service-1', 'puppy_rate', 935, false, 'per night', false, 3),
-  ('jana-service-1', 'cat_care', 553, false, 'per night', false, 4),
-  ('jana-service-1', 'additional_cat', 289, true, 'per cat, per night', false, 5),
+  ('jana-service-1', 'holiday_rate', 1020, false, null, 'per night', true, 1),
+  ('jana-service-1', 'additional_dog_rate', 459, true, null, 'per dog, per night', false, 2),
+  ('jana-service-1', 'puppy_rate', 935, false, null, 'per night', false, 3),
+  ('jana-service-1', 'cat_care', 553, false, null, 'per night', false, 4),
+  ('jana-service-1', 'additional_cat', 289, true, null, 'per cat, per night', false, 5),
   ('jana-service-1', 'extended_care', null, false, '50–100', 'of nightly rate', true, 6),
   -- jana-service-2 (walk_checkin, 330)
   ('jana-service-2', 'walk_rate', 96, true, null, 'per 30 min walk', false, 1),

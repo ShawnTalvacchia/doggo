@@ -3953,7 +3953,7 @@ body.guest-route {
 
 .profile-header-state.condensed .profile-identity {
   gap: 16px;
-  padding: 20px 0 4px;
+  padding: 20px 0 12px;
   align-items: center;
 }
 
@@ -4465,6 +4465,41 @@ body.guest-route {
   flex-shrink: 0;
   border-top: 1px solid var(--border-regular);
   border-bottom: 1px solid var(--border-regular);
+}
+
+/* Desktop gallery: bar wraps in right column, matches tabs-wrap style */
+.profile-gallery-bar-wrap {
+  flex-shrink: 0;
+  background: var(--surface-base);
+  height: 64px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-regular);
+}
+
+.profile-gallery-bar-wrap .profile-gallery-bar {
+  width: 100%;
+  border-top: none;
+  border-bottom: none;
+}
+
+.profile-desktop-right-col--gallery {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-desktop-gallery-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: clip;
+}
+
+.profile-desktop-right-col--gallery .profile-gallery-body {
+  width: 100%;
+  margin: 0;
+  padding: 12px 0 24px;
 }
 
 .profile-gallery-bar-title {

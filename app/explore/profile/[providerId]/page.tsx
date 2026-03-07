@@ -439,9 +439,126 @@ function ExploreProfileContent() {
     );
   }
 
-  // ── Gallery view — stays within profile chrome, gallery bar replaces tabs ──
+  // ── Gallery view — two-column layout on desktop, single-column on mobile ──
   if (galleryOpen) {
     const firstName = provider.name.split(" ")[0];
+    const galleryBar = (
+      <div className="profile-gallery-bar">
+        <h2 className="profile-gallery-bar-title">
+          Photos{" "}
+          <span className="profile-gallery-bar-count">
+            {content?.photoCountLabel ?? "(127 photos)"}
+          </span>
+        </h2>
+        <button
+          type="button"
+          className="profile-gallery-bar-close"
+          aria-label="Close gallery"
+          onClick={() => setGalleryOpen(false)}
+        >
+          <X size={18} />
+        </button>
+      </div>
+    );
+    const galleryGrid = (
+      <div className="profile-gallery-body">
+        <div className="photo-gallery-grid">
+          {GALLERY_PHOTOS.map((url, i) => (
+            <button
+              key={i}
+              type="button"
+              className="gallery-thumb-btn"
+              onClick={() => setLightboxIndex(i)}
+              aria-label={`Open photo ${i + 1}`}
+            >
+              <img src={url} alt="" loading="lazy" />
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+
+    if (isDesktop) {
+      return (
+        <main className="profile-page-shell">
+          <section className="profile-desktop-layout">
+            <aside className="profile-desktop-left-col">
+              <div className="profile-desktop-back-row">
+                <Link href={backHref} className="profile-desktop-back-link">
+                  <CaretLeft size={16} weight="bold" />
+                  {backLabel}
+                </Link>
+              </div>
+              <div className="profile-desktop-profile">
+                <ProviderHeaderState
+                  provider={provider}
+                  state="expanded"
+                  onContact={() => setContactOpen(true)}
+                />
+              </div>
+            </aside>
+
+            <section className="profile-desktop-right-col profile-desktop-right-col--gallery">
+              <div className="profile-gallery-bar-wrap">{galleryBar}</div>
+              <div className="profile-desktop-gallery-scroll">{galleryGrid}</div>
+            </section>
+          </section>
+
+          {/* Lightbox — position:fixed, renders on top of gallery view */}
+          {lightboxIndex !== null && (
+            <div className="lightbox-overlay" role="dialog" aria-modal aria-label="Photo viewer">
+              <div className="lightbox-bar">
+                <button
+                  type="button"
+                  className="lightbox-back-btn"
+                  onClick={() => setLightboxIndex(null)}
+                >
+                  <CaretLeft size={16} weight="bold" />
+                  {firstName}&apos;s Photos
+                </button>
+              </div>
+              <div className="lightbox-body">
+                <button
+                  type="button"
+                  className="lightbox-nav lightbox-nav--prev"
+                  onClick={() => setLightboxIndex((i) => Math.max(0, (i ?? 1) - 1))}
+                  disabled={lightboxIndex === 0}
+                  aria-label="Previous photo"
+                >
+                  <CaretLeft size={20} weight="bold" />
+                </button>
+                <img
+                  className="lightbox-img"
+                  src={GALLERY_PHOTOS[lightboxIndex].replace("w=400&h=400", "w=1200&h=900")}
+                  alt=""
+                />
+                <button
+                  type="button"
+                  className="lightbox-nav lightbox-nav--next"
+                  onClick={() =>
+                    setLightboxIndex((i) => Math.min(GALLERY_PHOTOS.length - 1, (i ?? 0) + 1))
+                  }
+                  disabled={lightboxIndex === GALLERY_PHOTOS.length - 1}
+                  aria-label="Next photo"
+                >
+                  <CaretRight size={20} weight="bold" />
+                </button>
+              </div>
+            </div>
+          )}
+          {provider && (
+            <ContactModal
+              open={contactOpen}
+              onClose={() => setContactOpen(false)}
+              providerName={provider.name}
+              service={service as ServiceType | null}
+            />
+          )}
+        </main>
+      );
+    }
+
+    // Mobile gallery — single-column layout
     return (
       <main className="profile-page-shell">
         <section className="profile-page-panel">
@@ -457,41 +574,10 @@ function ExploreProfileContent() {
               state="condensed"
               onContact={() => setContactOpen(true)}
             />
-            <div className="profile-gallery-bar">
-              <h2 className="profile-gallery-bar-title">
-                Photos{" "}
-                <span className="profile-gallery-bar-count">
-                  {content?.photoCountLabel ?? "(127 photos)"}
-                </span>
-              </h2>
-              <button
-                type="button"
-                className="profile-gallery-bar-close"
-                aria-label="Close gallery"
-                onClick={() => setGalleryOpen(false)}
-              >
-                <X size={18} />
-              </button>
-            </div>
+            {galleryBar}
           </div>
 
-          <div className="profile-scroll-body">
-            <div className="profile-gallery-body">
-              <div className="photo-gallery-grid">
-                {GALLERY_PHOTOS.map((url, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    className="gallery-thumb-btn"
-                    onClick={() => setLightboxIndex(i)}
-                    aria-label={`Open photo ${i + 1}`}
-                  >
-                    <img src={url} alt="" loading="lazy" />
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+          <div className="profile-scroll-body">{galleryGrid}</div>
         </section>
 
         {/* Lightbox — position:fixed, renders on top of gallery view */}
@@ -535,6 +621,14 @@ function ExploreProfileContent() {
               </button>
             </div>
           </div>
+        )}
+        {provider && (
+          <ContactModal
+            open={contactOpen}
+            onClose={() => setContactOpen(false)}
+            providerName={provider.name}
+            service={service as ServiceType | null}
+          />
         )}
       </main>
     );
