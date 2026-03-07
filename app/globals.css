@@ -2406,7 +2406,7 @@ body.guest-route {
   justify-content: center;
   gap: 1px;
   padding: 8px 10px;
-  background: transparent;
+  background: var(--surface-popout);
   border: 0;
   border-right: 1px solid var(--border-stronger);
   font-family: var(--font-body);
@@ -2819,7 +2819,7 @@ body.guest-route {
 .left-option-card {
   border: 1px solid var(--border-stronger);
   border-radius: 8px;
-  background: var(--surface-top);
+  background: var(--surface-popout);
   color: var(--text-tertiary);
   display: grid;
   gap: 2px;
@@ -2831,7 +2831,7 @@ body.guest-route {
 .left-option-card.active {
   border-color: var(--text-primary);
   color: var(--text-primary);
-  background: var(--surface-popout);
+  background: var(--surface-top);
   box-shadow: var(--shadow-xs);
 }
 
