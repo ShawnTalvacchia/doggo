@@ -36,6 +36,8 @@ type ButtonActionProps = {
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   className?: string;
+  /** Inline style for one-off overrides (e.g. color on an outline button in a specific context). */
+  style?: React.CSSProperties;
 };
 
 export function ButtonAction({
@@ -50,6 +52,7 @@ export function ButtonAction({
   leftIcon,
   rightIcon,
   className,
+  style,
 }: ButtonActionProps) {
   const normalizedVariant = variant as ButtonVariant;
 
@@ -100,7 +103,7 @@ export function ButtonAction({
 
   if (href && !disabled) {
     return (
-      <Link href={href} className={classes}>
+      <Link href={href} className={classes} style={style}>
         {content}
       </Link>
     );
@@ -108,14 +111,14 @@ export function ButtonAction({
 
   if (href && disabled) {
     return (
-      <span className={classes} aria-disabled="true">
+      <span className={classes} aria-disabled="true" style={style}>
         {content}
       </span>
     );
   }
 
   return (
-    <button type={type} onClick={onClick} className={classes} disabled={disabled}>
+    <button type={type} onClick={onClick} className={classes} disabled={disabled} style={style}>
       {content}
     </button>
   );

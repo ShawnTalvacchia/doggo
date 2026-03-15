@@ -11,8 +11,8 @@ import {
 } from "@phosphor-icons/react";
 import { CardExploreResult } from "@/components/explore/CardExploreResult";
 import MapView from "@/components/explore/MapView";
-import { ExploreFilterPanelDesktop } from "@/components/explore/ExploreFilterPanelDesktop";
-import { ExploreFilterPanelMobile } from "@/components/explore/ExploreFilterPanelMobile";
+import { FilterPanelDesktop } from "@/components/explore/FilterPanelDesktop";
+import { FilterPanelMobile } from "@/components/explore/FilterPanelMobile";
 import { defaultExploreFilters } from "@/lib/mockData";
 import { fetchProviders } from "@/lib/data/providersClient";
 import { getExploreRateBounds } from "@/lib/pricing";
@@ -57,15 +57,15 @@ const mobileServiceOptions: {
 const resultsHeaderCopy: Record<ServiceType, { heading: string; subtitle: string }> = {
   walk_checkin: {
     heading: "Find dog walkers & check-ins",
-    subtitle: "Add dates to see who's available for visits.",
+    subtitle: "Add date filters to see who's available for visits",
   },
   inhome_sitting: {
     heading: "Find in-home sitters",
-    subtitle: "Add dates to see sitters available at your home.",
+    subtitle: "Add date filters to see who's available for visits",
   },
   boarding: {
     heading: "Find boarding hosts",
-    subtitle: "Add dates to see hosts who can take your dog.",
+    subtitle: "Add date filters to see who's available for visits",
   },
 };
 
@@ -243,15 +243,15 @@ function ExploreResultsContent() {
             {mobileServiceOptions.map(({ value, label, helper, Icon }) => (
               <button
                 key={value}
-                className="left-service-card"
+                className="filter-service-card"
                 onClick={() => updateFilters({ service: value })}
               >
-                <Icon size={20} weight="duotone" className="left-service-icon" />
-                <div className="left-service-copy">
+                <Icon size={20} weight="duotone" className="filter-service-icon" />
+                <div className="filter-service-copy">
                   <strong>{label}</strong>
                   <span>{helper}</span>
                 </div>
-                <span className="left-service-caret" aria-hidden>
+                <span className="filter-service-caret" aria-hidden>
                   ›
                 </span>
               </button>
@@ -263,7 +263,7 @@ function ExploreResultsContent() {
       <section className={`explore-layout${!filters.service ? " explore-layout--landing" : ""}`}>
         {/* Filter sidebar — visible at >= 804px */}
         <div className="explore-filter-col">
-          <ExploreFilterPanelDesktop
+          <FilterPanelDesktop
             filters={filters}
             onServiceChange={(service) => updateFilters({ service })}
             onMinRateChange={(minRate) => updateFilters({ minRate })}
@@ -319,7 +319,7 @@ function ExploreResultsContent() {
         </aside>
       </section>
 
-      <ExploreFilterPanelMobile
+      <FilterPanelMobile
         open={mobileFiltersOpen}
         onClose={() => setMobileFiltersOpen(false)}
         filters={filters}

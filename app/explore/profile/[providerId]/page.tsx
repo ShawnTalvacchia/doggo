@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import {
   CaretLeft,
   CaretRight,
@@ -15,8 +15,8 @@ import {
   Star,
   X,
 } from "@phosphor-icons/react";
-import { ProviderHeaderState } from "@/components/explore/ProviderHeaderState";
-import { ContactModal } from "@/components/ui/ContactModal";
+import { ProfileHeader } from "@/components/explore/ProfileHeader";
+import { useConversations } from "@/contexts/ConversationsContext";
 import { DEFAULT_ABOUT_BANNER_URL } from "@/lib/data/providerContent";
 
 /** Default first image in the Photos section (dog only). Kept separate from the About banner. */
@@ -145,9 +145,9 @@ function ServiceBlock({ service, isLast }: { service: ProviderServiceOffering; i
       {(service.acceptedWeightBands ?? []).length > 0 && (
         <div className="svc-weight-row">
           {(service.acceptedWeightBands ?? []).map((band) => (
-            <div key={band.label} className="svc-weight-chip">
+            <div key={band.label} className="chip">
               <WeightIcon size={band.size} />
-              <span className="svc-weight-label">{band.label}</span>
+              <span>{band.label}</span>
             </div>
           ))}
         </div>
@@ -215,6 +215,8 @@ const backLabels: Record<string, string> = {
 function ExploreProfileContent() {
   const params = useParams<{ providerId: string }>();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { getOrCreateConversation } = useConversations();
   const service = searchParams.get("service");
   const backLabel = (service && backLabels[service]) ?? "Dog Walkers";
 
@@ -236,7 +238,15 @@ function ExploreProfileContent() {
   const [isLoadingProvider, setIsLoadingProvider] = useState(true);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [contactOpen, setContactOpen] = useState(false);
+
+  function handleContact() {
+    if (!provider) return;
+    const convId = getOrCreateConversation(
+      { id: provider.id, name: provider.name, avatarUrl: provider.avatarUrl },
+      service as ServiceType | null
+    );
+    router.push(`/inbox/${convId}`);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -490,10 +500,10 @@ function ExploreProfileContent() {
                 </Link>
               </div>
               <div className="profile-desktop-profile">
-                <ProviderHeaderState
+                <ProfileHeader
                   provider={provider}
                   state="expanded"
-                  onContact={() => setContactOpen(true)}
+                  onContact={handleContact}
                 />
               </div>
             </aside>
@@ -546,14 +556,6 @@ function ExploreProfileContent() {
               </div>
             </div>
           )}
-          {provider && (
-            <ContactModal
-              open={contactOpen}
-              onClose={() => setContactOpen(false)}
-              providerName={provider.name}
-              service={service as ServiceType | null}
-            />
-          )}
         </main>
       );
     }
@@ -569,10 +571,10 @@ function ExploreProfileContent() {
                 {backLabel}
               </Link>
             </div>
-            <ProviderHeaderState
+            <ProfileHeader
               provider={provider}
               state="condensed"
-              onContact={() => setContactOpen(true)}
+              onContact={handleContact}
             />
             {galleryBar}
           </div>
@@ -622,14 +624,6 @@ function ExploreProfileContent() {
             </div>
           </div>
         )}
-        {provider && (
-          <ContactModal
-            open={contactOpen}
-            onClose={() => setContactOpen(false)}
-            providerName={provider.name}
-            service={service as ServiceType | null}
-          />
-        )}
       </main>
     );
   }
@@ -646,15 +640,16 @@ function ExploreProfileContent() {
               </Link>
             </div>
             <div className="profile-desktop-profile">
-              <ProviderHeaderState
+              <ProfileHeader
                 provider={provider}
                 state="expanded"
-                onContact={() => setContactOpen(true)}
+                onContact={handleContact}
               />
             </div>
           </aside>
 
           <section className="profile-desktop-right-col">
+            {/* Tab bar sits outside the scroll container so the scrollbar never overlaps it */}
             <div className="profile-desktop-tabs-wrap">
               <div
                 className="profile-tabs profile-tabs-desktop"
@@ -690,7 +685,9 @@ function ExploreProfileContent() {
                 </button>
               </div>
             </div>
-            {activeContent}
+            <div className="profile-desktop-right-scroll">
+              {activeContent}
+            </div>
           </section>
         </section>
       ) : (
@@ -702,10 +699,10 @@ function ExploreProfileContent() {
                 {backLabel}
               </Link>
             </div>
-            <ProviderHeaderState
+            <ProfileHeader
               provider={provider}
               state="condensed"
-              onContact={() => setContactOpen(true)}
+              onContact={handleContact}
             />
             <div className="profile-tabs" role="tablist" aria-label="Profile sections">
               <button
@@ -742,14 +739,6 @@ function ExploreProfileContent() {
         </section>
       )}
 
-      {provider && (
-        <ContactModal
-          open={contactOpen}
-          onClose={() => setContactOpen(false)}
-          providerName={provider.name}
-          service={service as ServiceType | null}
-        />
-      )}
     </main>
   );
 }

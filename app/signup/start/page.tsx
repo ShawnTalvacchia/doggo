@@ -2,8 +2,8 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
-import { FormFooter } from "@/components/ui/FormFooter";
-import { FormHeader } from "@/components/ui/FormHeader";
+import { FormFooter } from "@/components/layout/FormFooter";
+import { FormHeader } from "@/components/layout/FormHeader";
 import { InputField } from "@/components/ui/InputField";
 import { useSignupDraft } from "@/contexts/SignupContext";
 function FacebookIcon() {
@@ -164,19 +164,16 @@ export default function SignupStartPage() {
           <div style={{ display: "grid", gap: 8 }}>
             <CheckboxRow
               id="tos"
+              label={<>I agree to the <strong>Terms of Service</strong></>}
               checked={draft.acceptTos}
               onChange={(acceptTos) => updateDraft({ acceptTos })}
-            >
-              I agree to the<strong>Terms of Service</strong>
-            </CheckboxRow>
+            />
             <CheckboxRow
               id="privacy"
+              label={<>I acknowledge the <strong>Privacy Policy</strong> and consent to the processing of my personal data</>}
               checked={draft.acceptPrivacy}
               onChange={(acceptPrivacy) => updateDraft({ acceptPrivacy })}
-            >
-              I acknowledge the<strong>Privacy Policy</strong>and consent to the processing of my
-              personal data
-            </CheckboxRow>
+            />
           </div>
         </section>
         <FormFooter

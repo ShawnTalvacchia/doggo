@@ -2,9 +2,13 @@ import type { Metadata } from "next";
 import { Open_Sans, Poppins } from "next/font/google";
 import "./globals.css";
 import { SignupProvider } from "@/contexts/SignupContext";
-import { GuestLayout } from "@/components/GuestLayout";
-import { AppNav } from "@/components/AppNav";
-import { BottomNav } from "@/components/BottomNav";
+import { ConversationsProvider } from "@/contexts/ConversationsContext";
+import { BookingsProvider } from "@/contexts/BookingsContext";
+import { NotificationsProvider } from "@/contexts/NotificationsContext";
+import { ReviewsProvider } from "@/contexts/ReviewsContext";
+import { GuestLayout } from "@/components/layout/GuestLayout";
+import { AppNav } from "@/components/layout/AppNav";
+import { BottomNav } from "@/components/layout/BottomNav";
 
 const headingFont = Poppins({
   subsets: ["latin"],
@@ -31,11 +35,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         style={{ fontFamily: "var(--font-body), sans-serif" }}
       >
         <SignupProvider>
-          <GuestLayout>
-            <AppNav />
-            {children}
-            <BottomNav />
-          </GuestLayout>
+          <NotificationsProvider>
+            <ReviewsProvider>
+              <ConversationsProvider>
+                <BookingsProvider>
+                  <GuestLayout>
+                    <AppNav />
+                    {children}
+                    <BottomNav />
+                  </GuestLayout>
+                </BookingsProvider>
+              </ConversationsProvider>
+            </ReviewsProvider>
+          </NotificationsProvider>
         </SignupProvider>
       </body>
     </html>

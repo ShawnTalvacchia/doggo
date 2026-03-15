@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { FormFooter } from "@/components/ui/FormFooter";
-import { FormHeader } from "@/components/ui/FormHeader";
+import { FormFooter } from "@/components/layout/FormFooter";
+import { FormHeader } from "@/components/layout/FormHeader";
 import { useSignupDraft } from "@/contexts/SignupContext";
 import { Role } from "@/lib/types";
 import { PawPrint, PersonSimpleWalk, House, Check } from "@phosphor-icons/react";

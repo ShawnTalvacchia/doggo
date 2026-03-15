@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { CheckCircle } from "@phosphor-icons/react";
-import { ModalSheet } from "@/components/ui/ModalSheet";
+import { ModalSheet } from "./ModalSheet";
 import { DatePicker, DateTrigger, type DateRange } from "@/components/ui/DatePicker";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { SERVICE_LABELS } from "@/lib/constants/services";

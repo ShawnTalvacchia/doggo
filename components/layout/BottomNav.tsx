@@ -7,7 +7,7 @@ import { CalendarDots, ChatCircleDots, MagnifyingGlass, UserCircle } from "@phos
 
 const tabs = [
   { label: "Explore", href: "/explore/results", Icon: MagnifyingGlass },
-  { label: "Calendar", href: "/calendar", Icon: CalendarDots },
+  { label: "Bookings", href: "/bookings", Icon: CalendarDots },
   { label: "Inbox", href: "/inbox", Icon: ChatCircleDots },
   { label: "Profile", href: "/profile", Icon: UserCircle },
 ] as const;
@@ -15,9 +15,13 @@ const tabs = [
 function BottomNavInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const isLoggedMobileRoute = pathname.startsWith("/explore") || pathname === "/profile";
+  const isLoggedMobileRoute =
+    pathname.startsWith("/explore") ||
+    pathname === "/profile" ||
+    pathname.startsWith("/inbox") ||
+    pathname.startsWith("/bookings");
 
-  // Bottom nav is for logged-in explore experience only.
+  // Bottom nav is for logged-in experience only.
   if (!isLoggedMobileRoute) return null;
 
   // Hide on styleguide (uses top nav only at all viewports)
@@ -26,11 +30,20 @@ function BottomNavInner() {
   // Hide on provider profile page (has its own back nav)
   if (pathname.startsWith("/explore/profile")) return null;
 
+  // Hide on individual inbox thread page (has its own back nav)
+  if (pathname.match(/^\/inbox\/.+/)) return null;
+
   // Hide once user has selected a service (they're in the sub-flow)
   if (pathname === "/explore/results" && searchParams.get("service")) return null;
 
-  // Determine active tab: treat all /explore/* as the Explore tab
-  const activeHref = pathname.startsWith("/explore") ? "/explore/results" : pathname;
+  // Determine active tab
+  const activeHref = pathname.startsWith("/explore")
+    ? "/explore/results"
+    : pathname.startsWith("/inbox")
+    ? "/inbox"
+    : pathname.startsWith("/bookings")
+    ? "/bookings"
+    : pathname;
 
   return (
     <nav className="bottom-nav" aria-label="Main navigation">

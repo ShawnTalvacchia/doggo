@@ -2,9 +2,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MagnifyingGlass, ImageSquare } from "@phosphor-icons/react";
-import { FormFooter } from "@/components/ui/FormFooter";
-import { FormHeader } from "@/components/ui/FormHeader";
+import { FormFooter } from "@/components/layout/FormFooter";
+import { FormHeader } from "@/components/layout/FormHeader";
 import { InputField } from "@/components/ui/InputField";
+import { Toggle } from "@/components/ui/Toggle";
 import { useSignupDraft } from "@/contexts/SignupContext";
 export default function SignupProfilePage() {
   const router = useRouter();
@@ -132,20 +133,11 @@ export default function SignupProfilePage() {
               </p>
             </div>
             <div className="form-col">
-              <div className="toggle-row">
-                <span className="label" style={{ margin: 0 }}>
-                  Public Profile
-                </span>
-                <button
-                  type="button"
-                  className={`toggle-track${draft.publicProfile ? " on" : ""}`}
-                  onClick={() => updateDraft({ publicProfile: !draft.publicProfile })}
-                  aria-label="Toggle public profile"
-                  aria-pressed={draft.publicProfile}
-                >
-                  <div className="toggle-knob" />
-                </button>
-              </div>
+              <Toggle
+                label="Public Profile"
+                checked={draft.publicProfile}
+                onChange={(publicProfile) => updateDraft({ publicProfile })}
+              />
             </div>
           </div>
         </section>

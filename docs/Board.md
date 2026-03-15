@@ -75,9 +75,18 @@ _Living tracker of build state, priorities, and open decisions. Update this afte
 
 ## What's Next
 
-### 🟡 Inbox & Chat (current focus)
+### ✅ Inbox & Chat (complete — mock/local-state)
 
-See **Chat Design** section below.
+- ✅ `Conversation`, `ChatMessage`, `BookingProposal` types in `lib/types.ts`
+- ✅ `lib/mockConversations.ts` — 3 realistic conversations (Olga/walk, Nikola/boarding, Jana/walk + pending proposal)
+- ✅ `/inbox` — conversation list: avatar, unread dot, service chip, dog name, last message preview, relative time
+- ✅ `/inbox/[conversationId]` — full-height thread: inquiry card, date-grouped bubbles, booking proposal card (Accept/Decline), local-state send
+- ✅ `BottomNav` — now shows on `/inbox` and `/calendar`; hides on individual thread pages
+- ✅ `ContactModal` sent state — "View conversation in Inbox →" link added
+- 🔧 Send is local-state only (no persistence across sessions — intentional until Supabase auth is in place)
+- 🔧 ContactModal → inbox link goes to `/inbox` list for now (no direct conversation seeding from profile page yet)
+
+See **Chat Design** section below for architecture notes.
 
 ### ⬜ Profile Page (`/profile`)
 
@@ -195,3 +204,4 @@ This keeps it feeling like a direct human agreement, not a platform-mediated tra
 | Date       | Change                                                           |
 | ---------- | ---------------------------------------------------------------- |
 | 2026-03-07 | Created Board.md; captured full build state; drafted chat design |
+| 2026-03-07 | Built full Inbox & Chat system (types, mock data, /inbox list, /inbox/[id] thread, BottomNav wiring, ContactModal update) |

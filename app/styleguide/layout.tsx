@@ -21,9 +21,9 @@ export default function StyleguideLayout({ children }: { children: React.ReactNo
   }, []);
 
   const currentHref =
-    pathname === "/styleguide"
-      ? "/styleguide"
-      : (tabs.find((t) => pathname.startsWith(t.href))?.href ?? "/styleguide");
+    tabs.find((t) =>
+      t.href === "/styleguide" ? pathname === "/styleguide" : pathname.startsWith(t.href)
+    )?.href ?? "/styleguide";
 
   return (
     <div className="sg-layout">

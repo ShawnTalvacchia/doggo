@@ -1,14 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { PawPrint, PersonSimpleWalk, House, CaretDown } from "@phosphor-icons/react";
+import { PawPrint, PersonSimpleWalk, House, CaretLeft } from "@phosphor-icons/react";
+import { ButtonAction } from "@/components/ui/ButtonAction";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import { ExploreFilters, ServiceType } from "@/lib/types";
 import { getExploreRateBounds } from "@/lib/pricing";
 import { FilterBody } from "./FilterBody";
+import { FilterPanelShell } from "./FilterPanelShell";
 import { type DateRange } from "@/components/ui/DatePicker";
 
-type ExploreFilterPanelDesktopProps = {
+type FilterPanelDesktopProps = {
   filters: ExploreFilters;
   onServiceChange: (service: ServiceType) => void;
   onMinRateChange: (value: number) => void;
@@ -57,7 +59,7 @@ function ServiceIcon({ service }: { service: ServiceType }) {
   return <PersonSimpleWalk size={16} weight="bold" />;
 }
 
-export function ExploreFilterPanelDesktop({
+export function FilterPanelDesktop({
   filters,
   onServiceChange,
   onMinRateChange,
@@ -65,7 +67,7 @@ export function ExploreFilterPanelDesktop({
   onTimeToggle,
   onDateRangeChange,
   onStartDateChange,
-}: ExploreFilterPanelDesktopProps) {
+}: FilterPanelDesktopProps) {
   const [panelView, setPanelView] = useState<PanelView>(filters.service ? "filters" : "service");
 
   useEffect(() => {
@@ -90,31 +92,31 @@ export function ExploreFilterPanelDesktop({
   return (
     <aside className="panel explore-left-panel" aria-label="Explore left panel">
       <div
-        className={`left-panel-track ${panelView === "service" ? "show-service" : "show-filters"}`}
+        className={`filter-panel-track ${panelView === "service" ? "show-service" : "show-filters"}`}
         role="region"
         aria-live="polite"
       >
         {/* ── Service chooser page ──────────────────────────────────────── */}
-        <section className="left-panel-page">
+        <section className="filter-panel-page">
           <div className="panel-content">
-            <h2 className="left-panel-title">Choose how care is provided</h2>
-            <div className="left-service-list">
+            <h2 className="filter-panel-title">Choose how care is provided</h2>
+            <div className="filter-service-list">
               {serviceOptions.map((option) => (
                 <button
                   key={option.value}
                   type="button"
-                  className="left-service-card"
+                  className="filter-service-card"
                   onClick={() => {
                     onServiceChange(option.value);
                     setPanelView("filters");
                   }}
                 >
-                  <option.CardIcon size={20} weight="duotone" className="left-service-icon" />
-                  <div className="left-service-copy">
+                  <option.CardIcon size={20} weight="duotone" className="filter-service-icon" />
+                  <div className="filter-service-copy">
                     <strong>{option.label}</strong>
                     <span>{option.helper}</span>
                   </div>
-                  <span className="left-service-caret" aria-hidden>
+                  <span className="filter-service-caret" aria-hidden>
                     ›
                   </span>
                 </button>
@@ -124,22 +126,25 @@ export function ExploreFilterPanelDesktop({
         </section>
 
         {/* ── Filters page ─────────────────────────────────────────────── */}
-        <section className="left-panel-page left-panel-page--filters">
-          <div className="panel-content left-panel-content--filters">
-            <div className="left-filter-header">
-              {/* Service switcher pill */}
-              <button
-                type="button"
-                className="left-service-pill"
-                onClick={() => setPanelView("service")}
-              >
-                <ServiceIcon service={selectedService} />
-                <span>{serviceLabel(selectedService)}</span>
-                <CaretDown size={14} weight="bold" />
-              </button>
-            </div>
-
-            <div className="left-filter-scroll">
+        <section className="filter-panel-page filter-panel-page--filters">
+          <FilterPanelShell
+            header={
+              <div className="filter-header">
+                {/* Service switcher: ← label [icon] — navigates back to service chooser */}
+                <ButtonAction
+                  variant="outline"
+                  size="md"
+                  leftIcon={<CaretLeft size={14} weight="bold" />}
+                  rightIcon={<ServiceIcon service={selectedService} />}
+                  onClick={() => setPanelView("service")}
+                  style={{ color: "var(--text-primary)" }}
+                >
+                  {serviceLabel(selectedService)}
+                </ButtonAction>
+              </div>
+            }
+          >
+            <div className="filter-scroll">
               {/* Service-aware filter fields */}
               <FilterBody
                 filters={filters}
@@ -152,7 +157,7 @@ export function ExploreFilterPanelDesktop({
                 dualSlider
               />
             </div>
-          </div>
+          </FilterPanelShell>
         </section>
       </div>
     </aside>

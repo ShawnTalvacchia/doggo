@@ -11,6 +11,13 @@ type MultiSelectSegmentBarProps<T extends string> = {
   selectedValues: T[];
   onToggle: (value: T) => void;
   ariaLabel?: string;
+  /**
+   * "form"   (default) — neutral filled active state.
+   *                       Use in signup flows, preference settings, profile setup.
+   * "filter" — brand-accent active state.
+   *             Use in explore/filter contexts where selections feel exploratory.
+   */
+  variant?: "form" | "filter";
 };
 
 export function MultiSelectSegmentBar<T extends string>({
@@ -18,9 +25,13 @@ export function MultiSelectSegmentBar<T extends string>({
   selectedValues,
   onToggle,
   ariaLabel,
+  variant = "form",
 }: MultiSelectSegmentBarProps<T>) {
+  const cls = ["multi-segment", variant === "filter" ? "multi-segment--filter" : ""]
+    .filter(Boolean)
+    .join(" ");
   return (
-    <div className="multi-segment" role="group" aria-label={ariaLabel}>
+    <div className={cls} role="group" aria-label={ariaLabel}>
       {options.map((option) => {
         const active = selectedValues.includes(option.value);
         return (

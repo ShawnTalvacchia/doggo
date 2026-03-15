@@ -1,9 +1,12 @@
 "use client";
 
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ButtonIcon } from "@/components/ui/ButtonIcon";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { NotificationsPanel } from "@/components/ui/NotificationsPanel";
+import { useNotifications } from "@/contexts/NotificationsContext";
 import {
   Bell,
   CalendarDots,
@@ -22,7 +25,7 @@ function GuestNavLinks() {
       <Link href="/signup/start" className="app-nav-link app-nav-link--primary">
         Sign Up
       </Link>
-      <Link href="/profile" className="app-nav-dev-trigger" aria-label="Open menu" title="Menu">
+      <Link href="/pages" className="app-nav-dev-trigger" aria-label="Open menu" title="Menu">
         ···
       </Link>
     </div>
@@ -32,7 +35,7 @@ function GuestNavLinks() {
 function SignupNavLinks() {
   return (
     <div className="app-nav-right" aria-label="Signup navigation">
-      <Link href="/profile" className="app-nav-dev-trigger" aria-label="Open menu" title="Menu">
+      <Link href="/pages" className="app-nav-dev-trigger" aria-label="Open menu" title="Menu">
         <DotsThree size={24} weight="bold" />
       </Link>
     </div>
@@ -40,6 +43,10 @@ function SignupNavLinks() {
 }
 
 function LoggedNavLinks() {
+  const { unreadCount } = useNotifications();
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifWrapRef = useRef<HTMLDivElement>(null);
+
   return (
     <div className="app-nav-logged" aria-label="Logged-in navigation">
       <div className="app-nav-main-links">
@@ -63,13 +70,22 @@ function LoggedNavLinks() {
         </ButtonAction>
       </div>
       <div className="app-nav-icon-row">
-        <ButtonIcon label="Notifications" showBadge>
-          <Bell size={32} weight="light" />
-        </ButtonIcon>
-        <ButtonIcon label="Messages">
+        {/* Bell — toggles NotificationsPanel */}
+        <div className="app-nav-notif-wrap" ref={notifWrapRef}>
+          <ButtonIcon
+            label="Notifications"
+            showBadge={unreadCount > 0}
+            badgeCount={unreadCount}
+            onClick={() => setNotifOpen((v) => !v)}
+          >
+            <Bell size={32} weight={notifOpen ? "fill" : "light"} />
+          </ButtonIcon>
+          <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} wrapperRef={notifWrapRef} />
+        </div>
+        <ButtonIcon label="Messages" href="/inbox">
           <ChatCircleDots size={32} weight="light" />
         </ButtonIcon>
-        <ButtonIcon label="Calendar">
+        <ButtonIcon label="Bookings" href="/bookings">
           <CalendarDots size={32} weight="light" />
         </ButtonIcon>
         <Link
@@ -91,7 +107,8 @@ function LoggedNavLinks() {
 
 export function AppNav() {
   const pathname = usePathname();
-  const mode = pathname.startsWith("/explore") ? "logged" : "guest";
+  const loggedRoutes = ["/explore", "/inbox", "/bookings", "/profile"];
+  const mode = loggedRoutes.some((r) => pathname.startsWith(r)) ? "logged" : "guest";
   const isSignupRoute = pathname.startsWith("/signup");
   const isStyleguideRoute = pathname.startsWith("/styleguide");
   const isContainedNav =

@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ImageSquare, MagnifyingGlass } from "@phosphor-icons/react";
-import { FormFooter } from "@/components/ui/FormFooter";
-import { FormHeader } from "@/components/ui/FormHeader";
+import { FormFooter } from "@/components/layout/FormFooter";
+import { FormHeader } from "@/components/layout/FormHeader";
 import { InputField } from "@/components/ui/InputField";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { useSignupDraft } from "@/contexts/SignupContext";
@@ -155,18 +155,16 @@ export default function SignupPetPage() {
                 <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
                   <CheckboxRow
                     id="good-with-dogs"
+                    label="Other dogs"
                     checked={pet.goodWithDogs}
                     onChange={(goodWithDogs) => setPet({ goodWithDogs })}
-                  >
-                    Other dogs
-                  </CheckboxRow>
+                  />
                   <CheckboxRow
                     id="good-with-kids"
+                    label="Children"
                     checked={pet.goodWithKids}
                     onChange={(goodWithKids) => setPet({ goodWithKids })}
-                  >
-                    Children
-                  </CheckboxRow>
+                  />
                 </div>
               </div>
             </div>

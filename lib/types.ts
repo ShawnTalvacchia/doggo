@@ -150,3 +150,228 @@ export interface ProviderProfileContent {
 }
 
 export type ProviderHeaderState = "expanded" | "condensed";
+
+// ── Chat / Inbox ───────────────────────────────────────────────────────────────
+
+export type MessageSender = "owner" | "provider";
+
+export type MessageType = "text" | "booking_proposal" | "contract";
+
+export type BookingProposalStatus = "pending" | "accepted" | "declined" | "countered";
+
+export type ConversationStatus = "active" | "confirmed" | "archived";
+
+export interface BookingProposal {
+  bookingType: BookingType;
+  serviceType: ServiceType;
+  subService: string | null;
+  pets: string[];
+  startDate: string;           // ISO YYYY-MM-DD
+  endDate: string | null;      // null for open-ended ongoing
+  recurringSchedule?: RecurringSchedule;
+  price: BookingPrice;
+  status: BookingProposalStatus;
+}
+
+export interface ContractConfirmation {
+  bookingId: string;
+  serviceType: ServiceType;
+  subService: string | null;
+  carerName: string;
+  pets: string[];
+  startDate: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  conversationId: string;
+  sender: MessageSender;
+  type: MessageType;
+  text?: string;
+  proposal?: BookingProposal;
+  contract?: ContractConfirmation;
+  sentAt: string; // ISO timestamp
+  read: boolean;
+}
+
+/** Structured inquiry card created when a conversation is first started */
+export interface ConversationInquiry {
+  bookingType: BookingType;
+  serviceType: ServiceType;
+  /** e.g. "Solo walk", "Day care" — sub-service from the filter accordion */
+  subService: string | null;
+  /** Pet names selected for this booking, e.g. ["Spot", "Goldie"] */
+  pets: string[];
+  startDate: string | null;
+  endDate: string | null;
+  recurringSchedule?: RecurringSchedule;
+  /** Free-text dog name(s) for display when pets array is not enough */
+  dogName: string;
+  message: string;
+}
+
+// ── Bookings / Contracts ───────────────────────────────────────────────────────
+
+export type BookingType = "one_off" | "ongoing";
+
+export type ContractStatus =
+  | "upcoming"    // signed, hasn't started yet
+  | "active"      // in progress
+  | "completed"   // finished
+  | "cancelled"   // cancelled by either party
+  | "paused";     // ongoing, temporarily paused
+
+export type DayOfWeek = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
+
+export interface RecurringSchedule {
+  days: DayOfWeek[];
+  time: string;       // e.g. "08:00"
+  timeLabel: string;  // e.g. "8:00–9:00am"
+}
+
+export interface PriceLineItem {
+  label: string;       // e.g. "Solo walk (Mon–Fri)"
+  amount: number;      // Kč
+  unit: string;        // e.g. "per session", "per night"
+  isModifier?: boolean;
+}
+
+export interface BookingPrice {
+  lineItems: PriceLineItem[];
+  total: number;
+  currency: "Kč";
+  billingCycle: "per_session" | "per_night" | "total" | "monthly_est";
+}
+
+export interface BookingSession {
+  id: string;
+  date: string;         // ISO YYYY-MM-DD
+  status: "upcoming" | "in_progress" | "completed" | "cancelled";
+  checkedInAt?: string; // ISO timestamp — set when status moves to in_progress
+  note?: string;
+}
+
+export interface Booking {
+  id: string;
+  conversationId: string | null;  // links to inbox thread (null for seeded data with no thread)
+  // Parties
+  ownerId: string;
+  ownerName: string;
+  ownerAvatarUrl: string;
+  carerId: string;
+  carerName: string;
+  carerAvatarUrl: string;
+  // Service
+  type: BookingType;
+  serviceType: ServiceType;
+  subService: string | null;
+  pets: string[];
+  // Dates
+  startDate: string;        // ISO YYYY-MM-DD
+  endDate: string | null;   // null for open-ended ongoing
+  recurringSchedule?: RecurringSchedule;  // only for ongoing
+  // Price
+  price: BookingPrice;
+  // State
+  status: ContractStatus;
+  sessions?: BookingSession[];  // ongoing only
+  signedAt: string;  // ISO timestamp
+}
+
+export interface Conversation {
+  id: string;
+  providerId: string;
+  providerName: string;
+  providerAvatarUrl: string;
+  ownerId: string;
+  ownerName: string;
+  ownerAvatarUrl: string;
+  status: ConversationStatus;
+  inquiry: ConversationInquiry;
+  messages: ChatMessage[];
+  /** Derived: id of most recent message */
+  lastMessageId: string;
+  unreadCount: number;
+}
+
+// ── Notifications ──────────────────────────────────────────────────────────────
+
+export type NotificationType =
+  | "session_completed"
+  | "new_message"
+  | "booking_proposal"
+  | "booking_confirmed";
+
+export interface AppNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  body: string;
+  avatarUrl?: string;
+  href?: string;
+  createdAt: string;
+  read: boolean;
+}
+
+// ── Reviews ────────────────────────────────────────────────────────────────────
+
+export interface UserReview {
+  id: string;
+  bookingId: string;
+  authorId: string;
+  authorName: string;
+  carerName: string;
+  carerAvatarUrl: string;
+  rating: number;   // 1–5
+  text: string;
+  createdAt: string;
+}
+
+// ── User / Profile ─────────────────────────────────────────────────────────────
+
+export type TimeSlot = "morning" | "afternoon" | "evening";
+
+export interface PetProfile {
+  id: string;
+  name: string;
+  breed: string;
+  weightLabel: string;  // e.g. "18 kg"
+  ageLabel: string;     // e.g. "4 years"
+  imageUrl: string;
+  notes?: string;
+}
+
+export interface CarerAvailabilitySlot {
+  day: DayOfWeek;
+  slots: TimeSlot[];
+}
+
+export interface CarerServiceConfig {
+  serviceType: ServiceType;
+  enabled: boolean;
+  pricePerUnit: number;
+  priceUnit: "per_visit" | "per_night";
+  subServices: string[];
+  notes?: string;
+}
+
+export interface CarerProfile {
+  bio: string;
+  location: string;
+  availability: CarerAvailabilitySlot[];
+  services: CarerServiceConfig[];
+  publicProfile: boolean;
+}
+
+export interface UserProfile {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  avatarUrl: string;
+  bio: string;
+  location: string;
+  memberSince: string;  // "YYYY-MM"
+  pets: PetProfile[];
+  carerProfile?: CarerProfile;
+}

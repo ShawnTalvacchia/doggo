@@ -1,8 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { FormFooter } from "@/components/ui/FormFooter";
-import { FormHeader } from "@/components/ui/FormHeader";
-import { RangeSlider } from "@/components/ui/RangeSlider";
+import { FormFooter } from "@/components/layout/FormFooter";
+import { FormHeader } from "@/components/layout/FormHeader";
+import { Slider } from "@/components/ui/Slider";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { useSignupDraft } from "@/contexts/SignupContext";
 import { type Role } from "@/lib/types";
@@ -46,7 +46,7 @@ export default function SignupWalkingPage() {
                 </label>
                 <div className="slider-block">
                   <div className="slider-row">
-                    <RangeSlider
+                    <Slider
                       id="walking-radius"
                       min={1}
                       max={40}

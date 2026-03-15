@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { FormFooter } from "@/components/ui/FormFooter";
-import { FormHeader } from "@/components/ui/FormHeader";
+import { FormFooter } from "@/components/layout/FormFooter";
+import { FormHeader } from "@/components/layout/FormHeader";
 import { useSignupDraft } from "@/contexts/SignupContext";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
@@ -116,15 +116,14 @@ export default function SignupCarePreferencesPage() {
                     <CheckboxRow
                       key={t}
                       id={`temp-${t}`}
+                      label={t}
                       checked={draft.dogTemperamentsExcluded.includes(t)}
                       onChange={() =>
                         updateDraft({
                           dogTemperamentsExcluded: toggle(draft.dogTemperamentsExcluded, t),
                         })
                       }
-                    >
-                      {t}
-                    </CheckboxRow>
+                    />
                   ))}
                 </div>
               </div>

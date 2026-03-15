@@ -2,14 +2,14 @@ import { ProviderCard, ProviderHeaderState as HeaderState } from "@/lib/types";
 import { ChatCircleDots, MapPin, Users } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 
-type ProviderHeaderStateProps = {
+type ProfileHeaderProps = {
   provider: ProviderCard;
   state: HeaderState;
   /** Called when the Contact button is tapped — opens the contact modal */
   onContact?: () => void;
 };
 
-export function ProviderHeaderState({ provider, state, onContact }: ProviderHeaderStateProps) {
+export function ProfileHeader({ provider, state, onContact }: ProfileHeaderProps) {
   const firstName = provider.name.split(" ")[0];
   const isCondensed = state === "condensed";
 

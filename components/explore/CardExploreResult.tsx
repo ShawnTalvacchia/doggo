@@ -58,7 +58,7 @@ export function CardExploreResult({
       {provider.services.length > 0 && (
         <div className="result-services">
           {provider.services.map((s) => (
-            <span key={s} className="result-service-tag">
+            <span key={s} className="tag">
               {serviceLabels[s]}
             </span>
           ))}
