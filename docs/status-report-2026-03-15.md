@@ -1,6 +1,6 @@
 # Doggo Prototype — Status Report
 
-_March 15, 2026 — Product Owner Review_
+*March 15, 2026 — Product Owner Review*
 
 ---
 
@@ -14,53 +14,65 @@ Doggo is a prototype for a neighbourhood dog-care marketplace set in Prague. The
 
 ### Public / Guest
 
-| Page | Route | What it does |
-|------|-------|-------------|
-| Landing | `/` | Marketing homepage — hero, service cards, how-it-works toggle, trust props, CTAs |
-| Sign In | `/signin` | Email + password form (demo navigation only) |
+
+| Page    | Route     | What it does                                                                     |
+| ------- | --------- | -------------------------------------------------------------------------------- |
+| Landing | `/`       | Marketing homepage — hero, service cards, how-it-works toggle, trust props, CTAs |
+| Sign In | `/signin` | Email + password form (demo navigation only)                                     |
+
 
 ### Signup Flow (9 steps, progress bar, role-adaptive)
 
-| Step | Route | What it does |
-|------|-------|-------------|
-| Start | `/signup/start` | SSO options + email form + T&C checkboxes |
-| Role | `/signup/role` | Pick roles: Pet Owner, Walker, Host |
-| Profile | `/signup/profile` | Photo upload, bio, location, visibility toggle |
-| Care Preferences | `/signup/care-preferences` | Dog size, age, and temperament filters |
-| Walking | `/signup/walking` | Service radius slider + day/time availability |
-| Hosting | `/signup/hosting` | Home type, outdoor space, drop-off/pickup times |
-| Pricing | `/signup/pricing` | Set rates per service (role-based) |
-| Pet | `/signup/pet` | Pet card: photo, breed, size, temperament, health notes |
-| Success | `/signup/success` | Confirmation + CTAs + profile preview |
+
+| Step             | Route                      | What it does                                            |
+| ---------------- | -------------------------- | ------------------------------------------------------- |
+| Start            | `/signup/start`            | SSO options + email form + T&C checkboxes               |
+| Role             | `/signup/role`             | Pick roles: Pet Owner, Walker, Host                     |
+| Profile          | `/signup/profile`          | Photo upload, bio, location, visibility toggle          |
+| Care Preferences | `/signup/care-preferences` | Dog size, age, and temperament filters                  |
+| Walking          | `/signup/walking`          | Service radius slider + day/time availability           |
+| Hosting          | `/signup/hosting`          | Home type, outdoor space, drop-off/pickup times         |
+| Pricing          | `/signup/pricing`          | Set rates per service (role-based)                      |
+| Pet              | `/signup/pet`              | Pet card: photo, breed, size, temperament, health notes |
+| Success          | `/signup/success`          | Confirmation + CTAs + profile preview                   |
+
 
 ### Explore (logged-in)
 
-| Page | Route | What it does |
-|------|-------|-------------|
-| Results | `/explore/results` | Provider cards with filters (service, price, availability), map placeholder |
-| Provider Profile | `/explore/profile/[id]` | Info / Services / Reviews tabs, photo gallery, contact modal |
+
+| Page             | Route                   | What it does                                                                |
+| ---------------- | ----------------------- | --------------------------------------------------------------------------- |
+| Results          | `/explore/results`      | Provider cards with filters (service, price, availability), map placeholder |
+| Provider Profile | `/explore/profile/[id]` | Info / Services / Reviews tabs, photo gallery, contact modal                |
+
 
 ### Messaging
 
-| Page | Route | What it does |
-|------|-------|-------------|
-| Inbox | `/inbox` | Conversation list with avatars, unread dots, service chips, previews |
+
+| Page   | Route                     | What it does                                                           |
+| ------ | ------------------------- | ---------------------------------------------------------------------- |
+| Inbox  | `/inbox`                  | Conversation list with avatars, unread dots, service chips, previews   |
 | Thread | `/inbox/[conversationId]` | Message bubbles, inquiry card, booking proposal cards (Accept/Decline) |
+
 
 ### Bookings
 
-| Page | Route | What it does |
-|------|-------|-------------|
-| My Bookings | `/bookings` | Owner view (Active/Upcoming/Past) + Carer view (earnings, clients) |
+
+| Page           | Route                   | What it does                                                          |
+| -------------- | ----------------------- | --------------------------------------------------------------------- |
+| My Bookings    | `/bookings`             | Owner view (Active/Upcoming/Past) + Carer view (earnings, clients)    |
 | Booking Detail | `/bookings/[bookingId]` | Session management, price breakdown, review submission, contract info |
+
 
 ### Profile & System
 
-| Page | Route | What it does |
-|------|-------|-------------|
-| Profile | `/profile` | About tab (bio, pet cards) + Offering tab (services, pricing, availability) |
-| Prototype Hub | `/pages` | Internal nav page for jumping between prototype sections |
-| Styleguide | `/styleguide/*` | Design system reference — Colors, Typography, Tokens, Components |
+
+| Page          | Route           | What it does                                                                |
+| ------------- | --------------- | --------------------------------------------------------------------------- |
+| Profile       | `/profile`      | About tab (bio, pet cards) + Offering tab (services, pricing, availability) |
+| Prototype Hub | `/pages`        | Internal nav page for jumping between prototype sections                    |
+| Styleguide    | `/styleguide/`* | Design system reference — Colors, Typography, Tokens, Components            |
+
 
 ---
 
@@ -82,13 +94,9 @@ These are decisions or discussions worth having before the next build phase:
 
 **Authentication strategy** — Supabase Auth is the assumed path, but we haven't decided on: email-only vs. SSO providers (Google, Apple, Facebook buttons exist as stubs), magic link vs. password, or whether to gate any explore features behind login.
 
-**Chat: "message first, book when ready"** — The product identity is built around chat as the primary trust-building mechanism, not a support channel. The current UI follows a hybrid approach: full realistic UI now, local-state send, schema designed to swap in Supabase Realtime later. Do we want to invest in real-time chat for MVP, or is session-only sufficient for launch?
-
 **Booking as coordination vs. transaction** — Right now a booking proposal is a lightweight in-chat card (service + dates + price) that either party can Accept/Decline. There's no payment, no platform fee, no cancellation policy. This is intentional — it keeps the feel of a direct human arrangement. When do we want to introduce payment, and does that change the booking UX?
 
 **Map investment** — The map container exists on Explore results but has no interactive pins. A proper map with clustering, geolocation, and provider pins is a meaningful build. Is this a priority for demo/investor readiness, or can it wait?
-
-**Calendar page** — `/calendar` is linked in the bottom nav but has no page yet. Should this be a simple list of upcoming bookings, or a full calendar view with availability management? The answer affects scope significantly.
 
 **Profile editing** — The Profile page displays data but has no edit mode. Users can't change their bio, services, or photos after signup. How important is this for the next phase?
 
@@ -122,4 +130,4 @@ These are on the radar but not in active planning:
 
 ---
 
-_Last updated: 2026-03-15_
+*Last updated: 2026-03-15*
