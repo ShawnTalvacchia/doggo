@@ -18,12 +18,20 @@ interface ProviderInfo {
   avatarUrl: string;
 }
 
+interface DirectMessageTarget {
+  id: string;
+  name: string;
+  avatarUrl: string;
+}
+
 interface ConversationsContextValue {
   conversations: Conversation[];
   getConversation: (id: string) => Conversation | undefined;
   getConversationByProvider: (providerId: string) => Conversation | undefined;
-  /** Returns existing conversation id, or creates a new one and returns its id */
+  /** Returns existing booking conversation id, or creates a new one and returns its id */
   getOrCreateConversation: (provider: ProviderInfo, service: ServiceType | null) => string;
+  /** Returns existing direct message conversation id, or creates a new one and returns its id */
+  getOrCreateDirectConversation: (target: DirectMessageTarget) => string;
   addMessage: (convId: string, message: ChatMessage) => void;
   updateInquiry: (convId: string, inquiry: Partial<ConversationInquiry>) => void;
   updateProposalStatus: (
@@ -56,14 +64,17 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
 
   const getOrCreateConversation = useCallback(
     (provider: ProviderInfo, service: ServiceType | null): string => {
-      // Return existing conversation for this provider if it exists
-      const existing = conversations.find((c) => c.providerId === provider.id);
+      // Return existing booking conversation for this provider if it exists
+      const existing = conversations.find(
+        (c) => c.conversationType === "booking" && c.providerId === provider.id
+      );
       if (existing) return existing.id;
 
-      // Create a new empty conversation
+      // Create a new empty booking conversation
       const newId = `${provider.id}-conv`;
       const newConv: Conversation = {
         id: newId,
+        conversationType: "booking",
         providerId: provider.id,
         providerName: provider.name,
         providerAvatarUrl: provider.avatarUrl,
@@ -77,6 +88,48 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
           serviceType: service ?? "walk_checkin",
           subService: null,
           pets: ["Spot", "Goldie"],
+          startDate: null,
+          endDate: null,
+          dogName: "",
+          message: "",
+        },
+        messages: [],
+        lastMessageId: "",
+        unreadCount: 0,
+      };
+
+      setConversations((prev) => [newConv, ...prev]);
+      return newId;
+    },
+    [conversations]
+  );
+
+  const getOrCreateDirectConversation = useCallback(
+    (target: DirectMessageTarget): string => {
+      // Return existing direct conversation with this user
+      const existing = conversations.find(
+        (c) => c.conversationType === "direct" && c.providerId === target.id
+      );
+      if (existing) return existing.id;
+
+      // Create a new direct message conversation
+      const newId = `${target.id}-direct`;
+      const newConv: Conversation = {
+        id: newId,
+        conversationType: "direct",
+        providerId: target.id,
+        providerName: target.name,
+        providerAvatarUrl: target.avatarUrl,
+        ownerId: "shawn",
+        ownerName: "Shawn Talvacchia",
+        ownerAvatarUrl:
+          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80",
+        status: "active",
+        inquiry: {
+          bookingType: "one_off",
+          serviceType: "walk_checkin",
+          subService: null,
+          pets: [],
           startDate: null,
           endDate: null,
           dogName: "",
@@ -145,6 +198,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
         getConversation,
         getConversationByProvider,
         getOrCreateConversation,
+        getOrCreateDirectConversation,
         addMessage,
         updateInquiry,
         updateProposalStatus,

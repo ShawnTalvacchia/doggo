@@ -3,23 +3,32 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { CalendarDots, ChatCircleDots, MagnifyingGlass, UserCircle } from "@phosphor-icons/react";
+import {
+  CalendarDots,
+  ChatCircleDots,
+  House,
+  PawPrint,
+  UserCircle,
+} from "@phosphor-icons/react";
 
 const tabs = [
-  { label: "Explore", href: "/explore/results", Icon: MagnifyingGlass },
-  { label: "Bookings", href: "/bookings", Icon: CalendarDots },
+  { label: "Home", href: "/home", Icon: House },
+  { label: "Meets", href: "/meets", Icon: PawPrint },
+  { label: "Schedule", href: "/schedule", Icon: CalendarDots },
   { label: "Inbox", href: "/inbox", Icon: ChatCircleDots },
   { label: "Profile", href: "/profile", Icon: UserCircle },
 ] as const;
 
+/** Routes that show the bottom nav (logged-in experience) */
+const loggedPrefixes = ["/home", "/meets", "/schedule", "/explore", "/inbox", "/bookings", "/profile"];
+
 function BottomNavInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const isLoggedMobileRoute =
-    pathname.startsWith("/explore") ||
-    pathname === "/profile" ||
-    pathname.startsWith("/inbox") ||
-    pathname.startsWith("/bookings");
+
+  const isLoggedMobileRoute = loggedPrefixes.some((p) =>
+    pathname === p || pathname.startsWith(p + "/")
+  );
 
   // Bottom nav is for logged-in experience only.
   if (!isLoggedMobileRoute) return null;
@@ -37,12 +46,18 @@ function BottomNavInner() {
   if (pathname === "/explore/results" && searchParams.get("service")) return null;
 
   // Determine active tab
-  const activeHref = pathname.startsWith("/explore")
-    ? "/explore/results"
+  const activeHref = pathname.startsWith("/home")
+    ? "/home"
+    : pathname.startsWith("/meets")
+    ? "/meets"
+    : pathname.startsWith("/schedule") || pathname.startsWith("/bookings")
+    ? "/schedule"
     : pathname.startsWith("/inbox")
     ? "/inbox"
-    : pathname.startsWith("/bookings")
-    ? "/bookings"
+    : pathname.startsWith("/explore")
+    ? "/home"
+    : pathname.startsWith("/profile")
+    ? "/profile"
     : pathname;
 
   return (

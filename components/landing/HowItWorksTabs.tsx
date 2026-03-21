@@ -3,48 +3,66 @@
 import { useState } from "react";
 import Link from "next/link";
 
-type TabId = "owners" | "sitters";
+type TabId = "community" | "care" | "provide";
 
 const STEPS: Record<TabId, { n: string; title: string; body: string }[]> = {
-  owners: [
+  community: [
     {
       n: "01",
-      title: "Browse sitters",
-      body: "Search by service, neighbourhood, and price. Every profile shows real rates, experience, and reviews.",
+      title: "Find a meet near you",
+      body: "Browse walks, park hangouts, and playdates happening in your neighbourhood. Join one that fits your dog's style.",
     },
     {
       n: "02",
-      title: "Message first",
-      body: "Send a message, ask questions, and get to know your sitter before committing to anything.",
+      title: "Show up with your dog",
+      body: "Meet other owners and dogs in person. No pressure — just dogs being dogs and people getting to know each other.",
     },
     {
       n: "03",
-      title: "Arrange directly",
-      body: "Agree on dates, details, and payment directly with your sitter. No platform in the middle.",
+      title: "Build your circle",
+      body: "Connect with owners you click with. Your familiar list grows naturally, and so does your support network.",
     },
   ],
-  sitters: [
+  care: [
     {
       n: "01",
-      title: "Create your profile",
-      body: "Tell owners about your home, your experience, and the kinds of dogs you love to care for.",
+      title: "Know before you book",
+      body: "Need a sitter? You already know people from meets. Browse connected owners or search for trusted carers nearby.",
     },
     {
       n: "02",
-      title: "Set your prices",
-      body: "You decide what to charge. No platform fees, no commissions — keep everything you earn.",
+      title: "Message and arrange",
+      body: "Chat with your carer, agree on details, and feel confident because you've already met in person.",
     },
     {
       n: "03",
-      title: "Choose who you help",
-      body: "Owners message you first. Accept the dogs that are the right fit for you.",
+      title: "Book and track",
+      body: "Confirm dates and pricing. Get updates during care. Leave a review when it's done.",
+    },
+  ],
+  provide: [
+    {
+      n: "01",
+      title: "Add care to your profile",
+      body: "Toggle on the services you're happy to offer — walking, sitting, or both. Set your own availability and constraints. No separate signup.",
+    },
+    {
+      n: "02",
+      title: "Choose who sees it",
+      body: "Share your care offerings with just your connections, a private neighbourhood group, or open it up to everyone looking for help.",
+    },
+    {
+      n: "03",
+      title: "Do as much or as little as you like",
+      body: "Walk one neighbour's dog on Saturdays, or build a full care schedule — it's a dial, not a switch. Start small, scale up if you want, and dial it back whenever you need to.",
     },
   ],
 };
 
 const CTAS: Record<TabId, { label: string; href: string }> = {
-  owners: { label: "Find a sitter →", href: "/explore/results" },
-  sitters: { label: "Start earning →", href: "/signup/start" },
+  community: { label: "Browse meets →", href: "/meets" },
+  care: { label: "Find care →", href: "/explore/results" },
+  provide: { label: "Learn more →", href: "/signup/start" },
 };
 
 function Step({ n, title, body }: { n: string; title: string; body: string }) {
@@ -60,7 +78,7 @@ function Step({ n, title, body }: { n: string; title: string; body: string }) {
 }
 
 export function HowItWorksTabs() {
-  const [tab, setTab] = useState<TabId>("owners");
+  const [tab, setTab] = useState<TabId>("community");
   const cta = CTAS[tab];
 
   return (
@@ -69,19 +87,27 @@ export function HowItWorksTabs() {
       <div className="landing-tab-row" role="tablist" aria-label="How it works">
         <button
           role="tab"
-          aria-selected={tab === "owners"}
-          className={`landing-tab-btn${tab === "owners" ? " active" : ""}`}
-          onClick={() => setTab("owners")}
+          aria-selected={tab === "community"}
+          className={`landing-tab-btn${tab === "community" ? " active" : ""}`}
+          onClick={() => setTab("community")}
         >
-          For Dog Owners
+          Join the Community
         </button>
         <button
           role="tab"
-          aria-selected={tab === "sitters"}
-          className={`landing-tab-btn${tab === "sitters" ? " active" : ""}`}
-          onClick={() => setTab("sitters")}
+          aria-selected={tab === "care"}
+          className={`landing-tab-btn${tab === "care" ? " active" : ""}`}
+          onClick={() => setTab("care")}
         >
-          For Dog Sitters
+          Find Care
+        </button>
+        <button
+          role="tab"
+          aria-selected={tab === "provide"}
+          className={`landing-tab-btn${tab === "provide" ? " active" : ""}`}
+          onClick={() => setTab("provide")}
+        >
+          Provide Care
         </button>
       </div>
 

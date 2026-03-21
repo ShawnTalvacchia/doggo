@@ -5,7 +5,6 @@ import { MagnifyingGlass, ImageSquare } from "@phosphor-icons/react";
 import { FormFooter } from "@/components/layout/FormFooter";
 import { FormHeader } from "@/components/layout/FormHeader";
 import { InputField } from "@/components/ui/InputField";
-import { Toggle } from "@/components/ui/Toggle";
 import { useSignupDraft } from "@/contexts/SignupContext";
 export default function SignupProfilePage() {
   const router = useRouter();
@@ -19,7 +18,7 @@ export default function SignupProfilePage() {
       <div className="form-shell">
         <FormHeader
           title="Build Your Profile"
-          subtitle="Share a few details so caregivers and nearby owners can connect with confidence."
+          subtitle="Share a few details so nearby dog owners can get to know you."
         />
         <section className="form-body">
           {/* Personal info row */}
@@ -83,7 +82,7 @@ export default function SignupProfilePage() {
             <div className="form-col">
               <p className="form-section-label">Location</p>
               <p className="form-row-hint">
-                Used to match you with nearby services.
+                Used to show you meets and people nearby.
                 <br />
                 Your exact address stays private.
               </p>
@@ -119,36 +118,10 @@ export default function SignupProfilePage() {
               </div>
             </div>
           </div>
-          <div className="form-section-divider" />
-          {/* Visibility row */}
-          <div className="form-row">
-            <div className="form-col">
-              <p className="form-section-label">Visibility</p>
-              <p className="form-row-hint">
-                Public profiles can appear to nearby owners for playdates and meetups. If disabled,
-                only caregivers you hire will see your profile.
-                <br />
-                <br />
-                You can adjust that at anytime.
-              </p>
-            </div>
-            <div className="form-col">
-              <Toggle
-                label="Public Profile"
-                checked={draft.publicProfile}
-                onChange={(publicProfile) => updateDraft({ publicProfile })}
-              />
-            </div>
-          </div>
         </section>
         <FormFooter
-          onBack={() => router.push("/signup/role")}
-          onContinue={() => {
-            const hasService = draft.roles.includes("walker") || draft.roles.includes("host");
-            if (hasService) return router.push("/signup/care-preferences");
-            if (draft.roles.includes("owner")) return router.push("/signup/pet");
-            return router.push("/signup/success");
-          }}
+          onBack={() => router.push("/signup/start")}
+          onContinue={() => router.push("/signup/pet")}
           disableContinue={!canContinue}
         />
       </div>

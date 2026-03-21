@@ -24,13 +24,16 @@ const bodyScale: BodyStep[] = [
   { token: "--font-size-body-lg", desktop: "18px", mobile: "16px", label: "Body LG" },
   { token: "--font-size-body-md", desktop: "16px", mobile: "15px", label: "Body MD" },
   { token: "--font-size-body-reg", desktop: "14px", label: "Body REG" },
+  { token: "--font-size-sub", desktop: "13px", label: "Sub — secondary UI text" },
   { token: "--font-size-body-sm", desktop: "12px", label: "Body SM" },
+  { token: "--font-size-fine", desktop: "11px", label: "Fine — chips, badges, compact labels" },
   { token: "--font-size-body-xs", desktop: "10px", label: "Body XS" },
 ];
 
 const weights: WeightStep[] = [
   { token: "--weight-light", value: 300, label: "Light" },
   { token: "--weight-regular", value: 400, label: "Regular" },
+  { token: "--weight-medium", value: 500, label: "Medium" },
   { token: "--weight-semibold", value: 600, label: "SemiBold" },
   { token: "--weight-bold", value: 700, label: "Bold" },
   { token: "--weight-extrabold", value: 800, label: "ExtraBold" },

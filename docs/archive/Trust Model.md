@@ -1,3 +1,11 @@
+---
+category: strategy
+status: stable
+last-reviewed: 2026-03-16
+tags: [trust, safety, progression]
+review-trigger: "when touching trust signals or provider features"
+---
+
 # Doggo – Trust Model / Trust Ladder (v1)
 
 This document defines how **trust is built, signaled, and unlocked** in Doggo.  

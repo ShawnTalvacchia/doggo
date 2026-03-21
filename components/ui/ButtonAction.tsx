@@ -6,7 +6,6 @@ export type ButtonVariant =
   | "secondary"
   | "tertiary"
   | "outline"
-  | "disabled"
   | "destructive"
   | "white"
   | "outline-white";
@@ -18,8 +17,7 @@ export type CTAButtonVariant =
   | "tertiary"
   | "outline"
   | "white"
-  | "outline-white"
-  | "disabled";
+  | "outline-white";
 
 type ButtonActionProps = {
   children: React.ReactNode;
@@ -63,7 +61,6 @@ export function ButtonAction({
     normalizedVariant === "secondary" ? "btn-secondary" : "",
     normalizedVariant === "tertiary" ? "btn-tertiary" : "",
     normalizedVariant === "outline" ? "btn-outline" : "",
-    normalizedVariant === "disabled" ? "btn-disabled-variant" : "",
     normalizedVariant === "destructive" ? "btn-destructive" : "",
     normalizedVariant === "white" ? "btn-white" : "",
     normalizedVariant === "outline-white" ? "btn-outline-white" : "",
@@ -71,8 +68,6 @@ export function ButtonAction({
     size === "sm" ? "btn-sm" : "",
     size === "md" ? "btn-md" : "",
     size === "lg" ? "btn-lg" : "",
-    leftIcon ? "btn-has-left-icon" : "",
-    rightIcon ? "btn-has-right-icon" : "",
     disabled ? "btn-disabled-state" : "",
     className || "",
   ]

@@ -9,11 +9,8 @@ import { NotificationsPanel } from "@/components/ui/NotificationsPanel";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import {
   Bell,
-  CalendarDots,
   ChatCircleDots,
   DotsThree,
-  MagnifyingGlass,
-  Sparkle,
 } from "@phosphor-icons/react";
 
 function GuestNavLinks() {
@@ -43,34 +40,36 @@ function SignupNavLinks() {
 }
 
 function LoggedNavLinks() {
+  const pathname = usePathname();
   const { unreadCount } = useNotifications();
   const [notifOpen, setNotifOpen] = useState(false);
   const notifWrapRef = useRef<HTMLDivElement>(null);
 
+  const navLinks = [
+    { label: "Home", href: "/home" },
+    { label: "Meets", href: "/meets" },
+    { label: "Schedule", href: "/schedule" },
+    { label: "Find Care", href: "/explore/results" },
+    { label: "Offer Care", href: "/profile" },
+  ];
+
   return (
     <div className="app-nav-logged" aria-label="Logged-in navigation">
+      {/* Desktop links: Home | Meets | Schedule | Find Care */}
       <div className="app-nav-main-links">
-        <ButtonAction
-          href="/explore/results"
-          variant="tertiary"
-          size="md"
-          leftIcon={<MagnifyingGlass size={24} weight="light" />}
-          className="app-nav-action-btn"
-        >
-          Search
-        </ButtonAction>
-        <ButtonAction
-          href="/signup/start"
-          variant="tertiary"
-          size="md"
-          leftIcon={<Sparkle size={24} weight="light" />}
-          className="app-nav-action-btn"
-        >
-          Offer Care
-        </ButtonAction>
+        {navLinks.map(({ label, href }) => (
+          <Link
+            key={href}
+            href={href}
+            className={`app-nav-centre-link${pathname.startsWith(href) ? " app-nav-centre-link--active" : ""}`}
+          >
+            {label}
+          </Link>
+        ))}
       </div>
+
+      {/* Right icon row: Bell, Inbox, Avatar */}
       <div className="app-nav-icon-row">
-        {/* Bell — toggles NotificationsPanel */}
         <div className="app-nav-notif-wrap" ref={notifWrapRef}>
           <ButtonIcon
             label="Notifications"
@@ -84,9 +83,6 @@ function LoggedNavLinks() {
         </div>
         <ButtonIcon label="Messages" href="/inbox">
           <ChatCircleDots size={32} weight="light" />
-        </ButtonIcon>
-        <ButtonIcon label="Bookings" href="/bookings">
-          <CalendarDots size={32} weight="light" />
         </ButtonIcon>
         <Link
           href="/profile"
@@ -105,9 +101,10 @@ function LoggedNavLinks() {
   );
 }
 
+const loggedRoutes = ["/home", "/meets", "/schedule", "/explore", "/inbox", "/bookings", "/profile"];
+
 export function AppNav() {
   const pathname = usePathname();
-  const loggedRoutes = ["/explore", "/inbox", "/bookings", "/profile"];
   const mode = loggedRoutes.some((r) => pathname.startsWith(r)) ? "logged" : "guest";
   const isSignupRoute = pathname.startsWith("/signup");
   const isStyleguideRoute = pathname.startsWith("/styleguide");
@@ -119,7 +116,7 @@ export function AppNav() {
   const navContent = (
     <>
       <div className="app-nav-brand-wrap">
-        <Link href="/" className="app-nav-brand">
+        <Link href={mode === "logged" ? "/home" : "/"} className="app-nav-brand">
           DOGGO
         </Link>
       </div>

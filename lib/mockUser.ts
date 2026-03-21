@@ -20,6 +20,24 @@ export const mockUser: UserProfile = {
       imageUrl:
         "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=400&q=80",
       notes: "Friendly but can be nervous with new dogs. Loves fetch and long walks.",
+      energyLevel: "high",
+      playStyles: ["fetch", "chase", "sniffing"],
+      socialisationNotes:
+        "Great with people and kids. Can be nervous meeting new dogs — needs slow intros. Once comfortable, plays well in small groups. Does best with calm, confident dogs.",
+      vetInfo: {
+        clinicName: "VetClinic Praha 2",
+        vetPhone: "+420 222 333 444",
+        lastCheckup: "2026-01-15",
+        vaccinationsUpToDate: true,
+        spayedNeutered: true,
+        medications: "",
+        conditions: "Mild skin allergies (seasonal). Managed with diet.",
+      },
+      photoGallery: [
+        "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=crop&w=400&q=80",
+        "https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=400&q=80",
+        "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=400&q=80",
+      ],
     },
     {
       id: "goldie",
@@ -30,6 +48,23 @@ export const mockUser: UserProfile = {
       imageUrl:
         "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=400&q=80",
       notes: "Very social, gets along with everyone. Still learning to walk nicely on leash.",
+      energyLevel: "very_high",
+      playStyles: ["fetch", "tug", "wrestling", "chase"],
+      socialisationNotes:
+        "Loves every dog and person she meets. Can be a bit over-enthusiastic with greetings — working on polite hellos. Excellent with children, very gentle indoors.",
+      vetInfo: {
+        clinicName: "VetClinic Praha 2",
+        vetPhone: "+420 222 333 444",
+        lastCheckup: "2026-02-20",
+        vaccinationsUpToDate: true,
+        spayedNeutered: false,
+        medications: "",
+        conditions: "",
+      },
+      photoGallery: [
+        "https://images.unsplash.com/photo-1633722715463-d30f4f325e24?auto=format&fit=crop&w=400&q=80",
+        "https://images.unsplash.com/photo-1612774412771-005ed8e861d2?auto=format&fit=crop&w=400&q=80",
+      ],
     },
   ],
   carerProfile: {

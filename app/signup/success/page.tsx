@@ -2,68 +2,53 @@
 
 import { useRouter } from "next/navigation";
 import { ButtonAction } from "@/components/ui/ButtonAction";
-import { SignupProfilePreview } from "@/components/signup/SignupProfilePreview";
-import { useSignupDraft } from "@/contexts/SignupContext";
 
 export default function SignupSuccessPage() {
   const router = useRouter();
-  const { draft } = useSignupDraft();
-
-  const isCaregiver = draft.roles.includes("walker") || draft.roles.includes("host");
 
   return (
     <main className="success-shell">
-      <div className={`success-content${isCaregiver ? " success-content--with-preview" : ""}`}>
-        {/* ── Left: Main CTA ── */}
+      <div className="success-content">
         <div className="success-main">
-          <h1 className="success-heading">🎉 You&apos;re all set!</h1>
-          <p className="success-body-text">Your profile is ready. You can edit it anytime.</p>
+          <h1 className="success-heading">You&apos;re in!</h1>
+          <p className="success-body-text">
+            Your profile is ready. Find meets near you, connect with other dog owners, and build your community.
+          </p>
           <div className="success-btn-row">
             <ButtonAction
               variant="primary"
               size="lg"
               cta
-              onClick={() => router.push("/explore/results")}
+              onClick={() => router.push("/home")}
             >
-              Start Exploring
+              Go to Home
             </ButtonAction>
             <ButtonAction
               variant="secondary"
               size="lg"
               cta
-              onClick={() => router.push("/explore/results")}
+              onClick={() => router.push("/meets")}
             >
-              Find clients
+              Browse Meets
             </ButtonAction>
           </div>
 
-          {/* Offer care upsell — only shown for owners who haven't added caregiver role */}
-          {!isCaregiver && (
-            <div className="success-offer-card">
-              <div>
-                <p className="success-offer-title">Want to offer care too?</p>
-                <p className="success-body-text">
-                  Offer walking, sitting, or boarding whenever you&apos;re ready.
-                </p>
-              </div>
-              <ButtonAction
-                variant="secondary"
-                size="md"
-                onClick={() => router.push("/signup/role")}
-              >
-                Add Another Role
-              </ButtonAction>
+          <div className="success-offer-card">
+            <div>
+              <p className="success-offer-title">Want to offer care?</p>
+              <p className="success-body-text">
+                As you build connections through meets, you can start offering walking, sitting, or boarding to people you know.
+              </p>
             </div>
-          )}
-        </div>
-
-        {/* ── Right: Profile preview (caregiver roles only) ── */}
-        {isCaregiver && (
-          <div className="success-preview-col">
-            <p className="success-preview-label">Your public profile preview</p>
-            <SignupProfilePreview />
+            <ButtonAction
+              variant="secondary"
+              size="md"
+              onClick={() => router.push("/profile")}
+            >
+              Set up later in Profile
+            </ButtonAction>
           </div>
-        )}
+        </div>
       </div>
     </main>
   );

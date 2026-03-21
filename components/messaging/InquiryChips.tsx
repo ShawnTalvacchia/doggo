@@ -26,14 +26,14 @@ export function InquiryChips({ conv }: { conv: Conversation }) {
   return (
     <div className="inbox-inquiry-card">
       <div className="inbox-inquiry-chips">
-        <span className="inbox-inquiry-chip">{serviceLabel}</span>
+        <span className="chip">{serviceLabel}</span>
         {inq.subService && (
-          <span className="inbox-inquiry-chip">{inq.subService}</span>
+          <span className="chip">{inq.subService}</span>
         )}
-        {petText && <span className="inbox-inquiry-chip">{petText}</span>}
-        {scheduleText && <span className="inbox-inquiry-chip">{scheduleText}</span>}
+        {petText && <span className="chip">{petText}</span>}
+        {scheduleText && <span className="chip">{scheduleText}</span>}
         {inq.bookingType === "ongoing" && (
-          <span className="inbox-inquiry-chip inbox-inquiry-chip--ongoing">Ongoing</span>
+          <span className="chip chip--ongoing">Ongoing</span>
         )}
       </div>
     </div>

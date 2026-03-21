@@ -1,3 +1,11 @@
+---
+category: implementation
+status: active
+last-reviewed: 2026-03-16
+tags: [components, ui, inventory]
+review-trigger: "when building or refactoring components"
+---
+
 # Component Inventory
 _Doggo · Updated March 2026_
 
@@ -26,7 +34,7 @@ components/
                   RecurringSchedulePicker, BookingRow
   layout/       ← App chrome: AppNav, BottomNav, FormHeader, FormFooter, GuestLayout
   overlays/     ← ModalSheet, BookingModal
-  explore/      ← FilterPanelDesktop, FilterPanelMobile, FilterBody, ProfileHeader,
+  explore/      ← FilterPanelDesktop, FilterPanelMobile, FilterPanelShell, FilterBody, ProfileHeader,
                   CardExploreResult, MapView
   signup/       ← SignupProgressBar, SignupProfilePreview
   messaging/    ← InquiryForm, BookingProposalCard, InquiryChips
@@ -377,6 +385,13 @@ Left sidebar filter panel, visible at ≥804px. Two-page slide track: service ch
 `components/explore/FilterPanelMobile.tsx`
 
 Full-screen filter panel for mobile. Slide-up from bottom. Opened via filter button. Contains `FilterBody`.
+
+---
+
+### FilterPanelShell · `built`
+`components/explore/FilterPanelShell.tsx`
+
+Shared layout shell for both desktop and mobile filter panels. Provides sticky header, scrollable body, and sticky footer slots. Used by `FilterPanelDesktop` and `FilterPanelMobile`.
 
 ---
 

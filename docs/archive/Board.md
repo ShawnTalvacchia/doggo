@@ -1,3 +1,11 @@
+---
+category: decisions
+status: active
+last-reviewed: 2026-03-16
+tags: [tracker, priorities, build-state]
+review-trigger: "after every working session"
+---
+
 # Doggo – Product Board
 
 _Living tracker of build state, priorities, and open decisions. Update this after each working session._

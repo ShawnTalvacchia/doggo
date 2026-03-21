@@ -106,13 +106,46 @@ const radiusAliases = [
 ];
 
 const shadowTokens: ShadowToken[] = [
-  { token: "--shadow-xs", value: "0 1px 2px rgba(0,0,0,0.05)", label: "XS" },
-  { token: "--shadow-sm", value: "0 2px 8px rgba(0,0,0,0.06)", label: "SM" },
-  { token: "--shadow-md", value: "0 4px 16px rgba(0,0,0,0.08)", label: "MD" },
-  { token: "--shadow-lg", value: "0 8px 24px rgba(0,0,0,0.10)", label: "LG" },
-  { token: "--shadow-xl", value: "0 16px 48px rgba(0,0,0,0.12)", label: "XL" },
-  { token: "--shadow-modal", value: "0 4px 20px rgba(0,0,0,0.10)", label: "Modal" },
-  { token: "--shadow-footer", value: "0 -3px 12px rgba(188,188,188,0.06)", label: "Footer" },
+  { token: "--shadow-xs", value: "0 1px 2px rgba(0,0,0,0.05)", label: "XS — subtle lift (tags, chips)" },
+  { token: "--shadow-sm", value: "0 2px 8px rgba(0,0,0,0.06)", label: "SM — cards, panels" },
+  { token: "--shadow-md", value: "0 4px 16px rgba(0,0,0,0.08)", label: "MD — dropdowns, popovers" },
+  { token: "--shadow-lg", value: "0 8px 24px rgba(0,0,0,0.10)", label: "LG — elevated panels" },
+  { token: "--shadow-xl", value: "0 16px 48px rgba(0,0,0,0.12)", label: "XL — hero cards, overlays" },
+  { token: "--shadow-modal", value: "0 4px 20px rgba(0,0,0,0.10)", label: "Modal — dialogs, sheets" },
+  { token: "--shadow-footer", value: "0 -3px 12px rgba(188,188,188,0.06)", label: "Footer — sticky footers, bottom nav" },
+];
+
+// Border width tokens
+type BorderWidthToken = { token: string; value: string; px: number; usage: string };
+
+const borderWidthTokens: BorderWidthToken[] = [
+  { token: "--border-width-reg", value: "1px", px: 1, usage: "Default borders, dividers" },
+  { token: "--border-width-lg", value: "2px", px: 2, usage: "Active states, emphasis" },
+  { token: "--border-width-xl", value: "3px", px: 3, usage: "Strong emphasis, selected tabs" },
+  { token: "--border-width-xxl", value: "4px", px: 4, usage: "Heavy accents, focus rings" },
+];
+
+// Layout tokens
+type LayoutToken = { token: string; value: string; description: string };
+
+const layoutTokens: LayoutToken[] = [
+  { token: "--nav-height", value: "65px (desktop) / 56px (mobile)", description: "Top nav bar height — used for sticky offsets and viewport calculations" },
+  { token: "--app-page-max-width", value: "768px", description: "Max content width — matches the 768px breakpoint" },
+];
+
+// Convenience aliases
+type ConvenienceAlias = { token: string; maps: string; description: string };
+
+const convenienceAliases: ConvenienceAlias[] = [
+  { token: "--surface-page", maps: "--surface-top", description: "White background for nav bars, sticky headers" },
+  { token: "--surface-hover", maps: "--interaction-hover-darken", description: "Subtle hover on light surfaces" },
+  { token: "--border-subtle", maps: "--border-strong", description: "Light dividers (#e5e5e5)" },
+  { token: "--border-default", maps: "--border-stronger", description: "Standard visible borders (#d8d8d8)" },
+  { token: "--text-muted", maps: "--text-tertiary", description: "De-emphasised text (#656666)" },
+  { token: "--success", maps: "--status-success-main", description: "Legacy shorthand" },
+  { token: "--error", maps: "--status-error-main", description: "Legacy shorthand" },
+  { token: "--on-hover-lighten", maps: "--interaction-hover-lighten", description: "Deprecated — use --interaction-hover-lighten" },
+  { token: "--on-hover-darken", maps: "--interaction-hover-darken", description: "Deprecated — use --interaction-hover-darken" },
 ];
 
 // ---- Shared row components ----
@@ -200,7 +233,8 @@ export default function TokensPage() {
         <h2 className="sg-section-title">Spacing</h2>
         <p style={{ margin: "0 0 4px", fontSize: 12, color: "var(--text-tertiary)" }}>
           Legacy numeric aliases (--space-1 → --space-16) are also available in globals.css for
-          backwards compat.
+          backwards compat. <strong>Deprecated</strong> — use named tokens (--space-tiny through
+          --space-jumbo-3) in new code.
         </p>
         <div className="sg-token-table">
           {spacingTokens.map(({ token, value, px }) => (
@@ -265,6 +299,157 @@ export default function TokensPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* ---- Border Widths ---- */}
+      <section className="sg-section">
+        <h2 className="sg-section-title">Border Widths</h2>
+        <div className="sg-token-table">
+          {borderWidthTokens.map(({ token, value, px, usage }) => (
+            <div key={token} className="sg-token-row">
+              <span className="sg-token-name">{token}</span>
+              <span className="sg-token-value">{value}</span>
+              <span className="sg-token-preview" style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span
+                  style={{
+                    width: 80,
+                    height: 0,
+                    borderTop: `${px}px solid var(--text-primary)`,
+                  }}
+                />
+                <span style={{ fontSize: 11, fontFamily: "monospace", color: "var(--text-tertiary)" }}>
+                  {usage}
+                </span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ---- Layout Tokens ---- */}
+      <section className="sg-section">
+        <h2 className="sg-section-title">Layout</h2>
+        <div className="sg-token-table">
+          {layoutTokens.map(({ token, value, description }) => (
+            <div key={token} className="sg-token-row">
+              <span className="sg-token-name">{token}</span>
+              <span className="sg-token-value">{value}</span>
+              <span className="sg-token-preview">
+                <span style={{ fontSize: 11, fontFamily: "monospace", color: "var(--text-tertiary)" }}>
+                  {description}
+                </span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ---- Convenience Aliases ---- */}
+      <section className="sg-section">
+        <h2 className="sg-section-title">Convenience Aliases</h2>
+        <p style={{ margin: "0 0 8px", fontSize: 12, color: "var(--text-tertiary)" }}>
+          Shorthand tokens that map to semantic tokens. Use these for common patterns.
+        </p>
+        <div className="sg-token-table">
+          {convenienceAliases.map(({ token, maps, description }) => (
+            <div key={token} className="sg-token-row">
+              <span className="sg-token-name">{token}</span>
+              <span className="sg-token-value">→ {maps}</span>
+              <span className="sg-token-preview">
+                <span style={{ fontSize: 11, fontFamily: "monospace", color: "var(--text-tertiary)" }}>
+                  {description}
+                </span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ---- Interaction Guidance ---- */}
+      <section className="sg-section">
+        <h2 className="sg-section-title">Interaction Tokens — Usage Guide</h2>
+        <div className="sg-token-table">
+          <div className="sg-token-row">
+            <span className="sg-token-name">--interaction-hover-lighten</span>
+            <span className="sg-token-value" style={{ fontSize: 11 }}>white @ 16%</span>
+            <span className="sg-token-preview">
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 120,
+                  height: 32,
+                  borderRadius: "var(--radius-xs)",
+                  background: "var(--brand-main)",
+                  color: "var(--text-white)",
+                  fontSize: 11,
+                  fontFamily: "monospace",
+                  position: "relative",
+                }}
+              >
+                <span
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    borderRadius: "inherit",
+                    background: "var(--interaction-hover-lighten)",
+                  }}
+                />
+                <span style={{ position: "relative" }}>dark bg hover</span>
+              </span>
+            </span>
+          </div>
+          <div className="sg-token-row">
+            <span className="sg-token-name">--interaction-hover-darken</span>
+            <span className="sg-token-value" style={{ fontSize: 11 }}>black @ 8%</span>
+            <span className="sg-token-preview">
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 120,
+                  height: 32,
+                  borderRadius: "var(--radius-xs)",
+                  background: "var(--interaction-hover-darken)",
+                  fontSize: 11,
+                  fontFamily: "monospace",
+                  color: "var(--text-secondary)",
+                }}
+              >
+                light bg hover
+              </span>
+            </span>
+          </div>
+          <div className="sg-token-row">
+            <span className="sg-token-name">--interaction-hover-subtle</span>
+            <span className="sg-token-value" style={{ fontSize: 11 }}>black @ 4%</span>
+            <span className="sg-token-preview">
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 120,
+                  height: 32,
+                  borderRadius: "var(--radius-xs)",
+                  background: "var(--interaction-hover-subtle)",
+                  fontSize: 11,
+                  fontFamily: "monospace",
+                  color: "var(--text-secondary)",
+                }}
+              >
+                ghost hover
+              </span>
+            </span>
+          </div>
+        </div>
+        <p style={{ margin: "8px 0 0", fontSize: 12, color: "var(--text-tertiary)" }}>
+          <strong>lighten</strong> → hover on dark/brand backgrounds (white overlay).{" "}
+          <strong>darken</strong> → hover on light/white backgrounds (standard).{" "}
+          <strong>subtle</strong> → ghost buttons, nav links, minimal hover.
+        </p>
       </section>
     </main>
   );

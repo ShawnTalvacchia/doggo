@@ -1,0 +1,544 @@
+/* ── Hero with photo background ──────────────────────────────────────────── */
+
+.landing-hero--photo {
+  position: relative;
+  padding: 80px 24px;
+  background: none;
+  min-height: 520px;
+}
+
+.landing-hero--photo .landing-hero-inner {
+  grid-template-columns: 1fr 1fr;
+  max-width: 1140px;
+  text-align: left;
+  position: relative;
+  z-index: 2;
+  min-height: 360px;
+  align-items: center;
+}
+
+.landing-hero--photo .landing-hero-content {
+  align-items: flex-start;
+}
+
+.landing-hero--photo .landing-hero-heading {
+  color: var(--text-primary);
+}
+
+.landing-hero--photo .landing-hero-sub {
+  max-width: 560px;
+}
+
+.landing-hero-photo-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.landing-hero-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.landing-hero-photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, #fffffffa 0%, #ffffffed 35%, #ffffffd6 55%, #ffffffd9 100%);
+}
+
+/* ── Meet type cards with photos ──────────────────────────────────────────── */
+
+/* ── Emotional hook section ─────────────────────────────────────────────── */
+
+.landing-hook {
+  padding: 48px 0 40px;
+  background: var(--brand-main);
+  text-align: center;
+}
+
+.landing-hook-text {
+  max-width: 640px;
+  margin: 0 auto 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.landing-hook-subline {
+  font-size: var(--font-size-lg);
+  color: rgba(255, 255, 255, 0.8);
+  line-height: var(--leading-normal);
+  margin: 0;
+}
+
+/* Override badge styles on dark background */
+.landing-hook .landing-trust-badge {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: var(--text-white);
+}
+
+/* ── Meet type cards with photos ──────────────────────────────────────────── */
+
+.landing-meet-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.landing-meet-card {
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+  background: var(--surface-top);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.landing-meet-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.landing-meet-card-illustration {
+  width: 100%;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand-12);
+  overflow: hidden;
+}
+
+.landing-meet-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.landing-meet-card-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Trust story (narrative progression) ──────────────────────────────────── */
+
+.landing-story-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: stretch;
+}
+
+.landing-story-photo-col {
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  align-self: stretch;
+}
+
+.landing-story-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.landing-story-steps-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.landing-story-step {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.landing-story-step-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.landing-story-step-num {
+  font-family: var(--font-heading), sans-serif;
+  font-size: 28px;
+  font-weight: var(--weight-semibold);
+  color: var(--brand-main);
+  line-height: 1;
+  flex-shrink: 0;
+  width: 36px;
+}
+
+.landing-story-step-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--neutral-50);
+  color: var(--brand-main);
+  flex-shrink: 0;
+}
+
+.landing-story-step-title {
+  font-family: var(--font-heading), sans-serif;
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.landing-story-step-body {
+  font-size: var(--font-size-body);
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0;
+  /* Align with the title: num width (36px) + icon width (36px) + 2 gaps (12px each) */
+  padding-left: 96px;
+}
+
+/* ── Archetype cards (two-column split) ──────────────────────────────────── */
+
+.landing-archetypes-split {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.landing-archetypes-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.landing-archetypes-text .landing-section-heading {
+  margin-bottom: 0;
+}
+
+.landing-archetypes-text .landing-section-sub {
+  margin: 0;
+}
+
+.landing-archetypes-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.landing-archetype-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 24px;
+  background: var(--surface-popout);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-sm);
+  border-left: 4px solid var(--accent, var(--brand-main));
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.landing-archetype-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.landing-archetype-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--accent, var(--brand-main)) 10%, transparent);
+  color: var(--accent, var(--brand-main));
+  flex-shrink: 0;
+}
+
+.landing-archetype-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.landing-archetype-label {
+  font-family: var(--font-heading), sans-serif;
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.landing-archetype-desc {
+  font-size: var(--font-size-body-sm);
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ── Care split layout ────────────────────────────────────────────────────── */
+
+.landing-care-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.landing-care-text .landing-section-heading {
+  margin-bottom: 24px;
+}
+
+.landing-care-points {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.landing-care-point {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.landing-care-point-icon {
+  color: var(--brand-main);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.landing-care-point strong {
+  display: block;
+  font-size: var(--font-size-body);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.landing-care-point p {
+  font-size: var(--font-size-body-sm);
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.landing-care-photo-col {
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.landing-care-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  min-height: 340px;
+}
+
+/* ── Offer care banner ────────────────────────────────────────────────────── */
+
+.landing-offer-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 32px;
+  background: var(--surface-top);
+  border: 1px dashed var(--border-regular);
+  border-radius: var(--radius-panel);
+}
+
+.landing-offer-text {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.landing-offer-icon {
+  color: var(--brand-main);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.landing-offer-title {
+  font-family: var(--font-heading), sans-serif;
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.landing-offer-body {
+  font-size: var(--font-size-body-sm);
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 520px;
+}
+
+/* ── Testimonials ─────────────────────────────────────────────────────────── */
+
+.landing-testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.landing-testimonial-card {
+  background: var(--surface-top);
+  border-radius: var(--radius-panel);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.landing-testimonial-quote {
+  font-size: var(--font-size-body);
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 0;
+  font-style: italic;
+}
+
+.landing-testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+}
+
+.landing-testimonial-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.landing-testimonial-name {
+  display: block;
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.landing-testimonial-detail {
+  display: block;
+  font-size: var(--font-size-fine);
+  color: var(--text-tertiary);
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .landing-archetypes-split {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    text-align: center;
+  }
+
+  .landing-archetypes-text {
+    align-items: center;
+  }
+
+  .landing-meet-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .landing-meet-card {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+  }
+
+  .landing-meet-card-illustration {
+    height: 100%;
+  }
+
+  .landing-story-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .landing-story-photo {
+    min-height: 240px;
+    max-height: 300px;
+  }
+
+  .landing-care-split {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .landing-care-photo-col {
+    order: -1;
+  }
+
+  .landing-care-photo {
+    min-height: 240px;
+    max-height: 300px;
+  }
+
+  .landing-testimonials-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .landing-offer-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .landing-hero--photo {
+    padding: 60px 20px 72px;
+    min-height: auto;
+  }
+
+  .landing-hero--photo .landing-hero-inner {
+    text-align: center;
+  }
+
+  .landing-hero--photo .landing-hero-content {
+    align-items: center;
+  }
+
+  .landing-hero-photo-overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.92) 0%,
+      rgba(255, 255, 255, 0.82) 50%,
+      rgba(255, 255, 255, 0.65) 100%
+    );
+  }
+
+  .landing-hook {
+    padding: 36px 0 32px;
+  }
+
+
+  .landing-hook-subline {
+    font-size: var(--font-size-base);
+  }
+
+  .landing-meet-card {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-meet-card-illustration {
+    height: 140px;
+  }
+}

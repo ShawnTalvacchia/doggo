@@ -278,8 +278,12 @@ export interface Booking {
   signedAt: string;  // ISO timestamp
 }
 
+export type ConversationType = "booking" | "direct";
+
 export interface Conversation {
   id: string;
+  /** "booking" = care inquiry thread; "direct" = 1:1 messaging between connected users */
+  conversationType: ConversationType;
   providerId: string;
   providerName: string;
   providerAvatarUrl: string;
@@ -327,9 +331,104 @@ export interface UserReview {
   createdAt: string;
 }
 
+// ── Meets ─────────────────────────────────────────────────────────────────────
+
+export type MeetType = "walk" | "park_hangout" | "playdate" | "training";
+
+export type MeetStatus = "upcoming" | "in_progress" | "completed" | "cancelled";
+
+export type LeashRule = "on_leash" | "off_leash" | "mixed";
+
+export type DogSizeFilter = "small" | "medium" | "large" | "any";
+
+export interface MeetAttendee {
+  userId: string;
+  userName: string;
+  avatarUrl: string;
+  dogNames: string[];
+}
+
+export interface Meet {
+  id: string;
+  type: MeetType;
+  title: string;
+  description: string;
+  location: string;
+  /** WGS84 coordinates for map pin */
+  lat: number;
+  lng: number;
+  date: string;          // ISO YYYY-MM-DD
+  time: string;          // e.g. "08:00"
+  durationMinutes: number;
+  recurring: boolean;
+  maxAttendees: number;
+  dogSizeFilter: DogSizeFilter;
+  leashRule: LeashRule;
+  status: MeetStatus;
+  creatorId: string;
+  creatorName: string;
+  creatorAvatarUrl: string;
+  attendees: MeetAttendee[];
+  createdAt: string;     // ISO timestamp
+}
+
+// ── Connections ───────────────────────────────────────────────────────────────
+
+/** Trust ladder: locked → open → familiar → connected */
+export type ConnectionState = "none" | "familiar" | "pending" | "connected";
+
+export interface Connection {
+  id: string;
+  /** The other user */
+  userId: string;
+  userName: string;
+  avatarUrl: string;
+  dogNames: string[];
+  location: string;
+  /** Current state from our perspective */
+  state: ConnectionState;
+  /** Meet where we first met (optional) */
+  metAt?: string;
+  /** When the connection state last changed */
+  updatedAt: string;
+}
+
+// ── Meet Group Threads ────────────────────────────────────────────────────────
+
+export interface MeetMessage {
+  id: string;
+  meetId: string;
+  senderId: string;
+  senderName: string;
+  senderAvatarUrl: string;
+  text: string;
+  sentAt: string; // ISO timestamp
+}
+
 // ── User / Profile ─────────────────────────────────────────────────────────────
 
 export type TimeSlot = "morning" | "afternoon" | "evening";
+
+export type EnergyLevel = "low" | "moderate" | "high" | "very_high";
+
+export type PlayStyle =
+  | "fetch"
+  | "tug"
+  | "chase"
+  | "wrestling"
+  | "gentle"
+  | "independent"
+  | "sniffing";
+
+export interface VetInfo {
+  clinicName?: string;
+  vetPhone?: string;
+  lastCheckup?: string;       // ISO YYYY-MM-DD
+  vaccinationsUpToDate: boolean;
+  spayedNeutered: boolean;
+  medications?: string;       // free-text list of current meds
+  conditions?: string;        // free-text known conditions
+}
 
 export interface PetProfile {
   id: string;
@@ -339,6 +438,12 @@ export interface PetProfile {
   ageLabel: string;     // e.g. "4 years"
   imageUrl: string;
   notes?: string;
+  // Enhanced fields (Phase 5)
+  energyLevel?: EnergyLevel;
+  playStyles?: PlayStyle[];
+  socialisationNotes?: string;
+  vetInfo?: VetInfo;
+  photoGallery?: string[];    // additional photo URLs beyond imageUrl
 }
 
 export interface CarerAvailabilitySlot {

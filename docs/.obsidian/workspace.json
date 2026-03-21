@@ -1,0 +1,225 @@
+{
+  "main": {
+    "id": "8e16518e7e7c33b4",
+    "type": "split",
+    "children": [
+      {
+        "id": "ef4f1fec88e7d287",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b02fc69ad97a5400",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "strategy/Doggo-Proposal-Copy.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Doggo-Proposal-Copy"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "9867c2cbc576dfa3",
+    "type": "split",
+    "children": [
+      {
+        "id": "c5daccd255441663",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "748990f4780d7abc",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "e526727ce756814d",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "d0034076f7f92ade",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "371f2184f3e60fb7",
+    "type": "split",
+    "children": [
+      {
+        "id": "0fc5f9954f683e00",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "bcf3bbe207e69519",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "strategy/Product Vision.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Product Vision"
+            }
+          },
+          {
+            "id": "abc24171578182d1",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "strategy/Product Vision.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Product Vision"
+            }
+          },
+          {
+            "id": "27d08edcf092df55",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "d51f4c8478754a8b",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "2827c51d24cdad63",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "phases/phase-1-design-system.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of phase-1-design-system"
+            }
+          }
+        ],
+        "currentTab": 2
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false,
+      "markdown-importer:Open format converter": false,
+      "obsidian-kanban:Create new board": false
+    }
+  },
+  "active": "b02fc69ad97a5400",
+  "lastOpenFiles": [
+    "reviews/Doggo Homepage — Strategic & UX Review.md",
+    "strategy/Doggo-Proposal-Copy.md",
+    "strategy/Product Vision.md",
+    "features/messaging.md",
+    "features/connections.md",
+    "features/meets.md",
+    "features/_template.md",
+    "strategy/Trust & Connection Model.md",
+    "strategy/Trust Model.md",
+    "strategy/User Archetypes.md",
+    "features",
+    "strategy/MVP Scope Boundaries.md",
+    "strategy/Open Questions & Assumptions Log.md",
+    "strategy/Product Principles.md",
+    "strategy/Community Exploration.md",
+    "ROADMAP.md",
+    "phases/phase-5-care-profile.md",
+    "phases/phase-1-design-system.md",
+    "phases/phase-3-community-core.md",
+    "phases/phase-2-app-shell.md",
+    "CONTRIBUTING.md",
+    "decisions/chat-design.md",
+    "archive/prototype-decisions.md",
+    "archive/Board.md",
+    "implementation/signup-reference.md",
+    "decisions/Board.md",
+    "Untitled.canvas",
+    "implementation/component-inventory.md",
+    "archive",
+    "phases",
+    "implementation",
+    "decisions",
+    "strategy"
+  ]
+}

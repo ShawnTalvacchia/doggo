@@ -1,28 +1,19 @@
 import { type Role } from "@/lib/types";
 
 /**
- * Returns the ordered list of signup step slugs for a given role set.
- * The list is used to compute step X of Y indicators in FormHeader.
+ * Returns the ordered list of signup step slugs.
+ * Everyone follows the same path: start → profile → pet → visibility → success
  *
- * Steps that are always present: start, role, profile
- * Conditional: care-preferences, walking, hosting, pricing (only if walker/host role)
- * Conditional: pet (only if owner role)
+ * Role selection and provider-specific steps (care-preferences, walking,
+ * hosting, pricing) have been removed — everyone starts as an owner,
+ * and offering care is configured from the profile later.
  */
-export function getSignupSteps(roles: Role[]): string[] {
-  const steps: string[] = ["start", "role", "profile"];
-  const hasService = roles.includes("walker") || roles.includes("host");
-  if (hasService) {
-    steps.push("care-preferences");
-    if (roles.includes("walker")) steps.push("walking");
-    if (roles.includes("host")) steps.push("hosting");
-    steps.push("pricing"); // always last service step, before pet/success
-  }
-  if (roles.includes("owner") || roles.length === 0) steps.push("pet");
-  return steps;
+export function getSignupSteps(_roles: Role[]): string[] {
+  return ["start", "profile", "pet", "visibility"];
 }
 
 /**
- * Returns { step, totalSteps } for a given page slug and role set.
+ * Returns { step, totalSteps } for a given page slug.
  * Returns undefined for pages where step count is not meaningful (e.g. success).
  */
 export function getStepInfo(

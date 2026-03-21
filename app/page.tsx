@@ -1,140 +1,88 @@
-import Link from "next/link";
 import {
-  House,
   PawPrint,
-  PersonSimpleWalk,
-  Star,
-  ShieldCheck,
   MapPin,
-  CurrencyCircleDollar,
+  ShieldCheck,
   ChatCircleDots,
+  CalendarDots,
+  Sneaker,
+  UsersThree,
+  Megaphone,
 } from "@phosphor-icons/react/dist/ssr";
-import { providers } from "@/lib/mockData";
-import { SERVICE_LABELS } from "@/lib/constants/services";
 import { HowItWorksTabs } from "@/components/landing/HowItWorksTabs";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 
-// ── Static featured provider picks ───────────────────────────────────────────
+// ── Photo URLs ───────────────────────────────────────────────────────────────
 
-const FEATURED_IDS = ["olga-m", "nikola-r", "jana-k"];
-const featured = providers.filter((p) => FEATURED_IDS.includes(p.id));
+const PHOTOS = {
+  hero: "/images/hero-park-community.jpg",
+  care: "https://images.unsplash.com/photo-1551717743-49959800b1f6?auto=format&fit=crop&w=800&q=80",
+};
 
-// ── Small sub-components ──────────────────────────────────────────────────────
+// ── Sub-components ───────────────────────────────────────────────────────────
 
-function ServiceCard({
-  icon,
+function MeetTypeCard({
+  imgSrc,
   title,
   description,
-  from,
-  unit,
-  service,
 }: {
-  icon: React.ReactNode;
+  imgSrc: string;
   title: string;
   description: string;
-  from: string;
-  unit: string;
-  service: string;
 }) {
   return (
-    <div className="landing-service-card">
-      <div className="landing-service-icon">{icon}</div>
-      <h3 className="landing-service-title">{title}</h3>
-      <p className="landing-service-desc">{description}</p>
-      <div className="landing-service-footer">
-        <span className="landing-service-price">
-          From {from}
-          <span className="landing-service-unit"> / {unit}</span>
-        </span>
-        <Link href={`/explore/results?service=${service}`} className="landing-service-link">
-          View sitters →
-        </Link>
+    <div className="landing-meet-card">
+      <div className="landing-meet-card-illustration">
+        <img src={imgSrc} alt={title} className="landing-meet-card-img" loading="lazy" />
+      </div>
+      <div className="landing-meet-card-body">
+        <h3 className="landing-service-title">{title}</h3>
+        <p className="landing-service-desc">{description}</p>
       </div>
     </div>
   );
 }
 
-function FeatureCard({
+function ArchetypeCard({
   icon,
-  title,
-  body,
+  label,
+  description,
+  accentColor,
 }: {
   icon: React.ReactNode;
-  title: string;
-  body: string;
+  label: string;
+  description: string;
+  accentColor: string;
 }) {
   return (
-    <div className="landing-feature-card">
-      <div className="landing-feature-icon">{icon}</div>
-      <strong className="landing-feature-title">{title}</strong>
-      <p className="landing-feature-body">{body}</p>
+    <div className="landing-archetype-card" style={{ "--accent": accentColor } as React.CSSProperties}>
+      <div className="landing-archetype-icon">{icon}</div>
+      <div className="landing-archetype-body">
+        <h3 className="landing-archetype-label">{label}</h3>
+        <p className="landing-archetype-desc">{description}</p>
+      </div>
     </div>
   );
 }
 
-function FeaturedCard({ provider }: { provider: (typeof providers)[number] }) {
-  const topService = provider.services[0];
-  const serviceLabel =
-      topService === "walk_checkin"
-      ? SERVICE_LABELS.walk_checkin
-      : topService === "inhome_sitting"
-        ? SERVICE_LABELS.inhome_sitting
-        : SERVICE_LABELS.boarding;
-
+function TestimonialCard({
+  quote,
+  name,
+  detail,
+  avatarUrl,
+}: {
+  quote: string;
+  name: string;
+  detail: string;
+  avatarUrl: string;
+}) {
   return (
-    <Link href={`/explore/profile/${provider.id}`} className="landing-featured-card">
-      <img src={provider.avatarUrl} alt={provider.name} className="landing-featured-avatar" />
-      <div className="landing-featured-info">
-        <span className="landing-featured-name">{provider.name}</span>
-        <span className="landing-featured-location">
-          {provider.neighborhood}, {provider.district}
-        </span>
-        <span className="landing-featured-meta">
-          <Star size={13} weight="fill" className="landing-star-icon" />
-          {provider.rating.toFixed(1)}
-          <span className="landing-featured-dot">·</span>
-          {serviceLabel}
-        </span>
-        <span className="landing-featured-price">From {provider.priceFrom} Kč</span>
-        <span className="landing-featured-available" aria-label="Available now">
-          <span className="landing-featured-available-dot" aria-hidden="true" />
-          Available
-        </span>
-      </div>
-    </Link>
-  );
-}
-
-// ── Hero visual — live preview card ──────────────────────────────────────────
-
-function HeroVisual() {
-  const preview = providers.slice(0, 4);
-  return (
-    <div className="landing-hero-visual" aria-hidden="true">
-      <div className="landing-hero-card">
-        <p className="landing-hero-card-label">Available near you</p>
-        <div className="landing-hero-provider-list">
-          {preview.map((p) => (
-            <div key={p.id} className="landing-hero-provider-row">
-              <div className="landing-hero-avatar-wrap">
-                <img src={p.avatarUrl} alt="" className="landing-hero-provider-avatar" />
-                <span className="landing-hero-status-dot" aria-hidden="true" />
-              </div>
-              <div className="landing-hero-provider-info">
-                <span className="landing-hero-provider-name">{p.name}</span>
-                <span className="landing-hero-provider-loc">{p.neighborhood}</span>
-              </div>
-              <span className="landing-hero-provider-rating">
-                <Star size={11} weight="fill" className="landing-star-icon" />
-                {p.rating.toFixed(1)}
-              </span>
-            </div>
-          ))}
-        </div>
-        <div className="landing-hero-card-footer">
-          <span className="landing-hero-card-count">
-            +{providers.length - 4} more carers in Prague
-          </span>
+    <div className="landing-testimonial-card">
+      <p className="landing-testimonial-quote">&ldquo;{quote}&rdquo;</p>
+      <div className="landing-testimonial-author">
+        <img src={avatarUrl} alt={name} className="landing-testimonial-avatar" />
+        <div>
+          <span className="landing-testimonial-name">{name}</span>
+          <span className="landing-testimonial-detail">{detail}</span>
         </div>
       </div>
     </div>
@@ -147,112 +95,93 @@ export default function LandingPage() {
   return (
     <main className="landing-page">
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="landing-hero">
+      <section className="landing-hero landing-hero--photo">
+        <div className="landing-hero-photo-bg">
+          <img
+            src={PHOTOS.hero}
+            alt="Two dogs running together in a park"
+            className="landing-hero-photo-img"
+          />
+          <div className="landing-hero-photo-overlay" />
+        </div>
         <div className="landing-hero-inner">
           <div className="landing-hero-content">
             <span className="landing-hero-eyebrow">Available in Prague</span>
             <h1 className="landing-hero-heading">
-              Trusted dog care from <span className="landing-hero-accent">people nearby.</span>
+              Your dog&apos;s <span className="landing-hero-accent">neighbourhood crew.</span>
             </h1>
             <p className="landing-hero-sub">
-              Find trusted dog sitters near you. Message first. Book when you&apos;re ready.
+              Meet dog owners locally. Build real trust through walks, hangouts, and play. When you need care, you already know who to ask.
             </p>
             <div className="landing-hero-ctas">
-              <ButtonAction variant="primary" cta size="lg" href="/explore/results">
-                Find a dog carer
+              <ButtonAction variant="primary" cta size="lg" href="/meets">
+                Find a meet near you
               </ButtonAction>
-              <ButtonAction variant="outline" cta size="lg" href="/signup/start">
-                Become a carer
+              <ButtonAction variant="secondary" cta size="lg" href="#how-it-works">
+                See how it works
               </ButtonAction>
             </div>
           </div>
-          <HeroVisual />
         </div>
       </section>
 
-      {/* ── Trust badges ─────────────────────────────────────────────── */}
-      <section className="landing-trust-badges" aria-label="Trust signals">
+      {/* ── Emotional hook + trust badges ────────────────────────────── */}
+      <section className="landing-hook">
         <div className="landing-inner">
+          <div className="landing-hook-text">
+            <h2 className="font-heading text-2xl md:text-3xl font-semibold leading-tight text-white m-0">Does your dog have a community?</h2>
+            <p className="landing-hook-subline">
+              Dogs are social — they want to get out, play with dogs they know, and see familiar faces. Doggo connects you to local dog owners, regular meets, and trusted care.
+            </p>
+          </div>
           <div className="landing-trust-badges-row">
             <span className="landing-trust-badge">
-              <ShieldCheck size={16} weight="bold" aria-hidden="true" />
-              ID verified sitters
+              <PawPrint size={16} weight="bold" aria-hidden="true" />
+              Regular meets in parks near you
             </span>
             <span className="landing-trust-badge">
-              <Star size={16} weight="bold" aria-hidden="true" />
-              Real reviews from dog owners
+              <ShieldCheck size={16} weight="bold" aria-hidden="true" />
+              Trust built through real encounters
             </span>
             <span className="landing-trust-badge">
               <MapPin size={16} weight="bold" aria-hidden="true" />
-              Local meet &amp; greets encouraged
+              Care from people you already know
             </span>
           </div>
         </div>
       </section>
 
-      {/* ── Stats bar ────────────────────────────────────────────────── */}
-      <div className="landing-trust-strip">
-        <div className="landing-inner landing-trust-strip-inner">
-          <div className="landing-trust-item">
-            <span className="landing-trust-value">127</span>
-            <span className="landing-trust-label">carers in Prague</span>
-          </div>
-          <div className="landing-trust-sep" aria-hidden="true" />
-          <div className="landing-trust-item">
-            <span className="landing-trust-value">Free</span>
-            <span className="landing-trust-label">to browse</span>
-          </div>
-          <div className="landing-trust-sep" aria-hidden="true" />
-          <div className="landing-trust-item">
-            <span className="landing-trust-value">Transparent</span>
-            <span className="landing-trust-label">carer-set prices</span>
-          </div>
-          <div className="landing-trust-sep" aria-hidden="true" />
-          <div className="landing-trust-item">
-            <span className="landing-trust-value">Local</span>
-            <span className="landing-trust-label">dog lovers</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Services ─────────────────────────────────────────────────── */}
-      <section className="landing-section">
+      {/* ── Meet types (with photos) ────────────────────────────────── */}
+      <section className="landing-section bg-surface-top">
         <div className="landing-inner">
           <div className="landing-section-header landing-section-header--centered">
-            <h2 className="landing-section-heading">How we can help</h2>
-            <p className="landing-section-sub">Three ways to get help with your dog.</p>
+            <h2 className="landing-section-heading">Meets for every dog</h2>
+            <p className="landing-section-sub">
+              Organised by size, energy, and style — so every dog gets the right kind of social.
+            </p>
           </div>
-          <div className="landing-services-grid">
-            <ServiceCard
-              icon={<PersonSimpleWalk size={28} weight="light" />}
-              title={SERVICE_LABELS.walk_checkin}
-              description="A daily walk or drop-in visit. Your dog gets exercise and company; you get peace of mind and photo updates."
-              from="330 Kč"
-              unit="visit"
-              service="walk_checkin"
+          <div className="landing-meet-cards-grid">
+            <MeetTypeCard
+              imgSrc="/images/Group walks.svg"
+              title="Group walks"
+              description="See the same people every week. Familiar faces, familiar dogs. Matched by size and pace."
             />
-            <ServiceCard
-              icon={<House size={28} weight="light" />}
-              title={SERVICE_LABELS.inhome_sitting}
-              description="Your carer moves into your home. Minimal disruption to your dog's routine — same sofa, same schedule."
-              from="850 Kč"
-              unit="night"
-              service="inhome_sitting"
+            <MeetTypeCard
+              imgSrc="/images/Park hangouts.svg"
+              title="Park hangouts"
+              description="Drop in, no pressure. Stay five minutes or an hour. Dogs play, owners chat."
             />
-            <ServiceCard
-              icon={<PawPrint size={28} weight="light" />}
-              title={SERVICE_LABELS.boarding}
-              description="Your dog stays with a carer in their home. A calm, warm environment while you're away."
-              from="760 Kč"
-              unit="night"
-              service="boarding"
+            <MeetTypeCard
+              imgSrc="/images/Playdates & training.svg"
+              title="Playdates & training"
+              description="Smaller groups for dogs that need the right pace — puppy socialisation, recall practice, or calm play."
             />
           </div>
         </div>
       </section>
 
       {/* ── How it works (interactive tab switcher) ───────────────────── */}
-      <section className="landing-section landing-section--alt">
+      <section id="how-it-works" className="landing-section landing-section--alt">
         <div className="landing-inner">
           <div className="landing-section-header landing-section-header--centered">
             <h2 className="landing-section-heading">How it works</h2>
@@ -261,49 +190,109 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Featured carers ──────────────────────────────────────────── */}
-      <section className="landing-section">
+      {/* ── Everyone uses Doggo differently ─────────────────────────── */}
+      <section className="landing-section landing-section--alt">
         <div className="landing-inner">
-          <div className="landing-section-header landing-section-header--row">
-            <div>
-              <h2 className="landing-section-heading">Meet local sitters</h2>
+          <div className="landing-archetypes-split">
+            <div className="landing-archetypes-text">
+              <h2 className="landing-section-heading">Everyone uses Doggo differently</h2>
               <p className="landing-section-sub">
-                A few of the people looking after Prague&apos;s dogs.
+                There&apos;s no right way to be part of the community. Show up for walks, build a crew, or turn it into something more — it&apos;s up to you.
               </p>
+              <ButtonAction variant="primary" cta size="lg" href="/signup/start">
+                Get started
+              </ButtonAction>
             </div>
-            <Link href="/explore/results" className="landing-browse-all">
-              Browse all sitters →
-            </Link>
-          </div>
-          <div className="landing-featured-grid">
-            {featured.map((p) => (
-              <FeaturedCard key={p.id} provider={p} />
-            ))}
+            <div className="landing-archetypes-cards">
+              <ArchetypeCard
+                icon={<Sneaker size={28} weight="light" />}
+                label="The Regular"
+                description="Joins walks in their free time. Makes friends with other regulars, but keeps their account private. Fresh air, happy dog, good routine."
+                accentColor="var(--status-info-main)"
+              />
+              <ArchetypeCard
+                icon={<UsersThree size={28} weight="light" />}
+                label="The Connector"
+                description="Built a small private group from connections through park hangouts. They swap dog-sitting, share walks, and look out for each other."
+                accentColor="var(--status-warning-main)"
+              />
+              <ArchetypeCard
+                icon={<Megaphone size={28} weight="light" />}
+                label="The Organiser"
+                description="Runs weekly walks, often picking up other owner&apos;s dogs on the way. An easy choice when a community member needs a dog sitter."
+                accentColor="var(--brand-light)"
+              />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ── Why Doggo — feature card grid ────────────────────────────── */}
+      {/* ── Why Doggo — care from your community ─────────────────────── */}
       <section className="landing-section landing-section--alt">
         <div className="landing-inner">
-          <div className="landing-section-header">
-            <h2 className="landing-section-heading">Dog care should feel simple and local.</h2>
+          <div className="landing-care-split">
+            <div className="landing-care-text">
+              <h2 className="landing-section-heading">Care from people you already know.</h2>
+              <div className="landing-care-points">
+                <div className="landing-care-point">
+                  <CalendarDots size={24} weight="light" className="landing-care-point-icon" />
+                  <div>
+                    <strong>Not profiles. Real people.</strong>
+                    <p>Need a sitter? Check your connections first — people you&apos;ve walked with, whose dogs know yours.</p>
+                  </div>
+                </div>
+                <div className="landing-care-point">
+                  <ChatCircleDots size={24} weight="light" className="landing-care-point-icon" />
+                  <div>
+                    <strong>No cold outreach</strong>
+                    <p>You&apos;ve already met at the park. The first message isn&apos;t awkward — it&apos;s natural.</p>
+                  </div>
+                </div>
+                <div className="landing-care-point">
+                  <MapPin size={24} weight="light" className="landing-care-point-icon" />
+                  <div>
+                    <strong>Your neighbourhood, not a marketplace</strong>
+                    <p>Your park, your streets, your neighbours. Care that fits in your daily walk.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="landing-care-photo-col">
+              <img
+                src={PHOTOS.care}
+                alt="Person walking a dog in a sunny field"
+                className="landing-care-photo"
+                loading="lazy"
+              />
+            </div>
           </div>
-          <div className="landing-features-grid">
-            <FeatureCard
-              icon={<CurrencyCircleDollar size={28} weight="light" />}
-              title="Transparent pricing"
-              body="Arrange care and payment directly with your carer. Clear, upfront prices from the people who look after your dog."
+        </div>
+      </section>
+
+      {/* ── Social proof ──────────────────────────────────────────────── */}
+      <section className="landing-section landing-section--alt">
+        <div className="landing-inner">
+          <div className="landing-section-header landing-section-header--centered">
+            <h2 className="landing-section-heading">What dog owners are saying</h2>
+          </div>
+          <div className="landing-testimonials-grid">
+            <TestimonialCard
+              quote="I moved to Prague and didn't know anyone with a dog. Two weeks of Saturday walks later, I had three people I'd trust with Luna."
+              name="Eva"
+              detail="Luna's owner · Prague 7"
+              avatarUrl="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80"
             />
-            <FeatureCard
-              icon={<ChatCircleDots size={28} weight="light" />}
-              title="Message before you commit"
-              body="Ask questions, arrange a meet & greet, and get to know your sitter before anything is confirmed."
+            <TestimonialCard
+              quote="I met Tomáš at a park walk. Two weeks later he watched Rex while I travelled. It just made sense — we'd already spent hours together."
+              name="Jana"
+              detail="Rex's owner · Prague 2"
+              avatarUrl="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80"
             />
-            <FeatureCard
-              icon={<MapPin size={28} weight="light" />}
-              title="Built for your neighbourhood"
-              body="Every sitter is local. Real people in your district, not a faceless marketplace."
+            <TestimonialCard
+              quote="I started walking a neighbour's dog on Saturdays. Now I help three families. It never felt like a job — it just happened."
+              name="Tomáš"
+              detail="Bruno's owner · Prague 3"
+              avatarUrl="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80"
             />
           </div>
         </div>
@@ -312,16 +301,16 @@ export default function LandingPage() {
       {/* ── Bottom CTA ───────────────────────────────────────────────── */}
       <section className="landing-cta-close">
         <div className="landing-cta-close-inner">
-          <h2 className="landing-cta-close-heading">Ready to find care for your dog?</h2>
+          <h2 className="landing-cta-close-heading">Your dog deserves a crew.</h2>
           <p className="landing-cta-close-sub">
-            Browsing is free. No account needed to look around.
+            Meet locally. Build trust. Care comes naturally.
           </p>
           <div className="landing-cta-close-btns">
-            <ButtonAction variant="white" cta size="lg" href="/explore/results">
-              Find a dog carer
+            <ButtonAction variant="white" cta size="lg" href="/meets">
+              Find a meet near you
             </ButtonAction>
             <ButtonAction variant="outline-white" cta size="lg" href="/signup/start">
-              Become a carer
+              Get started
             </ButtonAction>
           </div>
         </div>

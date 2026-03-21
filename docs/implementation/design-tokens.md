@@ -1,3 +1,11 @@
+---
+category: implementation
+status: active
+last-reviewed: 2026-03-16
+tags: [tokens, css, figma, design-system]
+review-trigger: "when adding or changing CSS variables"
+---
+
 # Design Tokens — Figma → CSS Mapping
 
 Figma file: [Doggo](https://www.figma.com/design/nPApYGJkh8muUqw60nLPxs/Doggo)
@@ -246,10 +254,41 @@ CSS pattern: `--transparent-{dark|light|gray}-{step}`
 | Font Size/Body/LG  | `--font-size-body-lg`  | `18px`  | `16px` |
 | Font Size/Body/MD  | `--font-size-body-md`  | `16px`  | `15px` |
 | Font Size/Body/REG | `--font-size-body-reg` | `14px`  | `14px` |
+| Font Size/Sub _(code-only)_ | `--font-size-sub` | `13px`  | `13px` |
 | Font Size/Body/SM  | `--font-size-body-sm`  | `12px`  | `12px` |
+| Font Size/Fine _(code-only)_ | `--font-size-fine` | `11px`  | `11px` |
 | Font Size/Body/XS  | `--font-size-body-xs`  | `10px`  | `10px` |
 
 Mobile overrides are set inside the `@media (max-width: 767px)` block in `globals.css` — they override the CSS custom properties, so any component using `var(--font-size-h1)` etc. automatically gets the correct responsive value.
+
+---
+
+## Convenience Aliases (code-only)
+
+These are shorthand tokens defined in CSS for common patterns. They don't have Figma counterparts.
+
+| CSS token | Maps to | Usage |
+| --------- | ------- | ----- |
+| `--surface-page` | `--surface-top` | Nav bars, sticky headers |
+| `--surface-hover` | `--interaction-hover-darken` | Subtle hover on light surfaces |
+| `--border-subtle` | `--border-strong` | Light dividers |
+| `--border-default` | `--border-stronger` | Standard visible borders |
+| `--text-muted` | `--text-tertiary` | De-emphasised text |
+| `--success` | `--status-success-main` | Legacy shorthand |
+| `--error` | `--status-error-main` | Legacy shorthand |
+
+## Layout Tokens (code-only)
+
+| CSS token | Value | Usage |
+| --------- | ----- | ----- |
+| `--nav-height` | `65px` (desktop) / `56px` (mobile) | Top nav height, sticky offsets |
+| `--app-page-max-width` | `768px` | Max content width |
+
+---
+
+## Styleguide coverage
+
+All tokens above are now surfaced in `/styleguide/tokens` and `/styleguide/typography`. If you add a new token to `globals.css`, add it to the styleguide in the same session — see [[CONTRIBUTING]] for rules.
 
 ---
 
@@ -258,3 +297,4 @@ Mobile overrides are set inside the `@media (max-width: 767px)` block in `global
 - `_Neutral/600` does not exist in Figma (scale jumps 500 → 700). Add if a mid-dark neutral step is needed.
 - Shadows are not defined as Figma variables — values in CSS are design judgement, should be confirmed against Figma components.
 - `Surface/Disabled` not confirmed from Figma variable panel — currently set to `--neutral-300` (`#b0b2b2`), which matches the visible Figma semantic colour swatch.
+- `--font-size-fine` (11px) and `--font-size-sub` (13px) are code-only — confirm if they should become Figma variables.

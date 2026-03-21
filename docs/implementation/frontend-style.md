@@ -1,3 +1,11 @@
+---
+category: implementation
+status: active
+last-reviewed: 2026-03-16
+tags: [css, conventions, accessibility]
+review-trigger: "when writing or reviewing CSS"
+---
+
 # Frontend Styling Rules
 
 This document defines how styling should be authored and reviewed in this repo.

@@ -8,6 +8,7 @@ import {
   CalendarCheck,
   CheckCircle,
   ArrowRight,
+  Handshake,
 } from "@phosphor-icons/react";
 import type {
   Conversation,
@@ -249,6 +250,7 @@ export function ThreadClient({
         profileLink: `/explore/profile/${conv.providerId}`,
       };
 
+  const isDirect = conv.conversationType === "direct";
   const isNew = localMessages.length === 0;
 
   useEffect(() => {
@@ -426,7 +428,12 @@ export function ThreadClient({
               <span className="inbox-carer-badge inbox-carer-badge--thread">As carer</span>
             )}
           </div>
-          {otherParty.profileLink ? (
+          {isDirect ? (
+            <span className="inbox-thread-connection-badge">
+              <Handshake size={11} weight="fill" />
+              Connected
+            </span>
+          ) : otherParty.profileLink ? (
             <Link href={otherParty.profileLink} className="inbox-thread-profile-link">
               View profile →
             </Link>
@@ -440,7 +447,7 @@ export function ThreadClient({
 
       {/* Body */}
       <div className="inbox-thread-body" ref={bodyRef}>
-        {isNew && !isCarerPerspective ? (
+        {isNew && !isDirect && !isCarerPerspective ? (
           <InquiryForm
             conv={conv}
             initialService={initialService}
@@ -450,7 +457,15 @@ export function ThreadClient({
           />
         ) : (
           <>
-            <InquiryChips conv={conv} />
+            {!isDirect && <InquiryChips conv={conv} />}
+            {isNew && isDirect && (
+              <div className="inbox-direct-empty">
+                <Handshake size={32} weight="light" style={{ color: "var(--text-tertiary)" }} />
+                <p style={{ color: "var(--text-secondary)", fontSize: "var(--font-size-body-md)", margin: 0 }}>
+                  You&apos;re connected with {otherParty.name}. Say hello!
+                </p>
+              </div>
+            )}
             {groups.map((group) => (
               <div key={group.label} className="inbox-date-group">
                 <div className="inbox-date-sep">
@@ -502,8 +517,8 @@ export function ThreadClient({
         )}
       </div>
 
-      {/* Compose bar — always visible once thread has messages, or for carer perspective */}
-      {(!isNew || isCarerPerspective) && (
+      {/* Compose bar — always visible for direct messages, once thread has messages, or for carer perspective */}
+      {(isDirect || !isNew || isCarerPerspective) && (
         <div className="inbox-thread-footer">
           <textarea
             ref={inputRef}

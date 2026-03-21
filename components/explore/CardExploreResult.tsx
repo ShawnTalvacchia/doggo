@@ -68,10 +68,10 @@ export function CardExploreResult({
       <div className="result-blurb">&ldquo;{provider.blurb}&rdquo;</div>
 
       {(provider.distanceKm !== undefined || !!provider.mutualConnections) && (
-        <div className="result-trust">
+        <div className="trust-row">
           {provider.distanceKm !== undefined && (
             <span
-              className={`result-trust-item${provider.neighbourhoodMatch ? " result-trust-item--match" : ""}`}
+              className={`trust-item${provider.neighbourhoodMatch ? " trust-item--match" : ""}`}
             >
               <MapPin size={12} weight="fill" aria-hidden />
               {provider.neighbourhoodMatch
@@ -80,7 +80,7 @@ export function CardExploreResult({
             </span>
           )}
           {!!provider.mutualConnections && (
-            <span className="result-trust-item">
+            <span className="trust-item">
               <Users size={12} weight="fill" aria-hidden />
               {provider.mutualConnections} mutual{" "}
               {provider.mutualConnections === 1 ? "owner" : "owners"}

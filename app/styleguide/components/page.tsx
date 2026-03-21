@@ -76,7 +76,7 @@ function PropTable({ children }: { children: React.ReactNode }) {
 // ── ButtonAction playground ────────────────────────────────────────────────────
 
 const BTN_VARIANTS: ButtonVariant[] = [
-  "primary", "secondary", "tertiary", "outline", "destructive", "disabled",
+  "primary", "secondary", "tertiary", "outline", "destructive",
 ];
 const BTN_SIZES = ["sm", "md", "lg"] as const;
 const BTN_ICONS = { none: null, left: <MagnifyingGlass size={20} weight="light" />, right: <ArrowRight size={20} weight="light" /> };
@@ -1016,7 +1016,7 @@ export default function ComponentsPage() {
         </p>
         <Demo label="BookingModal" note="Click to open">
           <button
-            className="btn btn--primary btn--cta btn--md"
+            className="btn btn-primary btn-cta btn-md"
             onClick={() => setBookingModalOpen(true)}
           >
             Open BookingModal

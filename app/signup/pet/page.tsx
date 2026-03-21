@@ -8,11 +8,6 @@ import { InputField } from "@/components/ui/InputField";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { useSignupDraft } from "@/contexts/SignupContext";
 import { type Role } from "@/lib/types";
-function petBackStep(roles: Role[]): string {
-  if (roles.includes("host")) return "/signup/hosting";
-  if (roles.includes("walker")) return "/signup/walking";
-  return "/signup/profile";
-}
 const sizeOptions = [
   "Toy (under 5kg)",
   "Small (5–10kg)",
@@ -179,8 +174,8 @@ export default function SignupPetPage() {
           </div>
         </section>
         <FormFooter
-          onBack={() => router.push(petBackStep(draft.roles))}
-          onContinue={() => router.push("/signup/success")}
+          onBack={() => router.push("/signup/profile")}
+          onContinue={() => router.push("/signup/visibility")}
           disableContinue={!canContinue}
         />
       </div>

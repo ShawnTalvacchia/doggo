@@ -1,3 +1,11 @@
+---
+category: strategy
+status: active
+last-reviewed: 2026-03-16
+tags: [principles, design, trust]
+review-trigger: "before any major feature decision"
+---
+
 # Doggo – Product Principles
 
 These principles define the **spine of the Doggo product**. They exist to guide judgment, prevent drift, and align humans and agents around the same intent — not to describe features or UI rules.

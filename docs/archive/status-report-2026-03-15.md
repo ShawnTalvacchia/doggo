@@ -1,3 +1,11 @@
+---
+category: archive
+status: archived
+last-reviewed: 2026-03-16
+tags: [status-report, prototype, milestone]
+review-trigger: "historical reference only"
+---
+
 # Doggo Prototype — Status Report
 
 *March 15, 2026 — Product Owner Review*
@@ -106,20 +114,19 @@ These are decisions or discussions worth having before the next build phase:
 
 ### Short Term — Next Sprint
 
-Focus: make the prototype feel real enough to demo with confidence.
+Focus: flesh out remaining feature pages.
 
-1. **Supabase Auth** — wire up real login/signup; unblocks all write paths
-2. **Signup writes to DB** — persist profiles and service offerings on completion
-3. **Contact → real conversation** — tapping Contact on a provider profile creates a conversation and navigates to the thread
-4. **Profile edit mode** — edit bio, services, photos from `/profile`
-5. **Interactive map** — pin clusters on explore results
+1. **Calendar page** — booking schedule view — confirmed bookings, pending requests
+2. **Profile edit mode** — edit bio, services, and photos from `/profile`
+3. **Interactive map** — pin clusters on explore results, replace placeholder
+4. **Contact → conversation seeding** — tapping Contact on a provider creates a conversation and navigates to the thread
 
 ### Long Term — Post-MVP
 
 These are on the radar but not in active planning:
 
+- **Supabase Auth + signup writes to DB** — real login, persist profiles
 - **Supabase Realtime for chat** — live message delivery
-- **Calendar page** — visual booking schedule + availability management
 - **Search by location** — real geocoding, not text field
 - **Payment integration** — platform-mediated transactions
 - **Push / email notifications** — booking confirmations, message alerts

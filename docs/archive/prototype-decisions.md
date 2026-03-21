@@ -1,4 +1,15 @@
+---
+category: decisions
+status: stale
+last-reviewed: 2026-03-16
+tags: [prototype, technical, scope]
+review-trigger: "when revisiting prototype scope or adding routes"
+---
+
 # Doggo Prototype Decisions
+
+> [!warning] Stale — partially superseded
+> Some decisions here (v1.1 backlog, route structure) may be affected by the community-first pivot. See [[Community Exploration]] for current strategic direction.
 
 See also: [MVP Scope Boundaries](./MVP%20Scope%20Boundaries.md) · [Open Questions & Assumptions Log](./Open%20Questions%20%26%20Assumptions%20Log.md) · [Trust Model](./Trust%20Model.md)
 

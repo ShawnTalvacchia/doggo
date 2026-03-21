@@ -79,7 +79,7 @@ export default function SignupStartPage() {
       <div className="form-shell">
         <FormHeader
           title="Create your Doggo Account"
-          subtitle="Join our community of dog lovers and trusted caregivers in Prague."
+          subtitle="Join the community for dog owners in Prague."
         />
         <section className="form-body">
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -178,7 +178,7 @@ export default function SignupStartPage() {
         </section>
         <FormFooter
           onBack={() => router.back()}
-          onContinue={() => router.push("/signup/role")}
+          onContinue={() => router.push("/signup/profile")}
           disableContinue={!canContinue}
         />
       </div>
