@@ -19,6 +19,10 @@ import { useReviews } from "@/contexts/ReviewsContext";
 import type { Booking, BookingSession, ContractStatus } from "@/lib/types";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { SERVICE_LABELS } from "@/lib/constants/services";
+import { getConnectionState, getCommunityCarers } from "@/lib/mockConnections";
+import { Handshake, ShieldCheck, MapPin, CreditCard, Prohibit, ChatCircleDots as ChatIcon, PencilSimple } from "@phosphor-icons/react";
+import { ButtonAction } from "@/components/ui/ButtonAction";
+import { CancelBookingModal } from "@/components/bookings/CancelBookingModal";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────────
 
@@ -502,15 +506,61 @@ function PriceSection({ booking }: { booking: Booking }) {
 
 // ── Page ──────────────────────────────────────────────────────────────────────────
 
+function CarerTrustCard({ carerId, carerName }: { carerId: string; carerName: string }) {
+  const conn = getConnectionState(carerId);
+  const communityCarer = getCommunityCarers().find((c) => c.userId === carerId);
+  if (!conn || conn.state === "none") return null;
+
+  return (
+    <div className="booking-detail-section">
+      <p className="booking-detail-section-title">Your carer</p>
+      <div className="flex items-start gap-md">
+        <ShieldCheck size={22} weight="light" style={{ color: "var(--brand-main)", flexShrink: 0, marginTop: 2 }} />
+        <div className="flex flex-col gap-xs">
+          {conn.state === "connected" && (
+            <span className="flex items-center gap-xs text-sm font-medium text-fg-primary">
+              <Handshake size={14} weight="fill" style={{ color: "var(--brand-main)" }} />
+              Connected with {carerName}
+            </span>
+          )}
+          {conn.state === "familiar" && (
+            <span className="text-sm text-fg-secondary">
+              {carerName} is marked as Familiar
+            </span>
+          )}
+          {communityCarer && communityCarer.meetsShared > 0 && (
+            <span className="text-xs text-fg-tertiary">
+              {communityCarer.meetsShared} meets together
+            </span>
+          )}
+          {conn.location && (
+            <span className="flex items-center gap-xs text-xs text-fg-tertiary">
+              <MapPin size={12} weight="light" /> {conn.location}
+            </span>
+          )}
+          <Link
+            href={`/profile/${carerId}`}
+            className="text-xs text-brand-main mt-xs"
+            style={{ textDecoration: "none" }}
+          >
+            View full profile →
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function BookingDetailPage({
   params,
 }: {
   params: Promise<{ bookingId: string }>;
 }) {
   const { bookingId } = use(params);
-  const { getBooking } = useBookings();
+  const { getBooking, cancelBooking } = useBookings();
   const booking = getBooking(bookingId);
-  // Note: useReviews() called inside ReviewSection — no need here
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [modificationRequested, setModificationRequested] = useState(false);
 
   if (!booking) {
     return (
@@ -526,6 +576,7 @@ export default function BookingDetailPage({
   const serviceLabel = SERVICE_LABELS[booking.serviceType];
 
   return (
+    <div className="booking-detail-outer">
     <main className="booking-detail-page">
       {/* Sticky back nav */}
       <Link href="/bookings" className="booking-detail-back">
@@ -543,12 +594,12 @@ export default function BookingDetailPage({
         <div className="booking-detail-hero-body">
           <h1 className="booking-detail-hero-name">{booking.carerName}</h1>
           <div className="booking-detail-hero-chips">
-            <span className="booking-chip">{serviceLabel}</span>
+            <span className="tag tag--brand">{serviceLabel}</span>
             {booking.subService && (
-              <span className="booking-chip">{booking.subService}</span>
+              <span className="tag tag--brand">{booking.subService}</span>
             )}
             {booking.pets.map((pet) => (
-              <span key={pet} className="booking-chip booking-chip--pet">
+              <span key={pet} className="tag">
                 {pet}
               </span>
             ))}
@@ -556,6 +607,84 @@ export default function BookingDetailPage({
         </div>
         <StatusBadge status={booking.status} />
       </div>
+
+      {/* Carer trust context */}
+      <CarerTrustCard carerId={booking.carerId} carerName={booking.carerName} />
+
+      {/* Owner actions */}
+      {booking.ownerId === "shawn" && (booking.status === "upcoming" || booking.status === "active") && (
+        <div className="booking-detail-section">
+          <div className="flex gap-sm flex-wrap">
+            {booking.conversationId && (
+              <ButtonAction
+                variant="secondary"
+                size="sm"
+                href={`/inbox/${booking.conversationId}`}
+                leftIcon={<ChatIcon size={14} weight="light" />}
+              >
+                Message {booking.carerName.split(" ")[0]}
+              </ButtonAction>
+            )}
+            <ButtonAction
+              variant="outline"
+              size="sm"
+              onClick={() => setModificationRequested(true)}
+              disabled={modificationRequested}
+              leftIcon={<PencilSimple size={14} weight="light" />}
+            >
+              {modificationRequested ? "Modification requested" : "Request change"}
+            </ButtonAction>
+            <ButtonAction
+              variant="destructive"
+              size="sm"
+              onClick={() => setShowCancelModal(true)}
+              leftIcon={<Prohibit size={14} weight="light" />}
+            >
+              Cancel
+            </ButtonAction>
+          </div>
+        </div>
+      )}
+
+      {/* Cancellation notice */}
+      {booking.status === "cancelled" && (
+        <div
+          className="booking-detail-section"
+          style={{ background: "var(--status-error-light)", borderRadius: "var(--radius-panel)", padding: "var(--space-md)" }}
+        >
+          <p className="text-sm font-medium" style={{ color: "var(--status-error-main)", margin: 0 }}>
+            This booking has been cancelled
+          </p>
+          {booking.cancellationReason && (
+            <p className="text-sm text-fg-secondary" style={{ marginTop: "var(--space-xs)", marginBottom: 0 }}>
+              Reason: {booking.cancellationReason}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Modification requested banner */}
+      {modificationRequested && booking.status !== "cancelled" && (
+        <div
+          className="booking-detail-section"
+          style={{ background: "var(--status-warning-light)", borderRadius: "var(--radius-panel)", padding: "var(--space-md)" }}
+        >
+          <p className="text-sm font-medium" style={{ color: "var(--status-warning-main)", margin: 0 }}>
+            Modification requested — waiting for {booking.carerName.split(" ")[0]} to respond
+          </p>
+        </div>
+      )}
+
+      {/* Cancel modal */}
+      <CancelBookingModal
+        open={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        onConfirm={(reason) => {
+          cancelBooking(booking.id, reason);
+          setShowCancelModal(false);
+        }}
+        carerName={booking.carerName}
+      />
 
       {/* Schedule */}
       <ScheduleSection booking={booking} />
@@ -571,6 +700,31 @@ export default function BookingDetailPage({
 
       {/* Price */}
       <PriceSection booking={booking} />
+
+      {/* Payment status */}
+      {booking.paymentStatus === "unpaid" && booking.status === "upcoming" && (
+        <div className="booking-detail-section">
+          <ButtonAction
+            variant="primary"
+            size="md"
+            href={`/bookings/${booking.id}/checkout`}
+            leftIcon={<CreditCard size={16} weight="light" />}
+          >
+            Proceed to payment
+          </ButtonAction>
+        </div>
+      )}
+      {booking.paymentStatus === "paid" && (
+        <div className="booking-detail-section">
+          <span
+            className="inline-flex items-center gap-xs rounded-pill px-md py-xs text-sm font-medium"
+            style={{ background: "var(--status-success-light)", color: "var(--status-success-main)" }}
+          >
+            <CheckCircle size={14} weight="fill" />
+            Paid
+          </span>
+        </div>
+      )}
 
       {/* Review — completed bookings only (owner perspective) */}
       {booking.status === "completed" && booking.ownerId === "shawn" && (
@@ -598,5 +752,6 @@ export default function BookingDetailPage({
         )}
       </div>
     </main>
+    </div>
   );
 }

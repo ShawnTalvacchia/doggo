@@ -15,6 +15,8 @@ interface BookingsContextValue {
   updateSession: (bookingId: string, sessionId: string, update: Partial<BookingSession>) => void;
   /** Creates a new booking and returns its generated id */
   createBooking: (data: Omit<Booking, "id" | "signedAt">) => string;
+  cancelBooking: (bookingId: string, reason?: string) => void;
+  updatePaymentStatus: (bookingId: string, status: "unpaid" | "paid") => void;
 }
 
 // ── Context ─────────────────────────────────────────────────────────────────────
@@ -64,6 +66,22 @@ export function BookingsProvider({ children }: { children: React.ReactNode }) {
     return id;
   }, []);
 
+  const cancelBooking = useCallback((bookingId: string, reason?: string) => {
+    setBookings((prev) =>
+      prev.map((b) =>
+        b.id === bookingId
+          ? { ...b, status: "cancelled" as ContractStatus, cancellationReason: reason }
+          : b
+      )
+    );
+  }, []);
+
+  const updatePaymentStatus = useCallback((bookingId: string, status: "unpaid" | "paid") => {
+    setBookings((prev) =>
+      prev.map((b) => (b.id === bookingId ? { ...b, paymentStatus: status } : b))
+    );
+  }, []);
+
   const updateSession = useCallback(
     (bookingId: string, sessionId: string, update: Partial<BookingSession>) => {
       setBookings((prev) =>
@@ -91,6 +109,8 @@ export function BookingsProvider({ children }: { children: React.ReactNode }) {
         addSession,
         updateSession,
         createBooking,
+        cancelBooking,
+        updatePaymentStatus,
       }}
     >
       {children}

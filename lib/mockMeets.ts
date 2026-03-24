@@ -17,10 +17,12 @@ export const mockMeets: Meet[] = [
   {
     id: "meet-1",
     type: "walk",
+    groupId: "group-1",
     title: "Morning walk — Riegrovy sady",
     description:
       "Relaxed morning walk through the park. We usually do a loop around the upper path and let the dogs sniff around. All sizes welcome.",
     location: "Riegrovy sady, Prague 2",
+    neighbourhood: "Vinohrady",
     lat: 50.0785,
     lng: 14.4416,
     date: "2026-03-18",
@@ -58,15 +60,18 @@ export const mockMeets: Meet[] = [
         dogNames: ["Bella"],
       },
     ],
+    recentJoinText: "Tomáš joined 2h ago",
     createdAt: "2026-03-10T10:00:00Z",
   },
   {
     id: "meet-2",
     type: "park_hangout",
+    groupId: "group-2",
     title: "Weekend playdate — Stromovka",
     description:
       "Casual Saturday hangout in the big field by the pond. Bring a ball, bring treats. Dogs play, owners chat.",
     location: "Stromovka, Prague 7",
+    neighbourhood: "Holešovice",
     lat: 50.1055,
     lng: 14.4175,
     date: "2026-03-21",
@@ -77,6 +82,8 @@ export const mockMeets: Meet[] = [
     dogSizeFilter: "any",
     leashRule: "off_leash",
     status: "upcoming",
+    isPopular: true,
+    recentJoinText: "3 people joined today",
     creatorId: "jana",
     creatorName: "Jana",
     creatorAvatarUrl:
@@ -116,10 +123,12 @@ export const mockMeets: Meet[] = [
   {
     id: "meet-3",
     type: "training",
+    groupId: "group-4",
     title: "Recall practice — Letná",
     description:
       "Small group recall training session. Ideal for dogs that need work on coming back when called. Bring high-value treats!",
     location: "Letenské sady, Prague 7",
+    neighbourhood: "Letná",
     lat: 50.0968,
     lng: 14.4244,
     date: "2026-03-22",
@@ -159,6 +168,7 @@ export const mockMeets: Meet[] = [
     description:
       "Small playdate for puppies under 1 year. Calm, supervised play so young dogs can build confidence. Small dogs preferred.",
     location: "Havlíčkovy sady, Prague 2",
+    neighbourhood: "Vinohrady",
     lat: 50.0725,
     lng: 14.4405,
     date: "2026-03-23",
@@ -191,6 +201,7 @@ export const mockMeets: Meet[] = [
     description:
       "After-work walk along the ridge with great city views. Medium pace, about 45 minutes. On-leash until we reach the open area.",
     location: "Vítkov, Prague 3",
+    neighbourhood: "Žižkov",
     lat: 50.0838,
     lng: 14.4490,
     date: "2026-03-19",
@@ -230,6 +241,7 @@ export const mockMeets: Meet[] = [
     title: "Sunday morning walk — Riegrovy sady",
     description: "Our regular Sunday morning group walk. Great turnout this week!",
     location: "Riegrovy sady, Prague 2",
+    neighbourhood: "Vinohrady",
     lat: 50.0785,
     lng: 14.4416,
     date: "2026-03-16",
@@ -268,6 +280,13 @@ export const mockMeets: Meet[] = [
       },
     ],
     createdAt: "2026-03-09T08:00:00Z",
+    photos: [
+      "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1477884213360-7e9d7dcc8f9b?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=600&q=80",
+    ],
   },
 ];
 

@@ -9,9 +9,12 @@ import {
   MapPin,
   CalendarDots,
   Users,
+  Lightning,
+  UsersThree,
 } from "@phosphor-icons/react";
 import type { Meet, MeetType } from "@/lib/types";
 import { MEET_TYPE_LABELS } from "@/lib/mockMeets";
+import { getGroupById } from "@/lib/mockGroups";
 
 const MEET_ICONS: Record<MeetType, React.ReactNode> = {
   walk: <PersonSimpleWalk size={20} weight="light" />,
@@ -48,10 +51,29 @@ export function MeetCard({ meet }: { meet: Meet }) {
           {MEET_ICONS[meet.type]}
           {MEET_TYPE_LABELS[meet.type]}
         </span>
+        {meet.isPopular && (
+          <span
+            className="flex items-center gap-xs rounded-pill px-sm py-xs text-xs font-medium"
+            style={{ background: "var(--success-subtle)", color: "var(--success-strong)" }}
+          >
+            Popular
+          </span>
+        )}
         {meet.recurring && (
           <span className="text-xs text-fg-tertiary">Weekly</span>
         )}
       </div>
+
+      {/* Group badge */}
+      {meet.groupId && (() => {
+        const group = getGroupById(meet.groupId);
+        return group ? (
+          <span className="flex items-center gap-xs text-xs text-fg-tertiary">
+            <UsersThree size={12} weight="light" />
+            {group.name}
+          </span>
+        ) : null;
+      })()}
 
       {/* Title */}
       <h3 className="font-heading text-md font-semibold text-fg-primary" style={{ margin: 0 }}>
@@ -111,6 +133,14 @@ export function MeetCard({ meet }: { meet: Meet }) {
           </span>
         )}
       </div>
+
+      {/* Activity indicator */}
+      {meet.recentJoinText && (
+        <div className="flex items-center gap-xs text-xs text-fg-tertiary">
+          <Lightning size={12} weight="fill" className="text-brand-main" />
+          {meet.recentJoinText}
+        </div>
+      )}
     </Link>
   );
 }

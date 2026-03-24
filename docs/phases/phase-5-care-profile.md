@@ -1,7 +1,7 @@
 ---
 category: phase
-status: active
-last-reviewed: 2026-03-17
+status: complete
+last-reviewed: 2026-03-21
 tags:
   - phase-5
   - care
@@ -9,7 +9,7 @@ tags:
   - explore
   - messaging
   - bookings
-review-trigger: this is the current phase — check before every session
+review-trigger: "only if revisiting Phase 5 scope"
 kanban-plugin: board
 ---
 

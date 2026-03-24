@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { MapPin, Star, Users } from "@phosphor-icons/react";
+import { Handshake, MapPin, Star, Users } from "@phosphor-icons/react";
 import { ProviderCard, ServiceType } from "@/lib/types";
+import { getConnectionState } from "@/lib/mockConnections";
 
 type CardExploreResultProps = {
   provider: ProviderCard;
@@ -26,6 +27,9 @@ export function CardExploreResult({
   activeService,
   returnQuery,
 }: CardExploreResultProps) {
+  const conn = getConnectionState(provider.id);
+  const connBadge = conn?.state === "connected" ? "Connected" : conn?.state === "familiar" ? "Familiar" : null;
+
   // Carry the full filter state into the profile URL so back navigation can restore it.
   const profileHref = returnQuery
     ? `/explore/profile/${provider.id}?${returnQuery}`
@@ -38,7 +42,22 @@ export function CardExploreResult({
       <div className="result-head">
         <img src={provider.avatarUrl} alt={provider.name} className="avatar" />
         <div className="result-main">
-          <div className="result-name">{provider.name}</div>
+          <div className="result-name">
+            {provider.name}
+            {connBadge && (
+              <span className="inline-flex items-center gap-xs ml-xs rounded-pill px-xs text-xs font-medium"
+                style={{
+                  background: conn?.state === "connected" ? "var(--brand-subtle)" : "var(--surface-gray)",
+                  color: conn?.state === "connected" ? "var(--brand-strong)" : "var(--text-secondary)",
+                  fontSize: 10,
+                  padding: "1px 6px",
+                  verticalAlign: "middle",
+                }}>
+                {conn?.state === "connected" && <Handshake size={10} weight="fill" />}
+                {connBadge}
+              </span>
+            )}
+          </div>
           <div className="result-location">
             {provider.district}, {provider.neighborhood}
           </div>

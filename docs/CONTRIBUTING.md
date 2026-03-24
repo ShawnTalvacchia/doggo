@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-03-17
+last-reviewed: 2026-03-21
 tags: [rules, workflow, css, conventions]
 review-trigger: "always — read before any working session"
 ---
@@ -82,7 +82,7 @@ Rules for humans and agents working in this codebase. Read before building.
 |--------|---------------|----------|
 | `strategy/` | Product direction, user models, trust, scope | Product Vision, User Archetypes, Trust & Connection Model, Prototype Scope |
 | `features/` | Feature specs — what's built, key decisions, flows, future plans | meets, connections, messaging, explore-and-care, profiles, schedule |
-| `decisions/` | Build decisions, trade-off records | chat-design |
+| `decisions/` | Build decisions, trade-off records, external reviews | chat-design, homepage-review |
 | `implementation/` | Technical references, coding standards | design-tokens, frontend-style, component-inventory |
 | `phases/` | Phase kanban boards (one per phase) | phase-1-design-system |
 | `archive/` | Completed/superseded docs kept for reference | status reports, deprecated strategy docs |

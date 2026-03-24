@@ -50,7 +50,6 @@ function LoggedNavLinks() {
     { label: "Meets", href: "/meets" },
     { label: "Schedule", href: "/schedule" },
     { label: "Find Care", href: "/explore/results" },
-    { label: "Offer Care", href: "/profile" },
   ];
 
   return (

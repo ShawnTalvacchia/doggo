@@ -20,6 +20,9 @@ import { buildQueryFromFilters, parseFiltersFromQuery } from "@/lib/query";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import { ExploreFilters, ProviderCard, ServiceType } from "@/lib/types";
 import { Suspense } from "react";
+import { getCommunityCarers, getConnectionState } from "@/lib/mockConnections";
+import Link from "next/link";
+import { Handshake } from "@phosphor-icons/react";
 
 const serviceNavLabels: Record<ServiceType, string> = {
   walk_checkin: SERVICE_LABELS.walk_checkin,
@@ -121,6 +124,50 @@ function withMergedFilters(current: URLSearchParams): ExploreFilters {
     service: parsed.service ?? defaultExploreFilters.service,
     times: parsed.times ?? defaultExploreFilters.times,
   };
+}
+
+function CommunityCarersSection({ service }: { service: ServiceType | null }) {
+  const carers = getCommunityCarers().filter(
+    (c) => c.state === "connected" && (!service || c.services.includes(service))
+  );
+  if (carers.length === 0) return null;
+
+  return (
+    <div className="p-md" style={{ borderBottom: "1px solid var(--border-light)" }}>
+      <h3 className="flex items-center gap-xs text-sm font-semibold text-fg-primary mb-sm">
+        <Handshake size={16} weight="light" className="text-brand-main" />
+        From your community
+      </h3>
+      <div className="flex flex-col gap-sm">
+        {carers.map((carer) => (
+          <Link
+            key={carer.userId}
+            href={`/profile/${carer.userId}`}
+            className="flex items-center gap-md rounded-panel p-sm"
+            style={{
+              background: "var(--surface-top)",
+              textDecoration: "none",
+              border: "1px solid var(--border-light)",
+            }}
+          >
+            <img
+              src={carer.avatarUrl}
+              alt={carer.userName}
+              className="rounded-full"
+              style={{ width: 40, height: 40, objectFit: "cover" }}
+            />
+            <div className="flex flex-col flex-1 gap-xs">
+              <span className="text-sm font-medium text-fg-primary">{carer.userName}</span>
+              <span className="text-xs text-fg-tertiary">
+                {carer.meetsShared} meets together · {carer.services.map((s) => SERVICE_LABELS[s]).join(", ")}
+              </span>
+            </div>
+            <span className="text-xs text-fg-tertiary">from {carer.priceFrom} Kč</span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function ExploreResultsContent() {
@@ -290,6 +337,9 @@ function ExploreResultsContent() {
                 : "Choose a service type to see matching providers."}
             </span>
           </div>
+          {/* Community carers section */}
+          <CommunityCarersSection service={filters.service} />
+
           <div className="results-list">
             {isLoadingProviders && (
               <>

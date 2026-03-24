@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { PawPrint, Handshake, UserPlus, Check } from "@phosphor-icons/react";
+import { PawPrint, Handshake, UserPlus, Check, UsersThree } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { MeetRecapHeader } from "@/components/meets/MeetRecapHeader";
+import { MeetPhotoGallery } from "@/components/meets/MeetPhotoGallery";
 import { mockMeets } from "@/lib/mockMeets";
 import { getConnectionState } from "@/lib/mockConnections";
 import type { MeetAttendee, ConnectionState } from "@/lib/types";
@@ -13,12 +15,14 @@ type LocalAction = "familiar" | "connect" | null;
 function AttendeeConnectCard({
   attendee,
   existingState,
+  forceFamiliar,
 }: {
   attendee: MeetAttendee;
   existingState: ConnectionState | undefined;
+  forceFamiliar?: boolean;
 }) {
   const [action, setAction] = useState<LocalAction>(null);
-  const effectiveState = action || existingState || "none";
+  const effectiveState = action || (forceFamiliar ? "familiar" : null) || existingState || "none";
 
   return (
     <div className="flex items-center gap-md rounded-panel bg-surface-top p-md shadow-sm">
@@ -81,6 +85,7 @@ export default function PostMeetConnectPage() {
   const params = useParams();
   const router = useRouter();
   const meet = mockMeets.find((m) => m.id === params.id);
+  const [bulkFamiliar, setBulkFamiliar] = useState(false);
 
   if (!meet) {
     return (
@@ -108,37 +113,39 @@ export default function PostMeetConnectPage() {
       className="flex flex-col gap-xl p-xl"
       style={{ maxWidth: "var(--app-page-max-width)", margin: "0 auto", width: "100%" }}
     >
-      {/* Header */}
-      <header className="flex flex-col items-center gap-md text-center pt-lg">
-        <div
-          className="flex items-center justify-center rounded-full"
-          style={{ width: 64, height: 64, background: "var(--brand-subtle)" }}
-        >
-          <PawPrint size={32} weight="light" style={{ color: "var(--brand-main)" }} />
-        </div>
-        <h1 className="font-heading text-4xl font-semibold text-fg-primary">
+      {/* Recap header */}
+      <MeetRecapHeader meet={meet} />
+
+      {/* Dog-centred greeting */}
+      <div className="flex flex-col items-center gap-sm text-center">
+        <h1 className="font-heading text-2xl font-semibold text-fg-primary">
           Great meet!
         </h1>
         <p className="text-base text-fg-secondary">{dogPhrase}</p>
-        <p className="text-sm text-fg-tertiary">
-          Build your community — mark people as <strong>Familiar</strong> or send a <strong>Connect</strong> request.
-        </p>
-      </header>
-
-      {/* Meet context */}
-      <div
-        className="flex items-center gap-sm rounded-panel p-sm text-sm text-fg-secondary"
-        style={{ background: "var(--surface-inset)" }}
-      >
-        <PawPrint size={16} weight="light" />
-        <span>{meet.title} · {meet.location}</span>
       </div>
+
+      {/* Photo gallery */}
+      {meet.photos && meet.photos.length > 0 && (
+        <MeetPhotoGallery photos={meet.photos} />
+      )}
 
       {/* Attendee list */}
       <section className="flex flex-col gap-sm">
-        <h2 className="font-heading text-lg font-semibold text-fg-primary">
-          Who was there ({otherAttendees.length})
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-heading text-lg font-semibold text-fg-primary">
+            Who was there ({otherAttendees.length})
+          </h2>
+          {!bulkFamiliar && (
+            <ButtonAction
+              variant="outline"
+              size="sm"
+              leftIcon={<UsersThree size={14} weight="light" />}
+              onClick={() => setBulkFamiliar(true)}
+            >
+              Mark all Familiar
+            </ButtonAction>
+          )}
+        </div>
         <div className="flex flex-col gap-sm">
           {otherAttendees.map((attendee) => {
             const conn = getConnectionState(attendee.userId);
@@ -147,6 +154,7 @@ export default function PostMeetConnectPage() {
                 key={attendee.userId}
                 attendee={attendee}
                 existingState={conn?.state}
+                forceFamiliar={bulkFamiliar}
               />
             );
           })}

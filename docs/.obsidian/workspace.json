@@ -11,17 +11,30 @@
             "id": "b02fc69ad97a5400",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "kanban",
               "state": {
-                "file": "strategy/Doggo-Proposal-Copy.md",
-                "mode": "source",
-                "source": false
+                "file": "phases/phase-9-groups-belonging.md",
+                "kanbanViewState": {
+                  "kanban-plugin": "board",
+                  "list-collapse": []
+                }
               },
+              "icon": "lucide-trello",
+              "title": "phase-9-groups-belonging"
+            }
+          },
+          {
+            "id": "a21be9a8087939ab",
+            "type": "leaf",
+            "state": {
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "Doggo-Proposal-Copy"
+              "title": "New tab"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -186,36 +199,37 @@
       "obsidian-kanban:Create new board": false
     }
   },
-  "active": "b02fc69ad97a5400",
+  "active": "a21be9a8087939ab",
   "lastOpenFiles": [
-    "reviews/Doggo Homepage — Strategic & UX Review.md",
+    "phases/phase-9-groups-belonging.md",
+    "phases/phase-10-home-feed.md",
+    "phases/phase-5-care-profile.md",
+    "phases/phase-2-app-shell.md",
+    "phases/phase-11-booking-care-polish.md",
+    "ROADMAP.md",
     "strategy/Doggo-Proposal-Copy.md",
+    "flows/groups.md",
+    "phases/phase-8-community-feel.md",
+    "strategy/Roadmap Reassessment.md",
+    "strategy/Business Strategy.md",
+    "flows/README.md",
+    "flows/profile-management.md",
+    "flows/provider-setup.md",
+    "flows/booking-conversation.md",
+    "flows/care-discovery.md",
+    "flows/post-meet-connection.md",
+    "flows/meet-creation.md",
+    "flows/meet-discovery.md",
+    "flows/onboarding.md",
+    "flows",
+    "reviews/Doggo Homepage — Strategic & UX Review.md",
     "strategy/Product Vision.md",
     "features/messaging.md",
     "features/connections.md",
     "features/meets.md",
     "features/_template.md",
-    "strategy/Trust & Connection Model.md",
-    "strategy/Trust Model.md",
-    "strategy/User Archetypes.md",
     "features",
-    "strategy/MVP Scope Boundaries.md",
-    "strategy/Open Questions & Assumptions Log.md",
-    "strategy/Product Principles.md",
-    "strategy/Community Exploration.md",
-    "ROADMAP.md",
-    "phases/phase-5-care-profile.md",
-    "phases/phase-1-design-system.md",
-    "phases/phase-3-community-core.md",
-    "phases/phase-2-app-shell.md",
-    "CONTRIBUTING.md",
-    "decisions/chat-design.md",
-    "archive/prototype-decisions.md",
-    "archive/Board.md",
-    "implementation/signup-reference.md",
-    "decisions/Board.md",
     "Untitled.canvas",
-    "implementation/component-inventory.md",
     "archive",
     "phases",
     "implementation",

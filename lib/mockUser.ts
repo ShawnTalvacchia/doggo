@@ -9,6 +9,7 @@ export const mockUser: UserProfile = {
     "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
   bio: "Dog dad and remote worker based in Prague 2. I love exploring Vinohrady and Žižkov parks with my dogs and am always looking for reliable, caring people to help out when I'm busy or travelling.",
   location: "Prague 2, Czech Republic",
+  neighbourhood: "Vinohrady",
   memberSince: "2025-01",
   pets: [
     {
@@ -67,6 +68,8 @@ export const mockUser: UserProfile = {
       ],
     },
   ],
+  tagApproval: "auto",
+  openToHelping: true,
   carerProfile: {
     bio: "I offer daily dog walks in the Vinohrady and Žižkov area. I have experience with dogs of all sizes and genuinely enjoy spending time with them.",
     location: "Prague 2 – Vinohrady",

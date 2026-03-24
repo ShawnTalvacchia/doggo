@@ -8,8 +8,8 @@ type ShadowToken = { token: string; value: string; label: string };
 const surfaceAliases: AliasToken[] = [
   { token: "--surface-top", maps: "--neutral-white", hex: "#ffffff" },
   { token: "--surface-popout", maps: "--neutral-12", hex: "#fcfcfc" },
-  { token: "--surface-base", maps: "--neutral-25", hex: "#f4f4f4" },
-  { token: "--surface-inset", maps: "--neutral-50", hex: "#e8e8e8" },
+  { token: "--surface-base", maps: "--neutral-25", hex: "#F8F8F8" },
+  { token: "--surface-inset", maps: "--neutral-50", hex: "#F4F4F4" },
   { token: "--surface-gray", maps: "--neutral-200", hex: "#cbcbcb" },
   { token: "--surface-disabled", maps: "--neutral-300", hex: "#b0b2b2" },
   { token: "--surface-base-inverse", maps: "--neutral-800", hex: "#323232" },
@@ -36,8 +36,8 @@ const textAliases: AliasToken[] = [
 
 const borderAliases: AliasToken[] = [
   { token: "--border-lightest", maps: "--neutral-white", hex: "#ffffff" },
-  { token: "--border-light", maps: "--neutral-25", hex: "#f4f4f4" },
-  { token: "--border-regular", maps: "--neutral-50", hex: "#e8e8e8" },
+  { token: "--border-light", maps: "--neutral-25", hex: "#F8F8F8" },
+  { token: "--border-regular", maps: "--neutral-50", hex: "#F4F4F4" },
   { token: "--border-strong", maps: "--neutral-100", hex: "#e5e5e5" },
   { token: "--border-stronger", maps: "--neutral-150", hex: "#d8d8d8" },
   { token: "--border-strongest", maps: "--neutral-400", hex: "#969898" },

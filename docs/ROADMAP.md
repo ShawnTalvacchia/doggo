@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-03-17
+last-reviewed: 2026-03-23
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
@@ -81,16 +81,109 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 - ✅ Signup: removed Role step, flow is now `start → profile → pet → visibility → success`
 - ✅ `/explore` redirect: bare route now redirects to `/explore/results`
 - ✅ Home page overhaul: personalised greeting, dog photos, community-first CTAs, neighbourhood highlights
-- ✅ Landing page rewrite: hero photo, photo-based meet cards, 4-step trust story (public meet → familiar → connect → private group), care section, offer care banner, testimonials, bottom CTA
-- ✅ Feature docs: updated meets.md (location flexibility, public→private group progression)
-- ✅ Signup docs: updated signup-reference.md (role + provider steps marked archived)
-- Remaining: visual consistency pass, component/token cleanup, final doc update
+- ✅ Landing page overhaul: hero photo with "Your dog's neighbourhood crew" tagline, "Does your dog have a community?" emotional hook, photo-based meet cards, how-it-works tabs, archetype two-column section (Regular/Connector/Organiser), care-from-community section, testimonials, bottom CTA. Dog-first copy direction throughout.
+- ✅ Feature docs: updated meets.md, signup-reference.md; created landing-page.md feature spec
+- ✅ Product Vision: added Brand Voice & Positioning section
+- ✅ Phase 5 board marked complete
+- ✅ Component inventory updated with new landing components
+- ✅ CONTRIBUTING.md updated with reviews doc category
+- Remaining: visual consistency pass, component/token cleanup, navigation review
+
+**Board:** [[phase-6-audit-alignment]]
 
 **Approach:**
 1. Page-by-page audit: screenshot each page, compare against feature docs, note gaps
-2. Prioritise fixes by demo impact (home page is the biggest opportunity)
+2. Prioritise fixes by demo impact (home page and landing page are the biggest opportunities)
 3. Implement fixes
 4. Final doc update pass
+
+---
+
+## Phase 7 — Community-Native Care ✓
+
+**Goal:** Rethink the booking/care layer through the community/dog-first lens. Provider setup, care discovery, booking conversations, and payment should feel like natural extensions of the community.
+
+**Status:** Complete. Provider onboarding via profile edit mode, community-first care discovery, relationship context in booking conversations, payment mock with platform fee, trust signals throughout booking flow.
+
+**Board:** [[phase-7-community-care]]
+
+---
+
+## Phase 8 — Community Feel & Empty States ✓
+
+**Goal:** Make the prototype feel alive for new users and strengthen the psychological hooks that turn one-time visitors into regulars.
+
+**Status:** Complete. Neighbourhood identity (Vinohrady, Letná, etc.), social proof stats, activity indicators on MeetCards, new-user welcome state on Home (toggle), onboarding payoff step, post-meet recap with photos and bulk connect, trust signal badges on profiles, share/invite modal on meets.
+
+**Key outcomes:**
+- Hyper-local neighbourhood identity throughout (not "Prague" — "Vinohrady")
+- Home has two states: new-user welcome vs established-user (DEMO_NEW_USER toggle)
+- MeetCards show activity indicators ("Jana joined 2h ago") and "Popular" badges
+- Post-meet recap: photo gallery, stats summary, "Mark all Familiar" bulk action
+- Trust signal badges on profiles ("Walked together 5 times", "Known since Nov 2025")
+- Signup success previews nearby meets and neighbourhood activity
+- Share/invite modal on meet detail with copy link
+
+**Board:** [[phase-8-community-feel]]
+
+---
+
+## Phase 9 — Groups & Belonging ✓
+
+**Goal:** Build persistent communities (groups) — the feature that turns meets from one-off events into ongoing belonging.
+
+**Status:** Complete. Communities browse page, detail page (members, meets, chat, gallery), create form, "Your communities" on Home, meet-group cross-links, shared MessageBubble component.
+
+**Board:** [[phase-9-groups-belonging]]
+
+---
+
+## Phase 10 — Home Feed & Social Posts ✓
+
+**Goal:** Transform Home into a social feed and introduce user-authored posts (photos + tagging) as a core content type. Rework Profile to surface posts prominently.
+
+**Status:** Complete. Home page rebuilt as social feed (10 card types), personal + community posts with photo grids and tagging (dogs/people/communities/places), paw-print reactions, post composer, tag autocomplete, profile rework (About/Posts/Services tabs with tag approval setting and care CTAs), community model upgraded to three-tier visibility (open/approval/private) with permanent setting and photo policy, FAB + share bar + upcoming strip, new-user feed variant.
+
+**Key outcomes:**
+- Home is a scrollable social feed, not a section dashboard
+- Two post types: personal (to connections) and community (to members)
+- Four tag types (dog, person, community, place) with autocomplete search
+- Tag approval per-user setting (auto/approve/none)
+- Community visibility: open/approval/private (permanent once created)
+- Photo policy per community (encouraged/optional/none)
+- Profile tabs: About | Posts | Services (reviews merged into Services)
+- 10 feed card types: personal post, community post, meet recap, upcoming meet, connection activity, connection nudge, care prompt, milestone, dog moment, care review
+- ~30 new component files, ~11 modified files
+
+**Board:** [[phase-10-home-feed]]
+
+---
+
+## Phase 11 — Booking & Care Polish ✓
+
+**Goal:** Make the booking and care flows demo-ready. Enforce connection-based trust gating, add payment mock, consolidate provider setup, and add booking management actions.
+
+**Status:** Complete. Connection gating enforced (TrustGateBanner + disabled CTAs for non-connected users), payment mock checkout page (price breakdown + 12% platform fee + mock Visa payment), provider setup consolidated (all Offer Care links → /profile?tab=services), owner booking actions (cancel with reason, request modification, message carer), care bookings section on Schedule page.
+
+**Deferred to Phase 12:** Carer-side inbox actions (accept/decline/counter inquiry), provider dashboard/earnings, availability calendar/filtering, explore results redesign.
+
+**Board:** [[phase-11-booking-care-polish]]
+
+---
+
+## Phase 12 — Demo Ready (current)
+
+**Goal:** Close the last functional gap (carer inbox actions), clean up the design system and CSS, extract inlined components, and polish UX consistency — leaving the codebase ready for a Figma design pass.
+
+**Key outcomes:**
+- Carer inquiry response flow in inbox (accept/decline/suggest changes)
+- Incoming requests on Schedule page for carers
+- Component extraction: ThreadClient.tsx (664→<300 lines), profile/page.tsx (1,438→<600 lines)
+- Dead CSS audit (globals.css 9,720→<8,000 lines)
+- Inline style migration on 5 priority pages
+- EmptyState component + ButtonAction adoption pass
+
+**Board:** [[phase-12-demo-ready]]
 
 ---
 

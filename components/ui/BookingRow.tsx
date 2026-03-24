@@ -54,12 +54,12 @@ export function BookingRow({ booking }: { booking: Booking }) {
           <StatusBadge status={booking.status} />
         </div>
         <div className="booking-row-chips">
-          <span className="booking-chip">{serviceLabel}</span>
+          <span className="tag tag--brand">{serviceLabel}</span>
           {booking.subService && (
-            <span className="booking-chip">{booking.subService}</span>
+            <span className="tag tag--brand">{booking.subService}</span>
           )}
           {booking.pets.map((pet) => (
-            <span key={pet} className="booking-chip booking-chip--pet">
+            <span key={pet} className="tag">
               {pet}
             </span>
           ))}

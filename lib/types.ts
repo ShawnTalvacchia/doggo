@@ -155,7 +155,7 @@ export type ProviderHeaderState = "expanded" | "condensed";
 
 export type MessageSender = "owner" | "provider";
 
-export type MessageType = "text" | "booking_proposal" | "contract";
+export type MessageType = "text" | "booking_proposal" | "contract" | "payment_summary" | "payment_confirmed";
 
 export type BookingProposalStatus = "pending" | "accepted" | "declined" | "countered";
 
@@ -190,8 +190,18 @@ export interface ChatMessage {
   text?: string;
   proposal?: BookingProposal;
   contract?: ContractConfirmation;
+  paymentSummary?: PaymentSummary;
   sentAt: string; // ISO timestamp
   read: boolean;
+}
+
+export interface PaymentSummary {
+  lineItems: PriceLineItem[];
+  platformFeePercent: number;
+  platformFeeAmount: number;
+  total: number;
+  currency: "Kč";
+  status: "pending" | "paid";
 }
 
 /** Structured inquiry card created when a conversation is first started */
@@ -276,6 +286,8 @@ export interface Booking {
   status: ContractStatus;
   sessions?: BookingSession[];  // ongoing only
   signedAt: string;  // ISO timestamp
+  paymentStatus?: "unpaid" | "paid";
+  cancellationReason?: string;
 }
 
 export type ConversationType = "booking" | "direct";
@@ -354,6 +366,8 @@ export interface Meet {
   title: string;
   description: string;
   location: string;
+  /** Neighbourhood name for hyper-local framing (e.g. "Vinohrady") */
+  neighbourhood?: string;
   /** WGS84 coordinates for map pin */
   lat: number;
   lng: number;
@@ -370,6 +384,14 @@ export interface Meet {
   creatorAvatarUrl: string;
   attendees: MeetAttendee[];
   createdAt: string;     // ISO timestamp
+  /** Link to a community/group (optional) */
+  groupId?: string;
+  /** Activity indicator text (e.g. "Jana joined 2h ago") */
+  recentJoinText?: string;
+  /** Flagged as popular (shows badge on card) */
+  isPopular?: boolean;
+  /** Photo URLs from a completed meet */
+  photos?: string[];
 }
 
 // ── Connections ───────────────────────────────────────────────────────────────
@@ -391,6 +413,58 @@ export interface Connection {
   metAt?: string;
   /** When the connection state last changed */
   updatedAt: string;
+  /** Number of meets attended together */
+  meetsShared?: number;
+  /** ISO date of first shared meet */
+  firstMetDate?: string;
+  /** ISO date of most recent shared meet */
+  lastMetDate?: string;
+}
+
+// ── Groups (Communities) ─────────────────────────────────────────────────────
+
+export type GroupVisibility = "open" | "approval" | "private";
+
+export type PhotoPolicy = "encouraged" | "optional" | "none";
+
+export type GroupMemberRole = "admin" | "member";
+
+export interface GroupMember {
+  userId: string;
+  userName: string;
+  avatarUrl: string;
+  dogNames: string[];
+  role: GroupMemberRole;
+  joinedAt: string;
+}
+
+export interface Group {
+  id: string;
+  name: string;
+  description: string;
+  visibility: GroupVisibility;
+  neighbourhood: string;
+  location: string;
+  coverPhotoUrl: string;
+  creatorId: string;
+  creatorName: string;
+  members: GroupMember[];
+  /** IDs of meets linked to this group */
+  meetIds: string[];
+  photos: string[];
+  /** Photo culture setting — controls whether photo posts are allowed/encouraged */
+  photoPolicy: PhotoPolicy;
+  createdAt: string;
+}
+
+export interface GroupMessage {
+  id: string;
+  groupId: string;
+  senderId: string;
+  senderName: string;
+  senderAvatarUrl: string;
+  text: string;
+  sentAt: string;
 }
 
 // ── Meet Group Threads ────────────────────────────────────────────────────────
@@ -468,6 +542,8 @@ export interface CarerProfile {
   publicProfile: boolean;
 }
 
+export type TagApproval = "auto" | "approve" | "none";
+
 export interface UserProfile {
   id: string;
   firstName: string;
@@ -476,7 +552,149 @@ export interface UserProfile {
   avatarUrl: string;
   bio: string;
   location: string;
+  /** Hyper-local neighbourhood name (e.g. "Vinohrady") */
+  neighbourhood?: string;
   memberSince: string;  // "YYYY-MM"
   pets: PetProfile[];
+  openToHelping?: boolean;
   carerProfile?: CarerProfile;
+  /** Controls how the user can be tagged in posts */
+  tagApproval?: TagApproval;
+}
+
+// ── Posts & Feed ──────────────────────────────────────────────────────────────
+
+export type PostTagType = "dog" | "person" | "community" | "place";
+
+export interface PostTag {
+  type: PostTagType;
+  /** ID of the tagged entity (dog ID, user ID, group ID, or place slug) */
+  id: string;
+  /** Display name */
+  label: string;
+}
+
+export interface PostReaction {
+  userId: string;
+  userName: string;
+}
+
+export interface Post {
+  id: string;
+  authorId: string;
+  authorName: string;
+  authorAvatarUrl: string;
+  /** If set, this is a community post visible to community members */
+  groupId?: string;
+  /** Denormalized for feed display */
+  groupName?: string;
+  /** 1-4 photos (required) */
+  photos: string[];
+  /** Optional short caption */
+  caption?: string;
+  tags: PostTag[];
+  createdAt: string;  // ISO timestamp
+  reactions: PostReaction[];
+}
+
+export type FeedItemType =
+  | "personal_post"
+  | "community_post"
+  | "meet_recap"
+  | "upcoming_meet"
+  | "connection_activity"
+  | "connection_nudge"
+  | "offer_care_prompt"
+  | "find_care_prompt"
+  | "milestone"
+  | "dog_moment"
+  | "care_review";
+
+export interface FeedItemBase {
+  feedId: string;
+  type: FeedItemType;
+  timestamp: string;  // ISO — used for sorting
+}
+
+export interface FeedPostItem extends FeedItemBase {
+  type: "personal_post" | "community_post";
+  post: Post;
+}
+
+export interface FeedMeetRecapItem extends FeedItemBase {
+  type: "meet_recap";
+  meet: Meet;
+}
+
+export interface FeedUpcomingMeetItem extends FeedItemBase {
+  type: "upcoming_meet";
+  meet: Meet;
+}
+
+export interface FeedConnectionActivityItem extends FeedItemBase {
+  type: "connection_activity";
+  userId: string;
+  userName: string;
+  avatarUrl: string;
+  activity: string;        // e.g. "added Dog Walking services"
+  connectionContext?: string; // e.g. "3 meets together"
+}
+
+export interface FeedConnectionNudgeItem extends FeedItemBase {
+  type: "connection_nudge";
+  userId: string;
+  userName: string;
+  avatarUrl: string;
+  dogNames: string[];
+  sharedMeets: number;
+}
+
+export interface FeedCarePromptItem extends FeedItemBase {
+  type: "offer_care_prompt" | "find_care_prompt";
+  text: string;
+  ctaLabel: string;
+  ctaHref: string;
+}
+
+export interface FeedMilestoneItem extends FeedItemBase {
+  type: "milestone";
+  text: string;
+  subtext?: string;
+}
+
+export interface FeedDogMomentItem extends FeedItemBase {
+  type: "dog_moment";
+  dogName: string;
+  ownerName: string;
+  ownerAvatarUrl: string;
+  momentText: string;    // e.g. "turned 3 today!"
+}
+
+export interface FeedCareReviewItem extends FeedItemBase {
+  type: "care_review";
+  reviewerName: string;
+  reviewerAvatarUrl: string;
+  carerName: string;
+  carerAvatarUrl: string;
+  rating: number;
+  snippet: string;
+}
+
+export type FeedItem =
+  | FeedPostItem
+  | FeedMeetRecapItem
+  | FeedUpcomingMeetItem
+  | FeedConnectionActivityItem
+  | FeedConnectionNudgeItem
+  | FeedCarePromptItem
+  | FeedMilestoneItem
+  | FeedDogMomentItem
+  | FeedCareReviewItem;
+
+// ── Places ────────────────────────────────────────────────────────────────────
+
+export interface Place {
+  id: string;
+  name: string;
+  neighbourhood: string;
 }

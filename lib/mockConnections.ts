@@ -1,4 +1,4 @@
-import type { Connection } from "./types";
+import type { Connection, ServiceType } from "./types";
 
 export const CONNECTION_STATE_LABELS: Record<string, string> = {
   none: "Not connected",
@@ -20,6 +20,9 @@ export const mockConnections: Connection[] = [
     state: "connected",
     metAt: "meet-6",
     updatedAt: "2026-03-16T10:00:00Z",
+    meetsShared: 5,
+    firstMetDate: "2025-11-10",
+    lastMetDate: "2026-03-16",
   },
   {
     id: "conn-2",
@@ -32,6 +35,9 @@ export const mockConnections: Connection[] = [
     state: "familiar",
     metAt: "meet-6",
     updatedAt: "2026-03-16T10:00:00Z",
+    meetsShared: 3,
+    firstMetDate: "2026-01-15",
+    lastMetDate: "2026-03-16",
   },
   {
     id: "conn-3",
@@ -44,6 +50,9 @@ export const mockConnections: Connection[] = [
     state: "pending",
     metAt: "meet-1",
     updatedAt: "2026-03-15T14:00:00Z",
+    meetsShared: 2,
+    firstMetDate: "2026-02-20",
+    lastMetDate: "2026-03-18",
   },
   {
     id: "conn-4",
@@ -95,6 +104,39 @@ export const mockConnections: Connection[] = [
   },
 ];
 
+/** Community carers — connections who offer care services */
+export interface CommunityCarer {
+  userId: string;
+  services: ServiceType[];
+  priceFrom: number;
+  priceUnit: "per_visit" | "per_night";
+  meetsShared: number;
+}
+
+export const communityCarers: CommunityCarer[] = [
+  {
+    userId: "jana",
+    services: ["walk_checkin"],
+    priceFrom: 240,
+    priceUnit: "per_visit",
+    meetsShared: 8,
+  },
+  {
+    userId: "jana-k",
+    services: ["walk_checkin", "inhome_sitting"],
+    priceFrom: 240,
+    priceUnit: "per_visit",
+    meetsShared: 5,
+  },
+  {
+    userId: "tomas",
+    services: ["walk_checkin", "boarding"],
+    priceFrom: 200,
+    priceUnit: "per_visit",
+    meetsShared: 3,
+  },
+];
+
 /** Get connection state for a specific user */
 export function getConnectionState(userId: string): Connection | undefined {
   return mockConnections.find((c) => c.userId === userId);
@@ -103,4 +145,15 @@ export function getConnectionState(userId: string): Connection | undefined {
 /** Get all connections by state */
 export function getConnectionsByState(state: string): Connection[] {
   return mockConnections.filter((c) => c.state === state);
+}
+
+/** Get connections who offer care, enriched with carer data */
+export function getCommunityCarers() {
+  return communityCarers
+    .map((cc) => {
+      const conn = mockConnections.find((c) => c.userId === cc.userId);
+      if (!conn) return null;
+      return { ...conn, ...cc };
+    })
+    .filter(Boolean) as (Connection & CommunityCarer)[];
 }

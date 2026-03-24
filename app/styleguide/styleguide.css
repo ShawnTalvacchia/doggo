@@ -1,0 +1,817 @@
+/* ============================================
+   Styleguide — layout & component styles
+   ============================================ */
+
+/* Layout: app-nav (root) then sg-nav (tab bar) then sg-scroll (content) as in-flow siblings within sg-layout */
+.sg-layout {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--nav-height));
+  overflow: hidden;
+}
+
+.sg-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--surface-base);
+}
+
+/* Responsive two-column grid used across styleguide pages */
+.sg-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.sg-nav {
+  flex-shrink: 0;
+  background: var(--surface-top);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.sg-nav-inner {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.sg-tab {
+  padding: 12px 20px;
+  font-weight: var(--weight-semibold);
+  font-size: 14px;
+  color: var(--text-secondary);
+  border-bottom: 2px solid transparent;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    color 120ms ease,
+    border-color 120ms ease;
+}
+
+.sg-tab:hover {
+  color: var(--text-primary);
+}
+
+.sg-tab-active {
+  color: var(--brand-strong);
+  border-bottom-color: var(--brand-main);
+}
+
+/* Mobile: dropdown instead of tab row */
+.sg-nav-dropdown {
+  display: none;
+}
+
+/* Tighter tab padding from 480px down until dropdown takes over */
+@media (max-width: 480px) {
+  .sg-tab {
+    padding: 12px 16px;
+  }
+}
+
+/* Only switch to dropdown below 400px so tabs can still fit above that */
+@media (max-width: 400px) {
+  .sg-nav-inner {
+    display: none;
+  }
+
+  /* Dropdown container: same height as tab row, full bleed, no border on control */
+  .sg-nav-dropdown {
+    display: block;
+    padding: 8px 16px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .sg-nav-select {
+    width: 100%;
+    max-width: none;
+    min-height: unset;
+    padding: 12px 44px 12px 0;
+    font-size: 14px;
+    font-weight: var(--weight-semibold);
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    background-position: right 0 center;
+    box-shadow: none;
+    outline: none;
+  }
+
+  .sg-nav-select:hover,
+  .sg-nav-select:focus {
+    border: none;
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  .sg-nav-select:focus {
+    color: var(--text-primary);
+  }
+}
+
+.sg-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 16px;
+  display: grid;
+  gap: 48px;
+  min-width: 0;
+}
+
+.sg-section {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* Body copy for styleguide descriptive paragraphs */
+.sg-body-copy {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-body-reg);
+  line-height: 20px;
+}
+
+.sg-section-title {
+  font-size: var(--font-size-fine);
+  font-weight: var(--weight-bold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-strong);
+  margin: 0;
+}
+
+.sg-subsection-title {
+  font-size: var(--font-size-sub);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  margin: 0 0 12px;
+}
+
+/* Color swatches */
+.sg-color-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 32px;
+}
+
+.sg-color-column {
+  display: grid;
+  gap: 2px;
+}
+
+.sg-swatch-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+
+.sg-swatch {
+  width: 52px;
+  height: 30px;
+  border-radius: 5px;
+  border: 1px solid var(--border-stronger);
+  flex-shrink: 0;
+}
+
+.sg-swatch-name {
+  font-size: var(--font-size-sub);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.sg-swatch-meta {
+  font-size: var(--font-size-fine);
+  color: var(--text-tertiary);
+}
+
+/* Token table rows */
+.sg-token-table {
+  display: grid;
+  gap: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.sg-token-row {
+  display: grid;
+  grid-template-columns: minmax(0, 220px) minmax(0, 120px) minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-strong);
+  background: var(--surface-top);
+  min-width: 0;
+}
+
+.sg-token-row:last-child {
+  border-bottom: none;
+}
+
+.sg-token-name {
+  font-size: 12px;
+  font-weight: var(--weight-semibold);
+  font-family: monospace;
+  color: var(--text-primary);
+  overflow-wrap: break-word;
+}
+
+.sg-token-value {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-family: monospace;
+  overflow-wrap: break-word;
+}
+
+.sg-token-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Responsive: stack token name on top, value + preview below (no horizontal scroll) */
+@media (max-width: 768px) {
+  .sg-token-row {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 8px 16px;
+    align-items: start;
+  }
+
+  .sg-token-row .sg-token-name {
+    grid-column: 1 / -1;
+  }
+
+  .sg-token-row .sg-token-value {
+    grid-column: 1;
+  }
+
+  .sg-token-row .sg-token-preview {
+    grid-column: 2;
+  }
+}
+
+/* Spacing preview bar */
+.sg-space-bar {
+  height: 8px;
+  background: var(--brand-300);
+  border-radius: 2px;
+  opacity: 0.7;
+}
+
+/* Radius preview box — square */
+.sg-radius-box {
+  width: 32px;
+  height: 32px;
+  background: var(--brand-100);
+  border: 2px solid var(--brand-300);
+}
+
+/* Typography scale table — meta on top, sample below; fixed columns for alignment */
+.sg-type-scale-table {
+  min-width: 340px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.sg-type-scale-table .sg-type-scale-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+  align-items: start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-strong);
+  background: var(--surface-top);
+}
+
+.sg-type-scale-table .sg-type-scale-row:last-child {
+  border-bottom: none;
+}
+
+.sg-type-scale-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 80px 80px;
+  gap: 16px;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+/* Keep Token, Desktop, Mobile horizontal at all widths — no wrapping */
+.sg-type-scale-meta .sg-token-name,
+.sg-type-scale-meta .sg-token-value {
+  white-space: nowrap;
+}
+
+.sg-type-scale-meta .sg-token-value {
+  text-align: right;
+}
+
+.sg-type-scale-sample-label {
+  visibility: hidden;
+  font-size: var(--font-size-fine);
+}
+
+.sg-type-scale-sample {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+/* Typography font-family rows */
+.sg-font-family-table {
+  grid-template-columns: 1fr;
+}
+
+.sg-font-family-row {
+  display: grid;
+  gap: 12px;
+  padding: 20px 18px;
+  border-bottom: 1px solid var(--border-strong);
+  background: var(--surface-top);
+}
+
+.sg-font-family-row:last-child {
+  border-bottom: none;
+}
+
+.sg-font-family-sample {
+  display: grid;
+  gap: 10px;
+}
+
+.sg-font-family-glyphs {
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+@media (min-width: 900px) {
+  .sg-font-family-table {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .sg-font-family-row {
+    border-bottom: none;
+  }
+
+  .sg-font-family-row + .sg-font-family-row {
+    border-left: 1px solid var(--border-strong);
+  }
+}
+
+/* Shadow preview card */
+.sg-shadow-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 40px;
+  border-radius: 6px;
+  background: var(--surface-top);
+  font-size: var(--font-size-fine);
+  color: var(--text-tertiary);
+}
+
+/* Swatch chip (surface/border/state tokens) */
+.sg-alias-swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--border-stronger);
+  flex-shrink: 0;
+}
+
+/* Typography demo */
+.sg-type-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
+  align-items: start;
+  gap: 0;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-strong);
+  background: var(--surface-top);
+}
+
+.sg-type-row:last-child {
+  border-bottom: none;
+}
+
+.sg-type-row-meta {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 80px;
+  gap: 16px;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.sg-type-token {
+  font-size: var(--font-size-fine);
+  font-family: monospace;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.sg-type-size {
+  font-size: var(--font-size-fine);
+  color: var(--text-tertiary);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Component demo card */
+/* ── sg-demo: label + canvas block ──────────────────────────────────────────
+   Use for showing a single component or variant in isolation.
+   The label is clearly outside the canvas so it cannot be confused
+   with component chrome.
+─────────────────────────────────────────────────────────────────────────── */
+.sg-demo {
+  display: grid;
+  gap: 8px;
+}
+
+.sg-demo-label {
+  font-size: var(--font-size-fine);
+  font-weight: var(--weight-semibold);
+  color: var(--text-tertiary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.sg-demo-note {
+  font-weight: var(--weight-regular);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: var(--font-size-fine);
+  color: var(--text-tertiary);
+}
+
+/* Default canvas: neutral surface, flex row, wraps */
+.sg-demo-canvas {
+  padding: 24px;
+  background: var(--surface-top);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Stack canvas: column layout, no gap between items (for list-style components) */
+.sg-demo-canvas--stack {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+/* Inset canvas: recessed background (for components that appear inside cards) */
+.sg-demo-canvas--inset {
+  background: var(--surface-inset);
+}
+
+/* Dark canvas: brand background (for white/outline-white button variants) */
+.sg-demo-canvas--dark {
+  background: var(--brand-main);
+}
+
+/* Narrow canvas: min-width hint only — no cap, row demos stay equal width */
+.sg-demo-canvas--narrow {
+  min-width: 280px;
+}
+
+/* Wide canvas: full bleed */
+.sg-demo-canvas--wide {
+  max-width: none;
+}
+
+/* Group: clusters multiple sg-demo blocks with a shared label/title */
+.sg-demo-group {
+  display: grid;
+  gap: 16px;
+}
+
+/* ── sg-btn-playground: interactive ButtonAction controls ─────────────────── */
+
+.sg-btn-playground {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Side-by-side at tablet+ */
+@media (min-width: 768px) {
+  .sg-btn-playground {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .sg-btn-playground-preview {
+    flex: 0 0 280px;
+    border-bottom: none;
+    border-right: 1px solid var(--border-strong);
+    min-height: 160px;
+  }
+
+  .sg-btn-playground-controls {
+    flex: 1 1 0;
+    border-top: none;
+    border-left: none;
+    justify-content: center;
+  }
+}
+
+.sg-btn-playground-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  background: var(--surface-top);
+  min-height: 120px;
+  border-bottom: 1px solid var(--border-strong);
+  transition: background 0.2s;
+}
+
+.sg-btn-playground-preview--dark {
+  background: var(--color-brand-dark, #1a1a2e);
+}
+
+.sg-btn-playground-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--surface-base);
+}
+
+.sg-btn-ctrl-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.sg-btn-ctrl-label {
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  min-width: 72px;
+  padding-top: 5px;
+  flex-shrink: 0;
+}
+
+.sg-btn-ctrl-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sg-btn-ctrl-pill {
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-family: var(--font-mono, monospace);
+  cursor: pointer;
+  line-height: 1.5;
+  transition: color 0.1s, border-color 0.1s;
+}
+
+.sg-btn-ctrl-pill:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.sg-btn-ctrl-pill.active {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+}
+
+/* ── sg-group-nav: secondary category pill navigation ────────────────────────
+   Larger pill variant of .sg-btn-ctrl-pill. Use for page-level grouping, not
+   individual prop controls. Establishes pill-as-nav-tab as a documented pattern.
+─────────────────────────────────────────────────────────────────────────────── */
+.sg-group-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0 20px;
+  border-bottom: 1px solid var(--border-strong);
+  margin-bottom: 8px;
+}
+
+.sg-group-pill {
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sub);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  line-height: 1.5;
+  transition: color 0.1s, border-color 0.1s, background 0.1s;
+}
+
+.sg-group-pill:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-primary);
+}
+
+.sg-group-pill--active {
+  border-color: var(--brand-strong);
+  color: var(--brand-strong);
+  background: var(--surface-top);
+  font-weight: var(--weight-semibold);
+}
+
+/* ── sg-demo-group--row: equal side-by-side demos until mobile ───────────── */
+.sg-demo-group--row {
+  gap: 24px;
+}
+
+@media (min-width: 600px) {
+  .sg-demo-group--row {
+    grid-template-columns: repeat(2, 1fr);
+    /* default align-items: stretch — row pairs match height */
+  }
+
+  /* Within a row, canvas expands to fill its demo's full height */
+  .sg-demo-group--row > .sg-demo {
+    display: grid;
+    grid-template-rows: auto 1fr;
+  }
+
+  .sg-demo-group--row > .sg-demo > .sg-demo-canvas {
+    height: 100%;
+  }
+}
+
+/* ── Legacy sg-demo-card (kept for backward compat with other sg pages) ───── */
+.sg-demo-card {
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  background: var(--surface-top);
+  overflow: hidden;
+}
+
+.sg-demo-card-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-strong);
+  background: var(--surface-base);
+  font-size: var(--font-size-sub);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+}
+
+.sg-demo-card-body {
+  padding: 20px 16px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Base Colors page — Figma node 17:163 design */
+.base-colors-page {
+  min-height: 100vh;
+  background: var(--neutral-900);
+  color: var(--neutral-white);
+  padding: 40px 24px;
+}
+
+.base-colors-header {
+  margin-bottom: 40px;
+}
+
+.base-colors-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: var(--weight-semibold);
+  font-family: var(--font-heading);
+}
+
+.base-colors-subtitle {
+  margin: 8px 0 0;
+  font-size: var(--font-size-body-reg);
+  color: var(--neutral-400);
+}
+
+.base-colors-link {
+  color: var(--brand-300);
+  text-decoration: none;
+}
+
+.base-colors-link:hover {
+  text-decoration: underline;
+}
+
+.base-colors-section {
+  margin-bottom: 48px;
+}
+
+.base-colors-section-title {
+  margin: 0 0 20px;
+  font-size: var(--font-size-body-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--neutral-300);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.base-colors-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(200px, 1fr));
+  gap: 48px;
+}
+
+.base-colors-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 48px;
+}
+
+.base-colors-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 32px;
+}
+
+.base-colors-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.base-colors-column-on-brand {
+  background: var(--brand-600);
+  padding: 20px;
+  border-radius: var(--radius-panel);
+}
+
+.base-colors-column-title {
+  margin: 0 0 4px;
+  font-size: var(--font-size-body-reg);
+  font-weight: var(--weight-semibold);
+  color: var(--neutral-400);
+}
+
+.base-colors-column-on-brand .base-colors-column-title {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.base-colors-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.base-colors-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.base-colors-swatch {
+  width: 48px;
+  height: 28px;
+  border-radius: var(--radius-xxs);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
+}
+
+.base-colors-column-on-brand .base-colors-swatch {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.base-colors-label {
+  font-size: var(--font-size-body-reg);
+  color: var(--neutral-300);
+}
+
+.base-colors-column-on-brand .base-colors-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+

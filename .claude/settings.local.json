@@ -35,7 +35,17 @@
       "Bash(xargs kill:*)",
       "WebSearch",
       "Bash(ls /Users/shawntalvacchia/Desktop/Doggo/app/*.css)",
-      "Bash(ls -la /Users/shawntalvacchia/Desktop/Doggo/public/images/hero*)"
+      "Bash(ls -la /Users/shawntalvacchia/Desktop/Doggo/public/images/hero*)",
+      "Bash(find /Users/shawntalvacchia/Desktop/Doggo/docs -name *[Hh]omepage* -o -name *[Rr]eview*)",
+      "Bash(wc -l /Users/shawntalvacchia/Desktop/Doggo/app/meets/[id]/page.tsx)",
+      "Bash(wc -l /Users/shawntalvacchia/Desktop/Doggo/app/inbox/[conversationId]/ThreadClient.tsx)",
+      "Bash(grep -v ^[0-9])",
+      "Read(//tmp/**)",
+      "Bash(python3:*)",
+      "Bash(for cls:*)",
+      "Bash(do echo:*)",
+      "Bash(grep -c \"\\\\.$cls\" app/globals.css)",
+      "Bash(done)"
     ]
   }
 }

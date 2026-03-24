@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-03-17
+last-reviewed: 2026-03-23
 tags: [schedule, bookings, calendar, meets]
 review-trigger: "when modifying schedule page, booking list, or calendar views"
 ---
@@ -27,9 +27,11 @@ Schedule is the third tab in the main navigation. It combines community meets an
 
 ### What's displayed
 
-- **Upcoming meets** — meets you've joined, with date/time, location, attendees preview
-- **Care bookings** — as owner (your dog being cared for) or as carer (dogs you're caring for), with status
-- **CTAs:** Create Meet, Find Care, Offer Care
+- **This Week / Coming Up** — upcoming meets split by time horizon
+- **Your Care Bookings** (Phase 11) — active/upcoming bookings as owner, with carer avatar, service type, status badge. Links to booking detail.
+- **Your Care Services** (Phase 11) — active/upcoming bookings as carer (if any), with owner avatar, service type, status badge.
+- **Past** — completed meets and bookings
+- **CTAs:** Create Meet, Find Care, Offer Care (all routing to correct destinations — Offer Care → `/profile?tab=services`)
 
 ---
 
@@ -58,7 +60,7 @@ Schedule tab → See chronological list of upcoming meets + bookings
 ```
 Schedule tab → "Create Meet" → Meet creation flow
             → "Find Care" → Explore flow
-            → "Offer Care" → Profile provider settings (future)
+            → "Offer Care" → `/profile?tab=services` (Phase 11)
 ```
 
 ---

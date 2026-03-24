@@ -25,18 +25,27 @@ export function ProfileHeader({ provider, state, onContact }: ProfileHeaderProps
   const isConnected = connState === "connected";
   const isFamiliar = connState === "familiar";
 
+  const isPending = connState === "pending";
+  const isNone = connState === "none";
+
   // Determine CTA text and icon based on connection state
   let ctaLabel: string;
   let ctaIcon: React.ReactNode;
+  let ctaDisabled = false;
   if (isConnected) {
     ctaLabel = isCondensed ? "Message" : `Message ${firstName}`;
     ctaIcon = <PaperPlaneTilt size={16} weight="fill" />;
   } else if (isFamiliar) {
     ctaLabel = isCondensed ? "Connect" : `Connect with ${firstName}`;
     ctaIcon = <UserPlus size={16} weight="fill" />;
+  } else if (isPending) {
+    ctaLabel = "Request sent";
+    ctaIcon = undefined;
+    ctaDisabled = true;
   } else {
-    ctaLabel = isCondensed ? "Contact" : `Contact ${firstName}`;
-    ctaIcon = <ChatCircleDots size={16} weight="fill" />;
+    ctaLabel = isCondensed ? "Meet first" : `Meet ${firstName} first`;
+    ctaIcon = undefined;
+    ctaDisabled = true;
   }
 
   const badgeStyle = BADGE_STYLES[connState] ?? BADGE_STYLES.none;
@@ -97,12 +106,13 @@ export function ProfileHeader({ provider, state, onContact }: ProfileHeaderProps
 
           <div className="flex flex-col gap-xs" style={{ alignSelf: isCondensed ? "center" : "flex-start" }}>
             <ButtonAction
-              variant="primary"
+              variant={ctaDisabled ? "secondary" : "primary"}
               cta
               size={isCondensed ? "sm" : "md"}
               className="profile-contact-btn"
               rightIcon={ctaIcon}
-              onClick={onContact}
+              onClick={ctaDisabled ? undefined : onContact}
+              disabled={ctaDisabled}
             >
               {ctaLabel}
             </ButtonAction>

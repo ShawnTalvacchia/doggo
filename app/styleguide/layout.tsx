@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import "./styleguide.css";
 
 const tabs = [
   { label: "Colors", href: "/styleguide" },

@@ -16,8 +16,13 @@ import {
   ChatCircleDots,
   PaperPlaneRight,
   Handshake,
+  ShareNetwork,
+  UsersThree,
 } from "@phosphor-icons/react";
+import Link from "next/link";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { ShareMeetModal } from "@/components/meets/ShareMeetModal";
+import { getGroupById } from "@/lib/mockGroups";
 import { mockMeets, MEET_TYPE_LABELS, LEASH_LABELS } from "@/lib/mockMeets";
 import { getMessagesForMeet } from "@/lib/mockMeetMessages";
 import { getConnectionState, CONNECTION_STATE_LABELS } from "@/lib/mockConnections";
@@ -33,10 +38,9 @@ const MEET_ICONS: Record<MeetType, React.ReactNode> = {
 function formatDate(date: string): string {
   const d = new Date(date);
   return d.toLocaleDateString("en-GB", {
-    weekday: "long",
+    weekday: "short",
     day: "numeric",
-    month: "long",
-    year: "numeric",
+    month: "short",
   });
 }
 
@@ -59,23 +63,18 @@ function MessageBubble({ message, isOwn }: { message: MeetMessage; isOwn: boolea
         <img
           src={message.senderAvatarUrl}
           alt={message.senderName}
-          className="rounded-full shrink-0"
-          style={{ width: 28, height: 28, objectFit: "cover" }}
+          className="w-7 h-7 rounded-full shrink-0 object-cover"
         />
       )}
       <div
-        className="flex flex-col gap-xs rounded-lg px-md py-sm"
-        style={{
-          maxWidth: "75%",
-          background: isOwn ? "var(--brand-subtle)" : "var(--surface-top)",
-          border: isOwn ? "none" : "1px solid var(--border-light)",
-        }}
+        className={`flex flex-col gap-xs rounded-lg px-md py-sm ${isOwn ? "bg-brand-subtle" : "bg-surface-top border border-edge-light"}`}
+        style={{ maxWidth: "75%" }}
       >
         {!isOwn && (
           <span className="text-xs font-medium text-fg-primary">{message.senderName}</span>
         )}
         <span className="text-sm text-fg-primary">{message.text}</span>
-        <span className="text-xs text-fg-tertiary" style={{ alignSelf: isOwn ? "flex-start" : "flex-end" }}>
+        <span className={`text-xs text-fg-tertiary ${isOwn ? "self-start" : "self-end"}`}>
           {formatMessageTime(message.sentAt)}
         </span>
       </div>
@@ -88,6 +87,7 @@ export default function MeetDetailPage() {
   const router = useRouter();
   const meet = mockMeets.find((m) => m.id === params.id);
   const [showThread, setShowThread] = useState(false);
+  const [showShare, setShowShare] = useState(false);
   const [newMessage, setNewMessage] = useState("");
 
   if (!meet) {
@@ -109,14 +109,13 @@ export default function MeetDetailPage() {
 
   return (
     <div
-      className="flex flex-col gap-xl p-xl"
-      style={{ maxWidth: "var(--app-page-max-width)", margin: "0 auto", width: "100%" }}
+      className="flex flex-col gap-xl p-xl mx-auto w-full bg-surface-popout"
+      style={{ maxWidth: "var(--app-page-max-width)", minHeight: "calc(100vh - var(--nav-height))" }}
     >
       {/* Back button */}
       <button
         onClick={() => router.back()}
-        className="flex items-center gap-xs text-sm text-fg-secondary"
-        style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+        className="flex items-center gap-xs text-sm text-fg-secondary bg-transparent border-none cursor-pointer p-0"
       >
         <ArrowLeft size={16} weight="light" />
         Back
@@ -126,8 +125,7 @@ export default function MeetDetailPage() {
       <header className="flex flex-col gap-sm">
         <div className="flex items-center gap-sm">
           <span
-            className="flex items-center gap-xs rounded-pill px-sm py-xs text-sm font-medium"
-            style={{ background: "var(--brand-subtle)", color: "var(--brand-strong)" }}
+            className="flex items-center gap-xs rounded-pill px-sm py-xs text-sm font-medium bg-brand-subtle text-brand-strong"
           >
             {MEET_ICONS[meet.type]}
             {MEET_TYPE_LABELS[meet.type]}
@@ -140,45 +138,57 @@ export default function MeetDetailPage() {
           )}
           {meet.status === "completed" && (
             <span
-              className="rounded-pill px-sm py-xs text-xs font-medium"
-              style={{ background: "var(--surface-gray)", color: "var(--text-secondary)" }}
+              className="rounded-pill px-sm py-xs text-xs font-medium bg-surface-gray text-fg-secondary"
             >
               Completed
             </span>
           )}
         </div>
-        <h1 className="font-heading text-4xl font-semibold text-fg-primary">{meet.title}</h1>
+        {meet.groupId && (() => {
+          const group = getGroupById(meet.groupId);
+          return group ? (
+            <Link
+              href={`/groups/${group.id}`}
+              className="inline-flex items-center gap-sm rounded-panel p-sm no-underline bg-brand-subtle border border-brand-main self-start"
+            >
+              <UsersThree size={16} weight="fill" className="text-brand-main" />
+              <span className="text-sm font-medium text-brand-strong">
+                {group.name}
+              </span>
+            </Link>
+          ) : null;
+        })()}
+        <h1 className="font-heading text-2xl font-semibold text-fg-primary">{meet.title}</h1>
         <p className="text-base text-fg-secondary">{meet.description}</p>
       </header>
 
       {/* Details grid */}
       <div
-        className="grid gap-md rounded-panel bg-surface-top p-lg shadow-sm"
-        style={{ gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}
+        className="grid grid-cols-2 gap-lg rounded-panel p-lg bg-surface-top border border-edge-light"
       >
-        <div className="flex items-start gap-sm">
-          <CalendarDots size={20} weight="light" className="text-fg-tertiary shrink-0 mt-xs" />
+        <div className="flex items-start gap-md">
+          <CalendarDots size={24} weight="light" className="text-fg-tertiary shrink-0" style={{ marginTop: 2 }} />
           <div className="flex flex-col">
             <span className="text-sm font-medium text-fg-primary">{formatDate(meet.date)}</span>
             <span className="text-sm text-fg-secondary">{meet.time}</span>
           </div>
         </div>
-        <div className="flex items-start gap-sm">
-          <Clock size={20} weight="light" className="text-fg-tertiary shrink-0 mt-xs" />
+        <div className="flex items-start gap-md">
+          <Clock size={24} weight="light" className="text-fg-tertiary shrink-0" style={{ marginTop: 2 }} />
           <div className="flex flex-col">
             <span className="text-sm font-medium text-fg-primary">{formatDuration(meet.durationMinutes)}</span>
             <span className="text-sm text-fg-secondary">Duration</span>
           </div>
         </div>
-        <div className="flex items-start gap-sm">
-          <MapPin size={20} weight="light" className="text-fg-tertiary shrink-0 mt-xs" />
+        <div className="flex items-start gap-md">
+          <MapPin size={24} weight="light" className="text-fg-tertiary shrink-0" style={{ marginTop: 2 }} />
           <div className="flex flex-col">
             <span className="text-sm font-medium text-fg-primary">{meet.location}</span>
             <span className="text-sm text-fg-secondary">{LEASH_LABELS[meet.leashRule]}</span>
           </div>
         </div>
-        <div className="flex items-start gap-sm">
-          <Users size={20} weight="light" className="text-fg-tertiary shrink-0 mt-xs" />
+        <div className="flex items-start gap-md">
+          <Users size={24} weight="light" className="text-fg-tertiary shrink-0" style={{ marginTop: 2 }} />
           <div className="flex flex-col">
             <span className="text-sm font-medium text-fg-primary">
               {meet.attendees.length}/{meet.maxAttendees} people · {totalDogs} dogs
@@ -215,6 +225,14 @@ export default function MeetDetailPage() {
             Connect with attendees
           </ButtonAction>
         )}
+        <ButtonAction
+          variant="outline"
+          size="md"
+          onClick={() => setShowShare(true)}
+          leftIcon={<ShareNetwork size={18} weight="light" />}
+        >
+          Share
+        </ButtonAction>
         {messages.length > 0 && (
           <ButtonAction
             variant={showThread ? "secondary" : "outline"}
@@ -232,13 +250,8 @@ export default function MeetDetailPage() {
         <section className="flex flex-col gap-sm">
           <h2 className="font-heading text-lg font-semibold text-fg-primary">Group Chat</h2>
           <div
-            className="flex flex-col gap-md rounded-panel p-md"
-            style={{
-              background: "var(--surface-base)",
-              border: "1px solid var(--border-light)",
-              maxHeight: 400,
-              overflowY: "auto",
-            }}
+            className="flex flex-col gap-md rounded-panel p-md bg-surface-base border border-edge-light overflow-y-auto"
+            style={{ maxHeight: 400 }}
           >
             {messages.map((msg) => (
               <MessageBubble
@@ -276,8 +289,7 @@ export default function MeetDetailPage() {
           <img
             src={meet.creatorAvatarUrl}
             alt={meet.creatorName}
-            className="rounded-full"
-            style={{ width: 40, height: 40, objectFit: "cover" }}
+            className="w-10 h-10 rounded-full object-cover"
           />
           <span className="text-base font-medium text-fg-primary">{meet.creatorName}</span>
         </div>
@@ -296,8 +308,7 @@ export default function MeetDetailPage() {
                 <img
                   src={a.avatarUrl}
                   alt={a.userName}
-                  className="rounded-full"
-                  style={{ width: 36, height: 36, objectFit: "cover" }}
+                  className="w-9 h-9 rounded-full object-cover"
                 />
                 <div className="flex flex-col flex-1">
                   <span className="text-sm font-medium text-fg-primary">
@@ -310,17 +321,11 @@ export default function MeetDetailPage() {
                 </div>
                 {conn && conn.state !== "none" && (
                   <span
-                    className="text-xs font-medium rounded-pill px-sm py-xs"
-                    style={{
-                      background:
-                        conn.state === "connected"
-                          ? "var(--brand-subtle)"
-                          : "var(--surface-gray)",
-                      color:
-                        conn.state === "connected"
-                          ? "var(--brand-strong)"
-                          : "var(--text-secondary)",
-                    }}
+                    className={`text-xs font-medium rounded-pill px-sm py-xs ${
+                      conn.state === "connected"
+                        ? "bg-brand-subtle text-brand-strong"
+                        : "bg-surface-gray text-fg-secondary"
+                    }`}
                   >
                     {CONNECTION_STATE_LABELS[conn.state]}
                   </span>
@@ -330,6 +335,8 @@ export default function MeetDetailPage() {
           })}
         </div>
       </section>
+
+      <ShareMeetModal meet={meet} open={showShare} onClose={() => setShowShare(false)} />
     </div>
   );
 }

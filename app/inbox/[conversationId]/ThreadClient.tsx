@@ -5,9 +5,6 @@ import Link from "next/link";
 import {
   ArrowLeft,
   PaperPlaneTilt,
-  CalendarCheck,
-  CheckCircle,
-  ArrowRight,
   Handshake,
 } from "@phosphor-icons/react";
 import type {
@@ -15,12 +12,17 @@ import type {
   ChatMessage,
   MessageSender,
   ServiceType,
+  BookingProposal,
 } from "@/lib/types";
-import { SERVICE_LABELS } from "@/lib/constants/services";
-import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { InquiryForm, type InquirySubmitData } from "@/components/messaging/InquiryForm";
 import { BookingProposalCard } from "@/components/messaging/BookingProposalCard";
 import { InquiryChips } from "@/components/messaging/InquiryChips";
+import { RelationshipBanner } from "@/components/messaging/RelationshipBanner";
+import { PaymentCard } from "@/components/messaging/PaymentCard";
+import { ContractCard } from "@/components/messaging/ContractCard";
+import { SigningModal } from "@/components/messaging/SigningModal";
+import { InquiryResponseCard } from "@/components/messaging/InquiryResponseCard";
+import { ProposalForm } from "@/components/messaging/ProposalForm";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { useBookings } from "@/contexts/BookingsContext";
 
@@ -48,14 +50,6 @@ function formatDateLabel(isoString: string): string {
   });
 }
 
-function formatShortDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
 function groupByDate(messages: ChatMessage[]) {
   const groups: { label: string; messages: ChatMessage[] }[] = [];
   let currentLabel = "";
@@ -68,152 +62,6 @@ function groupByDate(messages: ChatMessage[]) {
     groups[groups.length - 1].messages.push(msg);
   }
   return groups;
-}
-
-// ── Inquiry form (extracted → components/messaging/InquiryForm.tsx) ────────────
-
-// ── Booking proposal card ──────────────────────────────────────────────────────
-
-// ── Contract card ──────────────────────────────────────────────────────────────
-
-function ContractCard({ msg }: { msg: ChatMessage }) {
-  const c = msg.contract!;
-  return (
-    <div className="inbox-contract-card">
-      <div className="inbox-contract-header">
-        <CheckCircle size={18} weight="fill" className="inbox-contract-icon" />
-        <span className="inbox-contract-label">Contract signed</span>
-      </div>
-      <div className="inbox-contract-body">
-        <p className="inbox-contract-service">
-          {SERVICE_LABELS[c.serviceType]}
-          {c.subService ? ` · ${c.subService}` : ""}
-        </p>
-        <p className="inbox-contract-meta">
-          {c.pets.join(" & ")} · From {formatShortDate(c.startDate)}
-        </p>
-        <p className="inbox-contract-meta">With {c.carerName}</p>
-      </div>
-      <Link href={`/bookings/${c.bookingId}`} className="inbox-contract-link">
-        View booking <ArrowRight size={13} weight="bold" />
-      </Link>
-    </div>
-  );
-}
-
-// ── Signing modal ──────────────────────────────────────────────────────────────
-
-function SigningModal({
-  msg,
-  conv,
-  open,
-  onClose,
-  onSign,
-}: {
-  msg: ChatMessage | null;
-  conv: Conversation;
-  open: boolean;
-  onClose: () => void;
-  onSign: (msgId: string) => void;
-}) {
-  if (!msg?.proposal) return null;
-  const p = msg.proposal;
-
-  const scheduleText = p.recurringSchedule
-    ? `Every ${p.recurringSchedule.days.join(", ")} · ${p.recurringSchedule.timeLabel}`
-    : p.endDate
-    ? `${formatShortDate(p.startDate)} – ${formatShortDate(p.endDate)}`
-    : `From ${formatShortDate(p.startDate)}`;
-
-  return (
-    <ModalSheet
-      open={open}
-      onClose={onClose}
-      title="Review contract"
-      footer={
-        <div className="signing-footer-actions">
-          <button className="signing-sign-btn" onClick={() => onSign(msg.id)}>
-            Sign & Book
-          </button>
-          <button className="signing-cancel-btn" onClick={onClose}>
-            Not yet
-          </button>
-        </div>
-      }
-    >
-      <div className="signing-body">
-        {/* Carer */}
-        <div className="signing-carer-row">
-          <img
-            src={conv.providerAvatarUrl}
-            alt={conv.providerName}
-            className="signing-carer-avatar"
-          />
-          <div>
-            <p className="signing-carer-name">{conv.providerName}</p>
-            <p className="signing-carer-sub">Pet carer</p>
-          </div>
-        </div>
-
-        {/* Details */}
-        <div className="signing-section">
-          <div className="signing-row">
-            <span className="signing-field">Service</span>
-            <span className="signing-value">
-              {SERVICE_LABELS[p.serviceType]}
-              {p.subService ? ` · ${p.subService}` : ""}
-            </span>
-          </div>
-          <div className="signing-row">
-            <span className="signing-field">Pets</span>
-            <span className="signing-value">{p.pets.join(", ")}</span>
-          </div>
-          <div className="signing-row">
-            <span className="signing-field">
-              {p.recurringSchedule ? "Schedule" : "Dates"}
-            </span>
-            <span className="signing-value">{scheduleText}</span>
-          </div>
-        </div>
-
-        {/* Pricing */}
-        <div className="signing-price-section">
-          <p className="signing-price-heading">Pricing</p>
-          {p.price.lineItems.map((item, i) => (
-            <div key={i} className="signing-price-row">
-              <span className="signing-price-label">{item.label}</span>
-              <span className="signing-price-amount">
-                {item.isModifier ? "+" : ""}
-                {item.amount.toLocaleString()} Kč
-                <span className="signing-price-unit"> / {item.unit}</span>
-              </span>
-            </div>
-          ))}
-          {p.price.lineItems.length > 1 && (
-            <>
-              <div className="signing-price-divider" />
-              <div className="signing-price-row signing-price-total-row">
-                <span className="signing-price-label">Total</span>
-                <span className="signing-price-amount signing-price-total">
-                  {p.price.total.toLocaleString()} Kč
-                  {p.price.billingCycle === "per_session"
-                    ? " / session"
-                    : p.price.billingCycle === "per_night"
-                    ? " / night"
-                    : ""}
-                </span>
-              </div>
-            </>
-          )}
-        </div>
-
-        <p className="signing-legal-note">
-          By signing, you agree to the contract terms outlined above. You can view your
-          booking anytime in the Bookings tab.
-        </p>
-      </div>
-    </ModalSheet>
-  );
 }
 
 // ── Main thread client ─────────────────────────────────────────────────────────
@@ -234,6 +82,8 @@ export function ThreadClient({
   const [localMessages, setLocalMessages] = useState<ChatMessage[]>(conv.messages);
   const [draft, setDraft] = useState("");
   const [signingMsgId, setSigningMsgId] = useState<string | null>(null);
+  const [proposalFormOpen, setProposalFormOpen] = useState(false);
+  const [inquiryDeclined, setInquiryDeclined] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -314,6 +164,52 @@ export function ThreadClient({
     }
   }
 
+  // ── Carer actions ──────────────────────────────────────────────────────────
+
+  // Carer sends a booking proposal from the ProposalForm modal
+  function handleCarerSendProposal(proposal: BookingProposal) {
+    const proposalMsg: ChatMessage = {
+      id: `msg-${Date.now()}`,
+      conversationId: conv.id,
+      sender: "provider",
+      type: "booking_proposal",
+      proposal,
+      sentAt: new Date().toISOString(),
+      read: true,
+    };
+    addMessage(conv.id, proposalMsg);
+    setLocalMessages((prev) => [...prev, proposalMsg]);
+    setProposalFormOpen(false);
+  }
+
+  // Carer declines the inquiry
+  function handleCarerDecline(reason: string) {
+    setInquiryDeclined(true);
+    const declineText = reason.trim()
+      ? `I'm not available for this booking. ${reason.trim()}`
+      : "I'm not available for this booking right now. Thanks for reaching out!";
+    const declineMsg: ChatMessage = {
+      id: `msg-${Date.now()}`,
+      conversationId: conv.id,
+      sender: "provider",
+      type: "text",
+      text: declineText,
+      sentAt: new Date().toISOString(),
+      read: true,
+    };
+    addMessage(conv.id, declineMsg);
+    setLocalMessages((prev) => [...prev, declineMsg]);
+  }
+
+  // Carer suggests changes — opens compose with pre-filled text
+  function handleCarerSuggestChanges() {
+    const ownerFirst = conv.ownerName.split(" ")[0];
+    setDraft(`Hi ${ownerFirst}, thanks for your inquiry! I'd love to help but would like to suggest a few changes — `);
+    setTimeout(() => inputRef.current?.focus(), 0);
+  }
+
+  // ── Owner actions ────────────────────────────────────────────────────────
+
   // Accept opens signing modal (only for owner perspective)
   function handleProposalAccept(msgId: string) {
     setSigningMsgId(msgId);
@@ -368,7 +264,6 @@ export function ThreadClient({
       sessions: p.bookingType === "ongoing" ? [] : undefined,
     });
 
-    // Mark proposal accepted
     updateProposalStatus(conv.id, msgId, "accepted");
     setLocalMessages((prev) =>
       prev.map((m) =>
@@ -378,7 +273,6 @@ export function ThreadClient({
       )
     );
 
-    // Append contract confirmation card
     const contractMsg: ChatMessage = {
       id: `msg-${Date.now()}`,
       conversationId: conv.id,
@@ -409,7 +303,14 @@ export function ThreadClient({
   // Owner can respond to proposals sent by provider; carer cannot respond to their own
   const canRespondToProposal = !isCarerPerspective;
 
+  // Carer: has a proposal already been sent in this thread?
+  const hasProposal = localMessages.some((m) => m.type === "booking_proposal");
+  // Show InquiryResponseCard when: carer perspective, booking conv, has messages, no proposal sent yet, not declined
+  const showInquiryResponse =
+    isCarerPerspective && !isDirect && !isNew && !hasProposal && !inquiryDeclined;
+
   return (
+    <div className="inbox-thread-outer">
     <div className="inbox-thread-shell">
       {/* Header */}
       <div className="inbox-thread-header">
@@ -457,11 +358,17 @@ export function ThreadClient({
           />
         ) : (
           <>
+            {!isDirect && (
+              <RelationshipBanner
+                otherUserId={conv.providerId === MY_USER_ID ? conv.ownerId : conv.providerId}
+                otherName={otherParty.name}
+              />
+            )}
             {!isDirect && <InquiryChips conv={conv} />}
             {isNew && isDirect && (
               <div className="inbox-direct-empty">
-                <Handshake size={32} weight="light" style={{ color: "var(--text-tertiary)" }} />
-                <p style={{ color: "var(--text-secondary)", fontSize: "var(--font-size-body-md)", margin: 0 }}>
+                <Handshake size={32} weight="light" className="text-fg-tertiary" />
+                <p className="text-fg-secondary text-base m-0">
                   You&apos;re connected with {otherParty.name}. Say hello!
                 </p>
               </div>
@@ -499,6 +406,17 @@ export function ThreadClient({
                       </div>
                     );
                   }
+                  if (msg.type === "payment_summary" || msg.type === "payment_confirmed") {
+                    return (
+                      <div
+                        key={msg.id}
+                        className="inbox-message-wrap inbox-message-wrap--center"
+                      >
+                        <PaymentCard msg={msg} />
+                        <span className="inbox-message-time">{formatTime(msg.sentAt)}</span>
+                      </div>
+                    );
+                  }
                   return (
                     <div
                       key={msg.id}
@@ -513,11 +431,22 @@ export function ThreadClient({
                 })}
               </div>
             ))}
+            {/* Carer: inquiry response actions */}
+            {showInquiryResponse && (
+              <div className="flex justify-center p-md">
+                <InquiryResponseCard
+                  conv={conv}
+                  onSendProposal={() => setProposalFormOpen(true)}
+                  onDecline={handleCarerDecline}
+                  onSuggestChanges={handleCarerSuggestChanges}
+                />
+              </div>
+            )}
           </>
         )}
       </div>
 
-      {/* Compose bar — always visible for direct messages, once thread has messages, or for carer perspective */}
+      {/* Compose bar */}
       {(isDirect || !isNew || isCarerPerspective) && (
         <div className="inbox-thread-footer">
           <textarea
@@ -541,7 +470,7 @@ export function ThreadClient({
         </div>
       )}
 
-      {/* Signing modal */}
+      {/* Signing modal (owner) */}
       <SigningModal
         msg={signingMsg}
         conv={conv}
@@ -549,6 +478,15 @@ export function ThreadClient({
         onClose={() => setSigningMsgId(null)}
         onSign={handleSign}
       />
+
+      {/* Proposal form modal (carer) */}
+      <ProposalForm
+        conv={conv}
+        open={proposalFormOpen}
+        onClose={() => setProposalFormOpen(false)}
+        onSubmit={handleCarerSendProposal}
+      />
+    </div>
     </div>
   );
 }

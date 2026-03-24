@@ -16,7 +16,9 @@ import {
   X,
 } from "@phosphor-icons/react";
 import { ProfileHeader } from "@/components/explore/ProfileHeader";
+import { TrustGateBanner } from "@/components/explore/TrustGateBanner";
 import { useConversations } from "@/contexts/ConversationsContext";
+import { getConnectionState } from "@/lib/mockConnections";
 import { DEFAULT_ABOUT_BANNER_URL } from "@/lib/data/providerContent";
 
 /** Default first image in the Photos section (dog only). Kept separate from the About banner. */
@@ -238,6 +240,10 @@ function ExploreProfileContent() {
   const [isLoadingProvider, setIsLoadingProvider] = useState(true);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  // Connection state for trust gating
+  const connection = provider ? getConnectionState(provider.id) : undefined;
+  const connState = connection?.state ?? "none";
 
   function handleContact() {
     if (!provider) return;
@@ -686,6 +692,15 @@ function ExploreProfileContent() {
               </div>
             </div>
             <div className="profile-desktop-right-scroll">
+              {connState !== "connected" && provider && (
+                <div style={{ padding: "var(--space-md) var(--space-lg) 0" }}>
+                  <TrustGateBanner
+                    connectionState={connState}
+                    userName={provider.name}
+                    meetsShared={connection?.meetsShared}
+                  />
+                </div>
+              )}
               {activeContent}
             </div>
           </section>
@@ -735,7 +750,18 @@ function ExploreProfileContent() {
             </div>
           </div>
 
-          <div className="profile-scroll-body">{activeContent}</div>
+          <div className="profile-scroll-body">
+            {connState !== "connected" && provider && (
+              <div style={{ padding: "var(--space-md) var(--space-md) 0" }}>
+                <TrustGateBanner
+                  connectionState={connState}
+                  userName={provider.name}
+                  meetsShared={connection?.meetsShared}
+                />
+              </div>
+            )}
+            {activeContent}
+          </div>
         </section>
       )}
 

@@ -10,6 +10,8 @@ Edit this file to refine the text. Each section = one slide. Once the copy is fi
 
 **Subtitle:** Strategy & Direction
 
+**Italic subtitle:** A proposal for discussion
+
 **Footer:** March 2026
 
 ---
@@ -20,33 +22,33 @@ Edit this file to refine the text. Each section = one slide. Once the copy is fi
 
 **Body:** With AI, we can build and iterate faster than ever. That changes what's possible for Doggo — not just what we build, but how quickly we can explore, test, and refine ideas.
 
-**Italic body:** I want to share some suggestions for where we could take this. These are proposals — meant to start a conversation, not close one.
+**Italic body:** These are some ideas for next steps for discussion.
 
-**Bottom cards:** Strategy | Roadmap | Challenges | Next steps
+**Bottom cards:** Strategy | Roadmap | Challenges | Next Steps
 
 ---
 
-## Slide 3 — The Opportunity
+## Slide 3 — Two Approaches
 
-**Title:** The opportunity
+**Title:** Two approaches to dog care
 
-**Left card — "The current model":**
+**Left card — "Provider model"** (orange accent):
 
-Platforms like Rover connect owners with strangers based on availability and price.
+- Requires two user bases (owners + providers)
+- Trust built through stranger reviews
+- Incentivises quantity over quality
+- High friction to get started
 
-Trust is based on reviews from other strangers. There's no real relationship — it's transactional from the start.
+→ *Feels transactional. Hard to launch.*
 
-This works for some people. But many owners — especially with anxious or reactive dogs — want to know who's caring for their dog before money changes hands.
+**Right card — "Community model"** (teal accent):
 
-**Right card — "A different angle":**
+- Community driven, focused on dog owner as identity
+- Trust built through real interaction
+- Easy progression from owner to provider
+- Only one user base needed
 
-**What if the community is the product?**
-
-Dog owners meet through shared activities. They build familiarity over time. When they need care, they already know and trust someone.
-
-Doggo isn't a marketplace with social features bolted on. It's a community where care emerges naturally.
-
-**Bottom tagline:** Meets build trust. Trust enables care. Care is booked and tracked.
+→ *Feels social, low-pressure, repeatable.*
 
 ---
 
@@ -58,9 +60,9 @@ Doggo isn't a marketplace with social features bolted on. It's a community where
 
 **Stage 2 — Trust:** Repeated encounters build familiarity. Connections grow organically. No algorithms.
 
-**Stage 3 — Care:** When care is needed, you already know someone. Booking feels natural, not cold.
+**Stage 3 — Care:** When care is needed, you find providers through established networks. Booking feels natural, not cold.
 
-**Bottom bar:** This is different from Rover — and that's both the opportunity and the risk.
+**Bottom bar (italic):** Not everyone follows this path. Some just need care — but all users benefit from the trust the community builds.
 
 ---
 
@@ -85,33 +87,36 @@ Doggo isn't a marketplace with social features bolted on. It's a community where
 
 | Step | Description |
 |------|-------------|
-| Owner only | Uses Doggo for community |
-| Open to helping | Walks a friend's dog on the way |
-| Listed services | Set price, availability, constraints |
-| Full provider | Meaningful income from care |
+| Owner only | Focused on their dog's exercise and friendships |
+| Open to helping | Occasionally brings a friend's dog along — gets paid for it |
+| Listed services | Sets prices and availability, accepts bookings |
+| Full provider | Offers multiple services, earns meaningful income from care |
 
 ---
 
 ## Slide 6 — Trust & Privacy
 
-**Title:** Trust & privacy by design
+**Title:** Safe by default, social by choice
 
-**Subtitle:** Users control who sees them and who can contact them. Trust is earned through real interaction, not profiles.
+**Subtitle:** People need to feel comfortable joining. No stalkers, no pressure — just easy, gradual connections.
 
-**Connection states:**
+**Connection types:**
 
-| State | Description |
-|-------|-------------|
-| None | Strangers. See name, dog, neighbourhood only. No contact. |
-| Familiar | One-sided. You grant expanded visibility to specific people. |
-| Pending | Connect request sent. Awaiting acceptance. |
-| Connected | Mutual. Full profiles, messaging, care arrangements unlocked. |
+| Type | Badge | See | Do |
+|------|-------|-----|-----|
+| None | Default | First name or username, small avatar, neighbourhood. That's it. | Nothing. No contact, no expanded profile, no CTAs. |
+| Familiar | One-sided | You grant someone expanded visibility of profile and details. | They can send a message or connect request. |
+| Connected | Mutual | Full profile, direct messaging, care services if applicable. | Message freely, arrange care, see trust signals. |
 
-**Principle cards:**
+**Middle bar (italic):** The cautious user and the social user both have a path that works for them.
 
-- Locked by default. Users choose visibility.
-- No contact from strangers. Messaging requires connection.
-- Trust signals are contextual, never numeric scores.
+**Visibility controls:**
+
+| Control | Description |
+|---------|-------------|
+| Locked (default) | Only Familiar or Connected see your full profile. You build your network selectively. |
+| Public | Sets everyone to Familiar automatically. Great for social users and providers. |
+| Selective Controls | After a meet, mark the whole guest list as Familiar — or pick individuals. |
 
 ---
 
@@ -123,12 +128,11 @@ Doggo isn't a marketplace with social features bolted on. It's a community where
 
 | Feature | Description |
 |---------|-------------|
-| Home | Community highlights, nearby meets, your dog's network. Not a feed of strangers. |
-| Meets | Walks, hangouts, playdates. Owner-created, dog-centred. The primary way people connect. |
-| Connections | Four-state model from stranger to trusted friend. You control the pace. |
-| Messaging | Message first, book when ready. Booking proposals live inside conversations. |
-| Find Care | An intentional action, not a default tab. Trust signals on every provider card. |
-| Profiles | Everyone is an owner first. Dog profiles are rich. The provider dial is just a toggle. |
+| Connections | Gradual trust — from stranger to familiar to connected. You control the pace and visibility at every step. |
+| Groups | Persistent communities — your Tuesday Letna crew, a reactive dog playdate circle. Public or private. Chat, gallery, shared event list. |
+| Meets | Events within groups. Walks, hangouts, playdates, training sessions. Open to anyone or restricted to group members. |
+| Find Care | Available any time — no social participation required. But every provider card shows real trust signals from the community. |
+| Business Profiles | Local pet businesses, groomers, vets, pet shops get community-embedded listings. Not ads. Part of the neighbourhood. |
 
 ---
 
@@ -136,44 +140,56 @@ Doggo isn't a marketplace with social features bolted on. It's a community where
 
 **Title:** Dog-first positioning
 
-**Subtitle:** Every feature leads with the dog. Human connections are a byproduct, not the pitch.
+**Subtitle:** Lead with real utility for the dog. Human connection is a natural outcome — not the promise.
 
-**Card 1 — "The comfortable framing":**
-People wary of 'social apps' will happily join a dog app. The dog provides shared context that makes showing up natural rather than forced.
+**Card 1 — "Make our dogs friends, and maybe some humans too":**
+People hesitate to join social platforms, but will join something that directly benefits their dog. The dog gives a clear, non-performative reason to show up.
 
-**Card 2 — "The hidden reward":**
-Users who join 'for their dog' and end up making friends are the highest-retention users. The social reward lands harder because it wasn't sold to them.
+**Card 2 — "Stronger, more natural connections":**
+Dogs create shared context and repeated real-world interaction through walks, parks, routines. This leads to organic relationships instead of forced social behaviour.
 
-**Card 3 — "The care transition":**
-You're not 'becoming a gig worker' — you're helping with dogs, which you already love doing. The shift from community member to helper is seamless.
-
----
-
-## Slide 9 — The Cold Start Challenge
-
-**Title:** The biggest challenge
-
-**Subtitle:** Getting the first users.
-
-**Left body:**
-
-The provider-marketplace model has a chicken-and-egg problem: you need providers to attract owners and owners to attract providers.
-
-Community-first might be easier — you only need owners. But a community app with no community is worse than useless.
-
-**This might be the most important problem to solve, and where most of the initial investment should go.**
-
-**Right cards:**
-
-- Empty rooms feel broken. The first meets need to be seeded, not organic.
-- This likely means paying early users to host events, or strong partnerships with local dog communities.
-- A focused neighbourhood launch (not city-wide) is essential to create density.
-
-**Bottom bar:** This challenge deserves its own strategy — not an afterthought.
+**Card 3 — "Aligned with how people behave":**
+Users want control, privacy, and low-pressure interaction. Doggo isn't a social network, it's a local coordination layer for dog life.
 
 ---
 
-## Slide 10 — What We Need to Validate
+## Slide 9 — Revenue Model
+
+**Title:** How it eventually makes money
+
+**Subtitle:** Revenue follows trust. The community is free — the platform earns from care transactions it facilitates.
+
+**Card 1 — "Care transaction fee (10–15%)":**
+The core revenue stream. When a connected user books care through the platform, Doggo takes a percentage. Clear records, cancellation handling, and payment without any hassle.
+
+**Card 2 — "Business profiles (freemium)":**
+Local pet businesses — groomers, vets, shops — get community-embedded listings. Enhanced visibility is the paid tier. Not ads — part of the neighbourhood.
+
+**Card 3 — "Premium features (later, careful)":**
+Advanced group tools, expanded gallery storage, priority visibility. Community features stay free — no paywalls on core social functionality.
+
+---
+
+## Slide 10 — The Cold Start Challenge
+
+**Title:** The real challenge: creating density
+
+**Subtitle:** Doggo only works when there are enough dogs nearby. Without density, the product feels broken.
+
+**Cards:**
+
+| Card | Description |
+|------|-------------|
+| Start hyper-local | Launch in one neighbourhood with high dog density — not city-wide. |
+| Make it look alive from day one | Show upcoming walks, recent activity, active dogs nearby. |
+| Seed the first groups manually | Host small group walks, partner with trainers, dog communities, etc. |
+| Marketing push at launch | Targeted social media, local partnerships, physical presence at dog parks. |
+
+**Bottom bar (coral):** We will likely need a serious budget for marketing and deliberate seeding to get the necessary first movement.
+
+---
+
+## Slide 11 — What We Need to Validate
 
 **Title:** What we need to validate
 
@@ -181,19 +197,17 @@ Community-first might be easier — you only need owners. But a community app wi
 
 | Question | Detail |
 |----------|--------|
-| Will owners use an app for dog meets? | Or is WhatsApp good enough? This is existential. |
-| Does the community model build trust? | Will repeated meet attendance actually make people comfortable enough to arrange care? |
-| Is Prague the right starting market? | Dog density, park culture, willingness to try new platforms. |
+| Will owners use an app for dog meets? | Or is Social Media/What'sApp good enough? This is existential. |
+| Does the community model build trust? | Will repeated meet attendance make people more comfortable to arrange care? |
 | Can we seed initial activity? | What does it cost to make the first neighbourhoods feel alive? |
-| Will the care transition happen naturally? | Or does it need more active product nudging? |
 
 ---
 
-## Slide 11 — Roadmap: Two Tracks
+## Slide 12 — Roadmap: Two Tracks
 
 **Title:** Roadmap: build and test in parallel
 
-**Subtitle:** Don't wait until the product is done to learn if the idea works.
+**Subtitle:** Let's start testing while building
 
 **Column headers:** DEVELOP | TEST & VALIDATE
 
@@ -204,17 +218,17 @@ Community-first might be easier — you only need owners. But a community app wi
 
 **Near-term:**
 
-- Develop: Nice-to-have features. Private groups, photo gallery, payment mock.
-- Test: Show prototype to target users. Test specific flows. Validate trust model.
+- Develop: Polish flows, add nice-to-have features (groups, gallery, payment mock). Explore how much we can build with AI-assisted development.
+- Test: Show prototype to target users. Test specific flows. Validate trust model. Begin outlining a go-to-market strategy.
 
 **Later:**
 
 - Develop: Production infrastructure decisions based on test results.
-- Test: Seed a real neighbourhood. Measure engagement, retention, care conversion.
+- Test: Seed a real neighbourhood with the go-to-market plan. Measure engagement, retention, care conversion.
 
 ---
 
-## Slide 12 — Where Do We Take This?
+## Slide 13 — Where Do We Take This?
 
 **Title:** Where do we want to take this?
 
@@ -237,26 +251,24 @@ Continue with AI-assisted development. Move methodically from prototype toward a
 
 ---
 
-## Slide 13 — Suggestion
+## Slide 14 — Where to Invest
 
-**Title:** A suggestion
+**Title:** Where to invest
 
-**Subtitle:** Invest in a launch strategy now — don't wait until the product is 'done.'
+**Subtitle:** Even more than development costs, a marketing and community push at launch might be what's required for real success.
 
 **Card 1 — "Marketing plan":**
-Budget and plan for seeding the first neighbourhoods. This might matter more than the next feature.
+Budget and plan for seeding the first neighbourhoods. Targeted social media, local partnerships, physical presence at dog parks. This might matter more than the next feature.
 
 **Card 2 — "Community seeding":**
-Pay early hosts. Partner with local dog communities. Create density before launch.
+Pay early hosts to organise and run meets. Partner with local dog communities and trainers. Create density before expecting organic growth.
 
 **Card 3 — "Validation budget":**
-Surveys, user tests, prototype walkthroughs. Learn fast what resonates and what doesn't.
-
-**Bottom tagline:** The product is the community. The community needs a launch plan.
+Surveys, user tests, prototype walkthroughs. Start testing assumptions now so we're building on evidence, not guesses.
 
 ---
 
-## Slide 14 — Closing
+## Slide 15 — Closing
 
 **Title:** Let's discuss.
 

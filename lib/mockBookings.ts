@@ -44,6 +44,7 @@ const olgaBooking: Booking = {
     { id: "s-olga-6", date: "2026-03-13", status: "upcoming" },
   ],
   signedAt: "2026-02-28T14:30:00Z",
+  paymentStatus: "paid",
 };
 
 // ── Upcoming one-off — Nikola, overnight boarding Aug 12–18 ────────────────────
@@ -76,6 +77,7 @@ const nikolaBooking: Booking = {
   },
   status: "upcoming",
   signedAt: "2026-03-05T10:15:00Z",
+  paymentStatus: "unpaid",
 };
 
 // ── Completed — Petra, drop-in visits Dec 2025 ─────────────────────────────────
@@ -107,6 +109,7 @@ const petraBooking: Booking = {
   },
   status: "completed",
   signedAt: "2025-12-18T09:00:00Z",
+  paymentStatus: "paid",
 };
 
 // ── Exports ─────────────────────────────────────────────────────────────────────

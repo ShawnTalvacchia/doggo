@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-03-16
+last-reviewed: 2026-03-24
 tags: [components, ui, inventory]
 review-trigger: "when building or refactoring components"
 ---
@@ -31,14 +31,24 @@ Working reference for every component and UI pattern in the codebase. Use it to 
 components/
   ui/           ← Primitives: ButtonAction, ButtonIcon, InputField, CheckboxRow,
                   Toggle, StatusBadge, Slider, DatePicker,
-                  RecurringSchedulePicker, BookingRow
+                  RecurringSchedulePicker, BookingRow, EmptyState
   layout/       ← App chrome: AppNav, BottomNav, FormHeader, FormFooter, GuestLayout
   overlays/     ← ModalSheet, BookingModal
   explore/      ← FilterPanelDesktop, FilterPanelMobile, FilterPanelShell, FilterBody, ProfileHeader,
                   CardExploreResult, MapView
   signup/       ← SignupProgressBar, SignupProfilePreview
-  messaging/    ← InquiryForm, BookingProposalCard, InquiryChips
+  messaging/    ← InquiryForm, BookingProposalCard, InquiryChips, InquiryResponseCard,
+                  ProposalForm, RelationshipBanner, PaymentCard, ContractCard, SigningModal
+  bookings/     ← CancelBookingModal, BookingListCard
   landing/      ← HowItWorksTabs
+  posts/        ← TagPill, PostPhotoGrid, PawReaction, TagAutocomplete
+  feed/         ← FeedCard, FeedPersonalPost, FeedCommunityPost, FeedMeetRecap,
+                  FeedUpcomingMeet, FeedConnectionActivity, FeedConnectionNudge,
+                  FeedCarePrompt, FeedMilestone, FeedDogMoment, FeedCareReview,
+                  CompactGreeting, ShareMomentBar, UpcomingStrip, HomeFAB
+  groups/       ← GroupCard
+  profile/      ← ProfileHeaderOwn, TrustSignalBadges, PostsTab, TagApprovalSetting,
+                  PetCard, PetEditCard, ProfileAboutTab, ProfileServicesTab
 ```
 
 ---
@@ -135,6 +145,20 @@ Small coloured status label for contract lifecycle states. Maps each status to a
 | `status` | `"upcoming" \| "active" \| "completed" \| "cancelled" \| "paused"` |
 
 Token mapping: `--status-{success/info/error/warning}-{strong/light}`.
+
+---
+
+### EmptyState · `built`
+`components/ui/EmptyState.tsx`
+
+Standardised empty state pattern. Icon + title + optional subtitle + optional CTA action slot. Used on Schedule page empty sections and anywhere a "nothing here yet" state is needed.
+
+| Prop | Type | Notes |
+|------|------|-------|
+| `icon` | ReactNode | Phosphor icon, renders in `text-fg-tertiary` |
+| `title` | string | Primary message |
+| `subtitle` | string? | Secondary message |
+| `action` | ReactNode? | Optional CTA (ButtonAction) |
 
 ---
 
@@ -412,7 +436,7 @@ Leaflet map with SSR-safe dynamic import wrapper (`MapView` wraps `MapViewInner`
 ---
 
 ## Group 7 — Messaging (Inbox)
-_Components specific to the inbox / conversation flow. Currently all inline in `ThreadClient.tsx`._
+_Components specific to the inbox / conversation flow._
 
 ### InquiryForm · `built`
 `components/messaging/InquiryForm.tsx`
@@ -448,6 +472,48 @@ Summary chip row pinned above the message list once an inquiry is sent. Shows: s
 
 ---
 
+### InquiryResponseCard · `built`
+`components/messaging/InquiryResponseCard.tsx`
+
+Shown to the carer when a booking inquiry exists but no proposal has been sent yet. Displays inquiry summary as pills and three action buttons: Send Proposal, Suggest Changes, Decline (with optional reason).
+
+---
+
+### ProposalForm · `built`
+`components/messaging/ProposalForm.tsx`
+
+Simplified proposal builder for carers. Opens in a ModalSheet. Pre-fills from inquiry data (service, pets, schedule). Carer can adjust sub-service and price before sending.
+
+---
+
+### RelationshipBanner · `built`
+`components/messaging/RelationshipBanner.tsx`
+
+Trust context banner shown at the top of booking conversation threads. Shows connection state, meets shared, and how they met. Extracted from ThreadClient.tsx in Phase 12.
+
+---
+
+### PaymentCard · `built`
+`components/messaging/PaymentCard.tsx`
+
+Payment summary/confirmation card rendered in booking conversations. Shows line items, platform fee, total. Uses ButtonAction for the "Pay through Doggo" CTA. Extracted from ThreadClient.tsx in Phase 12.
+
+---
+
+### ContractCard · `built`
+`components/messaging/ContractCard.tsx`
+
+Contract signed confirmation card. Shows service, pets, start date, carer name, and link to booking detail. Extracted from ThreadClient.tsx in Phase 12.
+
+---
+
+### SigningModal · `built`
+`components/messaging/SigningModal.tsx`
+
+Contract review modal (ModalSheet). Shows carer info, service details, schedule, pricing breakdown, and "Sign & Book" / "Not yet" actions using ButtonAction. Extracted from ThreadClient.tsx in Phase 12.
+
+---
+
 ## Group 8 — Signup Flow
 _Components that only appear in the `/signup/*` flow._
 
@@ -471,7 +537,7 @@ Live preview card shown during the profile signup step. Updates in real-time as 
 ---
 
 ## Group 9 — Landing
-_Components used only on the public landing page._
+_Components used only on the public landing page. Inline sub-components in `app/page.tsx`._
 
 ### HowItWorksTabs · `built`
 `components/landing/HowItWorksTabs.tsx`
@@ -480,7 +546,70 @@ Tab switcher for the "How it works" section. Owner / Sitter views.
 
 ---
 
-## Group 10 — CSS Patterns
+### MeetTypeCard · `built`
+`app/page.tsx` (inline)
+
+Photo card for the "Meets for every dog" section. SVG illustration + title + description.
+
+| Prop | Type |
+|------|------|
+| `imgSrc` | string |
+| `title` | string |
+| `description` | string |
+
+---
+
+### ArchetypeCard · `built`
+`app/page.tsx` (inline)
+
+Card with coloured left ribbon for the "Everyone uses Doggo differently" section. Icon in a tinted circle + label + description. Accent colour passed as CSS variable.
+
+| Prop | Type | Notes |
+|------|------|-------|
+| `icon` | ReactNode | Phosphor icon |
+| `label` | string | e.g. "The Regular" |
+| `description` | string | |
+| `accentColor` | string | CSS variable, e.g. `var(--status-info-main)` |
+
+---
+
+### TestimonialCard · `built`
+`app/page.tsx` (inline)
+
+Social proof card with quote, author name, detail line, and avatar.
+
+| Prop | Type |
+|------|------|
+| `quote` | string |
+| `name` | string |
+| `detail` | string |
+| `avatarUrl` | string |
+
+---
+
+## Group 10 — Booking & Care (Phase 7)
+_Components added for the community-native care layer._
+
+_RelationshipBanner and PaymentCard moved to `components/messaging/` in Phase 12. See Group 7._
+
+### CommunityCarersSection · `built`
+`app/explore/results/page.tsx` (inline)
+
+"From your community" section shown above marketplace results on the explore page. Filters Connected carers by selected service type.
+
+### CareFromNetwork · `built`
+`app/home/page.tsx` (inline)
+
+"Care from your network" section on the Home page. Shows Connected users who offer care with meets-together context and pricing.
+
+### CarerTrustCard · `built`
+`app/bookings/[bookingId]/page.tsx` (inline)
+
+Trust context card on booking detail page. Shows carer's connection state, shared meets, location, and profile link.
+
+---
+
+## Group 11 — CSS Patterns
 _No React wrapper. Applied via class names. Worth knowing about for consistency._
 
 | Pattern | Key classes | Where used | Notes |
@@ -517,3 +646,132 @@ _Ordered by impact vs. effort._
 | 11 | Consolidate `RangeSlider` + `DualRangeSlider` → single `Slider` with `dual` prop | Consolidate | M | ✅ Done | Selection controls |
 | 12 | Add style guide sections for: `DatePicker`, `RecurringSchedulePicker`, `BookingModal` | Document | M | ✅ Done | Style guide gaps |
 | 13 | Add style guide sections for: `ProfileHeader`, `FilterBody` accordion pattern | Document | M | ✅ Done | Style guide gaps |
+
+---
+
+## Phase 8 — New Components
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `HomeWelcome` | `components/home/HomeWelcome.tsx` | New user welcome hero on Home (personalised greeting, dog photos, CTAs) | `built` |
+| `DogsNearYou` | `components/home/DogsNearYou.tsx` | Horizontal scroll of neighbourhood dogs from meet attendees | `built` |
+| `MeetRecapHeader` | `components/meets/MeetRecapHeader.tsx` | Post-meet recap summary (title, date, people/dogs/duration stats) | `built` |
+| `MeetPhotoGallery` | `components/meets/MeetPhotoGallery.tsx` | Responsive photo grid for completed meets + "Add yours" placeholder | `built` |
+| `ShareMeetModal` | `components/meets/ShareMeetModal.tsx` | Share/invite modal using ModalSheet (preview card, copy link, share-via icons) | `built` |
+| `TrustSignalBadges` | `components/profile/TrustSignalBadges.tsx` | Relationship depth badges ("Walked together X times", "Known since", "Met at") | `built` |
+
+---
+
+## Phase 9 — New Components
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `GroupCard` | `components/groups/GroupCard.tsx` | Community card for browse/list (cover photo, name, members, next meet) | `built` |
+| `MessageBubble` | `components/chat/MessageBubble.tsx` | Shared chat bubble (extracted from meet detail, used by meet + group chat) | `built` |
+
+---
+
+## Phase 10 — New Components
+
+### Post Components (`components/posts/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `TagPill` / `TagPillRow` | `components/posts/TagPill.tsx` | Tag display pill with 4 variants (dog/person/community/place), tappable links | `built` |
+| `PostPhotoGrid` | `components/posts/PostPhotoGrid.tsx` | Responsive photo layout: 1=full, 2=side-by-side, 3=1+2, 4=2x2 grid | `built` |
+| `PawReaction` | `components/posts/PawReaction.tsx` | Paw-print reaction toggle with count + "Paws" label | `built` |
+| `TagAutocomplete` | `components/posts/TagAutocomplete.tsx` | Search input for tagging dogs, people, communities, places with grouped dropdown | `built` |
+
+### Feed Components (`components/feed/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `FeedCard` | `components/feed/FeedCard.tsx` | Shared card wrapper: author header, timestamp, group badge, connection context | `built` |
+| `FeedPersonalPost` | `components/feed/FeedPersonalPost.tsx` | Personal post card: photos, caption, tags, paw reaction | `built` |
+| `FeedCommunityPost` | `components/feed/FeedCommunityPost.tsx` | Community post card: same as personal + group badge in header | `built` |
+| `FeedMeetRecap` | `components/feed/FeedMeetRecap.tsx` | Meet recap card: photo strip, attendee count, "View recap" link | `built` |
+| `FeedUpcomingMeet` | `components/feed/FeedUpcomingMeet.tsx` | Upcoming meet card: compact meet info + "Join" pill | `built` |
+| `FeedConnectionActivity` | `components/feed/FeedConnectionActivity.tsx` | Connection event card: "[Name] added [service]" + context | `built` |
+| `FeedConnectionNudge` | `components/feed/FeedConnectionNudge.tsx` | Connection suggestion: shared meets context + "Say hi" button | `built` |
+| `FeedCarePrompt` | `components/feed/FeedCarePrompt.tsx` | Contextual care CTA: find care or offer care prompt | `built` |
+| `FeedMilestone` | `components/feed/FeedMilestone.tsx` | Ambient stat card: neighbourhood milestone, no CTA | `built` |
+| `FeedDogMoment` | `components/feed/FeedDogMoment.tsx` | Dog event card: birthday, new dog, tagged notification | `built` |
+| `FeedCareReview` | `components/feed/FeedCareReview.tsx` | Care review card: reviewer/carer avatars, star rating, quote | `built` |
+| `CompactGreeting` | `components/feed/CompactGreeting.tsx` | 1-line home greeting with dog avatars + neighbourhood | `built` |
+| `ShareMomentBar` | `components/feed/ShareMomentBar.tsx` | "Share a moment..." prompt bar linking to post composer | `built` |
+| `UpcomingStrip` | `components/feed/UpcomingStrip.tsx` | Horizontal scroll of mini upcoming-meet cards | `built` |
+| `HomeFAB` | `components/feed/HomeFAB.tsx` | Floating action button (bottom-right, links to post composer) | `built` |
+
+### Profile Components (`components/profile/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `PostsTab` | `components/profile/PostsTab.tsx` | Profile Posts tab: full post cards with photos/tags/reactions + "New post" CTA | `built` |
+| `TagApprovalSetting` | `components/profile/TagApprovalSetting.tsx` | Three-option selector for tag approval (auto/approve/none) | `built` |
+
+---
+
+## Phase 11 — New Components
+
+### Explore Components (`components/explore/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `TrustGateBanner` | `components/explore/TrustGateBanner.tsx` | Contextual banner explaining why care actions are locked (none/familiar/pending states) | `built` |
+
+### Booking Components (`components/bookings/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `CancelBookingModal` | `components/bookings/CancelBookingModal.tsx` | Modal for cancelling a booking with optional reason textarea | `built` |
+
+### New Pages
+
+| Page | Path | Purpose | Status |
+|------|------|---------|--------|
+| Checkout | `app/bookings/[bookingId]/checkout/page.tsx` | Payment mock: summary card, price breakdown with platform fee, mock payment method, pay button + confirmation state | `built` |
+
+---
+
+## Phase 12 — New & Extracted Components
+
+### UI Primitives (`components/ui/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `EmptyState` | `components/ui/EmptyState.tsx` | Standardised empty state: icon + title + optional subtitle + optional CTA | `built` |
+
+### Messaging Components (`components/messaging/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `InquiryResponseCard` | `components/messaging/InquiryResponseCard.tsx` | Carer inquiry response: inquiry summary pills + Send Proposal / Suggest Changes / Decline actions | `built` |
+| `ProposalForm` | `components/messaging/ProposalForm.tsx` | Carer proposal builder (ModalSheet): pre-fills from inquiry, editable price | `built` |
+| `RelationshipBanner` | `components/messaging/RelationshipBanner.tsx` | Trust context banner (extracted from ThreadClient) | `built` |
+| `PaymentCard` | `components/messaging/PaymentCard.tsx` | Payment summary card (extracted from ThreadClient, uses ButtonAction) | `built` |
+| `ContractCard` | `components/messaging/ContractCard.tsx` | Contract signed card (extracted from ThreadClient) | `built` |
+| `SigningModal` | `components/messaging/SigningModal.tsx` | Contract review modal (extracted from ThreadClient, uses ButtonAction) | `built` |
+
+### Booking Components (`components/bookings/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `BookingListCard` | `components/bookings/BookingListCard.tsx` | Compact booking row for schedule/list views (extracted from schedule page) | `built` |
+
+### Profile Components (`components/profile/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `PetCard` | `components/profile/PetCard.tsx` | Pet view card: photo, identity, energy/play badges, socialisation, vet info, photo gallery | `built` |
+| `PetEditCard` | `components/profile/PetEditCard.tsx` | Pet edit form: all fields editable, photo upload, vet info, play styles | `built` |
+| `ProfileAboutTab` | `components/profile/ProfileAboutTab.tsx` | About tab: bio, dogs (view/add/edit), connections, tag prefs, care CTAs | `built` |
+| `ProfileServicesTab` | `components/profile/ProfileServicesTab.tsx` | Services tab: offer care toggle, service configs, availability grid, visibility | `built` |
+
+### Key Refactors
+
+| File | Before | After | Change |
+|------|--------|-------|--------|
+| `ThreadClient.tsx` | 664 lines | 492 lines | 4 components extracted to `components/messaging/`, carer actions added |
+| `profile/page.tsx` | 1,438 lines | 297 lines | 4 components extracted to `components/profile/` |
+| `schedule/page.tsx` | 226 lines | 216 lines | Booking cards extracted to `BookingListCard`, inline styles removed, `EmptyState` adopted |
+| `globals.css` | 9,720 lines | 8,873 lines | 95 dead classes removed |

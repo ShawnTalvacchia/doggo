@@ -60,6 +60,7 @@ See `docs/CONTRIBUTING.md` for full details.
 3. **Doc frontmatter:** Every doc has `status`, `last-reviewed`, `review-trigger`. Update `last-reviewed` when you touch a doc.
 4. **No feature sprawl.** If it's not on the phase board, don't build it without discussion.
 5. **Update feature docs** in `docs/features/` when you modify a feature.
+6. **Flows are the source of truth for user journeys.** `docs/flows/` contains Mermaid-based flow charts for every major user flow. Reference them when planning new phases and writing tasks. When closing a phase, review all affected flows — update step statuses, flag conflicts, and note any new considerations that emerged during the work.
 
 ## Key Docs
 
@@ -71,19 +72,20 @@ See `docs/CONTRIBUTING.md` for full details.
 | `docs/strategy/Trust & Connection Model.md` | Connection states, trust principles, safety & privacy |
 | `docs/strategy/MVP Scope Boundaries.md` | Prototype scope — required / nice-to-have / out |
 | `docs/strategy/Open Questions & Assumptions Log.md` | Unresolved strategic questions |
+| `docs/flows/` | User flow charts (Mermaid) with step-by-step build status |
 | `docs/features/` | Feature specs: meets, connections, messaging, explore-and-care, profiles, schedule |
 | `docs/implementation/frontend-style.md` | CSS conventions and rules |
 | `docs/implementation/design-tokens.md` | Token reference and mapping notes |
 | `docs/implementation/component-inventory.md` | Built components catalog |
 | `docs/CONTRIBUTING.md` | Workflow rules, doc categories, naming conventions |
 
-## Current Phase: 6 — Audit & Alignment
+## Current Phase: 12 — Demo Ready
 
-**Goal:** Review everything built in Phases 1–5 against the updated strategy and feature docs. Identify gaps, inconsistencies, and polish opportunities. No new features — refine what exists.
+**Goal:** Close the last functional gap (carer inbox actions), clean up the design system and CSS, extract inlined components, and polish UX consistency — leaving the codebase ready for a Figma design pass.
 
-**Key focus:** Home page overhaul (more welcoming, photos, community-focused), landing page review, signup flow review, visual consistency pass, component/token cleanup.
+**Key focus:** Carer inquiry response flow in inbox, component extraction (ThreadClient + profile page), dead CSS audit, inline style migration, EmptyState + ButtonAction adoption.
 
-**Board:** See `docs/ROADMAP.md` for Phase 6 details.
+**Board:** See `docs/phases/phase-12-demo-ready.md` and `docs/ROADMAP.md`.
 
 ## Strategic Context
 

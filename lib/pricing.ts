@@ -1,4 +1,4 @@
-import { ServiceType } from "@/lib/types";
+import type { ServiceType, BookingPrice, PaymentSummary } from "@/lib/types";
 
 export const FILTER_RATE_MIN_KC = 150;
 export const FILTER_RATE_MAX_KC = 1800;
@@ -29,4 +29,21 @@ export function normalizeKcPrice(rawPrice: number): number {
   if (!Number.isFinite(rawPrice) || rawPrice <= 0) return rawPrice;
   if (rawPrice < 100) return rawPrice * 10;
   return rawPrice;
+}
+
+// ── Platform fee ─────────────────────────────────────────────────────────────
+
+const PLATFORM_FEE_PERCENT = 12;
+
+/** Calculate payment summary with platform fee from a booking price */
+export function calculatePaymentSummary(price: BookingPrice): PaymentSummary {
+  const platformFeeAmount = Math.round(price.total * (PLATFORM_FEE_PERCENT / 100));
+  return {
+    lineItems: price.lineItems,
+    platformFeePercent: PLATFORM_FEE_PERCENT,
+    platformFeeAmount,
+    total: price.total + platformFeeAmount,
+    currency: "Kč",
+    status: "pending",
+  };
 }

@@ -32,8 +32,8 @@ All values in `app/globals.css` are now synced to Figma. Do not hand-edit primit
 | ---------- | ----------------- | --------- |
 | White      | `--neutral-white` | `#ffffff` |
 | 12         | `--neutral-12`    | `#fcfcfc` |
-| 25         | `--neutral-25`    | `#f4f4f4` |
-| 50         | `--neutral-50`    | `#e8e8e8` |
+| 25         | `--neutral-25`    | `#F8F8F8` |
+| 50         | `--neutral-50`    | `#F4F4F4` |
 | 100        | `--neutral-100`   | `#e5e5e5` |
 | 150        | `--neutral-150`   | `#d8d8d8` |
 | 200        | `--neutral-200`   | `#cbcbcb` |
@@ -104,8 +104,8 @@ CSS pattern: `--transparent-{dark|light|gray}-{step}`
 | -------------------- | ------------------------ | --------------------------- |
 | Surface/Top          | `--surface-top`          | `--neutral-white` `#ffffff` |
 | Surface/Popout       | `--surface-popout`       | `--neutral-12` `#fcfcfc`    |
-| Surface/Base         | `--surface-base`         | `--neutral-25` `#f4f4f4`    |
-| Surface/Inset        | `--surface-inset`        | `--neutral-50` `#e8e8e8`    |
+| Surface/Base         | `--surface-base`         | `--neutral-25` `#F8F8F8`    |
+| Surface/Inset        | `--surface-inset`        | `--neutral-50` `#F4F4F4`    |
 | Surface/Gray         | `--surface-gray`         | `--neutral-200` `#cbcbcb`   |
 | Surface/Disabled     | `--surface-disabled`     | `--neutral-300` `#b0b2b2`   |
 | Surface/Base-inverse | `--surface-base-inverse` | `--neutral-800` `#323232`   |
@@ -139,7 +139,7 @@ CSS pattern: `--transparent-{dark|light|gray}-{step}`
 | ---------------- | -------------------- | ------------------------- |
 | Border/Lightest  | `--border-lightest`  | `--neutral-white`         |
 | Border/Light     | `--border-light`     | `--neutral-25`            |
-| Border/Regular   | `--border-regular`   | `--neutral-50` `#e8e8e8`  |
+| Border/Regular   | `--border-regular`   | `--neutral-50` `#F4F4F4`  |
 | Border/Strong    | `--border-strong`    | `--neutral-100` `#e5e5e5` |
 | Border/Stronger  | `--border-stronger`  | `--neutral-150` `#d8d8d8` |
 | Border/Strongest | `--border-strongest` | `--neutral-400` `#969898` |

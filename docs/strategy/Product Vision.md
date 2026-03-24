@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-03-18
+last-reviewed: 2026-03-21
 tags: [vision, principles, strategy, monetization]
 review-trigger: "before any major feature decision or strategic discussion"
 ---
@@ -115,6 +115,27 @@ DOGGO logo  |  Home  Meets  Schedule  |  [Find Care]  [Offer Care]  |  Bell  Inb
 ### Care discovery
 
 Provider search is accessed via "Find Care" CTA — an intentional action from within the community context, not a default tab. See [[explore-and-care]] for the full flow.
+
+---
+
+## Brand Voice & Positioning
+
+Key copy decisions that define how Doggo communicates its value. These emerged from landing page iteration (March 2026) and should be referenced when writing any user-facing copy.
+
+### Tagline
+**"Your dog's neighbourhood crew."** — Dog-first, local, warm. Avoids "platform" or "marketplace" language. Positions Doggo as something the dog has, not something the owner subscribes to.
+
+### Emotional hook
+**"Does your dog have a community?"** — Question format engages without being answerable with "me!" (unlike "Who's your dog's best friend?"). Creates a gentle gap ("...not really") that the product fills.
+
+### Tone principles
+- **Dog-first:** Lead with the dog's experience, not the platform's features. "Dogs are social — they want to get out, play with dogs they know" over "Connect with dog owners near you."
+- **Warm, not corporate:** "Crew" over "network." "Familiar faces" over "verified profiles." "Your neighbourhood" over "your area."
+- **Show the spectrum:** Three archetype personas (Regular, Connector, Organiser) show there's no "correct" level of engagement. Reinforces the dial-not-switch principle.
+- **Care as outcome, not product:** Care is always framed as something that emerges from community ("Care from people you already know") rather than a standalone service.
+
+### Landing page narrative arc
+Emotional hook → what you can do → how it works → who it's for → care as outcome → social proof → CTA. See [[landing-page]] for full spec.
 
 ---
 
