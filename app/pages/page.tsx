@@ -41,26 +41,26 @@ const siteMap = [
     area: "Community — Meets",
     label: "strategic centrepiece",
     pages: [
-      { name: "Browse Meets", route: "/meets", desc: "Meet cards with activity indicators, filter pills, Nearby/Upcoming/Recent sections" },
+      { name: "Activity", route: "/activity", desc: "Discover/My Schedule/Bookings tabs — meet browse, personal schedule, care arrangements" },
       { name: "Create Meet", route: "/meets/create", desc: "Form: type selection, title, location, date/time, duration, max attendees, recurring, leash & size rules" },
       { name: "Meet Detail", route: "/meets/meet-1", desc: "Type badge, details grid, join/leave, organiser, attendee list with connection badges, group chat" },
       { name: "Post-Meet Connect", route: "/meets/meet-6/connect", desc: "Recap with photos, attendee cards with Familiar/Connect actions, bulk connect, share modal" },
     ],
   },
   {
-    area: "Community — Groups",
+    area: "Communities",
     label: "neighbourhood communities",
     pages: [
-      { name: "Browse Groups", route: "/groups", desc: "Community cards with member counts, neighbourhood identity" },
-      { name: "Create Group", route: "/groups/create", desc: "Form: name, description, visibility (open/approval/private), photo" },
-      { name: "Group Detail", route: "/groups/vinohrady-dogs", desc: "Members, meets, chat, gallery tabs" },
+      { name: "Browse Communities", route: "/communities", desc: "Community cards with member counts, neighbourhood identity" },
+      { name: "Create Community", route: "/communities/create", desc: "Form: name, description, visibility (open/approval/private), photo" },
+      { name: "Community Detail", route: "/communities/group-1", desc: "Members, meets, chat, gallery" },
     ],
   },
   {
     area: "Home & Schedule",
     pages: [
       { name: "Home", route: "/home", desc: "Personalised greeting, dog photos, nearby meets, community carers, your groups, neighbourhood stats" },
-      { name: "Schedule", route: "/schedule", desc: "This Week / Coming Up / Past — user's joined meets" },
+      { name: "Schedule (redirects to Activity)", route: "/schedule", desc: "Redirects to /activity?tab=schedule" },
     ],
   },
   {

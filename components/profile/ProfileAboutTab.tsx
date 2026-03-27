@@ -26,7 +26,7 @@ function ConnectionsList() {
         <p className="text-sm text-fg-secondary">
           No connections yet. Attend a meet to start building your community.
         </p>
-        <ButtonAction variant="primary" size="sm" cta href="/meets">
+        <ButtonAction variant="primary" size="sm" cta href="/activity">
           Browse Meets
         </ButtonAction>
       </div>

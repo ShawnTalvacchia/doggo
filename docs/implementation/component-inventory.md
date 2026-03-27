@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-03-24
+last-reviewed: 2026-03-26
 tags: [components, ui, inventory]
 review-trigger: "when building or refactoring components"
 ---
@@ -655,6 +655,7 @@ _Ordered by impact vs. effort._
 |-----------|------|---------|--------|
 | `HomeWelcome` | `components/home/HomeWelcome.tsx` | New user welcome hero on Home (personalised greeting, dog photos, CTAs) | `built` |
 | `DogsNearYou` | `components/home/DogsNearYou.tsx` | Horizontal scroll of neighbourhood dogs from meet attendees | `built` |
+| `MeetCard` | `components/meets/MeetCard.tsx` | Meet list card: type badge, group link, meta row, type-specific summary pills (pace/distance for walks, drop-in window for hangouts, age/play style for playdates, skills for training), energy level badge, attendee avatars, spots remaining, activity indicator | `built` |
 | `MeetRecapHeader` | `components/meets/MeetRecapHeader.tsx` | Post-meet recap summary (title, date, people/dogs/duration stats) | `built` |
 | `MeetPhotoGallery` | `components/meets/MeetPhotoGallery.tsx` | Responsive photo grid for completed meets + "Add yours" placeholder | `built` |
 | `ShareMeetModal` | `components/meets/ShareMeetModal.tsx` | Share/invite modal using ModalSheet (preview card, copy link, share-via icons) | `built` |
@@ -775,3 +776,33 @@ _Ordered by impact vs. effort._
 | `profile/page.tsx` | 1,438 lines | 297 lines | 4 components extracted to `components/profile/` |
 | `schedule/page.tsx` | 226 lines | 216 lines | Booking cards extracted to `BookingListCard`, inline styles removed, `EmptyState` adopted |
 | `globals.css` | 9,720 lines | 8,873 lines | 95 dead classes removed |
+
+---
+
+## Phase 14 — New Components
+
+### UI Primitives (`components/ui/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `TabBar` | `components/ui/TabBar.tsx` | Reusable tab bar with active state, used by Activity page and other tabbed views | `built` |
+
+### Activity Components (`components/activity/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `DiscoverTab` | `components/activity/DiscoverTab.tsx` | Meet browse + filter (extracted from old `/meets` page) | `built` |
+| `MyScheduleTab` | `components/activity/MyScheduleTab.tsx` | Personal schedule — upcoming + past (extracted from old `/schedule` page) | `built` |
+| `BookingsTab` | `components/activity/BookingsTab.tsx` | Care bookings (extracted from old `/schedule` page) | `built` |
+
+### Chat Components (`components/chat/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `SystemMessage` | `components/chat/SystemMessage.tsx` | Centered muted system/activity message in group chat (member_joined, meet_posted, rsvp_milestone) | `built` |
+
+### Meet Components (`components/meets/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `MeetCardCompact` | `components/meets/MeetCardCompact.tsx` | Compact horizontal meet card for event card strip at top of community chat | `built` |

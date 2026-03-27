@@ -41,7 +41,7 @@ export function HomeWelcome() {
       </div>
 
       <div className="flex gap-sm w-full" style={{ maxWidth: 400 }}>
-        <ButtonAction variant="primary" size="md" href="/meets" className="flex-1">
+        <ButtonAction variant="primary" size="md" href="/activity" className="flex-1">
           Find meets near you
         </ButtonAction>
         <ButtonAction variant="secondary" size="md" href="/meets/create" className="flex-1">

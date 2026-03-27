@@ -1,7 +1,7 @@
 ---
 category: feature
 status: active
-last-reviewed: 2026-03-18
+last-reviewed: 2026-03-26
 tags: [meets, groups, community, social]
 review-trigger: "when modifying meets, groups, group chat, or meet discovery"
 ---
@@ -28,10 +28,15 @@ This distinction matters because **meets alone aren't enough.** Without a persis
 
 The prototype currently has standalone meets without a group layer:
 
-- **Pages:** `/meets` (browse + filters), `/meets/[meetId]` (detail), `/meets/create` (creation form)
-- **Components:** Meet cards, meet detail layout, group chat thread, attendee list, filter panel
+- **Pages:** `/meets` now redirects to `/activity?tab=discover`. `/meets/[meetId]` (detail), `/meets/create` (creation form). `/activity` is the new unified discovery + schedule page.
+- **Activity tab structure:** `/activity` has three sub-tabs:
+  - **Discover** — meet browse with filters (extracted from old `/meets` page)
+  - **My Schedule** — upcoming + past personal schedule (extracted from old `/schedule` page)
+  - **Bookings** — care arrangements (extracted from old `/schedule` page)
+- **Components:** Meet cards, meet detail layout, group chat thread, attendee list, filter panel, TabBar, DiscoverTab, MyScheduleTab, BookingsTab, MeetCardCompact
 - **Data:** Mock meets with various types, locations, recurring schedules
 - **Status:** Browse, create, detail, group chat, join/leave, recurring meets all functional
+- **Discovery paths:** Meets are discoverable both through Communities (upcoming meets in community detail) and through Activity > Discover
 
 Groups need to be designed and built. The existing meet infrastructure becomes the "events within groups" layer.
 
@@ -96,13 +101,21 @@ This flexibility matters. A public group might run mostly public meets but occas
 
 ### Meet types
 
-Five types, each with slightly adapted creation fields:
+Four types, each with type-specific creation fields and display:
 
-1. **Walk** — route/pace, start point
-2. **Park hangout** — time window, area
-3. **Playdate** — dog compatibility rules
-4. **Training session** — skill focus, trainer info
-5. **Outing** — destination, logistics
+1. **Walk** — pace (leisurely/moderate/brisk), distance (short/medium/long), terrain (paved/trails/mixed), route notes
+2. **Park hangout** — drop-in window toggle + end time, amenities (fenced area, water, shade, benches, parking), vibe (casual/organised)
+3. **Playdate** — dog age range (puppy/young/adult/senior/any), play style (gentle/active/mixed), fenced area, max dogs per person
+4. **Training** — skill focus multi-select (recall, leash manners, socialisation, obedience, agility, tricks), experience level (beginner/intermediate/advanced/all levels), led by (peer/professional), trainer name, equipment needed
+
+All types also share three enhancement fields:
+- **Energy level** — calm, moderate, high, any (as important as size for compatibility)
+- **What to bring** — suggested items (e.g. treats, long lead, water bottle)
+- **Accessibility notes** — terrain/access info for humans and dogs
+
+Type-specific fields show conditionally in the creation form, as summary pills on MeetCards, and as a dedicated section on the detail page.
+
+**Note:** Outing type (destination, logistics) is specced but not yet implemented.
 
 ### Post-meet connection
 

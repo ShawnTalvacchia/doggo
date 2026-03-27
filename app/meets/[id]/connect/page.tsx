@@ -91,8 +91,8 @@ export default function PostMeetConnectPage() {
     return (
       <div className="flex flex-col items-center gap-md p-xl">
         <p className="text-fg-secondary">Meet not found.</p>
-        <ButtonAction variant="secondary" size="sm" onClick={() => router.push("/meets")}>
-          Back to Meets
+        <ButtonAction variant="secondary" size="sm" onClick={() => router.push("/activity")}>
+          Back to Activity
         </ButtonAction>
       </div>
     );

@@ -14,7 +14,7 @@ const TAG_ICONS = {
 const TAG_HREFS: Record<string, string | null> = {
   dog: "/profile",
   person: "/profile",
-  community: "/groups",
+  community: "/communities",
   place: null,
 };
 

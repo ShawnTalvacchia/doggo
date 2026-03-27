@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-03-17
+last-reviewed: 2026-03-27
 tags: [connections, trust, visibility, privacy]
 review-trigger: "when modifying connection states, visibility settings, or trust signals"
 ---
@@ -76,11 +76,37 @@ Profile → Settings → Visibility: Locked / Open
 
 ---
 
+## Planned (Phase 15)
+
+### Share profile link
+Users can generate a sharable link (`/connect/[shortcode]`) from their profile. Visiting the link shows basic profile info + "Connect" CTA. Solves the IRL friends problem — no need to find each other through groups or meets.
+
+### Tiered meet participant list
+Meet attendee lists sorted by relationship proximity:
+1. **Connected** — full card with relationship context, mutual connections
+2. **Familiar / Open** — full card with context signal + Connect action
+3. **None + Locked** — hidden individually, shown as "N other attendees" count
+
+Post-meet, hidden attendees are revealed with Familiar/Connect/Skip actions.
+
+### Connection state icons
+Icon-based indicators (Phosphor, weight "light") replace text pills:
+- Connected → link/handshake icon
+- Familiar (they→you) → eye icon
+- Familiar (you→them) → check icon
+- Open → globe icon
+- None → no icon
+
+### Relationship context signals
+Contextual text on participant cards and profiles: "Connected since January", "3rd meet together", "4 mutual connections", "Also in Vinohrady Dog Owners".
+
+### Going / Interested RSVP
+Third RSVP state: Interested (social signal, not counted toward capacity). "12 going, 5 interested."
+
 ## Future
 
 - **Familiar management UI** — dedicated screen to view/revoke Familiar grants
 - **Browse & discover** — for Open users, browse nearby owners/dogs with compatibility signals
-- **Mutual connection indicators** — "You both know Petra and Jana" on profiles
 - **Connection suggestions** — "People from your Tuesday walk" surfaced on Home feed
 
 ---

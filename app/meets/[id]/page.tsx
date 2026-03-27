@@ -18,15 +18,43 @@ import {
   Handshake,
   ShareNetwork,
   UsersThree,
+  Lightning,
+  Path,
+  Mountains,
+  Ruler,
+  FlagBanner,
+  Park,
+  Dog,
+  GraduationCap,
+  Chalkboard,
+  Backpack,
+  ShieldCheck,
+  Heartbeat,
 } from "@phosphor-icons/react";
 import Link from "next/link";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { ShareMeetModal } from "@/components/meets/ShareMeetModal";
 import { getGroupById } from "@/lib/mockGroups";
-import { mockMeets, MEET_TYPE_LABELS, LEASH_LABELS } from "@/lib/mockMeets";
+import {
+  mockMeets,
+  MEET_TYPE_LABELS,
+  LEASH_LABELS,
+  ENERGY_LABELS,
+  PACE_LABELS,
+  DISTANCE_LABELS,
+  TERRAIN_LABELS,
+  AMENITY_LABELS,
+  VIBE_LABELS,
+  AGE_RANGE_LABELS,
+  PLAY_STYLE_LABELS,
+  SKILL_LABELS,
+  EXPERIENCE_LABELS,
+  TRAINER_TYPE_LABELS,
+} from "@/lib/mockMeets";
 import { getMessagesForMeet } from "@/lib/mockMeetMessages";
 import { getConnectionState, CONNECTION_STATE_LABELS } from "@/lib/mockConnections";
-import type { MeetType, MeetMessage } from "@/lib/types";
+import type { Meet, MeetType, MeetMessage } from "@/lib/types";
 
 const MEET_ICONS: Record<MeetType, React.ReactNode> = {
   walk: <PersonSimpleWalk size={24} weight="light" />,
@@ -94,8 +122,8 @@ export default function MeetDetailPage() {
     return (
       <div className="flex flex-col items-center gap-md p-xl">
         <p className="text-fg-secondary">Meet not found.</p>
-        <ButtonAction variant="secondary" size="sm" onClick={() => router.push("/meets")}>
-          Back to Meets
+        <ButtonAction variant="secondary" size="sm" onClick={() => router.push("/activity")}>
+          Back to Activity
         </ButtonAction>
       </div>
     );
@@ -148,7 +176,7 @@ export default function MeetDetailPage() {
           const group = getGroupById(meet.groupId);
           return group ? (
             <Link
-              href={`/groups/${group.id}`}
+              href={`/communities/${group.id}`}
               className="inline-flex items-center gap-sm rounded-panel p-sm no-underline bg-brand-subtle border border-brand-main self-start"
             >
               <UsersThree size={16} weight="fill" className="text-brand-main" />
@@ -200,6 +228,47 @@ export default function MeetDetailPage() {
         </div>
       </div>
 
+      {/* Type-specific details */}
+      <MeetTypeDetails meet={meet} />
+
+      {/* Shared enhancement fields */}
+      {(meet.energyLevel || meet.whatToBring?.length || meet.accessibilityNotes) && (
+        <div className="flex flex-col gap-sm">
+          {meet.energyLevel && meet.energyLevel !== "any" && (
+            <div className="flex items-center gap-sm">
+              <Heartbeat size={18} weight="light" className="text-fg-tertiary" />
+              <span className="text-sm text-fg-primary">
+                <span className="font-medium">Energy:</span> {ENERGY_LABELS[meet.energyLevel]}
+              </span>
+            </div>
+          )}
+          {meet.whatToBring && meet.whatToBring.length > 0 && (
+            <div className="flex items-start gap-sm">
+              <Backpack size={18} weight="light" className="text-fg-tertiary shrink-0 mt-xs" />
+              <div className="flex flex-col gap-xs">
+                <span className="text-sm font-medium text-fg-primary">What to bring</span>
+                <div className="flex flex-wrap gap-xs">
+                  {meet.whatToBring.map((item) => (
+                    <span
+                      key={item}
+                      className="text-xs rounded-pill px-sm py-xs bg-surface-gray text-fg-secondary"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          {meet.accessibilityNotes && (
+            <div className="flex items-center gap-sm">
+              <ShieldCheck size={18} weight="light" className="text-fg-tertiary" />
+              <span className="text-sm text-fg-secondary">{meet.accessibilityNotes}</span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Actions */}
       <div className="flex gap-sm flex-wrap">
         {meet.status === "upcoming" && (
@@ -233,52 +302,65 @@ export default function MeetDetailPage() {
         >
           Share
         </ButtonAction>
-        {messages.length > 0 && (
-          <ButtonAction
-            variant={showThread ? "secondary" : "outline"}
-            size="md"
-            onClick={() => setShowThread(!showThread)}
-            leftIcon={<ChatCircleDots size={18} weight="light" />}
-          >
-            Group chat ({messages.length})
-          </ButtonAction>
-        )}
+        <ButtonAction
+          variant={showThread ? "secondary" : "outline"}
+          size="md"
+          onClick={() => setShowThread(!showThread)}
+          leftIcon={<ChatCircleDots size={18} weight="light" />}
+        >
+          Group chat{messages.length > 0 ? ` (${messages.length})` : ""}
+        </ButtonAction>
       </div>
 
       {/* Group thread */}
       {showThread && (
         <section className="flex flex-col gap-sm">
           <h2 className="font-heading text-lg font-semibold text-fg-primary">Group Chat</h2>
-          <div
-            className="flex flex-col gap-md rounded-panel p-md bg-surface-base border border-edge-light overflow-y-auto"
-            style={{ maxHeight: 400 }}
-          >
-            {messages.map((msg) => (
-              <MessageBubble
-                key={msg.id}
-                message={msg}
-                isOwn={msg.senderId === "shawn"}
-              />
-            ))}
-          </div>
-          {/* Compose */}
-          <div className="flex gap-sm">
-            <input
-              className="input flex-1"
-              placeholder="Message the group..."
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
+          {!isJoined ? (
+            <EmptyState
+              icon={<ChatCircleDots size={48} weight="light" />}
+              title="RSVP to see the conversation"
+              subtitle="Join this meet to chat with other attendees."
+              action={
+                <ButtonAction variant="primary" size="sm">
+                  Join this meet
+                </ButtonAction>
+              }
             />
-            <ButtonAction
-              variant="primary"
-              size="md"
-              disabled={!newMessage.trim()}
-              leftIcon={<PaperPlaneRight size={16} weight="light" />}
-              onClick={() => setNewMessage("")}
-            >
-              Send
-            </ButtonAction>
-          </div>
+          ) : (
+            <>
+              <div
+                className="flex flex-col gap-md rounded-panel p-md bg-surface-base border border-edge-light overflow-y-auto"
+                style={{ maxHeight: 400 }}
+              >
+                {messages.map((msg) => (
+                  <MessageBubble
+                    key={msg.id}
+                    message={msg}
+                    isOwn={msg.senderId === "shawn"}
+                  />
+                ))}
+              </div>
+              {/* Compose */}
+              <div className="flex gap-sm">
+                <input
+                  className="input flex-1"
+                  placeholder="Message the group..."
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                />
+                <ButtonAction
+                  variant="primary"
+                  size="md"
+                  disabled={!newMessage.trim()}
+                  leftIcon={<PaperPlaneRight size={16} weight="light" />}
+                  onClick={() => setNewMessage("")}
+                >
+                  Send
+                </ButtonAction>
+              </div>
+            </>
+          )}
         </section>
       )}
 
@@ -339,4 +421,151 @@ export default function MeetDetailPage() {
       <ShareMeetModal meet={meet} open={showShare} onClose={() => setShowShare(false)} />
     </div>
   );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Type-specific detail sections
+   ═══════════════════════════════════════════════════════════════ */
+
+function DetailRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-md">
+      <span className="text-fg-tertiary shrink-0" style={{ marginTop: 2 }}>{icon}</span>
+      <div className="flex flex-col">
+        <span className="text-sm font-medium text-fg-primary">{value}</span>
+        <span className="text-xs text-fg-tertiary">{label}</span>
+      </div>
+    </div>
+  );
+}
+
+function PillList({ items }: { items: string[] }) {
+  return (
+    <div className="flex flex-wrap gap-xs">
+      {items.map((item) => (
+        <span key={item} className="text-xs font-medium rounded-pill px-sm py-xs bg-brand-subtle text-brand-strong">
+          {item}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function MeetTypeDetails({ meet }: { meet: Meet }) {
+  if (meet.type === "walk" && meet.walk) {
+    const w = meet.walk;
+    const hasFields = w.pace || w.distance || w.terrain || w.routeNotes;
+    if (!hasFields) return null;
+    return (
+      <section className="flex flex-col gap-sm">
+        <h2 className="font-heading text-lg font-semibold text-fg-primary">Walk details</h2>
+        <div className="grid grid-cols-2 gap-md rounded-panel p-lg bg-surface-top border border-edge-light sm:grid-cols-3">
+          {w.pace && <DetailRow icon={<PersonSimpleWalk size={20} weight="light" />} label="Pace" value={PACE_LABELS[w.pace]} />}
+          {w.distance && <DetailRow icon={<Ruler size={20} weight="light" />} label="Distance" value={DISTANCE_LABELS[w.distance]} />}
+          {w.terrain && <DetailRow icon={<Mountains size={20} weight="light" />} label="Terrain" value={TERRAIN_LABELS[w.terrain]} />}
+        </div>
+        {w.routeNotes && (
+          <div className="flex items-start gap-sm rounded-panel p-md bg-surface-top border border-edge-light">
+            <Path size={18} weight="light" className="text-fg-tertiary shrink-0 mt-xs" />
+            <div className="flex flex-col gap-xs">
+              <span className="text-sm font-medium text-fg-primary">Route</span>
+              <span className="text-sm text-fg-secondary">{w.routeNotes}</span>
+            </div>
+          </div>
+        )}
+      </section>
+    );
+  }
+
+  if (meet.type === "park_hangout" && meet.parkHangout) {
+    const p = meet.parkHangout;
+    const hasFields = p.dropIn || p.amenities?.length || p.vibe;
+    if (!hasFields) return null;
+    return (
+      <section className="flex flex-col gap-sm">
+        <h2 className="font-heading text-lg font-semibold text-fg-primary">Hangout details</h2>
+        <div className="flex flex-col gap-md rounded-panel p-lg bg-surface-top border border-edge-light">
+          {p.dropIn && p.endTime && (
+            <DetailRow
+              icon={<Clock size={20} weight="light" />}
+              label="Drop-in window"
+              value={`Come anytime ${meet.time}–${p.endTime}`}
+            />
+          )}
+          {p.vibe && (
+            <DetailRow icon={<FlagBanner size={20} weight="light" />} label="Vibe" value={VIBE_LABELS[p.vibe]} />
+          )}
+          {p.amenities && p.amenities.length > 0 && (
+            <div className="flex flex-col gap-xs">
+              <span className="text-sm font-medium text-fg-primary">Amenities</span>
+              <PillList items={p.amenities.map((a) => AMENITY_LABELS[a])} />
+            </div>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  if (meet.type === "playdate" && meet.playdate) {
+    const pd = meet.playdate;
+    const hasFields = pd.ageRange || pd.playStyle || pd.fencedArea !== undefined || pd.maxDogsPerPerson;
+    if (!hasFields) return null;
+    return (
+      <section className="flex flex-col gap-sm">
+        <h2 className="font-heading text-lg font-semibold text-fg-primary">Playdate details</h2>
+        <div className="grid grid-cols-2 gap-md rounded-panel p-lg bg-surface-top border border-edge-light">
+          {pd.ageRange && <DetailRow icon={<Dog size={20} weight="light" />} label="Age range" value={AGE_RANGE_LABELS[pd.ageRange]} />}
+          {pd.playStyle && <DetailRow icon={<PawPrint size={20} weight="light" />} label="Play style" value={PLAY_STYLE_LABELS[pd.playStyle]} />}
+          {pd.fencedArea !== undefined && (
+            <DetailRow icon={<Park size={20} weight="light" />} label="Fenced area" value={pd.fencedArea ? "Yes — dogs can be off-leash" : "No — stay aware"} />
+          )}
+          {pd.maxDogsPerPerson && pd.maxDogsPerPerson > 0 && (
+            <DetailRow icon={<Users size={20} weight="light" />} label="Max dogs per person" value={`${pd.maxDogsPerPerson} ${pd.maxDogsPerPerson === 1 ? "dog" : "dogs"}`} />
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  if (meet.type === "training" && meet.training) {
+    const t = meet.training;
+    const hasFields = t.skillFocus?.length || t.experienceLevel || t.ledBy || t.equipmentNeeded?.length;
+    if (!hasFields) return null;
+    return (
+      <section className="flex flex-col gap-sm">
+        <h2 className="font-heading text-lg font-semibold text-fg-primary">Training details</h2>
+        <div className="flex flex-col gap-md rounded-panel p-lg bg-surface-top border border-edge-light">
+          {t.skillFocus && t.skillFocus.length > 0 && (
+            <div className="flex flex-col gap-xs">
+              <span className="text-sm font-medium text-fg-primary">Skills</span>
+              <PillList items={t.skillFocus.map((s) => SKILL_LABELS[s])} />
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-md">
+            {t.experienceLevel && <DetailRow icon={<GraduationCap size={20} weight="light" />} label="Level" value={EXPERIENCE_LABELS[t.experienceLevel]} />}
+            {t.ledBy && (
+              <DetailRow
+                icon={<Chalkboard size={20} weight="light" />}
+                label="Led by"
+                value={<>
+                  {TRAINER_TYPE_LABELS[t.ledBy]}
+                  {t.ledBy === "professional" && t.trainerName && (
+                    <span className="text-fg-secondary"> — {t.trainerName}</span>
+                  )}
+                </>}
+              />
+            )}
+          </div>
+          {t.equipmentNeeded && t.equipmentNeeded.length > 0 && (
+            <div className="flex flex-col gap-xs">
+              <span className="text-sm font-medium text-fg-primary">Equipment needed</span>
+              <PillList items={t.equipmentNeeded} />
+            </div>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  return null;
 }

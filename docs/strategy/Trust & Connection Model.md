@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-03-17
+last-reviewed: 2026-03-27
 tags: [trust, connections, privacy, safety]
 review-trigger: "when touching connection states, visibility, or trust signals"
 ---
@@ -49,6 +49,35 @@ Separately from per-person states, users have a global visibility setting:
 - **Open** — anyone can see your expanded profile and send message requests
 
 A Locked user builds their network selectively through Familiar/Connected. An Open user is broadly discoverable. Neither is penalised. Both paths lead to trusted relationships.
+
+### How visibility applies to care providers
+
+Care services follow the same visibility rules as everything else on a profile. There is no separate "care discoverability" setting — the profile visibility toggle controls it all:
+
+- **Open** providers are discoverable by anyone in care search. This is the natural choice for professional providers who want clients.
+- **Locked** providers are only visible to people they've marked as Familiar or are Connected with. This fits the casual/neighbourhood helper who only wants to help people they already know.
+
+When a user adds care services but their profile is Locked, an informational banner explains: "Your profile is private — only people you've marked as Familiar or Connected with can see your services. Want to make your profile public?"
+
+This simplicity is intentional. The connection model is the same between any two users regardless of whether care is involved. A provider doesn't need a different relationship model — they just have more content visible on their profile.
+
+### Share profile link
+
+Users can generate a direct profile link (e.g., `/connect/[shortcode]`) to share with people they know IRL. Visiting the link shows basic profile info (avatar, name, dogs, neighbourhood) with a "Connect" CTA.
+
+The link bypasses all discovery gates because the link itself is the trust signal — one person deliberately shared it with another. This solves the "we're already friends in real life" problem without requiring both users to join the same group or attend the same meet.
+
+Use cases: two friends who are both on the app, someone you meet at the park, a QR code on a name tag at a larger event.
+
+### Meet participant visibility rules
+
+Meet attendee lists are filtered by actionable relationship, not shown as a flat list:
+
+1. **Visible with full cards:** Connected users, Familiar (either direction), Open profiles
+2. **Hidden individually, shown as count:** Locked users with None relationship → "3 other attendees"
+3. **Post-meet reveal:** After a meet ends, previously hidden attendees are surfaced with basic info and Familiar/Connect/Skip actions
+
+This prevents dead-end cards (locked profile with no action available) while maintaining the privacy of locked users. The meet itself is the trust-building event — hidden attendees become visible *because* you showed up and met them in person.
 
 ---
 

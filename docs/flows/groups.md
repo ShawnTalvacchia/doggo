@@ -1,6 +1,6 @@
 ---
 status: done
-last-reviewed: 2026-03-23
+last-reviewed: 2026-03-26
 ---
 
 # Groups (Communities) Flow
@@ -9,7 +9,7 @@ Persistent communities that turn meets from one-off events into ongoing belongin
 
 ```mermaid
 flowchart TD
-    A["Home — Your communities\nor /groups browse"] --> B["Community Detail Page\n(/groups/[id])"]
+    A["Communities nav tab\n(/communities browse)"] --> B["Community Detail Page\n(/communities/[id])"]
     B --> C["Members List\n(with connection state badges)"]
     B --> D["Upcoming Meets\n(linked meets via MeetCard)"]
     B --> E["Community Chat\n(persistent group thread)"]
@@ -28,23 +28,30 @@ flowchart TD
 
 | Step | Route / Component | Status |
 |------|-------------------|--------|
-| Communities browse page | `/groups` | Done |
-| Filter pills (All / Yours / Public / Private) | `/groups` | Done |
-| Community detail page | `/groups/[id]` | Done |
-| Members list with connection badges | `/groups/[id]` | Done |
-| Upcoming meets section | `/groups/[id]` | Done |
-| Community chat (toggle) | `/groups/[id]` | Done |
-| Photo gallery | `/groups/[id]` | Done |
-| Create community form | `/groups/create` | Done |
+| Communities browse page | `/communities` | Done |
+| Filter pills (All / Yours / Public / Private) | `/communities` | Done |
+| Community detail page | `/communities/[id]` | Done |
+| Members list with connection badges | `/communities/[id]` | Done |
+| Upcoming meets section | `/communities/[id]` | Done |
+| Community chat (toggle) | `/communities/[id]` | Done |
+| Join-gated chat (EmptyState + Join CTA for non-members) | `/communities/[id]` | Done |
+| System messages (member_joined, meet_posted, rsvp_milestone) | `/communities/[id]` chat | Done |
+| Event card strip (horizontal scroll of upcoming meets) | `/communities/[id]` chat | Done |
+| Photo gallery | `/communities/[id]` | Done |
+| Create community form | `/communities/create` | Done |
 | "Your communities" on Home | `/home` | Done |
 | Community badge on MeetCard | MeetCard component | Done |
 | "Part of [Community]" on meet detail | `/meets/[id]` | Done |
-| Join/Leave community | `/groups/[id]` | Done (mock) |
-| Invite members | `/groups/[id]` | Done (non-functional button) |
+| Join/Leave community | `/communities/[id]` | Done (mock) |
+| Invite members | `/communities/[id]` | Done (non-functional button) |
 
 ## Notes
 
 - User-facing text says "Communities" — code internals use `group` for brevity
-- Groups are not a nav tab — accessed from Home section + direct links
+- Communities is a main nav tab (Phase 14): Home | Communities | Activity | Inbox | Profile
+- Route is `/communities` (moved from `/groups` in Phase 14)
 - Meets link to groups via `groupId` field (optional). Standalone meets still work without a group.
-- Group chat uses the shared `MessageBubble` component (extracted from meet detail in this phase)
+- Group chat uses the shared `MessageBubble` component (extracted from meet detail in Phase 9)
+- Group chat is join-gated: non-members see EmptyState with Join CTA (Phase 14)
+- System messages (member_joined, meet_posted, rsvp_milestone) rendered via SystemMessage component (Phase 14)
+- Event card strip at top of chat shows upcoming meets via MeetCardCompact (Phase 14)

@@ -1,4 +1,17 @@
-import type { Meet } from "./types";
+import type {
+  Meet,
+  MeetEnergyLevel,
+  WalkPace,
+  WalkDistance,
+  WalkTerrain,
+  ParkAmenity,
+  ParkVibe,
+  PlaydateAgeRange,
+  MeetPlayStyle,
+  TrainingSkill,
+  TrainingExperienceLevel,
+  TrainerType,
+} from "./types";
 
 export const MEET_TYPE_LABELS: Record<string, string> = {
   walk: "Walk",
@@ -11,6 +24,79 @@ export const LEASH_LABELS: Record<string, string> = {
   on_leash: "On leash",
   off_leash: "Off leash",
   mixed: "Mixed",
+};
+
+export const ENERGY_LABELS: Record<MeetEnergyLevel, string> = {
+  calm: "Calm",
+  moderate: "Moderate",
+  high: "High energy",
+  any: "Any energy",
+};
+
+export const PACE_LABELS: Record<WalkPace, string> = {
+  leisurely: "Leisurely",
+  moderate: "Moderate",
+  brisk: "Brisk",
+};
+
+export const DISTANCE_LABELS: Record<WalkDistance, string> = {
+  short: "Short (< 2 km)",
+  medium: "Medium (2–4 km)",
+  long: "Long (4+ km)",
+};
+
+export const TERRAIN_LABELS: Record<WalkTerrain, string> = {
+  paved: "Paved paths",
+  trails: "Trails",
+  mixed: "Mixed terrain",
+};
+
+export const AMENITY_LABELS: Record<ParkAmenity, string> = {
+  fenced_area: "Fenced area",
+  water_available: "Water available",
+  shade: "Shade",
+  benches: "Benches",
+  parking_nearby: "Parking nearby",
+};
+
+export const VIBE_LABELS: Record<ParkVibe, string> = {
+  casual: "Casual drop-in",
+  organised: "Organised meetup",
+};
+
+export const AGE_RANGE_LABELS: Record<PlaydateAgeRange, string> = {
+  puppy: "Puppies (< 1 yr)",
+  young: "Young (1–3 yr)",
+  adult: "Adults (3–8 yr)",
+  senior: "Seniors (8+ yr)",
+  any: "Any age",
+};
+
+export const PLAY_STYLE_LABELS: Record<MeetPlayStyle, string> = {
+  gentle: "Gentle / calm",
+  active: "Active / rough",
+  mixed: "Mixed",
+};
+
+export const SKILL_LABELS: Record<TrainingSkill, string> = {
+  recall: "Recall",
+  leash_manners: "Leash manners",
+  socialisation: "Socialisation",
+  obedience: "Obedience",
+  agility: "Agility",
+  tricks: "Tricks",
+};
+
+export const EXPERIENCE_LABELS: Record<TrainingExperienceLevel, string> = {
+  beginner: "Beginner",
+  intermediate: "Intermediate",
+  advanced: "Advanced",
+  all_levels: "All levels",
+};
+
+export const TRAINER_TYPE_LABELS: Record<TrainerType, string> = {
+  peer: "Peer group (informal)",
+  professional: "Professional trainer",
 };
 
 export const mockMeets: Meet[] = [
@@ -33,6 +119,15 @@ export const mockMeets: Meet[] = [
     dogSizeFilter: "any",
     leashRule: "mixed",
     status: "upcoming",
+    energyLevel: "moderate",
+    whatToBring: ["Water bottle", "Poo bags", "Treats"],
+    accessibilityNotes: "Paved paths throughout, stroller-friendly",
+    walk: {
+      pace: "leisurely",
+      distance: "medium",
+      terrain: "paved",
+      routeNotes: "Start at the upper gate near Mánesova, loop past the beer garden, end at the playground.",
+    },
     creatorId: "shawn",
     creatorName: "Shawn",
     creatorAvatarUrl:
@@ -67,7 +162,7 @@ export const mockMeets: Meet[] = [
     id: "meet-2",
     type: "park_hangout",
     groupId: "group-2",
-    title: "Weekend playdate — Stromovka",
+    title: "Weekend hangout — Stromovka",
     description:
       "Casual Saturday hangout in the big field by the pond. Bring a ball, bring treats. Dogs play, owners chat.",
     location: "Stromovka, Prague 7",
@@ -84,6 +179,15 @@ export const mockMeets: Meet[] = [
     status: "upcoming",
     isPopular: true,
     recentJoinText: "3 people joined today",
+    energyLevel: "any",
+    whatToBring: ["Ball", "Treats", "Blanket to sit on"],
+    accessibilityNotes: "Flat grass field, easy access from tram stop",
+    parkHangout: {
+      dropIn: true,
+      endTime: "12:00",
+      amenities: ["shade", "benches", "water_available"],
+      vibe: "casual",
+    },
     creatorId: "jana",
     creatorName: "Jana",
     creatorAvatarUrl:
@@ -139,6 +243,15 @@ export const mockMeets: Meet[] = [
     dogSizeFilter: "any",
     leashRule: "mixed",
     status: "upcoming",
+    energyLevel: "moderate",
+    whatToBring: ["High-value treats", "Long lead (5m)", "Treat pouch"],
+    accessibilityNotes: "Open grass area, some gentle slopes",
+    training: {
+      skillFocus: ["recall"],
+      experienceLevel: "beginner",
+      ledBy: "peer",
+      equipmentNeeded: ["High-value treats", "Long lead (5m)", "Treat pouch"],
+    },
     creatorId: "eva",
     creatorName: "Eva",
     creatorAvatarUrl:
@@ -179,6 +292,15 @@ export const mockMeets: Meet[] = [
     dogSizeFilter: "small",
     leashRule: "off_leash",
     status: "upcoming",
+    energyLevel: "calm",
+    whatToBring: ["Treats", "Water bowl", "Favourite toy"],
+    accessibilityNotes: "Fenced dog park area with benches for owners",
+    playdate: {
+      ageRange: "puppy",
+      playStyle: "gentle",
+      fencedArea: true,
+      maxDogsPerPerson: 1,
+    },
     creatorId: "martin",
     creatorName: "Martin",
     creatorAvatarUrl:
@@ -212,6 +334,15 @@ export const mockMeets: Meet[] = [
     dogSizeFilter: "any",
     leashRule: "on_leash",
     status: "upcoming",
+    energyLevel: "moderate",
+    whatToBring: ["Water bottle", "Reflective gear (it gets dark)"],
+    accessibilityNotes: "Some steep sections on the ridge path, not stroller-friendly",
+    walk: {
+      pace: "moderate",
+      distance: "short",
+      terrain: "mixed",
+      routeNotes: "Meet at the monument, walk the ridge east toward the TV tower, loop back via the south path.",
+    },
     creatorId: "tomas",
     creatorName: "Tomáš",
     creatorAvatarUrl:
@@ -252,6 +383,13 @@ export const mockMeets: Meet[] = [
     dogSizeFilter: "any",
     leashRule: "mixed",
     status: "completed",
+    energyLevel: "moderate",
+    whatToBring: ["Water bottle", "Poo bags"],
+    walk: {
+      pace: "leisurely",
+      distance: "medium",
+      terrain: "paved",
+    },
     creatorId: "shawn",
     creatorName: "Shawn",
     creatorAvatarUrl:
@@ -314,4 +452,49 @@ export function getMeetsByType(type: string): Meet[] {
     Training: "training",
   };
   return mockMeets.filter((m) => m.type === typeMap[type]);
+}
+
+/** Helper: build a short type-specific summary line for MeetCard display */
+export function getMeetTypeSummary(meet: Meet): string {
+  switch (meet.type) {
+    case "walk": {
+      const parts: string[] = [];
+      if (meet.walk?.pace) parts.push(PACE_LABELS[meet.walk.pace]);
+      if (meet.walk?.distance) {
+        const distShort: Record<string, string> = { short: "< 2 km", medium: "2–4 km", long: "4+ km" };
+        parts.push(distShort[meet.walk.distance]);
+      }
+      if (meet.walk?.terrain && meet.walk.terrain !== "mixed") parts.push(TERRAIN_LABELS[meet.walk.terrain]);
+      return parts.join(" · ");
+    }
+    case "park_hangout": {
+      const parts: string[] = [];
+      if (meet.parkHangout?.dropIn && meet.parkHangout.endTime) {
+        parts.push(`Drop in ${meet.time}–${meet.parkHangout.endTime}`);
+      }
+      if (meet.parkHangout?.amenities?.includes("fenced_area")) parts.push("Fenced");
+      if (meet.parkHangout?.vibe) parts.push(VIBE_LABELS[meet.parkHangout.vibe]);
+      return parts.join(" · ");
+    }
+    case "playdate": {
+      const parts: string[] = [];
+      if (meet.playdate?.ageRange && meet.playdate.ageRange !== "any") {
+        const ageShort: Record<string, string> = { puppy: "Puppies", young: "Young dogs", adult: "Adults", senior: "Seniors" };
+        parts.push(ageShort[meet.playdate.ageRange] || "");
+      }
+      if (meet.playdate?.playStyle) parts.push(PLAY_STYLE_LABELS[meet.playdate.playStyle] + " play");
+      if (meet.playdate?.fencedArea) parts.push("Fenced");
+      return parts.join(" · ");
+    }
+    case "training": {
+      const parts: string[] = [];
+      if (meet.training?.skillFocus?.length) {
+        parts.push(meet.training.skillFocus.map((s) => SKILL_LABELS[s]).join(", "));
+      }
+      if (meet.training?.experienceLevel) parts.push(EXPERIENCE_LABELS[meet.training.experienceLevel]);
+      return parts.join(" · ");
+    }
+    default:
+      return "";
+  }
 }

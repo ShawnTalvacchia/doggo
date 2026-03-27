@@ -3,6 +3,17 @@ import type { GroupMessage } from "./types";
 export const mockGroupMessages: Record<string, GroupMessage[]> = {
   "group-1": [
     {
+      id: "gm-sys-1",
+      groupId: "group-1",
+      senderId: "",
+      senderName: "",
+      senderAvatarUrl: "",
+      text: "Eva joined the community",
+      sentAt: "2026-03-16T12:00:00Z",
+      type: "system",
+      activityType: "member_joined",
+    },
+    {
       id: "gm-1",
       groupId: "group-1",
       senderId: "shawn",
@@ -13,6 +24,17 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       sentAt: "2026-03-17T08:30:00Z",
     },
     {
+      id: "gm-sys-2",
+      groupId: "group-1",
+      senderId: "",
+      senderName: "",
+      senderAvatarUrl: "",
+      text: "New meet: Wednesday Morning Walk",
+      sentAt: "2026-03-17T08:35:00Z",
+      type: "system",
+      activityType: "meet_posted",
+    },
+    {
       id: "gm-2",
       groupId: "group-1",
       senderId: "jana",
@@ -21,6 +43,17 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
         "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
       text: "We'll be there! Rex has been cooped up all weekend, he needs a good run.",
       sentAt: "2026-03-17T09:15:00Z",
+    },
+    {
+      id: "gm-sys-3",
+      groupId: "group-1",
+      senderId: "",
+      senderName: "",
+      senderAvatarUrl: "",
+      text: "3 people RSVP'd to Wednesday Morning Walk",
+      sentAt: "2026-03-17T09:20:00Z",
+      type: "system",
+      activityType: "rsvp_milestone",
     },
     {
       id: "gm-3",
@@ -45,6 +78,17 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
   ],
   "group-2": [
     {
+      id: "gm-sys-4",
+      groupId: "group-2",
+      senderId: "",
+      senderName: "",
+      senderAvatarUrl: "",
+      text: "Martin joined the community",
+      sentAt: "2026-03-18T10:00:00Z",
+      type: "system",
+      activityType: "member_joined",
+    },
+    {
       id: "gm-5",
       groupId: "group-2",
       senderId: "jana",
@@ -63,6 +107,17 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
         "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
       text: "Luna and Max are ready! Should I bring the frisbee?",
       sentAt: "2026-03-19T15:20:00Z",
+    },
+    {
+      id: "gm-sys-5",
+      groupId: "group-2",
+      senderId: "",
+      senderName: "",
+      senderAvatarUrl: "",
+      text: "New meet: Saturday Puppy Playdate",
+      sentAt: "2026-03-19T15:25:00Z",
+      type: "system",
+      activityType: "meet_posted",
     },
     {
       id: "gm-7",

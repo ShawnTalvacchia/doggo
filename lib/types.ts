@@ -353,6 +353,64 @@ export type LeashRule = "on_leash" | "off_leash" | "mixed";
 
 export type DogSizeFilter = "small" | "medium" | "large" | "any";
 
+/** Shared: dog energy level filter for all meet types */
+export type MeetEnergyLevel = "calm" | "moderate" | "high" | "any";
+
+// ── Walk-specific ──
+
+export type WalkPace = "leisurely" | "moderate" | "brisk";
+export type WalkDistance = "short" | "medium" | "long";
+export type WalkTerrain = "paved" | "trails" | "mixed";
+
+export interface WalkFields {
+  pace?: WalkPace;
+  distance?: WalkDistance;
+  terrain?: WalkTerrain;
+  routeNotes?: string;
+}
+
+// ── Park Hangout-specific ──
+
+export type ParkAmenity = "fenced_area" | "water_available" | "shade" | "benches" | "parking_nearby";
+export type ParkVibe = "casual" | "organised";
+
+export interface ParkHangoutFields {
+  /** When true, the meet time is a drop-in window (come anytime between time and endTime) */
+  dropIn?: boolean;
+  /** End of the drop-in window (e.g. "12:00"). Only used when dropIn is true */
+  endTime?: string;
+  amenities?: ParkAmenity[];
+  vibe?: ParkVibe;
+}
+
+// ── Playdate-specific ──
+
+export type PlaydateAgeRange = "puppy" | "young" | "adult" | "senior" | "any";
+export type MeetPlayStyle = "gentle" | "active" | "mixed";
+
+export interface PlaydateFields {
+  ageRange?: PlaydateAgeRange;
+  playStyle?: MeetPlayStyle;
+  fencedArea?: boolean;
+  maxDogsPerPerson?: number;
+}
+
+// ── Training-specific ──
+
+export type TrainingSkill = "recall" | "leash_manners" | "socialisation" | "obedience" | "agility" | "tricks";
+export type TrainingExperienceLevel = "beginner" | "intermediate" | "advanced" | "all_levels";
+export type TrainerType = "peer" | "professional";
+
+export interface TrainingFields {
+  skillFocus?: TrainingSkill[];
+  experienceLevel?: TrainingExperienceLevel;
+  ledBy?: TrainerType;
+  trainerName?: string;
+  equipmentNeeded?: string[];
+}
+
+// ── Meet attendee & main interface ──
+
 export interface MeetAttendee {
   userId: string;
   userName: string;
@@ -392,6 +450,26 @@ export interface Meet {
   isPopular?: boolean;
   /** Photo URLs from a completed meet */
   photos?: string[];
+
+  // ── Shared enhancement fields (all types) ──
+
+  /** Dog energy level filter */
+  energyLevel?: MeetEnergyLevel;
+  /** Suggested items to bring */
+  whatToBring?: string[];
+  /** Terrain/access notes for humans and dogs */
+  accessibilityNotes?: string;
+
+  // ── Type-specific fields (only relevant fields populated per type) ──
+
+  /** Walk-specific: pace, distance, terrain, route notes */
+  walk?: WalkFields;
+  /** Park Hangout-specific: drop-in window, amenities, vibe */
+  parkHangout?: ParkHangoutFields;
+  /** Playdate-specific: age range, play style, fenced area, max dogs */
+  playdate?: PlaydateFields;
+  /** Training-specific: skill focus, experience level, trainer info, equipment */
+  training?: TrainingFields;
 }
 
 // ── Connections ───────────────────────────────────────────────────────────────
@@ -457,6 +535,9 @@ export interface Group {
   createdAt: string;
 }
 
+export type GroupMessageType = "user" | "system";
+export type GroupActivityType = "member_joined" | "meet_posted" | "rsvp_milestone";
+
 export interface GroupMessage {
   id: string;
   groupId: string;
@@ -465,6 +546,8 @@ export interface GroupMessage {
   senderAvatarUrl: string;
   text: string;
   sentAt: string;
+  type?: GroupMessageType;
+  activityType?: GroupActivityType;
 }
 
 // ── Meet Group Threads ────────────────────────────────────────────────────────

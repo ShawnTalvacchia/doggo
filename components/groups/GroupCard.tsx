@@ -19,7 +19,7 @@ export function GroupCard({ group }: { group: Group }) {
 
   return (
     <Link
-      href={`/groups/${group.id}`}
+      href={`/communities/${group.id}`}
       className="flex flex-col rounded-panel bg-surface-top shadow-sm overflow-hidden"
       style={{ textDecoration: "none" }}
     >

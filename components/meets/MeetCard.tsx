@@ -13,7 +13,7 @@ import {
   UsersThree,
 } from "@phosphor-icons/react";
 import type { Meet, MeetType } from "@/lib/types";
-import { MEET_TYPE_LABELS } from "@/lib/mockMeets";
+import { MEET_TYPE_LABELS, getMeetTypeSummary, ENERGY_LABELS } from "@/lib/mockMeets";
 import { getGroupById } from "@/lib/mockGroups";
 
 const MEET_ICONS: Record<MeetType, React.ReactNode> = {
@@ -95,6 +95,32 @@ export function MeetCard({ meet }: { meet: Meet }) {
           {meet.attendees.length} {meet.attendees.length === 1 ? "person" : "people"} · {totalDogs(meet)} {totalDogs(meet) === 1 ? "dog" : "dogs"}
         </span>
       </div>
+
+      {/* Type-specific summary */}
+      {(() => {
+        const summary = getMeetTypeSummary(meet);
+        return summary ? (
+          <div className="flex flex-wrap items-center gap-xs">
+            <span
+              className="text-xs font-medium rounded-pill px-sm py-xs"
+              style={{ background: "var(--surface-gray)", color: "var(--text-secondary)" }}
+            >
+              {summary}
+            </span>
+            {meet.energyLevel && meet.energyLevel !== "any" && (
+              <span
+                className="text-xs font-medium rounded-pill px-sm py-xs"
+                style={{
+                  background: meet.energyLevel === "calm" ? "var(--success-subtle)" : meet.energyLevel === "high" ? "var(--warning-subtle)" : "var(--surface-gray)",
+                  color: meet.energyLevel === "calm" ? "var(--success-strong)" : meet.energyLevel === "high" ? "var(--warning-strong)" : "var(--text-secondary)",
+                }}
+              >
+                {ENERGY_LABELS[meet.energyLevel]}
+              </span>
+            )}
+          </div>
+        ) : null;
+      })()}
 
       {/* Attendee avatars */}
       <div className="flex items-center">

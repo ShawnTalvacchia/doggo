@@ -75,7 +75,7 @@ export function FeedCard({
               {groupName && groupId && (
                 <span className="text-xs text-fg-tertiary">
                   in{" "}
-                  <Link href={`/groups/${groupId}`} className="text-brand-main font-medium" style={{ textDecoration: "none" }}>
+                  <Link href={`/communities/${groupId}`} className="text-brand-main font-medium" style={{ textDecoration: "none" }}>
                     {groupName}
                   </Link>
                 </span>

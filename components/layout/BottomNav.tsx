@@ -4,23 +4,23 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
-  CalendarDots,
   ChatCircleDots,
+  Compass,
   House,
-  PawPrint,
   UserCircle,
+  UsersThree,
 } from "@phosphor-icons/react";
 
 const tabs = [
   { label: "Home", href: "/home", Icon: House },
-  { label: "Meets", href: "/meets", Icon: PawPrint },
-  { label: "Schedule", href: "/schedule", Icon: CalendarDots },
+  { label: "Communities", href: "/communities", Icon: UsersThree },
+  { label: "Activity", href: "/activity", Icon: Compass },
   { label: "Inbox", href: "/inbox", Icon: ChatCircleDots },
   { label: "Profile", href: "/profile", Icon: UserCircle },
 ] as const;
 
 /** Routes that show the bottom nav (logged-in experience) */
-const loggedPrefixes = ["/home", "/meets", "/schedule", "/explore", "/inbox", "/bookings", "/profile"];
+const loggedPrefixes = ["/home", "/communities", "/groups", "/activity", "/meets", "/schedule", "/explore", "/inbox", "/bookings", "/profile"];
 
 function BottomNavInner() {
   const pathname = usePathname();
@@ -48,10 +48,10 @@ function BottomNavInner() {
   // Determine active tab
   const activeHref = pathname.startsWith("/home")
     ? "/home"
-    : pathname.startsWith("/meets")
-    ? "/meets"
-    : pathname.startsWith("/schedule") || pathname.startsWith("/bookings")
-    ? "/schedule"
+    : pathname.startsWith("/communities") || pathname.startsWith("/groups")
+    ? "/communities"
+    : pathname.startsWith("/activity") || pathname.startsWith("/meets") || pathname.startsWith("/schedule") || pathname.startsWith("/bookings")
+    ? "/activity"
     : pathname.startsWith("/inbox")
     ? "/inbox"
     : pathname.startsWith("/explore")

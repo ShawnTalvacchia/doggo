@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-03-17
+last-reviewed: 2026-03-26
 tags: [messaging, inbox, chat, booking]
 review-trigger: "when modifying inbox, threads, or conversation types"
 ---
@@ -84,6 +84,22 @@ In a booking conversation → one party proposes terms
 → Other party: Accept / Counter / Decline
 → Accepted → booking created, appears in Schedule
 ```
+
+---
+
+## Group Chat Enhancements (Phase 14)
+
+### Join-gated chat
+
+Non-members viewing a community or meet chat see an `EmptyState` with a Join CTA instead of the message thread. Chat content is only visible after joining.
+
+### System messages
+
+`GroupMessage` now has an optional `type` field (`"user"` | `"system"`) and an `activityType` field (`"member_joined"` | `"meet_posted"` | `"rsvp_milestone"`). System messages are rendered by the `SystemMessage` component as centered muted text, visually distinct from user bubbles.
+
+### Event card strip
+
+Community chat pages display a horizontal scroll strip of upcoming meets at the top, using `MeetCardCompact`. This gives members quick access to RSVP without leaving the chat.
 
 ---
 

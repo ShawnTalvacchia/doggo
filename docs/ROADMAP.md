@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-03-23
+last-reviewed: 2026-03-26
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
@@ -184,6 +184,57 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 - EmptyState component + ButtonAction adoption pass
 
 **Board:** [[phase-12-demo-ready]]
+
+---
+
+## Phase 13 — Meet Type Enrichment (current)
+
+**Goal:** Flesh out meet types (Walk, Park Hangout, Playdate, Training) with type-specific fields so the demo shows fully differentiated event experiences — not just four labels on the same form.
+
+**Key outcomes:**
+- Type-specific data model: Walk (pace/distance/terrain/route), Park Hangout (drop-in window/amenities/vibe), Playdate (age range/play style/fenced/max dogs), Training (skill focus/experience level/trainer info/equipment)
+- Shared enhancement fields: energy level, what to bring, accessibility notes
+- Conditional creation form sections per type
+- MeetCard type summary pills
+- Detail page type-specific sections
+- All 6 mock meets enriched with type-specific data
+
+**Board:** [[phase-13-meet-type-enrichment]]
+
+---
+
+## Phase 14 — Community & Activity Restructure (current)
+
+**Goal:** Elevate communities as a first-class navigation concept, consolidate meets + schedule into a unified "Activity" tab, and add group chat enhancements (join-gated empty states, auto-generated activity, event card strip).
+
+**Key outcomes:**
+- Navigation restructure: Home | Communities | Activity | Inbox | Profile (mobile), Communities + Activity replace Meets + Schedule
+- `/communities` route (moved from `/groups`), user-facing term "community" throughout
+- `/activity` page with three tabs: Discover (meet browse), My Schedule (upcoming + past), Bookings (care arrangements)
+- Join-gated chat: EmptyState with Join CTA when non-member views community or meet chat
+- Auto-generated system messages in community chat (member joined, meet posted, RSVP milestones)
+- Event card strip: horizontal scroll of upcoming meets at top of community chat
+
+**Board:** [[phase-14-community-activity-restructure]]
+
+---
+
+## Phase 15 — Trust, Connections & Mock Data Quality (planned)
+
+**Goal:** Refine the connection model UX, redesign meet participant lists as a social discovery surface, add share-profile linking, and replace all Unsplash mock images with generated assets authentic to Prague.
+
+**Key outcomes:**
+- Single visibility toggle governs all content including care services (no separate care setting) + informational banner for locked providers
+- Share profile link for direct IRL-to-app connections (`/connect/[code]`)
+- Redesigned meet participant list: tiered by relationship (Connected → Familiar/Open → hidden count), rich cards with relationship context and mutual connections
+- Going / Interested RSVP states on meets
+- Post-meet participant reveal (hidden attendees surfaced with Familiar/Connect actions)
+- Locked profile view for non-Familiar viewers (blurred avatar + explanation)
+- Connection state icon system (Phosphor icons, not text pills)
+- All Unsplash mock images replaced with AI-generated images matching Prague context and mock data characters
+- Default avatar component for users without photos
+
+**Board:** [[phase-15-trust-connections-images]]
 
 ---
 

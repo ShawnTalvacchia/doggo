@@ -47,8 +47,8 @@ function LoggedNavLinks() {
 
   const navLinks = [
     { label: "Home", href: "/home" },
-    { label: "Meets", href: "/meets" },
-    { label: "Schedule", href: "/schedule" },
+    { label: "Communities", href: "/communities" },
+    { label: "Activity", href: "/activity" },
     { label: "Find Care", href: "/explore/results" },
   ];
 
@@ -100,7 +100,7 @@ function LoggedNavLinks() {
   );
 }
 
-const loggedRoutes = ["/home", "/meets", "/schedule", "/explore", "/inbox", "/bookings", "/profile"];
+const loggedRoutes = ["/home", "/communities", "/groups", "/activity", "/meets", "/schedule", "/explore", "/inbox", "/bookings", "/profile"];
 
 export function AppNav() {
   const pathname = usePathname();

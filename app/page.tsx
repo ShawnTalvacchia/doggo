@@ -114,7 +114,7 @@ export default function LandingPage() {
               Meet dog owners locally. Build real trust through walks, hangouts, and play. When you need care, you already know who to ask.
             </p>
             <div className="landing-hero-ctas">
-              <ButtonAction variant="primary" cta size="lg" href="/meets">
+              <ButtonAction variant="primary" cta size="lg" href="/activity">
                 Find a meet near you
               </ButtonAction>
               <ButtonAction variant="secondary" cta size="lg" href="#how-it-works">
@@ -306,7 +306,7 @@ export default function LandingPage() {
             Meet locally. Build trust. Care comes naturally.
           </p>
           <div className="landing-cta-close-btns">
-            <ButtonAction variant="white" cta size="lg" href="/meets">
+            <ButtonAction variant="white" cta size="lg" href="/activity">
               Find a meet near you
             </ButtonAction>
             <ButtonAction variant="outline-white" cta size="lg" href="/signup/start">

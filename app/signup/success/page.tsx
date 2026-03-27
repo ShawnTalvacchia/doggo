@@ -33,7 +33,7 @@ export default function SignupSuccessPage() {
               variant="secondary"
               size="lg"
               cta
-              onClick={() => router.push("/meets")}
+              onClick={() => router.push("/activity")}
             >
               Browse Meets
             </ButtonAction>

@@ -79,13 +79,13 @@ See `docs/CONTRIBUTING.md` for full details.
 | `docs/implementation/component-inventory.md` | Built components catalog |
 | `docs/CONTRIBUTING.md` | Workflow rules, doc categories, naming conventions |
 
-## Current Phase: 12 — Demo Ready
+## Current Phase: 14 — Community & Activity Restructure
 
-**Goal:** Close the last functional gap (carer inbox actions), clean up the design system and CSS, extract inlined components, and polish UX consistency — leaving the codebase ready for a Figma design pass.
+**Goal:** Elevate communities as a first-class navigation concept, consolidate meets + schedule into a unified "Activity" tab, and add group chat enhancements (join-gated empty states, auto-generated activity, event card strip).
 
-**Key focus:** Carer inquiry response flow in inbox, component extraction (ThreadClient + profile page), dead CSS audit, inline style migration, EmptyState + ButtonAction adoption.
+**Key focus:** Nav restructure (Communities + Activity replace Meets + Schedule), `/communities` route, `/activity` with Discover/My Schedule/Bookings tabs, join-gated chat, system messages, event card strip.
 
-**Board:** See `docs/phases/phase-12-demo-ready.md` and `docs/ROADMAP.md`.
+**Board:** See `docs/phases/phase-14-community-activity-restructure.md` and `docs/ROADMAP.md`.
 
 ## Strategic Context
 
@@ -96,6 +96,6 @@ See `docs/CONTRIBUTING.md` for full details.
 Key decisions:
 - **Connection model:** None (default) → Familiar (one-sided) → Pending → Connected (mutual). See `docs/strategy/Trust & Connection Model.md`.
 - **Everyone starts as an owner.** No separate provider signup. Offering care is a dial, not a switch.
-- **Nav:** Home | Meets | Schedule | Inbox | Profile (mobile). Desktop: horizontal links + Find Care / Offer Care CTAs.
+- **Nav:** Home | Communities | Activity | Inbox | Profile (mobile). Desktop: horizontal links + Find Care / Offer Care CTAs.
 - **Care accessed via CTA, not a tab.** Provider search is an intentional action from within the community context.
 - See `docs/strategy/MVP Scope Boundaries.md` for feature priorities (Required / Nice-to-have / Out).
