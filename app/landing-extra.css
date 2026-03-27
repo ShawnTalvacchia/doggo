@@ -442,6 +442,10 @@
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
+  .landing-hero--photo .landing-hero-inner {
+    grid-template-columns: 1fr;
+  }
+
   .landing-archetypes-split {
     grid-template-columns: 1fr;
     gap: 32px;
@@ -504,31 +508,40 @@
 
 @media (max-width: 600px) {
   .landing-hero--photo {
-    padding: 60px 20px 72px;
+    padding: 40px 16px 48px;
     min-height: auto;
   }
 
   .landing-hero--photo .landing-hero-inner {
-    text-align: center;
+    text-align: left;
+    min-height: auto;
   }
 
   .landing-hero--photo .landing-hero-content {
-    align-items: center;
+    align-items: flex-start;
   }
 
   .landing-hero-photo-overlay {
     background: linear-gradient(
       to bottom,
-      rgba(255, 255, 255, 0.92) 0%,
-      rgba(255, 255, 255, 0.82) 50%,
-      rgba(255, 255, 255, 0.65) 100%
+      rgba(255, 255, 255, 0.94) 0%,
+      rgba(255, 255, 255, 0.88) 50%,
+      rgba(255, 255, 255, 0.72) 100%
     );
   }
 
   .landing-hook {
-    padding: 36px 0 32px;
+    padding: 32px 0 28px;
   }
 
+  .landing-hook .landing-inner {
+    padding: 0 16px;
+  }
+
+  .landing-hook-text {
+    text-align: left;
+    gap: 8px;
+  }
 
   .landing-hook-subline {
     font-size: var(--font-size-base);

@@ -272,7 +272,7 @@ function ProfileInner() {
 
           <ProfileHeaderOwn
             user={user}
-            state="condensed"
+            state="expanded"
             editing={editing}
             onEdit={startEditing}
             onSave={saveEditing}
