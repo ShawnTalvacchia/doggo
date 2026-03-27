@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-03-23
+last-reviewed: 2026-03-27
 tags: [profile, pets, provider, edit, posts, tagging]
 review-trigger: "when modifying profile pages, pet cards, posts, or provider sections"
 ---
@@ -158,6 +158,31 @@ Profile Posts tab → "New post" / Home "Add Post" CTA
 → Post composer: select photos → caption → tags → optional community
 → Post appears in feed and on profile Posts tab
 ```
+
+---
+
+## Locked Profile View (Phase 15)
+
+When a non-Familiar, non-Connected user views a Locked profile:
+
+- Avatar (blurred/dimmed), first name only, dog name + breed, neighbourhood
+- Explanation: "[Name] has a private profile. Connect with them at a meet or community to see more."
+- No action CTA — the profile owner controls who gets access
+- If viewer shares a community: "You're both in [community name] — they may mark you as Familiar after a meet"
+
+In list contexts (search results, community members, meet attendees):
+- **Open** profiles show a subtle globe icon
+- **Locked** profiles with no relationship get muted/collapsed treatment (shown as count, not individual cards)
+
+### Locked provider banner
+
+When a user adds care services while their profile is Locked, an informational banner appears on the services tab: "Your profile is private — only people you've marked as Familiar or Connected with can see your services. Want to make your profile public?"
+
+The banner links to the existing visibility toggle. Dismissing is fine — casual providers who only help friends should stay Locked.
+
+### Default avatar
+
+Users with no photo get an initials-based avatar on a coloured background (colour derived from user ID for consistency). Component: `components/ui/DefaultAvatar.tsx`.
 
 ---
 

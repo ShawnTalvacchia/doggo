@@ -155,8 +155,7 @@ function buildPets(draft: SignupDraft) {
       breed: p.breed || "Mixed breed",
       weightLabel: p.size ? `${p.size} kg` : "Unknown weight",
       ageLabel: p.age || "Unknown age",
-      imageUrl:
-        "https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=200&q=80",
+      imageUrl: "/images/generated/spot-portrait.jpeg",
     },
   ];
 }
@@ -170,8 +169,7 @@ export function draftToProfile(draft: SignupDraft): ProviderProfileContent {
     aboutHeading: `About ${draft.firstName || "You"}`,
     aboutBody: draft.bio || "Add a short bio so owners know who you are.",
     photoMainUrl: DEFAULT_ABOUT_BANNER_URL,
-    photoSideUrl:
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=800&q=80",
+    photoSideUrl: "/images/generated/spot-park-walk.jpeg",
     photoCountLabel: "(0 photos)",
     careExperience: buildCareExperience(draft),
     medicalCare: [], // populated in Option B when we add a medical handling step

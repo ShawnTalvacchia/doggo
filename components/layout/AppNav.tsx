@@ -91,7 +91,7 @@ function LoggedNavLinks() {
         >
           <img
             className="app-nav-avatar-img"
-            src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80"
+            src="/images/generated/shawn-profile.jpg"
             alt="Menu"
           />
         </Link>

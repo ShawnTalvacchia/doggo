@@ -10,8 +10,12 @@ import {
   CalendarDots,
   Handshake,
   ChatCircleDots,
+  LockSimple,
+  UsersThree,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { ConnectionIcon } from "@/components/ui/ConnectionIcon";
+import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import { TrustSignalBadges } from "@/components/profile/TrustSignalBadges";
 import { PostsTab } from "@/components/profile/PostsTab";
 import { getConnectionState, getCommunityCarers } from "@/lib/mockConnections";
@@ -34,8 +38,13 @@ export default function UserProfilePage() {
   const location = connection?.location ?? provider?.district ?? "";
   const dogs = connection?.dogNames ?? [];
   const connState = connection?.state ?? "none";
+  const isProfileOpen = connection?.profileOpen ?? false;
+  const sharedGroups = connection?.sharedGroups ?? [];
 
   const offersCare = !!provider || !!communityCarer;
+
+  // Locked profile: no relationship and profile is not open
+  const isLocked = !isProfileOpen && connState === "none";
 
   const tabs: { key: ProfileTab; label: string; show: boolean }[] = [
     { key: "about", label: "About", show: true },
@@ -55,13 +64,20 @@ export default function UserProfilePage() {
 
         {/* Header */}
         <div className="flex flex-col items-center gap-md p-lg text-center">
-          {avatarUrl && (
+          {avatarUrl ? (
             <img
               src={avatarUrl}
               alt={name}
               className="rounded-full"
-              style={{ width: 80, height: 80, objectFit: "cover" }}
+              style={{
+                width: 80,
+                height: 80,
+                objectFit: "cover",
+                ...(isLocked ? { filter: "brightness(0.6) blur(1px)" } : {}),
+              }}
             />
+          ) : (
+            <DefaultAvatar name={name} size={80} />
           )}
           <div>
             <h1 className="font-heading text-xl font-semibold text-fg-primary m-0">{name}</h1>
@@ -73,24 +89,20 @@ export default function UserProfilePage() {
             {dogs.length > 0 && (
               <p className="flex items-center justify-center gap-xs text-sm text-fg-tertiary mt-xs">
                 <PawPrint size={14} weight="light" /> {dogs.join(", ")}
+                {connection?.dogBreed && ` · ${connection.dogBreed}`}
               </p>
             )}
           </div>
 
-          {/* Connection state + trust context */}
+          {/* Connection state icon */}
           <div className="flex items-center gap-sm flex-wrap justify-center">
-            {connState === "connected" && (
-              <span className="flex items-center gap-xs rounded-pill px-md py-xs text-xs font-medium"
-                style={{ background: "var(--brand-subtle)", color: "var(--brand-strong)" }}>
-                <Handshake size={14} weight="fill" /> Connected
-              </span>
-            )}
-            {connState === "familiar" && (
-              <span className="flex items-center gap-xs rounded-pill px-md py-xs text-xs font-medium"
-                style={{ background: "var(--surface-gray)", color: "var(--text-secondary)" }}>
-                Familiar
-              </span>
-            )}
+            <ConnectionIcon
+              state={connState}
+              theyMarkedFamiliar={connection?.theyMarkedFamiliar}
+              profileOpen={isProfileOpen}
+              size={16}
+              showLabel
+            />
             {communityCarer && communityCarer.meetsShared > 0 && (
               <span className="text-xs text-fg-tertiary">
                 {communityCarer.meetsShared} meets together
@@ -104,60 +116,75 @@ export default function UserProfilePage() {
           </div>
 
           {/* Trust signal badges */}
-          {connection && <TrustSignalBadges connection={connection} />}
+          {connection && !isLocked && <TrustSignalBadges connection={connection} />}
+
+          {/* Locked profile message */}
+          {isLocked && (
+            <div className="flex flex-col items-center gap-sm rounded-panel p-lg bg-surface-inset w-full" style={{ maxWidth: 360 }}>
+              <LockSimple size={28} weight="light" className="text-fg-tertiary" />
+              <p className="text-sm text-fg-secondary m-0 text-center">
+                {name} has a private profile. Connect with them at a meet or community to see more.
+              </p>
+              {sharedGroups.length > 0 && (
+                <p className="text-xs text-fg-tertiary m-0 flex items-center gap-xs">
+                  <UsersThree size={14} weight="light" />
+                  You&apos;re both in {sharedGroups[0]}
+                </p>
+              )}
+            </div>
+          )}
 
           {/* CTA */}
-          <div className="flex items-center gap-sm">
-            {connState === "connected" && (
-              <>
-                <ButtonAction variant="primary" size="md" href={`/inbox`}
-                  leftIcon={<ChatCircleDots size={16} weight="light" />}>
-                  Message {name.split(" ")[0]}
-                </ButtonAction>
-                {offersCare && (
-                  <ButtonAction variant="secondary" size="md" href={`/inbox`}
-                    leftIcon={<CalendarDots size={16} weight="light" />}>
-                    Book care
+          {!isLocked && (
+            <div className="flex items-center gap-sm">
+              {connState === "connected" && (
+                <>
+                  <ButtonAction variant="primary" size="md" href={`/inbox`}
+                    leftIcon={<ChatCircleDots size={16} weight="light" />}>
+                    Message {name.split(" ")[0]}
                   </ButtonAction>
-                )}
-              </>
-            )}
-            {connState === "familiar" && (
-              <ButtonAction variant="primary" size="md">
-                Connect with {name.split(" ")[0]}
-              </ButtonAction>
-            )}
-            {connState === "pending" && (
-              <ButtonAction variant="outline" size="md" disabled>
-                Request sent
-              </ButtonAction>
-            )}
-            {connState === "none" && (
-              <ButtonAction variant="secondary" size="md" disabled>
-                Meet {name.split(" ")[0]} first
-              </ButtonAction>
-            )}
-          </div>
+                  {offersCare && (
+                    <ButtonAction variant="secondary" size="md" href={`/inbox`}
+                      leftIcon={<CalendarDots size={16} weight="light" />}>
+                      Book care
+                    </ButtonAction>
+                  )}
+                </>
+              )}
+              {connState === "familiar" && (
+                <ButtonAction variant="primary" size="md">
+                  Connect with {name.split(" ")[0]}
+                </ButtonAction>
+              )}
+              {connState === "pending" && (
+                <ButtonAction variant="outline" size="md" disabled>
+                  Request sent
+                </ButtonAction>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Tabs */}
-        <div className="profile-tabs" role="tablist" aria-label="Profile sections">
-          {tabs.filter((t) => t.show).map(({ key, label }) => (
-            <button
-              key={key}
-              type="button"
-              role="tab"
-              aria-selected={activeTab === key}
-              onClick={() => setActiveTab(key)}
-              className={`profile-tab${activeTab === key ? " profile-tab--active" : ""}`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        {/* Tabs — hidden for locked profiles */}
+        {!isLocked && (
+          <div className="profile-tabs" role="tablist" aria-label="Profile sections">
+            {tabs.filter((t) => t.show).map(({ key, label }) => (
+              <button
+                key={key}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === key}
+                onClick={() => setActiveTab(key)}
+                className={`profile-tab${activeTab === key ? " profile-tab--active" : ""}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Tab content */}
-        <div className="p-lg">
+        {!isLocked && <div className="p-lg">
           {activeTab === "about" && (
             <div className="flex flex-col gap-lg">
               {provider?.blurb && (
@@ -257,7 +284,7 @@ export default function UserProfilePage() {
           {activeTab === "posts" && (
             <PostsTab userId={userId} />
           )}
-        </div>
+        </div>}
       </section>
     </main>
   );

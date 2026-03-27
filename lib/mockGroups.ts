@@ -10,8 +10,7 @@ export const mockGroups: Group[] = [
     visibility: "open",
     neighbourhood: "Vinohrady",
     location: "Riegrovy sady, Prague 2",
-    coverPhotoUrl:
-      "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=800&q=80",
+    coverPhotoUrl: "/images/generated/community-cover-vinohrady.jpeg",
     creatorId: "shawn",
     creatorName: "Shawn",
     members: [
@@ -19,7 +18,7 @@ export const mockGroups: Group[] = [
         userId: "shawn",
         userName: "Shawn",
         avatarUrl:
-          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+          "/images/generated/shawn-profile.jpg",
         dogNames: ["Spot", "Goldie"],
         role: "admin",
         joinedAt: "2025-11-10",
@@ -45,10 +44,10 @@ export const mockGroups: Group[] = [
     ],
     meetIds: ["meet-1"],
     photos: [
-      "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=crop&w=600&q=80",
+      "/images/generated/community-cover-vinohrady.jpeg",
+      "/images/generated/spot-portrait.jpeg",
+      "/images/generated/park-hangout-riegrovy.jpeg",
+      "/images/generated/goldie-playing.jpeg",
     ],
     photoPolicy: "encouraged",
     createdAt: "2025-11-10T08:00:00Z",
@@ -61,8 +60,7 @@ export const mockGroups: Group[] = [
     visibility: "open",
     neighbourhood: "Holešovice",
     location: "Stromovka, Prague 7",
-    coverPhotoUrl:
-      "https://images.unsplash.com/photo-1477884213360-7e9d7dcc8f9b?auto=format&fit=crop&w=800&q=80",
+    coverPhotoUrl: "/images/generated/group-walk-stromovka.jpeg",
     creatorId: "jana",
     creatorName: "Jana",
     members: [
@@ -79,7 +77,7 @@ export const mockGroups: Group[] = [
         userId: "shawn",
         userName: "Shawn",
         avatarUrl:
-          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+          "/images/generated/shawn-profile.jpg",
         dogNames: ["Spot"],
         role: "member",
         joinedAt: "2025-12-05",
@@ -105,9 +103,9 @@ export const mockGroups: Group[] = [
     ],
     meetIds: ["meet-2"],
     photos: [
-      "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1477884213360-7e9d7dcc8f9b?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=600&q=80",
+      "/images/generated/group-walk-stromovka.jpeg",
+      "/images/generated/evening-walk-group.jpeg",
+      "/images/generated/spot-resting.jpeg",
     ],
     photoPolicy: "encouraged",
     createdAt: "2025-12-01T10:00:00Z",
@@ -120,8 +118,7 @@ export const mockGroups: Group[] = [
     visibility: "private",
     neighbourhood: "Vinohrady",
     location: "Prague 2",
-    coverPhotoUrl:
-      "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=800&q=80",
+    coverPhotoUrl: "/images/generated/community-cover-reactive.jpeg",
     creatorId: "eva",
     creatorName: "Eva",
     members: [
@@ -157,8 +154,7 @@ export const mockGroups: Group[] = [
     visibility: "open",
     neighbourhood: "Letná",
     location: "Letenské sady, Prague 7",
-    coverPhotoUrl:
-      "https://images.unsplash.com/photo-1633722715463-d30f4f325e24?auto=format&fit=crop&w=800&q=80",
+    coverPhotoUrl: "/images/generated/training-session.jpeg",
     creatorId: "eva",
     creatorName: "Eva",
     members: [
@@ -183,8 +179,8 @@ export const mockGroups: Group[] = [
     ],
     meetIds: ["meet-3"],
     photos: [
-      "https://images.unsplash.com/photo-1612774412771-005ed8e861d2?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1633722715463-d30f4f325e24?auto=format&fit=crop&w=600&q=80",
+      "/images/generated/goldie-leash.jpeg",
+      "/images/generated/training-session.jpeg",
     ],
     photoPolicy: "optional",
     createdAt: "2026-02-01T09:00:00Z",
@@ -197,8 +193,7 @@ export const mockGroups: Group[] = [
     visibility: "approval",
     neighbourhood: "Žižkov",
     location: "Žižkov, Prague 3",
-    coverPhotoUrl:
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=800&q=80",
+    coverPhotoUrl: "/images/generated/community-cover-zizkov.jpeg",
     creatorId: "martin",
     creatorName: "Martin",
     members: [
@@ -223,7 +218,7 @@ export const mockGroups: Group[] = [
     ],
     meetIds: [],
     photos: [
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=600&q=80",
+      "/images/generated/community-cover-zizkov.jpeg",
     ],
     photoPolicy: "optional",
     createdAt: "2026-02-15T11:00:00Z",

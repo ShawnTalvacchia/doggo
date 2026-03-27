@@ -7,9 +7,9 @@ export const mockPosts: Post[] = [
     authorId: "shawn",
     authorName: "Shawn",
     authorAvatarUrl:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/shawn-profile.jpg",
     photos: [
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=600&q=80",
+      "/images/generated/spot-park-walk.jpeg",
     ],
     caption: "Spot discovered snow for the first time. Complete chaos.",
     tags: [
@@ -32,8 +32,8 @@ export const mockPosts: Post[] = [
     authorAvatarUrl:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
     photos: [
-      "https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=crop&w=600&q=80",
+      "/images/generated/rex-portrait.jpeg",
+      "/images/generated/meet-greeting.jpeg",
     ],
     caption: "Rex made a friend at the park today 🐾",
     tags: [
@@ -55,9 +55,9 @@ export const mockPosts: Post[] = [
     authorAvatarUrl:
       "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
     photos: [
-      "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1534361960057-19f4434a6b65?auto=format&fit=crop&w=600&q=80",
+      "/images/generated/luna-portrait.jpeg",
+      "/images/generated/max-portrait.jpeg",
+      "/images/generated/post-dog-park-sunset.jpeg",
     ],
     caption: "Luna and Max's favourite bench. They sit here every morning like little sentinels.",
     tags: [
@@ -78,7 +78,7 @@ export const mockPosts: Post[] = [
     authorAvatarUrl:
       "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80",
     photos: [
-      "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=600&q=80",
+      "/images/generated/charlie-portrait.jpeg",
     ],
     tags: [
       { type: "dog", id: "charlie", label: "Charlie" },
@@ -99,10 +99,10 @@ export const mockPosts: Post[] = [
     groupId: "group-1",
     groupName: "Vinohrady Morning Crew",
     photos: [
-      "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=crop&w=600&q=80",
+      "/images/generated/group-walk-stromovka.jpeg",
+      "/images/generated/spot-portrait.jpeg",
+      "/images/generated/park-hangout-riegrovy.jpeg",
+      "/images/generated/goldie-playing.jpeg",
     ],
     caption: "Great turnout at this morning's walk! 6 dogs, zero drama.",
     tags: [
@@ -127,12 +127,12 @@ export const mockPosts: Post[] = [
     authorId: "shawn",
     authorName: "Shawn",
     authorAvatarUrl:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/shawn-profile.jpg",
     groupId: "group-2",
     groupName: "Stromovka Off-Leash Club",
     photos: [
-      "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1534361960057-19f4434a6b65?auto=format&fit=crop&w=600&q=80",
+      "/images/generated/spot-portrait.jpeg",
+      "/images/generated/playdate-small-group.jpeg",
     ],
     caption: "Spot finally learned to share the ball. Progress!",
     tags: [
@@ -155,7 +155,7 @@ export const mockPosts: Post[] = [
     groupId: "group-4",
     groupName: "Letná Recall Training",
     photos: [
-      "https://images.unsplash.com/photo-1612774412771-005ed8e861d2?auto=format&fit=crop&w=600&q=80",
+      "/images/generated/training-session.jpeg",
     ],
     caption: "Luna nailed the 30m recall today. Treats are powerful motivators.",
     tags: [
@@ -179,8 +179,8 @@ export const mockPosts: Post[] = [
     groupId: "group-1",
     groupName: "Vinohrady Morning Crew",
     photos: [
-      "https://images.unsplash.com/photo-1633722715463-d30f4f325e24?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=600&q=80",
+      "/images/generated/bella-portrait.jpeg",
+      "/images/generated/post-new-trick.jpeg",
     ],
     caption: "Bella showing off at the morning walk. She thinks she runs this crew.",
     tags: [
@@ -203,10 +203,10 @@ export const mockPosts: Post[] = [
     authorAvatarUrl:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
     photos: [
-      "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1612774412771-005ed8e861d2?auto=format&fit=crop&w=600&q=80",
+      "/images/generated/post-adoption-anniversary.jpeg",
+      "/images/generated/rex-portrait.jpeg",
+      "/images/generated/post-first-swim.jpeg",
+      "/images/generated/post-matching-outfits.jpeg",
     ],
     caption: "Rex's adoption anniversary! One year of morning walks, stolen socks, and unconditional love.",
     tags: [
@@ -234,9 +234,9 @@ export const mockPosts: Post[] = [
     authorId: "shawn",
     authorName: "Shawn",
     authorAvatarUrl:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/shawn-profile.jpg",
     photos: [
-      "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=crop&w=600&q=80",
+      "/images/generated/post-sleepy-dogjpeg.jpeg",
     ],
     tags: [
       { type: "dog", id: "goldie", label: "Goldie" },

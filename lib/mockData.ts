@@ -139,7 +139,7 @@ export const providers: ProviderCard[] = [
     priceUnit: "per_walk",
     blurb: "Solo walks with a trainer's touch",
     avatarUrl:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80",
+      "/images/generated/shawn-profile.jpg",
     services: ["walk_checkin"],
     availableTimes: ["6-11", "15-22"],
     distanceKm: 1.5,

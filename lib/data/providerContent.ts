@@ -360,8 +360,7 @@ const providerFallbackDetails: Record<
     aboutBody:
       "I've been caring for dogs since childhood — my family always had at least two at home. I work remotely full-time so your pup is never alone. My flat in Smíchov has a quiet courtyard and I take every dog on at least two proper walks a day. I send photo updates after every outing.",
     photoMainUrl: DEFAULT_ABOUT_BANNER_URL,
-    photoSideUrl:
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=800&q=80",
+    photoSideUrl: "/images/generated/care-dog-sitting.jpeg",
     photoCountLabel: "(42 photos)",
     careExperience: [
       "Puppies and adolescent dogs",
@@ -390,8 +389,7 @@ const providerFallbackDetails: Record<
         breed: "Beagle Mix",
         weightLabel: "11 kg",
         ageLabel: "4 years",
-        imageUrl:
-          "https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=200&q=80",
+        imageUrl: "/images/generated/bella-portrait.jpeg",
       },
     ],
     reviews: [
@@ -448,8 +446,7 @@ const providerFallbackDetails: Record<
     aboutBody:
       "I'm a certified dog trainer with five years of experience in Prague's 2nd district. I specialise in structured, purposeful walks that help dogs feel secure and satisfied. Every walk starts with a brief sniff-and-settle and ends with a debrief note to the owner. I take a maximum of two dogs at a time so each one gets real attention.",
     photoMainUrl: DEFAULT_ABOUT_BANNER_URL,
-    photoSideUrl:
-      "https://images.unsplash.com/photo-1601979031925-424e53b6caaa?auto=format&fit=crop&w=800&q=80",
+    photoSideUrl: "/images/generated/care-dog-walking.jpeg",
     photoCountLabel: "(78 photos)",
     careExperience: [
       "Adult dogs",
@@ -477,8 +474,7 @@ const providerFallbackDetails: Record<
         breed: "Border Collie",
         weightLabel: "22 kg",
         ageLabel: "3 years",
-        imageUrl:
-          "https://images.unsplash.com/photo-1503256207526-0d5d80fa2f47?auto=format&fit=crop&w=200&q=80",
+        imageUrl: "/images/generated/rex-portrait.jpeg",
       },
     ],
     reviews: [
@@ -532,8 +528,7 @@ const providerFallbackDetails: Record<
     aboutBody:
       "I'm a certified dog behaviour consultant working out of Žižkov. I walk dogs one at a time — no group walks, no rushing. I specialise in dogs that pull, react, or get anxious around other dogs. Every walk follows a consistent routine: sniff time, structured walk, wind-down. Owners get a voice note update after every outing.",
     photoMainUrl: DEFAULT_ABOUT_BANNER_URL,
-    photoSideUrl:
-      "https://images.unsplash.com/photo-1548252139-b12bd2a9a33e?auto=format&fit=crop&w=800&q=80",
+    photoSideUrl: "/images/generated/training-session.jpeg",
     photoCountLabel: "(19 photos)",
     careExperience: [
       "Adult dogs",
@@ -559,8 +554,7 @@ const providerFallbackDetails: Record<
         breed: "Czech Shepherd Mix",
         weightLabel: "28 kg",
         ageLabel: "2 years",
-        imageUrl:
-          "https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?auto=format&fit=crop&w=200&q=80",
+        imageUrl: "/images/generated/charlie-portrait.jpeg",
       },
     ],
     reviews: [
@@ -628,8 +622,7 @@ const providerFallbackDetails: Record<
     aboutBody:
       "I've been caring for other people's dogs full-time for a decade. I live in a spacious Old Town apartment two minutes from Náměstí Míru, with easy access to Riegrovy sady and the river. I take care of everything — feeding, medication, exercise, enrichment — and I send a detailed evening summary every day. I accept a maximum of one household at a time so your dog gets my full attention.",
     photoMainUrl: DEFAULT_ABOUT_BANNER_URL,
-    photoSideUrl:
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=800&q=80",
+    photoSideUrl: "/images/generated/spot-park-walk.jpeg",
     photoCountLabel: "(112 photos)",
     careExperience: [
       "Puppies through seniors",
@@ -660,8 +653,7 @@ const providerFallbackDetails: Record<
         breed: "Toy Poodle",
         weightLabel: "5 kg",
         ageLabel: "6 years",
-        imageUrl:
-          "https://images.unsplash.com/photo-1562176566-e9afd27531d4?auto=format&fit=crop&w=200&q=80",
+        imageUrl: "/images/generated/luna-portrait.jpeg",
       },
     ],
     reviews: [
@@ -727,8 +719,7 @@ const providerFallbackDetails: Record<
     aboutBody:
       "I'm a stay-at-home dad in Karlín with two kids and two dogs. Our house is lively, warm, and never quiet — which suits energetic, sociable dogs perfectly. We have a garden, a big living room, and a park five minutes away. Guest dogs get the full family experience: walks with the kids, sofa time, and lots of play. Not ideal for shy or anxious dogs, but heaven for social ones.",
     photoMainUrl: DEFAULT_ABOUT_BANNER_URL,
-    photoSideUrl:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80",
+    photoSideUrl: "/images/generated/playdate-small-group.jpeg",
     photoCountLabel: "(55 photos)",
     careExperience: [
       "Adult dogs",
@@ -753,8 +744,7 @@ const providerFallbackDetails: Record<
         breed: "Labrador Mix",
         weightLabel: "35 kg",
         ageLabel: "5 years",
-        imageUrl:
-          "https://images.unsplash.com/photo-1529429617124-95b109e86bb8?auto=format&fit=crop&w=200&q=80",
+        imageUrl: "/images/generated/goldie-portrait.jpeg",
       },
       {
         id: `${providerId}-pet-2`,
@@ -762,8 +752,7 @@ const providerFallbackDetails: Record<
         breed: "Beagle",
         weightLabel: "12 kg",
         ageLabel: "7 years",
-        imageUrl:
-          "https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=200&q=80",
+        imageUrl: "/images/generated/spot-resting.jpeg",
       },
     ],
     reviews: [
@@ -831,8 +820,7 @@ const providerFallbackDetails: Record<
     aboutBody:
       "I'm a retired veterinary nurse living in Dejvice. After 20 years working in a Prague clinic I know dogs inside out — especially the shy ones, the older ones, and the ones who need a little extra patience. My home is quiet and calm, and I have a small garden. I'm happy to accommodate special dietary needs or medication schedules.",
     photoMainUrl: DEFAULT_ABOUT_BANNER_URL,
-    photoSideUrl:
-      "https://images.unsplash.com/photo-1560743641-3914f2c45636?auto=format&fit=crop&w=800&q=80",
+    photoSideUrl: "/images/generated/puppy-socialization.jpeg",
     photoCountLabel: "(31 photos)",
     careExperience: [
       "Senior dogs",
@@ -908,8 +896,7 @@ const providerFallbackDetails: Record<
     aboutBody:
       "I work remotely as a translator, so I'm home almost all day — which means your dog is never alone. My flat in Nusle is calm and comfortable, with a balcony and easy access to Nusle valley trails. I'm great with small dogs and senior dogs who need a quieter, predictable environment. I have a resident cat (Luna) so new arrivals should be cat-friendly.",
     photoMainUrl: DEFAULT_ABOUT_BANNER_URL,
-    photoSideUrl:
-      "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=800&q=80",
+    photoSideUrl: "/images/generated/dogs-cafe-terrace.jpeg",
     photoCountLabel: "(67 photos)",
     careExperience: [
       "Small and toy breeds",
@@ -938,8 +925,7 @@ const providerFallbackDetails: Record<
         breed: "Domestic Shorthair",
         weightLabel: "4 kg",
         ageLabel: "3 years",
-        imageUrl:
-          "https://images.unsplash.com/photo-1495360010541-f48722b34f7d?auto=format&fit=crop&w=200&q=80",
+        imageUrl: "/images/generated/luna-portrait.jpeg",
       },
     ],
     reviews: [
@@ -978,8 +964,7 @@ function fallbackContent(providerId: string): ProviderProfileContent | null {
         aboutBody:
           "Passionate dog lover with years of experience caring for dogs of all breeds and temperaments.",
         photoMainUrl: DEFAULT_ABOUT_BANNER_URL,
-        photoSideUrl:
-          "https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=800&q=80",
+        photoSideUrl: "/images/generated/care-dog-walking.jpeg",
         photoCountLabel: "(12 photos)",
         careExperience: ["Adult Dogs", "Senior Dogs"],
         medicalCare: ["Comfortable following vet instructions"],

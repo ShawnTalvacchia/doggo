@@ -9,7 +9,7 @@ export const mockMeetMessages: Record<string, MeetMessage[]> = {
       senderId: "shawn",
       senderName: "Shawn",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/shawn-profile.jpg",
       text: "Looking forward to Wednesday! I'll be at the main entrance at 8.",
       sentAt: "2026-03-16T18:00:00Z",
     },
@@ -29,7 +29,7 @@ export const mockMeetMessages: Record<string, MeetMessage[]> = {
       senderId: "shawn",
       senderName: "Shawn",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/shawn-profile.jpg",
       text: "Upper loop! More space for the dogs off-leash once we're past the playground.",
       sentAt: "2026-03-16T18:08:00Z",
     },
@@ -85,7 +85,7 @@ export const mockMeetMessages: Record<string, MeetMessage[]> = {
       senderId: "shawn",
       senderName: "Shawn",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/shawn-profile.jpg",
       text: "That was a great walk! Spot and Rex really hit it off.",
       sentAt: "2026-03-16T10:15:00Z",
     },

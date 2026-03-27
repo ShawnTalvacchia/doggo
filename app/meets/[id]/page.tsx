@@ -35,6 +35,9 @@ import Link from "next/link";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ShareMeetModal } from "@/components/meets/ShareMeetModal";
+import { ParticipantList } from "@/components/meets/ParticipantList";
+import { PostMeetReveal } from "@/components/meets/PostMeetReveal";
+import { getConnectionState as getConnState } from "@/lib/mockConnections";
 import { getGroupById } from "@/lib/mockGroups";
 import {
   mockMeets,
@@ -129,8 +132,10 @@ export default function MeetDetailPage() {
     );
   }
 
+  const goingAttendees = meet.attendees.filter((a) => (a.rsvpStatus ?? "going") === "going");
+  const interestedCount = meet.attendees.filter((a) => a.rsvpStatus === "interested").length;
   const totalDogs = meet.attendees.reduce((sum, a) => sum + a.dogNames.length, 0);
-  const spotsLeft = meet.maxAttendees - meet.attendees.length;
+  const spotsLeft = meet.maxAttendees - goingAttendees.length;
   const isJoined = meet.attendees.some((a) => a.userId === "shawn");
   const isCreator = meet.creatorId === "shawn";
   const messages = getMessagesForMeet(meet.id);
@@ -219,7 +224,7 @@ export default function MeetDetailPage() {
           <Users size={24} weight="light" className="text-fg-tertiary shrink-0" style={{ marginTop: 2 }} />
           <div className="flex flex-col">
             <span className="text-sm font-medium text-fg-primary">
-              {meet.attendees.length}/{meet.maxAttendees} people · {totalDogs} dogs
+              {goingAttendees.length} going{interestedCount > 0 ? `, ${interestedCount} interested` : ""} · {totalDogs} dogs
             </span>
             <span className="text-sm text-fg-secondary">
               {spotsLeft > 0 ? `${spotsLeft} spots left` : "Full"}
@@ -278,9 +283,14 @@ export default function MeetDetailPage() {
                 {isCreator ? "You're hosting" : "Leave meet"}
               </ButtonAction>
             ) : (
-              <ButtonAction variant="primary" size="md" disabled={spotsLeft === 0}>
-                {spotsLeft > 0 ? "Join this meet" : "Meet is full"}
-              </ButtonAction>
+              <>
+                <ButtonAction variant="primary" size="md" disabled={spotsLeft === 0}>
+                  {spotsLeft > 0 ? "Join this meet" : "Meet is full"}
+                </ButtonAction>
+                <ButtonAction variant="outline" size="md">
+                  Interested
+                </ButtonAction>
+              </>
             )}
           </>
         )}
@@ -377,46 +387,25 @@ export default function MeetDetailPage() {
         </div>
       </section>
 
-      {/* Attendees */}
-      <section className="flex flex-col gap-sm">
-        <h2 className="font-heading text-lg font-semibold text-fg-primary">
-          {meet.status === "completed" ? "Who attended" : "Who\u2019s coming"} ({meet.attendees.length})
-        </h2>
-        <div className="flex flex-col gap-sm">
-          {meet.attendees.map((a) => {
-            const conn = a.userId !== "shawn" ? getConnectionState(a.userId) : undefined;
-            return (
-              <div key={a.userId} className="flex items-center gap-md rounded-panel bg-surface-top p-sm">
-                <img
-                  src={a.avatarUrl}
-                  alt={a.userName}
-                  className="w-9 h-9 rounded-full object-cover"
-                />
-                <div className="flex flex-col flex-1">
-                  <span className="text-sm font-medium text-fg-primary">
-                    {a.userName}
-                    {a.userId === "shawn" && <span className="text-fg-tertiary"> (you)</span>}
-                  </span>
-                  <span className="text-xs text-fg-tertiary">
-                    {a.dogNames.join(", ")}
-                  </span>
-                </div>
-                {conn && conn.state !== "none" && (
-                  <span
-                    className={`text-xs font-medium rounded-pill px-sm py-xs ${
-                      conn.state === "connected"
-                        ? "bg-brand-subtle text-brand-strong"
-                        : "bg-surface-gray text-fg-secondary"
-                    }`}
-                  >
-                    {CONNECTION_STATE_LABELS[conn.state]}
-                  </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </section>
+      {/* Post-meet reveal for completed meets */}
+      {meet.status === "completed" && isJoined && (() => {
+        const hiddenAttendees = meet.attendees.filter((a) => {
+          if (a.userId === "shawn") return false;
+          const conn = getConnState(a.userId);
+          const state = conn?.state ?? "none";
+          const isOpen = a.profileOpen ?? conn?.profileOpen ?? false;
+          return state === "none" && !isOpen;
+        });
+        return hiddenAttendees.length > 0 ? (
+          <PostMeetReveal meetTitle={meet.title} hiddenAttendees={hiddenAttendees} />
+        ) : null;
+      })()}
+
+      {/* Attendees — tiered participant list */}
+      <ParticipantList
+        attendees={meet.attendees}
+        isCompleted={meet.status === "completed"}
+      />
 
       <ShareMeetModal meet={meet} open={showShare} onClose={() => setShowShare(false)} />
     </div>

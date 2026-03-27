@@ -370,7 +370,7 @@ values
     520,
     'per_walk',
     'Solo walks with a trainer''s touch',
-    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
+    '/images/generated/shawn-profile.jpg',
     array['walk_checkin']::service_type[]
   ),
   (
@@ -510,7 +510,7 @@ values
     'About Martin',
     'I work from home in Holešovice and love getting out for walks along the Vltava. I offer both drop-in visits and boarding — my flat is calm and dog-friendly, with a small balcony.',
     'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80',
+    '/images/generated/shawn-profile.jpg',
     '(38 photos)'
   ),
   (

@@ -10,7 +10,7 @@ const jana = providers.find((p) => p.id === "jana-k")!;
 const SHAWN_ID = "shawn";
 const SHAWN_NAME = "Shawn Talvacchia";
 const SHAWN_AVATAR =
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80";
+  "/images/generated/shawn-profile.jpg";
 
 const MARIE_AVATAR =
   "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80";

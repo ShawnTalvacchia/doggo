@@ -411,11 +411,22 @@ export interface TrainingFields {
 
 // ── Meet attendee & main interface ──
 
+/** RSVP status for meet attendance */
+export type RsvpStatus = "going" | "interested";
+
 export interface MeetAttendee {
   userId: string;
   userName: string;
   avatarUrl: string;
   dogNames: string[];
+  /** RSVP status: "going" (default, counted toward capacity) or "interested" (social signal only) */
+  rsvpStatus?: RsvpStatus;
+  /** Neighbourhood for participant card display */
+  neighbourhood?: string;
+  /** Dog breed for participant card display */
+  dogBreed?: string;
+  /** Whether this user's profile is open (for participant list tiering) */
+  profileOpen?: boolean;
 }
 
 export interface Meet {
@@ -497,6 +508,18 @@ export interface Connection {
   firstMetDate?: string;
   /** ISO date of most recent shared meet */
   lastMetDate?: string;
+  /** Mutual connection names for trust signals */
+  mutualConnections?: string[];
+  /** Shared community/group names */
+  sharedGroups?: string[];
+  /** Whether this person has marked *us* as Familiar (for "Wants to connect" framing) */
+  theyMarkedFamiliar?: boolean;
+  /** Dog breed (for participant card display) */
+  dogBreed?: string;
+  /** Neighbourhood */
+  neighbourhood?: string;
+  /** Whether this user's profile is open */
+  profileOpen?: boolean;
 }
 
 // ── Groups (Communities) ─────────────────────────────────────────────────────
@@ -627,6 +650,9 @@ export interface CarerProfile {
 
 export type TagApproval = "auto" | "approve" | "none";
 
+/** Profile visibility: Locked (default) or Open */
+export type ProfileVisibility = "locked" | "open";
+
 export interface UserProfile {
   id: string;
   firstName: string;
@@ -643,6 +669,10 @@ export interface UserProfile {
   carerProfile?: CarerProfile;
   /** Controls how the user can be tagged in posts */
   tagApproval?: TagApproval;
+  /** Global profile visibility setting (default: "locked") */
+  profileVisibility?: ProfileVisibility;
+  /** Short code for share-profile link (e.g. "shawn-abc123") */
+  shareCode?: string;
 }
 
 // ── Posts & Feed ──────────────────────────────────────────────────────────────

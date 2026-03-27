@@ -79,13 +79,13 @@ See `docs/CONTRIBUTING.md` for full details.
 | `docs/implementation/component-inventory.md` | Built components catalog |
 | `docs/CONTRIBUTING.md` | Workflow rules, doc categories, naming conventions |
 
-## Current Phase: 14 — Community & Activity Restructure
+## Current Phase: 15 — Trust, Connections & Mock Data Quality
 
-**Goal:** Elevate communities as a first-class navigation concept, consolidate meets + schedule into a unified "Activity" tab, and add group chat enhancements (join-gated empty states, auto-generated activity, event card strip).
+**Goal:** Refine connection model UX, redesign meet participant lists as a social discovery surface, add share-profile linking, and replace Unsplash mock images with generated assets.
 
-**Key focus:** Nav restructure (Communities + Activity replace Meets + Schedule), `/communities` route, `/activity` with Discover/My Schedule/Bookings tabs, join-gated chat, system messages, event card strip.
+**Key focus:** Tiered participant list (Connected → Familiar/Open → hidden count), ConnectionIcon system, share profile link, Going/Interested RSVP, post-meet reveal, locked profile view, DefaultAvatar, image replacement.
 
-**Board:** See `docs/phases/phase-14-community-activity-restructure.md` and `docs/ROADMAP.md`.
+**Board:** See `docs/phases/phase-15-trust-connections-images.md` and `docs/ROADMAP.md`.
 
 ## Strategic Context
 

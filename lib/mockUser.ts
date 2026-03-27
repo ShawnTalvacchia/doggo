@@ -6,7 +6,7 @@ export const mockUser: UserProfile = {
   lastName: "Talvacchia",
   email: "stalvacchia@gmail.com",
   avatarUrl:
-    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+    "/images/generated/shawn-profile.jpg",
   bio: "Dog dad and remote worker based in Prague 2. I love exploring Vinohrady and Žižkov parks with my dogs and am always looking for reliable, caring people to help out when I'm busy or travelling.",
   location: "Prague 2, Czech Republic",
   neighbourhood: "Vinohrady",
@@ -18,8 +18,7 @@ export const mockUser: UserProfile = {
       breed: "Dalmatian Mix",
       weightLabel: "18 kg",
       ageLabel: "4 years",
-      imageUrl:
-        "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=400&q=80",
+      imageUrl: "/images/generated/spot-portrait.jpeg",
       notes: "Friendly but can be nervous with new dogs. Loves fetch and long walks.",
       energyLevel: "high",
       playStyles: ["fetch", "chase", "sniffing"],
@@ -35,9 +34,9 @@ export const mockUser: UserProfile = {
         conditions: "Mild skin allergies (seasonal). Managed with diet.",
       },
       photoGallery: [
-        "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/spot-park-walk.jpeg",
+        "/images/generated/spot-resting.jpeg",
+        "/images/generated/spot-portrait.jpeg",
       ],
     },
     {
@@ -46,8 +45,7 @@ export const mockUser: UserProfile = {
       breed: "Golden Retriever",
       weightLabel: "28 kg",
       ageLabel: "2 years",
-      imageUrl:
-        "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&w=400&q=80",
+      imageUrl: "/images/generated/goldie-portrait.jpeg",
       notes: "Very social, gets along with everyone. Still learning to walk nicely on leash.",
       energyLevel: "very_high",
       playStyles: ["fetch", "tug", "wrestling", "chase"],
@@ -63,12 +61,14 @@ export const mockUser: UserProfile = {
         conditions: "",
       },
       photoGallery: [
-        "https://images.unsplash.com/photo-1633722715463-d30f4f325e24?auto=format&fit=crop&w=400&q=80",
-        "https://images.unsplash.com/photo-1612774412771-005ed8e861d2?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/goldie-playing.jpeg",
+        "/images/generated/goldie-leash.jpeg",
       ],
     },
   ],
   tagApproval: "auto",
+  profileVisibility: "open",
+  shareCode: "shawn-x7k9",
   openToHelping: true,
   carerProfile: {
     bio: "I offer daily dog walks in the Vinohrady and Žižkov area. I have experience with dogs of all sizes and genuinely enjoy spending time with them.",

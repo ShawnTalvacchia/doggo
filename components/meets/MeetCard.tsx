@@ -12,6 +12,7 @@ import {
   Lightning,
   UsersThree,
 } from "@phosphor-icons/react";
+import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import type { Meet, MeetType } from "@/lib/types";
 import { MEET_TYPE_LABELS, getMeetTypeSummary, ENERGY_LABELS } from "@/lib/mockMeets";
 import { getGroupById } from "@/lib/mockGroups";
@@ -36,6 +37,9 @@ function totalDogs(meet: Meet): number {
 }
 
 export function MeetCard({ meet }: { meet: Meet }) {
+  const goingCount = meet.attendees.filter((a) => (a.rsvpStatus ?? "going") === "going").length;
+  const interestedCount = meet.attendees.filter((a) => a.rsvpStatus === "interested").length;
+  const goingAttendees = meet.attendees.filter((a) => (a.rsvpStatus ?? "going") === "going");
   return (
     <Link
       href={`/meets/${meet.id}`}
@@ -92,7 +96,7 @@ export function MeetCard({ meet }: { meet: Meet }) {
         </span>
         <span className="flex items-center gap-xs">
           <Users size={16} weight="light" />
-          {meet.attendees.length} {meet.attendees.length === 1 ? "person" : "people"} · {totalDogs(meet)} {totalDogs(meet) === 1 ? "dog" : "dogs"}
+          {goingCount} going{interestedCount > 0 ? `, ${interestedCount} interested` : ""} · {totalDogs(meet)} {totalDogs(meet) === 1 ? "dog" : "dogs"}
         </span>
       </div>
 
@@ -122,24 +126,30 @@ export function MeetCard({ meet }: { meet: Meet }) {
         ) : null;
       })()}
 
-      {/* Attendee avatars */}
+      {/* Attendee avatars (going only) */}
       <div className="flex items-center">
-        {meet.attendees.slice(0, 5).map((a, i) => (
-          <img
-            key={a.userId}
-            src={a.avatarUrl}
-            alt={a.userName}
-            className="rounded-full border-2"
-            style={{
-              width: 28,
-              height: 28,
-              objectFit: "cover",
-              borderColor: "var(--surface-top)",
-              marginLeft: i > 0 ? -8 : 0,
-            }}
-          />
+        {goingAttendees.slice(0, 5).map((a, i) => (
+          a.avatarUrl ? (
+            <img
+              key={a.userId}
+              src={a.avatarUrl}
+              alt={a.userName}
+              className="rounded-full border-2"
+              style={{
+                width: 28,
+                height: 28,
+                objectFit: "cover",
+                borderColor: "var(--surface-top)",
+                marginLeft: i > 0 ? -8 : 0,
+              }}
+            />
+          ) : (
+            <span key={a.userId} style={{ marginLeft: i > 0 ? -8 : 0 }}>
+              <DefaultAvatar name={a.userName} size={28} className="border-2 border-surface-top" />
+            </span>
+          )
         ))}
-        {meet.attendees.length > 5 && (
+        {goingAttendees.length > 5 && (
           <span
             className="flex items-center justify-center rounded-full text-xs font-medium"
             style={{
@@ -150,12 +160,12 @@ export function MeetCard({ meet }: { meet: Meet }) {
               color: "var(--text-secondary)",
             }}
           >
-            +{meet.attendees.length - 5}
+            +{goingAttendees.length - 5}
           </span>
         )}
-        {meet.maxAttendees - meet.attendees.length > 0 && (
+        {meet.maxAttendees - goingCount > 0 && (
           <span className="ml-sm text-xs text-fg-tertiary">
-            {meet.maxAttendees - meet.attendees.length} spots left
+            {meet.maxAttendees - goingCount} spots left
           </span>
         )}
       </div>

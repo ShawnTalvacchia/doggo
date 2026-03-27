@@ -1,7 +1,7 @@
 ---
 category: feature
 status: active
-last-reviewed: 2026-03-26
+last-reviewed: 2026-03-27
 tags: [meets, groups, community, social]
 review-trigger: "when modifying meets, groups, group chat, or meet discovery"
 ---
@@ -165,6 +165,46 @@ User joins public group → attends several meets → recognises regulars
     → One regular creates a private group for the core crew
     → Invites the regulars → Private group with its own meets and chat
 ```
+
+---
+
+## Tiered Participant List (Phase 15)
+
+Meet attendee lists are redesigned as a social discovery surface, sorted by relationship proximity:
+
+**Tier 1 — Connected users (full cards)**
+- Avatar, name, dog name + breed, neighbourhood
+- Relationship context: "Connected since January", "3rd meet together"
+- Mutual connections: "You both know Jana and Tomáš"
+- Subtle care provider indicator if applicable
+
+**Tier 2 — Familiar / Open profiles (actionable cards)**
+- Avatar, name, dog name + breed, neighbourhood
+- Context signal: "Also in Vinohrady Dog Owners", "Attended Stromovka walk last week"
+- Connect action (small button at card edge)
+- If they marked you Familiar: warmer framing ("Wants to connect")
+
+**Tier 3 — Hidden / collapsed**
+- Locked users with no relationship not shown individually
+- Instead: "N other attendees" count at bottom
+- Post-meet prompt surfaces them with Familiar/Connect/Skip actions
+
+### Going / Interested RSVP
+
+Third RSVP state alongside Going and Not Going:
+
+- **Going** = committed, counted toward capacity
+- **Interested** = social signal, not counted toward capacity
+- Creates lower commitment bar, more social proof ("12 going, 5 interested")
+
+### Post-meet participant reveal
+
+After a meet ends, users who were in Tier 3 (hidden/locked) get surfaced:
+
+- "You met N new people at today's walk"
+- Each person shown with basic info (name, dog, neighbourhood)
+- Actions: "Mark as Familiar" / "Connect" / "Skip"
+- Bulk action: "Mark all as Familiar"
 
 ---
 

@@ -15,7 +15,7 @@ import { ButtonAction } from "@/components/ui/ButtonAction";
 
 const PHOTOS = {
   hero: "/images/hero-park-community.jpg",
-  care: "https://images.unsplash.com/photo-1551717743-49959800b1f6?auto=format&fit=crop&w=800&q=80",
+  care: "/images/generated/care-dog-walking.jpeg",
 };
 
 // ── Sub-components ───────────────────────────────────────────────────────────

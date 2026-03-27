@@ -19,7 +19,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "shawn",
       senderName: "Shawn",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/shawn-profile.jpg",
       text: "Morning everyone! Walk is on for Wednesday as usual. Spot is extra energetic this week 😅",
       sentAt: "2026-03-17T08:30:00Z",
     },
@@ -71,7 +71,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "shawn",
       senderName: "Shawn",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/shawn-profile.jpg",
       text: "Good idea! Lower path it is. See you at 8 by the main entrance.",
       sentAt: "2026-03-17T10:30:00Z",
     },

@@ -22,8 +22,7 @@ import { getConnectionState } from "@/lib/mockConnections";
 import { DEFAULT_ABOUT_BANNER_URL } from "@/lib/data/providerContent";
 
 /** Default first image in the Photos section (dog only). Kept separate from the About banner. */
-const DEFAULT_PHOTOS_MAIN_URL =
-  "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=1200&q=80";
+const DEFAULT_PHOTOS_MAIN_URL = "/images/generated/care-dog-sitting.jpeg";
 import { fetchProviderById, fetchProviderContentById } from "@/lib/data/providersClient";
 import {
   ProviderCard,
@@ -36,19 +35,19 @@ import {
 
 // Demo photo collection shared across all provider galleries
 const GALLERY_PHOTOS = [
-  "1548199973-03cce0bbc87b",
-  "1587300003388-59208cc962cb",
-  "1543466835-00a7907e9de1",
-  "1507146426996-ef05306b995a",
-  "1534361960057-19f4434a6b65",
-  "1601979031925-424e53b6caaa",
-  "1552053045-66e57cc31ce8",
-  "1517849845537-4d257902454a",
-  "1583511655826-05700d52f4d9",
-  "1569466896818-335b1bedfcce",
-  "1558788353-f76d92427f16",
-  "1477884213360-b387b4fb1f35",
-].map((id) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=400&h=400&q=70`);
+  "/images/generated/spot-portrait.jpeg",
+  "/images/generated/goldie-portrait.jpeg",
+  "/images/generated/rex-portrait.jpeg",
+  "/images/generated/bella-portrait.jpeg",
+  "/images/generated/luna-portrait.jpeg",
+  "/images/generated/care-dog-walking.jpeg",
+  "/images/generated/care-dog-sitting.jpeg",
+  "/images/generated/park-hangout-riegrovy.jpeg",
+  "/images/generated/group-walk-stromovka.jpeg",
+  "/images/generated/playdate-small-group.jpeg",
+  "/images/generated/training-session.jpeg",
+  "/images/generated/evening-walk-group.jpeg",
+];
 
 function formatReviewDate(iso: string): string {
   try {
@@ -327,7 +326,7 @@ function ExploreProfileContent() {
             className="profile-photo-side"
             src={
               content?.photoSideUrl ||
-              "https://images.unsplash.com/photo-1507146426996-ef05306b995a?auto=format&fit=crop&w=800&q=80"
+              "/images/generated/care-dog-walking.jpeg"
             }
             alt="Dog closeup"
           />
@@ -545,7 +544,7 @@ function ExploreProfileContent() {
                 </button>
                 <img
                   className="lightbox-img"
-                  src={GALLERY_PHOTOS[lightboxIndex].replace("w=400&h=400", "w=1200&h=900")}
+                  src={GALLERY_PHOTOS[lightboxIndex]}
                   alt=""
                 />
                 <button
@@ -613,7 +612,7 @@ function ExploreProfileContent() {
               </button>
               <img
                 className="lightbox-img"
-                src={GALLERY_PHOTOS[lightboxIndex].replace("w=400&h=400", "w=1200&h=900")}
+                src={GALLERY_PHOTOS[lightboxIndex]}
                 alt=""
               />
               <button

@@ -1,11 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import {
   MapPin,
   CalendarBlank,
   PencilSimple,
   Check,
   X,
+  ShareNetwork,
+  CopySimple,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import type { UserProfile, ProviderHeaderState as HeaderState } from "@/lib/types";
@@ -82,18 +85,46 @@ export function ProfileHeaderOwn({
                 </ButtonAction>
               </div>
             ) : (
-              <ButtonAction
-                variant="outline"
-                size={isCondensed ? "sm" : "md"}
-                leftIcon={<PencilSimple size={14} weight="bold" />}
-                onClick={onEdit}
-              >
-                Edit Profile
-              </ButtonAction>
+              <div className="flex gap-sm">
+                <ButtonAction
+                  variant="outline"
+                  size={isCondensed ? "sm" : "md"}
+                  leftIcon={<PencilSimple size={14} weight="bold" />}
+                  onClick={onEdit}
+                >
+                  Edit Profile
+                </ButtonAction>
+                {user.shareCode && (
+                  <ShareProfileButton shareCode={user.shareCode} size={isCondensed ? "sm" : "md"} />
+                )}
+              </div>
             )}
           </div>
         </div>
       </div>
     </header>
+  );
+}
+
+function ShareProfileButton({ shareCode, size }: { shareCode: string; size: "sm" | "md" }) {
+  const [copied, setCopied] = useState(false);
+  const url = `${typeof window !== "undefined" ? window.location.origin : ""}/connect/${shareCode}`;
+
+  function handleCopy() {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  return (
+    <ButtonAction
+      variant="outline"
+      size={size}
+      leftIcon={copied ? <CopySimple size={14} weight="bold" /> : <ShareNetwork size={14} weight="light" />}
+      onClick={handleCopy}
+    >
+      {copied ? "Copied!" : "Share Profile"}
+    </ButtonAction>
   );
 }

@@ -1,6 +1,6 @@
 ---
 category: phase
-status: planned
+status: active
 last-reviewed: 2026-03-27
 tags: [phase-15, connections, trust, discoverability, profiles, meet-participants, images, mock-data]
 review-trigger: "when modifying connection states, profile visibility, meet attendee lists, or mock data images"

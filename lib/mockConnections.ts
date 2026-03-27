@@ -23,6 +23,11 @@ export const mockConnections: Connection[] = [
     meetsShared: 5,
     firstMetDate: "2025-11-10",
     lastMetDate: "2026-03-16",
+    mutualConnections: ["Eva", "Tomáš"],
+    sharedGroups: ["Vinohrady Morning Crew"],
+    dogBreed: "German Shepherd",
+    neighbourhood: "Vinohrady",
+    profileOpen: false,
   },
   {
     id: "conn-2",
@@ -38,6 +43,12 @@ export const mockConnections: Connection[] = [
     meetsShared: 3,
     firstMetDate: "2026-01-15",
     lastMetDate: "2026-03-16",
+    mutualConnections: ["Jana"],
+    sharedGroups: ["Stromovka Off-Leash Club"],
+    theyMarkedFamiliar: true,
+    dogBreed: "Border Collie",
+    neighbourhood: "Letná",
+    profileOpen: true,
   },
   {
     id: "conn-3",
@@ -53,6 +64,10 @@ export const mockConnections: Connection[] = [
     meetsShared: 2,
     firstMetDate: "2026-02-20",
     lastMetDate: "2026-03-18",
+    sharedGroups: ["Vinohrady Morning Crew"],
+    dogBreed: "French Bulldog",
+    neighbourhood: "Žižkov",
+    profileOpen: false,
   },
   {
     id: "conn-4",
@@ -64,6 +79,9 @@ export const mockConnections: Connection[] = [
     location: "Prague 2",
     state: "none",
     updatedAt: "2026-03-14T09:00:00Z",
+    dogBreed: "Labrador Retriever",
+    neighbourhood: "Vinohrady",
+    profileOpen: false,
   },
   // ── Provider connections (used for trust signals on explore profiles) ──
   {
@@ -77,6 +95,8 @@ export const mockConnections: Connection[] = [
     state: "connected",
     metAt: "meet-6",
     updatedAt: "2026-03-16T10:00:00Z",
+    neighbourhood: "Dejvice",
+    profileOpen: true,
   },
   {
     id: "conn-6",
@@ -89,6 +109,8 @@ export const mockConnections: Connection[] = [
     state: "familiar",
     metAt: "meet-6",
     updatedAt: "2026-03-15T08:00:00Z",
+    neighbourhood: "Vinohrady",
+    profileOpen: false,
   },
   {
     id: "conn-7",
@@ -101,6 +123,9 @@ export const mockConnections: Connection[] = [
     state: "pending",
     metAt: "meet-1",
     updatedAt: "2026-03-14T12:00:00Z",
+    dogBreed: "Cavalier King Charles",
+    neighbourhood: "Smíchov",
+    profileOpen: false,
   },
 ];
 

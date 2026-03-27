@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-03-26
+last-reviewed: 2026-03-27
 tags: [components, ui, inventory]
 review-trigger: "when building or refactoring components"
 ---
@@ -31,7 +31,8 @@ Working reference for every component and UI pattern in the codebase. Use it to 
 components/
   ui/           ← Primitives: ButtonAction, ButtonIcon, InputField, CheckboxRow,
                   Toggle, StatusBadge, Slider, DatePicker,
-                  RecurringSchedulePicker, BookingRow, EmptyState
+                  RecurringSchedulePicker, BookingRow, EmptyState,
+                  TabBar, ConnectionIcon, DefaultAvatar
   layout/       ← App chrome: AppNav, BottomNav, FormHeader, FormFooter, GuestLayout
   overlays/     ← ModalSheet, BookingModal
   explore/      ← FilterPanelDesktop, FilterPanelMobile, FilterPanelShell, FilterBody, ProfileHeader,
@@ -46,6 +47,9 @@ components/
                   FeedUpcomingMeet, FeedConnectionActivity, FeedConnectionNudge,
                   FeedCarePrompt, FeedMilestone, FeedDogMoment, FeedCareReview,
                   CompactGreeting, ShareMomentBar, UpcomingStrip, HomeFAB
+  meets/        ← MeetCard, MeetCardCompact, ParticipantCard, ParticipantList,
+                  PostMeetReveal, ShareMeetModal
+  chat/         ← SystemMessage
   groups/       ← GroupCard
   profile/      ← ProfileHeaderOwn, TrustSignalBadges, PostsTab, TagApprovalSetting,
                   PetCard, PetEditCard, ProfileAboutTab, ProfileServicesTab
@@ -806,3 +810,13 @@ _Ordered by impact vs. effort._
 | Component | Path | Purpose | Status |
 |-----------|------|---------|--------|
 | `MeetCardCompact` | `components/meets/MeetCardCompact.tsx` | Compact horizontal meet card for event card strip at top of community chat | `built` |
+| `ParticipantCard` | `components/meets/ParticipantCard.tsx` | Attendee card with connection icon, relationship signals, dog breed, neighbourhood, and Connect CTA | `built` |
+| `ParticipantList` | `components/meets/ParticipantList.tsx` | Tiered participant list: Connected (Tier 1) → Familiar/Open (Tier 2) → hidden count (Tier 3). Splits going/interested. | `built` |
+| `PostMeetReveal` | `components/meets/PostMeetReveal.tsx` | Post-meet reveal of hidden (Tier 3) attendees with Familiar/Connect/Skip actions and bulk "Mark all" | `built` |
+
+### Connection & Trust (`components/ui/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `ConnectionIcon` | `components/ui/ConnectionIcon.tsx` | Phosphor icon for connection state (Connected=handshake, Familiar=eye/check, Open=globe). Optional label. | `built` |
+| `DefaultAvatar` | `components/ui/DefaultAvatar.tsx` | Initials-on-colour avatar for users with no photo. Colour derived from name for consistency. | `built` |

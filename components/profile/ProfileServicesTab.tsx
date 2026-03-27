@@ -5,7 +5,9 @@ import {
   Trash,
   Sparkle,
   PawPrint,
+  Info,
 } from "@phosphor-icons/react";
+import { ButtonAction } from "@/components/ui/ButtonAction";
 import { InputField } from "@/components/ui/InputField";
 import { Toggle } from "@/components/ui/Toggle";
 import { SERVICE_LABELS } from "@/lib/constants/services";
@@ -313,8 +315,35 @@ export function ProfileServicesTab({
   }
 
   // ── View mode (has carer profile) ──
+  const isProfileLocked = (user.profileVisibility ?? "locked") === "locked";
+  const hasServices = carer && carer.services.length > 0;
+
   return (
     <div className="profile-content-width profile-section-stack">
+      {/* Locked provider banner */}
+      {isProfileLocked && hasServices && (
+        <section
+          className="flex items-start gap-md rounded-panel p-md border border-edge-regular"
+          style={{ background: "var(--warning-subtle, var(--surface-inset))" }}
+        >
+          <Info size={20} weight="light" className="text-fg-secondary shrink-0 mt-xs" />
+          <div className="flex flex-col gap-xs flex-1">
+            <p className="text-sm text-fg-primary m-0">
+              Your profile is private — only people you&apos;ve marked as Familiar or Connected with can see your services.
+            </p>
+            <ButtonAction
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                /* In a real app, this would open the visibility toggle */
+              }}
+            >
+              Make profile public
+            </ButtonAction>
+          </div>
+        </section>
+      )}
+
       {/* Open to helping badge */}
       <section className="profile-info-card">
         <div className="flex items-center gap-sm">

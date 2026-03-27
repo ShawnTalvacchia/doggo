@@ -131,14 +131,17 @@ export const mockMeets: Meet[] = [
     creatorId: "shawn",
     creatorName: "Shawn",
     creatorAvatarUrl:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/shawn-profile.jpg",
     attendees: [
       {
         userId: "shawn",
         userName: "Shawn",
         avatarUrl:
-          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+          "/images/generated/shawn-profile.jpg",
         dogNames: ["Spot", "Goldie"],
+        neighbourhood: "Vinohrady",
+        dogBreed: "Dalmatian Mix",
+        profileOpen: true,
       },
       {
         userId: "jana",
@@ -146,6 +149,8 @@ export const mockMeets: Meet[] = [
         avatarUrl:
           "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
         dogNames: ["Rex"],
+        neighbourhood: "Vinohrady",
+        dogBreed: "German Shepherd",
       },
       {
         userId: "tomas",
@@ -153,6 +158,8 @@ export const mockMeets: Meet[] = [
         avatarUrl:
           "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
         dogNames: ["Bella"],
+        neighbourhood: "Žižkov",
+        dogBreed: "French Bulldog",
       },
     ],
     recentJoinText: "Tomáš joined 2h ago",
@@ -199,13 +206,18 @@ export const mockMeets: Meet[] = [
         avatarUrl:
           "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
         dogNames: ["Rex"],
+        neighbourhood: "Vinohrady",
+        dogBreed: "German Shepherd",
       },
       {
         userId: "shawn",
         userName: "Shawn",
         avatarUrl:
-          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+          "/images/generated/shawn-profile.jpg",
         dogNames: ["Spot"],
+        neighbourhood: "Vinohrady",
+        dogBreed: "Dalmatian Mix",
+        profileOpen: true,
       },
       {
         userId: "eva",
@@ -213,6 +225,9 @@ export const mockMeets: Meet[] = [
         avatarUrl:
           "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
         dogNames: ["Luna", "Max"],
+        neighbourhood: "Letná",
+        dogBreed: "Border Collie",
+        profileOpen: true,
       },
       {
         userId: "martin",
@@ -220,6 +235,45 @@ export const mockMeets: Meet[] = [
         avatarUrl:
           "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80",
         dogNames: ["Charlie"],
+        neighbourhood: "Vinohrady",
+        dogBreed: "Labrador Retriever",
+      },
+      // Interested attendees (social signal, not counted toward capacity)
+      {
+        userId: "nikola-r",
+        userName: "Nikola R.",
+        avatarUrl:
+          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+        dogNames: ["Rex"],
+        rsvpStatus: "interested",
+        neighbourhood: "Vinohrady",
+      },
+      {
+        userId: "olga-m",
+        userName: "Olga M.",
+        avatarUrl:
+          "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
+        dogNames: ["Mila"],
+        rsvpStatus: "interested",
+        neighbourhood: "Smíchov",
+        dogBreed: "Cavalier King Charles",
+      },
+      // Locked/hidden attendees (tier 3 — shown as count)
+      {
+        userId: "petr-v",
+        userName: "Petr V.",
+        avatarUrl: "",
+        dogNames: ["Brok"],
+        neighbourhood: "Holešovice",
+        dogBreed: "Mixed",
+      },
+      {
+        userId: "simona-v",
+        userName: "Simona V.",
+        avatarUrl:
+          "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=200&q=80",
+        dogNames: ["Daisy"],
+        neighbourhood: "Karlín",
       },
     ],
     createdAt: "2026-03-12T14:30:00Z",
@@ -359,7 +413,7 @@ export const mockMeets: Meet[] = [
         userId: "shawn",
         userName: "Shawn",
         avatarUrl:
-          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+          "/images/generated/shawn-profile.jpg",
         dogNames: ["Goldie"],
       },
     ],
@@ -393,13 +447,13 @@ export const mockMeets: Meet[] = [
     creatorId: "shawn",
     creatorName: "Shawn",
     creatorAvatarUrl:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/shawn-profile.jpg",
     attendees: [
       {
         userId: "shawn",
         userName: "Shawn",
         avatarUrl:
-          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+          "/images/generated/shawn-profile.jpg",
         dogNames: ["Spot", "Goldie"],
       },
       {
@@ -419,11 +473,11 @@ export const mockMeets: Meet[] = [
     ],
     createdAt: "2026-03-09T08:00:00Z",
     photos: [
-      "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1477884213360-7e9d7dcc8f9b?auto=format&fit=crop&w=600&q=80",
-      "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=600&q=80",
+      "/images/generated/group-walk-stromovka.jpeg",
+      "/images/generated/park-hangout-riegrovy.jpeg",
+      "/images/generated/spot-park-walk.jpeg",
+      "/images/generated/evening-walk-group.jpeg",
+      "/images/generated/meet-greeting.jpeg",
     ],
   },
 ];

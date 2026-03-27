@@ -12,12 +12,12 @@ import type { PostTag } from "@/lib/types";
 
 // Mock photo pool — cycles through these when user "adds" a photo
 const MOCK_PHOTOS = [
-  "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?auto=format&fit=crop&w=600&q=80",
+  "/images/generated/spot-portrait.jpeg",
+  "/images/generated/goldie-playing.jpeg",
+  "/images/generated/park-hangout-riegrovy.jpeg",
+  "/images/generated/meet-greeting.jpeg",
+  "/images/generated/evening-walk-group.jpeg",
+  "/images/generated/spot-resting.jpeg",
 ];
 
 export default function CreatePostPage() {

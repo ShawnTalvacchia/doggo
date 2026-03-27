@@ -81,7 +81,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
         ownerId: "shawn",
         ownerName: "Shawn Talvacchia",
         ownerAvatarUrl:
-          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80",
+          "/images/generated/shawn-profile.jpg",
         status: "active",
         inquiry: {
           bookingType: "one_off",
@@ -123,7 +123,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
         ownerId: "shawn",
         ownerName: "Shawn Talvacchia",
         ownerAvatarUrl:
-          "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80",
+          "/images/generated/shawn-profile.jpg",
         status: "active",
         inquiry: {
           bookingType: "one_off",

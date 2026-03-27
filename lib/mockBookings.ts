@@ -10,7 +10,7 @@ const olgaBooking: Booking = {
   ownerId: "shawn",
   ownerName: "Shawn Talvacchia",
   ownerAvatarUrl:
-    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80",
+    "/images/generated/shawn-profile.jpg",
   carerId: "olga-m",
   carerName: "Olga Mašková",
   carerAvatarUrl:
@@ -55,7 +55,7 @@ const nikolaBooking: Booking = {
   ownerId: "shawn",
   ownerName: "Shawn Talvacchia",
   ownerAvatarUrl:
-    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80",
+    "/images/generated/shawn-profile.jpg",
   carerId: "nikola-r",
   carerName: "Nikola Rada",
   carerAvatarUrl:
@@ -88,7 +88,7 @@ const petraBooking: Booking = {
   ownerId: "shawn",
   ownerName: "Shawn Talvacchia",
   ownerAvatarUrl:
-    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80",
+    "/images/generated/shawn-profile.jpg",
   carerId: "petra-v",
   carerName: "Petra Veselá",
   carerAvatarUrl:
