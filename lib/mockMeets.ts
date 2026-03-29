@@ -210,16 +210,6 @@ export const mockMeets: Meet[] = [
         dogBreed: "German Shepherd",
       },
       {
-        userId: "shawn",
-        userName: "Shawn",
-        avatarUrl:
-          "/images/generated/shawn-profile.jpg",
-        dogNames: ["Spot"],
-        neighbourhood: "Vinohrady",
-        dogBreed: "Dalmatian Mix",
-        profileOpen: true,
-      },
-      {
         userId: "eva",
         userName: "Eva",
         avatarUrl:
@@ -408,13 +398,6 @@ export const mockMeets: Meet[] = [
         avatarUrl:
           "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
         dogNames: ["Bella"],
-      },
-      {
-        userId: "shawn",
-        userName: "Shawn",
-        avatarUrl:
-          "/images/generated/shawn-profile.jpg",
-        dogNames: ["Goldie"],
       },
     ],
     createdAt: "2026-03-13T16:00:00Z",

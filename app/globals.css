@@ -4840,6 +4840,7 @@ body.guest-route {
     margin-left: 0;
     padding: 0;
     gap: 0;
+    padding-bottom: 64px; /* space for fixed bottom nav */
   }
   .page-container { max-width: 100%; }
   .page-side-panel,
