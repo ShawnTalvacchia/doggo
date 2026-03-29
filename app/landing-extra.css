@@ -62,7 +62,7 @@
   margin: 0 auto 28px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 12px;
 }
 
 .landing-hook-subline {
