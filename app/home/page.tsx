@@ -8,6 +8,7 @@ import { HomeWelcome } from "@/components/home/HomeWelcome";
 import { DogsNearYou } from "@/components/home/DogsNearYou";
 import { CompactGreeting } from "@/components/feed/CompactGreeting";
 import { UpcomingStrip } from "@/components/feed/UpcomingStrip";
+import { UpcomingPanel } from "@/components/home/UpcomingPanel";
 import { FeedPersonalPost } from "@/components/feed/FeedPersonalPost";
 import { FeedCommunityPost } from "@/components/feed/FeedCommunityPost";
 import { FeedMeetRecap } from "@/components/feed/FeedMeetRecap";
@@ -51,51 +52,50 @@ function FeedItemRenderer({ item }: { item: FeedItem }) {
 export default function HomePage() {
   const feedItems = getFeedForUser("shawn");
 
-  // Meets the user is attending (for the upcoming strip)
+  // Meets the user is attending (for the upcoming side panel)
   const myUpcoming = mockMeets
     .filter((m) => m.status === "upcoming" && m.attendees.some((a) => a.userId === "shawn"))
     .sort((a, b) => `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`))
     .slice(0, 5);
 
   return (
-    <div
-      className="flex flex-col gap-lg p-xl"
-      style={{
-        maxWidth: "var(--app-page-max-width)",
-        margin: "0 auto",
-        width: "100%",
-        minHeight: "calc(100vh - var(--nav-height))",
-        background: "var(--surface-base)",
-      }}
-    >
-      {DEMO_NEW_USER ? (
-        <>
-          <HomeWelcome />
-          <DogsNearYou />
+    <>
+      {/* Main content column */}
+      <div className="page-container flex flex-col bg-surface-base min-h-screen">
+        {DEMO_NEW_USER ? (
+          <>
+            <HomeWelcome />
+            <DogsNearYou />
+            <div className="feed-list">
+              {getNewUserFeed().map((item) => (
+                <FeedItemRenderer key={item.feedId} item={item} />
+              ))}
+            </div>
+          </>
+        ) : (
+          <>
+            {/* Header: greeting + Add Post / Find Care — 84px to match Figma alignment */}
+            <div style={{ padding: "var(--space-xxl) 0 var(--padding-small)" }}>
+              <CompactGreeting user={mockUser} />
+            </div>
 
-          {/* Discovery feed for new users */}
-          <div className="feed-list">
-            {getNewUserFeed().map((item) => (
-              <FeedItemRenderer key={item.feedId} item={item} />
-            ))}
-          </div>
-        </>
-      ) : (
-        <>
-          {/* Compact greeting + Add Post CTA */}
-          <CompactGreeting user={mockUser} />
+            {/* Upcoming strip — shown on mobile/tablet when side panel is hidden */}
+            <div className="home-upcoming-inline">
+              <UpcomingStrip meets={myUpcoming} />
+            </div>
 
-          {/* Upcoming strip */}
-          <UpcomingStrip meets={myUpcoming} />
+            {/* Social feed */}
+            <div className="feed-list">
+              {feedItems.map((item) => (
+                <FeedItemRenderer key={item.feedId} item={item} />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
 
-          {/* Social feed */}
-          <div className="feed-list">
-            {feedItems.map((item) => (
-              <FeedItemRenderer key={item.feedId} item={item} />
-            ))}
-          </div>
-        </>
-      )}
-    </div>
+      {/* Side panel: Your Upcoming (desktop only, hidden on mobile via CSS) */}
+      {!DEMO_NEW_USER && <UpcomingPanel meets={myUpcoming} />}
+    </>
   );
 }

@@ -16,7 +16,7 @@ interface FeedCardProps {
   media?: React.ReactNode;
   /** Tag pills — rendered below photos, in the footer row with action */
   tags?: React.ReactNode;
-  /** Action element (paw reaction button) — beside tags on desktop, below on mobile */
+  /** Action element (like button) — inline with tags in footer */
   action?: React.ReactNode;
   /** Padded content below media (for non-post cards) */
   children?: React.ReactNode;
@@ -52,74 +52,70 @@ export function FeedCard({
 }: FeedCardProps) {
   return (
     <article className="feed-card">
-      {/* Author header — padded */}
+      {/* Author header */}
       {authorName && (
-        <div className="flex items-center gap-sm px-md pt-md pb-sm">
-          {authorAvatarUrl && (
-            <img
-              src={authorAvatarUrl}
-              alt={authorName}
-              className="rounded-full shrink-0"
-              style={{ width: 36, height: 36, objectFit: "cover" }}
-            />
-          )}
-          <div className="flex flex-col flex-1">
-            <div className="flex items-center gap-xs flex-wrap">
-              {authorHref ? (
-                <Link href={authorHref} className="text-sm font-semibold text-fg-primary" style={{ textDecoration: "none" }}>
-                  {authorName}
-                </Link>
-              ) : (
-                <span className="text-sm font-semibold text-fg-primary">{authorName}</span>
-              )}
-              {groupName && groupId && (
-                <span className="text-xs text-fg-tertiary">
-                  in{" "}
-                  <Link href={`/communities/${groupId}`} className="text-brand-main font-medium" style={{ textDecoration: "none" }}>
-                    {groupName}
+        <div className="flex flex-col gap-sm" style={{ padding: "var(--padding-small)" }}>
+          <div className="flex items-center gap-lg">
+            {authorAvatarUrl && (
+              <img
+                src={authorAvatarUrl}
+                alt={authorName}
+                className="rounded-full shrink-0"
+                style={{ width: 36, height: 36, objectFit: "cover" }}
+              />
+            )}
+            <div className="flex flex-col flex-1">
+              <div className="flex items-center gap-xs flex-wrap">
+                {authorHref ? (
+                  <Link href={authorHref} className="text-base font-semibold text-fg-primary" style={{ textDecoration: "none" }}>
+                    {authorName}
                   </Link>
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-xs">
-              {timestamp && (
-                <span className="text-xs text-fg-tertiary">{formatRelativeDate(timestamp)}</span>
-              )}
-              {connectionContext && (
-                <span className="text-xs text-fg-tertiary">· {connectionContext}</span>
-              )}
+                ) : (
+                  <span className="text-base font-semibold text-fg-primary">{authorName}</span>
+                )}
+                {groupName && groupId && (
+                  <span className="text-sm text-fg-tertiary">
+                    in{" "}
+                    <Link href={`/communities/${groupId}`} className="text-fg-tertiary font-medium" style={{ textDecoration: "none" }}>
+                      {groupName}
+                    </Link>
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center gap-xs">
+                {timestamp && (
+                  <span className="text-sm text-fg-tertiary">{formatRelativeDate(timestamp)}</span>
+                )}
+                {connectionContext && (
+                  <span className="text-sm text-fg-tertiary">· {connectionContext}</span>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Caption — above photos, padded */}
-      {caption && (
-        <div className="px-md pb-sm">
-          <p className="text-sm text-fg-primary m-0">{caption}</p>
+          {/* Caption — below author info, above photos */}
+          {caption && (
+            <p className="text-base text-fg-secondary m-0" style={{ lineHeight: "20px" }}>
+              {caption}
+            </p>
+          )}
         </div>
       )}
 
       {/* Media — full bleed */}
       {media}
 
-      {/* Tags + action row — below photos */}
+      {/* Footer: Like button + tags in one flat flex-wrap row */}
       {(tags || action) && (
-        <div className="feed-card-body">
-          <div className="feed-card-body-text">
-            {tags}
-          </div>
-          {action && (
-            <div className="feed-card-body-action">
-              {action}
-            </div>
-          )}
+        <div className="feed-card-footer">
+          {action}
+          {tags}
         </div>
       )}
 
-      {/* Generic children — padded (for non-post cards like upcoming meet, nudge, etc.) */}
+      {/* Generic children — padded (for non-post cards like activity updates) */}
       {children && (
-        <div className="flex flex-col gap-sm px-md py-md">
+        <div className="flex flex-col gap-sm px-lg py-lg">
           {children}
         </div>
       )}

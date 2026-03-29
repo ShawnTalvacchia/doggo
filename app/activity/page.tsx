@@ -2,7 +2,6 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
-import { Compass } from "@phosphor-icons/react";
 import { TabBar } from "@/components/ui/TabBar";
 import { DiscoverTab } from "@/components/activity/DiscoverTab";
 import { MyScheduleTab } from "@/components/activity/MyScheduleTab";
@@ -24,21 +23,24 @@ function ActivityPageInner() {
   };
 
   return (
-    <div
-      className="flex flex-col gap-xl p-xl"
-      style={{ maxWidth: "var(--app-page-max-width)", margin: "0 auto", width: "100%" }}
-    >
-      <header className="flex items-center gap-sm pt-md">
-        <Compass size={28} weight="light" className="text-brand-main" />
-        <h1 className="font-heading text-4xl font-semibold text-fg-primary">Activity</h1>
-      </header>
+    <>
+      <div className="page-container activity-page">
+        {/* Tab header — sticky, doesn't scroll */}
+        <div className="activity-tab-header">
+          <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
+        </div>
 
-      <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
+        {/* Scrollable body */}
+        <div className="activity-body">
+          {activeTab === "discover" && <DiscoverTab />}
+          {activeTab === "schedule" && <MyScheduleTab />}
+          {activeTab === "bookings" && <BookingsTab />}
+        </div>
+      </div>
 
-      {activeTab === "discover" && <DiscoverTab />}
-      {activeTab === "schedule" && <MyScheduleTab />}
-      {activeTab === "bookings" && <BookingsTab />}
-    </div>
+      {/* Spacer to keep content centered (no side panel on activities) */}
+      <div className="page-spacer" aria-hidden="true" />
+    </>
   );
 }
 

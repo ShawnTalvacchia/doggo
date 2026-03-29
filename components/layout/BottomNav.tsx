@@ -4,8 +4,8 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
+  CalendarDots,
   ChatCircleDots,
-  Compass,
   House,
   UserCircle,
   UsersThree,
@@ -13,8 +13,8 @@ import {
 
 const tabs = [
   { label: "Home", href: "/home", Icon: House },
-  { label: "Communities", href: "/communities", Icon: UsersThree },
-  { label: "Activity", href: "/activity", Icon: Compass },
+  { label: "Groups", href: "/communities", Icon: UsersThree },
+  { label: "Activities", href: "/activity", Icon: CalendarDots },
   { label: "Inbox", href: "/inbox", Icon: ChatCircleDots },
   { label: "Profile", href: "/profile", Icon: UserCircle },
 ] as const;

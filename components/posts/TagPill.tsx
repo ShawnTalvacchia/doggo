@@ -53,10 +53,10 @@ export function TagPill({ tag }: { tag: PostTag }) {
 export function TagPillRow({ tags }: { tags: PostTag[] }) {
   if (tags.length === 0) return null;
   return (
-    <div className="flex flex-wrap gap-xs">
+    <>
       {tags.map((tag) => (
         <TagPill key={`${tag.type}-${tag.id}`} tag={tag} />
       ))}
-    </div>
+    </>
   );
 }

@@ -3,6 +3,7 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { LoggedInShell } from "./LoggedInShell";
 
 export function GuestLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -18,7 +19,13 @@ export function GuestLayout({ children }: { children: React.ReactNode }) {
   const [nav, mainContent, bottom] = arr;
 
   if (!isGuestRoute) {
-    return <>{children}</>;
+    // Logged-in: sidebar replaces top nav, bottom nav handles its own visibility
+    return (
+      <>
+        <LoggedInShell>{mainContent}</LoggedInShell>
+        {bottom}
+      </>
+    );
   }
 
   return (

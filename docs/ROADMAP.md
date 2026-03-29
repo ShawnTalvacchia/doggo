@@ -238,6 +238,21 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
+## Phase 16 — Layout Redesign (current)
+
+**Goal:** Replace the top navbar with a desktop sidebar, introduce a centered 640px content shell for all logged-in pages, and rename navigation items ("Groups", "Activities").
+
+**Key outcomes:**
+- Desktop sidebar nav (Home, Groups, Activities, Inbox, Find Care, Profile) replaces top AppNav for logged-in users
+- LoggedInShell layout: sidebar + max-width container (640px) + optional side panel or spacer
+- Mobile bottom nav updated: "Groups" (was Communities), "Activities" (was Activity), CalendarDots icon
+- Find Care is desktop-sidebar-only; mobile gets contextual per-page buttons
+- All logged-in pages render inside the new shell; un-migrated pages continue working
+
+**Board:** [[phase-16-layout-redesign]]
+
+---
+
 ## Out of Scope
 
 Not built, not demoed:

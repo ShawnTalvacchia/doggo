@@ -13,7 +13,7 @@ import { BottomNav } from "@/components/layout/BottomNav";
 const headingFont = Poppins({
   subsets: ["latin"],
   variable: "--font-heading",
-  weight: ["600"],
+  weight: ["600", "900"],
 });
 
 const bodyFont = Open_Sans({

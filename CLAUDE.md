@@ -79,13 +79,13 @@ See `docs/CONTRIBUTING.md` for full details.
 | `docs/implementation/component-inventory.md` | Built components catalog |
 | `docs/CONTRIBUTING.md` | Workflow rules, doc categories, naming conventions |
 
-## Current Phase: 15 — Trust, Connections & Mock Data Quality
+## Current Phase: 16 — Layout Redesign
 
-**Goal:** Refine connection model UX, redesign meet participant lists as a social discovery surface, add share-profile linking, and replace Unsplash mock images with generated assets.
+**Goal:** Replace top navbar with desktop sidebar, introduce centered 640px content shell for all logged-in pages, rename nav items to "Groups" and "Activities".
 
-**Key focus:** Tiered participant list (Connected → Familiar/Open → hidden count), ConnectionIcon system, share profile link, Going/Interested RSVP, post-meet reveal, locked profile view, DefaultAvatar, image replacement.
+**Key focus:** Desktop sidebar nav (6 items), LoggedInShell wrapper, max-width container (640px) + optional side panel/spacer, BottomNav label + icon updates, incremental page migration.
 
-**Board:** See `docs/phases/phase-15-trust-connections-images.md` and `docs/ROADMAP.md`.
+**Board:** See `docs/phases/phase-16-layout-redesign.md` and `docs/ROADMAP.md`.
 
 ## Strategic Context
 

@@ -16,6 +16,7 @@
   --color-fg-primary: var(--text-primary);
   --color-fg-secondary: var(--text-secondary);
   --color-fg-tertiary: var(--text-tertiary);
+  --color-fg-gray: var(--text-gray);
   --color-fg-light: var(--text-light);
   --color-fg-inverse: var(--text-inverse);
   --color-fg-white: var(--text-white);
@@ -119,6 +120,8 @@
   --breakpoint-md: 768px;
   --breakpoint-lg: 900px;
   --breakpoint-xl: 1024px;
+  --breakpoint-2xl: 1280px;
+  --breakpoint-content: 1168px;
 }
 
 /* ============================================
@@ -140,6 +143,7 @@
   --neutral-12: #fcfcfc;
   --neutral-25: #F8F8F8;
   --neutral-50: #F4F4F4;
+  --neutral-75: #ececec;
   --neutral-100: #e5e5e5;
   --neutral-150: #d8d8d8;
   --neutral-200: #cbcbcb;
@@ -148,6 +152,7 @@
   --neutral-500: #656666;
   /* no _Neutral/600 in Figma */
   --neutral-700: #4a4c4c;
+  --neutral-750: #3b3d3d;
   --neutral-800: #323232;
   --neutral-850: #252626;
   --neutral-900: #191919;
@@ -242,11 +247,11 @@
 
   --surface-top: var(--neutral-white); /* #ffffff  — inputs, cards, modals     */
   --surface-popout: var(--neutral-12); /* #fcfcfc  — elevated panels           */
-  --surface-base: var(--neutral-25); /* #F8F8F8  — page background           */
-  --surface-inset: var(--neutral-50); /* #F4F4F4  — sunken / inset areas      */
+  --surface-base: var(--neutral-50); /* #f4f4f4  — page background           */
+  --surface-inset: var(--neutral-75); /* #ececec  — sunken / inset areas      */
   --surface-gray: var(--neutral-200); /* #cbcbcb  — muted surfaces            */
   --surface-disabled: var(--neutral-300); /* #b0b2b2  — disabled backgrounds      */
-  --surface-base-inverse: var(--neutral-800); /* #323232  — dark inverse surfaces     */
+  --surface-base-inverse: var(--neutral-750); /* #3b3d3d  — dark inverse surfaces     */
   --surface-neutral-dark: var(--neutral-900); /* #191919  — deepest dark surfaces     */
 
   /* ================================================
@@ -266,6 +271,7 @@
   --text-primary: var(--neutral-850); /* #252626 */
   --text-secondary: var(--neutral-700); /* #4a4c4c */
   --text-tertiary: var(--neutral-500); /* #656666 */
+  --text-gray: var(--neutral-400); /* #969898 — inactive tabs, de-emphasized */
   --text-light: var(--neutral-300); /* #b0b2b2 */
   --text-inverse: var(--neutral-12); /* #fcfcfc */
   --text-white: var(--neutral-white); /* #ffffff */
@@ -277,8 +283,8 @@
 
   /* Colours */
   --border-lightest: var(--neutral-white); /* #ffffff */
-  --border-light: var(--neutral-25); /* #F8F8F8 */
-  --border-regular: var(--neutral-50); /* #F4F4F4 */
+  --border-light: var(--neutral-50); /* #f4f4f4 */
+  --border-regular: var(--neutral-75); /* #ececec */
   --border-strong: var(--neutral-100); /* #e5e5e5 */
   --border-stronger: var(--neutral-150); /* #d8d8d8 */
   --border-strongest: var(--neutral-400); /* #969898 */
@@ -334,6 +340,7 @@
   --status-info-light: var(--info-25); /* #eff2fc */
   --status-info-main: var(--info-500); /* #607ae1 */
   --status-info-strong: var(--info-600); /* #4e63b8 */
+  --status-info-600: var(--info-600); /* #4e63b8 — group labels */
 
   /* Legacy shorthands */
   --success: var(--status-success-main);
@@ -476,6 +483,13 @@
    * fill the full viewport width — both transitions happen simultaneously.
    */
   --app-page-max-width: 768px;
+
+  /* Layout shell (Phase 16 redesign) */
+  --sidebar-width: 240px;
+  --content-max-width: 640px;
+  --side-panel-width: 320px;
+  --padding-main: var(--space-xxl); /* 24px desktop, 0 mobile */
+  --padding-small: var(--space-lg); /* 16px desktop, 12px mobile */
 }
 
 * {
@@ -525,6 +539,120 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+/* ================================================
+   LOGGED-IN LAYOUT SHELL (Phase 16)
+   Desktop: sidebar + main. Mobile: main only + bottom nav.
+   ================================================ */
+
+.logged-shell {
+  display: flex;
+  height: 100vh;
+  --nav-height: 0px; /* logged-in shell has no top nav */
+}
+
+.logged-shell-main {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  display: flex;
+  justify-content: center;
+  gap: var(--space-xxl);
+  padding: 0 var(--space-xxl);
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* Sidebar — desktop only */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--surface-inset);
+  border-right: 1px solid var(--border-strong);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-xxl) var(--space-lg);
+}
+
+.sidebar-brand {
+  font-family: var(--font-heading), sans-serif;
+  font-weight: 900;
+  font-size: 30px;
+  line-height: 1;
+  color: var(--text-primary);
+  text-decoration: none;
+  padding: 0 var(--space-sm);
+  margin-bottom: var(--space-xxl);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  height: 48px;
+  padding: var(--space-sm);
+  font-family: var(--font-body), sans-serif;
+  font-weight: var(--weight-semibold);
+  font-size: 18px;
+  line-height: 1.35;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s ease;
+}
+
+.sidebar-nav-item:hover {
+  color: var(--text-secondary);
+}
+
+.sidebar-nav-item--active {
+  color: var(--text-primary);
+}
+
+/* Page container — centered main column (640px) */
+.page-container {
+  width: 100%;
+  max-width: var(--content-max-width);
+}
+
+/* Optional side panel (e.g., "Your Upcoming" on Home) — stays fixed while main scrolls */
+.page-side-panel {
+  width: var(--side-panel-width);
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+/* Spacer — keeps single-column content visually centered.
+   Hides when viewport is too narrow rather than compressing main content. */
+.page-spacer {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+}
+
+/* Hide spacer when it would compress the main content
+   (sidebar 240 + content 640 + spacer 240 + padding ~48 = ~1168px) */
+@media (max-width: 1168px) {
+  .page-spacer {
+    display: none;
+  }
+}
+
+/* ================================================
+   TOP NAV (guest routes only in new layout)
+   ================================================ */
 
 .app-nav-shell {
   position: sticky;
@@ -4685,6 +4813,8 @@ body.guest-route {
 @media (max-width: 767px) {
   :root {
     --nav-height: 56px;
+    --padding-main: 0px;
+    --padding-small: var(--space-md); /* 12px */
 
     /* ---- Heading sizes (mobile) ---- */
     --font-size-h1: 32px;
@@ -4702,6 +4832,17 @@ body.guest-route {
     --font-size-body-md: 15px;
     /* body-reg / sm / xs unchanged: 14 / 12 / 10px */
   }
+
+  /* Logged-in shell: hide sidebar, full-width main, no horizontal padding */
+  .sidebar { display: none; }
+  .logged-shell-main {
+    margin-left: 0;
+    padding: 0;
+    gap: 0;
+  }
+  .page-container { max-width: 100%; }
+  .page-side-panel,
+  .page-spacer { display: none; }
 
   .app-nav {
     height: 56px;
@@ -8841,6 +8982,208 @@ body.guest-route {
 
 }
 
+/* ── Schedule meet cards (Activities page) ──────────────────────────────────── */
+
+.card-schedule-meet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  background: white;
+  border: 1px solid var(--border-regular);
+  color: inherit;
+  overflow: hidden;
+}
+
+.card-schedule-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--weight-semibold);
+  border-radius: var(--radius-circle);
+  background: var(--surface-popout);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.card-schedule-chip--primary {
+  background: var(--brand-subtle);
+  border-color: var(--brand-subtle);
+  color: var(--brand-strong);
+}
+
+.card-schedule-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-circle);
+  cursor: pointer;
+  color: var(--text-tertiary);
+}
+
+.card-schedule-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  height: 32px;
+  padding: 0 var(--space-md);
+  font-size: var(--font-size-body-reg);
+  font-weight: var(--weight-semibold);
+  font-family: var(--font-body), sans-serif;
+  border-radius: var(--radius-circle);
+  white-space: nowrap;
+}
+
+.card-schedule-cta--ask {
+  background: var(--surface-popout);
+  border: 1px solid var(--brand-main);
+  color: var(--brand-main);
+}
+
+.card-schedule-cta--joined {
+  background: var(--brand-main);
+  border: 1px solid var(--brand-main);
+  color: white;
+}
+
+/* Bottom CTA row — shown only on mobile */
+.card-schedule-cta-row {
+  display: none;
+  padding-top: var(--space-sm);
+}
+
+.card-schedule-cta-row .card-schedule-cta {
+  width: 100%;
+  height: 32px;
+}
+
+.card-schedule-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+}
+
+.card-schedule-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 calc(50% - 12px);
+  min-width: 0;
+  min-height: 20px;
+  font-size: var(--font-size-body-reg);
+  color: var(--text-secondary);
+  line-height: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-schedule-meta-item--group {
+  font-weight: var(--weight-semibold);
+  color: var(--status-info-600, #4e63b8);
+}
+
+/* Tab component — simple variant (no underline, just text color) */
+.tab-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 var(--space-xl);
+  font-family: var(--font-body), sans-serif;
+  font-weight: var(--weight-semibold);
+  font-size: var(--font-size-body-md);
+  line-height: 1.35;
+  color: var(--text-gray, #969898);
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tab-main[data-active] {
+  color: var(--text-primary);
+  font-weight: var(--weight-bold);
+}
+
+/* Activity page layout: sticky tab header + scrollable body */
+.activity-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.activity-tab-header {
+  flex-shrink: 0;
+  padding: var(--space-xxl) 0 var(--space-md);
+}
+
+.activity-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Body container: fixed frame with rounded top corners, content scrolls inside */
+.body-container-main {
+  background: var(--surface-top);
+  border: 1px solid var(--border-stronger);
+  border-radius: 12px 12px 0 0;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.activity-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  background: var(--surface-base);
+  border-bottom: 1px solid var(--border-stronger);
+}
+
+/* Activity bottom sheet (mobile only) */
+.activity-bottom-sheet {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .card-schedule-meet {
+    padding: var(--space-md);
+  }
+
+  /* Hide inline CTA + icons on mobile; show bottom CTA row instead */
+  .card-schedule-icon-btn { display: none; }
+  .card-schedule-cta--inline { display: none; }
+  .card-schedule-cta-row { display: flex; }
+
+  /* Meta items stack vertically on mobile */
+  .card-schedule-meta-item {
+    flex: 1 0 100%;
+    min-width: 0;
+  }
+
+  .activity-bottom-sheet {
+    display: flex;
+    gap: var(--space-lg);
+    padding: var(--space-md) var(--space-lg);
+    background: rgba(255, 255, 255, 0.64);
+    border-top: 1px solid var(--border-regular);
+    border-radius: 24px 24px 0 0;
+    position: sticky;
+    bottom: 64px; /* above bottom nav */
+  }
+}
+
 /* ── Feed cards & greeting ────────────────────────────────────────────────────── */
 
 .feed-card {
@@ -8870,42 +9213,88 @@ body.guest-route {
   flex-shrink: 0;
 }
 
-/* Caption + paw row: side by side above 480px */
-.feed-card-body {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: var(--space-md) var(--space-md) var(--space-sm);
+/* Find Care button: hidden on desktop (it's in the sidebar), shown on mobile */
+.feed-greeting-find-care {
+  display: none;
 }
 
-.feed-card-body-text {
-  flex: 1;
-  min-width: 0;
+/* Feed card footer: flat flex-wrap row — Like pill + tag pills all together */
+.feed-card-footer {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-sm);
-  min-height: 32px;
-  justify-content: center;
+  padding: var(--padding-small);
 }
 
-.feed-card-body-action {
-  flex-shrink: 0;
+/* Like split-pill button */
+.like-pill {
+  display: inline-flex;
+  align-items: center;
+  background: var(--surface-base);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-circle);
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-body), sans-serif;
+  color: var(--text-secondary);
 }
 
-@media (max-width: 480px) {
+.like-pill-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--space-xs) var(--space-sm);
+}
+
+/* Only show divider when count is present (next sibling exists) */
+.like-pill-action:has(+ .like-pill-count) {
+  padding-right: var(--space-xs);
+  border-right: 0.5px solid var(--border-strong);
+}
+
+.like-pill-label {
+  width: 30px; /* fixed width so "Like"/"Liked" don't shift size */
+  text-align: left;
+}
+
+.like-pill-count {
+  display: flex;
+  align-items: center;
+  padding: var(--space-xs) var(--space-md);
+}
+
+/* Liked (active) state */
+.like-pill[data-liked] {
+  background: var(--brand-subtle);
+  border-color: var(--border-strong);
+  color: var(--brand-main);
+}
+
+.like-pill[data-liked] .like-pill-action {
+  border-right-color: var(--border-strong);
+}
+
+@media (max-width: 767px) {
   .feed-greeting {
     flex-direction: column;
     align-items: stretch;
   }
 
   .feed-greeting-action {
+    display: flex;
+    gap: var(--space-sm);
     width: 100%;
   }
 
   .feed-greeting-action a,
   .feed-greeting-action button {
-    width: 100%;
+    flex: 1;
     justify-content: center;
+  }
+
+  .feed-greeting-find-care {
+    display: inline-flex;
   }
 
   .feed-card {
@@ -8913,32 +9302,39 @@ body.guest-route {
     box-shadow: none;
   }
 
-  .feed-card-body {
-    flex-direction: column;
-    gap: var(--space-sm);
-  }
+}
 
-  .feed-card-body-action {
-    width: 100%;
-  }
+/* Home: inline upcoming strip (mobile/tablet) vs side panel (wide desktop) */
+.home-upcoming-inline {
+  display: block;
+  padding: 0 0 var(--padding-small);
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+}
 
-  .feed-card-body-action > button {
-    width: 100%;
-    justify-content: center;
+@media (max-width: 767px) {
+  .home-upcoming-inline {
+    border-radius: 0;
   }
 }
 
-/* Feed list gap — tighter on mobile */
+/* Wide desktop: hide inline strip, show side panel */
+@media (min-width: 1280px) {
+  .home-upcoming-inline {
+    display: none;
+  }
+}
+
+/* Narrower than 1280: hide side panel, inline strip takes over */
+@media (max-width: 1279px) {
+  .page-side-panel {
+    display: none;
+  }
+}
+
+/* Feed list gap */
 .feed-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
-}
-
-@media (max-width: 480px) {
-  .feed-list {
-    gap: var(--space-sm);
-    margin-left: calc(-1 * var(--space-xl));
-    margin-right: calc(-1 * var(--space-xl));
-  }
+  gap: var(--space-md);
 }
