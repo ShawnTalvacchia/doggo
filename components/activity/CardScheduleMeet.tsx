@@ -49,7 +49,7 @@ function totalDogs(meet: Meet): number {
 /** Get type-specific detail chips for the top row */
 function getTypeChips(meet: Meet): string[] {
   const chips: string[] = [];
-  if (meet.leashRule && meet.leashRule !== "any") {
+  if (meet.leashRule) {
     chips.push(LEASH_LABELS[meet.leashRule] || meet.leashRule);
   }
   if (meet.energyLevel && meet.energyLevel !== "any") {
