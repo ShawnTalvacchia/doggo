@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { CalendarDots, MapPin, UsersThree } from "@phosphor-icons/react";
+import { getGroupById } from "@/lib/mockGroups";
 import type { Meet } from "@/lib/types";
 
 function formatShortDate(date: string, time: string): string {
@@ -11,7 +12,7 @@ function formatShortDate(date: string, time: string): string {
 }
 
 function CardUpcomingEvent({ meet }: { meet: Meet }) {
-  const groupName = meet.creatorName; // fallback; ideally from meet.groupName
+  const group = meet.groupId ? getGroupById(meet.groupId) : null;
   return (
     <Link
       href={`/meets/${meet.id}`}
@@ -38,7 +39,7 @@ function CardUpcomingEvent({ meet }: { meet: Meet }) {
       {/* Group label — info color */}
       <span className="flex items-center gap-xs text-base font-semibold" style={{ color: "var(--status-info-600, #4e63b8)" }}>
         <UsersThree size={16} weight="light" />
-        {meet.groupName || "Vinohrady Morning Crew"}
+        {group?.name || "Community"}
       </span>
     </Link>
   );

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { CalendarDots, MapPin, UsersThree } from "@phosphor-icons/react";
+import { getGroupById } from "@/lib/mockGroups";
 import type { Meet } from "@/lib/types";
 
 function formatShortDate(date: string, time: string): string {
@@ -69,7 +70,7 @@ export function UpcomingStrip({ meets }: { meets: Meet[] }) {
               style={{ color: "var(--status-info-600, #4e63b8)" }}
             >
               <UsersThree size={16} weight="light" />
-              {meet.groupName || "Vinohrady Morning Crew"}
+              {(meet.groupId && getGroupById(meet.groupId)?.name) || "Community"}
             </span>
           </Link>
         ))}
