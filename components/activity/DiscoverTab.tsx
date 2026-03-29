@@ -33,31 +33,26 @@ export function DiscoverTab() {
 
   return (
     <div className="body-container-main">
-      {/* Sticky header: location + create + filters */}
+      {/* Header: action buttons + location + filters */}
       <div className="activity-header">
-        <div className="flex items-center justify-between gap-md">
-          {/* Location picker */}
+        {/* Mobile action buttons — Find Care + Create (scrolls with content) */}
+        <div className="activity-mobile-actions">
           <button
             type="button"
-            className="flex items-center gap-sm px-md py-sm bg-surface-top rounded-sm"
+            className="flex items-center justify-center gap-xs flex-1 h-[32px] rounded-xs text-base font-semibold cursor-pointer"
             style={{
+              background: "white",
               border: "1px solid var(--border-stronger)",
-              cursor: "pointer",
+              color: "var(--text-secondary)",
               fontFamily: "var(--font-body), sans-serif",
-              fontSize: "var(--font-size-body-md)",
-              fontWeight: "var(--weight-semibold)",
-              color: "var(--text-primary)",
             }}
           >
-            <MapPin size={20} weight="light" />
-            Prague 1
-            <CaretDown size={20} weight="light" />
+            <MagnifyingGlass size={16} weight="light" />
+            Find Care
           </button>
-
-          {/* Create button */}
           <button
             type="button"
-            className="flex items-center gap-xs px-sm h-[32px] rounded-xs text-base font-semibold cursor-pointer"
+            className="flex items-center justify-center gap-xs flex-1 h-[32px] rounded-xs text-base font-semibold cursor-pointer"
             style={{
               background: "var(--surface-base-inverse)",
               color: "var(--text-inverse)",
@@ -70,8 +65,29 @@ export function DiscoverTab() {
           </button>
         </div>
 
+        {/* Location picker + Create button (desktop) */}
+        <div className="activity-location-row">
+          <button
+            type="button"
+            className="activity-location-picker"
+          >
+            <MapPin size={20} weight="light" />
+            Prague 1
+            <CaretDown size={20} weight="light" />
+          </button>
+
+          {/* Create button — desktop only */}
+          <button
+            type="button"
+            className="activity-create-desktop"
+          >
+            <Plus size={16} weight="bold" />
+            Create
+          </button>
+        </div>
+
         {/* Filter pills */}
-        <div className="flex gap-sm items-center">
+        <div className="activity-filters">
           {FILTERS.map((filter) => {
             const isActive = filter === activeFilter;
             return (
@@ -87,6 +103,7 @@ export function DiscoverTab() {
                   background: isActive ? "var(--brand-main)" : "var(--surface-base)",
                   color: isActive ? "white" : "var(--text-secondary)",
                   whiteSpace: "nowrap",
+                  flexShrink: 0,
                 }}
               >
                 {filter}
@@ -113,36 +130,6 @@ export function DiscoverTab() {
             </p>
           </div>
         )}
-      </div>
-
-      {/* Mobile bottom sheet: Find Care + Create */}
-      <div className="activity-bottom-sheet">
-        <button
-          type="button"
-          className="flex items-center justify-center gap-xs flex-1 h-[32px] rounded-xs text-base font-semibold cursor-pointer"
-          style={{
-            background: "white",
-            border: "1px solid var(--border-stronger)",
-            color: "var(--text-secondary)",
-            fontFamily: "var(--font-body), sans-serif",
-          }}
-        >
-          <MagnifyingGlass size={16} weight="light" />
-          Find Care
-        </button>
-        <button
-          type="button"
-          className="flex items-center justify-center gap-xs flex-1 h-[32px] rounded-xs text-base font-semibold cursor-pointer"
-          style={{
-            background: "var(--surface-base-inverse)",
-            color: "var(--text-inverse)",
-            border: "none",
-            fontFamily: "var(--font-body), sans-serif",
-          }}
-        >
-          <Plus size={16} weight="bold" />
-          Create
-        </button>
       </div>
     </div>
   );

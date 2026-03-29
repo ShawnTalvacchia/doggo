@@ -9154,20 +9154,65 @@ body.guest-route {
   overflow: hidden;
 }
 
-/* Filter pills scroll horizontally on mobile */
-.activity-header > .flex.gap-sm {
+/* Mobile action buttons (Find Care + Create) — hidden on desktop */
+.activity-mobile-actions {
+  display: none;
+  gap: var(--space-lg);
+}
+
+/* Location row: picker + desktop Create button */
+.activity-location-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.activity-location-picker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-top);
+  border: 1px solid var(--border-stronger);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-body), sans-serif;
+  font-size: var(--font-size-body-md);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.activity-create-desktop {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: 0 var(--space-sm);
+  height: 32px;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-body), sans-serif;
+  font-size: var(--font-size-body-reg);
+  font-weight: var(--weight-semibold);
+  background: var(--surface-base-inverse);
+  color: var(--text-inverse);
+  border: none;
+  cursor: pointer;
+}
+
+/* Filter pills — horizontal scroll on overflow */
+.activity-filters {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
-.activity-header > .flex.gap-sm::-webkit-scrollbar {
+.activity-filters::-webkit-scrollbar {
   display: none;
 }
 
-/* Activity bottom sheet (mobile only) */
-.activity-bottom-sheet {
-  display: none;
-}
+
 
 @media (max-width: 767px) {
   .body-container-main {
@@ -9175,6 +9220,11 @@ body.guest-route {
     border-left: none;
     border-right: none;
   }
+
+  /* Show mobile action buttons, hide desktop Create */
+  .activity-mobile-actions { display: flex; }
+  .activity-create-desktop { display: none; }
+  .activity-location-picker { flex: 1; }
 
   .card-schedule-meet {
     padding: var(--space-md);
@@ -9191,16 +9241,6 @@ body.guest-route {
     min-width: 0;
   }
 
-  .activity-bottom-sheet {
-    display: flex;
-    gap: var(--space-lg);
-    padding: var(--space-md) var(--space-lg);
-    background: rgba(255, 255, 255, 0.64);
-    border-top: 1px solid var(--border-regular);
-    border-radius: 24px 24px 0 0;
-    position: sticky;
-    bottom: 64px; /* above bottom nav */
-  }
 }
 
 /* ── Feed cards & greeting ────────────────────────────────────────────────────── */
