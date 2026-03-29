@@ -461,6 +461,10 @@
     gap: 16px;
   }
 
+  .landing-meet-card-img {
+    width: 70%;
+  }
+
   .landing-meet-card {
     display: grid;
     grid-template-columns: 160px 1fr;

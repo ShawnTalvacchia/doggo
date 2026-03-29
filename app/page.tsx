@@ -129,7 +129,7 @@ export default function LandingPage() {
       <section className="landing-hook">
         <div className="landing-inner">
           <div className="landing-hook-text">
-            <h2 className="landing-section-heading text-white">Does your dog have a community?</h2>
+            <h2 className="landing-section-heading" style={{ color: "var(--text-white)" }}>Does your dog have a community?</h2>
             <p className="landing-hook-subline">
               Dogs are social — they want to get out, play with dogs they know, and see familiar faces. Doggo connects you to local dog owners, regular meets, and trusted care.
             </p>
@@ -172,7 +172,7 @@ export default function LandingPage() {
               description="Drop in, no pressure. Stay five minutes or an hour. Dogs play, owners chat."
             />
             <MeetTypeCard
-              imgSrc="/images/Playdates%20%26%20training.svg"
+              imgSrc="/images/Playdates-and-training.svg"
               title="Playdates & training"
               description="Smaller groups for dogs that need the right pace — puppy socialisation, recall practice, or calm play."
             />
