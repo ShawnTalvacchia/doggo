@@ -622,6 +622,7 @@ a {
 .page-container {
   width: 100%;
   max-width: var(--content-max-width);
+  min-width: 0;
 }
 
 /* Optional side panel (e.g., "Your Upcoming" on Home) — stays fixed while main scrolls */
@@ -9139,6 +9140,7 @@ body.guest-route {
   border-radius: 12px 12px 0 0;
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   min-height: 0;
 }
 
@@ -9149,6 +9151,17 @@ body.guest-route {
   padding: var(--space-lg);
   background: var(--surface-base);
   border-bottom: 1px solid var(--border-stronger);
+  overflow: hidden;
+}
+
+/* Filter pills scroll horizontally on mobile */
+.activity-header > .flex.gap-sm {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.activity-header > .flex.gap-sm::-webkit-scrollbar {
+  display: none;
 }
 
 /* Activity bottom sheet (mobile only) */
@@ -9157,6 +9170,12 @@ body.guest-route {
 }
 
 @media (max-width: 767px) {
+  .body-container-main {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
   .card-schedule-meet {
     padding: var(--space-md);
   }
@@ -9302,6 +9321,17 @@ body.guest-route {
     box-shadow: none;
   }
 
+}
+
+/* Home header: no horizontal padding on desktop, matches card padding on mobile */
+.home-header {
+  padding: var(--space-xxl) 0 var(--padding-small);
+}
+
+@media (max-width: 767px) {
+  .home-header {
+    padding: var(--space-xxl) var(--padding-small) var(--padding-small);
+  }
 }
 
 /* Home: inline upcoming strip (mobile/tablet) vs side panel (wide desktop) */

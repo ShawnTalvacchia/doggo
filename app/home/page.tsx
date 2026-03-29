@@ -74,8 +74,8 @@ export default function HomePage() {
           </>
         ) : (
           <>
-            {/* Header: greeting + Add Post / Find Care — 84px to match Figma alignment */}
-            <div style={{ padding: "var(--space-xxl) 0 var(--padding-small)" }}>
+            {/* Header: greeting + Add Post / Find Care */}
+            <div className="home-header">
               <CompactGreeting user={mockUser} />
             </div>
 
