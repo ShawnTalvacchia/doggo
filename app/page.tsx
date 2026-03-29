@@ -129,7 +129,7 @@ export default function LandingPage() {
       <section className="landing-hook">
         <div className="landing-inner">
           <div className="landing-hook-text">
-            <h2 className="font-heading text-2xl md:text-3xl font-semibold leading-tight text-white m-0">Does your dog have a community?</h2>
+            <h2 className="landing-section-heading text-white" style={{ fontSize: "var(--font-size-h2)" }}>Does your dog have a community?</h2>
             <p className="landing-hook-subline">
               Dogs are social — they want to get out, play with dogs they know, and see familiar faces. Doggo connects you to local dog owners, regular meets, and trusted care.
             </p>

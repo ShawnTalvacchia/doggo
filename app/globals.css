@@ -755,7 +755,7 @@ a {
   font-family: var(--font-heading), sans-serif;
   font-size: var(--font-size-h3);
   line-height: 1;
-  font-weight: var(--weight-semibold);
+  font-weight: 900;
   color: var(--text-primary);
   text-decoration: none;
   cursor: pointer;
@@ -5569,7 +5569,7 @@ body.guest-route {
 .landing-cta-close-heading {
   font-family: var(--font-heading), sans-serif;
   font-size: var(--font-size-h2);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-extrabold);
   color: var(--text-white);
   margin: 0;
 }

@@ -449,11 +449,11 @@
   .landing-archetypes-split {
     grid-template-columns: 1fr;
     gap: 32px;
-    text-align: center;
+    text-align: left;
   }
 
   .landing-archetypes-text {
-    align-items: center;
+    align-items: flex-start;
   }
 
   .landing-meet-cards-grid {
