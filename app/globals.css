@@ -9316,6 +9316,121 @@ body.guest-route {
   cursor: pointer;
 }
 
+/* ── My Schedule — Upcoming/History toggle ─────────────────────────────────── */
+
+.schedule-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: var(--surface-inset);
+  border-radius: var(--radius-pill);
+  padding: 3px;
+  gap: 2px;
+}
+
+.schedule-toggle-btn {
+  height: 30px;
+  padding: 0 var(--space-lg);
+  border-radius: var(--radius-pill);
+  border: none;
+  background: none;
+  font-family: var(--font-body), sans-serif;
+  font-size: var(--font-size-body-reg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.schedule-toggle-btn--active {
+  background: var(--surface-top);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-xs);
+}
+
+/* ── My Meet card (My Schedule tab) ────────────────────────────────────────── */
+
+/* Hosting distinction — thin left accent border */
+.card-my-meet--hosting {
+  border-left: 3px solid var(--brand-main);
+  padding-left: calc(var(--space-lg) - 2px);
+}
+
+/* History (past) — muted background */
+.card-my-meet--history {
+  background: var(--surface-inset);
+  border-color: var(--border-light);
+}
+
+/* Role badges — shown inline in top-right (always visible) */
+.card-my-meet-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 var(--space-md);
+  font-size: var(--font-size-body-reg);
+  font-weight: var(--weight-semibold);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.card-my-meet-badge--hosting {
+  background: var(--brand-main);
+  color: var(--neutral-white);
+}
+
+.card-my-meet-badge--joining {
+  background: var(--neutral-900, #1c1c1c);
+  color: var(--neutral-white);
+}
+
+.card-my-meet-badge--interested {
+  background: transparent;
+  border: 1.5px solid var(--border-strong);
+  color: var(--text-secondary);
+}
+
+/* Cancelled chip — inside chips row */
+.card-my-meet-cancelled-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--weight-semibold);
+  border-radius: var(--radius-pill);
+  background: var(--status-error-light, #fef2f2);
+  color: var(--status-error-strong, #b91c1c);
+}
+
+/* ── Compact booking block (in My Schedule timeline) ───────────────────────── */
+
+.card-booking-block {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--surface-top);
+  border: 1px solid var(--border-regular);
+  border-left: 3px solid var(--status-info-main, #4e63b8);
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+}
+
+.card-booking-block-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-circle);
+  background: var(--status-info-light, #eef0fb);
+  color: var(--status-info-600, #4e63b8);
+  flex-shrink: 0;
+}
+
 /* Filter pills — horizontal scroll on overflow */
 .activity-filters {
   display: flex;
@@ -9357,6 +9472,12 @@ body.guest-route {
     flex: 1 0 100%;
     min-width: 0;
   }
+
+  /* My Meet card — keep role badge visible on mobile (no inline CTA to hide) */
+  .card-my-meet-badge { height: 28px; padding: 0 var(--space-sm); font-size: var(--font-size-body-sm); }
+
+  /* Booking block — compact on mobile */
+  .card-booking-block { padding: var(--space-sm) var(--space-md); }
 
 }
 
