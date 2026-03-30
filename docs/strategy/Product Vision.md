@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-03-26
+last-reviewed: 2026-03-30
 tags: [vision, principles, strategy, monetization]
 review-trigger: "before any major feature decision or strategic discussion"
 ---
@@ -97,28 +97,36 @@ People could Venmo each other and skip the platform. But the platform offers:
 ### Mobile (bottom tabs)
 
 ```
-Home  |  Communities  |  Activity  |  Inbox  |  Profile
+Home  |  Groups  |  Activities  |  Inbox  |  Profile
 ```
 
 - **Home** — personalised feed: nearby meets, suggested connections, community highlights, care CTAs
-- **Communities** — browse and join communities. Persistent groups with members, meets, chat, gallery. "Where do I belong?"
-- **Activity** — three tabs: Discover (browse all upcoming meets), My Schedule (your upcoming meets + past), Bookings (care arrangements as owner or carer). "What's happening?"
+- **Groups** — browse and join groups (persistent communities with members, meets, chat, gallery). "Where do I belong?"
+- **Activities** — three tabs: Discover (browse all upcoming meets), My Schedule (your upcoming meets + past), Bookings (care arrangements as owner or carer). "What's happening?"
 - **Inbox** — direct messages and booking conversations
 - **Profile** — you, your dogs, settings, care history, provider dial
 
-### Desktop (horizontal nav)
+### Desktop (sidebar nav)
 
 ```
-DOGGO logo  |  Home  Communities  Activity  |  [Find Care]  [Offer Care]  |  Bell  Inbox  Avatar
+DOGGO logo
+Home
+Groups
+Activities
+Inbox
+Find Care
+Profile
 ```
+
+Desktop uses a left sidebar (240px) instead of horizontal nav (Phase 16). Find Care is sidebar-only; mobile uses contextual per-page buttons.
 
 ### Care discovery
 
 Provider search is accessed via "Find Care" CTA — an intentional action from within the community context, not a default tab. See [[explore-and-care]] for the full flow.
 
-### Activity tab structure
+### Activities tab structure
 
-Activity consolidates the old Meets and Schedule tabs. The three sub-tabs:
+Activities consolidates the old Meets and Schedule tabs. The three sub-tabs:
 - **Discover** — browse upcoming meets, filter by type/neighbourhood. Entry point for event discovery.
 - **My Schedule** — your RSVPed meets (this week, coming up, past). Personal timeline.
 - **Bookings** — care arrangements: owner bookings, incoming requests (carer), active services. Separated because care has a fundamentally different mental model than social meets.

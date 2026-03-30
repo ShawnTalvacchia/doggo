@@ -1,76 +1,102 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-03-23
-tags: [schedule, bookings, calendar, meets]
-review-trigger: "when modifying schedule page, booking list, or calendar views"
+last-reviewed: 2026-03-30
+tags: [schedule, activities, meets, bookings]
+review-trigger: "when modifying the My Schedule or Bookings tabs within the Activities page"
 ---
 
-# Schedule
+# Activities — My Schedule & Bookings
 
-A unified timeline of upcoming meets and care bookings — "what am I committed to?"
+The Activities page (`/activity`) consolidates meet discovery, personal scheduling, and care bookings into a single tabbed view.
 
 ---
 
 ## Overview
 
-Schedule is the third tab in the main navigation. It combines community meets and paid care in one chronological stream — because that's how your actual week works. The name "Schedule" (not "Bookings") reflects that this covers both social and transactional commitments.
+Activities has three sub-tabs, accessible via query param:
+
+| Tab | Param | Purpose |
+|-----|-------|---------|
+| **Discover** | `?tab=discover` | Browse all upcoming meets, filter by type and neighbourhood |
+| **My Schedule** | `?tab=schedule` | Your committed meets — what you're hosting, joining, or interested in |
+| **Bookings** | `?tab=bookings` | Care arrangements — owner bookings, incoming carer requests, active services |
+
+**Why three tabs?** Meets are social; bookings are transactional. Mixing them creates cognitive load. Users looking for "when's my next walk?" shouldn't have to mentally filter past paid care sessions. My Schedule answers "what am I doing?"; Bookings answers "what care am I managing?"; Discover answers "what's available?"
 
 ---
 
-## Current State
+## My Schedule Tab
 
-- **Pages:** `/schedule` (timeline view)
-- **Components:** BookingRow, schedule section headers, CTAs
-- **Data:** Mock bookings and meets populated in schedule
-- **Status:** Built — shows upcoming meets and care bookings in timeline format
+**Question it answers:** "What am I committed to this week and beyond?"
 
-### What's displayed
+### Current state
 
-- **This Week / Coming Up** — upcoming meets split by time horizon
-- **Your Care Bookings** (Phase 11) — active/upcoming bookings as owner, with carer avatar, service type, status badge. Links to booking detail.
-- **Your Care Services** (Phase 11) — active/upcoming bookings as carer (if any), with owner avatar, service type, status badge.
-- **Past** — completed meets and bookings
-- **CTAs:** Create Meet, Find Care, Offer Care (all routing to correct destinations — Offer Care → `/profile?tab=services`)
+- **Route:** `/activity?tab=schedule`
+- **Component:** `components/activity/MyScheduleTab.tsx`
+- **Data:** `getUserMeets("shawn")` from `lib/mockMeets.ts`, plus past bookings from `BookingsContext`
+- **Card component:** `MeetCard` (from `components/meets/MeetCard.tsx`)
+
+### Sections
+
+1. **This Week** — meets within the next 7 days
+2. **Coming Up** — meets beyond this week
+3. **Past** — completed meets and past owner bookings (unified history)
+
+### Key decisions
+
+- **Only meets in the active sections.** Active/upcoming care bookings live in the Bookings tab, not here. The one exception: past bookings appear in the Past section for a unified history view.
+- **No location filter.** Unlike Discover, My Schedule shows everything you've committed to regardless of location.
+- **Role context matters.** Cards should indicate whether you're hosting or joining a meet (different responsibility level).
+
+### Planned redesign (Phase 17)
+
+- Replace time-grouped sections with Upcoming/Completed toggle
+- Keep type filter pills (All / Walks / Park Hangouts / Playdates / Training)
+- Cards evolved from Discover style: same skeleton, role badge (Hosting/Joining/Interested) instead of CTA, stronger time emphasis, more attendee avatars
+- See Phase 17 board for full spec
 
 ---
 
-## Key Decisions
+## Bookings Tab
 
-1. **"Schedule" not "Bookings"** — "Bookings" is marketplace language. Schedule covers both community meets and paid care, reflecting the community-first product model.
+**Question it answers:** "What care am I giving or receiving?"
 
-2. **Unified timeline** — meets and bookings appear in the same chronological stream. Users don't have to check two places to know what's coming up.
+### Current state
 
-3. **Owner + carer tabs** — for users who both receive and provide care, the schedule can be viewed from either perspective.
+- **Route:** `/activity?tab=bookings`
+- **Component:** `components/activity/BookingsTab.tsx`
+- **Data:** `BookingsContext` filtered by `ownerId` / `carerId`
+- **Card component:** `BookingListCard` (from `components/bookings/BookingListCard.tsx`)
+
+### Sections
+
+1. **Your Care Bookings** (as owner) — upcoming/active bookings where you receive care
+2. **Incoming Requests** (as carer) — booking inquiries from conversations, no proposal sent yet
+3. **Your Care Services** (as carer) — active bookings where you provide care
+
+### CTAs
+
+- **Find Care** → `/explore/results`
+- **Offer Care** → `/profile?tab=services`
 
 ---
 
-## User Flows
+## History
 
-### View upcoming commitments
-
-```
-Schedule tab → See chronological list of upcoming meets + bookings
-→ Tap a meet → Meet detail page
-→ Tap a booking → Booking detail page
-```
-
-### Quick actions
-
-```
-Schedule tab → "Create Meet" → Meet creation flow
-            → "Find Care" → Explore flow
-            → "Offer Care" → `/profile?tab=services` (Phase 11)
-```
+- **Phase 2:** Original `/schedule` route built as standalone page
+- **Phase 11:** Care bookings section added to Schedule, owner booking actions (cancel/modify/message)
+- **Phase 12:** Carer inquiry response flow, incoming requests section, BookingListCard extracted
+- **Phase 14:** Schedule content extracted into `MyScheduleTab` and `BookingsTab` components under `/activity`. Old `/schedule` route redirects to `/activity`.
+- **Phase 16:** "Activity" renamed to "Activities" in nav labels
 
 ---
 
 ## Future
 
-- **Calendar view** — visual calendar alongside the list view
-- **Past activity** — history of attended meets and completed bookings
-- **Recurring meet indicators** — visual distinction for recurring vs. one-off meets
-- **Day-of notifications** — reminders for upcoming meets and bookings
+- **Calendar view** — visual calendar alongside the list
+- **Recurring meet indicators** — visual distinction for recurring vs one-off
+- **Day-of reminders** — notifications for upcoming meets and bookings
 - **Carer schedule management** — availability editor, blocked times, capacity limits
 
 ---
@@ -78,5 +104,5 @@ Schedule tab → "Create Meet" → Meet creation flow
 ## Related Docs
 
 - [[meets]] — meets that populate the schedule
-- [[explore-and-care]] — bookings that populate the schedule
-- [[Product Vision]] — schedule as the unified "what's next" view
+- [[explore-and-care]] — bookings that populate the Bookings tab
+- [[Product Vision]] — Activities tab structure rationale

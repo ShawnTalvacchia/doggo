@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-03-18
+last-reviewed: 2026-03-30
 tags: [scope, prototype, priorities]
 review-trigger: "before adding new features or starting a new flow"
 ---
@@ -37,21 +37,21 @@ These flows are needed to tell the complete Doggo story end-to-end.
 
 | Feature | Status | Feature doc |
 |---------|--------|-------------|
-| **Landing page** | Built (needs Phase 6 review) | — |
+| **Landing page** | Built | [[landing-page]] |
 | **Signup flow** | Built | `docs/implementation/signup-reference.md` |
-| **Nav restructure** | Built | [[Product Vision]] nav section |
-| **Home feed** | Built (needs Phase 6 overhaul) | — |
-| **Groups & Meets** | Meets built; Groups not yet built | [[meets]] |
-| **Connections & visibility** | Built | [[connections]] |
-| **Schedule** | Built | [[schedule]] |
-| **Messaging** | Built | [[messaging]] |
+| **Nav restructure** | Built (Phase 16: sidebar, Groups/Activities rename) | [[Product Vision]] nav section |
+| **Home feed** | Built (social feed with 10 card types) | — |
+| **Groups & Meets** | Built (Groups Phase 9, Meets Phase 3, types Phase 13) | [[meets]] |
+| **Connections & visibility** | Built (Phase 15: share links, tiered participants) | [[connections]] |
+| **Activities (Schedule)** | Built (Phase 14: 3-tab Activity page) | [[schedule]] |
+| **Messaging** | Built (Phase 12: carer inquiry response) | [[messaging]] |
 | **Explore / provider search** | Built | [[explore-and-care]] |
 | **Provider profiles** | Built | [[profiles]] |
-| **Bookings & care tracking** | Built | [[explore-and-care]] |
-| **Owner profile + edit mode** | Built | [[profiles]] |
+| **Bookings & care tracking** | Built (Phase 11: payment mock, owner actions) | [[explore-and-care]] |
+| **Owner profile + edit mode** | Built (Phase 10: About/Posts/Services tabs) | [[profiles]] |
 | **Pet profiles (enhanced)** | Built | [[profiles]] |
 
-All Required features are built. Phase 6 focuses on auditing and polishing them.
+All Required features are built and have been polished across Phases 6–16.
 
 ---
 
@@ -61,13 +61,13 @@ These strengthen the demo but aren't needed to tell the core story.
 
 | Feature | Notes |
 |---------|-------|
-| **Payment mock** | Fake checkout/confirmation screen at end of booking flow. |
-| **Business profiles & directory** | Local pet businesses (vets, groomers, shops). Separate from individual providers. |
-| **~~Private groups~~** | ~~Invite-only meets with persistent chat and gallery.~~ **Promoted to Required** — groups (public + private) are now considered essential to the meets architecture. See [[meets]]. |
-| **Photo gallery per meet** | Post-meet photo sharing. Social proof and engagement. |
-| **Browse & discover** | Browse nearby Open owners/dogs outside of meets context. |
-| **Provider onboarding tools** | Calendar, availability editor, pricing setup from profile. |
-| **"Open to helping" toggle** | Profile signal that you'd accept care requests. |
+| **Payment mock** | Built (Phase 11). Mock checkout with 12% platform fee. |
+| **Business profiles & directory** | Not built. Local pet businesses (vets, groomers, shops). |
+| ~~**Private groups**~~ | ~~Promoted to Required~~ — built in Phase 9 (open/approval/private). |
+| **Photo gallery per meet** | Built (Phase 8). Post-meet recap with photos. |
+| **Browse & discover** | Not built. Browse nearby Open owners/dogs outside of meets context. |
+| **Provider onboarding tools** | Partially built. Services tab on profile (Phase 10), but no calendar/availability editor. |
+| **"Open to helping" toggle** | Built (Phase 10). Offer Care toggle on Profile > Services tab. |
 
 ---
 

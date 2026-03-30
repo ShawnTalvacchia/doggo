@@ -104,8 +104,15 @@ const phases = [
   { num: 6, name: "Audit & Alignment", status: "done" as const, summary: "Home page overhaul, landing page rewrite, signup flow review, Offer Care nav link, visual consistency pass" },
   { num: 7, name: "Community-Native Care", status: "done" as const, summary: "Provider onboarding via profile, community-first care discovery, relationship context in bookings, payment mock" },
   { num: 8, name: "Community Feel", status: "done" as const, summary: "Neighbourhood identity, social proof stats, activity indicators, welcome state, post-meet recap with photos, trust badges" },
-  { num: 9, name: "Groups & Belonging", status: "done" as const, summary: "Communities browse/detail/create, meet-group cross-links, shared MessageBubble, Your Communities on Home" },
-  { num: 10, name: "Home Feed & Social Posts", status: "next" as const, summary: "Social feed, user-authored photo posts, mixed card types, profile Posts tab, contextual CTAs, reactions" },
+  { num: 9, name: "Groups & Belonging", status: "done" as const, summary: "Groups browse/detail/create, meet-group cross-links, shared MessageBubble, Your Groups on Home" },
+  { num: 10, name: "Home Feed & Social Posts", status: "done" as const, summary: "Social feed, user-authored photo posts, mixed card types, profile Posts tab, contextual CTAs, reactions" },
+  { num: 11, name: "Booking & Care Polish", status: "done" as const, summary: "Connection gating, payment mock checkout, provider setup consolidation, owner booking actions" },
+  { num: 12, name: "Demo Ready", status: "done" as const, summary: "Carer inquiry response, component extraction, dead CSS audit, EmptyState + ButtonAction adoption" },
+  { num: 13, name: "Meet Type Enrichment", status: "done" as const, summary: "Type-specific fields (walk/park/playdate/training), conditional form sections, summary pills, detail sections" },
+  { num: 14, name: "Community & Activity Restructure", status: "done" as const, summary: "Activity page with Discover/My Schedule/Bookings tabs, join-gated chat, system messages, event card strip" },
+  { num: 15, name: "Trust & Connections", status: "done" as const, summary: "Share profile links, tiered participant lists, Going/Interested RSVP, post-meet reveal, AI-generated images" },
+  { num: 16, name: "Layout Redesign", status: "done" as const, summary: "Desktop sidebar nav, LoggedInShell (640px content), Groups/Activities rename, CalendarDots icon" },
+  { num: 17, name: "Activities Tab Redesign", status: "next" as const, summary: "My Schedule Upcoming/Completed toggle, role badges, hosting distinction, Bookings card consistency" },
 ];
 
 const considerations = [
@@ -133,8 +140,8 @@ export default function PrototypeOverviewPage() {
   const totalPages = siteMap.reduce((n, g) => n + g.pages.length, 0);
 
   return (
-    <main className="page-shell status-page">
-      <div className="page-width status-wrap">
+    <main className="status-page">
+      <div className="status-wrap">
 
         {/* ── Quick Nav ────────────────────────────────────────── */}
         <section className="status-section">
@@ -143,7 +150,7 @@ export default function PrototypeOverviewPage() {
             {PAGE_MENU_GROUPS.map((group) => (
               <div key={group.title}>
                 <p className="text-xs font-semibold uppercase tracking-wider text-fg-tertiary mb-2">{group.title}</p>
-                <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-2">
+                <div className="flex flex-col gap-2">
                   {group.items.map((item) => (
                     <Link
                       key={item.value}
@@ -166,7 +173,7 @@ export default function PrototypeOverviewPage() {
           <p className="status-subtitle">
             Community-first dog care — Prague
           </p>
-          <p className="status-date">March 23, 2026</p>
+          <p className="status-date">March 30, 2026</p>
 
           <div className="status-stats">
             <div className="status-stat">
@@ -279,7 +286,7 @@ export default function PrototypeOverviewPage() {
 
         {/* ── Footer ───────────────────────────────────────────── */}
         <footer className="status-footer">
-          <p>Last updated March 23, 2026</p>
+          <p>Last updated March 30, 2026</p>
         </footer>
       </div>
     </main>

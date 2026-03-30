@@ -1,6 +1,6 @@
 ---
 status: built
-last-reviewed: 2026-03-23
+last-reviewed: 2026-03-30
 ---
 
 # Booking Conversation Flow
@@ -21,7 +21,7 @@ flowchart TD
     I -->|Negotiate| H
     J --> K["Sign Contract"]
     K --> L["Payment Checkout\n(price + platform fee, mock payment)"]
-    L --> M["Booking Created\n(appears in /bookings + /schedule)"]
+    L --> M["Booking Created\n(appears in Activities > Bookings)"]
     M --> N["Booking Detail Page\n(schedule, sessions, pricing)"]
     N --> O{"Owner actions"}
     O -->|Message carer| C
@@ -46,7 +46,7 @@ flowchart TD
 | Booking detail page | `/bookings/[bookingId]` | Done |
 | Owner actions (cancel/modify/message) | Booking detail page | Done (Phase 11) |
 | Booking cancellation modal | `CancelBookingModal` | Done (Phase 11) |
-| Carer inquiry response (accept/decline) | Inbox thread | Deferred to Phase 12 |
+| Carer inquiry response (accept/decline) | Inbox thread | Done (Phase 12) |
 
 ## Notes
 
@@ -54,4 +54,4 @@ flowchart TD
 - Platform fee is 12%, shown transparently on the checkout page
 - Cancellation reason is optional but stored on the booking
 - Modification is a mock state — shows a "Modification requested" banner, no real negotiation flow
-- Bookings now appear on both `/bookings` and `/schedule` (Phase 11)
+- Bookings appear in the Activities > Bookings tab (`/activity?tab=bookings`) and on `/bookings` detail pages. The old `/schedule` route redirects to `/activity`.

@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-03-27
+last-reviewed: 2026-03-30
 tags: [components, ui, inventory]
 review-trigger: "when building or refactoring components"
 ---
@@ -33,7 +33,7 @@ components/
                   Toggle, StatusBadge, Slider, DatePicker,
                   RecurringSchedulePicker, BookingRow, EmptyState,
                   TabBar, ConnectionIcon, DefaultAvatar
-  layout/       ← App chrome: AppNav, BottomNav, FormHeader, FormFooter, GuestLayout
+  layout/       ← App chrome: AppNav, BottomNav, Sidebar, LoggedInShell, FormHeader, FormFooter, GuestLayout
   overlays/     ← ModalSheet, BookingModal
   explore/      ← FilterPanelDesktop, FilterPanelMobile, FilterPanelShell, FilterBody, ProfileHeader,
                   CardExploreResult, MapView
@@ -315,9 +315,11 @@ Top navigation bar. Selects one of three link configurations based on the curren
 ### BottomNav · `built · documented`
 `components/layout/BottomNav.tsx`
 
-Mobile-only 4-tab bar. Only visible on logged-in routes. Hidden on: provider profile, individual inbox threads, explore results when a service filter is active. Active tab uses Phosphor `weight="fill"`.
+Mobile-only 5-tab bar. Only visible on logged-in routes. Hidden on: provider profile, individual inbox threads, explore results when a service filter is active. Active tab uses Phosphor `weight="fill"`.
 
-Tabs: Explore → `/explore/results`, Bookings → `/bookings`, Inbox → `/inbox`, Profile → `/profile`.
+Tabs: Home → `/home`, Groups → `/communities`, Activities → `/activity`, Inbox → `/inbox`, Profile → `/profile`.
+
+Icons: House, UsersThree, CalendarDots, ChatCircleDots, UserCircle (Phosphor, light/fill).
 
 ---
 
@@ -347,10 +349,24 @@ Sticky back + continue nav for multi-step forms. Back = tertiary CTA, Continue =
 
 ---
 
+### Sidebar · `built`
+`components/layout/Sidebar.tsx`
+
+Desktop-only sidebar nav (240px). 6 items: Home, Groups, Activities, Inbox, Find Care, Profile. "DOGGO" logo at top in Poppins Black. Active state detection mirrors BottomNav logic. Icons: House, UsersThree, CalendarDots, ChatCircleDots, MagnifyingGlass, UserCircle (Phosphor, light weight, fill when active). Find Care is desktop-sidebar-only.
+
+---
+
+### LoggedInShell · `built`
+`components/layout/LoggedInShell.tsx`
+
+Layout wrapper for all logged-in pages. Renders Sidebar + centered content area (max-width 640px) + optional side panel or spacer. All logged-in pages render inside this shell via GuestLayout.
+
+---
+
 ### GuestLayout · `built`
 `components/layout/GuestLayout.tsx`
 
-Layout wrapper for guest-only pages (landing, signin). Provides any guest-specific layout context.
+Layout wrapper that switches between guest (AppNav) and logged-in (LoggedInShell) layouts based on route.
 
 ---
 
@@ -820,3 +836,23 @@ _Ordered by impact vs. effort._
 |-----------|------|---------|--------|
 | `ConnectionIcon` | `components/ui/ConnectionIcon.tsx` | Phosphor icon for connection state (Connected=handshake, Familiar=eye/check, Open=globe). Optional label. | `built` |
 | `DefaultAvatar` | `components/ui/DefaultAvatar.tsx` | Initials-on-colour avatar for users with no photo. Colour derived from name for consistency. | `built` |
+
+---
+
+## Phase 16 — New Components
+
+### Layout Components (`components/layout/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `Sidebar` | `components/layout/Sidebar.tsx` | Desktop sidebar nav (240px): Home, Groups, Activities, Inbox, Find Care, Profile. Logo in Poppins Black. Active state with fill icons. | `built` |
+| `LoggedInShell` | `components/layout/LoggedInShell.tsx` | Layout wrapper: Sidebar + max-width content (640px) + optional side panel or spacer | `built` |
+
+### Key Changes
+
+| File | Change |
+|------|--------|
+| `BottomNav.tsx` | 4→5 tabs, "Communities"→"Groups", "Activity"→"Activities", Compass→CalendarDots |
+| `GuestLayout.tsx` | Now routes logged-in pages through LoggedInShell |
+| `globals.css` | Added `--sidebar-width`, `--content-max-width`, `.sidebar`, `.logged-shell`, `.page-container` |
+| `layout.tsx` | Added Poppins weight 900 for sidebar logo |

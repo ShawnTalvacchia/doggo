@@ -1,7 +1,7 @@
 ---
 category: phase
-status: active
-last-reviewed: 2026-03-29
+status: complete
+last-reviewed: 2026-03-30
 tags: [phase-16, layout, navigation, sidebar, redesign, responsive]
 review-trigger: "when modifying layout shell, navigation components, or page container patterns"
 ---
@@ -98,13 +98,13 @@ Other logged-in pages (communities, meets, profile, inbox, explore, bookings) re
 
 ## Verification
 
-- [ ] Desktop: sidebar visible on left, content centered, no top nav on logged routes
-- [ ] Mobile: no sidebar, bottom nav shows "Groups" + "Activities" labels with CalendarDots icon
-- [ ] Guest routes (`/`, `/signin`, `/signup`): unchanged — top AppNav, no sidebar
-- [ ] Un-migrated pages render inside shell without visual breakage
-- [ ] Sidebar active states highlight correctly when navigating
-- [ ] Responsive: sidebar hides/shows cleanly at 768px breakpoint
-- [ ] Home page side panel visible on desktop, hidden on mobile
+- [x] Desktop: sidebar visible on left, content centered, no top nav on logged routes
+- [x] Mobile: no sidebar, bottom nav shows "Groups" + "Activities" labels with CalendarDots icon
+- [x] Guest routes (`/`, `/signin`, `/signup`): unchanged — top AppNav, no sidebar
+- [x] Un-migrated pages render inside shell without visual breakage
+- [x] Sidebar active states highlight correctly when navigating
+- [x] Responsive: sidebar hides/shows cleanly at 768px breakpoint
+- [x] Home page side panel visible on desktop, hidden on mobile
 
 ---
 

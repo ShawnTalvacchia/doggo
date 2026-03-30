@@ -1,6 +1,6 @@
 ---
 status: done
-last-reviewed: 2026-03-26
+last-reviewed: 2026-03-30
 ---
 
 # Groups (Communities) Flow
@@ -9,7 +9,7 @@ Persistent communities that turn meets from one-off events into ongoing belongin
 
 ```mermaid
 flowchart TD
-    A["Communities nav tab\n(/communities browse)"] --> B["Community Detail Page\n(/communities/[id])"]
+    A["Groups nav tab\n(/communities browse)"] --> B["Community Detail Page\n(/communities/[id])"]
     B --> C["Members List\n(with connection state badges)"]
     B --> D["Upcoming Meets\n(linked meets via MeetCard)"]
     B --> E["Community Chat\n(persistent group thread)"]
@@ -47,8 +47,8 @@ flowchart TD
 
 ## Notes
 
-- User-facing text says "Communities" — code internals use `group` for brevity
-- Communities is a main nav tab (Phase 14): Home | Communities | Activity | Inbox | Profile
+- User-facing label is "Groups" (renamed from "Communities" in Phase 16) — code internals use `group` for brevity, routes remain `/communities`
+- Groups is a main nav tab: Home | Groups | Activities | Inbox | Profile
 - Route is `/communities` (moved from `/groups` in Phase 14)
 - Meets link to groups via `groupId` field (optional). Standalone meets still work without a group.
 - Group chat uses the shared `MessageBubble` component (extracted from meet detail in Phase 9)

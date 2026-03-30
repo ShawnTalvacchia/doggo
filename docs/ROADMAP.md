@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-03-26
+last-reviewed: 2026-03-30
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
@@ -62,7 +62,7 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
-## Phase 6 — Audit & Alignment (current)
+## Phase 6 — Audit & Alignment ✓
 
 **Goal:** Review everything built in Phases 1–5 against the updated strategy and feature docs. Identify gaps, inconsistencies, and polish opportunities. No new features — refine what exists.
 
@@ -171,7 +171,7 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
-## Phase 12 — Demo Ready (current)
+## Phase 12 — Demo Ready ✓
 
 **Goal:** Close the last functional gap (carer inbox actions), clean up the design system and CSS, extract inlined components, and polish UX consistency — leaving the codebase ready for a Figma design pass.
 
@@ -187,7 +187,7 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
-## Phase 13 — Meet Type Enrichment (current)
+## Phase 13 — Meet Type Enrichment ✓
 
 **Goal:** Flesh out meet types (Walk, Park Hangout, Playdate, Training) with type-specific fields so the demo shows fully differentiated event experiences — not just four labels on the same form.
 
@@ -203,7 +203,7 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
-## Phase 14 — Community & Activity Restructure (current)
+## Phase 14 — Community & Activity Restructure ✓
 
 **Goal:** Elevate communities as a first-class navigation concept, consolidate meets + schedule into a unified "Activity" tab, and add group chat enhancements (join-gated empty states, auto-generated activity, event card strip).
 
@@ -219,7 +219,7 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
-## Phase 15 — Trust, Connections & Mock Data Quality (planned)
+## Phase 15 — Trust, Connections & Mock Data Quality ✓
 
 **Goal:** Refine the connection model UX, redesign meet participant lists as a social discovery surface, add share-profile linking, and replace all Unsplash mock images with generated assets authentic to Prague.
 
@@ -238,9 +238,11 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
-## Phase 16 — Layout Redesign (current)
+## Phase 16 — Layout Redesign ✓
 
 **Goal:** Replace the top navbar with a desktop sidebar, introduce a centered 640px content shell for all logged-in pages, and rename navigation items ("Groups", "Activities").
+
+**Status:** Complete. Desktop sidebar nav (6 items), LoggedInShell wrapper (640px content + optional side panel), BottomNav updated (5 tabs, Groups/Activities labels, CalendarDots icon), all logged-in pages render inside new shell, doc terminology updated.
 
 **Key outcomes:**
 - Desktop sidebar nav (Home, Groups, Activities, Inbox, Find Care, Profile) replaces top AppNav for logged-in users
@@ -250,6 +252,19 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 - All logged-in pages render inside the new shell; un-migrated pages continue working
 
 **Board:** [[phase-16-layout-redesign]]
+
+---
+
+## Phase 17 — Activities Tab Redesign (current)
+
+**Goal:** Redesign the My Schedule and Bookings tabs within Activities. Evolve card designs per tab context, add Upcoming/Completed toggle, ensure card differentiation across Discover, My Schedule, and Bookings.
+
+**Key outcomes:**
+- My Schedule: Upcoming/Completed toggle replaces time-grouped sections, role badges (Hosting/Joining/Interested) replace CTAs, hosting visual distinction
+- Bookings: card consistency pass, empty state CTAs
+- Cross-tab: clear card differentiation audit (Discover = browsing, Schedule = commitment, Bookings = management)
+
+**Board:** [[phase-17-activities-tabs]]
 
 ---
 

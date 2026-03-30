@@ -79,13 +79,13 @@ See `docs/CONTRIBUTING.md` for full details.
 | `docs/implementation/component-inventory.md` | Built components catalog |
 | `docs/CONTRIBUTING.md` | Workflow rules, doc categories, naming conventions |
 
-## Current Phase: 16 — Layout Redesign
+## Current Phase: 17 — Activities Tab Redesign
 
-**Goal:** Replace top navbar with desktop sidebar, introduce centered 640px content shell for all logged-in pages, rename nav items to "Groups" and "Activities".
+**Goal:** Redesign My Schedule and Bookings tabs within Activities. Evolve card designs per tab context, add Upcoming/Completed toggle, ensure card differentiation across tabs.
 
-**Key focus:** Desktop sidebar nav (6 items), LoggedInShell wrapper, max-width container (640px) + optional side panel/spacer, BottomNav label + icon updates, incremental page migration.
+**Key focus:** Upcoming/Completed toggle, role badges (Hosting/Joining/Interested), hosting visual distinction, Bookings card consistency, cross-tab card differentiation.
 
-**Board:** See `docs/phases/phase-16-layout-redesign.md` and `docs/ROADMAP.md`.
+**Board:** See `docs/phases/phase-17-activities-tabs.md` and `docs/ROADMAP.md`.
 
 ## Strategic Context
 
@@ -96,6 +96,6 @@ See `docs/CONTRIBUTING.md` for full details.
 Key decisions:
 - **Connection model:** None (default) → Familiar (one-sided) → Pending → Connected (mutual). See `docs/strategy/Trust & Connection Model.md`.
 - **Everyone starts as an owner.** No separate provider signup. Offering care is a dial, not a switch.
-- **Nav:** Home | Communities | Activity | Inbox | Profile (mobile). Desktop: horizontal links + Find Care / Offer Care CTAs.
+- **Nav:** Home | Groups | Activities | Inbox | Profile (mobile). Desktop: sidebar with Home, Groups, Activities, Inbox, Find Care, Profile.
 - **Care accessed via CTA, not a tab.** Provider search is an intentional action from within the community context.
 - See `docs/strategy/MVP Scope Boundaries.md` for feature priorities (Required / Nice-to-have / Out).

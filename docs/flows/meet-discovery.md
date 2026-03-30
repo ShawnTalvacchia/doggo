@@ -1,6 +1,6 @@
 ---
 status: partial
-last-reviewed: 2026-03-26
+last-reviewed: 2026-03-30
 ---
 
 # Meet Discovery & Attendance Flow
@@ -17,7 +17,7 @@ flowchart TD
     F --> G["Attend the meet"]
     G --> H["Post-Meet Recap\n(see post-meet-connection.md)"]
 
-    I["Community Detail Page\n(/communities/[id])"] --> C
+    I["Group Detail Page\n(/communities/[id])"] --> C
 ```
 
 ## Step status
@@ -38,5 +38,5 @@ flowchart TD
 ## Notes
 
 - The Activity page consolidates the old `/meets` (browse) and `/schedule` (personal) pages into a single tabbed view with three sub-tabs: Discover, My Schedule, Bookings.
-- Nav restructured in Phase 14: Home | Communities | Activity | Inbox | Profile.
-- Meets are discoverable through two paths: Activity > Discover (global browse) and Communities > community detail (upcoming meets within a community).
+- Nav: Home | Groups | Activities | Inbox | Profile (Phase 16 rename from Communities/Activity).
+- Meets are discoverable through two paths: Activities > Discover (global browse) and Groups > group detail (upcoming meets within a group).
