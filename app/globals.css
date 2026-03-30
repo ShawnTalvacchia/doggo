@@ -121,7 +121,7 @@
   --breakpoint-lg: 900px;
   --breakpoint-xl: 1024px;
   --breakpoint-2xl: 1280px;
-  --breakpoint-content: 1168px;
+  --breakpoint-content: 1088px;
 }
 
 /* ============================================
@@ -485,7 +485,7 @@
   --app-page-max-width: 768px;
 
   /* Layout shell (Phase 16 redesign) */
-  --sidebar-width: 240px;
+  --sidebar-width: 200px;
   --content-max-width: 640px;
   --side-panel-width: 320px;
   --padding-main: var(--space-xxl); /* 24px desktop, 0 mobile */
@@ -574,18 +574,18 @@ a {
   z-index: 20;
   display: flex;
   flex-direction: column;
-  padding: var(--space-xxl) var(--space-lg);
+  padding: 24px var(--space-lg) 16px; /* 24px top, 16px bottom — header-nav pattern */
 }
 
 .sidebar-brand {
   font-family: var(--font-heading), sans-serif;
   font-weight: 900;
   font-size: 30px;
-  line-height: 1;
+  line-height: 44px; /* 44px content height — aligns with panel headers */
   color: var(--text-primary);
   text-decoration: none;
   padding: 0 var(--space-sm);
-  margin-bottom: var(--space-xxl);
+  margin-bottom: var(--space-lg);
 }
 
 .sidebar-nav {
@@ -644,8 +644,8 @@ a {
 }
 
 /* Hide spacer when it would compress the main content
-   (sidebar 240 + content 640 + spacer 240 + padding ~48 = ~1168px) */
-@media (max-width: 1168px) {
+   (sidebar 200 + content 640 + spacer 200 + padding ~48 = ~1088px) */
+@media (max-width: 1088px) {
   .page-spacer {
     display: none;
   }
@@ -2269,12 +2269,12 @@ body.guest-route {
   display: none; /* shown in desktop breakpoint below */
 }
 
-/* -------- Explore layout — desktop default (>= 1024px) -------- */
+/* -------- Explore layout — desktop default -------- */
 .explore-layout {
   height: 100%;
   display: grid;
-  /* filter col fixed 390px | results — map col only appears at >= 1024px */
-  grid-template-columns: 390px 1fr;
+  /* filter col fixed 380px | results fills remaining — map only at wide viewports */
+  grid-template-columns: 380px 1fr;
   /* Force the single row to fill available height — without this the row
      auto-sizes to content and columns overflow the viewport */
   grid-template-rows: 1fr;
@@ -2293,6 +2293,15 @@ body.guest-route {
 .explore-page {
   height: calc(100vh - var(--nav-height));
   overflow: hidden;
+  /* Override shell's centered-content layout — explore uses its own full-width grid */
+  width: 100%;
+  max-width: none;
+}
+
+/* Remove shell padding when explore page is the child */
+.logged-shell-main:has(.explore-page) {
+  padding: 0;
+  gap: 0;
 }
 
 .panel {
@@ -2332,6 +2341,11 @@ body.guest-route {
   gap: 16px;
 }
 
+/* Service chooser panel: 12px top to align title with other panel headers */
+.filter-panel-page > .panel-content {
+  padding-top: 12px;
+}
+
 .explore-left-panel {
   min-width: 300px;
   height: 100%;
@@ -2367,9 +2381,28 @@ body.guest-route {
 }
 
 .filter-header {
-  padding: 16px;
+  width: 100%;
+  padding: 12px 16px 16px; /* 12px top + 44px content + 16px bottom = 72px */
+  height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: var(--surface-popout);
+  border: none;
   border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  font-family: var(--font-body), sans-serif;
+  font-size: var(--font-size-body-md);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.filter-header:hover {
+  background: var(--surface-top);
+}
+
+.filter-header-label {
+  text-align: left;
 }
 
 .filter-scroll {
@@ -2377,7 +2410,7 @@ body.guest-route {
   display: grid;
   gap: 24px;
   align-content: start;
-  padding: 0 16px 24px;
+  padding: 16px 16px 24px;
 }
 
 .filter-scroll::after {
@@ -2387,10 +2420,11 @@ body.guest-route {
 }
 
 .filter-panel-title {
-  margin: 4px 0 0;
+  margin: 0;
   font-family: var(--font-heading), sans-serif;
   font-size: var(--font-size-h4);
-  line-height: 1.2;
+  line-height: 44px; /* 44px content height — aligns with panel headers */
+  height: 44px;
 }
 
 .filter-service-list {
@@ -2697,24 +2731,37 @@ body.guest-route {
 
 .filter-accordion-btn .accordion-caret {
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
-  transition: transform 0.2s;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  color: var(--text-tertiary);
+  transform: rotate(90deg); /* collapsed: points right */
+  transition: transform 0.25s ease;
 }
 
 .filter-accordion-btn.open .accordion-caret {
-  transform: rotate(180deg);
+  transform: rotate(0deg); /* expanded: points up */
 }
 
 .filter-accordion-body {
-  display: none;
-  grid-template-columns: 1fr;
-  gap: 8px;
-  padding-top: 8px;
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s ease;
 }
 
 .filter-accordion-body.open {
+  grid-template-rows: 1fr;
+}
+
+.filter-accordion-inner {
+  overflow: hidden;
   display: grid;
+  gap: 8px;
+}
+
+.filter-accordion-body.open .filter-accordion-inner {
+  padding-top: 8px;
 }
 
 /* ─── ModalSheet — reusable modal (desktop) / bottom-sheet (mobile) ──────── */
@@ -3003,6 +3050,34 @@ body.guest-route {
   margin-left: auto;
 }
 
+/* "View Results" footer — only visible at intermediate breakpoint (768–1009px) */
+.explore-view-results-footer {
+  display: none; /* shown via media query */
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--surface-popout);
+}
+
+/* Back-to-filters button in results header — only at intermediate breakpoint */
+.explore-results-back {
+  display: none; /* shown via media query */
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px 0;
+  height: 44px;
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.explore-results-back:hover {
+  color: var(--text-primary);
+}
+
 .results-list {
   overflow-y: auto;
 }
@@ -3020,7 +3095,10 @@ body.guest-route {
 
 .explore-results-header {
   border-bottom: 1px solid var(--border-strong);
-  gap: 4px;
+  padding: 12px 16px 16px; /* 12px top + 44px content + 16px bottom = 72px — aligns with filter header */
+  height: 72px;
+  gap: 2px;
+  align-content: center;
 }
 
 .explore-results-subtitle {
@@ -5097,6 +5175,52 @@ body.guest-route {
   .results-list {
     max-height: none;
   }
+
+  /* ── Hide top nav for logged-in routes (sidebar already hidden above) ── */
+  .app-nav-shell {
+    display: none;
+  }
+
+  /* ── Show bottom nav ── */
+  .bottom-nav {
+    display: flex;
+    align-items: stretch;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: var(--surface-base);
+    border-top: 1px solid var(--border-strong);
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Styleguide: keep top nav visible at all viewports */
+  body.styleguide {
+    --nav-height: 65px;
+  }
+
+  body.styleguide .app-nav-shell {
+    display: block;
+  }
+
+  body.styleguide .sg-scroll {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Guest routes: keep top nav visible and never show bottom nav */
+  body.guest-route {
+    --nav-height: 56px;
+  }
+
+  body.guest-route .app-nav-shell {
+    display: block;
+  }
+
+  body.guest-route .bottom-nav {
+    display: none;
+  }
 }
 
 /* Small mobile only: signup card fills body (no radius) */
@@ -5123,11 +5247,12 @@ body.guest-route {
    Explore responsive breakpoints
    ================================================================ */
 
-/* --- Desktop (>= 1024px): 3 columns — filter | results | map --- */
-/* --- Desktop (>= 1024px): 3 columns — 390px filter | results | map --- */
-@media (min-width: 1024px) {
+/* --- Wide desktop (>= 1390px): 3 columns — 380px filter | results 1fr | map 1fr ---
+   Map appears when each 1fr column can be at least 380px:
+   sidebar(200) + padding(24) + filter(380) + gaps(24) + 2×380 = 1388 ≈ 1390 */
+@media (min-width: 1390px) {
   .explore-layout {
-    grid-template-columns: 390px 1fr 1fr;
+    grid-template-columns: 380px 1fr 1fr;
   }
 
   .explore-filter-col {
@@ -5139,19 +5264,62 @@ body.guest-route {
   }
 }
 
-/* --- Tablet (804px–1023px): 2 columns — 390px filter | results, no map --- */
-@media (min-width: 804px) and (max-width: 1023px) {
+/* --- Desktop 2-col (1010px–1389px): filter 380px | results 1fr, no map ---
+   Results column has at least ~390px of space at 1010px. */
+@media (min-width: 1010px) and (max-width: 1389px) {
   .explore-layout {
-    grid-template-columns: 390px 1fr;
+    grid-template-columns: 380px 1fr;
   }
 
   .explore-filter-col {
     display: block;
   }
+
+  .explore-results-panel {
+    display: flex; /* ensure visible */
+  }
 }
 
-/* --- Mobile (< 804px): 1 column — results only, filter in drawer --- */
-@media (max-width: 803px) {
+/* --- Desktop 1-col (768px–1009px): single panel — filter & results share space ---
+   Sidebar still visible. Filter shown by default; "View Results" toggles to results. */
+@media (min-width: 768px) and (max-width: 1009px) {
+  .explore-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .explore-filter-col {
+    display: block;
+  }
+
+  /* Hide results panel by default — shown when --results toggle is active */
+  .explore-results-panel {
+    display: none;
+  }
+
+  /* When "View Results" is clicked, swap panels */
+  .explore-layout--results .explore-filter-col {
+    display: none;
+  }
+
+  .explore-layout--results .explore-results-panel {
+    display: flex;
+  }
+
+  /* Show the "View Results" footer in filter panel */
+  .explore-view-results-footer {
+    display: flex;
+  }
+
+  /* Show the back-to-filters button in results header */
+  .explore-results-back {
+    display: flex;
+  }
+}
+
+/* --- Mobile (< 768px): 1 column — results only, filter in drawer ---
+   Global mobile rules (sidebar hide, bottom-nav, --nav-height) are in the
+   main 767px breakpoint above. Only explore-specific overrides here. */
+@media (max-width: 767px) {
   .explore-subnav {
     display: flex;
     align-items: center;
@@ -5209,62 +5377,10 @@ body.guest-route {
     overflow: visible;
   }
 
-  /* ── Hide top nav, override its height token ── */
-  :root {
-    --nav-height: 0px;
-  }
-
-  .app-nav-shell {
-    display: none;
-  }
-
-  /* Styleguide: keep top nav visible at all viewports */
-  body.styleguide {
-    --nav-height: 65px;
-  }
-
-  body.styleguide .app-nav-shell {
-    display: block;
-  }
-
-  /* Styleguide: keep bottom content reachable above fixed mobile bottom nav */
-  body.styleguide .sg-scroll {
-    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
-  }
-
-  /* Guest routes (/ and /signup/*): keep top nav visible and never show bottom nav */
-  body.guest-route {
-    --nav-height: 56px;
-  }
-
-  body.guest-route .app-nav-shell {
-    display: block;
-  }
-
-  body.guest-route .bottom-nav {
-    display: none;
-  }
-
-  /* ── Show bottom nav ── */
-  .bottom-nav {
-    display: flex;
-    align-items: stretch;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 64px;
-    background: var(--surface-base);
-    border-top: 1px solid var(--border-strong);
-    z-index: 100;
-    /* Safe area inset for notched phones */
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-
   /* ── Show mobile service chooser ── */
   .mobile-service-chooser {
     display: block;
-    padding: 28px 16px 80px; /* 80px bottom clears the fixed bottom nav */
+    padding: 16px 16px 80px; /* 80px bottom clears the fixed bottom nav */
   }
 
   /* ── Hide results layout on mobile until a service is chosen ── */

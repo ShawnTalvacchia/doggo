@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type CSSProperties } from "react";
-import { CaretDown } from "@phosphor-icons/react";
+import { CaretUp } from "@phosphor-icons/react";
 import { ExploreFilters, ServiceType } from "@/lib/types";
 import { FILTER_RATE_MAX_KC, FILTER_RATE_MIN_KC, getExploreRateBounds } from "@/lib/pricing";
 import { DatePicker, DateTrigger, type DateRange } from "@/components/ui/DatePicker";
@@ -51,9 +51,13 @@ function Accordion({ title, children }: { title: string; children: React.ReactNo
         onClick={() => setOpen((v) => !v)}
       >
         {title}
-        <CaretDown size={14} weight="regular" className="accordion-caret" />
+        <span className="accordion-caret">
+          <CaretUp size={24} weight="regular" />
+        </span>
       </button>
-      <div className={`filter-accordion-body${open ? " open" : ""}`}>{children}</div>
+      <div className={`filter-accordion-body${open ? " open" : ""}`}>
+        <div className="filter-accordion-inner">{children}</div>
+      </div>
     </div>
   );
 }

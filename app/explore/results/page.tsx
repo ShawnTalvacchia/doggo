@@ -13,6 +13,7 @@ import { CardExploreResult } from "@/components/explore/CardExploreResult";
 import MapView from "@/components/explore/MapView";
 import { FilterPanelDesktop } from "@/components/explore/FilterPanelDesktop";
 import { FilterPanelMobile } from "@/components/explore/FilterPanelMobile";
+import { ButtonAction } from "@/components/ui/ButtonAction";
 import { defaultExploreFilters } from "@/lib/mockData";
 import { fetchProviders } from "@/lib/data/providersClient";
 import { getExploreRateBounds } from "@/lib/pricing";
@@ -175,6 +176,7 @@ function ExploreResultsContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [showResultsPanel, setShowResultsPanel] = useState(false);
   const [providers, setProviders] = useState<ProviderCard[]>([]);
   const [isLoadingProviders, setIsLoadingProviders] = useState(true);
 
@@ -307,8 +309,16 @@ function ExploreResultsContent() {
         </div>
       )}
 
-      <section className={`explore-layout${!filters.service ? " explore-layout--landing" : ""}`}>
-        {/* Filter sidebar — visible at >= 804px */}
+      <section
+        className={[
+          "explore-layout",
+          !filters.service ? "explore-layout--landing" : "",
+          showResultsPanel ? "explore-layout--results" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        {/* Filter sidebar */}
         <div className="explore-filter-col">
           <FilterPanelDesktop
             filters={filters}
@@ -320,11 +330,33 @@ function ExploreResultsContent() {
             onStartDateChange={(startDate) =>
               updateFilters({ dateRange: { ...filters.dateRange, start: startDate } })
             }
+            footer={
+              filters.service ? (
+                <div className="explore-view-results-footer">
+                  <ButtonAction
+                    variant="primary"
+                    size="md"
+                    onClick={() => setShowResultsPanel(true)}
+                  >
+                    View Results
+                  </ButtonAction>
+                </div>
+              ) : undefined
+            }
           />
         </div>
 
         {/* Results list */}
         <div className="panel explore-results-panel">
+          {/* Back-to-filters button — visible at intermediate breakpoint only */}
+          <button
+            type="button"
+            className="explore-results-back"
+            onClick={() => setShowResultsPanel(false)}
+          >
+            <CaretLeft size={14} weight="bold" />
+            <span>Filters</span>
+          </button>
           <div className="panel-content explore-results-header">
             <strong>
               {filters.service
@@ -337,10 +369,9 @@ function ExploreResultsContent() {
                 : "Choose a service type to see matching providers."}
             </span>
           </div>
-          {/* Community carers section */}
-          <CommunityCarersSection service={filters.service} />
-
           <div className="results-list">
+            {/* Community carers section */}
+            <CommunityCarersSection service={filters.service} />
             {isLoadingProviders && (
               <>
                 <ResultCardSkeleton />

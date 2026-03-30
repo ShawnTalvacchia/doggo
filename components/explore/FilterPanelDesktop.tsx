@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { PawPrint, PersonSimpleWalk, House, CaretLeft } from "@phosphor-icons/react";
-import { ButtonAction } from "@/components/ui/ButtonAction";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import { ExploreFilters, ServiceType } from "@/lib/types";
 import { getExploreRateBounds } from "@/lib/pricing";
@@ -18,6 +17,8 @@ type FilterPanelDesktopProps = {
   onTimeToggle: (value: "6-11" | "11-15" | "15-22") => void;
   onDateRangeChange: (range: DateRange) => void;
   onStartDateChange: (iso: string | null) => void;
+  /** Optional footer slot — used for "View Results" at intermediate breakpoints */
+  footer?: React.ReactNode;
 };
 
 type PanelView = "service" | "filters";
@@ -67,6 +68,7 @@ export function FilterPanelDesktop({
   onTimeToggle,
   onDateRangeChange,
   onStartDateChange,
+  footer,
 }: FilterPanelDesktopProps) {
   const [panelView, setPanelView] = useState<PanelView>(filters.service ? "filters" : "service");
 
@@ -129,20 +131,17 @@ export function FilterPanelDesktop({
         <section className="filter-panel-page filter-panel-page--filters">
           <FilterPanelShell
             header={
-              <div className="filter-header">
-                {/* Service switcher: ← label [icon] — navigates back to service chooser */}
-                <ButtonAction
-                  variant="outline"
-                  size="md"
-                  leftIcon={<CaretLeft size={14} weight="bold" />}
-                  rightIcon={<ServiceIcon service={selectedService} />}
-                  onClick={() => setPanelView("service")}
-                  style={{ color: "var(--text-primary)" }}
-                >
-                  {serviceLabel(selectedService)}
-                </ButtonAction>
-              </div>
+              <button
+                type="button"
+                className="filter-header"
+                onClick={() => setPanelView("service")}
+              >
+                <CaretLeft size={14} weight="bold" />
+                <span className="filter-header-label">{serviceLabel(selectedService)}</span>
+                <ServiceIcon service={selectedService} />
+              </button>
             }
+            footer={footer}
           >
             <div className="filter-scroll">
               {/* Service-aware filter fields */}
