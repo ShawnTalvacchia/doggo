@@ -9456,7 +9456,7 @@ body.guest-route {
   /* Show mobile action buttons, hide desktop Create */
   .activity-mobile-actions { display: flex; }
   .activity-create-desktop { display: none; }
-  .activity-location-picker { flex: 1; }
+  .activity-location-picker { flex: 1; justify-content: space-between; }
 
   .card-schedule-meet {
     padding: var(--space-md);

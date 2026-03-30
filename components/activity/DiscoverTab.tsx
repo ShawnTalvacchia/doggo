@@ -71,8 +71,10 @@ export function DiscoverTab() {
             type="button"
             className="activity-location-picker"
           >
-            <MapPin size={20} weight="light" />
-            Prague 1
+            <span className="flex items-center gap-sm">
+              <MapPin size={20} weight="light" />
+              Prague 1
+            </span>
             <CaretDown size={20} weight="light" />
           </button>
 

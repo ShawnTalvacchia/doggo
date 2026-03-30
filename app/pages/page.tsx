@@ -140,6 +140,8 @@ export default function PrototypeOverviewPage() {
   const totalPages = siteMap.reduce((n, g) => n + g.pages.length, 0);
 
   return (
+    <>
+    <div className="page-container">
     <main className="status-page">
       <div className="status-wrap">
 
@@ -290,5 +292,8 @@ export default function PrototypeOverviewPage() {
         </footer>
       </div>
     </main>
+    </div>
+    <div className="page-spacer" aria-hidden="true" />
+    </>
   );
 }

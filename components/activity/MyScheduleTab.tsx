@@ -205,55 +205,81 @@ export function MyScheduleTab() {
   const activeItems = view === "upcoming" ? upcomingItems : historyItems;
 
   return (
-    <div className="flex flex-col gap-xl">
-
-      {/* Controls row: toggle + create button */}
-      <div className="flex items-center gap-md flex-wrap">
-        <div className="schedule-toggle">
-          <button
-            type="button"
-            className={`schedule-toggle-btn${view === "upcoming" ? " schedule-toggle-btn--active" : ""}`}
-            onClick={() => setView("upcoming")}
+    <div className="body-container-main">
+      {/* Header: toggle + create + filter pills */}
+      <div className="activity-header">
+        {/* Mobile create button */}
+        <div className="activity-mobile-actions">
+          <Link
+            href="/meets/create"
+            className="flex items-center justify-center gap-xs flex-1 h-[32px] rounded-xs text-base font-semibold"
+            style={{
+              background: "var(--surface-base-inverse)",
+              color: "var(--text-inverse)",
+              border: "none",
+              fontFamily: "var(--font-body), sans-serif",
+            }}
           >
-            Upcoming
-          </button>
-          <button
-            type="button"
-            className={`schedule-toggle-btn${view === "history" ? " schedule-toggle-btn--active" : ""}`}
-            onClick={() => setView("history")}
-          >
-            History
-          </button>
+            <Plus size={16} weight="bold" />
+            Create a Meet
+          </Link>
         </div>
-        <div className="flex-1" />
-        <ButtonAction
-          variant="primary"
-          size="sm"
-          cta
-          href="/meets/create"
-          leftIcon={<Plus size={16} weight="bold" />}
-        >
-          Create
-        </ButtonAction>
-      </div>
 
-      {/* Type filter pills */}
-      <div className="activity-filters">
-        {TYPE_FILTERS.map((f) => (
-          <button
-            key={f.value}
-            type="button"
-            className={`pill${typeFilter === f.value ? " active" : ""}`}
-            onClick={() => setTypeFilter(f.value)}
-          >
-            {f.label}
-          </button>
-        ))}
+        {/* Controls row: toggle + create button */}
+        <div className="activity-location-row">
+          <div className="schedule-toggle">
+            <button
+              type="button"
+              className={`schedule-toggle-btn${view === "upcoming" ? " schedule-toggle-btn--active" : ""}`}
+              onClick={() => setView("upcoming")}
+            >
+              Upcoming
+            </button>
+            <button
+              type="button"
+              className={`schedule-toggle-btn${view === "history" ? " schedule-toggle-btn--active" : ""}`}
+              onClick={() => setView("history")}
+            >
+              History
+            </button>
+          </div>
+          <div className="flex-1" />
+          <Link href="/meets/create" className="activity-create-desktop">
+            <Plus size={16} weight="bold" />
+            Create
+          </Link>
+        </div>
+
+        {/* Type filter pills */}
+        <div className="activity-filters">
+          {TYPE_FILTERS.map((f) => {
+            const isActive = f.value === typeFilter;
+            return (
+              <button
+                key={f.value}
+                type="button"
+                onClick={() => setTypeFilter(f.value)}
+                className="rounded-full text-base cursor-pointer"
+                style={{
+                  padding: "4.5px 12.5px",
+                  fontFamily: "var(--font-body), sans-serif",
+                  border: `1px solid ${isActive ? "white" : "var(--border-stronger)"}`,
+                  background: isActive ? "var(--brand-main)" : "var(--surface-base)",
+                  color: isActive ? "white" : "var(--text-secondary)",
+                  whiteSpace: "nowrap",
+                  flexShrink: 0,
+                }}
+              >
+                {f.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Timeline */}
       {activeItems.length > 0 ? (
-        <div className="flex flex-col gap-md">
+        <div className="flex flex-col">
           {activeItems.map((item) => {
             if (item.kind === "meet") {
               return (
@@ -275,32 +301,34 @@ export function MyScheduleTab() {
           })}
         </div>
       ) : (
-        <EmptyState
-          icon={
-            view === "upcoming" ? (
-              <CalendarDots size={48} weight="light" />
-            ) : (
-              <PawPrint size={48} weight="light" />
-            )
-          }
-          title={
-            view === "upcoming"
-              ? "Nothing coming up yet."
-              : "No past activity yet."
-          }
-          subtitle={
-            view === "upcoming"
-              ? "Create a meet or find one to join."
-              : undefined
-          }
-          action={
-            view === "upcoming" ? (
-              <ButtonAction variant="secondary" size="sm" href="/meets/create">
-                Create a Meet
-              </ButtonAction>
-            ) : undefined
-          }
-        />
+        <div className="flex flex-col items-center gap-md p-xl">
+          <EmptyState
+            icon={
+              view === "upcoming" ? (
+                <CalendarDots size={48} weight="light" />
+              ) : (
+                <PawPrint size={48} weight="light" />
+              )
+            }
+            title={
+              view === "upcoming"
+                ? "Nothing coming up yet."
+                : "No past activity yet."
+            }
+            subtitle={
+              view === "upcoming"
+                ? "Create a meet or find one to join."
+                : undefined
+            }
+            action={
+              view === "upcoming" ? (
+                <ButtonAction variant="secondary" size="sm" href="/meets/create">
+                  Create a Meet
+                </ButtonAction>
+              ) : undefined
+            }
+          />
+        </div>
       )}
     </div>
   );

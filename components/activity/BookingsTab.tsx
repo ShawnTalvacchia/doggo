@@ -117,34 +117,37 @@ export function BookingsTab() {
     incomingRequests.length > 0;
 
   return (
-    <div className="flex flex-col gap-xl">
+    <div className="body-container-main">
+      {/* Header: summary strip + CTAs */}
+      <div className="activity-header">
+        <StatStrip
+          activeCount={totalActive}
+          nextDate={nextSessionDate}
+          requestCount={incomingRequests.length}
+        />
 
-      {/* Summary strip */}
-      <StatStrip
-        activeCount={totalActive}
-        nextDate={nextSessionDate}
-        requestCount={incomingRequests.length}
-      />
-
-      {/* CTAs */}
-      <div className="flex gap-sm flex-wrap">
-        <ButtonAction
-          variant="secondary"
-          size="sm"
-          href="/explore/results"
-          leftIcon={<MagnifyingGlass size={16} weight="light" />}
-        >
-          Find Care
-        </ButtonAction>
-        <ButtonAction
-          variant="secondary"
-          size="sm"
-          href="/profile?tab=services"
-          leftIcon={<Sparkle size={16} weight="light" />}
-        >
-          Offer Care
-        </ButtonAction>
+        {/* CTAs */}
+        <div className="flex gap-sm flex-wrap">
+          <ButtonAction
+            variant="secondary"
+            size="sm"
+            href="/explore/results"
+            leftIcon={<MagnifyingGlass size={16} weight="light" />}
+          >
+            Find Care
+          </ButtonAction>
+          <ButtonAction
+            variant="secondary"
+            size="sm"
+            href="/profile?tab=services"
+            leftIcon={<Sparkle size={16} weight="light" />}
+          >
+            Offer Care
+          </ButtonAction>
+        </div>
       </div>
+
+      <div className="flex flex-col gap-xl p-lg">
 
       {!hasAnything && (
         <EmptyState
@@ -252,6 +255,7 @@ export function BookingsTab() {
           </div>
         </section>
       )}
+      </div>
     </div>
   );
 }
