@@ -19,9 +19,10 @@ export function GuestLayout({ children }: { children: React.ReactNode }) {
   const [nav, mainContent, bottom] = arr;
 
   if (!isGuestRoute) {
-    // Logged-in: sidebar replaces top nav, bottom nav handles its own visibility
+    // Logged-in: sidebar (desktop) + top bar (mobile) + bottom nav (mobile)
     return (
       <>
+        {nav}
         <LoggedInShell>{mainContent}</LoggedInShell>
         {bottom}
       </>

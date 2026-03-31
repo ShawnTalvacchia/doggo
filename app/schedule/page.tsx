@@ -1,5 +1,11 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default function ScheduleRedirect() {
-  redirect("/activity?tab=schedule");
+import { MyScheduleTab } from "@/components/activity/MyScheduleTab";
+
+export default function SchedulePage() {
+  return (
+    <div className="page-container">
+      <MyScheduleTab />
+    </div>
+  );
 }

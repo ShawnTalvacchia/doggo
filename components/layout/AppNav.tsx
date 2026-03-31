@@ -4,9 +4,9 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ButtonIcon } from "@/components/ui/ButtonIcon";
-import { ButtonAction } from "@/components/ui/ButtonAction";
 import { NotificationsPanel } from "@/components/ui/NotificationsPanel";
 import { useNotifications } from "@/contexts/NotificationsContext";
+import { useConversations } from "@/contexts/ConversationsContext";
 import {
   Bell,
   ChatCircleDots,
@@ -40,33 +40,16 @@ function SignupNavLinks() {
 }
 
 function LoggedNavLinks() {
-  const pathname = usePathname();
   const { unreadCount } = useNotifications();
+  const { conversations } = useConversations();
   const [notifOpen, setNotifOpen] = useState(false);
   const notifWrapRef = useRef<HTMLDivElement>(null);
 
-  const navLinks = [
-    { label: "Home", href: "/home" },
-    { label: "Communities", href: "/communities" },
-    { label: "Activity", href: "/activity" },
-    { label: "Find Care", href: "/explore/results" },
-  ];
+  // Count unread conversations for inbox badge
+  const unreadInbox = conversations.filter((c) => c.unread).length;
 
   return (
     <div className="app-nav-logged" aria-label="Logged-in navigation">
-      {/* Desktop links: Home | Meets | Schedule | Find Care */}
-      <div className="app-nav-main-links">
-        {navLinks.map(({ label, href }) => (
-          <Link
-            key={href}
-            href={href}
-            className={`app-nav-centre-link${pathname.startsWith(href) ? " app-nav-centre-link--active" : ""}`}
-          >
-            {label}
-          </Link>
-        ))}
-      </div>
-
       {/* Right icon row: Bell, Inbox, Avatar */}
       <div className="app-nav-icon-row">
         <div className="app-nav-notif-wrap" ref={notifWrapRef}>
@@ -80,19 +63,19 @@ function LoggedNavLinks() {
           </ButtonIcon>
           <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} wrapperRef={notifWrapRef} />
         </div>
-        <ButtonIcon label="Messages" href="/inbox">
+        <ButtonIcon label="Messages" href="/inbox" showBadge={unreadInbox > 0} badgeCount={unreadInbox}>
           <ChatCircleDots size={32} weight="light" />
         </ButtonIcon>
         <Link
           href="/profile"
           className="app-nav-avatar-trigger"
-          aria-label="Open menu"
-          title="Menu"
+          aria-label="Profile"
+          title="Profile"
         >
           <img
             className="app-nav-avatar-img"
             src="/images/generated/shawn-profile.jpg"
-            alt="Menu"
+            alt="Profile"
           />
         </Link>
       </div>
@@ -100,7 +83,7 @@ function LoggedNavLinks() {
   );
 }
 
-const loggedRoutes = ["/home", "/communities", "/groups", "/activity", "/meets", "/schedule", "/explore", "/inbox", "/bookings", "/profile"];
+const loggedRoutes = ["/home", "/communities", "/groups", "/activity", "/discover", "/meets", "/schedule", "/explore", "/inbox", "/bookings", "/profile"];
 
 export function AppNav() {
   const pathname = usePathname();
@@ -136,7 +119,8 @@ export function AppNav() {
   return (
     <header
       className={`app-nav-shell${
-        isSignupRoute ? " app-nav-shell--signup" : ""
+        mode === "logged" ? " app-nav-shell--logged" : ""
+      }${isSignupRoute ? " app-nav-shell--signup" : ""
       }${isStyleguideRoute ? " app-nav-shell--styleguide" : ""}`}
     >
       <nav

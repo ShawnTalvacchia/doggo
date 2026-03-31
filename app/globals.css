@@ -652,7 +652,9 @@ a {
 }
 
 /* ================================================
-   TOP NAV (guest routes only in new layout)
+   TOP NAV
+   Mobile: logo + inbox icon + avatar (logged-in) or full guest nav
+   Desktop: hidden for logged-in routes (sidebar handles nav)
    ================================================ */
 
 .app-nav-shell {
@@ -661,6 +663,14 @@ a {
   z-index: 20;
   background: var(--surface-base);
   border-bottom: 1px solid var(--border-strong);
+}
+
+/* Desktop: hide top bar for logged-in routes (sidebar handles nav).
+   Mobile: top bar stays visible (sidebar is hidden). */
+@media (min-width: 768px) {
+  .app-nav-shell--logged {
+    display: none;
+  }
 }
 
 .app-nav-shell.app-nav-shell--signup {
@@ -5176,12 +5186,7 @@ body.guest-route {
     max-height: none;
   }
 
-  /* ── Hide top nav for logged-in routes (sidebar already hidden above) ── */
-  .app-nav-shell {
-    display: none;
-  }
-
-  /* ── Show bottom nav ── */
+  /* ── Show bottom nav (mobile) ── */
   .bottom-nav {
     display: flex;
     align-items: stretch;

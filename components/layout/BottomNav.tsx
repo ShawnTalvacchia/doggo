@@ -4,60 +4,65 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import {
+  Briefcase,
   CalendarDots,
-  ChatCircleDots,
   House,
-  UserCircle,
+  MagnifyingGlass,
   UsersThree,
 } from "@phosphor-icons/react";
 
 const tabs = [
   { label: "Home", href: "/home", Icon: House },
   { label: "Groups", href: "/communities", Icon: UsersThree },
-  { label: "Activities", href: "/activity", Icon: CalendarDots },
-  { label: "Inbox", href: "/inbox", Icon: ChatCircleDots },
-  { label: "Profile", href: "/profile", Icon: UserCircle },
+  { label: "Discover", href: "/discover", Icon: MagnifyingGlass },
+  { label: "My Schedule", href: "/schedule", Icon: CalendarDots },
+  { label: "Bookings", href: "/bookings", Icon: Briefcase },
 ] as const;
 
-/** Routes that show the bottom nav (logged-in experience) */
-const loggedPrefixes = ["/home", "/communities", "/groups", "/activity", "/meets", "/schedule", "/explore", "/inbox", "/bookings", "/profile"];
+/** Routes that show the bottom nav (logged-in hub pages) */
+const hubPrefixes = ["/home", "/communities", "/groups", "/discover", "/schedule", "/bookings", "/inbox", "/profile"];
+
+/** Routes that are detail pages — hide bottom nav even though they're logged-in */
+const detailPatterns = [
+  /^\/communities\/.+/,   // group detail, create
+  /^\/groups\/.+/,        // group detail (legacy)
+  /^\/discover\/profile/, // provider profile
+  /^\/meets\/.+/,         // meet detail, create
+  /^\/inbox\/.+/,         // message thread
+  /^\/bookings\/.+/,      // booking detail, checkout
+  /^\/profile\/.+/,       // other user's profile
+  /^\/posts\/.+/,         // create post
+  /^\/explore\/.*/,       // legacy explore routes
+  /^\/connect\/.+/,       // share link
+];
 
 function BottomNavInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const isLoggedMobileRoute = loggedPrefixes.some((p) =>
+  // Only show on logged-in routes
+  const isLoggedRoute = hubPrefixes.some((p) =>
     pathname === p || pathname.startsWith(p + "/")
   );
+  if (!isLoggedRoute) return null;
 
-  // Bottom nav is for logged-in experience only.
-  if (!isLoggedMobileRoute) return null;
-
-  // Hide on styleguide (uses top nav only at all viewports)
+  // Hide on styleguide
   if (pathname.startsWith("/styleguide")) return null;
 
-  // Hide on provider profile page (has its own back nav)
-  if (pathname.startsWith("/explore/profile")) return null;
-
-  // Hide on individual inbox thread page (has its own back nav)
-  if (pathname.match(/^\/inbox\/.+/)) return null;
-
-  // Hide once user has selected a service (they're in the sub-flow)
-  if (pathname === "/explore/results" && searchParams.get("service")) return null;
+  // Hide on detail pages
+  if (detailPatterns.some((pattern) => pattern.test(pathname))) return null;
 
   // Determine active tab
   const activeHref = pathname.startsWith("/home")
     ? "/home"
     : pathname.startsWith("/communities") || pathname.startsWith("/groups")
     ? "/communities"
-    : pathname.startsWith("/activity") || pathname.startsWith("/meets") || pathname.startsWith("/schedule") || pathname.startsWith("/bookings")
-    ? "/activity"
-    : pathname.startsWith("/inbox")
-    ? "/inbox"
-    : pathname.startsWith("/explore")
-    ? "/home"
-    : pathname.startsWith("/profile")
-    ? "/profile"
+    : pathname.startsWith("/discover") || pathname.startsWith("/explore")
+    ? "/discover"
+    : pathname.startsWith("/schedule")
+    ? "/schedule"
+    : pathname.startsWith("/bookings")
+    ? "/bookings"
     : pathname;
 
   return (
