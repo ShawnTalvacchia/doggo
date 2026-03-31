@@ -604,6 +604,25 @@ export default function BookingDetailPage({
               </span>
             ))}
           </div>
+          {/* Next session summary */}
+          {(booking.status === "active" || booking.status === "upcoming") && (() => {
+            const nextSession = booking.sessions?.find((s) => s.status === "upcoming" || s.status === "in_progress");
+            if (nextSession) {
+              return (
+                <p className="text-xs text-fg-tertiary mt-xs">
+                  {nextSession.status === "in_progress" ? "In progress" : `Next: ${formatDate(nextSession.date)}`}
+                </p>
+              );
+            }
+            if (booking.startDate && booking.status === "upcoming") {
+              return (
+                <p className="text-xs text-fg-tertiary mt-xs">
+                  Starts {formatShortDate(booking.startDate)}
+                </p>
+              );
+            }
+            return null;
+          })()}
         </div>
         <StatusBadge status={booking.status} />
       </div>

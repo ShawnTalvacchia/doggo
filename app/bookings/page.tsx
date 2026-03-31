@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, CalendarDots, Sparkle } from "@phosphor-icons/react";
+import { CalendarDots, MagnifyingGlass, Briefcase } from "@phosphor-icons/react";
 import { useBookings } from "@/contexts/BookingsContext";
 import type { Booking } from "@/lib/types";
-import { mockUser } from "@/lib/mockUser";
 import { BookingRow } from "@/components/ui/BookingRow";
+import { TabBar } from "@/components/ui/TabBar";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ButtonAction } from "@/components/ui/ButtonAction";
+import { ServicesTab } from "@/components/activity/ServicesTab";
 
+const TABS = [
+  { key: "care", label: "My Care" },
+  { key: "services", label: "My Services" },
+];
 
 // ── Section group ────────────────────────────────────────────────────────────────
 
@@ -29,125 +37,9 @@ function BookingSection({
   );
 }
 
-// ── My Services tab ───────────────────────────────────────────────────────────
+// ── My Care tab ──────────────────────────────────────────────────────────────────
 
-function computeEarnings(bookings: Booking[]): { total: number; sessionCount: number } {
-  let total = 0;
-  let sessionCount = 0;
-  for (const b of bookings) {
-    const completed = (b.sessions ?? []).filter((s) => s.status === "completed");
-    if (b.price.billingCycle === "per_session") {
-      total += completed.length * b.price.total;
-      sessionCount += completed.length;
-    } else if (b.status === "completed") {
-      total += b.price.total;
-    }
-  }
-  return { total, sessionCount };
-}
-
-function MyServicesTab() {
-  const { bookings } = useBookings();
-  const user = mockUser;
-  const carer = user.carerProfile;
-
-  // Bookings where Shawn is the carer
-  const carerBookings = bookings.filter((b) => b.carerId === "shawn");
-  const activeCarerBookings = carerBookings.filter((b) => b.status === "active");
-  const upcomingCarerBookings = carerBookings.filter((b) => b.status === "upcoming");
-
-  const { total: totalEarned, sessionCount } = computeEarnings(carerBookings);
-
-  if (!carer) {
-    return (
-      <div className="bookings-offer-cta">
-        <Sparkle size={40} weight="light" className="bookings-offer-icon" />
-        <h2 className="bookings-offer-title">Earn by offering care</h2>
-        <p className="bookings-offer-body">
-          Set up your carer profile to start accepting bookings for walks, drop-in
-          visits, or boarding.
-        </p>
-        <Link href="/profile?tab=offering" className="bookings-offer-btn">
-          Get started
-        </Link>
-      </div>
-    );
-  }
-
-  return (
-    <div className="bookings-services-tab">
-      {/* Carer profile card */}
-      <Link href="/profile?tab=offering" className="bookings-carer-profile-card">
-        <div className="bookings-carer-profile-info">
-          <p className="bookings-carer-profile-title">Your carer profile</p>
-          <p className="bookings-carer-profile-sub">
-            {carer.services.length} service{carer.services.length !== 1 ? "s" : ""} ·{" "}
-            {carer.publicProfile ? "Public" : "Hidden"}
-          </p>
-        </div>
-        <ArrowRight size={16} weight="bold" className="bookings-carer-profile-arrow" />
-      </Link>
-
-      {/* Earnings summary */}
-      {(totalEarned > 0 || sessionCount > 0) && (
-        <div className="bookings-earnings-card">
-          <div className="bookings-earnings-row">
-            <div className="bookings-earnings-item">
-              <span className="bookings-earnings-value">{totalEarned.toLocaleString()} Kč</span>
-              <span className="bookings-earnings-label">Total earned</span>
-            </div>
-            <div className="bookings-earnings-divider" />
-            <div className="bookings-earnings-item">
-              <span className="bookings-earnings-value">{sessionCount}</span>
-              <span className="bookings-earnings-label">Sessions completed</span>
-            </div>
-            <div className="bookings-earnings-divider" />
-            <div className="bookings-earnings-item">
-              <span className="bookings-earnings-value">{carerBookings.length}</span>
-              <span className="bookings-earnings-label">Total clients</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Client bookings */}
-      {carerBookings.length === 0 ? (
-        <div className="bookings-services-empty">
-          <p className="bookings-services-empty-title">No client bookings yet</p>
-          <p className="bookings-services-empty-sub">
-            Share your profile with pet owners to start receiving requests.
-          </p>
-        </div>
-      ) : (
-        <>
-          {activeCarerBookings.length > 0 && (
-            <div className="bookings-section">
-              <p className="bookings-section-heading">Active clients</p>
-              {activeCarerBookings.map((b) => (
-                <BookingRow key={b.id} booking={b} />
-              ))}
-            </div>
-          )}
-          {upcomingCarerBookings.length > 0 && (
-            <div className="bookings-section">
-              <p className="bookings-section-heading">Upcoming</p>
-              {upcomingCarerBookings.map((b) => (
-                <BookingRow key={b.id} booking={b} />
-              ))}
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  );
-}
-
-// ── Page ─────────────────────────────────────────────────────────────────────────
-
-type Tab = "bookings" | "services";
-
-export default function BookingsPage() {
-  const [activeTab, setActiveTab] = useState<Tab>("bookings");
+function MyCareTab() {
   const { bookings } = useBookings();
 
   // Filter to owner's bookings only
@@ -161,53 +53,68 @@ export default function BookingsPage() {
 
   const isEmpty = ownerBookings.length === 0;
 
-  return (
-    <main className="bookings-page">
-      {/* Header */}
-      <div className="bookings-header">
-        <h1 className="bookings-heading">Bookings</h1>
+  if (isEmpty) {
+    return (
+      <div className="flex flex-col items-center gap-md p-xl">
+        <EmptyState
+          icon={<CalendarDots size={48} weight="light" />}
+          title="No care bookings yet."
+          subtitle="Find a trusted carer in your community."
+          action={
+            <ButtonAction variant="secondary" size="sm" href="/discover?tab=care">
+              <MagnifyingGlass size={14} weight="light" />
+              Find Care
+            </ButtonAction>
+          }
+        />
       </div>
+    );
+  }
 
-      {/* Tabs */}
-      <div className="bookings-tabs" role="tablist">
-        <button
-          role="tab"
-          aria-selected={activeTab === "bookings"}
-          className={`bookings-tab${activeTab === "bookings" ? " active" : ""}`}
-          onClick={() => setActiveTab("bookings")}
-        >
-          My Bookings
-        </button>
-        <button
-          role="tab"
-          aria-selected={activeTab === "services"}
-          className={`bookings-tab${activeTab === "services" ? " active" : ""}`}
-          onClick={() => setActiveTab("services")}
-        >
-          My Services
-        </button>
+  return (
+    <div className="flex flex-col">
+      <BookingSection title="Active" bookings={active} />
+      <BookingSection title="Upcoming" bookings={upcoming} />
+      <BookingSection title="Past" bookings={past} />
+    </div>
+  );
+}
+
+// ── Page ─────────────────────────────────────────────────────────────────────────
+
+function BookingsPageInner() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const activeTab = searchParams.get("tab") || "care";
+
+  const handleTabChange = (key: string) => {
+    router.replace(`/bookings?tab=${key}`, { scroll: false });
+  };
+
+  return (
+    <div className="page-container activity-page">
+      {/* Tab header — sticky */}
+      <div className="activity-tab-header">
+        <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
       </div>
 
       {/* Tab content */}
-      {activeTab === "bookings" ? (
-        isEmpty ? (
-          <div className="bookings-empty">
-            <CalendarDots size={40} weight="light" className="bookings-empty-icon" />
-            <p className="bookings-empty-text">No bookings yet</p>
-            <p className="bookings-empty-sub">
-              Find a carer on Explore to get started.
-            </p>
+      <div className="activity-body">
+        {activeTab === "care" && (
+          <div className="body-container-main">
+            <MyCareTab />
           </div>
-        ) : (
-          <>
-            <BookingSection title="Active" bookings={active} />
-            <BookingSection title="Upcoming" bookings={upcoming} />
-            <BookingSection title="Past" bookings={past} />
-          </>
-        )
-      ) : (
-        <MyServicesTab />
-      )}
-    </main>
+        )}
+        {activeTab === "services" && <ServicesTab />}
+      </div>
+    </div>
+  );
+}
+
+export default function BookingsPage() {
+  return (
+    <Suspense fallback={null}>
+      <BookingsPageInner />
+    </Suspense>
   );
 }

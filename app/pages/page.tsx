@@ -80,9 +80,11 @@ const siteMap = [
   },
   {
     area: "Bookings",
+    label: "care management hub",
     pages: [
-      { name: "My Bookings", route: "/bookings", desc: "Owner view (Active/Upcoming/Past) + Carer view (earnings, clients)" },
-      { name: "Booking Detail", route: "/bookings/booking-1", desc: "Session management, price breakdown, review submission" },
+      { name: "My Care", route: "/bookings?tab=care", desc: "Owner bookings — active, upcoming, past care arrangements" },
+      { name: "My Services", route: "/bookings?tab=services", desc: "Provider dashboard — visibility, stats, service cards, incoming requests, active clients" },
+      { name: "Booking Detail", route: "/bookings/booking-olga-walks", desc: "Session management, price breakdown, next session, review submission" },
     ],
   },
   {
