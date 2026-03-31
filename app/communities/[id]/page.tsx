@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { DetailHeader } from "@/components/layout/DetailHeader";
 import {
-  ArrowLeft,
   MapPin,
   UsersThree,
   Lock,
@@ -64,15 +64,7 @@ export default function GroupDetailPage() {
       className="flex flex-col gap-xl"
       style={{ maxWidth: "var(--app-page-max-width)", margin: "0 auto", width: "100%" }}
     >
-      {/* Back */}
-      <div className="px-xl pt-xl">
-        <button
-          onClick={() => router.back()}
-          className="flex items-center gap-xs text-sm text-fg-secondary bg-transparent border-none cursor-pointer p-0"
-        >
-          <ArrowLeft size={16} weight="light" /> Back
-        </button>
-      </div>
+      <DetailHeader backHref="/home?tab=groups" backLabel="Groups" />
 
       {/* Cover photo */}
       <div

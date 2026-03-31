@@ -6654,6 +6654,53 @@ body.guest-route {
   background: var(--surface-popout);
 }
 
+/* ── Detail Header (reusable) ──────────────────────────────────── */
+
+.page-detail-header {
+  display: flex;
+  align-items: center;
+  padding: var(--space-sm) var(--space-lg);
+  border-bottom: 1px solid var(--border-subtle);
+  min-height: 48px;
+  position: sticky;
+  top: 0;
+  background: var(--surface-base);
+  z-index: 10;
+}
+
+.page-detail-header-back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-body-reg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-xs) 0;
+  transition: color 120ms ease;
+}
+
+.page-detail-header-back:hover {
+  color: var(--text-primary);
+}
+
+.page-detail-header-title {
+  flex: 1;
+  text-align: center;
+  font-size: var(--font-size-body-reg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.page-detail-header-right {
+  min-width: 60px;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .booking-detail-back {
   display: flex;
   align-items: center;

@@ -33,7 +33,7 @@ components/
                   Toggle, StatusBadge, Slider, DatePicker,
                   RecurringSchedulePicker, BookingRow, EmptyState,
                   TabBar, ConnectionIcon, DefaultAvatar
-  layout/       ← App chrome: AppNav, BottomNav, Sidebar, LoggedInShell, FormHeader, FormFooter, GuestLayout
+  layout/       ← App chrome: AppNav, BottomNav, Sidebar, LoggedInShell, FormHeader, FormFooter, GuestLayout, DetailHeader
   overlays/     ← ModalSheet, BookingModal
   explore/      ← FilterPanelDesktop, FilterPanelMobile, FilterPanelShell, FilterBody, ProfileHeader,
                   CardExploreResult, MapView
@@ -350,10 +350,26 @@ Sticky back + continue nav for multi-step forms. Back = tertiary CTA, Continue =
 
 ---
 
+### DetailHeader · `built`
+`components/layout/DetailHeader.tsx`
+
+Reusable back-button header for detail pages. Replaces inline back links/buttons across the app. Sticky, with optional centred title and right-side action slot.
+
+| Prop | Type | Notes |
+|------|------|-------|
+| `backHref` | string? | Fixed back destination. If omitted, uses `router.back()` |
+| `backLabel` | string? | Label next to back arrow. Defaults to "Back" |
+| `title` | string? | Optional centred page title |
+| `rightAction` | ReactNode? | Optional right-side action element |
+
+**Used on:** Group detail, meet detail, booking detail, checkout, user profile.
+
+---
+
 ### Sidebar · `built`
 `components/layout/Sidebar.tsx`
 
-Desktop-only sidebar nav (240px). 6 items: Home, Groups, Activities, Inbox, Find Care, Profile. "DOGGO" logo at top in Poppins Black. Active state detection mirrors BottomNav logic. Icons: House, UsersThree, CalendarDots, ChatCircleDots, MagnifyingGlass, UserCircle (Phosphor, light weight, fill when active). Find Care is desktop-sidebar-only.
+Desktop-only sidebar nav (240px). 6 items: Home, Discover, My Schedule, Bookings, Inbox, Profile. "DOGGO" logo at top in Poppins Black. Active state detection mirrors BottomNav logic. Icons: House, MagnifyingGlass, CalendarDots, Briefcase, ChatCircleDots, UserCircle (Phosphor, light weight, fill when active).
 
 ---
 

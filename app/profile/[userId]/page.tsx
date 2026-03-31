@@ -1,10 +1,9 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import Link from "next/link";
 import { useState } from "react";
+import { DetailHeader } from "@/components/layout/DetailHeader";
 import {
-  ArrowLeft,
   PawPrint,
   MapPin,
   CalendarDots,
@@ -55,12 +54,7 @@ export default function UserProfilePage() {
   return (
     <main className="profile-page-shell">
       <section className="profile-page-panel" style={{ maxWidth: 720, margin: "0 auto" }}>
-        {/* Back nav */}
-        <div className="flex items-center gap-sm p-md" style={{ borderBottom: "1px solid var(--border-light)" }}>
-          <Link href="/home" className="flex items-center gap-xs text-sm text-fg-secondary" style={{ textDecoration: "none" }}>
-            <ArrowLeft size={16} weight="light" /> Back
-          </Link>
-        </div>
+        <DetailHeader backLabel="Back" />
 
         {/* Header */}
         <div className="flex flex-col items-center gap-md p-lg text-center">

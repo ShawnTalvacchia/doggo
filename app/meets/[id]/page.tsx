@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { DetailHeader } from "@/components/layout/DetailHeader";
 import {
-  ArrowLeft,
   MapPin,
   CalendarDots,
   Clock,
@@ -145,14 +145,7 @@ export default function MeetDetailPage() {
       className="flex flex-col gap-xl p-xl mx-auto w-full bg-surface-popout"
       style={{ maxWidth: "var(--app-page-max-width)", minHeight: "calc(100vh - var(--nav-height))" }}
     >
-      {/* Back button */}
-      <button
-        onClick={() => router.back()}
-        className="flex items-center gap-xs text-sm text-fg-secondary bg-transparent border-none cursor-pointer p-0"
-      >
-        <ArrowLeft size={16} weight="light" />
-        Back
-      </button>
+      <DetailHeader backLabel="Back" />
 
       {/* Header */}
       <header className="flex flex-col gap-sm">

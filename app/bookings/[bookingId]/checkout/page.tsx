@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
-  CaretLeft,
   CreditCard,
   CheckCircle,
   PawPrint,
@@ -11,6 +10,7 @@ import {
   Dog,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { DetailHeader } from "@/components/layout/DetailHeader";
 import { useBookings } from "@/contexts/BookingsContext";
 import { calculatePaymentSummary } from "@/lib/pricing";
 import { SERVICE_LABELS } from "@/lib/constants/services";
@@ -101,13 +101,7 @@ export default function CheckoutPage() {
         minHeight: "calc(100vh - var(--nav-height))",
       }}
     >
-      {/* Back nav */}
-      <button
-        onClick={() => router.back()}
-        className="flex items-center gap-xs text-sm text-fg-secondary bg-transparent border-none cursor-pointer p-0"
-      >
-        <CaretLeft size={16} weight="bold" /> Back to booking
-      </button>
+      <DetailHeader backHref={`/bookings/${bookingId}`} backLabel="Booking" />
 
       <h1 className="font-heading text-2xl font-semibold text-fg-primary">
         Checkout

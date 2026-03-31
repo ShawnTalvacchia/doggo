@@ -1,48 +1,30 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense } from "react";
-import { TabBar } from "@/components/ui/TabBar";
-import { DiscoverTab } from "@/components/activity/DiscoverTab";
-import { MyScheduleTab } from "@/components/activity/MyScheduleTab";
-import { ServicesTab } from "@/components/activity/ServicesTab";
+import { Suspense, useEffect } from "react";
 
-const TABS = [
-  { key: "discover", label: "Discover" },
-  { key: "schedule", label: "My Schedule" },
-  { key: "services", label: "Services" },
-];
-
-function ActivityPageInner() {
+function ActivityRedirect() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const activeTab = searchParams.get("tab") || "discover";
+  const tab = searchParams.get("tab");
 
-  const handleTabChange = (key: string) => {
-    router.replace(`/activity?tab=${key}`, { scroll: false });
-  };
+  useEffect(() => {
+    if (tab === "schedule") {
+      router.replace("/schedule");
+    } else if (tab === "services") {
+      router.replace("/bookings?tab=services");
+    } else {
+      router.replace("/discover");
+    }
+  }, [tab, router]);
 
-  return (
-    <div className="page-container activity-page">
-      {/* Tab header — sticky, doesn't scroll */}
-      <div className="activity-tab-header">
-        <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
-      </div>
-
-      {/* Scrollable body */}
-      <div className="activity-body">
-        {activeTab === "discover" && <DiscoverTab />}
-        {activeTab === "schedule" && <MyScheduleTab />}
-        {activeTab === "services" && <ServicesTab />}
-      </div>
-    </div>
-  );
+  return null;
 }
 
 export default function ActivityPage() {
   return (
     <Suspense fallback={null}>
-      <ActivityPageInner />
+      <ActivityRedirect />
     </Suspense>
   );
 }

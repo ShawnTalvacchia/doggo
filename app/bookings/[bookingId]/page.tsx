@@ -4,7 +4,6 @@ import { use, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
-  CaretLeft,
   ChatCircleDots,
   CheckCircle,
   Circle,
@@ -22,6 +21,7 @@ import { SERVICE_LABELS } from "@/lib/constants/services";
 import { getConnectionState, getCommunityCarers } from "@/lib/mockConnections";
 import { Handshake, ShieldCheck, MapPin, CreditCard, Prohibit, ChatCircleDots as ChatIcon, PencilSimple } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { DetailHeader } from "@/components/layout/DetailHeader";
 import { CancelBookingModal } from "@/components/bookings/CancelBookingModal";
 
 // ── Helpers ─────────────────────────────────────────────────────────────────────
@@ -565,9 +565,9 @@ export default function BookingDetailPage({
   if (!booking) {
     return (
       <main className="booking-detail-page">
+        <DetailHeader backHref="/bookings" backLabel="Bookings" />
         <div className="booking-detail-not-found">
           <p>Booking not found.</p>
-          <Link href="/bookings">← Back to Bookings</Link>
         </div>
       </main>
     );
@@ -578,11 +578,7 @@ export default function BookingDetailPage({
   return (
     <div className="booking-detail-outer">
     <main className="booking-detail-page">
-      {/* Sticky back nav */}
-      <Link href="/bookings" className="booking-detail-back">
-        <CaretLeft size={18} weight="bold" />
-        Bookings
-      </Link>
+      <DetailHeader backHref="/bookings" backLabel="Bookings" />
 
       {/* Hero — carer + status */}
       <div className="booking-detail-hero">

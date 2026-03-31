@@ -326,20 +326,23 @@ Phase 18d — Detail headers + polish
 
 ## Verification Checklist
 
-- [ ] Mobile: 5 bottom nav tabs work (Home, Groups, Discover, My Schedule, Bookings)
-- [ ] Mobile: top bar shows logo + Inbox icon + avatar on hub pages
-- [ ] Mobile: top bar hidden on detail pages, replaced by back-button header
-- [ ] Mobile: bottom nav hidden on detail pages
-- [ ] Desktop: sidebar shows all 7 items (Home, Groups, Discover, My Schedule, Bookings, Inbox, Profile)
+- [x] Mobile: 4 bottom nav tabs work (Home, Discover, My Schedule, Bookings)
+- [x] Mobile: top bar shows logo + Inbox icon + avatar on hub pages
+- [x] Mobile: top bar hidden on detail pages, replaced by back-button header (DetailHeader)
+- [x] Mobile: bottom nav hidden on detail pages
+- [x] Desktop: sidebar shows 6 items (Home, Discover, My Schedule, Bookings, Inbox, Profile)
+- [x] Home > Feed tab shows social feed + upcoming strip
+- [x] Home > Groups tab shows group browse with filter pills
 - [ ] Discover > Meets tab shows all upcoming meets with filters + map
-- [ ] Discover > Care tab shows provider search with filters + map
-- [ ] Schedule page shows Upcoming/History toggle with unified timeline
-- [ ] Bookings > My Care shows owner bookings
-- [ ] Bookings > My Services shows provider dashboard
-- [ ] Booking detail page is a proper dashboard
-- [ ] All old routes redirect correctly
-- [ ] Empty states guide users to relevant features
-- [ ] All docs updated
+- [x] Discover > Care tab shows provider search with filters + map
+- [x] Schedule page shows Upcoming/History toggle with unified timeline
+- [x] Bookings > My Care shows owner bookings
+- [x] Bookings > My Services shows provider dashboard
+- [x] Booking detail page is a proper dashboard with next session info
+- [x] All old routes redirect correctly (/activity, /communities, /explore/results, /explore/profile)
+- [x] Empty states guide users to relevant features
+- [x] DetailHeader component applied to detail pages
+- [x] All docs updated
 
 ---
 
