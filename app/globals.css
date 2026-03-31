@@ -9328,7 +9328,7 @@ body.guest-route {
 }
 
 .schedule-toggle-btn {
-  height: 30px;
+  height: 36px;
   padding: 0 var(--space-lg);
   border-radius: var(--radius-pill);
   border: none;
