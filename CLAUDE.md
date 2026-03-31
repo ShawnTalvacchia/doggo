@@ -79,11 +79,13 @@ See `docs/CONTRIBUTING.md` for full details.
 | `docs/implementation/component-inventory.md` | Built components catalog |
 | `docs/CONTRIBUTING.md` | Workflow rules, doc categories, naming conventions |
 
-## Current Phase: 17 — Activities Tab Redesign (complete)
+## Current Phase: 18 — Information Architecture Restructure
 
-**Status:** Complete. My Schedule redesigned with Upcoming/History toggle, CardMyMeet with role badges, hosting visual distinction. Bookings tab renamed to Services and rebuilt as provider dashboard.
+**Goal:** Restructure navigation and page hierarchy. Unify discovery (meets + care), elevate Schedule, create Bookings hub, move Inbox/Profile to mobile header.
 
-**Board:** See `docs/phases/phase-17-activities-tabs.md` and `docs/ROADMAP.md`.
+**Key changes:** New bottom nav (Home, Groups, Discover, Schedule, Bookings). Mobile header (logo + Inbox icon + avatar). Unified `/discover` page. `/schedule` top-level. `/bookings` with My Care + My Services tabs.
+
+**Board:** See `docs/phases/phase-18-ia-restructure.md`, `docs/strategy/Information Architecture.md`, and `docs/ROADMAP.md`.
 
 ## Strategic Context
 

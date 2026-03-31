@@ -265,6 +265,25 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
+## Phase 18 — Information Architecture Restructure (current)
+
+**Goal:** Restructure the app's navigation and page hierarchy. Unify meet and care discovery under a single Discover page, elevate Schedule to top-level, create a proper Bookings hub (owner + provider), move Inbox and Profile to the mobile header bar.
+
+**Key outcomes (planned):**
+- New mobile nav: bottom tabs (Home, Groups, Discover, Schedule, Bookings) + header bar (logo, Inbox icon with badge, profile avatar)
+- New desktop sidebar: Home, Groups, Discover, Schedule, Bookings, Inbox, Profile
+- Unified `/discover` page with Meets | Care tabs (shared filter+map pattern)
+- `/schedule` as standalone top-level page (elevated from Activities sub-tab)
+- `/bookings` hub with My Care | My Services tabs (replaces scattered booking views)
+- Enhanced booking detail page (`/bookings/[id]`) as care arrangement dashboard
+- Detail page headers (back button + title) replacing nav on focused pages
+- Redirects from all old routes (`/activity`, `/explore/results`)
+
+**Board:** [[phase-18-ia-restructure]]
+**IA Reference:** `docs/strategy/Information Architecture.md`
+
+---
+
 ## Out of Scope
 
 Not built, not demoed:
