@@ -215,7 +215,7 @@ export function ProfileAboutTab({
           <ButtonAction
             variant="outline"
             size="sm"
-            href="/explore/results"
+            href="/discover?tab=care"
             leftIcon={<MagnifyingGlass size={14} weight="light" />}
           >
             Find care from your network

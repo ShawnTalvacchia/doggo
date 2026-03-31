@@ -32,10 +32,10 @@ export function CardExploreResult({
 
   // Carry the full filter state into the profile URL so back navigation can restore it.
   const profileHref = returnQuery
-    ? `/explore/profile/${provider.id}?${returnQuery}`
+    ? `/discover/profile/${provider.id}?${returnQuery}`
     : activeService
-      ? `/explore/profile/${provider.id}?service=${activeService}`
-      : `/explore/profile/${provider.id}`;
+      ? `/discover/profile/${provider.id}?service=${activeService}`
+      : `/discover/profile/${provider.id}`;
 
   return (
     <Link href={profileHref} className="result-card">

@@ -2314,6 +2314,47 @@ body.guest-route {
   gap: 0;
 }
 
+/* ── Discover page (unified Meets + Care) ── */
+.discover-page--care {
+  height: calc(100vh - var(--nav-height));
+  overflow: hidden;
+  width: 100%;
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.discover-page--care .discover-tab-header {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-strong);
+  padding: 0 var(--space-md);
+}
+
+.discover-page--care .explore-layout {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Remove shell padding for the care tab's full-width layout */
+.logged-shell-main:has(.discover-page--care) {
+  padding: 0;
+  gap: 0;
+}
+
+/* Meets tab uses standard page-container, just needs sticky header */
+.discover-page .discover-tab-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--surface-base);
+  border-bottom: 1px solid var(--border-strong);
+  padding: 0 var(--space-md);
+}
+
+.discover-page .discover-body {
+  flex: 1;
+}
+
 .panel {
   background: var(--surface-popout);
   border: 1px solid var(--border-strong);

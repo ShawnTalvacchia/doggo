@@ -106,7 +106,7 @@ export function getFeedForUser(userId: string): FeedItem[] {
     timestamp: "2026-03-19T12:00:00Z",
     text: `Need help with ${mockUser.pets[0]?.name ?? "your dog"}? ${mockConnections.filter((c) => c.state === "connected").length} people in your network offer care.`,
     ctaLabel: "Find care",
-    ctaHref: "/explore/results",
+    ctaHref: "/discover?tab=care",
   };
   items.push(findCarePrompt);
 

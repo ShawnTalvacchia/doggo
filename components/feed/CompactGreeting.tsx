@@ -52,7 +52,7 @@ export function CompactGreeting({ user }: { user: UserProfile }) {
           variant="outline"
           size="sm"
           cta
-          href="/explore/results"
+          href="/discover?tab=care"
           leftIcon={<MagnifyingGlass size={16} weight="light" />}
           className="feed-greeting-find-care"
         >

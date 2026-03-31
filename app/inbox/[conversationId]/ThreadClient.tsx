@@ -97,7 +97,7 @@ export function ThreadClient({
     : {
         name: conv.providerName,
         avatarUrl: conv.providerAvatarUrl,
-        profileLink: `/explore/profile/${conv.providerId}`,
+        profileLink: `/discover/profile/${conv.providerId}`,
       };
 
   const isDirect = conv.conversationType === "direct";

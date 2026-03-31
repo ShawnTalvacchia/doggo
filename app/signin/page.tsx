@@ -26,7 +26,7 @@ export default function SignInPage() {
 
     // Prototype: simulate a short delay then navigate to explore
     setTimeout(() => {
-      router.push("/explore/results");
+      router.push("/discover?tab=care");
     }, 800);
   }
 
@@ -117,7 +117,7 @@ export default function SignInPage() {
             </Link>
           </p>
           <p className="signin-footer-text">
-            <Link href="/explore/results" className="signin-footer-link">
+            <Link href="/discover?tab=care" className="signin-footer-link">
               Browse carers without signing in →
             </Link>
           </p>

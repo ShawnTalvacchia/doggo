@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function ExplorePage() {
-  redirect("/explore/results");
+  redirect("/discover?tab=care");
 }

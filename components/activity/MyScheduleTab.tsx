@@ -212,7 +212,7 @@ export function MyScheduleTab() {
         {/* Mobile action buttons — Find Care + Create (matches Discover tab) */}
         <div className="activity-mobile-actions">
           <Link
-            href="/explore/results"
+            href="/discover?tab=care"
             className="flex items-center justify-center gap-xs flex-1 h-[32px] rounded-xs text-base font-semibold"
             style={{
               background: "white",

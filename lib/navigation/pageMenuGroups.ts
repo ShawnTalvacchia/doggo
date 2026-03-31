@@ -37,8 +37,8 @@ export const PAGE_MENU_GROUPS: PageMenuGroup[] = [
   {
     title: "Care & Profile",
     items: [
-      { label: "Explore Results", value: "/explore/results" },
-      { label: "Provider Profile", value: "/explore/profile/olga-m" },
+      { label: "Discover (Care)", value: "/discover?tab=care" },
+      { label: "Provider Profile", value: "/discover/profile/olga-m" },
       { label: "Inbox", value: "/inbox" },
       { label: "Bookings", value: "/bookings" },
       { label: "My Profile", value: "/profile" },
