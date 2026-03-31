@@ -112,9 +112,92 @@ const petraBooking: Booking = {
   paymentStatus: "paid",
 };
 
+// ── Shawn as carer — completed, Tomáš Kovář, solo walks Feb 2026 ───────────────
+
+const shawnCarerCompletedBooking: Booking = {
+  id: "booking-shawn-carer-tomas",
+  conversationId: null,
+  ownerId: "tomas-k",
+  ownerName: "Tomáš Kovář",
+  ownerAvatarUrl:
+    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80",
+  carerId: "shawn",
+  carerName: "Shawn Talvacchia",
+  carerAvatarUrl: "/images/generated/shawn-profile.jpg",
+  type: "one_off",
+  serviceType: "walk_checkin",
+  subService: "Solo walk",
+  pets: ["Rex"],
+  startDate: "2026-02-10",
+  endDate: "2026-02-21",
+  sessions: [
+    { id: "stc-1", date: "2026-02-10", status: "completed" },
+    { id: "stc-2", date: "2026-02-12", status: "completed" },
+    { id: "stc-3", date: "2026-02-14", status: "completed" },
+    { id: "stc-4", date: "2026-02-17", status: "completed" },
+    { id: "stc-5", date: "2026-02-19", status: "completed" },
+    { id: "stc-6", date: "2026-02-21", status: "completed" },
+  ],
+  price: {
+    lineItems: [{ label: "Solo walk", amount: 280, unit: "per visit" }],
+    total: 1680,
+    currency: "Kč",
+    billingCycle: "total",
+  },
+  status: "completed",
+  signedAt: "2026-02-07T10:00:00Z",
+  paymentStatus: "paid",
+};
+
+// ── Shawn as carer — active, Klára Horáčková, group walks ongoing ──────────────
+
+const shawnCarerActiveBooking: Booking = {
+  id: "booking-shawn-carer-klara",
+  conversationId: null,
+  ownerId: "klara-h",
+  ownerName: "Klára Horáčková",
+  ownerAvatarUrl:
+    "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&q=80",
+  carerId: "shawn",
+  carerName: "Shawn Talvacchia",
+  carerAvatarUrl: "/images/generated/shawn-profile.jpg",
+  type: "ongoing",
+  serviceType: "walk_checkin",
+  subService: "Group walk",
+  pets: ["Bruno"],
+  startDate: "2026-03-03",
+  endDate: null,
+  recurringSchedule: {
+    days: ["Tue", "Thu"],
+    time: "09:00",
+    timeLabel: "9:00–10:00am",
+  },
+  sessions: [
+    { id: "skc-1", date: "2026-03-03", status: "completed" },
+    { id: "skc-2", date: "2026-03-05", status: "completed" },
+    { id: "skc-3", date: "2026-03-10", status: "upcoming" },
+    { id: "skc-4", date: "2026-03-12", status: "upcoming" },
+  ],
+  price: {
+    lineItems: [{ label: "Group walk", amount: 250, unit: "per session" }],
+    total: 250,
+    currency: "Kč",
+    billingCycle: "per_session",
+  },
+  status: "active",
+  signedAt: "2026-03-01T11:30:00Z",
+  paymentStatus: "paid",
+};
+
 // ── Exports ─────────────────────────────────────────────────────────────────────
 
-export const mockBookings: Booking[] = [olgaBooking, nikolaBooking, petraBooking];
+export const mockBookings: Booking[] = [
+  olgaBooking,
+  nikolaBooking,
+  petraBooking,
+  shawnCarerCompletedBooking,
+  shawnCarerActiveBooking,
+];
 
 export function getBooking(id: string): Booking | undefined {
   return mockBookings.find((b) => b.id === id);

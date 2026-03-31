@@ -5,12 +5,12 @@ import { Suspense } from "react";
 import { TabBar } from "@/components/ui/TabBar";
 import { DiscoverTab } from "@/components/activity/DiscoverTab";
 import { MyScheduleTab } from "@/components/activity/MyScheduleTab";
-import { BookingsTab } from "@/components/activity/BookingsTab";
+import { ServicesTab } from "@/components/activity/ServicesTab";
 
 const TABS = [
   { key: "discover", label: "Discover" },
   { key: "schedule", label: "My Schedule" },
-  { key: "bookings", label: "Bookings" },
+  { key: "services", label: "Services" },
 ];
 
 function ActivityPageInner() {
@@ -34,7 +34,7 @@ function ActivityPageInner() {
         <div className="activity-body">
           {activeTab === "discover" && <DiscoverTab />}
           {activeTab === "schedule" && <MyScheduleTab />}
-          {activeTab === "bookings" && <BookingsTab />}
+          {activeTab === "services" && <ServicesTab />}
         </div>
       </div>
 

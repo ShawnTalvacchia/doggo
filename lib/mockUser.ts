@@ -93,5 +93,7 @@ export const mockUser: UserProfile = {
       },
     ],
     publicProfile: true,
+    visibility: "connected_only",
+    acceptingBookings: true,
   },
 };

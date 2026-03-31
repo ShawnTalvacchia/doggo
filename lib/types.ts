@@ -640,12 +640,16 @@ export interface CarerServiceConfig {
   notes?: string;
 }
 
+export type CarerVisibility = "open" | "connected_only" | "familiar_and_above";
+
 export interface CarerProfile {
   bio: string;
   location: string;
   availability: CarerAvailabilitySlot[];
   services: CarerServiceConfig[];
   publicProfile: boolean;
+  visibility?: CarerVisibility;
+  acceptingBookings?: boolean;
 }
 
 export type TagApproval = "auto" | "approve" | "none";
