@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-03-30
+last-reviewed: 2026-03-31
 tags: [components, ui, inventory]
 review-trigger: "when building or refactoring components"
 ---
@@ -40,6 +40,7 @@ components/
   signup/       ← SignupProgressBar, SignupProfilePreview
   messaging/    ← InquiryForm, BookingProposalCard, InquiryChips, InquiryResponseCard,
                   ProposalForm, RelationshipBanner, PaymentCard, ContractCard, SigningModal
+  activity/     ← CardScheduleMeet, CardMyMeet, DiscoverTab, MyScheduleTab, ServicesTab
   bookings/     ← CancelBookingModal, BookingListCard
   landing/      ← HowItWorksTabs
   posts/        ← TagPill, PostPhotoGrid, PawReaction, TagAutocomplete
@@ -812,8 +813,8 @@ _Ordered by impact vs. effort._
 | Component | Path | Purpose | Status |
 |-----------|------|---------|--------|
 | `DiscoverTab` | `components/activity/DiscoverTab.tsx` | Meet browse + filter (extracted from old `/meets` page) | `built` |
-| `MyScheduleTab` | `components/activity/MyScheduleTab.tsx` | Personal schedule — upcoming + past (extracted from old `/schedule` page) | `built` |
-| `BookingsTab` | `components/activity/BookingsTab.tsx` | Care bookings (extracted from old `/schedule` page) | `built` |
+| `MyScheduleTab` | `components/activity/MyScheduleTab.tsx` | Personal schedule — Upcoming/History toggle, unified meet + booking timeline | `built` |
+| `ServicesTab` | `components/activity/ServicesTab.tsx` | Provider dashboard — visibility, stats, service cards, requests, active bookings (replaced BookingsTab in Phase 17) | `built` |
 
 ### Chat Components (`components/chat/`)
 
@@ -856,3 +857,23 @@ _Ordered by impact vs. effort._
 | `GuestLayout.tsx` | Now routes logged-in pages through LoggedInShell |
 | `globals.css` | Added `--sidebar-width`, `--content-max-width`, `.sidebar`, `.logged-shell`, `.page-container` |
 | `layout.tsx` | Added Poppins weight 900 for sidebar logo |
+
+---
+
+## Phase 17 — New & Updated Components
+
+### Activity Components (`components/activity/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `CardMyMeet` | `components/activity/CardMyMeet.tsx` | My Schedule card variant: role badge (Hosting/Joining/Interested), 5 attendee avatars, hosting left border, history muted variant. No CTA buttons. | `built` |
+| `CardScheduleMeet` | `components/activity/CardScheduleMeet.tsx` | Discover tab card (unchanged from Phase 16): browsing context with CTA, social proof, spots left | `built` |
+| `ServicesTab` | `components/activity/ServicesTab.tsx` | Provider dashboard replacing BookingsTab: visibility status, stats strip, service cards, requests, active bookings | `built` |
+
+### Key Changes
+
+| File | Change |
+|------|--------|
+| `MyScheduleTab.tsx` | Redesigned: Upcoming/History toggle, type filter pills, unified timeline (meets + bookings via BookingBlock), CardMyMeet replaces MeetCard |
+| `BookingsTab.tsx` | Removed — replaced by ServicesTab |
+| `globals.css` | Added `.schedule-toggle`, `.schedule-toggle-btn`, `.card-my-meet--hosting`, `.card-my-meet--history`, `.card-my-meet-badge`, `.services-toggle` |

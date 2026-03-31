@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-03-30
+last-reviewed: 2026-03-31
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
@@ -255,14 +255,11 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
-## Phase 17 — Activities Tab Redesign (current)
+## Phase 17 — Activities Tab Redesign ✓
 
-**Goal:** Redesign the My Schedule and Bookings tabs within Activities. Evolve card designs per tab context, add Upcoming/Completed toggle, ensure card differentiation across Discover, My Schedule, and Bookings.
+**Goal:** Redesign the My Schedule and Services (formerly Bookings) tabs within Activities. Evolve card designs per tab context, add Upcoming/History toggle, ensure card differentiation across Discover, My Schedule, and Services.
 
-**Key outcomes:**
-- My Schedule: Upcoming/Completed toggle replaces time-grouped sections, role badges (Hosting/Joining/Interested) replace CTAs, hosting visual distinction
-- Bookings: card consistency pass, empty state CTAs
-- Cross-tab: clear card differentiation audit (Discover = browsing, Schedule = commitment, Bookings = management)
+**Status:** Complete. My Schedule redesigned with Upcoming/History toggle, CardMyMeet component with role badges (Hosting/Joining/Interested), hosting visual distinction (3px brand left border), unified timeline merging meets + bookings via BookingBlock. Bookings tab renamed to Services and rebuilt as provider dashboard (visibility status, stats strip, service cards, incoming requests, active bookings). Cross-tab card differentiation verified.
 
 **Board:** [[phase-17-activities-tabs]]
 

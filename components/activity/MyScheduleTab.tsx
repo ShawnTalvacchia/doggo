@@ -7,6 +7,7 @@ import {
   PawPrint,
   Plus,
   Briefcase,
+  MagnifyingGlass,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -208,8 +209,21 @@ export function MyScheduleTab() {
     <div className="body-container-main">
       {/* Header: toggle + create + filter pills */}
       <div className="activity-header">
-        {/* Mobile create button */}
+        {/* Mobile action buttons — Find Care + Create (matches Discover tab) */}
         <div className="activity-mobile-actions">
+          <Link
+            href="/explore/results"
+            className="flex items-center justify-center gap-xs flex-1 h-[32px] rounded-xs text-base font-semibold"
+            style={{
+              background: "white",
+              border: "1px solid var(--border-stronger)",
+              color: "var(--text-secondary)",
+              fontFamily: "var(--font-body), sans-serif",
+            }}
+          >
+            <MagnifyingGlass size={16} weight="light" />
+            Find Care
+          </Link>
           <Link
             href="/meets/create"
             className="flex items-center justify-center gap-xs flex-1 h-[32px] rounded-xs text-base font-semibold"
@@ -221,7 +235,7 @@ export function MyScheduleTab() {
             }}
           >
             <Plus size={16} weight="bold" />
-            Create a Meet
+            Create
           </Link>
         </div>
 

@@ -1,14 +1,14 @@
 ---
 category: phase
-status: active
-last-reviewed: 2026-03-30
-tags: [phase-17, activities, schedule, bookings, cards, redesign]
+status: complete
+last-reviewed: 2026-03-31
+tags: [phase-17, activities, schedule, services, cards, redesign]
 review-trigger: "when modifying Activities page tabs, meet cards, or schedule/booking views"
 ---
 
-# Phase 17 — Activities Tab Redesign
+# Phase 17 — Activities Tab Redesign ✓
 
-**Goal:** Redesign the My Schedule and Bookings tabs within the Activities page. Evolve card designs for each tab context, add Upcoming/Completed toggle to My Schedule, and ensure card differentiation across Discover, My Schedule, and Bookings.
+**Goal:** Redesign the My Schedule and Services (formerly Bookings) tabs within the Activities page. Evolve card designs for each tab context, add Upcoming/History toggle to My Schedule, and ensure card differentiation across Discover, My Schedule, and Services.
 
 **Depends on:** Phase 16 (layout redesign), Phase 14 (activity tab structure).
 
@@ -56,15 +56,17 @@ Cards where the user is the host should have a subtle visual differentiator beyo
 
 ---
 
-## Workstream B — Bookings Tab Polish
+## Workstream B — Services Tab (formerly Bookings)
 
-### B1 - Bookings tab review
+### B1 - Services tab redesign
 
-Review the current BookingsTab layout and BookingListCard design. Identify any gaps or rough edges. Current sections: Your Care Bookings, Incoming Requests, Your Care Services.
+Redesigned the former BookingsTab as a provider-focused Services dashboard (`ServicesTab.tsx`). New layout: visibility status bar, stats strip, service cards with edit links, incoming requests, active bookings section. Empty state with CTA to set up services.
 
-### B2 - Bookings card consistency
+**Modified files:** `components/activity/ServicesTab.tsx` (new), removed `BookingsTab.tsx`
 
-Ensure BookingListCard follows the same visual language as the meet cards (spacing, radius, shadow, typography tokens). It doesn't need the same layout — bookings are compact rows, not full cards — but it should feel like the same design system.
+### B2 - Booking card consistency
+
+BookingListCard follows design system tokens (spacing, radius, shadow, typography). Used in Services tab for active bookings and in My Schedule via the new BookingBlock component.
 
 **Modified files:** `components/bookings/BookingListCard.tsx`, CSS
 
@@ -99,14 +101,14 @@ Review empty states for My Schedule (no upcoming meets) and Bookings (no booking
 
 ## Verification
 
-- [ ] My Schedule shows Upcoming/Completed toggle, defaulting to Upcoming
-- [ ] Type filter pills work in both Upcoming and Completed views
-- [ ] Cards show role badge (Hosting/Joining/Interested) instead of CTA
-- [ ] Hosting cards have visual distinction
-- [ ] Completed view shows past meets and past bookings
-- [ ] Bookings tab cards follow design system tokens
-- [ ] Empty states have appropriate CTAs
-- [ ] Mobile and desktop layouts work correctly
+- [x] My Schedule shows Upcoming/History toggle, defaulting to Upcoming
+- [x] Type filter pills work in both Upcoming and History views
+- [x] Cards show role badge (Hosting/Joining/Interested) instead of CTA
+- [x] Hosting cards have visual distinction (3px left border)
+- [x] History view shows past meets and past bookings
+- [x] Services tab (formerly Bookings) follows design system tokens
+- [x] Empty states have appropriate CTAs
+- [x] Mobile and desktop layouts work correctly
 
 ---
 

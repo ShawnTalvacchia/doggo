@@ -79,11 +79,9 @@ See `docs/CONTRIBUTING.md` for full details.
 | `docs/implementation/component-inventory.md` | Built components catalog |
 | `docs/CONTRIBUTING.md` | Workflow rules, doc categories, naming conventions |
 
-## Current Phase: 17 — Activities Tab Redesign
+## Current Phase: 17 — Activities Tab Redesign (complete)
 
-**Goal:** Redesign My Schedule and Bookings tabs within Activities. Evolve card designs per tab context, add Upcoming/Completed toggle, ensure card differentiation across tabs.
-
-**Key focus:** Upcoming/Completed toggle, role badges (Hosting/Joining/Interested), hosting visual distinction, Bookings card consistency, cross-tab card differentiation.
+**Status:** Complete. My Schedule redesigned with Upcoming/History toggle, CardMyMeet with role badges, hosting visual distinction. Bookings tab renamed to Services and rebuilt as provider dashboard.
 
 **Board:** See `docs/phases/phase-17-activities-tabs.md` and `docs/ROADMAP.md`.
 

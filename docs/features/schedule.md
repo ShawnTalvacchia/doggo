@@ -1,14 +1,14 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-03-30
-tags: [schedule, activities, meets, bookings]
-review-trigger: "when modifying the My Schedule or Bookings tabs within the Activities page"
+last-reviewed: 2026-03-31
+tags: [schedule, activities, meets, services]
+review-trigger: "when modifying the My Schedule or Services tabs within the Activities page"
 ---
 
-# Activities — My Schedule & Bookings
+# Activities — My Schedule & Services
 
-The Activities page (`/activity`) consolidates meet discovery, personal scheduling, and care bookings into a single tabbed view.
+The Activities page (`/activity`) consolidates meet discovery, personal scheduling, and care services into a single tabbed view.
 
 ---
 
@@ -19,10 +19,10 @@ Activities has three sub-tabs, accessible via query param:
 | Tab | Param | Purpose |
 |-----|-------|---------|
 | **Discover** | `?tab=discover` | Browse all upcoming meets, filter by type and neighbourhood |
-| **My Schedule** | `?tab=schedule` | Your committed meets — what you're hosting, joining, or interested in |
-| **Bookings** | `?tab=bookings` | Care arrangements — owner bookings, incoming carer requests, active services |
+| **My Schedule** | `?tab=schedule` | Your committed meets + bookings in a unified timeline |
+| **Services** | `?tab=services` | Provider dashboard — your care services, incoming requests, active bookings |
 
-**Why three tabs?** Meets are social; bookings are transactional. Mixing them creates cognitive load. Users looking for "when's my next walk?" shouldn't have to mentally filter past paid care sessions. My Schedule answers "what am I doing?"; Bookings answers "what care am I managing?"; Discover answers "what's available?"
+**Why three tabs?** Meets are social; care services are transactional. Mixing them creates cognitive load. Users looking for "when's my next walk?" shouldn't have to mentally filter past paid care sessions. My Schedule answers "what am I doing?"; Services answers "what care am I offering?"; Discover answers "what's available?"
 
 ---
 
@@ -34,51 +34,58 @@ Activities has three sub-tabs, accessible via query param:
 
 - **Route:** `/activity?tab=schedule`
 - **Component:** `components/activity/MyScheduleTab.tsx`
-- **Data:** `getUserMeets("shawn")` from `lib/mockMeets.ts`, plus past bookings from `BookingsContext`
-- **Card component:** `MeetCard` (from `components/meets/MeetCard.tsx`)
+- **Data:** `getUserMeets("shawn")` from `lib/mockMeets.ts`, plus bookings from `BookingsContext`
+- **Card components:** `CardMyMeet` (role-badge variant), `BookingBlock` (compact booking row for timeline)
 
-### Sections
+### Layout
 
-1. **This Week** — meets within the next 7 days
-2. **Coming Up** — meets beyond this week
-3. **Past** — completed meets and past owner bookings (unified history)
+- **Upcoming / History toggle** — segmented control at the top, defaults to Upcoming
+- **Type filter pills** — All / Walks / Park Hangouts / Playdates / Training (applies to both views)
+- **Unified timeline** — meets and bookings merged chronologically (upcoming: ascending, history: descending)
+
+### Card design (CardMyMeet)
+
+- **Role badge replaces CTA:** "Hosting" (brand bg, flag icon) / "Joining" (dark bg) / "Interested" (outline) instead of action buttons
+- **Hosting distinction:** 3px left border in brand colour for hosting cards
+- **5 attendee avatars** (vs 3 in Discover) — you care who's coming
+- **Stronger date emphasis** — semi-bold time formatting in upcoming view
+- **History variant:** muted background (surface-inset), past-tense badges ("Hosted" / "Attended" / "Interested")
+- **No star icon** — you're already committed. Share retained.
 
 ### Key decisions
 
-- **Only meets in the active sections.** Active/upcoming care bookings live in the Bookings tab, not here. The one exception: past bookings appear in the Past section for a unified history view.
+- **Unified timeline.** Meets and care bookings appear together, sorted by date. BookingBlock renders bookings inline alongside CardMyMeet cards.
 - **No location filter.** Unlike Discover, My Schedule shows everything you've committed to regardless of location.
-- **Role context matters.** Cards should indicate whether you're hosting or joining a meet (different responsibility level).
-
-### Planned redesign (Phase 17)
-
-- Replace time-grouped sections with Upcoming/Completed toggle
-- Keep type filter pills (All / Walks / Park Hangouts / Playdates / Training)
-- Cards evolved from Discover style: same skeleton, role badge (Hosting/Joining/Interested) instead of CTA, stronger time emphasis, more attendee avatars
-- See Phase 17 board for full spec
+- **Role context matters.** Cards indicate whether you're hosting or joining (different responsibility level).
 
 ---
 
-## Bookings Tab
+## Services Tab
 
-**Question it answers:** "What care am I giving or receiving?"
+**Question it answers:** "What care services am I offering, and what's the status of my bookings?"
 
 ### Current state
 
-- **Route:** `/activity?tab=bookings`
-- **Component:** `components/activity/BookingsTab.tsx`
-- **Data:** `BookingsContext` filtered by `ownerId` / `carerId`
-- **Card component:** `BookingListCard` (from `components/bookings/BookingListCard.tsx`)
+- **Route:** `/activity?tab=services`
+- **Component:** `components/activity/ServicesTab.tsx`
+- **Data:** `mockUser` carer config, `BookingsContext`, `ConversationsContext`
 
-### Sections
+### Layout
 
-1. **Your Care Bookings** (as owner) — upcoming/active bookings where you receive care
-2. **Incoming Requests** (as carer) — booking inquiries from conversations, no proposal sent yet
-3. **Your Care Services** (as carer) — active bookings where you provide care
+1. **Status bar** — visibility chip ("Open to everyone" / "Connected only" / "Familiar & above") + "Accepting bookings" toggle
+2. **Stats strip** — sessions completed, total earned (Kč), unique dogs cared for
+3. **Your Services** — service cards showing icon, name, price, enabled/paused status, subservices, notes, Edit link
+4. **Requests** — incoming booking inquiries (where user is provider)
+5. **Active** — carer-perspective active bookings using BookingListCard
+
+### Empty state
+
+When no services configured: briefcase icon, explanatory text, CTA to set up services via profile.
 
 ### CTAs
 
-- **Find Care** → `/explore/results`
-- **Offer Care** → `/profile?tab=services`
+- **Edit** (per service) → `/profile?tab=services`
+- **Set up services** (empty state) → `/profile?tab=services`
 
 ---
 
@@ -89,6 +96,7 @@ Activities has three sub-tabs, accessible via query param:
 - **Phase 12:** Carer inquiry response flow, incoming requests section, BookingListCard extracted
 - **Phase 14:** Schedule content extracted into `MyScheduleTab` and `BookingsTab` components under `/activity`. Old `/schedule` route redirects to `/activity`.
 - **Phase 16:** "Activity" renamed to "Activities" in nav labels
+- **Phase 17:** My Schedule redesigned (Upcoming/History toggle, CardMyMeet with role badges, hosting distinction, unified timeline with BookingBlock). Bookings tab renamed to Services, rebuilt as provider dashboard (visibility, stats, service cards, requests, active bookings).
 
 ---
 
@@ -104,5 +112,5 @@ Activities has three sub-tabs, accessible via query param:
 ## Related Docs
 
 - [[meets]] — meets that populate the schedule
-- [[explore-and-care]] — bookings that populate the Bookings tab
+- [[explore-and-care]] — bookings that populate the Services tab
 - [[Product Vision]] — Activities tab structure rationale

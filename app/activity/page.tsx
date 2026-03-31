@@ -23,24 +23,19 @@ function ActivityPageInner() {
   };
 
   return (
-    <>
-      <div className="page-container activity-page">
-        {/* Tab header — sticky, doesn't scroll */}
-        <div className="activity-tab-header">
-          <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
-        </div>
-
-        {/* Scrollable body */}
-        <div className="activity-body">
-          {activeTab === "discover" && <DiscoverTab />}
-          {activeTab === "schedule" && <MyScheduleTab />}
-          {activeTab === "services" && <ServicesTab />}
-        </div>
+    <div className="page-container activity-page">
+      {/* Tab header — sticky, doesn't scroll */}
+      <div className="activity-tab-header">
+        <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
       </div>
 
-      {/* Spacer to keep content centered (no side panel on activities) */}
-      <div className="page-spacer" aria-hidden="true" />
-    </>
+      {/* Scrollable body */}
+      <div className="activity-body">
+        {activeTab === "discover" && <DiscoverTab />}
+        {activeTab === "schedule" && <MyScheduleTab />}
+        {activeTab === "services" && <ServicesTab />}
+      </div>
+    </div>
   );
 }
 
