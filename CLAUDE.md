@@ -83,7 +83,7 @@ See `docs/CONTRIBUTING.md` for full details.
 
 **Goal:** Restructure navigation and page hierarchy. Unify discovery (meets + care), elevate Schedule, create Bookings hub, move Inbox/Profile to mobile header.
 
-**Key changes:** New bottom nav (Home, Groups, Discover, Schedule, Bookings). Mobile header (logo + Inbox icon + avatar). Unified `/discover` page. `/schedule` top-level. `/bookings` with My Care + My Services tabs.
+**Key changes:** New bottom nav (Home, Discover, My Schedule, Bookings — 4 tabs). Groups moved to Home as a tab (Feed | Groups). Mobile header (logo + Inbox icon + avatar). Unified `/discover` page. `/schedule` top-level. `/bookings` with My Care + My Services tabs.
 
 **Board:** See `docs/phases/phase-18-ia-restructure.md`, `docs/strategy/Information Architecture.md`, and `docs/ROADMAP.md`.
 
@@ -96,6 +96,7 @@ See `docs/CONTRIBUTING.md` for full details.
 Key decisions:
 - **Connection model:** None (default) → Familiar (one-sided) → Pending → Connected (mutual). See `docs/strategy/Trust & Connection Model.md`.
 - **Everyone starts as an owner.** No separate provider signup. Offering care is a dial, not a switch.
-- **Nav:** Home | Groups | Activities | Inbox | Profile (mobile). Desktop: sidebar with Home, Groups, Activities, Inbox, Find Care, Profile.
-- **Care accessed via CTA, not a tab.** Provider search is an intentional action from within the community context.
+- **Nav:** Home | Discover | My Schedule | Bookings (mobile bottom, 4 tabs). Desktop sidebar: Home, Discover, My Schedule, Bookings, Inbox, Profile (6 items). Mobile header: logo + Inbox + avatar.
+- **Groups under Home.** Groups browse is a tab within Home (Feed | Groups), not a standalone nav item.
+- **Care accessed via Discover > Care tab.** Provider search lives alongside meet discovery in the unified Discover page.
 - See `docs/strategy/MVP Scope Boundaries.md` for feature priorities (Required / Nice-to-have / Out).

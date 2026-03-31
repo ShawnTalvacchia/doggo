@@ -24,12 +24,12 @@ export const PAGE_MENU_GROUPS: PageMenuGroup[] = [
   {
     title: "Community",
     items: [
-      { label: "Home", value: "/home" },
+      { label: "Home (Feed)", value: "/home" },
+      { label: "Home (Groups)", value: "/home?tab=groups" },
       { label: "Meets", value: "/meets" },
       { label: "Create Meet", value: "/meets/create" },
       { label: "Meet Detail", value: "/meets/meet-1" },
       { label: "Post-Meet Connect", value: "/meets/meet-6/connect" },
-      { label: "Groups", value: "/groups" },
       { label: "Group Detail", value: "/groups/vinohrady-dogs" },
       { label: "Schedule", value: "/schedule" },
     ],

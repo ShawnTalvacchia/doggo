@@ -9,13 +9,11 @@ import {
   House,
   MagnifyingGlass,
   UserCircle,
-  UsersThree,
 } from "@phosphor-icons/react";
 import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 
 const navItems: { label: string; href: string; Icon: PhosphorIcon; match: string[] }[] = [
-  { label: "Home", href: "/home", Icon: House, match: ["/home"] },
-  { label: "Groups", href: "/communities", Icon: UsersThree, match: ["/communities", "/groups"] },
+  { label: "Home", href: "/home", Icon: House, match: ["/home", "/communities", "/groups"] },
   { label: "Discover", href: "/discover", Icon: MagnifyingGlass, match: ["/discover", "/explore"] },
   { label: "My Schedule", href: "/schedule", Icon: CalendarDots, match: ["/schedule"] },
   { label: "Bookings", href: "/bookings", Icon: Briefcase, match: ["/bookings"] },

@@ -8,12 +8,10 @@ import {
   CalendarDots,
   House,
   MagnifyingGlass,
-  UsersThree,
 } from "@phosphor-icons/react";
 
 const tabs = [
   { label: "Home", href: "/home", Icon: House },
-  { label: "Groups", href: "/communities", Icon: UsersThree },
   { label: "Discover", href: "/discover", Icon: MagnifyingGlass },
   { label: "My Schedule", href: "/schedule", Icon: CalendarDots },
   { label: "Bookings", href: "/bookings", Icon: Briefcase },
@@ -52,11 +50,9 @@ function BottomNavInner() {
   // Hide on detail pages
   if (detailPatterns.some((pattern) => pattern.test(pathname))) return null;
 
-  // Determine active tab
-  const activeHref = pathname.startsWith("/home")
+  // Determine active tab — communities routes map to Home
+  const activeHref = pathname.startsWith("/home") || pathname.startsWith("/communities") || pathname.startsWith("/groups")
     ? "/home"
-    : pathname.startsWith("/communities") || pathname.startsWith("/groups")
-    ? "/communities"
     : pathname.startsWith("/discover") || pathname.startsWith("/explore")
     ? "/discover"
     : pathname.startsWith("/schedule")

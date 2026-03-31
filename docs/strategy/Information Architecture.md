@@ -17,7 +17,7 @@ Defines the app's page structure, navigation, and how users move between section
 1. **Community first, care second.** The nav should make social features feel primary and care features feel like a natural extension — never the other way around.
 2. **Every page earns its spot.** Top-level nav slots are precious (especially mobile). A page needs daily-use potential or strategic importance to justify one.
 3. **Hub pages orient, detail pages focus.** Hubs show nav and help you decide what to do. Detail pages remove nav and let you focus on one thing.
-4. **Desktop can breathe, mobile must prioritise.** The sidebar has room for 7+ items. The bottom nav has 5. The mobile header adds 2 more (Inbox, Profile). Design for mobile constraints first.
+4. **Desktop can breathe, mobile must prioritise.** The sidebar has room for 6+ items. The bottom nav has 4. The mobile header adds 2 more (Inbox, Profile). Design for mobile constraints first.
 
 ---
 
@@ -33,19 +33,18 @@ Defines the app's page structure, navigation, and how users move between section
 │                  Page content                    │
 │                                                  │
 ├──────────────────────────────────────────────────┤
-│  Home  |  Groups  |  Discover  |  Schedule  |  Bookings  │  ← bottom nav (hub pages only)
+│  Home  |  Discover  |  My Schedule  |  Bookings  │  ← bottom nav (hub pages only)
 └──────────────────────────────────────────────────┘
 ```
 
-**Bottom nav (5 tabs):**
+**Bottom nav (4 tabs):**
 
 | Slot | Label | Icon | Route | Purpose |
 |------|-------|------|-------|---------|
-| 1 | Home | House | `/home` | Feed, community highlights, upcoming strip |
-| 2 | Groups | UsersThree | `/communities` | Browse and manage groups |
-| 3 | Discover | MagnifyingGlass | `/discover` | Unified search: Meets and Care |
-| 4 | My Schedule | CalendarDots | `/schedule` | Your upcoming meets + bookings timeline |
-| 5 | Bookings | Briefcase | `/bookings` | Care management (as owner + as provider) |
+| 1 | Home | House | `/home` | Feed + Groups (tabbed hub) |
+| 2 | Discover | MagnifyingGlass | `/discover` | Unified search: Meets and Care |
+| 3 | My Schedule | CalendarDots | `/schedule` | Your upcoming meets + bookings timeline |
+| 4 | Bookings | Briefcase | `/bookings` | Care management (as owner + as provider) |
 
 **Top bar (2 icons):**
 
@@ -55,7 +54,7 @@ Defines the app's page structure, navigation, and how users move between section
 | Right 1 | Inbox icon (ChatCircleDots) | Link to `/inbox`, unread badge |
 | Right 2 | Profile avatar | Link to `/profile` |
 
-**Why this arrangement:** Inbox and Profile are accessed frequently but don't need spatial orientation the way the main 5 do. Header icons are always visible and one tap away. This pattern is established (Instagram, Airbnb, LinkedIn).
+**Why this arrangement:** 4 bottom nav + 2 header icons = 6 access points. Each bottom nav item is a tabbed hub with real depth. Groups lives under Home because browsing groups is infrequent — users join a few then interact within them from the feed. Schedule stays top-level because it bridges digital engagement into real-world action (meets + care bookings). Inbox and Profile are accessed frequently but don't need spatial orientation — header icons are always visible and one tap away.
 
 ### Desktop
 
@@ -64,8 +63,7 @@ Defines the app's page structure, navigation, and how users move between section
 │  DOGGO    │                                      │
 │           │                                      │
 │  Home     │          Page content                │
-│  Groups   │     (max-width constrained)          │
-│  Discover │                                      │
+│  Discover │     (max-width constrained)          │
 │  Schedule │                                      │
 │  Bookings │                                      │
 │  Inbox    │                                      │
@@ -74,7 +72,7 @@ Defines the app's page structure, navigation, and how users move between section
 └───────────┴──────────────────────────────────────┘
 ```
 
-Desktop sidebar shows all 7 items. No need to hide anything — vertical space is abundant.
+Desktop sidebar shows all 6 items. Groups is accessed via the Home > Groups tab.
 
 ---
 
@@ -86,8 +84,7 @@ Hub pages show the full navigation (bottom nav + top bar on mobile, sidebar on d
 
 | Page | Route | Tabs / Sections | Notes |
 |------|-------|-----------------|-------|
-| **Home** | `/home` | Feed + upcoming strip | Personalised feed, community highlights, care CTAs |
-| **Groups** | `/communities` | Group list | Browse, join, manage groups |
+| **Home** | `/home` | Feed \| Groups | **Tabbed hub.** Feed shows social feed + upcoming strip. Groups tab replaces standalone groups page. |
 | **Discover** | `/discover` | Meets \| Care | **New.** Unified discovery with shared filter+map pattern |
 | **My Schedule** | `/schedule` | Upcoming \| History | **Moved.** Personal timeline of meets + bookings |
 | **Bookings** | `/bookings` | My Care \| My Services | **Restructured.** Both sides of care arrangements |
@@ -100,7 +97,7 @@ Detail pages replace the nav with a focused header: `← Back | Page Title | (op
 
 | Page | Route | Back target | Notes |
 |------|-------|-------------|-------|
-| **Group detail** | `/communities/[id]` | `/communities` | Group feed, members, meets, chat |
+| **Group detail** | `/communities/[id]` | `/home?tab=groups` | Group feed, members, meets, chat |
 | **Group chat** | `/communities/[id]` (chat tab) | Group detail | Real-time group messaging |
 | **Create group** | `/communities/create` | `/communities` | Multi-step form |
 | **Meet detail** | `/meets/[id]` | Previous page | Attendees, details, RSVP |
@@ -125,6 +122,27 @@ Detail pages replace the nav with a focused header: `← Back | Page Title | (op
 ---
 
 ## Key Page Definitions
+
+### Home (tabbed hub — Feed + Groups)
+
+**Route:** `/home`
+**Tabs:** Feed | Groups
+
+The user's daily hub. "What's happening in my world?"
+
+**Feed tab** (`/home` or `/home?tab=feed`)
+- Personalised greeting with dog avatars
+- Upcoming meets strip (mobile/tablet)
+- Social feed: posts, meet recaps, connection nudges, care prompts, milestones
+- Desktop: side panel showing upcoming meets
+
+**Groups tab** (`/home?tab=groups`)
+- Browse and manage groups (replaces standalone `/communities` page)
+- Filter pills: All, Your Groups, Open, Approval, Private
+- "Your groups" section + "Discover" section for public groups
+- Create group CTA
+
+**Why groups live here:** Browsing groups is an infrequent action — users join a few, then interact within them from the feed. Groups don't earn a permanent bottom nav slot. Moving them into Home keeps the nav focused on daily-use pages while keeping groups one tap + one tab away.
 
 ### Discover (new — replaces Activities > Discover + Find Care)
 
@@ -230,6 +248,7 @@ This is where the "service panel" concept lands. On desktop, the detail page cou
 - `/activity?tab=services` → `/bookings?tab=services`
 - `/explore/results` → `/discover?tab=care`
 - `/explore/profile/[id]` → `/discover/profile/[id]`
+- `/communities` → `/home?tab=groups` (eventually — keep page for now, redirect in cleanup)
 
 ---
 

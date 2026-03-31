@@ -352,3 +352,5 @@ Phase 18d — Detail headers + polish
 5. **Bookings tab labels:** "My Care" / "My Services" — may iterate later
 6. **Map on Meets tab:** Yes — build a map view for meets, matching the Care tab pattern. Both tabs share filter+map layout.
 7. **Meets filter panel:** New filter panel with meet-appropriate filters (type, neighbourhood, date, etc.), matching the Care filter panel's visual pattern but with different filter content.
+8. **Groups moved to Home tab:** Groups browse page becomes a tab within Home (Feed | Groups). Bottom nav drops from 5 to 4 tabs. Sidebar drops from 7 to 6 items. Rationale: browsing groups is infrequent; users join a few then interact within them from the feed. Groups don't earn a permanent nav slot.
+9. **4-tab bottom nav:** Home | Discover | My Schedule | Bookings. Schedule stays top-level to encourage real-world engagement (booking meets + care). Clean and focused.

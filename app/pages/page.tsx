@@ -48,19 +48,24 @@ const siteMap = [
     ],
   },
   {
-    area: "Communities",
-    label: "neighbourhood communities",
+    area: "Home",
+    label: "tabbed hub",
     pages: [
-      { name: "Browse Communities", route: "/communities", desc: "Community cards with member counts, neighbourhood identity" },
-      { name: "Create Community", route: "/communities/create", desc: "Form: name, description, visibility (open/approval/private), photo" },
-      { name: "Community Detail", route: "/communities/group-1", desc: "Members, meets, chat, gallery" },
+      { name: "Feed", route: "/home", desc: "Personalised greeting, upcoming strip, social feed with mixed card types" },
+      { name: "Groups", route: "/home?tab=groups", desc: "Browse and manage groups — your groups, discover, private, with filter pills" },
     ],
   },
   {
-    area: "Home & Schedule",
+    area: "Groups (detail pages)",
     pages: [
-      { name: "Home", route: "/home", desc: "Personalised greeting, dog photos, nearby meets, community carers, your groups, neighbourhood stats" },
-      { name: "Schedule (redirects to Activity)", route: "/schedule", desc: "Redirects to /activity?tab=schedule" },
+      { name: "Create Group", route: "/communities/create", desc: "Form: name, description, visibility (open/approval/private), photo" },
+      { name: "Group Detail", route: "/communities/group-1", desc: "Members, meets, chat, gallery" },
+    ],
+  },
+  {
+    area: "Schedule",
+    pages: [
+      { name: "My Schedule", route: "/schedule", desc: "Upcoming/History toggle with unified meets + bookings timeline" },
     ],
   },
   {
