@@ -13,6 +13,7 @@ import { useEffect, useRef } from "react";
 export function useScrollHideNav() {
   const lastY = useRef(0);
   const ticking = useRef(false);
+  const cooldown = useRef(false);
   const activeContainer = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -20,6 +21,7 @@ export function useScrollHideNav() {
     const TOP_NAV_H = 56;
     const BOTTOM_NAV_H = 64;
     const TOTAL_OFFSET = TOP_NAV_H + BOTTOM_NAV_H; // 120px total reclaimed
+    const COOLDOWN_MS = 400; // ignore scroll during CSS transition
 
     function handleScroll(e: Event) {
       const target = e.target as HTMLElement;
@@ -35,6 +37,12 @@ export function useScrollHideNav() {
 
       if (!isScrollContainer) return;
 
+      // Skip during cooldown (CSS transition in progress)
+      if (cooldown.current) {
+        lastY.current = target.scrollTop;
+        return;
+      }
+
       if (ticking.current) return;
       ticking.current = true;
 
@@ -43,19 +51,27 @@ export function useScrollHideNav() {
         const delta = currentY - lastY.current;
         const isHidden = document.body.classList.contains("nav-hidden");
 
-        if (delta > THRESHOLD && currentY > TOP_NAV_H && !isHidden) {
+        // Don't hide nav if content wouldn't remain scrollable after
+        // the panel expands (prevents glitchy hide/show loops on short lists)
+        const canHide =
+          target.scrollHeight > target.clientHeight + TOTAL_OFFSET;
+
+        if (delta > THRESHOLD && currentY > TOP_NAV_H && !isHidden && canHide) {
           // Hiding nav — panel will grow, offset scroll to keep content stable
           activeContainer.current = target;
+          cooldown.current = true;
           document.body.classList.add("nav-hidden");
-          // After the panel grows by TOTAL_OFFSET, the same content is now
-          // higher in the viewport. Increase scrollTop to compensate.
           target.scrollTop = currentY + TOP_NAV_H;
+          lastY.current = target.scrollTop;
+          setTimeout(() => { cooldown.current = false; }, COOLDOWN_MS);
         } else if (delta < -THRESHOLD && isHidden) {
           // Showing nav — panel will shrink, offset scroll to keep content stable
           activeContainer.current = target;
+          cooldown.current = true;
           document.body.classList.remove("nav-hidden");
-          // Panel shrinks, content moves down. Decrease scrollTop.
           target.scrollTop = Math.max(0, currentY - TOP_NAV_H);
+          lastY.current = target.scrollTop;
+          setTimeout(() => { cooldown.current = false; }, COOLDOWN_MS);
         }
 
         lastY.current = target.scrollTop;

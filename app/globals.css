@@ -2636,6 +2636,12 @@ body.guest-route {
     flex: 1;
   }
 
+  /* Bottom padding so last card isn't clipped by panel border-radius */
+  .discover-mobile-tab-content .discover-results-list,
+  .discover-mobile-tab-content .discover-hub-body {
+    padding-bottom: var(--radius-panel);
+  }
+
   /* Nav-hidden: remove radius + padding so panels go edge-to-edge */
   body.nav-hidden .logged-shell-main:has(.discover-page-shell) {
     padding-bottom: 0;
@@ -5344,6 +5350,7 @@ body.guest-route {
     gap: 0;
     padding-bottom: 64px; /* space for fixed bottom nav */
     overflow: hidden;
+    flex-direction: column; /* constrain children vertically */
   }
   .page-container { max-width: 100%; flex: 1; display: flex; flex-direction: column; min-height: 0; }
   .page-side-panel,
@@ -10424,16 +10431,19 @@ body.guest-route {
     display: flex;
     flex: 1;
   }
-}
 
-/* ── Mobile overrides ── */
-@media (max-width: 767px) {
   .home-page-shell {
     border-radius: var(--radius-panel);
   }
 
   .home-tab-bar {
     border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  }
+
+  /* Bottom padding so last item isn't clipped by panel border-radius */
+  .home-page-shell .list-panel-scroll,
+  .home-page-shell .detail-panel-scroll {
+    padding-bottom: var(--radius-panel);
   }
 
   /* Nav-hidden: remove radius so panels go edge-to-edge */
