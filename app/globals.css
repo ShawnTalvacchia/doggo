@@ -2560,8 +2560,8 @@ body.guest-route {
     max-width: 100%;
     flex: 1;
     min-height: 0;
-    border: 0;
-    border-radius: 0;
+    border: 1px solid var(--border-stronger);
+    border-radius: var(--radius-panel);
     overflow: hidden;
   }
 
@@ -2587,8 +2587,8 @@ body.guest-route {
     flex: 1;
     min-height: 0;
     width: 100%;
-    border: 0;
-    border-radius: 0;
+    border: 1px solid var(--border-stronger);
+    border-radius: var(--radius-panel);
     background: var(--surface-popout);
     overflow: hidden;
   }
@@ -5326,9 +5326,6 @@ body.guest-route {
   }
 
   /* Logged-in shell: hide sidebar, full-width main, fixed viewport */
-  div.logged-shell {
-    height: calc(100vh - 56px); /* subtract mobile top nav */
-  }
   .sidebar { display: none; }
   .logged-shell-main {
     margin-left: 0;
@@ -5622,11 +5619,27 @@ body.guest-route {
     transition: transform 0.3s ease;
   }
 
-  /* Auto-hide nav on scroll */
-  .app-nav-shell {
+  /* Mobile: fixed nav so it doesn't affect flow */
+  .app-nav-shell--logged {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
     transition: transform 0.3s ease;
   }
 
+  /* Shell fills viewport, with padding for fixed nav + bottom nav */
+  div.logged-shell {
+    height: 100vh;
+    padding-top: 56px; /* space for fixed top nav */
+    transition: padding-top 0.3s ease;
+  }
+
+  .logged-shell-main {
+    transition: padding-bottom 0.3s ease;
+  }
+
+  /* Auto-hide: slide navs out, reclaim their space */
   body.nav-hidden .app-nav-shell--logged {
     transform: translateY(-100%);
   }
@@ -5635,7 +5648,10 @@ body.guest-route {
     transform: translateY(100%);
   }
 
-  /* Expand main area when nav is hidden */
+  body.nav-hidden div.logged-shell {
+    padding-top: 0;
+  }
+
   body.nav-hidden .logged-shell-main {
     padding-bottom: 0;
   }
@@ -10402,12 +10418,11 @@ body.guest-route {
 /* ── Mobile overrides ── */
 @media (max-width: 767px) {
   .home-page-shell {
-    border-radius: 0;
-    border: 0;
+    border-radius: var(--radius-panel);
   }
 
   .home-tab-bar {
-    border-radius: 0;
+    border-radius: var(--radius-panel) var(--radius-panel) 0 0;
   }
 }
 
