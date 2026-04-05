@@ -1,6 +1,6 @@
 ---
 status: built
-last-reviewed: 2026-03-30
+last-reviewed: 2026-04-02
 ---
 
 # Booking Conversation Flow
@@ -21,7 +21,7 @@ flowchart TD
     I -->|Negotiate| H
     J --> K["Sign Contract"]
     K --> L["Payment Checkout\n(price + platform fee, mock payment)"]
-    L --> M["Booking Created\n(appears in Activities > Bookings)"]
+    L --> M["Booking Created\n(appears in Bookings > My Care)"]
     M --> N["Booking Detail Page\n(schedule, sessions, pricing)"]
     N --> O{"Owner actions"}
     O -->|Message carer| C
@@ -42,7 +42,7 @@ flowchart TD
 | Contract signing modal | `SigningModal` in thread | Done |
 | Payment mock checkout | `/bookings/[bookingId]/checkout` | Done (Phase 11) |
 | Platform fee display | Checkout page + booking detail | Done (Phase 11) |
-| Booking dashboard | `/bookings` | Done |
+| Bookings hub (My Care + My Services tabs) | `/bookings` | Done (Phase 18) |
 | Booking detail page | `/bookings/[bookingId]` | Done |
 | Owner actions (cancel/modify/message) | Booking detail page | Done (Phase 11) |
 | Booking cancellation modal | `CancelBookingModal` | Done (Phase 11) |
@@ -54,4 +54,5 @@ flowchart TD
 - Platform fee is 12%, shown transparently on the checkout page
 - Cancellation reason is optional but stored on the booking
 - Modification is a mock state — shows a "Modification requested" banner, no real negotiation flow
-- Bookings appear in the Activities > Bookings tab (`/activity?tab=bookings`) and on `/bookings` detail pages. The old `/schedule` route redirects to `/activity`.
+- Bookings page (`/bookings`) has two tabs: My Care (owner bookings) and My Services (provider dashboard). Phase 18 elevated Bookings to a top-level nav tab.
+- Old route `/activity?tab=bookings` redirects to `/bookings`. Old `/activity?tab=services` redirects to `/bookings?tab=services`.

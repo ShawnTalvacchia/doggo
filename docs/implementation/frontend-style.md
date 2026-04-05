@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-03-16
+last-reviewed: 2026-04-04
 tags: [css, conventions, accessibility]
 review-trigger: "when writing or reviewing CSS"
 ---
@@ -54,6 +54,13 @@ This document defines how styling should be authored and reviewed in this repo.
   - `CheckOptionRow` for full-width option rows with trailing check affordance.
 - Do not create location-based component names (for example `*-filter-panel-*`). Name by behavior and intent.
 - Styleguide demos must reference these shared components directly.
+
+## Layout patterns
+
+- **MasterDetailShell** (`components/layout/MasterDetailShell.tsx`) is the standard layout for hub pages that need list+detail columns (Home, Schedule, Inbox). Desktop: panels side by side. Mobile: one panel at a time via `mobileView` prop.
+- Pair with `ListPanel` (left: header, search, filters, scrollable list) and `DetailPanel` (right: header, scrollable content, optional footer).
+- CSS classes: `.md-shell`, `.list-panel`, `.detail-panel` in `globals.css`.
+- Discover uses its own hub layout (three-door grid), not MasterDetailShell.
 
 ## Migration checklist for style updates
 

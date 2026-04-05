@@ -8,6 +8,7 @@ import {
   CalendarDots,
   House,
   MagnifyingGlass,
+  UserCircle,
 } from "@phosphor-icons/react";
 
 const tabs = [
@@ -15,10 +16,11 @@ const tabs = [
   { label: "Discover", href: "/discover", Icon: MagnifyingGlass },
   { label: "My Schedule", href: "/schedule", Icon: CalendarDots },
   { label: "Bookings", href: "/bookings", Icon: Briefcase },
+  { label: "Profile", href: "/profile", Icon: UserCircle },
 ] as const;
 
 /** Routes that show the bottom nav (logged-in hub pages) */
-const hubPrefixes = ["/home", "/communities", "/groups", "/discover", "/schedule", "/bookings", "/inbox", "/profile"];
+const hubPrefixes = ["/home", "/communities", "/groups", "/discover", "/schedule", "/bookings", "/inbox", "/notifications", "/profile"];
 
 /** Routes that are detail pages — hide bottom nav even though they're logged-in */
 const detailPatterns = [
@@ -59,6 +61,8 @@ function BottomNavInner() {
     ? "/schedule"
     : pathname.startsWith("/bookings")
     ? "/bookings"
+    : pathname === "/profile"
+    ? "/profile"
     : pathname;
 
   return (

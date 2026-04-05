@@ -1,9 +1,9 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-03-23
-tags: [explore, care, booking, providers, map, payment, trust-gating]
-review-trigger: "when modifying explore results, provider profiles, booking flows, payment, or map"
+last-reviewed: 2026-04-04
+tags: [discover, care, booking, providers, map, payment, trust-gating]
+review-trigger: "when modifying Discover Care tab, provider profiles, booking flows, payment, or map"
 ---
 
 # Explore & Care
@@ -14,7 +14,13 @@ Provider discovery, care booking, payment, and session tracking — the care mar
 
 ## Overview
 
-Explore is how users find care for their dog. It's accessed via "Find Care" CTAs (not a default tab), reinforcing that care discovery is an intentional action within a community context. The flow covers service selection, filtered provider search with an interactive map, provider profiles with trust signals, booking conversations, payment, and session tracking.
+Care discovery lives within the **Discover hub** as one of three doors. The Discover page (`/discover`) is now a hub with three category cards:
+
+- **Meets** — `/discover/meets` — meet browse with filters
+- **Groups** — `/discover/groups` — group browse with filters (Park, Community, Service archetypes)
+- **Dog Care** — `/discover/care` — provider search with filters + map
+
+Users can also reach care via "Find Care" CTAs on the Home feed. The flow covers service selection, filtered provider search with an interactive map, provider profiles with trust signals, booking conversations, payment, and session tracking.
 
 Care arrangements sit inside existing trust relationships. Every provider card and profile shows the user's connection state with that person. **Connection state gates all care actions** (Phase 11): non-connected users cannot book care or initiate conversations.
 
@@ -22,7 +28,7 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 
 ## Current State
 
-- **Pages:** `/explore/results` (service selection → results with filters + map), `/explore/profile/[providerId]` (provider profile), `/bookings/[bookingId]` (booking detail), `/bookings/[bookingId]/checkout` (payment mock)
+- **Pages:** `/discover` (hub with three doors: Meets, Groups, Dog Care), `/discover/care` (provider search with filters + map), `/discover/meets` (meet browse), `/discover/groups` (group browse), `/discover/profile/[providerId]` (provider profile), `/bookings/[bookingId]` (booking detail), `/bookings/[bookingId]/checkout` (payment mock)
 - **Components:** CardExploreResult, FilterPanelDesktop/Mobile, MapView (Leaflet), ProfileHeader, TrustGateBanner, CancelBookingModal, BookingRow, StatusBadge
 - **Data:** Mock providers, mock bookings with payment status
 - **Status:** Built — full explore flow, trust-gated CTAs, payment mock, booking management
@@ -47,7 +53,7 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 
 ## Key Decisions
 
-1. **Care is accessed via CTA, not a tab** — "Find Care" lives on the Home feed and desktop nav. Provider search is intentional, not the default surface.
+1. **Discover is a three-door hub** — `/discover` shows three category cards (Meets, Groups, Dog Care) instead of tabs. Each door leads to its own browse page (`/discover/meets`, `/discover/groups`, `/discover/care`). Phase 19 replaced the tabbed Meets|Care layout with this hub pattern. Care is also accessible via "Find Care" CTAs on the Home feed.
 
 2. **Connection state gates actions, not just appearance** — (Phase 11) Non-connected users see disabled CTAs with contextual explanations. The TrustGateBanner component explains why and suggests next steps (attend a meet, send a connect request).
 
@@ -66,8 +72,8 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 ### Find and contact a provider
 
 ```
-Home → "Find Care" CTA → Service selection (3 options)
-→ Results page (filtered list + map) → Tap provider card
+Discover hub → Dog Care door (or Home → "Find Care" CTA)
+→ Filtered provider list + map → Tap provider card
 → Provider profile (Info / Services / Reviews)
 → CTA gated by connection state:
    - Connected: "Message" or "Book care" → booking conversation

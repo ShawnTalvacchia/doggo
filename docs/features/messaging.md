@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-03-26
+last-reviewed: 2026-04-04
 tags: [messaging, inbox, chat, booking]
 review-trigger: "when modifying inbox, threads, or conversation types"
 ---
@@ -35,11 +35,14 @@ Messaging is the coordination layer for both community and care. The inbox conta
 
 ### Inbox layout
 
-The inbox list is split into two sections:
-- **Messages** — direct conversations (Handshake icon, "Direct message" chip)
-- **Booking inquiries** — care-related conversations (service chip, status indicators)
+The inbox uses tab-based filtering:
+- **All** — every conversation, sorted by most recent message
+- **Care** — care/booking-related conversations (service chip, status indicators)
+- **Groups** — group chat threads (meet coordination, community chat)
 
-Both sections sorted by most recent message.
+**Desktop:** Three-column layout via `MasterDetailShell` with `infoPanel` — conversation list (left), active conversation thread (center), contact info panel (right). The contact info panel shows avatar, trust signals, and a care CTA when relevant.
+
+**Mobile:** Conversation list → tap → conversation detail with back button. Contact info accessible via a tap on the header/avatar within the conversation view.
 
 ---
 

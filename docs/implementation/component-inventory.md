@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-03-31
+last-reviewed: 2026-04-04
 tags: [components, ui, inventory]
 review-trigger: "when building or refactoring components"
 ---
@@ -33,7 +33,7 @@ components/
                   Toggle, StatusBadge, Slider, DatePicker,
                   RecurringSchedulePicker, BookingRow, EmptyState,
                   TabBar, ConnectionIcon, DefaultAvatar
-  layout/       ← App chrome: AppNav, BottomNav, Sidebar, LoggedInShell, FormHeader, FormFooter, GuestLayout, DetailHeader
+  layout/       ← App chrome: AppNav, BottomNav, Sidebar, LoggedInShell, FormHeader, FormFooter, GuestLayout, DetailHeader, MasterDetailShell, ListPanel, DetailPanel
   overlays/     ← ModalSheet, BookingModal
   explore/      ← FilterPanelDesktop, FilterPanelMobile, FilterPanelShell, FilterBody, ProfileHeader,
                   CardExploreResult, MapView
@@ -47,7 +47,8 @@ components/
   feed/         ← FeedCard, FeedPersonalPost, FeedCommunityPost, FeedMeetRecap,
                   FeedUpcomingMeet, FeedConnectionActivity, FeedConnectionNudge,
                   FeedCarePrompt, FeedMilestone, FeedDogMoment, FeedCareReview,
-                  CompactGreeting, ShareMomentBar, UpcomingStrip, HomeFAB
+                  CompactGreeting, ShareMomentBar, UpcomingStrip, HomeFAB,
+                  MomentCard, MomentCardFromPost
   meets/        ← MeetCard, MeetCardCompact, ParticipantCard, ParticipantList,
                   PostMeetReveal, ShareMeetModal
   chat/         ← SystemMessage
@@ -309,18 +310,18 @@ Top navigation bar. Selects one of three link configurations based on the curren
 |------|-----------------|--------------------|
 | Guest | All other routes | Sign In (hidden on mobile) + Sign Up + ··· trigger |
 | Signup / Styleguide | `/signup/*` or `/styleguide/*` | ··· trigger only |
-| Logged | `/explore/*`, `/inbox/*`, `/bookings/*`, `/profile/*` | Search + Offer Care + icon row (Bell, Messages, Bookings) + avatar |
+| Logged (hub pages) | `/home`, `/discover`, `/schedule`, `/bookings` | Logo + Create (+) + Notifications bell (with badge) + Inbox chat (with badge) |
 
 ---
 
 ### BottomNav · `built · documented`
 `components/layout/BottomNav.tsx`
 
-Mobile-only 5-tab bar. Only visible on logged-in routes. Hidden on: provider profile, individual inbox threads, explore results when a service filter is active. Active tab uses Phosphor `weight="fill"`.
+Mobile-only 5-tab bar. Only visible on hub pages. Hidden on detail pages (replaced by DetailHeader). Active tab uses Phosphor `weight="fill"`.
 
-Tabs: Home → `/home`, Groups → `/communities`, Activities → `/activity`, Inbox → `/inbox`, Profile → `/profile`.
+Tabs: Home → `/home`, Discover → `/discover`, My Schedule → `/schedule`, Bookings → `/bookings`, Profile → `/profile`.
 
-Icons: House, UsersThree, CalendarDots, ChatCircleDots, UserCircle (Phosphor, light/fill).
+Icons: House, MagnifyingGlass, CalendarDots, Briefcase, UserCircle (Phosphor, regular/fill).
 
 ---
 
@@ -369,7 +370,7 @@ Reusable back-button header for detail pages. Replaces inline back links/buttons
 ### Sidebar · `built`
 `components/layout/Sidebar.tsx`
 
-Desktop-only sidebar nav (240px). 6 items: Home, Discover, My Schedule, Bookings, Inbox, Profile. "DOGGO" logo at top in Poppins Black. Active state detection mirrors BottomNav logic. Icons: House, MagnifyingGlass, CalendarDots, Briefcase, ChatCircleDots, UserCircle (Phosphor, light weight, fill when active).
+Desktop-only sidebar nav (200px). 7 items: Home, Discover, My Schedule, Bookings, Inbox, Notifications, Profile. "DOGGO" logo at top in Poppins Black. Active state detection mirrors BottomNav logic. Icons: House, MagnifyingGlass, CalendarDots, Briefcase, ChatCircleDots, Bell, UserCircle (Phosphor, light weight, fill when active).
 
 ---
 
@@ -377,6 +378,47 @@ Desktop-only sidebar nav (240px). 6 items: Home, Discover, My Schedule, Bookings
 `components/layout/LoggedInShell.tsx`
 
 Layout wrapper for all logged-in pages. Renders Sidebar + centered content area (max-width 640px) + optional side panel or spacer. All logged-in pages render inside this shell via GuestLayout.
+
+---
+
+### MasterDetailShell · `built`
+`components/layout/MasterDetailShell.tsx`
+
+Reusable two-or-three column layout used across Home, My Schedule, Inbox, and Discover. Desktop: panels side by side (list 320px | detail flex | optional info 280px). Mobile: one panel visible at a time via `mobileView` prop ("list" | "detail" | "info"). Three-column mode enabled by passing `infoPanel`.
+
+| Prop | Type | Notes |
+|------|------|-------|
+| `listPanel` | ReactNode | Left panel content |
+| `detailPanel` | ReactNode? | Center/right panel content |
+| `infoPanel` | ReactNode? | Right panel (three-column mode, e.g. Inbox) |
+| `mobileView` | "list" \| "detail" \| "info" | Controls which panel shows on mobile. Default: "list" |
+
+---
+
+### ListPanel · `built`
+`components/layout/ListPanel.tsx`
+
+Reusable left-panel wrapper for MasterDetailShell. Provides optional header, search bar, filter tabs, and scrollable list area.
+
+| Prop | Type | Notes |
+|------|------|-------|
+| `header` | ReactNode? | Title, actions |
+| `search` | ReactNode? | Search input |
+| `filters` | ReactNode? | Filter tabs or pills |
+| `children` | ReactNode | Scrollable list content |
+
+---
+
+### DetailPanel · `built`
+`components/layout/DetailPanel.tsx`
+
+Reusable right-panel wrapper for MasterDetailShell. Provides optional header, scrollable content, and optional fixed footer.
+
+| Prop | Type | Notes |
+|------|------|-------|
+| `header` | ReactNode? | Title, back button, actions |
+| `children` | ReactNode | Scrollable main content |
+| `footer` | ReactNode? | Fixed footer (action bar, buttons) |
 
 ---
 
@@ -704,7 +746,7 @@ _Ordered by impact vs. effort._
 
 | Component | Path | Purpose | Status |
 |-----------|------|---------|--------|
-| `GroupCard` | `components/groups/GroupCard.tsx` | Community card for browse/list (cover photo, name, members, next meet) | `built` |
+| `GroupCard` | `components/groups/GroupCard.tsx` | Community card for browse/list (cover photo, name, members, next meet). Type badges: Park (Tree icon, green), Hosted (UserCircle icon, brand). Badges derived from group archetype (park/community/service). | `built` |
 | `MessageBubble` | `components/chat/MessageBubble.tsx` | Shared chat bubble (extracted from meet detail, used by meet + group chat) | `built` |
 
 ---
@@ -862,14 +904,14 @@ _Ordered by impact vs. effort._
 
 | Component | Path | Purpose | Status |
 |-----------|------|---------|--------|
-| `Sidebar` | `components/layout/Sidebar.tsx` | Desktop sidebar nav (240px): Home, Groups, Activities, Inbox, Find Care, Profile. Logo in Poppins Black. Active state with fill icons. | `built` |
+| `Sidebar` | `components/layout/Sidebar.tsx` | Desktop sidebar nav (200px): Home, Discover, My Schedule, Bookings, Inbox, Notifications, Profile (7 items). Logo in Poppins Black. Active state with fill icons. | `built` |
 | `LoggedInShell` | `components/layout/LoggedInShell.tsx` | Layout wrapper: Sidebar + max-width content (640px) + optional side panel or spacer | `built` |
 
 ### Key Changes
 
 | File | Change |
 |------|--------|
-| `BottomNav.tsx` | 4→5 tabs, "Communities"→"Groups", "Activity"→"Activities", Compass→CalendarDots |
+| `BottomNav.tsx` | Phase 16: 4→5 tabs, Communities→Groups, Activity→Activities. Phase 18: 5→4 tabs (Home, Discover, My Schedule, Bookings). Phase 19: 4→5 tabs (added Profile). |
 | `GuestLayout.tsx` | Now routes logged-in pages through LoggedInShell |
 | `globals.css` | Added `--sidebar-width`, `--content-max-width`, `.sidebar`, `.logged-shell`, `.page-container` |
 | `layout.tsx` | Added Poppins weight 900 for sidebar logo |
@@ -893,3 +935,32 @@ _Ordered by impact vs. effort._
 | `MyScheduleTab.tsx` | Redesigned: Upcoming/History toggle, type filter pills, unified timeline (meets + bookings via BookingBlock), CardMyMeet replaces MeetCard |
 | `BookingsTab.tsx` | Removed — replaced by ServicesTab |
 | `globals.css` | Added `.schedule-toggle`, `.schedule-toggle-btn`, `.card-my-meet--hosting`, `.card-my-meet--history`, `.card-my-meet-badge`, `.services-toggle` |
+
+---
+
+## Phase 19 — New & Updated Components
+
+### Layout Components (`components/layout/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `MasterDetailShell` | `components/layout/MasterDetailShell.tsx` | Reusable 2-or-3 column layout (list \| detail \| optional info). Desktop: side by side. Mobile: one panel at a time via `mobileView` prop. | `built` |
+| `ListPanel` | `components/layout/ListPanel.tsx` | Left panel wrapper: optional header, search, filters, scrollable list. | `built` |
+| `DetailPanel` | `components/layout/DetailPanel.tsx` | Right panel wrapper: optional header, scrollable content, optional fixed footer. | `built` |
+
+### Feed Components (`components/feed/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `MomentCard` | `components/feed/MomentCard.tsx` | Unified photo moment card — replaces FeedPersonalPost, FeedCommunityPost, and FeedMeetRecap as the primary feed content type. Shows photo(s) with caption, author, group/meet context, tags, and paw reaction. | `built` |
+| `MomentCardFromPost` | `components/feed/MomentCard.tsx` | Convenience wrapper that accepts a `Post` object and maps it to `MomentCard` props. | `built` |
+
+### Key Changes
+
+| File | Change |
+|------|--------|
+| `BottomNav.tsx` | 4→5 tabs: added Profile (UserCircle icon) |
+| `AppNav.tsx` | Logged header: avatar removed, Create (+) button added. Icons: Plus (create), Bell (notifications), ChatCircleDots (inbox). Fixed `unread` → `unreadCount` type error. |
+| `Sidebar.tsx` | 6→7 items: added Notifications (Bell icon) |
+| `globals.css` | Added `.md-shell`, `.list-panel`, `.detail-panel` CSS with mobile collapse rules |
+| `app/notifications/page.tsx` | New placeholder page for `/notifications` route |

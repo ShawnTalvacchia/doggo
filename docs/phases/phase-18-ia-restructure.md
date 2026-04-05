@@ -1,7 +1,7 @@
 ---
 category: phase
-status: planning
-last-reviewed: 2026-03-31
+status: complete
+last-reviewed: 2026-04-04
 tags: [phase-18, ia, navigation, discover, bookings, schedule, restructure]
 review-trigger: "when modifying navigation, top-level routing, or page structure"
 ---
@@ -333,7 +333,7 @@ Phase 18d — Detail headers + polish
 - [x] Desktop: sidebar shows 6 items (Home, Discover, My Schedule, Bookings, Inbox, Profile)
 - [x] Home > Feed tab shows social feed + upcoming strip
 - [x] Home > Groups tab shows group browse with filter pills
-- [ ] Discover > Meets tab shows all upcoming meets with filters + map
+- [x] Discover > Meets tab shows meets _(filter panel + map deferred to Phase 19)_
 - [x] Discover > Care tab shows provider search with filters + map
 - [x] Schedule page shows Upcoming/History toggle with unified timeline
 - [x] Bookings > My Care shows owner bookings
@@ -342,7 +342,7 @@ Phase 18d — Detail headers + polish
 - [x] All old routes redirect correctly (/activity, /communities, /explore/results, /explore/profile)
 - [x] Empty states guide users to relevant features
 - [x] DetailHeader component applied to detail pages
-- [x] All docs updated
+- [x] All docs updated (April 2 — strategy, feature, flow, and implementation docs aligned to Phase 18 final state)
 
 ---
 

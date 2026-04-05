@@ -60,23 +60,23 @@ export function FeedCard({
               <img
                 src={authorAvatarUrl}
                 alt={authorName}
-                className="rounded-full shrink-0"
-                style={{ width: 36, height: 36, objectFit: "cover" }}
+                className="rounded-full shrink-0 object-cover"
+                style={{ width: 36, height: 36 }}
               />
             )}
-            <div className="flex flex-col flex-1">
+            <div className="flex flex-col flex-1 min-w-0">
               <div className="flex items-center gap-xs flex-wrap">
                 {authorHref ? (
-                  <Link href={authorHref} className="text-base font-semibold text-fg-primary" style={{ textDecoration: "none" }}>
+                  <Link href={authorHref} className="text-sm font-semibold text-fg-primary" style={{ textDecoration: "none" }}>
                     {authorName}
                   </Link>
                 ) : (
-                  <span className="text-base font-semibold text-fg-primary">{authorName}</span>
+                  <span className="text-sm font-semibold text-fg-primary">{authorName}</span>
                 )}
                 {groupName && groupId && (
-                  <span className="text-sm text-fg-tertiary">
+                  <span className="text-xs text-fg-tertiary">
                     in{" "}
-                    <Link href={`/communities/${groupId}`} className="text-fg-tertiary font-medium" style={{ textDecoration: "none" }}>
+                    <Link href={`/communities/${groupId}`} className="text-fg-tertiary" style={{ textDecoration: "none" }}>
                       {groupName}
                     </Link>
                   </span>
@@ -84,10 +84,10 @@ export function FeedCard({
               </div>
               <div className="flex items-center gap-xs">
                 {timestamp && (
-                  <span className="text-sm text-fg-tertiary">{formatRelativeDate(timestamp)}</span>
+                  <span className="text-xs text-fg-tertiary" style={{ lineHeight: "16px" }}>{formatRelativeDate(timestamp)}</span>
                 )}
                 {connectionContext && (
-                  <span className="text-sm text-fg-tertiary">· {connectionContext}</span>
+                  <span className="text-xs text-fg-tertiary">· {connectionContext}</span>
                 )}
               </div>
             </div>
@@ -95,7 +95,7 @@ export function FeedCard({
 
           {/* Caption — below author info, above photos */}
           {caption && (
-            <p className="text-base text-fg-secondary m-0" style={{ lineHeight: "20px" }}>
+            <p className="text-sm text-fg-secondary m-0" style={{ lineHeight: "20px" }}>
               {caption}
             </p>
           )}

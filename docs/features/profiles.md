@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-03-27
+last-reviewed: 2026-04-04
 tags: [profile, pets, provider, edit, posts, tagging]
 review-trigger: "when modifying profile pages, pet cards, posts, or provider sections"
 ---
@@ -22,7 +22,7 @@ Own profile and explore provider profile share the same layout structure, CSS cl
 
 ## Current State
 
-- **Pages:** `/profile` (own profile, edit mode), `/profile/[userId]` (other user's profile), `/explore/profile/[providerId]` (provider profile with trust signals)
+- **Pages:** `/profile` (own profile, edit mode), `/profile/[userId]` (other user's profile), `/discover/profile/[providerId]` (provider profile with trust signals)
 - **Components:** `ProfileHeaderOwn`, `ProfileHeader`, `PetCard`, `PetEditCard`, `PostsTab`, `TagApprovalSetting`
 - **Data:** `lib/mockUser.ts` (own profile + pets), `lib/mockPosts.ts` (posts), `lib/mockData.ts` (provider profiles)
 - **Status:** Built — unified layout, edit mode, enhanced pet profiles, trust signals, posts tab, tag approval
@@ -56,7 +56,7 @@ Own profile and explore provider profile share the same layout structure, CSS cl
   - **Pending:** "Request sent" (disabled)
   - **None:** "Meet [name] first" (disabled)
 
-### Provider profiles (`/explore/profile/[providerId]`)
+### Provider profiles (`/discover/profile/[providerId]`)
 
 - Extended profile with Info / Services / Reviews tabs
 - Trust signals: connection badge, distance, mutual connections
@@ -77,11 +77,15 @@ Own profile and explore provider profile share the same layout structure, CSS cl
 
 3. **Posts are first-class** — the Posts tab shows a user's photo posts with captions, tags, and paw reactions. Posts replace the old Reviews tab as the second tab. Reviews moved into the Services tab.
 
-4. **Tag approval is per-user** — users control how they can be tagged: auto-approve (default), review first, or don't allow. Dog tagging inherits the owner's setting.
+4. **Profile gallery is a filtered view** — the gallery/posts visible on a profile are filtered per-viewer using the Content Visibility Model's two-gate system: the **context gate** (does the viewer share a group/meet context with this user?) and the **relationship gate** (connection state between viewer and profile owner). A Connected user sees more content than a Familiar viewer, who sees more than a stranger. See [[Content Visibility Model]] for the full rules.
 
-5. **Connection state gates actions** — not just badges. Phase 11 enforces that non-connected users cannot book care or initiate conversations from profiles.
+5. **Tags filtered by relationship gate** — tags on posts and photos are visibility-filtered per-viewer. A viewer only sees tags for people/dogs they have a relationship with (Connected or Familiar). Tags for unknown users are hidden, not removed — the content owner still sees all their tags. This prevents profile galleries from leaking social graph information to strangers.
 
-6. **Provider setup lives in the profile** — all "Offer Care" entry points across the app route to `/profile?tab=services`. No separate provider signup flow.
+6. **Tag approval is per-user** — users control how they can be tagged: auto-approve (default), review first, or don't allow. Dog tagging inherits the owner's setting.
+
+7. **Connection state gates actions** — not just badges. Phase 11 enforces that non-connected users cannot book care or initiate conversations from profiles.
+
+8. **Provider setup lives in the profile** — all "Offer Care" entry points across the app route to `/profile?tab=services`. No separate provider signup flow.
 
 ---
 
@@ -199,6 +203,7 @@ Users with no photo get an initials-based avatar on a coloured background (colou
 ## Related Docs
 
 - [[Trust & Connection Model]] — how trust signals display on profiles
+- [[Content Visibility Model]] — two-gate system that controls what content is visible per-viewer on profiles
 - [[connections]] — connection states that determine what's visible
 - [[explore-and-care]] — provider profiles in the care discovery flow
 - [[phase-10-home-feed]] — posts, tagging, and paw reactions

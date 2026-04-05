@@ -3,160 +3,163 @@ import type {
   FeedPostItem,
   FeedMeetRecapItem,
   FeedUpcomingMeetItem,
-  FeedConnectionActivityItem,
-  FeedConnectionNudgeItem,
-  FeedCarePromptItem,
-  FeedMilestoneItem,
-  FeedDogMomentItem,
-  FeedCareReviewItem,
 } from "./types";
 import { mockPosts } from "./mockPosts";
 import { mockMeets } from "./mockMeets";
 import { mockConnections } from "./mockConnections";
-import { mockGroups } from "./mockGroups";
-import { mockUser } from "./mockUser";
+import { mockGroups, getUserGroups } from "./mockGroups";
 
+/**
+ * Feed content sourcing per Content Visibility Model (two-gate system):
+ *
+ * 1. Context gate — moments from groups the user has joined
+ * 2. Relationship gate — moments from connected/familiar users (profile-origin content)
+ * 3. Discovery — moments from open groups in user's neighbourhood
+ * 4. Social proof — moments from open groups that user's connections are in
+ *
+ * Primary content: photo moments (MomentCard). Contextual: upcoming meets within 24h.
+ * Removed from feed: connection activity, nudges, milestones, care prompts, dog moments, care reviews.
+ */
 export function getFeedForUser(userId: string): FeedItem[] {
   const items: FeedItem[] = [];
+  const addedPostIds = new Set<string>();
 
-  // 1. Recent posts (personal + community)
+  // ── Gate 1: Context gate — posts from joined groups ──────────────────────
+  const userGroups = getUserGroups(userId);
+  const userGroupIds = new Set(userGroups.map((g) => g.id));
+
   for (const post of mockPosts) {
-    const feedItem: FeedPostItem = {
-      feedId: `feed-post-${post.id}`,
-      type: post.groupId ? "community_post" : "personal_post",
-      timestamp: post.createdAt,
-      post,
-    };
-    items.push(feedItem);
+    if (post.groupId && userGroupIds.has(post.groupId)) {
+      if (!addedPostIds.has(post.id)) {
+        addedPostIds.add(post.id);
+        items.push({
+          feedId: `feed-post-${post.id}`,
+          type: "community_post",
+          timestamp: post.createdAt,
+          post,
+        } as FeedPostItem);
+      }
+    }
   }
 
-  // 2. Completed meets as recaps
-  const completedMeets = mockMeets.filter((m) => m.status === "completed" && m.photos && m.photos.length > 0);
+  // ── Gate 2: Relationship gate — personal posts from connections ──────────
+  const connectionUserIds = new Set(
+    mockConnections
+      .filter((c) => c.state === "connected" || c.state === "familiar")
+      .map((c) => c.userId)
+  );
+
+  for (const post of mockPosts) {
+    if (!post.groupId && connectionUserIds.has(post.authorId)) {
+      if (!addedPostIds.has(post.id)) {
+        addedPostIds.add(post.id);
+        items.push({
+          feedId: `feed-post-${post.id}`,
+          type: "personal_post",
+          timestamp: post.createdAt,
+          post,
+        } as FeedPostItem);
+      }
+    }
+  }
+
+  // ── Gate 3: Discovery — posts from open groups in user's neighbourhood ──
+  const userNeighbourhood = "Vinohrady"; // mock: derive from user profile
+  const openNeighbourhoodGroups = mockGroups.filter(
+    (g) =>
+      g.visibility === "open" &&
+      g.neighbourhood === userNeighbourhood &&
+      !userGroupIds.has(g.id)
+  );
+  const openNeighbourhoodGroupIds = new Set(openNeighbourhoodGroups.map((g) => g.id));
+
+  for (const post of mockPosts) {
+    if (post.groupId && openNeighbourhoodGroupIds.has(post.groupId)) {
+      if (!addedPostIds.has(post.id)) {
+        addedPostIds.add(post.id);
+        items.push({
+          feedId: `feed-post-${post.id}`,
+          type: "community_post",
+          timestamp: post.createdAt,
+          post,
+        } as FeedPostItem);
+      }
+    }
+  }
+
+  // ── Gate 4: Social proof — posts from open groups connections are in ─────
+  const connectionGroupIds = new Set<string>();
+  for (const group of mockGroups) {
+    if (group.visibility === "open" && !userGroupIds.has(group.id)) {
+      const hasConnection = group.members.some((m) => connectionUserIds.has(m.userId));
+      if (hasConnection) connectionGroupIds.add(group.id);
+    }
+  }
+
+  for (const post of mockPosts) {
+    if (post.groupId && connectionGroupIds.has(post.groupId)) {
+      if (!addedPostIds.has(post.id)) {
+        addedPostIds.add(post.id);
+        items.push({
+          feedId: `feed-post-${post.id}`,
+          type: "community_post",
+          timestamp: post.createdAt,
+          post,
+        } as FeedPostItem);
+      }
+    }
+  }
+
+  // ── Own posts always visible ─────────────────────────────────────────────
+  for (const post of mockPosts) {
+    if (post.authorId === userId && !addedPostIds.has(post.id)) {
+      addedPostIds.add(post.id);
+      items.push({
+        feedId: `feed-post-${post.id}`,
+        type: post.groupId ? "community_post" : "personal_post",
+        timestamp: post.createdAt,
+        post,
+      } as FeedPostItem);
+    }
+  }
+
+  // ── Meet recaps (completed meets user attended, with photos) ─────────────
+  const completedMeets = mockMeets.filter(
+    (m) =>
+      m.status === "completed" &&
+      m.photos &&
+      m.photos.length > 0 &&
+      m.attendees.some((a) => a.userId === userId)
+  );
   for (const meet of completedMeets) {
-    const recapItem: FeedMeetRecapItem = {
+    items.push({
       feedId: `feed-recap-${meet.id}`,
       type: "meet_recap",
       timestamp: meet.createdAt,
       meet,
-    };
-    items.push(recapItem);
+    } as FeedMeetRecapItem);
   }
 
-  // 3. Upcoming meets (next 2-3)
-  const upcomingMeets = mockMeets
-    .filter((m) => m.status === "upcoming")
-    .sort((a, b) => `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`))
-    .slice(0, 2);
-  for (const meet of upcomingMeets) {
-    const upcomingItem: FeedUpcomingMeetItem = {
+  // ── Contextual: upcoming meets within 48h that user is attending ─────────
+  const now = new Date();
+  const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+  const soonMeets = mockMeets
+    .filter((m) => {
+      if (m.status !== "upcoming") return false;
+      if (!m.attendees.some((a) => a.userId === userId)) return false;
+      const meetDate = new Date(`${m.date}T${m.time}`);
+      return meetDate <= in48h && meetDate >= now;
+    })
+    .slice(0, 1);
+
+  for (const meet of soonMeets) {
+    items.push({
       feedId: `feed-upcoming-${meet.id}`,
       type: "upcoming_meet",
-      timestamp: meet.date, // sort by meet date
+      timestamp: meet.date,
       meet,
-    };
-    items.push(upcomingItem);
+    } as FeedUpcomingMeetItem);
   }
-
-  // 4. Connection activity — mock a couple of recent events
-  const activityItems: FeedConnectionActivityItem[] = [
-    {
-      feedId: "feed-activity-1",
-      type: "connection_activity",
-      timestamp: "2026-03-21T16:00:00Z",
-      userId: "jana",
-      userName: "Jana",
-      avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
-      activity: "added Dog Walking services",
-      connectionContext: "3 meets together",
-    },
-    {
-      feedId: "feed-activity-2",
-      type: "connection_activity",
-      timestamp: "2026-03-20T10:00:00Z",
-      userId: "eva",
-      userName: "Eva",
-      avatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
-      activity: "joined Letná Recall Training",
-      connectionContext: "Familiar",
-    },
-  ];
-  items.push(...activityItems);
-
-  // 5. Connection nudge — familiar connections the user hasn't connected with
-  const familiarConnections = mockConnections.filter((c) => c.state === "familiar");
-  if (familiarConnections.length > 0) {
-    const nudge = familiarConnections[0];
-    const nudgeItem: FeedConnectionNudgeItem = {
-      feedId: `feed-nudge-${nudge.userId}`,
-      type: "connection_nudge",
-      timestamp: "2026-03-21T08:00:00Z",
-      userId: nudge.userId,
-      userName: nudge.userName,
-      avatarUrl: nudge.avatarUrl,
-      dogNames: nudge.dogNames,
-      sharedMeets: nudge.meetsShared ?? 0,
-    };
-    items.push(nudgeItem);
-  }
-
-  // 6. Care prompts
-  const findCarePrompt: FeedCarePromptItem = {
-    feedId: "feed-find-care",
-    type: "find_care_prompt",
-    timestamp: "2026-03-19T12:00:00Z",
-    text: `Need help with ${mockUser.pets[0]?.name ?? "your dog"}? ${mockConnections.filter((c) => c.state === "connected").length} people in your network offer care.`,
-    ctaLabel: "Find care",
-    ctaHref: "/discover?tab=care",
-  };
-  items.push(findCarePrompt);
-
-  if (!mockUser.openToHelping) {
-    const offerCarePrompt: FeedCarePromptItem = {
-      feedId: "feed-offer-care",
-      type: "offer_care_prompt",
-      timestamp: "2026-03-18T12:00:00Z",
-      text: "Your connections are looking for help — want to offer care?",
-      ctaLabel: "Set up",
-      ctaHref: "/profile?tab=services",
-    };
-    items.push(offerCarePrompt);
-  }
-
-  // 7. Milestone
-  const milestone: FeedMilestoneItem = {
-    feedId: "feed-milestone-1",
-    type: "milestone",
-    timestamp: "2026-03-20T06:00:00Z",
-    text: "50 dogs walked in Vinohrady this month",
-    subtext: "Your neighbourhood is getting active!",
-  };
-  items.push(milestone);
-
-  // 8. Dog moment
-  const dogMoment: FeedDogMomentItem = {
-    feedId: "feed-dog-moment-1",
-    type: "dog_moment",
-    timestamp: "2026-03-19T09:00:00Z",
-    dogName: "Rex",
-    ownerName: "Jana",
-    ownerAvatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
-    momentText: "turned 3 today!",
-  };
-  items.push(dogMoment);
-
-  // 9. Care review
-  const careReview: FeedCareReviewItem = {
-    feedId: "feed-review-1",
-    type: "care_review",
-    timestamp: "2026-03-18T15:00:00Z",
-    reviewerName: "Martin",
-    reviewerAvatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80",
-    carerName: "Jana",
-    carerAvatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
-    rating: 5,
-    snippet: "Jana is incredible with Charlie. He came back exhausted and happy every time.",
-  };
-  items.push(careReview);
 
   // Sort by timestamp descending
   items.sort((a, b) => b.timestamp.localeCompare(a.timestamp));

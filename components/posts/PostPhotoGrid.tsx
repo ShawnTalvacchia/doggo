@@ -12,76 +12,37 @@ function handleImgError(e: React.SyntheticEvent<HTMLImageElement>) {
   e.currentTarget.src = PLACEHOLDER;
 }
 
+/**
+ * Photo grid using flex-wrap layout (matches Figma card-post content-card).
+ * Photos use flex: 1 0 0 with min-width constraints to auto-wrap into rows.
+ * - 1 photo: full width
+ * - 2 photos: side by side (min-width 238px each)
+ * - 3-4 photos: 2-col wrapping (min-width 178px each)
+ */
 export function PostPhotoGrid({ photos, fullBleed = false }: PostPhotoGridProps) {
   if (photos.length === 0) return null;
 
   const radius = fullBleed ? undefined : "var(--radius-panel)";
+  const minW = photos.length <= 2 ? 238 : 178;
 
-  if (photos.length === 1) {
-    return (
-      <div className="overflow-hidden" style={{ borderRadius: radius }}>
-        <img
-          src={photos[0]}
-          alt=""
-          onError={handleImgError}
-          className="w-full"
-          style={{ height: 320, objectFit: "cover", display: "block" }}
-        />
-      </div>
-    );
-  }
-
-  if (photos.length === 2) {
-    return (
-      <div className="grid overflow-hidden" style={{ gridTemplateColumns: "1fr 1fr", gap: 2, borderRadius: radius }}>
-        {photos.map((url, i) => (
-          <img
-            key={i}
-            src={url}
-            alt=""
-            onError={handleImgError}
-            style={{ width: "100%", height: 240, objectFit: "cover", display: "block" }}
-          />
-        ))}
-      </div>
-    );
-  }
-
-  if (photos.length === 3) {
-    return (
-      <div className="grid overflow-hidden" style={{ gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 2, borderRadius: radius }}>
-        <img
-          src={photos[0]}
-          alt=""
-          onError={handleImgError}
-          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", gridRow: "1 / 3" }}
-        />
-        <img
-          src={photos[1]}
-          alt=""
-          onError={handleImgError}
-          style={{ width: "100%", height: 160, objectFit: "cover", display: "block" }}
-        />
-        <img
-          src={photos[2]}
-          alt=""
-          onError={handleImgError}
-          style={{ width: "100%", height: 160, objectFit: "cover", display: "block" }}
-        />
-      </div>
-    );
-  }
-
-  // 4 photos: 2×2 grid
   return (
-    <div className="grid overflow-hidden" style={{ gridTemplateColumns: "1fr 1fr", gap: 2, borderRadius: radius }}>
+    <div
+      className="flex flex-wrap overflow-hidden"
+      style={{ gap: 2, borderRadius: radius }}
+    >
       {photos.slice(0, 4).map((url, i) => (
         <img
           key={i}
           src={url}
           alt=""
           onError={handleImgError}
-          style={{ width: "100%", height: 180, objectFit: "cover", display: "block" }}
+          style={{
+            flex: "1 0 0",
+            minWidth: minW,
+            minHeight: 178,
+            objectFit: "cover",
+            display: "block",
+          }}
         />
       ))}
     </div>

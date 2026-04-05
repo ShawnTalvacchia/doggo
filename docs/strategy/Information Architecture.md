@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-03-31
+last-reviewed: 2026-04-04
 tags: [ia, navigation, structure, sitemap]
 review-trigger: "before adding new top-level pages, changing navigation, or restructuring routes"
 ---
@@ -17,7 +17,7 @@ Defines the app's page structure, navigation, and how users move between section
 1. **Community first, care second.** The nav should make social features feel primary and care features feel like a natural extension — never the other way around.
 2. **Every page earns its spot.** Top-level nav slots are precious (especially mobile). A page needs daily-use potential or strategic importance to justify one.
 3. **Hub pages orient, detail pages focus.** Hubs show nav and help you decide what to do. Detail pages remove nav and let you focus on one thing.
-4. **Desktop can breathe, mobile must prioritise.** The sidebar has room for 6+ items. The bottom nav has 4. The mobile header adds 2 more (Inbox, Profile). Design for mobile constraints first.
+4. **Desktop can breathe, mobile must prioritise.** The sidebar has room for 7 items. The bottom nav has 5. The mobile header adds 3 more (Create, Notifications, Inbox). Design for mobile constraints first.
 
 ---
 
@@ -26,53 +26,56 @@ Defines the app's page structure, navigation, and how users move between section
 ### Mobile
 
 ```
-┌──────────────────────────────────────────────────┐
-│  DOGGO                        [Inbox 🔴] [Avatar]│  ← top bar (hub pages only)
-├──────────────────────────────────────────────────┤
-│                                                  │
-│                  Page content                    │
-│                                                  │
-├──────────────────────────────────────────────────┤
-│  Home  |  Discover  |  My Schedule  |  Bookings  │  ← bottom nav (hub pages only)
-└──────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│  DOGGO                   [Create +] [🔔 Notifs] [💬 Inbox]│  ← top bar (hub pages only)
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│                     Page content                         │
+│                                                          │
+├──────────────────────────────────────────────────────────┤
+│  Home | Discover | My Schedule | Bookings | Profile      │  ← bottom nav (hub pages only)
+└──────────────────────────────────────────────────────────┘
 ```
 
-**Bottom nav (4 tabs):**
+**Bottom nav (5 tabs):**
 
 | Slot | Label | Icon | Route | Purpose |
 |------|-------|------|-------|---------|
-| 1 | Home | House | `/home` | Feed + Groups (tabbed hub) |
-| 2 | Discover | MagnifyingGlass | `/discover` | Unified search: Meets and Care |
+| 1 | Home | House | `/home` | Feed + Groups (master-detail on desktop, tabbed on mobile) |
+| 2 | Discover | MagnifyingGlass | `/discover` | Three-door hub: Meets, Groups, Dog Care |
 | 3 | My Schedule | CalendarDots | `/schedule` | Your upcoming meets + bookings timeline |
 | 4 | Bookings | Briefcase | `/bookings` | Care management (as owner + as provider) |
+| 5 | Profile | UserCircle | `/profile` | Your profile, dogs, settings, provider dial |
 
-**Top bar (2 icons):**
+**Top bar (3 icons):**
 
 | Position | Element | Action |
 |----------|---------|--------|
 | Left | DOGGO logo | Link to `/home` |
-| Right 1 | Inbox icon (ChatCircleDots) | Link to `/inbox`, unread badge |
-| Right 2 | Profile avatar | Link to `/profile` |
+| Right 1 | Create (+) button (Plus icon) | Opens post composer |
+| Right 2 | Notifications bell (Bell icon) | Link to `/notifications`, unread badge |
+| Right 3 | Inbox chat icon (ChatCircleDots) | Link to `/inbox`, unread badge |
 
-**Why this arrangement:** 4 bottom nav + 2 header icons = 6 access points. Each bottom nav item is a tabbed hub with real depth. Groups lives under Home because browsing groups is infrequent — users join a few then interact within them from the feed. Schedule stays top-level because it bridges digital engagement into real-world action (meets + care bookings). Inbox and Profile are accessed frequently but don't need spatial orientation — header icons are always visible and one tap away.
+**Why this arrangement:** 5 bottom nav + 3 header icons = 8 access points. Home uses MasterDetailShell (groups panel + feed on desktop, Feed | Groups tabs on mobile). Discover is a three-door hub (Meets, Groups, Dog Care) — not a tabbed layout. Groups lives under both Home and Discover because browsing groups is infrequent — users join a few then interact within them from the feed. Schedule stays top-level because it bridges digital engagement into real-world action (meets + care bookings). Profile moves to the bottom nav for easier access. Create, Notifications, and Inbox live in the header — always visible and one tap away.
 
 ### Desktop
 
 ```
-┌───────────┬──────────────────────────────────────┐
-│  DOGGO    │                                      │
-│           │                                      │
-│  Home     │          Page content                │
-│  Discover │     (max-width constrained)          │
-│  Schedule │                                      │
-│  Bookings │                                      │
-│  Inbox    │                                      │
-│  Profile  │                                      │
-│           │                                      │
-└───────────┴──────────────────────────────────────┘
+┌───────────────┬──────────────────────────────────────┐
+│  DOGGO        │                                      │
+│               │                                      │
+│  Home         │          Page content                │
+│  Discover     │     (max-width constrained)          │
+│  My Schedule  │                                      │
+│  Bookings     │                                      │
+│  Inbox        │                                      │
+│  Notifications│                                      │
+│  Profile      │                                      │
+│               │                                      │
+└───────────────┴──────────────────────────────────────┘
 ```
 
-Desktop sidebar shows all 6 items. Groups is accessed via the Home > Groups tab.
+Desktop sidebar shows all 7 items (200px). Groups is accessed via Home > Groups panel or Discover > Groups card.
 
 ---
 
@@ -84,8 +87,8 @@ Hub pages show the full navigation (bottom nav + top bar on mobile, sidebar on d
 
 | Page | Route | Tabs / Sections | Notes |
 |------|-------|-----------------|-------|
-| **Home** | `/home` | Feed \| Groups | **Tabbed hub.** Feed shows social feed + upcoming strip. Groups tab replaces standalone groups page. |
-| **Discover** | `/discover` | Meets \| Care | **New.** Unified discovery with shared filter+map pattern |
+| **Home** | `/home` | Feed \| Groups (mobile tabs) or Groups panel + Feed (desktop MasterDetailShell) | **Master-detail hub.** Feed shows MomentCards + occasional upcoming meet. Groups panel/tab for browse and manage. |
+| **Discover** | `/discover` | Three doors: Meets, Groups, Dog Care | **Restructured (Phase 19).** Hub with three illustrated cards linking to sub-pages (`/discover/meets`, `/discover/groups`, `/discover/care`). Not a tabbed layout. |
 | **My Schedule** | `/schedule` | Upcoming \| History | **Moved.** Personal timeline of meets + bookings |
 | **Bookings** | `/bookings` | My Care \| My Services | **Restructured.** Both sides of care arrangements |
 | **Inbox** | `/inbox` | Messages \| Booking Inquiries | Conversation list (hub on mobile too, accessed via header icon) |
@@ -123,54 +126,62 @@ Detail pages replace the nav with a focused header: `← Back | Page Title | (op
 
 ## Key Page Definitions
 
-### Home (tabbed hub — Feed + Groups)
+### Home (master-detail — Groups + Feed)
 
 **Route:** `/home`
-**Tabs:** Feed | Groups
+**Desktop:** Groups panel (left, via ListPanel) + Feed (right, via DetailPanel) using MasterDetailShell
+**Mobile:** Feed | Groups tabs
 
 The user's daily hub. "What's happening in my world?"
 
-**Feed tab** (`/home` or `/home?tab=feed`)
+**Feed** (`/home` or `/home?tab=feed` on mobile)
 - Personalised greeting with dog avatars
-- Upcoming meets strip (mobile/tablet)
-- Social feed: posts, meet recaps, connection nudges, care prompts, milestones
-- Desktop: side panel showing upcoming meets
+- MomentCard as primary content type (photo moments with captions, tags, reactions)
+- Occasional upcoming meet cards
+- Content sourced via two-gate visibility model (context gate + relationship gate)
 
-**Groups tab** (`/home?tab=groups`)
+**Groups** (`/home?tab=groups` on mobile, left panel on desktop)
 - Browse and manage groups (replaces standalone `/communities` page)
 - Filter pills: All, Your Groups, Open, Approval, Private
 - "Your groups" section + "Discover" section for public groups
+- GroupCard with type badges (Park, Hosted)
 - Create group CTA
 
-**Why groups live here:** Browsing groups is an infrequent action — users join a few, then interact within them from the feed. Groups don't earn a permanent bottom nav slot. Moving them into Home keeps the nav focused on daily-use pages while keeping groups one tap + one tab away.
+**Why groups live here:** Browsing groups is an infrequent action — users join a few, then interact within them from the feed. Groups don't earn a permanent bottom nav slot. Moving them into Home keeps the nav focused on daily-use pages while keeping groups one tap + one tab away. Groups are also accessible via Discover hub > Groups card.
 
-### Discover (new — replaces Activities > Discover + Find Care)
+### Discover (three-door hub)
 
 **Route:** `/discover`
-**Tabs:** Meets | Care
+**Layout:** Three illustrated cards (not tabs)
 
-The unified "what's out there?" page. Both tabs share a similar layout pattern: filter controls + results list + optional map view.
+The "what's out there?" page. Three doors, each linking to a dedicated sub-page.
 
-**Meets tab** (`/discover?tab=meets`)
+**Meets card** → `/discover/meets`
 - Browse all upcoming meets
 - Filter by type (Walk, Park Hangout, Playdate, Training), neighbourhood, date
 - Map view showing meet locations
 - Cards link to meet detail pages
 - "Create a Meet" CTA
 
-**Care tab** (`/discover?tab=care`)
+**Groups card** → `/discover/groups`
+- Browse all groups
+- Filter by archetype (Park, Community, Service), neighbourhood
+- GroupCard with type badges
+
+**Dog Care card** → `/discover/care`
 - Browse care providers (current `/explore/results` content)
 - Filter by service type, price, availability, distance
 - Map view showing provider locations
 - Cards link to provider profile pages
 - Community carers section (connected users who offer care)
 
-**Why unified:** Both are "I'm looking for something" flows. The shared filter+map pattern reduces cognitive load and makes care discovery feel like a natural part of the community experience, not a separate marketplace bolted on.
+**Why three doors:** Discover covers three distinct intents (social events, persistent communities, paid care). A hub page with clear doors orients users better than tabs — each door has its own browse/filter experience behind it.
 
 **What moves here:**
-- Activities > Discover tab content → Discover > Meets
-- `/explore/results` content → Discover > Care
-- "Find Care" sidebar item → Discover (Care tab)
+- Activities > Discover tab content → Discover > Meets card
+- `/explore/results` content → Discover > Dog Care card
+- "Find Care" sidebar item → Discover (Dog Care card)
+- Groups browse → Discover > Groups card (in addition to Home > Groups tab)
 
 ### My Schedule (elevated to top-level)
 
@@ -236,8 +247,10 @@ This is where the "service panel" concept lands. On desktop, the detail page cou
 | `/activity?tab=discover` | `/discover?tab=meets` | Tab within new Discover page |
 | `/activity?tab=schedule` | `/schedule` | Promoted to top-level |
 | `/activity?tab=services` | `/bookings?tab=services` | Moved under Bookings |
-| `/explore/results` | `/discover?tab=care` | Merged into Discover |
+| `/explore/results` | `/discover/care` | Merged into Discover |
 | `/explore/profile/[id]` | `/discover/profile/[id]` | Moved under Discover |
+| `/discover?tab=meets` | `/discover/meets` | Tabs → sub-pages (Phase 19) |
+| `/discover?tab=care` | `/discover/care` | Tabs → sub-pages (Phase 19) |
 | `/bookings` | `/bookings` | Stays, gains tabs |
 | `/bookings/[id]` | `/bookings/[id]` | Stays, gets enhanced |
 | `/schedule` (old redirect) | `/schedule` | Now the real page |
@@ -246,8 +259,10 @@ This is where the "service panel" concept lands. On desktop, the detail page cou
 - `/activity` → `/discover`
 - `/activity?tab=schedule` → `/schedule`
 - `/activity?tab=services` → `/bookings?tab=services`
-- `/explore/results` → `/discover?tab=care`
+- `/explore/results` → `/discover/care`
 - `/explore/profile/[id]` → `/discover/profile/[id]`
+- `/discover?tab=meets` → `/discover/meets`
+- `/discover?tab=care` → `/discover/care`
 - `/communities` → `/home?tab=groups` (eventually — keep page for now, redirect in cleanup)
 
 ---
@@ -276,9 +291,9 @@ A page is a **detail** if:
 
 ### Hub pages
 ```
-[DOGGO logo]                    [Inbox 🔴] [Avatar]
+[DOGGO logo]        [Create +] [Notifications 🔔] [Inbox 💬]
 ```
-Logo links to `/home`. Inbox icon shows unread count badge. Avatar links to `/profile`.
+Logo links to `/home`. Create (+) opens the post composer. Notifications bell links to `/notifications` with unread badge. Inbox icon links to `/inbox` with unread badge.
 
 ### Detail pages
 ```

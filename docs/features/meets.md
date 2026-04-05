@@ -1,7 +1,7 @@
 ---
 category: feature
 status: active
-last-reviewed: 2026-03-27
+last-reviewed: 2026-04-04
 tags: [meets, groups, community, social]
 review-trigger: "when modifying meets, groups, group chat, or meet discovery"
 ---
@@ -28,17 +28,19 @@ This distinction matters because **meets alone aren't enough.** Without a persis
 
 The prototype currently has standalone meets without a group layer:
 
-- **Pages:** `/meets` now redirects to `/activity?tab=discover`. `/meets/[meetId]` (detail), `/meets/create` (creation form). `/activity` is the new unified discovery + schedule page.
-- **Activity tab structure:** `/activity` has three sub-tabs:
-  - **Discover** — meet browse with filters (extracted from old `/meets` page)
-  - **My Schedule** — upcoming + past personal schedule (extracted from old `/schedule` page)
-  - **Bookings** — care arrangements (extracted from old `/schedule` page)
-- **Components:** Meet cards, meet detail layout, group chat thread, attendee list, filter panel, TabBar, DiscoverTab, MyScheduleTab, BookingsTab, MeetCardCompact
+- **Pages:** `/discover?tab=meets` (Meets tab within Discover page), `/meets/[meetId]` (detail), `/meets/create` (creation form)
+- **Discover page:** `/discover` is now a three-door hub:
+  - **Meets** — `/discover/meets` — meet browse with filters
+  - **Groups** — `/discover/groups` — group browse with filters (new in Phase 19)
+  - **Dog Care** — `/discover/care` — provider search with filters + map
+- **Schedule:** My Schedule is now a top-level page at `/schedule` (moved from `/activity?tab=schedule`)
+- **Components:** Meet cards, meet detail layout, group chat thread, attendee list, filter panel, TabBar, DiscoverTab, MyScheduleTab, MeetCardCompact
 - **Data:** Mock meets with various types, locations, recurring schedules
 - **Status:** Browse, create, detail, group chat, join/leave, recurring meets all functional
-- **Discovery paths:** Meets are discoverable both through Communities (upcoming meets in community detail) and through Activity > Discover
+- **Discovery paths:** Meets are discoverable through Discover > Meets (`/discover/meets`, global browse), through Groups (Home > Groups tab → group detail → upcoming meets), and through Discover > Groups (`/discover/groups`)
+- **Groups:** Accessible via Home (Feed | Groups tabs on mobile, groups panel on desktop) and via Discover > Groups door (`/discover/groups`)
 
-Groups need to be designed and built. The existing meet infrastructure becomes the "events within groups" layer.
+Phase 19 defines three group archetypes (Park, Community, Service) and builds group browse into the Discover hub. The existing meet infrastructure becomes the "events within groups" layer.
 
 ---
 
@@ -50,27 +52,35 @@ A group is a persistent community with:
 
 - **Members** — people who have joined the group
 - **Chat** — a persistent conversation for coordination and socialising (eventually: multiple threads)
-- **Gallery** — shared photos from meets and group life
+- **Gallery** — shared photos from meets and group life (core feature — moments from meets/groups drive the Home feed)
 - **Events (meets)** — a list of upcoming and past meets
+
+### Three group archetypes
+
+| Archetype | `groupType` | Visibility | Admin | How created | Key traits |
+|-----------|-------------|------------|-------|-------------|------------|
+| **Park** | `"park"` | Open (public) | None — no admin | Auto-generated at launch | Tied to a physical park. Anyone can join. No moderation needed. Seeded parks: Letna, Stromovka, Riegrovy Sady, Ladronka, Vitkov, Kampa. |
+| **Community** | `"community"` | Defaults private (creator can set public) | Creator is admin | User-created | Interest/neighbourhood groups. Creator manages membership and meets. The "private crew of regulars" pattern. |
+| **Service** | `"service"` | Public | Provider is admin | Provider-created | Attached to a care provider. Has `hostedBy` and `hostedByName` fields. Meets can carry a `serviceCTA` with `label`, `href`, `price`, and `spotsLeft`. Used for training classes, group walks, etc. |
+
+Park groups are the lowest-barrier on-ramp — they exist before any user action. Community groups are where trust and retention live. Service groups bridge community and care by giving providers a group home for their offerings.
+
+The natural progression: **join a park group → attend meets → get invited to (or create) a community group of regulars.** Service groups run in parallel, discoverable through `/discover/groups`.
 
 ### Visibility: Public vs Private
 
 | Setting | Who can see it | How to join | Who can create meets |
 |---------|---------------|-------------|---------------------|
-| **Public** | Anyone browsing | Anyone can join directly | Any member (TBD: or only admin?) |
-| **Private** | Members only | Added by admin or any member (configurable) | Any member (TBD: or only admin?) |
+| **Public** | Anyone browsing | Anyone can join directly | Any member (Community), provider only (Service) |
+| **Private** | Members only | Added by admin or invited by member | Admin or any member (configurable) |
 
-Public groups are the on-ramp. They're discoverable, low-barrier, and welcoming. Private groups are where the real trust and retention lives — smaller, more personal, higher commitment.
+### Group management (resolved)
 
-The natural progression: **discover a public group → attend a few meets → get invited to (or create) a private group of regulars.**
-
-### Group management (open questions)
-
-- Who can create groups? Any user? Or does it require a minimum activity level?
-- Admin roles: creator-only, or can admins be added?
-- Can members invite others to private groups, or only admins?
-- Group size limits? Different for public vs private?
-- Can a group exist without any upcoming meets (purely social/chat)?
+- **Park groups:** No admin. No moderation. Open to all. Auto-generated.
+- **Community groups:** Creator is admin. Admins can invite members to private groups. Members can also invite (configurable by admin).
+- **Service groups:** Provider is admin. Provider controls meets and service CTAs.
+- **Group creation:** Any user can create a Community group. Only providers can create Service groups. Park groups are system-generated.
+- **Groups without meets:** Yes — a group can exist purely for chat/gallery. Meets are optional.
 
 ---
 
@@ -211,7 +221,6 @@ After a meet ends, users who were in Tier 3 (hidden/locked) get surfaced:
 ## Future
 
 - **Multiple chat threads per group** — general, planning, off-topic, etc.
-- **Photo gallery per meet and per group** — shared photos for social proof and engagement
 - **Platform-suggested groups** — the app suggests groups based on neighbourhood density and user activity
 - **Map-based group/meet discovery** — visual map of nearby groups and upcoming meets
 - **Attendance patterns** — "Petra usually comes Tuesdays" visible to group members
@@ -224,4 +233,6 @@ After a meet ends, users who were in Tier 3 (hidden/locked) get surfaced:
 - [[Product Vision]] — groups & meets as the core of the community thesis
 - [[connections]] — post-meet connect flow
 - [[schedule]] — meets appear in the user's schedule
+- [[Content Visibility Model]] — two-gate system controlling content visibility in feeds and groups
+- [[Groups Strategy]] — three group archetypes (Park, Community, Service)
 - [[messaging]] — group threads for coordination, direct messages for 1:1

@@ -362,7 +362,7 @@
   --radius-full: var(--radius-circle);
 
   /* Semantic aliases */
-  --radius-panel: var(--radius-sm); /* panels, cards           */
+  --radius-panel: 20px; /* panels, cards — matches Figma --radius/panel */
   --radius-form: var(--radius-xl); /* floating form modals    */
   --radius-pill: var(--radius-circle); /* pill buttons / badges   */
 
@@ -556,8 +556,8 @@ a {
   margin-left: var(--sidebar-width);
   display: flex;
   justify-content: center;
-  gap: var(--space-xxl);
-  padding: 0 var(--space-xxl);
+  gap: var(--space-md);
+  padding: var(--space-xxl) var(--space-xxl) 0;
   overflow-y: auto;
   min-height: 0;
 }
@@ -615,7 +615,7 @@ a {
 }
 
 .sidebar-nav-item--active {
-  color: var(--text-primary);
+  color: var(--brand-main);
 }
 
 /* Page container — centered main column (640px) */
@@ -652,6 +652,124 @@ a {
 }
 
 /* ================================================
+   MASTER-DETAIL SHELL
+   Reusable two-or-three column layout (Home, Schedule, Inbox, Discover).
+   Desktop: panels side by side. Mobile: one panel at a time via data-mobile-view.
+   ================================================ */
+
+.md-shell {
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  gap: var(--space-md);
+  justify-content: center;
+}
+
+/* — Shared panel styling (Figma: inset bg, rounded top, border) — */
+.md-shell-list,
+.md-shell-detail,
+.md-shell-info {
+  background: var(--surface-inset);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  overflow: clip;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* — List panel (left) — */
+.md-shell-list {
+  flex: 1;
+  max-width: 400px;
+}
+
+/* — Detail panel (center/right) — */
+.md-shell-detail {
+  width: 640px;
+  max-width: 640px;
+  flex-shrink: 0;
+}
+
+/* — Info panel (right, three-column mode) — */
+.md-shell-info {
+  width: 280px;
+  flex-shrink: 0;
+}
+
+/* Wider max-width when three panels are active */
+.md-shell--three {
+  max-width: 960px;
+}
+
+/* — ListPanel — */
+.list-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.list-panel-header {
+  background: var(--surface-popout);
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-lg);
+  border-bottom: 1px solid var(--border-regular);
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.list-panel-search {
+  padding: var(--space-sm) var(--space-md);
+  flex-shrink: 0;
+}
+
+.list-panel-filters {
+  padding: 0 var(--space-md) var(--space-sm);
+  flex-shrink: 0;
+}
+
+.list-panel-scroll {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* — DetailPanel — */
+.detail-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.detail-panel-header {
+  background: var(--surface-popout);
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-md);
+  border-bottom: 1px solid var(--border-strong);
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.detail-panel-scroll {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.detail-panel-footer {
+  flex-shrink: 0;
+  border-top: 1px solid var(--border-default);
+  padding: var(--space-sm) var(--space-md);
+}
+
+/* ================================================
    TOP NAV
    Mobile: logo + inbox icon + avatar (logged-in) or full guest nav
    Desktop: hidden for logged-in routes (sidebar handles nav)
@@ -662,7 +780,6 @@ a {
   top: 0;
   z-index: 20;
   background: var(--surface-base);
-  border-bottom: 1px solid var(--border-strong);
 }
 
 /* Desktop: hide top bar for logged-in routes (sidebar handles nav).
@@ -770,6 +887,25 @@ a {
   color: var(--text-primary);
   text-decoration: none;
   cursor: pointer;
+}
+
+/* Page title (replaces logo on discover routes, mobile only) */
+.app-nav-page-title {
+  display: none;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-heading), sans-serif;
+  font-size: var(--font-size-h4);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.app-nav-page-title-back {
+  display: flex;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
 }
 
 .app-nav-right {
@@ -2312,6 +2448,207 @@ body.guest-route {
 .logged-shell-main:has(.explore-page) {
   padding: 0;
   gap: 0;
+}
+
+/* ── Discover hub — three-panel layout (Phase 20) ── */
+.discover-page-shell {
+  display: flex;
+  gap: var(--space-md);
+  width: 100%;
+  max-width: 1288px; /* 400 + 12 + 420 + 12 + 420 + 24 padding */
+  height: calc(100vh - var(--nav-height) - var(--space-xxl));
+  overflow: hidden;
+}
+
+.logged-shell-main:has(.discover-page-shell) {
+  padding: var(--space-xxl) var(--space-xxl) 0;
+  gap: 0;
+}
+
+/* Left panel — hub */
+.discover-hub-panel {
+  display: flex;
+  flex-direction: column;
+  width: 400px;
+  max-width: 400px;
+  flex-shrink: 0;
+  background: var(--surface-inset);
+  border: 1px solid var(--border-stronger);
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  overflow: hidden;
+}
+
+.discover-hub-body {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--surface-popout);
+  border: 1px solid var(--border-strong);
+  padding: var(--space-xxl) var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxl);
+}
+
+/* Middle panel — results */
+.discover-results-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  max-width: 640px;
+  min-width: 0;
+  background: var(--surface-inset);
+  border: 1px solid var(--border-stronger);
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  overflow: hidden;
+}
+
+.discover-results-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Right panel — map */
+.discover-map-panel {
+  flex: 1;
+  max-width: 640px;
+  min-width: 0;
+  background: var(--surface-inset);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  overflow: hidden;
+}
+
+.discover-map-panel .map-loading-state,
+.discover-map-panel .leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Two-panel variant (no map): results panel grows */
+.discover-page-shell:not(:has(.discover-map-panel)) .discover-results-panel {
+  max-width: none;
+}
+
+/* Mobile tabbed view — hidden on desktop */
+.discover-page-shell .discover-mobile-tabbed {
+  display: none;
+}
+
+/* ── Discover shell — mobile: single panel ── */
+@media (max-width: 767px) {
+  .discover-page-shell {
+    flex-direction: column;
+    gap: 0;
+    max-width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .logged-shell-main:has(.discover-page-shell) {
+    padding: 0;
+  }
+
+  /* Hide results and map on mobile — hub is the entry point */
+  .discover-results-panel,
+  .discover-map-panel {
+    display: none;
+  }
+
+  .discover-hub-panel {
+    width: 100%;
+    max-width: 100%;
+    flex: 1;
+    border: 1px solid var(--border-stronger);
+    border-radius: var(--radius-panel);
+  }
+
+  .discover-hub-body {
+    flex: 1;
+  }
+
+  /* When service is selected, hide desktop panels and show mobile tabbed view */
+  .discover-page-shell[data-mobile-view="results"] .discover-hub-panel,
+  .discover-page-shell[data-mobile-view="results"] .discover-results-panel {
+    display: none;
+  }
+
+  .discover-mobile-tabbed {
+    display: none;
+  }
+
+  .discover-page-shell[data-mobile-view="results"] .discover-mobile-tabbed {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
+    border: 1px solid var(--border-stronger);
+    border-radius: var(--radius-panel);
+    background: var(--surface-popout);
+    overflow: hidden;
+  }
+
+  .discover-mobile-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-strong);
+    background: var(--surface-popout);
+  }
+
+  .discover-mobile-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    padding: var(--space-md) 0;
+    border: none;
+    background: none;
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+  }
+
+  .discover-mobile-tab--active {
+    color: var(--text-primary);
+    border-bottom-color: var(--text-primary);
+  }
+
+  .discover-mobile-tab-content {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .discover-mobile-tab-content .list-panel-header {
+    display: none;
+  }
+
+  .discover-mobile-tab-content .discover-hub-body {
+    flex: 1;
+  }
+}
+
+/* ── Discover shell — collapsed (sidebar + single panel) ── */
+@media (min-width: 768px) and (max-width: 1299px) {
+  .discover-page-shell {
+    max-width: 640px;
+  }
+
+  .discover-hub-panel {
+    display: none;
+  }
+
+  .discover-results-panel {
+    max-width: none;
+  }
+
+  .discover-map-panel {
+    display: none;
+  }
 }
 
 /* ── Discover page (unified Meets + Care) ── */
@@ -4828,7 +5165,7 @@ body.guest-route {
 }
 
 .bottom-nav-tab.active {
-  color: var(--text-primary);
+  color: var(--brand-main);
 }
 
 .bottom-nav-tab:hover {
@@ -4963,6 +5300,27 @@ body.guest-route {
     /* body-reg / sm / xs unchanged: 14 / 12 / 10px */
   }
 
+  /* Master-detail shell: stack panels, show one at a time */
+  .md-shell {
+    flex-direction: column;
+    max-width: 100%;
+    gap: 0;
+  }
+  .md-shell-list,
+  .md-shell-detail,
+  .md-shell-info {
+    width: 100%;
+    max-width: 100%;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    display: none; /* hidden by default on mobile */
+  }
+  .md-shell-panel--active {
+    display: flex;
+    flex: 1;
+  }
+
   /* Logged-in shell: hide sidebar, full-width main, no horizontal padding */
   .sidebar { display: none; }
   .logged-shell-main {
@@ -4984,6 +5342,19 @@ body.guest-route {
 
   .app-nav-brand {
     font-size: var(--font-size-h4);
+  }
+
+  .app-nav-brand--hide-mobile {
+    display: none;
+  }
+
+  .app-nav-page-title {
+    display: flex;
+  }
+
+  /* Hide panel headers on mobile discover — nav shows the title */
+  .discover-page-shell .list-panel-header {
+    display: none;
   }
 
   .app-nav-link--hide-mobile {
@@ -5456,7 +5827,7 @@ body.guest-route {
   }
 
   .app-nav-brand {
-    font-size: var(--font-size-body-lg);
+    font-size: var(--font-size-h4);
   }
 
   .app-nav-icon-row {
@@ -6984,6 +7355,24 @@ body.guest-route {
 
 .inbox-row:hover {
   background: var(--surface-hover);
+}
+
+.inbox-row--active {
+  background: var(--surface-inset);
+}
+
+.inbox-page-shell .md-shell {
+  max-width: 960px;
+}
+
+.inbox-mobile-back {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .inbox-mobile-back {
+    display: block;
+  }
 }
 
 .inbox-avatar-wrap {
@@ -9199,8 +9588,8 @@ body.guest-route {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  padding: var(--space-lg);
-  background: white;
+  padding: 12px;
+  background: var(--surface-top);
   border: 1px solid var(--border-regular);
   color: inherit;
   overflow: hidden;
@@ -9211,7 +9600,7 @@ body.guest-route {
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  font-size: var(--font-size-body-sm);
+  font-size: 12px;
   font-weight: var(--weight-semibold);
   border-radius: var(--radius-circle);
   background: var(--surface-popout);
@@ -9786,8 +10175,8 @@ body.guest-route {
 
 .feed-card {
   background: var(--surface-top);
-  border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-regular);
+  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.04);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -9830,7 +10219,7 @@ body.guest-route {
   display: inline-flex;
   align-items: center;
   background: var(--surface-base);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border-regular);
   border-radius: var(--radius-circle);
   padding: 0;
   cursor: pointer;
@@ -9895,11 +10284,103 @@ body.guest-route {
     display: inline-flex;
   }
 
-  .feed-card {
-    border-radius: 0;
-    box-shadow: none;
+}
+
+/* ── Home page shell (Phase 19) ── */
+.page-container.home-page-shell {
+  max-width: 1052px; /* 400 list + 12 gap + 640 detail */
+}
+.home-page-shell {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Desktop (wide): hide tab bar (groups panel is always visible) */
+.home-tab-bar {
+  display: none;
+}
+
+/* ── Collapsed home: single panel + tabs (sidebar still visible above 767px) ── */
+/* Kicks in when viewport can't hold both panels at natural width:
+   sidebar(200) + padding(24+24) + list(400) + gap(12) + detail(640) = 1300px */
+@media (max-width: 1299px) {
+  .page-container.home-page-shell {
+    max-width: 640px; /* single panel width */
   }
 
+  .home-page-shell {
+    background: var(--surface-inset);
+    border: 1px solid var(--border-stronger);
+    border-radius: var(--radius-panel);
+  }
+
+  .home-tab-bar {
+    display: flex;
+    flex-shrink: 0;
+    padding: 0 var(--space-xxs);
+    background: var(--surface-popout);
+    border-bottom: 1.5px solid var(--border-strong);
+    border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+    z-index: 3;
+  }
+
+  .home-tab-bar > div {
+    flex: 1;
+    gap: 0;
+  }
+
+  .home-tab-bar .tab-main {
+    flex: 1;
+    height: 56px;
+    padding: 0;
+    border-bottom: 1.5px solid var(--border-strong);
+    margin-bottom: -1.5px;
+  }
+
+  .home-tab-bar .tab-main[data-active] {
+    border-bottom-color: var(--text-primary);
+  }
+
+  /* Hide "My Groups" header — tab already shows context */
+  .page-container.home-page-shell .list-panel-header {
+    display: none;
+  }
+
+  /* MasterDetailShell: single panel mode */
+  .home-page-shell .md-shell {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .home-page-shell .md-shell-list,
+  .home-page-shell .md-shell-detail {
+    width: 100%;
+    max-width: 100%;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    display: none;
+  }
+
+  .home-page-shell .md-shell-list.md-shell-panel--active,
+  .home-page-shell .md-shell-detail.md-shell-panel--active {
+    display: flex;
+    flex: 1;
+  }
+}
+
+/* ── Mobile overrides ── */
+@media (max-width: 767px) {
+  .home-page-shell {
+    border-radius: var(--radius-panel);
+  }
+
+  .home-tab-bar {
+    border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  }
 }
 
 /* Home header: no horizontal padding on desktop, matches card padding on mobile */
@@ -9941,9 +10422,8 @@ body.guest-route {
   }
 }
 
-/* Feed list gap */
+/* Feed list — cards stacked flush, borders provide separation */
 .feed-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
 }

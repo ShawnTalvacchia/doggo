@@ -71,6 +71,8 @@ See `docs/CONTRIBUTING.md` for full details.
 | `docs/strategy/User Archetypes.md` | Behavioral profiles, two ramps (engagement + provider dial) |
 | `docs/strategy/Trust & Connection Model.md` | Connection states, trust principles, safety & privacy |
 | `docs/strategy/MVP Scope Boundaries.md` | Prototype scope — required / nice-to-have / out |
+| `docs/strategy/Groups Strategy.md` | Three group archetypes, user journeys, provider groups |
+| `docs/strategy/Content Visibility Model.md` | Two-gate visibility system, tagging privacy rules |
 | `docs/strategy/Open Questions & Assumptions Log.md` | Unresolved strategic questions |
 | `docs/flows/` | User flow charts (Mermaid) with step-by-step build status |
 | `docs/features/` | Feature specs: meets, connections, messaging, explore-and-care, profiles, schedule |
@@ -79,13 +81,11 @@ See `docs/CONTRIBUTING.md` for full details.
 | `docs/implementation/component-inventory.md` | Built components catalog |
 | `docs/CONTRIBUTING.md` | Workflow rules, doc categories, naming conventions |
 
-## Current Phase: 18 — Information Architecture Restructure
+## Current Phase: 19 (complete) — UI Rebuild & Groups Foundation
 
-**Goal:** Restructure navigation and page hierarchy. Unify discovery (meets + care), elevate Schedule, create Bookings hub, move Inbox/Profile to mobile header.
+**Delivered:** Reusable MasterDetailShell layout system used across Home, Schedule, Inbox. Groups strategy implemented (three archetypes: Park, Community, Service). Photo-focused feed with Content Visibility Model (four-gate sourcing). Navigation updated (5 mobile tabs, create + notifications + inbox header, 7-item sidebar). Discover restructured as three-door hub (Meets, Groups, Dog Care). Mock data for four user journeys (Tereza, Daniel, Klára, Tomáš).
 
-**Key changes:** New bottom nav (Home, Discover, My Schedule, Bookings — 4 tabs). Groups moved to Home as a tab (Feed | Groups). Mobile header (logo + Inbox icon + avatar). Unified `/discover` page. `/schedule` top-level. `/bookings` with My Care + My Services tabs.
-
-**Board:** See `docs/phases/phase-18-ia-restructure.md`, `docs/strategy/Information Architecture.md`, and `docs/ROADMAP.md`.
+**Board:** See `docs/phases/phase-19-ui-rebuild.md` and `docs/ROADMAP.md`.
 
 ## Strategic Context
 
@@ -96,7 +96,8 @@ See `docs/CONTRIBUTING.md` for full details.
 Key decisions:
 - **Connection model:** None (default) → Familiar (one-sided) → Pending → Connected (mutual). See `docs/strategy/Trust & Connection Model.md`.
 - **Everyone starts as an owner.** No separate provider signup. Offering care is a dial, not a switch.
-- **Nav:** Home | Discover | My Schedule | Bookings (mobile bottom, 4 tabs). Desktop sidebar: Home, Discover, My Schedule, Bookings, Inbox, Profile (6 items). Mobile header: logo + Inbox + avatar.
-- **Groups under Home.** Groups browse is a tab within Home (Feed | Groups), not a standalone nav item.
-- **Care accessed via Discover > Care tab.** Provider search lives alongside meet discovery in the unified Discover page.
+- **Nav:** Home | Discover | My Schedule | Bookings | Profile (mobile bottom, 5 tabs). Desktop sidebar: Home, Discover, My Schedule, Bookings, Inbox, Notifications, Profile (7 items). Mobile header: create + notifications + inbox.
+- **Discover as hub.** Three doors: Meets, Groups, Dog Care — not tabs.
+- **Groups strategy.** Three archetypes: Park (auto-generated, open), People (user-created, defaults private), Help (provider-created, service CTAs). See `docs/strategy/Groups Strategy.md`.
+- **Content visibility.** Two-gate model: context gate (group/meet membership) + relationship gate (connection state). See `docs/strategy/Content Visibility Model.md`.
 - See `docs/strategy/MVP Scope Boundaries.md` for feature priorities (Required / Nice-to-have / Out).

@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-03-30
+last-reviewed: 2026-04-04
 tags: [vision, principles, strategy, monetization]
 review-trigger: "before any major feature decision or strategic discussion"
 ---
@@ -94,42 +94,46 @@ People could Venmo each other and skip the platform. But the platform offers:
 
 ## Navigation Structure
 
-### Mobile (bottom tabs)
+### Mobile (bottom tabs + header)
 
 ```
-Home  |  Groups  |  Activities  |  Inbox  |  Profile
+Home  |  Discover  |  My Schedule  |  Bookings  |  Profile
 ```
 
-- **Home** — personalised feed: nearby meets, suggested connections, community highlights, care CTAs
-- **Groups** — browse and join groups (persistent communities with members, meets, chat, gallery). "Where do I belong?"
-- **Activities** — three tabs: Discover (browse all upcoming meets), My Schedule (your upcoming meets + past), Bookings (care arrangements as owner or carer). "What's happening?"
-- **Inbox** — direct messages and booking conversations
-- **Profile** — you, your dogs, settings, care history, provider dial
+- **Home** — desktop: Groups panel (left) + Feed (right) via MasterDetailShell. Mobile: Feed | Groups tabs. Groups moved here because browsing groups is infrequent; users join a few then interact from the feed.
+- **Discover** — three-door hub: Meets, Groups, Dog Care. Each door links to a sub-page with browse/filter UI. Not a tabbed layout — cards with illustrations.
+- **My Schedule** — Upcoming/History toggle with unified timeline of meets + bookings. "What am I committed to?"
+- **Bookings** — two tabs: My Care (owner bookings) and My Services (provider dashboard). "What care am I managing?"
+- **Profile** — your profile, dogs, settings, provider dial.
+
+**Mobile header** (hub pages only):
+```
+[DOGGO logo]        [Create +] [Notifications 🔔] [Inbox 💬]
+```
+Create (+) opens the post composer. Notifications bell links to `/notifications`. Inbox icon links to `/inbox`. Header hidden on detail pages, replaced by `DetailHeader` with back button.
 
 ### Desktop (sidebar nav)
 
 ```
 DOGGO logo
 Home
-Groups
-Activities
+Discover
+My Schedule
+Bookings
 Inbox
-Find Care
+Notifications
 Profile
 ```
 
-Desktop uses a left sidebar (240px) instead of horizontal nav (Phase 16). Find Care is sidebar-only; mobile uses contextual per-page buttons.
+Desktop uses a left sidebar (200px). 7 items — same top-level destinations as mobile bottom nav, plus Inbox and Notifications (which live in the mobile header instead).
 
 ### Care discovery
 
-Provider search is accessed via "Find Care" CTA — an intentional action from within the community context, not a default tab. See [[explore-and-care]] for the full flow.
+Provider search lives within Discover hub > Dog Care card. Also accessible via "Find Care" CTAs on the Home feed. See [[explore-and-care]] for the full flow.
 
-### Activities tab structure
+### Detail pages
 
-Activities consolidates the old Meets and Schedule tabs. The three sub-tabs:
-- **Discover** — browse upcoming meets, filter by type/neighbourhood. Entry point for event discovery.
-- **My Schedule** — your RSVPed meets (this week, coming up, past). Personal timeline.
-- **Bookings** — care arrangements: owner bookings, incoming requests (carer), active services. Separated because care has a fundamentally different mental model than social meets.
+Detail pages (meet detail, group detail, booking detail, provider profile, user profile, etc.) hide both the bottom nav and mobile header, replacing them with a `DetailHeader` component showing a back button + page title.
 
 ---
 

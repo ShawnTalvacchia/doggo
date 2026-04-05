@@ -481,6 +481,16 @@ export interface Meet {
   playdate?: PlaydateFields;
   /** Training-specific: skill focus, experience level, trainer info, equipment */
   training?: TrainingFields;
+
+  // ── Service group meets ──
+
+  /** Optional CTA for service-group meets (booking link, price, spots) */
+  serviceCTA?: {
+    label: string;
+    href: string;
+    price?: string;
+    spotsLeft?: number;
+  };
 }
 
 // ── Connections ───────────────────────────────────────────────────────────────
@@ -526,6 +536,9 @@ export interface Connection {
 
 export type GroupVisibility = "open" | "approval" | "private";
 
+/** Park = auto-generated, open, no admin. Community = user-created, defaults private. Service = provider-created, has service CTAs. */
+export type GroupType = "park" | "community" | "service";
+
 export type PhotoPolicy = "encouraged" | "optional" | "none";
 
 export type GroupMemberRole = "admin" | "member";
@@ -543,6 +556,8 @@ export interface Group {
   id: string;
   name: string;
   description: string;
+  /** Park / Community / Service archetype */
+  groupType: GroupType;
   visibility: GroupVisibility;
   neighbourhood: string;
   location: string;
@@ -556,6 +571,10 @@ export interface Group {
   /** Photo culture setting — controls whether photo posts are allowed/encouraged */
   photoPolicy: PhotoPolicy;
   createdAt: string;
+  /** Service groups only: provider user ID */
+  hostedBy?: string;
+  /** Service groups only: provider display name */
+  hostedByName?: string;
 }
 
 export type GroupMessageType = "user" | "system";

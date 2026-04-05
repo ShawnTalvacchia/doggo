@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-03-31
+last-reviewed: 2026-04-04
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
@@ -265,22 +265,34 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
-## Phase 18 — Information Architecture Restructure (current)
+## Phase 18 — Information Architecture Restructure ✓
 
 **Goal:** Restructure the app's navigation and page hierarchy. Unify meet and care discovery under a single Discover page, elevate Schedule to top-level, create a proper Bookings hub (owner + provider), move Inbox and Profile to the mobile header bar.
 
-**Key outcomes (planned):**
-- New mobile nav: bottom tabs (Home, Groups, Discover, Schedule, Bookings) + header bar (logo, Inbox icon with badge, profile avatar)
-- New desktop sidebar: Home, Groups, Discover, Schedule, Bookings, Inbox, Profile
-- Unified `/discover` page with Meets | Care tabs (shared filter+map pattern)
-- `/schedule` as standalone top-level page (elevated from Activities sub-tab)
-- `/bookings` hub with My Care | My Services tabs (replaces scattered booking views)
-- Enhanced booking detail page (`/bookings/[id]`) as care arrangement dashboard
-- Detail page headers (back button + title) replacing nav on focused pages
-- Redirects from all old routes (`/activity`, `/explore/results`)
+**Status:** Complete. New 4-tab mobile nav (Home, Discover, My Schedule, Bookings), mobile header (logo + Inbox + avatar), 6-item desktop sidebar, unified `/discover` with Meets + Care tabs, `/schedule` as top-level page, `/bookings` hub with My Care + My Services, enhanced booking detail page, DetailHeader component, redirects from all old routes, dead code cleanup. Meets filter panel + map deferred to Phase 19.
 
 **Board:** [[phase-18-ia-restructure]]
-**IA Reference:** `docs/strategy/Information Architecture.md`
+
+---
+
+## Phase 19 — UI Rebuild & Groups Foundation ✓
+
+**Goal:** Rebuild the app's UI around a reusable layout system. Implement the groups strategy. Rethink the home feed. Update navigation. Align all docs.
+
+**Status:** Complete. All 8 workstreams delivered (A–H).
+
+**Key outcomes:**
+- MasterDetailShell, ListPanel, DetailPanel — reusable layout components used across Home, Schedule, Inbox
+- Navigation: 5-tab mobile bottom nav (+ Profile), mobile header (create + notifications + inbox), 7-item desktop sidebar (+ Notifications)
+- Home rebuilt: desktop groups panel + photo feed, mobile Feed | Groups tabs
+- Feed simplified: MomentCard as primary content, Content Visibility Model (four-gate sourcing)
+- Discover restructured: three-door hub (Meets, Groups, Dog Care) at `/discover`, sub-pages at `/discover/meets`, `/discover/groups`, `/discover/care`
+- Schedule: Joining/Invited/Care filters, master-detail layout, search bar
+- Inbox: All/Care/Groups tabs, three-column desktop (list + conversation + contact info)
+- Groups data model: three archetypes (park/community/service), auto-generated park groups (6), service CTAs on meets, mock data for four user journeys (Tereza, Daniel, Klára, Tomáš)
+- Strategy docs: Groups Strategy, Content Visibility Model
+
+**Board:** [[phase-19-ui-rebuild]]
 
 ---
 

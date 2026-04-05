@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Bell,
   Briefcase,
   CalendarDots,
   ChatCircleDots,
@@ -18,6 +19,7 @@ const navItems: { label: string; href: string; Icon: PhosphorIcon; match: string
   { label: "My Schedule", href: "/schedule", Icon: CalendarDots, match: ["/schedule"] },
   { label: "Bookings", href: "/bookings", Icon: Briefcase, match: ["/bookings"] },
   { label: "Inbox", href: "/inbox", Icon: ChatCircleDots, match: ["/inbox"] },
+  { label: "Notifications", href: "/notifications", Icon: Bell, match: ["/notifications"] },
   { label: "Profile", href: "/profile", Icon: UserCircle, match: ["/profile"] },
 ];
 

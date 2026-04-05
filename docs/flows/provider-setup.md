@@ -1,6 +1,6 @@
 ---
 status: built
-last-reviewed: 2026-03-23
+last-reviewed: 2026-04-02
 ---
 
 # Provider Setup Flow
@@ -29,7 +29,7 @@ flowchart TD
 | Availability setup | `/profile` | Partial |
 | Pricing setup | `/profile` | Done (pricing section exists) |
 | Provider badge on profile | `/profile/[userId]` | Done |
-| Appear in explore results | `/explore/results` | Done (mock data) |
+| Appear in Discover > Care tab | `/discover?tab=care` | Done (mock data) |
 | Receive inquiries | `/inbox` | Done (mock conversations) |
 
 ## Notes
