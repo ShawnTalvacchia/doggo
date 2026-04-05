@@ -296,11 +296,11 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
-## Phase 20 — Polish & Alignment (active)
+## Phase 20 — Polish & Alignment ✓
 
 **Goal:** Capture recent mobile UX fixes, Discover filter rebuild, and component cleanup. Realign docs that drifted during rapid Phase 19 iteration. Audit for dead code and consolidate component inventory.
 
-**Status:** Active. Doc realignment in progress.
+**Status:** Complete. All workstreams delivered.
 
 **Key work:**
 - Document recent fixes: scroll-hide nav, mobile panel layout, feed image caps, care filter rebuild
@@ -310,6 +310,23 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 - Refresh stale implementation docs (design-tokens, signup-reference)
 
 **Board:** [[phase-20-polish-and-alignment]]
+
+---
+
+## Phase 21 — Pages & Content Build-out (active)
+
+**Goal:** Flesh out inner content across all app pages. Bring Discover Meets and Groups up to the same interactive filter level as Care. Migrate Bookings and Notifications to shared layout system. Build Notifications from scratch.
+
+**Status:** Active.
+
+**Key work:**
+- Discover/Meets: interactive filter panel, map, mobile tab switching
+- Discover/Groups: interactive filter panel, results filtering
+- Notifications: full build-out from stub (notification types, list, detail, mock data)
+- Bookings: migrate to MasterDetailShell layout
+- Page polish: wire UpcomingPanel, booking detail view, schedule detail enrichment
+
+**Board:** [[phase-21-pages-and-content]]
 
 ---
 

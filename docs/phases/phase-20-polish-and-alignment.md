@@ -1,6 +1,6 @@
 ---
 category: phase
-status: active
+status: complete
 last-reviewed: 2026-04-05
 tags: [phase-20, polish, alignment, mobile, discover, cleanup]
 review-trigger: "when completing workstreams or closing this phase"
@@ -75,8 +75,9 @@ These were implemented in the previous session but not captured in any phase boa
 
 | Task | Status |
 |------|--------|
-| Refresh `design-tokens.md` (last reviewed 2026-03-16) | on deck |
-| Refresh `landing-page.md` (last reviewed 2026-03-21) | on deck |
+| Refresh `design-tokens.md` (last reviewed 2026-03-16) | ✓ (done in Workstream A) |
+| Refresh `landing-page.md` (last reviewed 2026-03-21) | deferred — content accurate, landing page unchanged |
+| Refresh `signup-reference.md` (last reviewed 2026-03-17) | deferred — content accurate, signup unchanged |
 | Review `signup-reference.md` for staleness | on deck |
 
 ---

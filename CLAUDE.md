@@ -81,13 +81,13 @@ See `docs/CONTRIBUTING.md` for full details.
 | `docs/implementation/component-inventory.md` | Built components catalog |
 | `docs/CONTRIBUTING.md` | Workflow rules, doc categories, naming conventions |
 
-## Current Phase: 20 (active) — Polish & Alignment
+## Current Phase: 21 (active) — Pages & Content Build-out
 
-**Goal:** Capture recent mobile UX fixes (scroll-hide nav, panel layout, feed image caps, care filter rebuild), realign drifted docs, audit and clean up orphaned components. See `docs/phases/phase-20-polish-and-alignment.md`.
+**Goal:** Flesh out inner content across all pages. Bring Discover Meets/Groups to same interactive filter level as Care. Migrate Bookings + Notifications to shared layout. Build Notifications from scratch. See `docs/phases/phase-21-pages-and-content.md`.
 
-**Previous phase (19):** Delivered reusable MasterDetailShell layout, groups strategy (Park/Community/Service), photo-focused feed, 5-tab mobile nav, Discover three-door hub, mock data for four user journeys.
+**Previous phases:** Phase 19 delivered layout system + groups + feed. Phase 20 cleaned up docs + removed 9 dead components.
 
-**Board:** See `docs/phases/phase-20-polish-and-alignment.md` and `docs/ROADMAP.md`.
+**Board:** See `docs/phases/phase-21-pages-and-content.md` and `docs/ROADMAP.md`.
 
 ## Strategic Context
 
