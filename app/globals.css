@@ -2621,7 +2621,7 @@ body.guest-route {
 
   .discover-mobile-tab-content {
     flex: 1;
-    overflow-y: auto;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -5613,7 +5613,7 @@ body.guest-route {
     right: 0;
     height: 64px;
     background: var(--surface-base);
-    border-top: 1px solid var(--border-strong);
+    border-top: 1px solid var(--border-stronger);
     z-index: 100;
     padding-bottom: env(safe-area-inset-bottom, 0px);
     transition: transform 0.3s ease;

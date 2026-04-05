@@ -52,13 +52,13 @@ export function DiscoverShell({
   const visibleProviders = filteredProviders.slice(0, maxResults);
 
   const resultsBody = (
-    <>
+    <div className="discover-results-list">
       <div
         className="discover-results-subheader bg-surface-popout flex items-center gap-sm"
         style={{
-          padding: "var(--space-md) var(--space-lg)",
+          height: 64,
+          padding: "0 var(--space-lg)",
           borderBottom: "1px solid var(--border-strong)",
-          flexShrink: 0,
         }}
       >
         {resultsIcon}
@@ -66,17 +66,15 @@ export function DiscoverShell({
           {resultsTitle}
         </span>
       </div>
-      <div className="discover-results-list">
-        {resultsContent ??
-          visibleProviders.map((p) => (
-            <CardExploreResult
-              key={p.id}
-              provider={p}
-              activeService={activeService}
-            />
-          ))}
-      </div>
-    </>
+      {resultsContent ??
+        visibleProviders.map((p) => (
+          <CardExploreResult
+            key={p.id}
+            provider={p}
+            activeService={activeService}
+          />
+        ))}
+    </div>
   );
 
   return (
@@ -104,21 +102,20 @@ export function DiscoverShell({
 
       {/* Middle panel — results (desktop) */}
       <div className="discover-results-panel">
-        <div
-          className="bg-surface-popout flex items-center gap-sm"
-          style={{
-            height: 64,
-            padding: "0 var(--space-lg)",
-            borderBottom: "1px solid var(--border-strong)",
-            flexShrink: 0,
-          }}
-        >
-          {resultsIcon}
-          <span className="font-body font-semibold text-md text-fg-primary">
-            {resultsTitle}
-          </span>
-        </div>
         <div className="discover-results-list">
+          <div
+            className="discover-results-subheader bg-surface-popout flex items-center gap-sm"
+            style={{
+              height: 64,
+              padding: "0 var(--space-lg)",
+              borderBottom: "1px solid var(--border-strong)",
+            }}
+          >
+            {resultsIcon}
+            <span className="font-body font-semibold text-md text-fg-primary">
+              {resultsTitle}
+            </span>
+          </div>
           {resultsContent ??
             visibleProviders.map((p) => (
               <CardExploreResult
