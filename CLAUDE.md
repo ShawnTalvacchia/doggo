@@ -81,11 +81,13 @@ See `docs/CONTRIBUTING.md` for full details.
 | `docs/implementation/component-inventory.md` | Built components catalog |
 | `docs/CONTRIBUTING.md` | Workflow rules, doc categories, naming conventions |
 
-## Current Phase: 19 (complete) — UI Rebuild & Groups Foundation
+## Current Phase: 20 (active) — Polish & Alignment
 
-**Delivered:** Reusable MasterDetailShell layout system used across Home, Schedule, Inbox. Groups strategy implemented (three archetypes: Park, Community, Service). Photo-focused feed with Content Visibility Model (four-gate sourcing). Navigation updated (5 mobile tabs, create + notifications + inbox header, 7-item sidebar). Discover restructured as three-door hub (Meets, Groups, Dog Care). Mock data for four user journeys (Tereza, Daniel, Klára, Tomáš).
+**Goal:** Capture recent mobile UX fixes (scroll-hide nav, panel layout, feed image caps, care filter rebuild), realign drifted docs, audit and clean up orphaned components. See `docs/phases/phase-20-polish-and-alignment.md`.
 
-**Board:** See `docs/phases/phase-19-ui-rebuild.md` and `docs/ROADMAP.md`.
+**Previous phase (19):** Delivered reusable MasterDetailShell layout, groups strategy (Park/Community/Service), photo-focused feed, 5-tab mobile nav, Discover three-door hub, mock data for four user journeys.
+
+**Board:** See `docs/phases/phase-20-polish-and-alignment.md` and `docs/ROADMAP.md`.
 
 ## Strategic Context
 

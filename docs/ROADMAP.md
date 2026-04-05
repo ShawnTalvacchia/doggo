@@ -296,6 +296,23 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
+## Phase 20 — Polish & Alignment (active)
+
+**Goal:** Capture recent mobile UX fixes, Discover filter rebuild, and component cleanup. Realign docs that drifted during rapid Phase 19 iteration. Audit for dead code and consolidate component inventory.
+
+**Status:** Active. Doc realignment in progress.
+
+**Key work:**
+- Document recent fixes: scroll-hide nav, mobile panel layout, feed image caps, care filter rebuild
+- Add 5 missing components + 1 hook to component inventory
+- Update feature docs (explore-and-care, care-discovery flow) to reflect DiscoverShell and interactive filters
+- Component audit: identify and remove orphaned legacy components (DiscoverTab, ServicesTab, CareTab)
+- Refresh stale implementation docs (design-tokens, signup-reference)
+
+**Board:** [[phase-20-polish-and-alignment]]
+
+---
+
 ## Out of Scope
 
 Not built, not demoed:

@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-04-04
+last-reviewed: 2026-04-05
 tags: [components, ui, inventory]
 review-trigger: "when building or refactoring components"
 ---
@@ -40,21 +40,23 @@ components/
   signup/       ← SignupProgressBar, SignupProfilePreview
   messaging/    ← InquiryForm, BookingProposalCard, InquiryChips, InquiryResponseCard,
                   ProposalForm, RelationshipBanner, PaymentCard, ContractCard, SigningModal
-  activity/     ← CardScheduleMeet, CardMyMeet, DiscoverTab, MyScheduleTab, ServicesTab
+  activity/     ← CardScheduleMeet, CardMyMeet, MyScheduleTab, ServicesTab
   bookings/     ← CancelBookingModal, BookingListCard
   landing/      ← HowItWorksTabs
   posts/        ← TagPill, PostPhotoGrid, PawReaction, TagAutocomplete
-  feed/         ← FeedCard, FeedPersonalPost, FeedCommunityPost, FeedMeetRecap,
+  discover/     ← DiscoverShell
+  feed/         ← FeedCard, FeedMeetRecap,
                   FeedUpcomingMeet, FeedConnectionActivity, FeedConnectionNudge,
                   FeedCarePrompt, FeedMilestone, FeedDogMoment, FeedCareReview,
-                  CompactGreeting, ShareMomentBar, UpcomingStrip, HomeFAB,
-                  MomentCard, MomentCardFromPost
+                  FeedCTA, MomentCard, MomentCardFromPost
   meets/        ← MeetCard, MeetCardCompact, ParticipantCard, ParticipantList,
                   PostMeetReveal, ShareMeetModal
   chat/         ← SystemMessage
   groups/       ← GroupCard
+  home/         ← UpcomingPanel
   profile/      ← ProfileHeaderOwn, TrustSignalBadges, PostsTab, TagApprovalSetting,
                   PetCard, PetEditCard, ProfileAboutTab, ProfileServicesTab
+hooks/            ← useScrollHideNav
 ```
 
 ---
@@ -767,8 +769,8 @@ _Ordered by impact vs. effort._
 | Component | Path | Purpose | Status |
 |-----------|------|---------|--------|
 | `FeedCard` | `components/feed/FeedCard.tsx` | Shared card wrapper: author header, timestamp, group badge, connection context | `built` |
-| `FeedPersonalPost` | `components/feed/FeedPersonalPost.tsx` | Personal post card: photos, caption, tags, paw reaction | `built` |
-| `FeedCommunityPost` | `components/feed/FeedCommunityPost.tsx` | Community post card: same as personal + group badge in header | `built` |
+| ~~`FeedPersonalPost`~~ | ~~`components/feed/FeedPersonalPost.tsx`~~ | Superseded by `MomentCard`. Deleted Phase 20. | `archived` |
+| ~~`FeedCommunityPost`~~ | ~~`components/feed/FeedCommunityPost.tsx`~~ | Superseded by `MomentCard`. Deleted Phase 20. | `archived` |
 | `FeedMeetRecap` | `components/feed/FeedMeetRecap.tsx` | Meet recap card: photo strip, attendee count, "View recap" link | `built` |
 | `FeedUpcomingMeet` | `components/feed/FeedUpcomingMeet.tsx` | Upcoming meet card: compact meet info + "Join" pill | `built` |
 | `FeedConnectionActivity` | `components/feed/FeedConnectionActivity.tsx` | Connection event card: "[Name] added [service]" + context | `built` |
@@ -777,10 +779,10 @@ _Ordered by impact vs. effort._
 | `FeedMilestone` | `components/feed/FeedMilestone.tsx` | Ambient stat card: neighbourhood milestone, no CTA | `built` |
 | `FeedDogMoment` | `components/feed/FeedDogMoment.tsx` | Dog event card: birthday, new dog, tagged notification | `built` |
 | `FeedCareReview` | `components/feed/FeedCareReview.tsx` | Care review card: reviewer/carer avatars, star rating, quote | `built` |
-| `CompactGreeting` | `components/feed/CompactGreeting.tsx` | 1-line home greeting with dog avatars + neighbourhood | `built` |
-| `ShareMomentBar` | `components/feed/ShareMomentBar.tsx` | "Share a moment..." prompt bar linking to post composer | `built` |
-| `UpcomingStrip` | `components/feed/UpcomingStrip.tsx` | Horizontal scroll of mini upcoming-meet cards | `built` |
-| `HomeFAB` | `components/feed/HomeFAB.tsx` | Floating action button (bottom-right, links to post composer) | `built` |
+| ~~`CompactGreeting`~~ | ~~`components/feed/CompactGreeting.tsx`~~ | Unused after Phase 19 home redesign. Deleted Phase 20. | `archived` |
+| ~~`ShareMomentBar`~~ | ~~`components/feed/ShareMomentBar.tsx`~~ | Unused after Phase 19 home redesign. Deleted Phase 20. | `archived` |
+| ~~`UpcomingStrip`~~ | ~~`components/feed/UpcomingStrip.tsx`~~ | Replaced by `UpcomingPanel`. Deleted Phase 20. | `archived` |
+| ~~`HomeFAB`~~ | ~~`components/feed/HomeFAB.tsx`~~ | Create action moved to header. Deleted Phase 20. | `archived` |
 
 ### Profile Components (`components/profile/`)
 
@@ -870,7 +872,7 @@ _Ordered by impact vs. effort._
 
 | Component | Path | Purpose | Status |
 |-----------|------|---------|--------|
-| `DiscoverTab` | `components/activity/DiscoverTab.tsx` | Meet browse + filter (extracted from old `/meets` page) | `built` |
+| ~~`DiscoverTab`~~ | ~~`components/activity/DiscoverTab.tsx`~~ | Superseded by Discover hub pages. Deleted Phase 20. | `archived` |
 | `MyScheduleTab` | `components/activity/MyScheduleTab.tsx` | Personal schedule — Upcoming/History toggle, unified meet + booking timeline | `built` |
 | `ServicesTab` | `components/activity/ServicesTab.tsx` | Provider dashboard — visibility, stats, service cards, requests, active bookings (replaced BookingsTab in Phase 17) | `built` |
 
@@ -948,12 +950,32 @@ _Ordered by impact vs. effort._
 | `ListPanel` | `components/layout/ListPanel.tsx` | Left panel wrapper: optional header, search, filters, scrollable list. | `built` |
 | `DetailPanel` | `components/layout/DetailPanel.tsx` | Right panel wrapper: optional header, scrollable content, optional fixed footer. | `built` |
 
+### Discover Components (`components/discover/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `DiscoverShell` | `components/discover/DiscoverShell.tsx` | Shared three-panel layout shell for all Discover sub-pages (Meets, Groups, Dog Care). Provides hub panel (left), results panel (middle), and map panel (right) on desktop. On mobile, supports tabbed Results/Filters view via TabBar. Accepts custom `hubPanel`, `resultsContent`, and `rightPanel` as props. Props: `hubPanel: ReactNode`, `resultsTitle: string`, `resultsIcon?: ReactNode`, `activeService?: ServiceType`, `maxResults?: number`, `resultsContent?: ReactNode`, `rightPanel?: ReactNode`, `hideRightPanel?: boolean`, `mobileShowResults?: boolean`. | `built` |
+
 ### Feed Components (`components/feed/`)
 
 | Component | Path | Purpose | Status |
 |-----------|------|---------|--------|
 | `MomentCard` | `components/feed/MomentCard.tsx` | Unified photo moment card — replaces FeedPersonalPost, FeedCommunityPost, and FeedMeetRecap as the primary feed content type. Shows photo(s) with caption, author, group/meet context, tags, and paw reaction. | `built` |
 | `MomentCardFromPost` | `components/feed/MomentCard.tsx` | Convenience wrapper that accepts a `Post` object and maps it to `MomentCard` props. | `built` |
+| ~~`FeedUpdate`~~ | ~~`components/feed/FeedUpdate.tsx`~~ | Never imported. Deleted Phase 20. | `archived` |
+| `FeedCTA` | `components/feed/FeedCTA.tsx` | Call-to-action card in the feed prompting user engagement (e.g. complete profile, try a feature). | `built` |
+
+### Home Components (`components/home/`)
+
+| Component | Path | Purpose | Status |
+|-----------|------|---------|--------|
+| `UpcomingPanel` | `components/home/UpcomingPanel.tsx` | Upcoming events sidebar panel on home page showing scheduled meets and bookings. Contains internal `CardUpcomingEvent` sub-component. | `built` |
+
+### Hooks (`hooks/`)
+
+| Hook | Path | Purpose | Status |
+|------|------|---------|--------|
+| `useScrollHideNav` | `hooks/useScrollHideNav.ts` | Detects scroll direction inside mobile scroll containers and toggles `nav-hidden` class on `<body>` to auto-hide top/bottom nav bars. Includes cooldown timer (400ms) to prevent feedback loops during CSS transitions, and a content-depth threshold so it only activates on pages with enough scrollable content. Only active on viewports ≤ 767px. | `built` |
 
 ### Key Changes
 

@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-03-16
+last-reviewed: 2026-04-05
 tags: [tokens, css, figma, design-system]
 review-trigger: "when adding or changing CSS variables"
 ---
@@ -260,6 +260,26 @@ CSS pattern: `--transparent-{dark|light|gray}-{step}`
 | Font Size/Body/XS  | `--font-size-body-xs`  | `10px`  | `10px` |
 
 Mobile overrides are set inside the `@media (max-width: 767px)` block in `globals.css` — they override the CSS custom properties, so any component using `var(--font-size-h1)` etc. automatically gets the correct responsive value.
+
+---
+
+## Tailwind v4 Mapping
+
+All semantic tokens are mapped to Tailwind utilities via the `@theme` block in `globals.css`. The mapping uses `@tailwindcss/postcss` (not a `tailwind.config` file). Key mappings:
+
+| Token prefix | Tailwind utility | Example |
+| ------------ | --------------- | ------- |
+| `--surface-*` | `bg-surface-*` | `bg-surface-base` |
+| `--text-*` (colors) | `text-fg-*` | `text-fg-primary` |
+| `--brand-*` (semantic) | `bg-brand-*`, `text-brand-*` | `bg-brand-main` |
+| `--border-*` | `border-edge-*` | `border-edge-regular` |
+| `--space-*` | `p-*`, `m-*`, `gap-*` | `gap-md`, `p-xl` |
+| `--radius-*` | `rounded-*` | `rounded-panel` |
+| `--shadow-*` | `shadow-*` | `shadow-sm` |
+| `--font-size-*` | `text-*` | `text-lg` |
+| `--weight-*` | `font-*` | `font-semibold` |
+
+**Rule:** Use Tailwind utilities in JSX for new code. Only create CSS classes for complex patterns (pseudo-elements, animations, 9+ properties). See `frontend-style.md`.
 
 ---
 

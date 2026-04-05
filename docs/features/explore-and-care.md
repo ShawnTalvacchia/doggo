@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-04
+last-reviewed: 2026-04-05
 tags: [discover, care, booking, providers, map, payment, trust-gating]
 review-trigger: "when modifying Discover Care tab, provider profiles, booking flows, payment, or map"
 ---
@@ -20,7 +20,7 @@ Care discovery lives within the **Discover hub** as one of three doors. The Disc
 - **Groups** — `/discover/groups` — group browse with filters (Park, Community, Service archetypes)
 - **Dog Care** — `/discover/care` — provider search with filters + map
 
-Users can also reach care via "Find Care" CTAs on the Home feed. The flow covers service selection, filtered provider search with an interactive map, provider profiles with trust signals, booking conversations, payment, and session tracking.
+Each door opens into its own sub-page built on the **DiscoverShell** layout component, which provides a shared three-panel structure (hub navigation + results list + map) reused across all Discover sub-pages. Users can also reach care via "Find Care" CTAs on the Home feed. The flow covers service selection, filtered provider search with an interactive map, provider profiles with trust signals, booking conversations, payment, and session tracking.
 
 Care arrangements sit inside existing trust relationships. Every provider card and profile shows the user's connection state with that person. **Connection state gates all care actions** (Phase 11): non-connected users cannot book care or initiate conversations.
 
@@ -37,6 +37,7 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 
 - **Service selection:** Three service cards (Walk & Check-ins, In-home Sitting, Boarding) as entry point
 - **Provider results:** Filterable list with price, distance, rating, services. Map with price-marker pins. Community carers section for connected providers.
+- **Care filter panel:** The filter panel at `/discover/care` uses **interactive UI primitives** — MultiSelectSegmentBar for day-of-week selection, dual Slider for price range, CheckboxRow for service toggles, and an accordion pattern for expanding service sub-types. All built from existing components, not custom markup.
 - **Interactive map:** Leaflet with Carto Positron tiles, price markers, 3-column desktop layout
 - **Provider profiles:** Info/Services/Reviews tabs, gallery, trust signals
 - **Connection gating (Phase 11):** CTAs enforced by connection state:
@@ -53,7 +54,7 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 
 ## Key Decisions
 
-1. **Discover is a three-door hub** — `/discover` shows three category cards (Meets, Groups, Dog Care) instead of tabs. Each door leads to its own browse page (`/discover/meets`, `/discover/groups`, `/discover/care`). Phase 19 replaced the tabbed Meets|Care layout with this hub pattern. Care is also accessible via "Find Care" CTAs on the Home feed.
+1. **Discover is a three-door hub** — `/discover` shows three category cards (Meets, Groups, Dog Care) instead of tabs. This is a **three-door pattern**: each door leads to its own DiscoverShell-based sub-page (`/discover/meets`, `/discover/groups`, `/discover/care`) with consistent hub + results + map layout. Phase 19 replaced the tabbed Meets|Care layout with this hub pattern. Care is also accessible via "Find Care" CTAs on the Home feed.
 
 2. **Connection state gates actions, not just appearance** — (Phase 11) Non-connected users see disabled CTAs with contextual explanations. The TrustGateBanner component explains why and suggests next steps (attend a meet, send a connect request).
 
