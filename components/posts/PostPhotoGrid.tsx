@@ -23,7 +23,10 @@ export function PostPhotoGrid({ photos, fullBleed = false }: PostPhotoGridProps)
   if (photos.length === 0) return null;
 
   const radius = fullBleed ? undefined : "var(--radius-panel)";
-  const minW = photos.length <= 2 ? 238 : 178;
+  const count = Math.min(photos.length, 4);
+  const minW = count <= 2 ? 238 : 178;
+  // Cap image heights so tall/portrait photos don't dominate the feed
+  const maxH = count === 1 ? 420 : count === 2 ? 320 : 260;
 
   return (
     <div
@@ -40,6 +43,7 @@ export function PostPhotoGrid({ photos, fullBleed = false }: PostPhotoGridProps)
             flex: "1 0 0",
             minWidth: minW,
             minHeight: 178,
+            maxHeight: maxH,
             objectFit: "cover",
             display: "block",
           }}
