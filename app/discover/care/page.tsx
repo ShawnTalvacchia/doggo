@@ -8,8 +8,7 @@ import {
   Heart,
   MapPin,
   CaretRight,
-  CaretDown,
-  CheckSquare,
+  CaretUp,
   PawPrint,
   House,
   Bed,
@@ -18,6 +17,10 @@ import {
   Repeat,
 } from "@phosphor-icons/react";
 import { DiscoverShell } from "@/components/discover/DiscoverShell";
+import { CheckboxRow } from "@/components/ui/CheckboxRow";
+import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
+import { Slider } from "@/components/ui/Slider";
+import { getExploreRateBounds } from "@/lib/pricing";
 import type { ServiceType } from "@/lib/types";
 
 const CARE_SERVICES: {
@@ -51,6 +54,9 @@ const SERVICE_LABELS: Record<ServiceType, string> = {
   inhome_sitting: "In-home Sitting",
   boarding: "Boarding",
 };
+
+const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"] as const;
+const WALK_SERVICES = ["Drop-in visit", "Group walk", "Solo walk"];
 
 /** Hub panel — service picker (no service selected yet) */
 function CarePickerPanel() {
@@ -123,8 +129,14 @@ function CarePickerPanel() {
 /** Hub panel — filter form (service selected) */
 function CareFilterPanel({ activeService }: { activeService: ServiceType }) {
   const [servicesOpen, setServicesOpen] = useState(true);
+  const [visitMode, setVisitMode] = useState<"one_time" | "repeat">("repeat");
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [minRate, setMinRate] = useState(150);
+  const [maxRate, setMaxRate] = useState(950);
+
   const label = SERVICE_LABELS[activeService];
   const svc = CARE_SERVICES.find((s) => s.key === activeService);
+  const rateBounds = getExploreRateBounds(activeService);
 
   return (
     <>
@@ -145,10 +157,8 @@ function CareFilterPanel({ activeService }: { activeService: ServiceType }) {
       </div>
       <div className="discover-hub-body" style={{ gap: "var(--space-xxl)" }}>
         {/* Service */}
-        <div className="flex flex-col gap-sm">
-          <span className="font-body font-semibold text-fg-secondary text-sm">
-            Service
-          </span>
+        <div className="filter-field">
+          <div className="label">Service</div>
           <div
             className="bg-surface-top border border-edge-stronger flex items-center gap-sm rounded-sm"
             style={{ padding: "var(--space-sm) var(--space-md)" }}
@@ -159,10 +169,8 @@ function CareFilterPanel({ activeService }: { activeService: ServiceType }) {
         </div>
 
         {/* Pets */}
-        <div className="flex flex-col gap-sm">
-          <span className="font-body font-semibold text-fg-secondary text-sm">
-            Pets
-          </span>
+        <div className="filter-field">
+          <div className="label">Pets</div>
           <div
             className="bg-surface-top border border-edge-stronger flex items-center gap-sm rounded-sm"
             style={{ padding: "var(--space-sm) var(--space-md)" }}
@@ -173,10 +181,8 @@ function CareFilterPanel({ activeService }: { activeService: ServiceType }) {
         </div>
 
         {/* Nearby */}
-        <div className="flex flex-col gap-sm">
-          <span className="font-body font-semibold text-fg-secondary text-sm">
-            Nearby
-          </span>
+        <div className="filter-field">
+          <div className="label">Nearby</div>
           <div
             className="bg-surface-top border border-edge-stronger flex items-center gap-sm rounded-sm"
             style={{ padding: "var(--space-sm) var(--space-md)" }}
@@ -187,184 +193,120 @@ function CareFilterPanel({ activeService }: { activeService: ServiceType }) {
         </div>
 
         {/* How often */}
-        <div className="flex flex-col gap-sm">
-          <span className="font-body font-semibold text-fg-secondary text-sm">
-            How often?
-          </span>
-          <div className="flex gap-md">
-            <div
-              className="flex-1 bg-surface-base border border-edge-stronger flex flex-col gap-xxs rounded-sm"
-              style={{ padding: "var(--space-sm) var(--space-md)" }}
-            >
-              <div className="flex items-center gap-sm">
-                <CalendarBlank size={19} weight="regular" className="text-fg-tertiary shrink-0" />
-                <span className="font-body font-semibold text-sm text-fg-tertiary">Repeat Weekly</span>
-              </div>
-              <span className="font-body text-sm text-fg-tertiary" style={{ lineHeight: "20px" }}>Daily visits for a short period</span>
-            </div>
+        <div className="filter-field">
+          <div className="label">How often?</div>
+          <div className="filter-visit-row">
             <button
-              className="flex-1 bg-surface-top border flex flex-col gap-xxs rounded-sm"
-              style={{ padding: "var(--space-sm) var(--space-md)", borderColor: "var(--text-secondary)", cursor: "pointer", textAlign: "left" }}
+              type="button"
+              className={`filter-option-card${visitMode === "one_time" ? " active" : ""}`}
+              onClick={() => setVisitMode("one_time")}
             >
-              <div className="flex items-center gap-sm">
-                <CalendarBlank size={19} weight="regular" className="text-fg-primary shrink-0" />
-                <span className="font-body font-semibold text-sm text-fg-primary">Repeat Weekly</span>
-              </div>
-              <span className="font-body text-sm text-fg-secondary" style={{ lineHeight: "20px" }}>Daily visits for a short period</span>
+              <strong>One Time</strong>
+              <span>Daily visits for a short period</span>
+            </button>
+            <button
+              type="button"
+              className={`filter-option-card${visitMode === "repeat" ? " active" : ""}`}
+              onClick={() => setVisitMode("repeat")}
+            >
+              <strong>Repeat Weekly</strong>
+              <span>Ongoing weekly schedule</span>
             </button>
           </div>
         </div>
 
-        {/* For which days — segment bar */}
-        <div className="flex flex-col gap-sm">
-          <span className="font-body font-semibold text-fg-secondary text-sm">
-            For which days?
-          </span>
-          <div className="flex" style={{ borderRadius: "var(--radius-sm)" }}>
-            {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day, i) => (
-              <div
-                key={day}
-                className="flex flex-1 items-center justify-center bg-surface-base text-md text-fg-tertiary font-body"
-                style={{
-                  height: 40,
-                  border: "1px solid var(--border-stronger)",
-                  marginLeft: i > 0 ? -1 : 0,
-                  borderRadius:
-                    i === 0
-                      ? "var(--radius-sm) 0 0 var(--radius-sm)"
-                      : i === 6
-                      ? "0 var(--radius-sm) var(--radius-sm) 0"
-                      : 0,
+        {/* For which days — interactive segment bar */}
+        <div className="filter-field">
+          <div className="label">For which days?</div>
+          <MultiSelectSegmentBar
+            ariaLabel="Repeat weekly days"
+            options={DAYS.map((day) => ({ value: day, label: day }))}
+            selectedValues={selectedDays}
+            onToggle={(day) =>
+              setSelectedDays((prev) =>
+                prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
+              )
+            }
+            variant="filter"
+          />
+        </div>
+
+        {/* Price range — interactive dual slider */}
+        <div className="filter-field">
+          <div className="label">Price range</div>
+          <Slider
+            dual
+            min={rateBounds.min}
+            max={rateBounds.max}
+            step={50}
+            minValue={minRate}
+            maxValue={maxRate}
+            onMinChange={(v) => setMinRate(v)}
+            onMaxChange={(v) => setMaxRate(v)}
+          />
+          <div className="filter-minmax-row">
+            <div className="filter-field">
+              <div className="label">Min. per walk</div>
+              <input
+                className="input"
+                type="number"
+                min={rateBounds.min}
+                max={rateBounds.max}
+                value={minRate}
+                onChange={(e) => {
+                  const v = Number(e.target.value) || rateBounds.min;
+                  setMinRate(Math.min(Math.max(v, rateBounds.min), maxRate));
                 }}
-              >
-                {day}
-              </div>
-            ))}
+              />
+            </div>
+            <div className="filter-field">
+              <div className="label">Max. per walk</div>
+              <input
+                className="input"
+                type="number"
+                min={rateBounds.min}
+                max={rateBounds.max}
+                value={maxRate}
+                onChange={(e) => {
+                  const v = Number(e.target.value) || rateBounds.max;
+                  setMaxRate(Math.max(Math.min(v, rateBounds.max), minRate));
+                }}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Price range */}
-        <div className="flex flex-col gap-sm">
-          <span className="font-body font-semibold text-fg-secondary text-sm">
-            Price range
-          </span>
-          <div
-            className="flex items-center"
-            style={{ height: 40, padding: "0 var(--space-xxl)" }}
-          >
-            <div
-              className="flex flex-1 items-center relative"
-              style={{ height: 5, background: "var(--surface-inset)", borderRadius: 9999 }}
+        {/* Services accordion — interactive checkboxes */}
+        <div className="filter-accordion-stack">
+          <div className="filter-accordion">
+            <button
+              type="button"
+              className={`filter-accordion-btn${servicesOpen ? " open" : ""}`}
+              onClick={() => setServicesOpen((o) => !o)}
             >
-              <div
-                className="flex flex-1 items-center justify-between"
-                style={{
-                  height: "100%",
-                  background: "var(--brand-light)",
-                  borderRadius: 9999,
-                }}
-              >
-                <div
-                  style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: "50%",
-                    border: "2px solid var(--brand-light)",
-                    background: "white",
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
-                    marginLeft: -12,
-                  }}
-                />
-                <div
-                  style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: "50%",
-                    border: "2px solid var(--brand-light)",
-                    background: "white",
-                    boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
-                    marginRight: -12,
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-lg">
-            <div className="flex flex-col flex-1 gap-xxs" style={{ height: 76, justifyContent: "space-between" }}>
-              <span className="font-body font-semibold text-fg-secondary text-sm">Min. per walk</span>
-              <div
-                className="bg-surface-top border border-edge-stronger rounded-sm font-body text-md text-fg-tertiary"
-                style={{ padding: "var(--space-sm) var(--space-md)" }}
-              >
-                150 Kč
-              </div>
-            </div>
-            <div className="flex flex-col flex-1 gap-xxs" style={{ height: 76, justifyContent: "space-between" }}>
-              <span className="font-body font-semibold text-fg-secondary text-sm">Max. per walk</span>
-              <div
-                className="bg-surface-top border border-edge-stronger rounded-sm font-body text-md text-fg-tertiary"
-                style={{ padding: "var(--space-sm) var(--space-md)" }}
-              >
-                950 Kč
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Services accordion */}
-        <div
-          className="flex flex-col"
-          style={{
-            borderTop: "1px solid var(--border-strong)",
-            borderBottom: "1px solid var(--border-strong)",
-            padding: "var(--space-sm) 0",
-          }}
-        >
-          <button
-            className="flex items-center gap-sm"
-            style={{
-              height: 40,
-              cursor: "pointer",
-              background: "none",
-              border: "none",
-              padding: 0,
-              width: "100%",
-            }}
-            onClick={() => setServicesOpen((o) => !o)}
-          >
-            <span className="flex-1 font-body font-semibold text-fg-secondary text-sm text-left">
               Services
-            </span>
-            <CaretDown
-              size={24}
-              weight="light"
-              className="text-fg-secondary"
-              style={{
-                transition: "transform 0.2s",
-                transform: servicesOpen ? "rotate(0deg)" : "rotate(-90deg)",
-              }}
-            />
-          </button>
-          {servicesOpen && (
-            <div className="flex flex-col">
-              {["Drop-in visit", "Group walk", "Solo walk"].map((name) => (
-                <div
-                  key={name}
-                  className="flex items-center gap-md"
-                  style={{ height: 40 }}
-                >
-                  <span className="flex-1 font-body text-sm text-fg-secondary" style={{ lineHeight: "20px" }}>
-                    {name}
-                  </span>
-                  <CheckSquare size={24} weight="light" className="text-fg-tertiary shrink-0" />
-                </div>
-              ))}
+              <span className="accordion-caret">
+                <CaretUp size={24} weight="regular" />
+              </span>
+            </button>
+            <div className={`filter-accordion-body${servicesOpen ? " open" : ""}`}>
+              <div className="filter-accordion-inner">
+                {WALK_SERVICES.map((name) => (
+                  <AccordionCheckbox key={name} label={name} />
+                ))}
+              </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </>
   );
+}
+
+/** Checkbox row with local state for accordion items */
+function AccordionCheckbox({ label, defaultChecked = false }: { label: string; defaultChecked?: boolean }) {
+  const [checked, setChecked] = useState(defaultChecked);
+  return <CheckboxRow label={label} checked={checked} onChange={setChecked} placement="right" />;
 }
 
 function DiscoverCareInner() {
