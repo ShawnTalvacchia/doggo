@@ -51,10 +51,11 @@ export function useScrollHideNav() {
         const delta = currentY - lastY.current;
         const isHidden = document.body.classList.contains("nav-hidden");
 
-        // Don't hide nav if content wouldn't remain scrollable after
-        // the panel expands (prevents glitchy hide/show loops on short lists)
-        const canHide =
-          target.scrollHeight > target.clientHeight + TOTAL_OFFSET;
+        // Only hide nav if content is significantly taller than the panel.
+        // Must have at least 1.5 viewports of scroll depth so the effect
+        // feels natural rather than disruptive on barely-scrollable content.
+        const MIN_SCROLL_DEPTH = target.clientHeight * 0.5 + TOTAL_OFFSET;
+        const canHide = target.scrollHeight - target.clientHeight > MIN_SCROLL_DEPTH;
 
         if (delta > THRESHOLD && currentY > TOP_NAV_H && !isHidden && canHide) {
           // Hiding nav — panel will grow, offset scroll to keep content stable
