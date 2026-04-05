@@ -1,14 +1,16 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import {
-  ListDashes,
-  SlidersHorizontal,
-} from "@phosphor-icons/react";
+import { TabBar } from "@/components/ui/TabBar";
 import { CardExploreResult } from "@/components/explore/CardExploreResult";
 import { providers } from "@/lib/mockData";
 import MapView from "@/components/explore/MapView";
 import type { ServiceType } from "@/lib/types";
+
+const MOBILE_TABS = [
+  { key: "results", label: "Results" },
+  { key: "filters", label: "Filters" },
+];
 
 interface DiscoverShellProps {
   /** Content for the left hub panel */
@@ -42,7 +44,7 @@ export function DiscoverShell({
   hideRightPanel = false,
   mobileShowResults = false,
 }: DiscoverShellProps) {
-  const [mobileTab, setMobileTab] = useState<"results" | "filters">("results");
+  const [mobileTab, setMobileTab] = useState("results");
 
   const filteredProviders = activeService
     ? providers.filter((p) => p.services.includes(activeService))
@@ -56,6 +58,7 @@ export function DiscoverShell({
         style={{
           padding: "var(--space-md) var(--space-lg)",
           borderBottom: "1px solid var(--border-strong)",
+          flexShrink: 0,
         }}
       >
         {resultsIcon}
@@ -86,20 +89,7 @@ export function DiscoverShell({
       {mobileShowResults && (
         <div className="discover-mobile-tabbed">
           <div className="discover-mobile-tabs">
-            <button
-              className={`discover-mobile-tab${mobileTab === "results" ? " discover-mobile-tab--active" : ""}`}
-              onClick={() => setMobileTab("results")}
-            >
-              <ListDashes size={18} weight={mobileTab === "results" ? "bold" : "regular"} />
-              Results
-            </button>
-            <button
-              className={`discover-mobile-tab${mobileTab === "filters" ? " discover-mobile-tab--active" : ""}`}
-              onClick={() => setMobileTab("filters")}
-            >
-              <SlidersHorizontal size={18} weight={mobileTab === "filters" ? "bold" : "regular"} />
-              Filters
-            </button>
+            <TabBar tabs={MOBILE_TABS} activeKey={mobileTab} onChange={setMobileTab} />
           </div>
           <div className="discover-mobile-tab-content">
             {mobileTab === "results" ? resultsBody : hubPanel}
@@ -120,6 +110,7 @@ export function DiscoverShell({
             height: 64,
             padding: "0 var(--space-lg)",
             borderBottom: "1px solid var(--border-strong)",
+            flexShrink: 0,
           }}
         >
           {resultsIcon}
