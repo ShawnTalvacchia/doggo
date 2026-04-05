@@ -610,7 +610,7 @@ a {
   transition: color 0.15s ease;
 }
 
-.sidebar-nav-item:hover {
+.sidebar-nav-item:hover:not(.sidebar-nav-item--active) {
   color: var(--text-secondary);
 }
 
@@ -5172,7 +5172,7 @@ body.guest-route {
   color: var(--brand-main);
 }
 
-.bottom-nav-tab:hover {
+.bottom-nav-tab:hover:not(.active) {
   color: var(--text-secondary);
 }
 
