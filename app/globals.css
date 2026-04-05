@@ -2547,6 +2547,7 @@ body.guest-route {
 
   .logged-shell-main:has(.discover-page-shell) {
     padding: 0;
+    padding-bottom: 64px; /* keep space for fixed bottom nav */
   }
 
   /* Hide results and map on mobile — hub is the entry point */
@@ -2633,6 +2634,16 @@ body.guest-route {
 
   .discover-mobile-tab-content .discover-hub-body {
     flex: 1;
+  }
+
+  /* Nav-hidden: remove radius + padding so panels go edge-to-edge */
+  body.nav-hidden .logged-shell-main:has(.discover-page-shell) {
+    padding-bottom: 0;
+  }
+
+  body.nav-hidden .discover-hub-panel,
+  body.nav-hidden .discover-page-shell[data-mobile-view="results"] .discover-mobile-tabbed {
+    border-radius: 0;
   }
 }
 
@@ -10423,6 +10434,15 @@ body.guest-route {
 
   .home-tab-bar {
     border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  }
+
+  /* Nav-hidden: remove radius so panels go edge-to-edge */
+  body.nav-hidden .home-page-shell {
+    border-radius: 0;
+  }
+
+  body.nav-hidden .home-tab-bar {
+    border-radius: 0;
   }
 }
 
