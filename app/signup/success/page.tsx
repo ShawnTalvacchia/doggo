@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { CalendarDots, PawPrint } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
-import { MeetCard } from "@/components/meets/MeetCard";
+import { CardMeet } from "@/components/meets/CardMeet";
 import { getUpcomingMeets } from "@/lib/mockMeets";
 import { getNeighbourhoodStats } from "@/lib/mockNeighbourhoodStats";
 
@@ -48,7 +48,7 @@ export default function SignupSuccessPage() {
               </h2>
               <div className="flex flex-col gap-md">
                 {nearbyMeets.map((meet) => (
-                  <MeetCard key={meet.id} meet={meet} />
+                  <CardMeet key={meet.id} meet={meet} variant="discover" />
                 ))}
               </div>
               <p className="flex items-center gap-xs text-sm text-fg-tertiary">

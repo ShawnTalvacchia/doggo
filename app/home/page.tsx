@@ -23,7 +23,7 @@ import { PanelBody } from "@/components/layout/PanelBody";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutList } from "@/components/layout/LayoutList";
 import { LayoutSection } from "@/components/layout/LayoutSection";
-import { GroupCard } from "@/components/groups/GroupCard";
+import { CardGroup } from "@/components/groups/CardGroup";
 import { getUserGroups } from "@/lib/mockGroups";
 import type { FeedItem } from "@/lib/types";
 
@@ -107,7 +107,7 @@ function HomePageInner() {
             <PanelBody>
               <LayoutList>
                 {userGroups.map((group) => (
-                  <GroupCard key={group.id} group={group} />
+                  <CardGroup key={group.id} group={group} variant="my-groups" />
                 ))}
               </LayoutList>
               <Spacer />

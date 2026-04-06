@@ -20,7 +20,7 @@ import {
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { MeetCard } from "@/components/meets/MeetCard";
+import { CardMeet } from "@/components/meets/CardMeet";
 import { MeetCardCompact } from "@/components/meets/MeetCardCompact";
 import { MeetPhotoGallery } from "@/components/meets/MeetPhotoGallery";
 import { MessageBubble } from "@/components/chat/MessageBubble";
@@ -365,7 +365,7 @@ export default function GroupDetailPage() {
           {groupMeets.length > 0 ? (
             <div className="flex flex-col gap-md">
               {groupMeets.map((meet) => (
-                <MeetCard key={meet.id} meet={meet} />
+                <CardMeet key={meet.id} meet={meet} variant="group" />
               ))}
             </div>
           ) : (

@@ -85,13 +85,13 @@ See `docs/CONTRIBUTING.md` for full details.
 | `docs/implementation/component-inventory.md` | Built components catalog |
 | `docs/CONTRIBUTING.md` | Workflow rules, doc categories, naming conventions |
 
-## Current Phase: 22 (complete) — Panel Architecture & Page Alignment
+## Current Phase: 23 (active) — Schedule Page & CardMeet Rebuild
 
-**Completed.** Canonical panel system built (PanelBody → LayoutSection/LayoutList → Spacer) and all pages migrated. Old ListPanel/DetailPanel removed. See `docs/phases/phase-22-panel-architecture.md`.
+Rebuild the My Schedule detail panel content, simplify CardMeet per the content audit, and remove old orphaned card components. See `docs/phases/phase-23-schedule-cardmeet.md`.
 
-**Previous phases:** Phase 21 built out all page content (filters, notifications, bookings detail). Phase 20 cleaned up docs + removed dead components. Phase 19 delivered layout system + groups + feed.
+**Previous:** Phase 22 built canonical panel system (PanelBody → LayoutSection/LayoutList → Spacer) and migrated all pages. Phase 21 built out all page content. Phase 20 cleaned up docs + removed dead components. Phase 19 delivered layout system + groups + feed.
 
-**Board:** See `docs/phases/phase-22-panel-architecture.md` and `docs/ROADMAP.md`.
+**Board:** See `docs/phases/phase-23-schedule-cardmeet.md` and `docs/ROADMAP.md`.
 
 ## Strategic Context
 

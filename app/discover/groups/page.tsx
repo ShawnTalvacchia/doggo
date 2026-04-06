@@ -17,7 +17,7 @@ import {
 } from "@phosphor-icons/react";
 import { DiscoverShell } from "@/components/discover/DiscoverShell";
 import { Spacer } from "@/components/layout/Spacer";
-import { GroupCard } from "@/components/groups/GroupCard";
+import { CardGroup } from "@/components/groups/CardGroup";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { Slider } from "@/components/ui/Slider";
@@ -257,7 +257,7 @@ function GroupsResultsList({ activeType }: { activeType: GroupType | null }) {
   return (
     <>
       {publicGroups.map((group) => (
-        <GroupCard key={group.id} group={group} />
+        <CardGroup key={group.id} group={group} variant="discover" />
       ))}
     </>
   );

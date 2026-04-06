@@ -351,6 +351,20 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
+## Phase 23 — Schedule Page & CardMeet Rebuild (active)
+
+**Goal:** Rebuild the My Schedule detail panel content, simplify CardMeet per the content audit, and remove old orphaned card components.
+
+**Key work:**
+- Schedule detail panel rebuild: attendance strip, 2x2 logistics grid, titled participant sections (ORGANIZERS, CONFIRMED)
+- CardMeet simplification: remove leash/energy chips from cards (move to detail pane)
+- Old component removal: delete CardScheduleMeet, CardMyMeet, MeetCard, orphaned activity tabs
+- Schedule list panel polish: header alignment, search/filters
+
+**Board:** [[phase-23-schedule-cardmeet]]
+
+---
+
 ## Out of Scope
 
 Not built, not demoed:
