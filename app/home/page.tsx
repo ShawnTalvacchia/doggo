@@ -22,7 +22,9 @@ import { MasterDetailShell, type MobileView } from "@/components/layout/MasterDe
 import { ListPanel } from "@/components/layout/ListPanel";
 import { DetailPanel } from "@/components/layout/DetailPanel";
 import { GroupCard } from "@/components/groups/GroupCard";
+import { UpcomingPanel } from "@/components/home/UpcomingPanel";
 import { getUserGroups } from "@/lib/mockGroups";
+import { getUpcomingMeets } from "@/lib/mockMeets";
 import type { FeedItem } from "@/lib/types";
 
 // ── Feed rendering ──────────────────────────────────────────────────────────
@@ -132,6 +134,8 @@ function HomePageInner() {
     </h2>
   );
 
+  const upcomingMeets = getUpcomingMeets();
+
   return (
     <div className="page-container home-page-shell">
       {/* Tab bar — mobile only */}
@@ -151,6 +155,7 @@ function HomePageInner() {
             <FeedContent />
           </DetailPanel>
         }
+        infoPanel={<UpcomingPanel meets={upcomingMeets} />}
       />
     </div>
   );

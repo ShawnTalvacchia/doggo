@@ -1,7 +1,7 @@
 ---
 category: phase
 status: active
-last-reviewed: 2026-04-05
+last-reviewed: 2026-04-06
 tags: [phase-21, pages, content, layout, discover, groups, bookings, notifications]
 review-trigger: "when completing workstreams or closing this phase"
 ---
@@ -18,17 +18,17 @@ review-trigger: "when completing workstreams or closing this phase"
 
 | Page | Layout | Content | Gaps |
 |------|--------|---------|------|
-| Home | MasterDetailShell | ✅ Full | — |
+| Home | MasterDetailShell | ✅ Full + UpcomingPanel | — |
 | Discover Hub | DiscoverShell | ✅ Full | — |
 | Discover / Care | DiscoverShell | ✅ Interactive filters | — |
-| Discover / Meets | DiscoverShell | ⚠️ Hub-only | Type cards were static — now has filter panel (21a in progress) |
-| Discover / Groups | DiscoverShell | ⚠️ Hub-only | Type cards are static (no filter panel on selection), no map |
-| Schedule | MasterDetailShell | ✅ Full | — |
-| Bookings | Custom TabBar | ⚠️ Partial | Not using MasterDetailShell; Services tab delegated to component |
+| Discover / Meets | DiscoverShell | ✅ Interactive filters | Picker → Filter pattern with type-specific accordions |
+| Discover / Groups | DiscoverShell | ✅ Interactive filters | Picker → Filter pattern with neighbourhood accordion |
+| Schedule | MasterDetailShell | ✅ Full + enriched detail | — |
+| Bookings | MasterDetailShell | ✅ Full | Migrated from Custom TabBar; detail panel with sessions |
 | Inbox | MasterDetailShell (3-panel) | ✅ Full | — |
 | Profile | Custom 2-col | ✅ Full | — |
 | Communities/[id] | Custom scroll | ✅ Rich | Not using shared layout — works well as-is |
-| Notifications | Raw stub | ❌ Placeholder | Completely unbuilt |
+| Notifications | MasterDetailShell | ✅ Full | Types, list, detail, mock data, unread badge |
 
 ---
 
@@ -68,29 +68,29 @@ Wire selected type to actually filter the results list (only show meets matching
 
 **Files:** `app/discover/meets/page.tsx`
 
-### A4 — Groups: filter panel
+### A4 — Groups: filter panel ✓
 
-When a group type is selected, show an interactive filter panel. Filters: distance/neighbourhood, member count range, activity level, dog size preference. Follow Care filter panel pattern.
+When a group type is selected, show an interactive filter panel. Filters: visibility (MultiSelectSegmentBar, hidden for park), max members (Slider), neighbourhood accordion (7 Prague neighbourhoods). Follows Care filter panel pattern.
 
 **Docs:** `docs/strategy/Groups Strategy.md`, `docs/flows/groups.md`
 **Files:** `app/discover/groups/page.tsx`
 **Components:** MultiSelectSegmentBar, Slider, CheckboxRow
 
-### A5 — Groups: results filtering
+### A5 — Groups: results filtering ✓
 
-Wire type selection to filter the results list. Only show groups matching the selected archetype (park/community/service).
+Wire type selection to filter the results list. Only show groups matching the selected archetype (park/community/service). Excludes user's own groups.
 
 **Files:** `app/discover/groups/page.tsx`
 
-### A6 — Groups: mobile tab view
+### A6 — Groups: mobile tab view ✓
 
 Enable `mobileShowResults` when a group type is selected.
 
 **Files:** `app/discover/groups/page.tsx`
 
-### A7 — GroupCard enrichment
+### A7 — GroupCard enrichment ✓
 
-Ensure GroupCard shows: member count, dog count, recent activity indicator, group type badge (Park/Community/Service), neighbourhood. Check against Figma designs.
+GroupCard now shows: member count, dog count, upcoming events count, group type badge (Park/Community/Hosted) with icon, visibility badge (Approval), neighbourhood.
 
 **Docs:** `docs/implementation/component-inventory.md`
 **Files:** `components/groups/GroupCard.tsx`
@@ -103,15 +103,15 @@ Move remaining pages into shared layout patterns where it makes sense.
 
 **Docs to consult:** `docs/implementation/frontend-style.md`, `docs/implementation/component-inventory.md`
 
-### B1 — Bookings → MasterDetailShell
+### B1 — Bookings → MasterDetailShell ✓
 
-Wrap bookings page in MasterDetailShell with booking list (left) + booking detail (right). Keep My Care / My Services tabs. Desktop: list + detail side by side. Mobile: list view with tap-to-detail.
+Bookings page migrated to MasterDetailShell. List panel has TabBar (My Care / My Services), detail panel shows provider info, service type, pets, schedule, price, sessions list with status badges, message action.
 
 **Files:** `app/bookings/page.tsx`
 
-### B2 — Notifications → MasterDetailShell
+### B2 — Notifications → MasterDetailShell ✓
 
-Build notifications page using MasterDetailShell. List panel shows notification items, detail panel shows full context.
+Notifications page built using MasterDetailShell. List panel shows notification rows (unread dot, avatar, title, body, timestamp). Detail panel shows centered layout with type badge, avatar, title, body, contextual action button.
 
 **Files:** `app/notifications/page.tsx`
 
@@ -123,30 +123,29 @@ Build the notifications page from stub to functional demo.
 
 **Docs to consult:** `docs/features/meets.md` (meet invites), `docs/features/connections.md` (connection requests), `docs/features/explore-and-care.md` (booking updates)
 
-### C1 — Notification types and mock data
+### C1 — Notification types and mock data ✓
 
-Define notification types: meet invite, connection request accepted, booking update, group activity, meet reminder, care review received. Create mock data in `lib/mockNotifications.ts` tied to existing user journeys.
+10 notifications tied to user journeys (Jana, Martin, Klára, Eva, Tereza, Tomáš). Types: meet_invite, connection_request, booking_confirmed, group_activity, meet_reminder, connection_accepted, care_review, session_completed. `getUnreadCount()` helper added.
 
-**New files:** `lib/mockNotifications.ts`
+**Files:** `lib/mockNotifications.ts`, `lib/types.ts` (NotificationType expanded)
 
-### C2 — NotificationRow component
+### C2 — NotificationRow component ✓
 
-Build NotificationRow with: icon (type-specific), title, subtitle/preview, timestamp, read/unread indicator. Follow existing card patterns (like ConversationRow in Inbox).
-
-**New files:** `components/notifications/NotificationRow.tsx`
-**Docs to update:** `docs/implementation/component-inventory.md`
-
-### C3 — Notification detail panel
-
-Detail panel showing full notification context with action buttons (accept invite, view booking, view profile, etc.). Renders in the DetailPanel of MasterDetailShell.
+NotificationRow built inline in notifications page: unread dot, avatar fallback to type icon, title (bold if unread), body, relative timestamp, active highlight. Follows ConversationRow pattern.
 
 **Files:** `app/notifications/page.tsx`
 
-### C4 — Unread badge on bell icon
+### C3 — Notification detail panel ✓
 
-Wire notification count to AppNav bell icon. Show badge count on both mobile header and desktop sidebar.
+Centered detail layout with avatar, type badge (TYPE_LABELS map), title, body, timestamp, contextual action button (View Meet/Profile/Group/Booking/Review/Message depending on notification type).
 
-**Files:** `components/layout/AppNav.tsx`, `components/layout/Sidebar.tsx`
+**Files:** `app/notifications/page.tsx`
+
+### C4 — Unread badge on bell icon ✓
+
+Already wired via NotificationsContext → useNotifications() → AppNav ButtonIcon `showBadge`/`badgeCount` props. No additional work needed.
+
+**Files:** `components/layout/AppNav.tsx` (already connected)
 
 ---
 
@@ -154,21 +153,21 @@ Wire notification count to AppNav bell icon. Show badge count on both mobile hea
 
 Smaller improvements across existing pages.
 
-### D1 — Wire UpcomingPanel into home
+### D1 — Wire UpcomingPanel into home ✓
 
-Connect `components/home/UpcomingPanel.tsx` into the home page. Currently built but not imported by any page.
+Connected UpcomingPanel as `infoPanel` on MasterDetailShell. Shows upcoming meets in a side panel on desktop.
 
-**Files:** `app/home/page.tsx`, `components/home/UpcomingPanel.tsx`
+**Files:** `app/home/page.tsx`
 
-### D2 — Bookings detail view
+### D2 — Bookings detail view ✓
 
-Add booking detail panel showing provider info, service type, schedule, status, and action buttons (message, cancel, reschedule).
+Booking detail panel shows: provider avatar/name, StatusBadge, service type + sub-service, pets, schedule (recurring or date range), price with billing cycle, sessions list with status badges, message CTA.
 
 **Files:** `app/bookings/page.tsx`
 
-### D3 — Schedule meet detail enrichment
+### D3 — Schedule meet detail enrichment ✓
 
-Enhance the detail panel in schedule page with richer meet info (description, attendees, what to bring, map preview).
+Enriched detail panel with: type badge, recurring indicator, full date/time/duration, location, group name, attendee/dog count, energy level, leash rule, description, what to bring list, accessibility notes, attendees preview (avatars + dog names), organizer info, view full details CTA.
 
 **Files:** `app/schedule/page.tsx`
 
@@ -196,12 +195,16 @@ Enhance the detail panel in schedule page with richer meet info (description, at
 
 ## Verification Checklist
 
-- [ ] Discover/Meets has interactive filter panel with type selection → filter → results
-- [ ] Discover/Groups has interactive filter panel with type selection → filter → results
-- [ ] Both Discover sub-pages support mobile Results/Filters tab switching
-- [ ] Notifications page has list of mock notifications with detail view
-- [ ] Bookings page uses MasterDetailShell layout
-- [ ] All new components added to component-inventory.md
-- [ ] Affected feature docs updated (meets.md, explore-and-care.md)
-- [ ] Affected flow docs updated (meet-discovery.md)
-- [ ] Build passes clean (`npm run build`)
+- [x] Discover/Meets has interactive filter panel with type selection → filter → results
+- [x] Discover/Groups has interactive filter panel with type selection → filter → results
+- [x] Both Discover sub-pages support mobile Results/Filters tab switching
+- [x] Notifications page has list of mock notifications with detail view
+- [x] Bookings page uses MasterDetailShell layout
+- [x] Unread badge wired on AppNav bell icon
+- [x] UpcomingPanel wired into home page
+- [x] Schedule detail panel enriched
+- [x] Bookings detail panel built
+- [x] All new components added to component-inventory.md
+- [x] Affected feature docs updated (meets.md, explore-and-care.md)
+- [x] Affected flow docs updated (meet-discovery.md, care-discovery.md)
+- [x] Build passes clean (`npm run build`)

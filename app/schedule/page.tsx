@@ -8,6 +8,13 @@ import {
   Plus,
   Briefcase,
   MagnifyingGlass,
+  MapPin,
+  Clock,
+  UsersThree,
+  Lightning,
+  Backpack,
+  Dog,
+  Info,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -17,9 +24,23 @@ import { MasterDetailShell } from "@/components/layout/MasterDetailShell";
 import { ListPanel } from "@/components/layout/ListPanel";
 import { DetailPanel } from "@/components/layout/DetailPanel";
 import { getUserMeets } from "@/lib/mockMeets";
+import { getGroupById } from "@/lib/mockGroups";
 import { useBookings } from "@/contexts/BookingsContext";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import type { Meet, Booking } from "@/lib/types";
+
+const ENERGY_LABELS: Record<string, string> = {
+  low: "Low energy",
+  moderate: "Moderate",
+  high: "High energy",
+  very_high: "Very high energy",
+};
+
+const LEASH_LABELS: Record<string, string> = {
+  off_leash: "Off leash",
+  on_leash: "On leash",
+  mixed: "Mixed (on & off leash)",
+};
 
 const CURRENT_USER = "shawn";
 
@@ -217,19 +238,187 @@ export default function SchedulePage() {
     </>
   );
 
+  const selectedMeetGroup = selectedMeet?.groupId ? getGroupById(selectedMeet.groupId) : null;
+  const goingCount = selectedMeet
+    ? selectedMeet.attendees.filter((a) => a.rsvpStatus !== "interested").length
+    : 0;
+  const dogCount = selectedMeet
+    ? selectedMeet.attendees.reduce((sum, a) => sum + a.dogNames.length, 0)
+    : 0;
+
   const detailContent = selectedMeet ? (
-    <div className="flex flex-col gap-lg p-lg">
-      <h2 className="font-heading text-xl font-semibold text-fg-primary">{selectedMeet.title}</h2>
-      <p className="text-sm text-fg-secondary">{selectedMeet.location}</p>
-      <p className="text-sm text-fg-tertiary">{selectedMeet.date} at {selectedMeet.time}</p>
-      <p className="text-base text-fg-secondary">{selectedMeet.description}</p>
-      <ButtonAction variant="primary" size="md" href={`/meets/${selectedMeet.id}`}>
-        View full details
-      </ButtonAction>
+    <div className="detail-panel-scroll">
+      <div className="flex flex-col gap-xl" style={{ padding: "var(--space-lg)" }}>
+        {/* Title + type badge */}
+        <div className="flex flex-col gap-sm">
+          <div className="flex items-center gap-sm">
+            <span
+              className="text-xs font-semibold rounded-pill"
+              style={{
+                padding: "2px 10px",
+                background: "var(--surface-inset)",
+                color: "var(--text-secondary)",
+                textTransform: "capitalize",
+              }}
+            >
+              {selectedMeet.type.replace("_", " ")}
+            </span>
+            {selectedMeet.recurring && (
+              <span className="text-xs text-fg-tertiary">Recurring</span>
+            )}
+          </div>
+          <h2
+            className="font-heading font-bold text-fg-primary"
+            style={{ fontSize: "var(--text-xl)", lineHeight: 1.3, margin: 0 }}
+          >
+            {selectedMeet.title}
+          </h2>
+        </div>
+
+        {/* Details grid */}
+        <div className="flex flex-col gap-md">
+          <div className="flex items-center gap-sm">
+            <CalendarDots size={16} weight="light" className="text-fg-tertiary shrink-0" />
+            <span className="text-md text-fg-secondary">
+              {new Date(selectedMeet.date + "T00:00:00").toLocaleDateString("en-GB", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+              })}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-sm">
+            <Clock size={16} weight="light" className="text-fg-tertiary shrink-0" />
+            <span className="text-md text-fg-secondary">
+              {selectedMeet.time} · {selectedMeet.durationMinutes} min
+            </span>
+          </div>
+
+          <div className="flex items-center gap-sm">
+            <MapPin size={16} weight="light" className="text-fg-tertiary shrink-0" />
+            <span className="text-md text-fg-secondary">{selectedMeet.location}</span>
+          </div>
+
+          {selectedMeetGroup && (
+            <div className="flex items-center gap-sm">
+              <UsersThree size={16} weight="light" className="text-fg-tertiary shrink-0" />
+              <span className="text-md text-fg-secondary">{selectedMeetGroup.name}</span>
+            </div>
+          )}
+
+          <div className="flex items-center gap-sm">
+            <Dog size={16} weight="light" className="text-fg-tertiary shrink-0" />
+            <span className="text-md text-fg-secondary">
+              {goingCount} going · {dogCount} dogs · max {selectedMeet.maxAttendees}
+            </span>
+          </div>
+
+          {selectedMeet.energyLevel && (
+            <div className="flex items-center gap-sm">
+              <Lightning size={16} weight="light" className="text-fg-tertiary shrink-0" />
+              <span className="text-md text-fg-secondary">
+                {ENERGY_LABELS[selectedMeet.energyLevel] || selectedMeet.energyLevel}
+              </span>
+            </div>
+          )}
+
+          {selectedMeet.leashRule && (
+            <div className="flex items-center gap-sm">
+              <PawPrint size={16} weight="light" className="text-fg-tertiary shrink-0" />
+              <span className="text-md text-fg-secondary">
+                {LEASH_LABELS[selectedMeet.leashRule] || selectedMeet.leashRule}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Description */}
+        <p className="text-md text-fg-secondary" style={{ lineHeight: "24px", margin: 0 }}>
+          {selectedMeet.description}
+        </p>
+
+        {/* What to bring */}
+        {selectedMeet.whatToBring && selectedMeet.whatToBring.length > 0 && (
+          <div className="flex flex-col gap-sm">
+            <span className="flex items-center gap-xs font-body font-bold text-fg-secondary text-sm">
+              <Backpack size={14} weight="light" />
+              What to bring
+            </span>
+            <ul className="flex flex-col gap-xs" style={{ margin: 0, paddingLeft: "var(--space-lg)" }}>
+              {selectedMeet.whatToBring.map((item) => (
+                <li key={item} className="text-sm text-fg-secondary">{item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Accessibility */}
+        {selectedMeet.accessibilityNotes && (
+          <div className="flex items-start gap-sm bg-surface-inset rounded-sm" style={{ padding: "var(--space-sm) var(--space-md)" }}>
+            <Info size={16} weight="light" className="text-fg-tertiary shrink-0" style={{ marginTop: 2 }} />
+            <span className="text-sm text-fg-secondary">{selectedMeet.accessibilityNotes}</span>
+          </div>
+        )}
+
+        {/* Attendees preview */}
+        {selectedMeet.attendees.length > 0 && (
+          <div className="flex flex-col gap-sm">
+            <span className="font-body font-bold text-fg-secondary text-sm">Attendees</span>
+            <div className="flex flex-col gap-sm">
+              {selectedMeet.attendees.slice(0, 5).map((a) => (
+                <div key={a.userId} className="flex items-center gap-sm">
+                  <img
+                    src={a.avatarUrl}
+                    alt={a.userName}
+                    className="rounded-full object-cover shrink-0"
+                    style={{ width: 32, height: 32 }}
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-fg-primary">{a.userName}</span>
+                    <span className="text-xs text-fg-tertiary">{a.dogNames.join(", ")}</span>
+                  </div>
+                </div>
+              ))}
+              {selectedMeet.attendees.length > 5 && (
+                <span className="text-xs text-fg-tertiary">
+                  +{selectedMeet.attendees.length - 5} more
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Organizer */}
+        <div className="flex items-center gap-sm">
+          <img
+            src={selectedMeet.creatorAvatarUrl}
+            alt={selectedMeet.creatorName}
+            className="rounded-full object-cover shrink-0"
+            style={{ width: 28, height: 28 }}
+          />
+          <span className="text-sm text-fg-tertiary">
+            Organised by <span className="font-semibold text-fg-secondary">{selectedMeet.creatorName}</span>
+          </span>
+        </div>
+
+        {/* Actions */}
+        <div className="flex flex-col gap-sm">
+          <ButtonAction variant="primary" size="md" href={`/meets/${selectedMeet.id}`}>
+            View full details
+          </ButtonAction>
+        </div>
+      </div>
     </div>
   ) : (
-    <div className="flex items-center justify-center h-full text-fg-tertiary text-sm">
-      Select a meet to see details
+    <div
+      className="flex flex-col items-center justify-center flex-1 gap-md"
+      style={{ padding: "var(--space-xxxl)" }}
+    >
+      <CalendarDots size={48} weight="light" className="text-fg-tertiary" />
+      <span className="text-md text-fg-tertiary">
+        Select a meet to see details
+      </span>
     </div>
   );
 

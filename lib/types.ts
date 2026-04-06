@@ -316,7 +316,13 @@ export type NotificationType =
   | "session_completed"
   | "new_message"
   | "booking_proposal"
-  | "booking_confirmed";
+  | "booking_confirmed"
+  | "meet_invite"
+  | "meet_reminder"
+  | "connection_request"
+  | "connection_accepted"
+  | "group_activity"
+  | "care_review";
 
 export interface AppNotification {
   id: string;

@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-04-05
+last-reviewed: 2026-04-06
 tags: [components, ui, inventory]
 review-trigger: "when building or refactoring components"
 ---
@@ -748,7 +748,7 @@ _Ordered by impact vs. effort._
 
 | Component | Path | Purpose | Status |
 |-----------|------|---------|--------|
-| `GroupCard` | `components/groups/GroupCard.tsx` | Community card for browse/list (cover photo, name, members, next meet). Type badges: Park (Tree icon, green), Hosted (UserCircle icon, brand). Badges derived from group archetype (park/community/service). | `built` |
+| `GroupCard` | `components/groups/GroupCard.tsx` | Community card for browse/list. Shows: circular cover photo, bold name, type badge (Park/Community/Hosted with icon), visibility badge (Approval), location, member count, dog count, upcoming events count. Badges derived from group archetype. | `built` |
 | `MessageBubble` | `components/chat/MessageBubble.tsx` | Shared chat bubble (extracted from meet detail, used by meet + group chat) | `built` |
 
 ---
