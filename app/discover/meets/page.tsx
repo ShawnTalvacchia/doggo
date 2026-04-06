@@ -18,7 +18,8 @@ import {
   Users,
 } from "@phosphor-icons/react";
 import { DiscoverShell } from "@/components/discover/DiscoverShell";
-import { CardScheduleMeet } from "@/components/activity/CardScheduleMeet";
+import { Spacer } from "@/components/layout/Spacer";
+import { CardMeet } from "@/components/meets/CardMeet";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { Slider } from "@/components/ui/Slider";
@@ -124,17 +125,14 @@ const TRAINING_FILTERS = {
 function MeetsPickerPanel() {
   return (
     <>
-      <div className="list-panel-header">
+      <div className="list-panel-header panel-header-desktop">
         <Link
           href="/discover"
           className="flex items-center gap-sm"
           style={{ textDecoration: "none" }}
         >
           <ArrowLeft size={20} weight="regular" className="text-fg-primary" />
-          <h2
-            className="font-heading font-bold text-fg-primary"
-            style={{ fontSize: "var(--text-2xl)", lineHeight: 1.2 }}
-          >
+          <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
             Meets
           </h2>
         </Link>
@@ -183,6 +181,7 @@ function MeetsPickerPanel() {
             ))}
           </div>
         </div>
+        <Spacer size="sm" />
       </div>
     </>
   );
@@ -217,17 +216,14 @@ function MeetsFilterPanel({ activeType }: { activeType: MeetType }) {
 
   return (
     <>
-      <div className="list-panel-header">
+      <div className="list-panel-header panel-header-desktop">
         <Link
           href="/discover/meets"
           className="flex items-center gap-sm"
           style={{ textDecoration: "none" }}
         >
           <ArrowLeft size={20} weight="regular" className="text-fg-primary" />
-          <h2
-            className="font-heading font-bold text-fg-primary"
-            style={{ fontSize: "var(--text-2xl)", lineHeight: 1.2 }}
-          >
+          <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
             Meets
           </h2>
         </Link>
@@ -358,6 +354,7 @@ function MeetsFilterPanel({ activeType }: { activeType: MeetType }) {
             </div>
           </div>
         </div>
+        <Spacer size="sm" />
       </div>
     </>
   );
@@ -378,10 +375,11 @@ function MeetsResultsList({ activeType }: { activeType: MeetType | null }) {
   return (
     <>
       {allUpcoming.map((meet) => (
-        <CardScheduleMeet
+        <CardMeet
           key={meet.id}
           meet={meet}
-          userStatus={userMeetIds.has(meet.id) ? "going" : null}
+          variant="discover"
+          role={userMeetIds.has(meet.id) ? "joining" : undefined}
         />
       ))}
     </>

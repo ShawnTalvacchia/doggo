@@ -14,8 +14,9 @@ import {
 import { useConversations } from "@/contexts/ConversationsContext";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import { MasterDetailShell, type MobileView } from "@/components/layout/MasterDetailShell";
-import { ListPanel } from "@/components/layout/ListPanel";
-import { DetailPanel } from "@/components/layout/DetailPanel";
+import { PanelBody } from "@/components/layout/PanelBody";
+import { Spacer } from "@/components/layout/Spacer";
+import { LayoutList } from "@/components/layout/LayoutList";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { Conversation } from "@/lib/types";
@@ -316,11 +317,11 @@ export default function InboxPage() {
       <MasterDetailShell
         mobileView={mobileView}
         listPanel={
-          <ListPanel
-            header={
+          <div className="list-panel">
+            <div className="list-panel-header panel-header-desktop">
               <h1 className="font-heading text-lg font-semibold text-fg-primary m-0">Inbox</h1>
-            }
-            filters={
+            </div>
+            <div className="list-panel-filters">
               <div className="pill-group">
                 {filters.map((f) => (
                   <button
@@ -332,29 +333,38 @@ export default function InboxPage() {
                   </button>
                 ))}
               </div>
-            }
-          >
-            {listContent}
-          </ListPanel>
+            </div>
+            <PanelBody>
+              <LayoutList>
+                {listContent}
+              </LayoutList>
+              <Spacer />
+            </PanelBody>
+          </div>
         }
         detailPanel={
-          <DetailPanel
-            header={
-              selectedConv ? (
+          <div className="detail-panel">
+            {selectedConv && (
+              <div className="detail-panel-header">
                 <span className="font-heading text-base font-semibold text-fg-primary">
                   {getOtherParty(selectedConv).name}
                 </span>
-              ) : undefined
-            }
-          >
-            {detailContent}
-          </DetailPanel>
+              </div>
+            )}
+            <PanelBody>
+              {detailContent}
+              <Spacer />
+            </PanelBody>
+          </div>
         }
         infoPanel={
           selectedConv ? (
-            <DetailPanel>
-              <ContactInfoPanel conv={selectedConv} />
-            </DetailPanel>
+            <div className="detail-panel">
+              <PanelBody>
+                <ContactInfoPanel conv={selectedConv} />
+                <Spacer />
+              </PanelBody>
+            </div>
           ) : undefined
         }
       />

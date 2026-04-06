@@ -22,8 +22,8 @@ import { ButtonAction } from "@/components/ui/ButtonAction";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ServicesTab } from "@/components/activity/ServicesTab";
 import { MasterDetailShell, type MobileView } from "@/components/layout/MasterDetailShell";
-import { ListPanel } from "@/components/layout/ListPanel";
-import { DetailPanel } from "@/components/layout/DetailPanel";
+import { PanelBody } from "@/components/layout/PanelBody";
+import { Spacer } from "@/components/layout/Spacer";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 
 const TABS = [
@@ -246,11 +246,11 @@ function BookingsPageInner() {
     <MasterDetailShell
       mobileView={mobileView}
       listPanel={
-        <ListPanel
-          header={
+        <div className="list-panel">
+          <div className="list-panel-header panel-header-desktop">
             <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
-          }
-        >
+          </div>
+          <PanelBody>
             {activeTab === "care" && (
               <MyCareContent
                 onSelect={setSelectedBookingId}
@@ -258,35 +258,39 @@ function BookingsPageInner() {
               />
             )}
             {activeTab === "services" && <ServicesTab />}
-        </ListPanel>
+            <Spacer />
+          </PanelBody>
+        </div>
       }
       detailPanel={
-        <DetailPanel
-          header={
-            selectedBooking ? (
+        <div className="detail-panel">
+          {selectedBooking && (
+            <div className="detail-panel-header">
               <span className="font-heading text-base font-semibold text-fg-primary">
                 {serviceLabel} with {selectedBooking.carerName}
               </span>
-            ) : undefined
-          }
-        >
-          {selectedBooking ? (
-            <BookingDetail
-              booking={selectedBooking}
-              onBack={() => setSelectedBookingId(null)}
-            />
-          ) : (
-            <div
-              className="flex flex-col items-center justify-center flex-1 gap-md"
-              style={{ padding: "var(--space-xxxl)" }}
-            >
-              <Briefcase size={48} weight="light" className="text-fg-tertiary" />
-              <span className="text-md text-fg-tertiary">
-                Select a booking to see details
-              </span>
             </div>
           )}
-        </DetailPanel>
+          <PanelBody>
+            {selectedBooking ? (
+              <BookingDetail
+                booking={selectedBooking}
+                onBack={() => setSelectedBookingId(null)}
+              />
+            ) : (
+              <div
+                className="flex flex-col items-center justify-center flex-1 gap-md"
+                style={{ padding: "var(--space-xxxl)" }}
+              >
+                <Briefcase size={48} weight="light" className="text-fg-tertiary" />
+                <span className="text-md text-fg-tertiary">
+                  Select a booking to see details
+                </span>
+              </div>
+            )}
+            <Spacer />
+          </PanelBody>
+        </div>
       }
     />
     </div>

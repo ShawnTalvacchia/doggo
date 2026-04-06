@@ -17,6 +17,7 @@ import {
   Repeat,
 } from "@phosphor-icons/react";
 import { DiscoverShell } from "@/components/discover/DiscoverShell";
+import { Spacer } from "@/components/layout/Spacer";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { Slider } from "@/components/ui/Slider";
@@ -62,17 +63,14 @@ const WALK_SERVICES = ["Drop-in visit", "Group walk", "Solo walk"];
 function CarePickerPanel() {
   return (
     <>
-      <div className="list-panel-header">
+      <div className="list-panel-header panel-header-desktop">
         <Link
           href="/discover"
           className="flex items-center gap-sm"
           style={{ textDecoration: "none" }}
         >
           <ArrowLeft size={20} weight="regular" className="text-fg-primary" />
-          <h2
-            className="font-heading font-bold text-fg-primary"
-            style={{ fontSize: "var(--text-2xl)", lineHeight: 1.2 }}
-          >
+          <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
             Dog Care
           </h2>
         </Link>
@@ -121,6 +119,7 @@ function CarePickerPanel() {
             ))}
           </div>
         </div>
+        <Spacer size="sm" />
       </div>
     </>
   );
@@ -140,17 +139,14 @@ function CareFilterPanel({ activeService }: { activeService: ServiceType }) {
 
   return (
     <>
-      <div className="list-panel-header">
+      <div className="list-panel-header panel-header-desktop">
         <Link
           href="/discover/care"
           className="flex items-center gap-sm"
           style={{ textDecoration: "none" }}
         >
           <ArrowLeft size={20} weight="regular" className="text-fg-primary" />
-          <h2
-            className="font-heading font-bold text-fg-primary"
-            style={{ fontSize: "var(--text-2xl)", lineHeight: 1.2 }}
-          >
+          <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
             Dog Care
           </h2>
         </Link>
@@ -298,6 +294,7 @@ function CareFilterPanel({ activeService }: { activeService: ServiceType }) {
             </div>
           </div>
         </div>
+        <Spacer size="sm" />
       </div>
     </>
   );

@@ -33,7 +33,7 @@ components/
                   Toggle, StatusBadge, Slider, DatePicker,
                   RecurringSchedulePicker, BookingRow, EmptyState,
                   TabBar, ConnectionIcon, DefaultAvatar
-  layout/       ← App chrome: AppNav, BottomNav, Sidebar, LoggedInShell, FormHeader, FormFooter, GuestLayout, DetailHeader, MasterDetailShell, ListPanel, DetailPanel
+  layout/       ← App chrome: AppNav, BottomNav, Sidebar, LoggedInShell, FormHeader, FormFooter, GuestLayout, DetailHeader, MasterDetailShell, PanelBody, Spacer, LayoutSection, LayoutList
   overlays/     ← ModalSheet, BookingModal
   explore/      ← FilterPanelDesktop, FilterPanelMobile, FilterPanelShell, FilterBody, ProfileHeader,
                   CardExploreResult, MapView
@@ -397,30 +397,55 @@ Reusable two-or-three column layout used across Home, My Schedule, Inbox, and Di
 
 ---
 
-### ListPanel · `built`
-`components/layout/ListPanel.tsx`
+### PanelBody · `built`
+`components/layout/PanelBody.tsx`
 
-Reusable left-panel wrapper for MasterDetailShell. Provides optional header, search bar, filter tabs, and scrollable list area.
+Scrollable body area inside any panel. Replaces the old `list-panel-scroll` / `detail-panel-scroll` wrappers. Use inside raw `<div className="list-panel">` or `<div className="detail-panel">` divs.
 
 | Prop | Type | Notes |
 |------|------|-------|
-| `header` | ReactNode? | Title, actions |
-| `search` | ReactNode? | Search input |
-| `filters` | ReactNode? | Filter tabs or pills |
-| `children` | ReactNode | Scrollable list content |
+| `children` | ReactNode | Panel body content (LayoutSection, LayoutList, Spacer, etc.) |
+| `className` | string? | Additional class names |
 
 ---
 
-### DetailPanel · `built`
-`components/layout/DetailPanel.tsx`
+### Spacer · `built`
+`components/layout/Spacer.tsx`
 
-Reusable right-panel wrapper for MasterDetailShell. Provides optional header, scrollable content, and optional fixed footer.
+Flex-fill element placed at the bottom of PanelBody. Fills remaining vertical space with `surface-popout` background, giving a "content floating on inset" feel. Has a min-height to ensure bottom breathing room.
 
 | Prop | Type | Notes |
 |------|------|-------|
-| `header` | ReactNode? | Title, back button, actions |
-| `children` | ReactNode | Scrollable main content |
-| `footer` | ReactNode? | Fixed footer (action bar, buttons) |
+| `size` | "sm" \| "md" \| "lg" | Min-height variant: sm (24px), md (48px, default), lg (80px) |
+| `className` | string? | Additional class names |
+
+---
+
+### LayoutSection · `built`
+`components/layout/LayoutSection.tsx`
+
+Padded content block inside PanelBody. Provides 16px horizontal padding for content that isn't edge-to-edge cards.
+
+| Prop | Type | Notes |
+|------|------|-------|
+| `py` | "lg" \| "xl"? | Vertical padding variant |
+| `fill` | boolean? | Fill remaining vertical space instead of hugging content |
+| `children` | ReactNode | Section content |
+| `className` | string? | Additional class names |
+
+---
+
+### LayoutList · `built`
+`components/layout/LayoutList.tsx`
+
+Edge-to-edge list container inside PanelBody. No horizontal padding — cards go flush to panel edges.
+
+| Prop | Type | Notes |
+|------|------|-------|
+| `gap` | "xs" \| "sm" \| "md" \| "lg"? | Gap between items |
+| `direction` | "column" \| "row"? | Flex direction (default: column) |
+| `children` | ReactNode | List content (cards, rows) |
+| `className` | string? | Additional class names |
 
 ---
 
@@ -947,8 +972,10 @@ _Ordered by impact vs. effort._
 | Component | Path | Purpose | Status |
 |-----------|------|---------|--------|
 | `MasterDetailShell` | `components/layout/MasterDetailShell.tsx` | Reusable 2-or-3 column layout (list \| detail \| optional info). Desktop: side by side. Mobile: one panel at a time via `mobileView` prop. | `built` |
-| `ListPanel` | `components/layout/ListPanel.tsx` | Left panel wrapper: optional header, search, filters, scrollable list. | `built` |
-| `DetailPanel` | `components/layout/DetailPanel.tsx` | Right panel wrapper: optional header, scrollable content, optional fixed footer. | `built` |
+| `PanelBody` | `components/layout/PanelBody.tsx` | Scrollable body area inside any panel (replaces list-panel-scroll / detail-panel-scroll). | `built` |
+| `Spacer` | `components/layout/Spacer.tsx` | Flex-fill bottom element with surface-popout background and min-height variants. | `built` |
+| `LayoutSection` | `components/layout/LayoutSection.tsx` | Padded content block (16px horizontal) inside PanelBody. | `built` |
+| `LayoutList` | `components/layout/LayoutList.tsx` | Edge-to-edge list container inside PanelBody. | `built` |
 
 ### Discover Components (`components/discover/`)
 

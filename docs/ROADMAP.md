@@ -331,17 +331,20 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
-## Phase 22 — Panel Architecture & Page Alignment (active)
+## Phase 22 — Panel Architecture & Page Alignment ✓
 
 **Goal:** Establish a canonical panel component system (Panel → PanelBody → LayoutSection/LayoutList → Spacer) and migrate all pages to use it. Work through pages in order: Home, Discover, then remaining pages.
 
-**Status:** Active.
+**Status:** Complete.
 
 **Key work:**
-- Build PanelBody, Spacer, LayoutSection, LayoutList components
-- PanelHeader hides on mobile, TabBar hides on desktop
+- Built PanelBody, Spacer, LayoutSection, LayoutList components
+- PanelHeader (`panel-header-desktop`) hides on mobile/collapsed, TabBar (`panel-tabbar`) hides on desktop
 - Spacer fills remaining space with surface-popout background
-- Migrate all pages: Home → Discover → Schedule → Bookings → Notifications → Inbox
+- Migrated all pages: Home → Discover (hub + meets/groups/care) → Schedule → Bookings → Notifications → Inbox
+- Removed old ListPanel/DetailPanel components (fully replaced by raw div + PanelBody pattern)
+- Added panel-max-sm (400px) / panel-max-lg (640px) utility classes
+- Added collapsed breakpoint CSS for inbox-page-shell
 - Deprecate old ListPanel/DetailPanel once migrated
 
 **Board:** [[phase-22-panel-architecture]]

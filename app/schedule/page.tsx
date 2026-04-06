@@ -19,10 +19,11 @@ import {
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { CardMyMeet, type MeetRole } from "@/components/activity/CardMyMeet";
+import { CardMeet, type MeetRole } from "@/components/meets/CardMeet";
 import { MasterDetailShell } from "@/components/layout/MasterDetailShell";
-import { ListPanel } from "@/components/layout/ListPanel";
-import { DetailPanel } from "@/components/layout/DetailPanel";
+import { PanelBody } from "@/components/layout/PanelBody";
+import { Spacer } from "@/components/layout/Spacer";
+import { LayoutList } from "@/components/layout/LayoutList";
 import { getUserMeets } from "@/lib/mockMeets";
 import { getGroupById } from "@/lib/mockGroups";
 import { useBookings } from "@/contexts/BookingsContext";
@@ -206,7 +207,7 @@ export default function SchedulePage() {
             if (item.kind === "meet") {
               return (
                 <div key={item.meet.id} onClick={() => setSelectedMeetId(item.meet.id)} style={{ cursor: "pointer" }}>
-                  <CardMyMeet meet={item.meet} role={item.role} variant="upcoming" />
+                  <CardMeet meet={item.meet} variant="schedule" role={item.role} />
                 </div>
               );
             }
@@ -425,16 +426,16 @@ export default function SchedulePage() {
       <MasterDetailShell
         mobileView={mobileView}
         listPanel={
-          <ListPanel
-            header={
+          <div className="list-panel">
+            <div className="list-panel-header panel-header-desktop">
               <div className="flex items-center justify-between">
-                <h1 className="font-heading text-lg font-semibold text-fg-primary">My Schedule</h1>
+                <h1 className="font-heading text-lg font-semibold text-fg-primary m-0">My Schedule</h1>
                 <ButtonAction variant="primary" size="sm" href="/meets/create" leftIcon={<Plus size={14} weight="bold" />}>
                   Create
                 </ButtonAction>
               </div>
-            }
-            search={
+            </div>
+            <div className="list-panel-search">
               <input
                 type="text"
                 placeholder="Search meets..."
@@ -443,8 +444,8 @@ export default function SchedulePage() {
                 className="w-full rounded-sm border border-edge-regular bg-surface-base px-sm py-xs text-sm text-fg-primary"
                 style={{ outline: "none" }}
               />
-            }
-            filters={
+            </div>
+            <div className="list-panel-filters">
               <div className="pill-group">
                 {filters.map((f) => (
                   <button
@@ -456,21 +457,27 @@ export default function SchedulePage() {
                   </button>
                 ))}
               </div>
-            }
-          >
-            {listContent}
-          </ListPanel>
+            </div>
+            <PanelBody>
+              <LayoutList>
+                {listContent}
+              </LayoutList>
+              <Spacer />
+            </PanelBody>
+          </div>
         }
         detailPanel={
-          <DetailPanel
-            header={
-              selectedMeet ? (
+          <div className="detail-panel">
+            {selectedMeet && (
+              <div className="detail-panel-header">
                 <span className="font-heading text-base font-semibold text-fg-primary">{selectedMeet.title}</span>
-              ) : undefined
-            }
-          >
-            {detailContent}
-          </DetailPanel>
+              </div>
+            )}
+            <PanelBody>
+              {detailContent}
+              <Spacer />
+            </PanelBody>
+          </div>
         }
       />
     </div>

@@ -83,7 +83,12 @@ export function DiscoverShell({
       data-mobile-view={mobileShowResults ? "results" : "hub"}
       data-mobile-tab={mobileTab}
     >
-      {/* Mobile tabbed view — only visible on mobile when mobileShowResults */}
+      {/* Left panel — hub/navigation (desktop + tablet header) */}
+      <div className="discover-hub-panel panel-max-sm">
+        {hubPanel}
+      </div>
+
+      {/* Tabbed view — visible on mobile/tablet when type is selected */}
       {mobileShowResults && (
         <div className="discover-mobile-tabbed">
           <div className="discover-mobile-tabs">
@@ -95,13 +100,8 @@ export function DiscoverShell({
         </div>
       )}
 
-      {/* Left panel — hub/navigation (desktop) */}
-      <div className="discover-hub-panel">
-        {hubPanel}
-      </div>
-
       {/* Middle panel — results (desktop) */}
-      <div className="discover-results-panel">
+      <div className="discover-results-panel panel-max-lg">
         <div className="discover-results-list">
           <div
             className="discover-results-subheader bg-surface-popout flex items-center gap-sm"
@@ -129,7 +129,7 @@ export function DiscoverShell({
 
       {/* Right panel — map (or custom) */}
       {!hideRightPanel && (
-        <div className="discover-map-panel">
+        <div className="discover-map-panel panel-max-lg">
           {rightPanel ?? (
             <MapView providers={filteredProviders} service={activeService} />
           )}

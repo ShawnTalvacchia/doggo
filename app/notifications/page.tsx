@@ -15,8 +15,9 @@ import {
   ArrowLeft,
 } from "@phosphor-icons/react";
 import { MasterDetailShell, type MobileView } from "@/components/layout/MasterDetailShell";
-import { ListPanel } from "@/components/layout/ListPanel";
-import { DetailPanel } from "@/components/layout/DetailPanel";
+import { PanelBody } from "@/components/layout/PanelBody";
+import { Spacer } from "@/components/layout/Spacer";
+import { LayoutList } from "@/components/layout/LayoutList";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { mockNotifications, type AppNotification } from "@/lib/mockNotifications";
 import type { NotificationType } from "@/lib/types";
@@ -243,52 +244,56 @@ export default function NotificationsPage() {
     <MasterDetailShell
       mobileView={mobileView}
       listPanel={
-        <ListPanel
-          header={
-            <h2 className="font-heading font-bold text-fg-primary m-0" style={{ fontSize: "var(--text-xl)", lineHeight: 1.2 }}>
+        <div className="list-panel">
+          <div className="list-panel-header panel-header-desktop">
+            <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
               Notifications
             </h2>
-          }
-        >
-          <div className="list-panel-scroll">
-            {mockNotifications.map((notif) => (
-              <NotificationRow
-                key={notif.id}
-                notification={notif}
-                isActive={notif.id === selectedId}
-                onClick={() => setSelectedId(notif.id)}
-              />
-            ))}
           </div>
-        </ListPanel>
+          <PanelBody>
+            <LayoutList>
+              {mockNotifications.map((notif) => (
+                <NotificationRow
+                  key={notif.id}
+                  notification={notif}
+                  isActive={notif.id === selectedId}
+                  onClick={() => setSelectedId(notif.id)}
+                />
+              ))}
+            </LayoutList>
+            <Spacer />
+          </PanelBody>
+        </div>
       }
       detailPanel={
-        <DetailPanel
-          header={
-            selected ? (
+        <div className="detail-panel">
+          {selected && (
+            <div className="detail-panel-header">
               <span className="font-heading text-base font-semibold text-fg-primary">
                 {selected.title}
               </span>
-            ) : undefined
-          }
-        >
-          {selected ? (
-            <NotificationDetail
-              notification={selected}
-              onBack={() => setSelectedId(null)}
-            />
-          ) : (
-            <div
-              className="flex flex-col items-center justify-center flex-1 gap-md"
-              style={{ padding: "var(--space-xxxl)" }}
-            >
-              <Bell size={48} weight="light" className="text-fg-tertiary" />
-              <span className="text-md text-fg-tertiary">
-                Select a notification to see details
-              </span>
             </div>
           )}
-        </DetailPanel>
+          <PanelBody>
+            {selected ? (
+              <NotificationDetail
+                notification={selected}
+                onBack={() => setSelectedId(null)}
+              />
+            ) : (
+              <div
+                className="flex flex-col items-center justify-center flex-1 gap-md"
+                style={{ padding: "var(--space-xxxl)" }}
+              >
+                <Bell size={48} weight="light" className="text-fg-tertiary" />
+                <span className="text-md text-fg-tertiary">
+                  Select a notification to see details
+                </span>
+              </div>
+            )}
+            <Spacer />
+          </PanelBody>
+        </div>
       }
     />
     </div>

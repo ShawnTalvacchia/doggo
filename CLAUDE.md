@@ -35,6 +35,10 @@ These are non-negotiable. See `docs/implementation/frontend-style.md` for full d
 | Filter pill group | `.pill-group` + `.pill` / `.pill.active` CSS classes | Inline Tailwind pill recreations |
 | Form page header | `<FormHeader>` | Manual `<h1>` + `<p>` in form pages |
 | Form page footer (back/continue) | `<FormFooter>` | Manual button rows in form pages |
+| Scrollable panel body | `<PanelBody>` inside raw `<div className="list-panel">` or `<div className="detail-panel">` | Old `<ListPanel>` / `<DetailPanel>` (removed) |
+| Bottom spacer in panels | `<Spacer>` (last child of PanelBody) | Manual `<div>` with flex-grow |
+| Padded content block | `<LayoutSection>` inside PanelBody | Manual `<div>` with inline padding |
+| Edge-to-edge card list | `<LayoutList>` inside PanelBody | Manual `<div className="flex flex-col">` |
 
 **Why:** Consistency. Raw elements bypass the design system and produce visual mismatches (wrong padding, colors, hover states, font weights). The component handles all of that.
 
@@ -81,9 +85,9 @@ See `docs/CONTRIBUTING.md` for full details.
 | `docs/implementation/component-inventory.md` | Built components catalog |
 | `docs/CONTRIBUTING.md` | Workflow rules, doc categories, naming conventions |
 
-## Current Phase: 22 (active) — Panel Architecture & Page Alignment
+## Current Phase: 22 (complete) — Panel Architecture & Page Alignment
 
-**Goal:** Establish a canonical panel component system (Panel → PanelBody → LayoutSection/LayoutList → Spacer) and migrate all pages to use it. Work through pages in order: Home, Discover, then remaining pages. See `docs/phases/phase-22-panel-architecture.md`.
+**Completed.** Canonical panel system built (PanelBody → LayoutSection/LayoutList → Spacer) and all pages migrated. Old ListPanel/DetailPanel removed. See `docs/phases/phase-22-panel-architecture.md`.
 
 **Previous phases:** Phase 21 built out all page content (filters, notifications, bookings detail). Phase 20 cleaned up docs + removed dead components. Phase 19 delivered layout system + groups + feed.
 

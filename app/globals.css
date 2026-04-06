@@ -574,7 +574,7 @@ a {
   z-index: 20;
   display: flex;
   flex-direction: column;
-  padding: 24px var(--space-lg) 16px; /* 24px top, 16px bottom — header-nav pattern */
+  padding: 34px var(--space-lg) 16px; /* aligns logo center with panel header center */
 }
 
 .sidebar-brand {
@@ -723,6 +723,10 @@ a {
   z-index: 2;
 }
 
+.list-panel-header h2 {
+  font-size: var(--text-xl);
+}
+
 .list-panel-search {
   padding: var(--space-sm) var(--space-md);
   flex-shrink: 0;
@@ -769,6 +773,10 @@ a {
   border-top: 1px solid var(--border-default);
   padding: var(--space-sm) var(--space-md);
 }
+
+/* — Panel max-width utilities (Phase 22) — */
+.panel-max-sm { max-width: 400px; }
+.panel-max-lg { max-width: 640px; }
 
 /* — PanelBody (Phase 22) — scrollable body area inside any panel — */
 .panel-body {
@@ -2551,7 +2559,7 @@ body.guest-route {
   display: flex;
   gap: var(--space-md);
   width: 100%;
-  max-width: 1288px; /* 400 + 12 + 420 + 12 + 420 + 24 padding */
+  max-width: 1704px; /* 400 + 12 + 640 + 12 + 640 */
   height: calc(100vh - var(--nav-height) - var(--space-xxl));
   overflow: hidden;
 }
@@ -2578,7 +2586,6 @@ body.guest-route {
   flex: 1;
   overflow-y: auto;
   background: var(--surface-popout);
-  border: 1px solid var(--border-strong);
   padding: var(--space-xxl) var(--space-lg);
   display: flex;
   flex-direction: column;
@@ -2601,6 +2608,7 @@ body.guest-route {
 .discover-results-list {
   flex: 1;
   overflow-y: auto;
+  background: var(--surface-popout);
 }
 
 /* Right panel — map */
@@ -2625,9 +2633,60 @@ body.guest-route {
   max-width: none;
 }
 
-/* Mobile tabbed view — hidden on desktop */
+/* ── Discover tabbed view — base styles (hidden by default, shown at narrow widths) ── */
 .discover-page-shell .discover-mobile-tabbed {
   display: none;
+}
+
+.discover-mobile-tabs {
+  display: flex;
+  flex-shrink: 0;
+  padding: 0 var(--space-xxs);
+  background: var(--surface-popout);
+  border-bottom: 1.5px solid var(--border-strong);
+  z-index: 3;
+}
+
+.discover-mobile-tabs > div {
+  flex: 1;
+  gap: 0;
+}
+
+.discover-mobile-tabs .tab-main {
+  flex: 1;
+  height: 56px;
+  padding: 0;
+  border-bottom: 1.5px solid var(--border-strong);
+  margin-bottom: -1.5px;
+}
+
+.discover-mobile-tabs .tab-main[data-active] {
+  border-bottom-color: var(--text-primary);
+}
+
+.discover-mobile-tab-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.discover-mobile-tab-content .discover-hub-body {
+  flex: 1;
+}
+
+/* Bottom padding so last card isn't clipped by panel border-radius */
+.discover-mobile-tab-content .discover-results-list,
+.discover-mobile-tab-content .discover-hub-body {
+  padding-bottom: var(--radius-panel);
+}
+
+/* ── Discover — keep hub header visible at collapsed widths (sidebar present) ── */
+@media (min-width: 768px) and (max-width: 1299px) {
+  .discover-hub-panel .panel-header-desktop {
+    display: flex;
+  }
 }
 
 /* ── Discover shell — mobile: single panel ── */
@@ -2668,7 +2727,7 @@ body.guest-route {
     min-height: 0;
   }
 
-  /* When service is selected, hide desktop panels and show mobile tabbed view */
+  /* When type is selected, hide hub and show tabbed view */
   .discover-page-shell[data-mobile-view="results"] .discover-hub-panel,
   .discover-page-shell[data-mobile-view="results"] .discover-results-panel {
     display: none;
@@ -2690,52 +2749,9 @@ body.guest-route {
     overflow: hidden;
   }
 
-  .discover-mobile-tabs {
-    display: flex;
-    flex-shrink: 0;
-    padding: 0 var(--space-xxs);
-    background: var(--surface-popout);
-    border-bottom: 1.5px solid var(--border-strong);
-    z-index: 3;
-  }
-
-  .discover-mobile-tabs > div {
-    flex: 1;
-    gap: 0;
-  }
-
-  .discover-mobile-tabs .tab-main {
-    flex: 1;
-    height: 56px;
-    padding: 0;
-    border-bottom: 1.5px solid var(--border-strong);
-    margin-bottom: -1.5px;
-  }
-
-  .discover-mobile-tabs .tab-main[data-active] {
-    border-bottom-color: var(--text-primary);
-  }
-
-  .discover-mobile-tab-content {
-    flex: 1;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
-
+  /* On mobile, hide header inside tab content — bottom nav handles navigation */
   .discover-mobile-tab-content .list-panel-header {
     display: none;
-  }
-
-  .discover-mobile-tab-content .discover-hub-body {
-    flex: 1;
-  }
-
-  /* Bottom padding so last card isn't clipped by panel border-radius */
-  .discover-mobile-tab-content .discover-results-list,
-  .discover-mobile-tab-content .discover-hub-body {
-    padding-bottom: var(--radius-panel);
   }
 
   /* Nav-hidden: remove radius + padding so panels go edge-to-edge */
@@ -2749,22 +2765,58 @@ body.guest-route {
   }
 }
 
-/* ── Discover shell — collapsed (sidebar + single panel) ── */
-@media (min-width: 768px) and (max-width: 1299px) {
+/* ── Discover shell — hide map when 3 panels can't all be 400px+ ── */
+@media (max-width: 1499px) {
+  .discover-map-panel {
+    display: none;
+  }
+}
+
+/* ── Discover shell — single panel when 2 can't both be 400px+ ── */
+/* 200 sidebar + 24 pad + 400 + 12 gap + 400 + 24 pad = 1060 */
+@media (min-width: 768px) and (max-width: 1059px) {
   .discover-page-shell {
     max-width: 640px;
-  }
-
-  .discover-hub-panel {
-    display: none;
+    flex-direction: column;
+    gap: 0;
   }
 
   .discover-results-panel {
-    max-width: none;
+    display: none;
   }
 
-  .discover-map-panel {
+  /* No type selected: hub panel fills space */
+  .discover-hub-panel {
+    width: 100%;
+    max-width: 100%;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* Type selected: keep hub visible but only show its header (back button) */
+  .discover-page-shell[data-mobile-view="results"] .discover-hub-panel {
+    flex: 0 0 auto;
+    min-height: auto;
+    overflow: visible;
+    border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+    border-bottom: 0;
+  }
+  .discover-page-shell[data-mobile-view="results"] .discover-hub-panel .discover-hub-body {
     display: none;
+  }
+
+  /* Tabbed view stacks below the hub header */
+  .discover-page-shell[data-mobile-view="results"] .discover-mobile-tabbed {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    border: 1px solid var(--border-stronger);
+    border-top: 0;
+    border-radius: 0 0 0 0;
+    background: var(--surface-popout);
+    overflow: hidden;
   }
 }
 
@@ -9760,17 +9812,18 @@ body.guest-route {
   font-size: 12px;
   font-weight: var(--weight-semibold);
   border-radius: var(--radius-circle);
-  background: var(--surface-popout);
-  border: 1px solid var(--border-light);
+  background: transparent;
+  border: 1px solid var(--border-regular);
   color: var(--text-secondary);
   white-space: nowrap;
 }
 
 .card-schedule-chip--primary {
-  background: var(--brand-subtle);
-  border-color: var(--brand-subtle);
-  color: var(--brand-strong);
+  background: var(--surface-base);
+  border-color: var(--border-regular);
+  color: var(--text-primary);
 }
+
 
 .card-schedule-icon-btn {
   display: flex;
@@ -10573,13 +10626,15 @@ body.guest-route {
 @media (min-width: 768px) and (max-width: 1299px) {
   .page-container.schedule-page-shell,
   .page-container.bookings-page-shell,
-  .page-container.notifications-page-shell {
+  .page-container.notifications-page-shell,
+  .page-container.inbox-page-shell {
     max-width: 640px;
   }
 
   .schedule-page-shell,
   .bookings-page-shell,
-  .notifications-page-shell {
+  .notifications-page-shell,
+  .inbox-page-shell {
     background: var(--surface-inset);
     border: 1px solid var(--border-stronger);
     border-radius: var(--radius-panel) var(--radius-panel) 0 0;
@@ -10587,7 +10642,8 @@ body.guest-route {
 
   .schedule-page-shell .md-shell,
   .bookings-page-shell .md-shell,
-  .notifications-page-shell .md-shell {
+  .notifications-page-shell .md-shell,
+  .inbox-page-shell .md-shell {
     flex-direction: column;
     gap: 0;
   }
@@ -10597,7 +10653,10 @@ body.guest-route {
   .bookings-page-shell .md-shell-list,
   .bookings-page-shell .md-shell-detail,
   .notifications-page-shell .md-shell-list,
-  .notifications-page-shell .md-shell-detail {
+  .notifications-page-shell .md-shell-detail,
+  .inbox-page-shell .md-shell-list,
+  .inbox-page-shell .md-shell-detail,
+  .inbox-page-shell .md-shell-info {
     width: 100%;
     max-width: 100%;
     border: 0;
@@ -10608,28 +10667,25 @@ body.guest-route {
 
   .schedule-page-shell .md-shell-panel--active,
   .bookings-page-shell .md-shell-panel--active,
-  .notifications-page-shell .md-shell-panel--active {
+  .notifications-page-shell .md-shell-panel--active,
+  .inbox-page-shell .md-shell-panel--active {
     display: flex;
     flex: 1;
   }
 
   /* Bottom padding so last item isn't clipped by panel border-radius */
-  .schedule-page-shell .list-panel-scroll,
-  .schedule-page-shell .detail-panel-scroll,
   .schedule-page-shell .panel-body,
-  .bookings-page-shell .list-panel-scroll,
-  .bookings-page-shell .detail-panel-scroll,
   .bookings-page-shell .panel-body,
-  .notifications-page-shell .list-panel-scroll,
-  .notifications-page-shell .detail-panel-scroll,
-  .notifications-page-shell .panel-body {
+  .notifications-page-shell .panel-body,
+  .inbox-page-shell .panel-body {
     padding-bottom: var(--radius-panel);
   }
 
   /* Nav-hidden: remove radius so panels go edge-to-edge */
   body.nav-hidden .schedule-page-shell,
   body.nav-hidden .bookings-page-shell,
-  body.nav-hidden .notifications-page-shell {
+  body.nav-hidden .notifications-page-shell,
+  body.nav-hidden .inbox-page-shell {
     border-radius: 0;
   }
 }

@@ -9,6 +9,7 @@ import {
   CaretRight,
 } from "@phosphor-icons/react";
 import { DiscoverShell } from "@/components/discover/DiscoverShell";
+import { Spacer } from "@/components/layout/Spacer";
 
 const CATEGORIES = [
   {
@@ -37,11 +38,8 @@ const CATEGORIES = [
 function HubPanel() {
   return (
     <>
-      <div className="list-panel-header">
-        <h2
-          className="font-heading font-bold text-fg-primary"
-          style={{ fontSize: "var(--text-2xl)", lineHeight: 1.2 }}
-        >
+      <div className="list-panel-header panel-header-desktop">
+        <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
           Discover
         </h2>
       </div>
@@ -89,6 +87,7 @@ function HubPanel() {
             ))}
           </div>
         </div>
+        <Spacer size="sm" />
       </div>
     </>
   );

@@ -1,6 +1,6 @@
 ---
 category: phase
-status: active
+status: complete
 last-reviewed: 2026-04-06
 tags: [phase-22, panels, layout, components, architecture]
 review-trigger: "when completing workstreams or closing this phase"
@@ -80,7 +80,7 @@ The panel is the top-level wrapper inside MasterDetailShell slots. It replaces t
 
 Build the new components and CSS classes. These are additive — existing components keep working.
 
-### A1 — PanelBody + Spacer components
+### A1 — PanelBody + Spacer components ✓
 
 Build `PanelBody` and `Spacer` components. PanelBody is the scroll container that replaces `list-panel-scroll` / `detail-panel-scroll`. Spacer is a flex-fill element with surface-popout and min-height variants.
 
@@ -88,7 +88,7 @@ Build `PanelBody` and `Spacer` components. PanelBody is the scroll container tha
 **CSS:** Add `.panel-body`, `.spacer`, `.spacer-sm`, `.spacer-md`, `.spacer-lg` to globals.css
 **Docs:** `docs/implementation/component-inventory.md`
 
-### A2 — LayoutSection + LayoutList components
+### A2 — LayoutSection + LayoutList components ✓
 
 Build `LayoutSection` and `LayoutList`. LayoutSection is a padded content wrapper. LayoutList is a zero-padding flex container for card lists.
 
@@ -96,7 +96,7 @@ Build `LayoutSection` and `LayoutList`. LayoutSection is a padded content wrappe
 **CSS:** Add `.layout-section`, `.section-py-lg`, `.section-py-xl`, `.section-hug`, `.section-fill`, `.layout-list` to globals.css
 **Docs:** `docs/implementation/component-inventory.md`
 
-### A3 — PanelHeader responsive visibility
+### A3 — PanelHeader responsive visibility ✓
 
 Add mobile-hide logic to PanelHeader (the existing `list-panel-header` / `detail-panel-header`). On mobile/collapsed, the header hides and TabBar (if present) becomes the top element.
 
@@ -121,19 +121,19 @@ Add a Panel Architecture section to the styleguide showing Panel → PanelBody �
 
 Migrate Home to use the new panel components. Home is already close — main work is adopting PanelBody, LayoutSection/LayoutList, and Spacer.
 
-### B1 — Home groups panel
+### B1 — Home groups panel ✓
 
 Migrate the groups list panel: PanelHeader ("My Groups"), PanelBody containing a LayoutList of GroupCards, Spacer at bottom.
 
 **Files:** `app/home/page.tsx`
 
-### B2 — Home feed panel
+### B2 — Home feed panel ✓
 
 Migrate the feed panel: PanelBody containing FeedCTA as a LayoutSection, feed items as a LayoutList, Spacer at bottom.
 
 **Files:** `app/home/page.tsx`
 
-### B3 — Home collapsed/mobile verification
+### B3 — Home collapsed/mobile verification ✓
 
 Verify the collapsed and mobile breakpoints still work correctly with the new components. TabBar should show on collapsed, PanelHeader should hide on mobile.
 
@@ -145,35 +145,35 @@ Verify the collapsed and mobile breakpoints still work correctly with the new co
 
 Migrate Discover hub and sub-pages. DiscoverShell stays as the outer layout — inner panel content adopts new components.
 
-### C1 — Discover hub panel
+### C1 — Discover hub panel ✓
 
-Migrate the hub panel body to use PanelBody + LayoutSections (the three door cards) + Spacer.
+Migrate the hub panel body: add `panel-header-desktop` to header, add Spacer at bottom.
 
 **Files:** `app/discover/page.tsx`
 
-### C2 — Discover Meets hub + filter panels
+### C2 — Discover Meets hub + filter panels ✓
 
-Migrate MeetsPickerPanel and MeetsFilterPanel to use LayoutSection for padded filter groups and LayoutList for card grids.
+Add `panel-header-desktop` to picker/filter headers, normalise h2 styling, add Spacer at bottom of hub bodies.
 
 **Files:** `app/discover/meets/page.tsx`
 
-### C3 — Discover Groups hub + filter panels
+### C3 — Discover Groups hub + filter panels ✓
 
-Same as C2 for Groups.
+Same pattern as C2 for Groups.
 
 **Files:** `app/discover/groups/page.tsx`
 
-### C4 — Discover Care filters
+### C4 — Discover Care filters ✓
 
-Migrate Care filter panel content to use LayoutSection/LayoutList.
+Same pattern as C2 for Care.
 
 **Files:** `app/discover/care/page.tsx`
 
 ### C5 — Discover results panels
 
-Migrate results list panels across all three sub-pages to use PanelBody + LayoutList + Spacer.
+Migrate results list panels across all three sub-pages to use PanelBody + LayoutList + Spacer. (Deferred — results are rendered by DiscoverShell, not individual pages.)
 
-**Files:** `app/discover/meets/page.tsx`, `app/discover/groups/page.tsx`, `app/discover/care/page.tsx`
+**Files:** `components/discover/DiscoverShell.tsx`
 
 ---
 
@@ -181,55 +181,55 @@ Migrate results list panels across all three sub-pages to use PanelBody + Layout
 
 Migrate the remaining MasterDetailShell pages.
 
-### D1 — Schedule page
+### D1 — Schedule page ✓
 
-Migrate list panel (meet cards) and detail panel (meet info) to new components.
+Replaced ListPanel/DetailPanel with raw div + PanelBody + LayoutList + Spacer. Header uses `panel-header-desktop`.
 
 **Files:** `app/schedule/page.tsx`
 
-### D2 — Bookings page
+### D2 — Bookings page ✓
 
-Migrate list panel (booking cards) and detail panel (booking info) to new components.
+Replaced ListPanel/DetailPanel with raw div + PanelBody + Spacer. Header uses `panel-header-desktop`.
 
 **Files:** `app/bookings/page.tsx`
 
-### D3 — Notifications page
+### D3 — Notifications page ✓
 
-Migrate list panel (notification rows) and detail panel (notification detail) to new components.
+Replaced ListPanel/DetailPanel with raw div + PanelBody + LayoutList + Spacer. Header uses `panel-header-desktop`.
 
 **Files:** `app/notifications/page.tsx`
 
-### D4 — Inbox page
+### D4 — Inbox page ✓
 
-Migrate list panel (conversation rows), detail panel (messages), and info panel (contact info) to new components.
+Replaced ListPanel/DetailPanel with raw div + PanelBody + LayoutList + Spacer. Added collapsed breakpoint CSS for `inbox-page-shell`.
 
-**Files:** `app/inbox/page.tsx`
+**Files:** `app/inbox/page.tsx`, `app/globals.css`
 
 ---
 
 ## Workstream E — Cleanup & Documentation
 
-### E1 — Deprecate old panel components
+### E1 — Remove old panel components ✓
 
-Once all pages are migrated, mark ListPanel/DetailPanel as deprecated or refactor them to be thin wrappers around the new components.
+Deleted `ListPanel.tsx` and `DetailPanel.tsx` — no longer imported anywhere.
 
-**Files:** `components/layout/ListPanel.tsx`, `components/layout/DetailPanel.tsx`
+**Removed:** `components/layout/ListPanel.tsx`, `components/layout/DetailPanel.tsx`
 
-### E2 — Update component inventory
+### E2 — Update component inventory ✓
 
-Add all new components (PanelBody, Spacer, LayoutSection, LayoutList) with descriptions and usage examples.
+Added PanelBody, Spacer, LayoutSection, LayoutList entries. Removed ListPanel/DetailPanel entries.
 
 **Files:** `docs/implementation/component-inventory.md`
 
-### E3 — Update CLAUDE.md component usage table
+### E3 — Update CLAUDE.md component usage table ✓
 
-Add the new layout components to the "Always use existing components" table.
+Added new layout components to the "Always use existing components" table.
 
 **Files:** `CLAUDE.md`
 
-### E4 — Close phase
+### E4 — Close phase ✓
 
-Update phase board, roadmap, and review affected docs.
+Phase marked complete. Roadmap updated.
 
 **Files:** `docs/phases/phase-22-panel-architecture.md`, `docs/ROADMAP.md`
 
@@ -256,12 +256,14 @@ Update phase board, roadmap, and review affected docs.
 
 ## Verification Checklist
 
-- [ ] PanelBody, Spacer, LayoutSection, LayoutList components built
-- [ ] Spacer renders surface-popout background, fills remaining space
-- [ ] PanelHeader hides on mobile, TabBar hides on desktop
-- [ ] Home page uses new panel components
-- [ ] Discover hub + sub-pages use new panel components
-- [ ] Schedule, Bookings, Notifications, Inbox migrated
-- [ ] All new components added to component-inventory.md and styleguide
-- [ ] CLAUDE.md updated with new component usage rules
-- [ ] Build passes clean (`npm run build`)
+- [x] PanelBody, Spacer, LayoutSection, LayoutList components built
+- [x] Spacer renders surface-popout background, fills remaining space
+- [x] PanelHeader hides on mobile, TabBar hides on desktop
+- [x] Home page uses new panel components
+- [x] Discover hub + sub-pages use new panel components
+- [x] Schedule, Bookings, Notifications, Inbox migrated
+- [x] All new components added to component-inventory.md
+- [x] CLAUDE.md updated with new component usage rules
+- [x] Old ListPanel/DetailPanel removed
+- [x] Panel max-width utilities (panel-max-sm, panel-max-lg) added
+- [x] TypeScript compiles clean

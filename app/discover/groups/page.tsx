@@ -16,6 +16,7 @@ import {
   Dog,
 } from "@phosphor-icons/react";
 import { DiscoverShell } from "@/components/discover/DiscoverShell";
+import { Spacer } from "@/components/layout/Spacer";
 import { GroupCard } from "@/components/groups/GroupCard";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
@@ -69,17 +70,14 @@ const NEIGHBOURHOODS = [
 function GroupsPickerPanel() {
   return (
     <>
-      <div className="list-panel-header">
+      <div className="list-panel-header panel-header-desktop">
         <Link
           href="/discover"
           className="flex items-center gap-sm"
           style={{ textDecoration: "none" }}
         >
           <ArrowLeft size={20} weight="regular" className="text-fg-primary" />
-          <h2
-            className="font-heading font-bold text-fg-primary"
-            style={{ fontSize: "var(--text-2xl)", lineHeight: 1.2 }}
-          >
+          <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
             Groups
           </h2>
         </Link>
@@ -128,6 +126,7 @@ function GroupsPickerPanel() {
             ))}
           </div>
         </div>
+        <Spacer size="sm" />
       </div>
     </>
   );
@@ -150,17 +149,14 @@ function GroupsFilterPanel({ activeType }: { activeType: GroupType }) {
 
   return (
     <>
-      <div className="list-panel-header">
+      <div className="list-panel-header panel-header-desktop">
         <Link
           href="/discover/groups"
           className="flex items-center gap-sm"
           style={{ textDecoration: "none" }}
         >
           <ArrowLeft size={20} weight="regular" className="text-fg-primary" />
-          <h2
-            className="font-heading font-bold text-fg-primary"
-            style={{ fontSize: "var(--text-2xl)", lineHeight: 1.2 }}
-          >
+          <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
             Groups
           </h2>
         </Link>
@@ -245,6 +241,7 @@ function GroupsFilterPanel({ activeType }: { activeType: GroupType }) {
             </div>
           </div>
         </div>
+        <Spacer size="sm" />
       </div>
     </>
   );
