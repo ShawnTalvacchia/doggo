@@ -247,7 +247,6 @@ export default function SchedulePage() {
     : 0;
 
   const detailContent = selectedMeet ? (
-    <div className="detail-panel-scroll">
       <div className="flex flex-col gap-xl" style={{ padding: "var(--space-lg)" }}>
         {/* Title + type badge */}
         <div className="flex flex-col gap-sm">
@@ -409,7 +408,6 @@ export default function SchedulePage() {
           </ButtonAction>
         </div>
       </div>
-    </div>
   ) : (
     <div
       className="flex flex-col items-center justify-center flex-1 gap-md"

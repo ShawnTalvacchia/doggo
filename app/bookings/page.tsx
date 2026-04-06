@@ -96,7 +96,6 @@ function BookingDetail({
   const serviceLabel = SERVICE_LABELS[booking.serviceType];
 
   return (
-    <div className="detail-panel-scroll">
       <div className="flex flex-col gap-xl" style={{ padding: "var(--space-lg)" }}>
         {/* Provider header */}
         <div className="flex items-center gap-md">
@@ -172,7 +171,6 @@ function BookingDetail({
           </ButtonAction>
         </div>
       </div>
-    </div>
   );
 }
 
@@ -241,18 +239,18 @@ function BookingsPageInner() {
 
   const mobileView: MobileView = selectedBooking ? "detail" : "list";
 
+  const serviceLabel = selectedBooking ? SERVICE_LABELS[selectedBooking.serviceType] : null;
+
   return (
+    <div className="page-container bookings-page-shell">
     <MasterDetailShell
       mobileView={mobileView}
       listPanel={
         <ListPanel
           header={
-            <div className="activity-tab-header" style={{ borderBottom: "none" }}>
-              <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
-            </div>
+            <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
           }
         >
-          <div className="list-panel-scroll">
             {activeTab === "care" && (
               <MyCareContent
                 onSelect={setSelectedBookingId}
@@ -260,11 +258,18 @@ function BookingsPageInner() {
               />
             )}
             {activeTab === "services" && <ServicesTab />}
-          </div>
         </ListPanel>
       }
       detailPanel={
-        <DetailPanel>
+        <DetailPanel
+          header={
+            selectedBooking ? (
+              <span className="font-heading text-base font-semibold text-fg-primary">
+                {serviceLabel} with {selectedBooking.carerName}
+              </span>
+            ) : undefined
+          }
+        >
           {selectedBooking ? (
             <BookingDetail
               booking={selectedBooking}
@@ -284,6 +289,7 @@ function BookingsPageInner() {
         </DetailPanel>
       }
     />
+    </div>
   );
 }
 

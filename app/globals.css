@@ -10347,9 +10347,13 @@ body.guest-route {
 
 }
 
-/* ── Home page shell (Phase 19) ── */
-.page-container.home-page-shell {
-  max-width: 1052px; /* 400 list + 12 gap + 640 detail */
+/* ── MasterDetailShell page shells ── */
+/* All pages using MasterDetailShell need max-width: 400 list + 12 gap + 640 detail */
+.page-container.home-page-shell,
+.page-container.schedule-page-shell,
+.page-container.bookings-page-shell,
+.page-container.notifications-page-shell {
+  max-width: 1052px;
 }
 .home-page-shell {
   display: flex;
@@ -10452,6 +10456,80 @@ body.guest-route {
   }
 
   body.nav-hidden .home-tab-bar {
+    border-radius: 0;
+  }
+}
+
+/* ── Shared collapsed rules for Schedule, Bookings, Notifications ── */
+/* At collapsed widths these pages can't fit both panels side-by-side.
+   They rely on MasterDetailShell's mobileView prop for panel switching. */
+.schedule-page-shell,
+.bookings-page-shell,
+.notifications-page-shell {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) and (max-width: 1299px) {
+  .page-container.schedule-page-shell,
+  .page-container.bookings-page-shell,
+  .page-container.notifications-page-shell {
+    max-width: 640px;
+  }
+
+  .schedule-page-shell,
+  .bookings-page-shell,
+  .notifications-page-shell {
+    background: var(--surface-inset);
+    border: 1px solid var(--border-stronger);
+    border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  }
+
+  .schedule-page-shell .md-shell,
+  .bookings-page-shell .md-shell,
+  .notifications-page-shell .md-shell {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .schedule-page-shell .md-shell-list,
+  .schedule-page-shell .md-shell-detail,
+  .bookings-page-shell .md-shell-list,
+  .bookings-page-shell .md-shell-detail,
+  .notifications-page-shell .md-shell-list,
+  .notifications-page-shell .md-shell-detail {
+    width: 100%;
+    max-width: 100%;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    display: none;
+  }
+
+  .schedule-page-shell .md-shell-panel--active,
+  .bookings-page-shell .md-shell-panel--active,
+  .notifications-page-shell .md-shell-panel--active {
+    display: flex;
+    flex: 1;
+  }
+
+  /* Bottom padding so last item isn't clipped by panel border-radius */
+  .schedule-page-shell .list-panel-scroll,
+  .schedule-page-shell .detail-panel-scroll,
+  .bookings-page-shell .list-panel-scroll,
+  .bookings-page-shell .detail-panel-scroll,
+  .notifications-page-shell .list-panel-scroll,
+  .notifications-page-shell .detail-panel-scroll {
+    padding-bottom: var(--radius-panel);
+  }
+
+  /* Nav-hidden: remove radius so panels go edge-to-edge */
+  body.nav-hidden .schedule-page-shell,
+  body.nav-hidden .bookings-page-shell,
+  body.nav-hidden .notifications-page-shell {
     border-radius: 0;
   }
 }

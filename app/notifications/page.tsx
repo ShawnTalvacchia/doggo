@@ -152,7 +152,6 @@ function NotificationDetail({
 
   return (
     <>
-      <div className="detail-panel-scroll">
         <div className="flex flex-col items-center gap-lg" style={{ padding: "var(--space-xxxl) var(--space-lg)" }}>
           {/* Avatar */}
           {notification.avatarUrl ? (
@@ -225,7 +224,6 @@ function NotificationDetail({
             </ButtonAction>
           )}
         </div>
-      </div>
     </>
   );
 }
@@ -241,19 +239,15 @@ export default function NotificationsPage() {
   const mobileView: MobileView = selected ? "detail" : "list";
 
   return (
+    <div className="page-container notifications-page-shell">
     <MasterDetailShell
       mobileView={mobileView}
       listPanel={
         <ListPanel
           header={
-            <div className="list-panel-header">
-              <h2
-                className="font-heading font-bold text-fg-primary"
-                style={{ fontSize: "var(--text-2xl)", lineHeight: 1.2 }}
-              >
-                Notifications
-              </h2>
-            </div>
+            <h2 className="font-heading font-bold text-fg-primary m-0" style={{ fontSize: "var(--text-xl)", lineHeight: 1.2 }}>
+              Notifications
+            </h2>
           }
         >
           <div className="list-panel-scroll">
@@ -269,7 +263,15 @@ export default function NotificationsPage() {
         </ListPanel>
       }
       detailPanel={
-        <DetailPanel>
+        <DetailPanel
+          header={
+            selected ? (
+              <span className="font-heading text-base font-semibold text-fg-primary">
+                {selected.title}
+              </span>
+            ) : undefined
+          }
+        >
           {selected ? (
             <NotificationDetail
               notification={selected}
@@ -289,5 +291,6 @@ export default function NotificationsPage() {
         </DetailPanel>
       }
     />
+    </div>
   );
 }
