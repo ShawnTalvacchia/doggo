@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-04-04
+last-reviewed: 2026-04-06
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
@@ -313,20 +313,38 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
-## Phase 21 — Pages & Content Build-out (active)
+## Phase 21 — Pages & Content Build-out ✓
 
 **Goal:** Flesh out inner content across all app pages. Bring Discover Meets and Groups up to the same interactive filter level as Care. Migrate Bookings and Notifications to shared layout system. Build Notifications from scratch.
+
+**Status:** Complete.
+
+**Key work:**
+- Discover/Meets: interactive filter panel with type-specific accordions, results filtering, mobile tab switching
+- Discover/Groups: interactive filter panel with neighbourhood accordion, results filtering, GroupCard enrichment
+- Notifications: full build from stub (10 notification types, list/detail views, mock data tied to user journeys, unread badge)
+- Bookings: migrated to MasterDetailShell with detail panel (provider info, sessions, schedule, price)
+- Schedule: enriched detail panel (attendees, energy level, leash rule, what to bring, organizer)
+- Layout alignment: page-container wrappers, detail headers, collapsed breakpoint CSS for all MasterDetailShell pages
+
+**Board:** [[phase-21-pages-and-content]]
+
+---
+
+## Phase 22 — Panel Architecture & Page Alignment (active)
+
+**Goal:** Establish a canonical panel component system (Panel → PanelBody → LayoutSection/LayoutList → Spacer) and migrate all pages to use it. Work through pages in order: Home, Discover, then remaining pages.
 
 **Status:** Active.
 
 **Key work:**
-- Discover/Meets: interactive filter panel, map, mobile tab switching
-- Discover/Groups: interactive filter panel, results filtering
-- Notifications: full build-out from stub (notification types, list, detail, mock data)
-- Bookings: migrate to MasterDetailShell layout
-- Page polish: wire UpcomingPanel, booking detail view, schedule detail enrichment
+- Build PanelBody, Spacer, LayoutSection, LayoutList components
+- PanelHeader hides on mobile, TabBar hides on desktop
+- Spacer fills remaining space with surface-popout background
+- Migrate all pages: Home → Discover → Schedule → Bookings → Notifications → Inbox
+- Deprecate old ListPanel/DetailPanel once migrated
 
-**Board:** [[phase-21-pages-and-content]]
+**Board:** [[phase-22-panel-architecture]]
 
 ---
 

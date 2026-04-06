@@ -1,6 +1,6 @@
 ---
 category: phase
-status: active
+status: complete
 last-reviewed: 2026-04-06
 tags: [phase-21, pages, content, layout, discover, groups, bookings, notifications]
 review-trigger: "when completing workstreams or closing this phase"

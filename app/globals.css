@@ -667,6 +667,7 @@ a {
 }
 
 /* — Shared panel styling (Figma: inset bg, rounded top, border) — */
+/* Desktop: rounded top, square bottom. Mobile: rounded all corners. */
 .md-shell-list,
 .md-shell-detail,
 .md-shell-info {
@@ -768,6 +769,101 @@ a {
   border-top: 1px solid var(--border-default);
   padding: var(--space-sm) var(--space-md);
 }
+
+/* — PanelBody (Phase 22) — scrollable body area inside any panel — */
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* — Spacer — fills remaining space at bottom of panel body — */
+.panel-spacer {
+  flex: 1;
+  width: 100%;
+  background: var(--surface-popout);
+}
+.panel-spacer--sm { min-height: 24px; }
+.panel-spacer--md { min-height: 48px; }
+.panel-spacer--lg { min-height: 80px; }
+
+/* — LayoutSection — padded content block inside panel body — */
+.layout-section {
+  width: 100%;
+  padding-left: var(--space-lg);
+  padding-right: var(--space-lg);
+}
+.layout-section--py-lg {
+  padding-top: var(--space-lg);
+  padding-bottom: var(--space-lg);
+}
+.layout-section--py-xl {
+  padding-top: var(--space-xxl);
+  padding-bottom: var(--space-xxl);
+}
+.layout-section--hug {
+  /* default: height hugs content */
+}
+.layout-section--fill {
+  flex: 1;
+  min-height: 0;
+}
+
+/* — Panel TabBar — visible on collapsed/mobile, hidden on desktop — */
+.panel-tabbar {
+  display: none; /* hidden on wide desktop by default */
+  flex-shrink: 0;
+  padding: 0 var(--space-xxs);
+  background: var(--surface-popout);
+  border-bottom: 1.5px solid var(--border-strong);
+  z-index: 3;
+}
+.panel-tabbar > div { flex: 1; gap: 0; }
+.panel-tabbar .tab-main {
+  flex: 1;
+  height: 56px;
+  padding: 0;
+  border-bottom: 1.5px solid var(--border-strong);
+  margin-bottom: -1.5px;
+}
+.panel-tabbar .tab-main[data-active] {
+  border-bottom-color: var(--text-primary);
+}
+
+/* Collapsed: show panel-tabbar, hide panel-header-desktop */
+@media (min-width: 768px) and (max-width: 1299px) {
+  .panel-tabbar {
+    display: flex;
+    border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  }
+  .panel-header-desktop {
+    display: none;
+  }
+}
+
+/* Mobile: show panel-tabbar, hide panel-header-desktop */
+@media (max-width: 767px) {
+  .panel-tabbar {
+    display: flex;
+  }
+  .panel-header-desktop {
+    display: none;
+  }
+}
+
+/* — LayoutList — edge-to-edge card/item list inside panel body — */
+.layout-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.layout-list--row { flex-direction: row; }
+.layout-list--gap-xs { gap: var(--space-xs); }
+.layout-list--gap-sm { gap: var(--space-sm); }
+.layout-list--gap-md { gap: var(--space-md); }
+.layout-list--gap-lg { gap: var(--space-lg); }
 
 /* ================================================
    TOP NAV
@@ -10446,7 +10542,8 @@ body.guest-route {
 
   /* Bottom padding so last item isn't clipped by panel border-radius */
   .home-page-shell .list-panel-scroll,
-  .home-page-shell .detail-panel-scroll {
+  .home-page-shell .detail-panel-scroll,
+  .home-page-shell .panel-body {
     padding-bottom: var(--radius-panel);
   }
 
@@ -10519,10 +10616,13 @@ body.guest-route {
   /* Bottom padding so last item isn't clipped by panel border-radius */
   .schedule-page-shell .list-panel-scroll,
   .schedule-page-shell .detail-panel-scroll,
+  .schedule-page-shell .panel-body,
   .bookings-page-shell .list-panel-scroll,
   .bookings-page-shell .detail-panel-scroll,
+  .bookings-page-shell .panel-body,
   .notifications-page-shell .list-panel-scroll,
-  .notifications-page-shell .detail-panel-scroll {
+  .notifications-page-shell .detail-panel-scroll,
+  .notifications-page-shell .panel-body {
     padding-bottom: var(--radius-panel);
   }
 

@@ -19,12 +19,12 @@ import { FeedDogMoment } from "@/components/feed/FeedDogMoment";
 import { FeedCareReview } from "@/components/feed/FeedCareReview";
 import { TabBar } from "@/components/ui/TabBar";
 import { MasterDetailShell, type MobileView } from "@/components/layout/MasterDetailShell";
-import { ListPanel } from "@/components/layout/ListPanel";
-import { DetailPanel } from "@/components/layout/DetailPanel";
+import { PanelBody } from "@/components/layout/PanelBody";
+import { Spacer } from "@/components/layout/Spacer";
+import { LayoutList } from "@/components/layout/LayoutList";
+import { LayoutSection } from "@/components/layout/LayoutSection";
 import { GroupCard } from "@/components/groups/GroupCard";
-import { UpcomingPanel } from "@/components/home/UpcomingPanel";
 import { getUserGroups } from "@/lib/mockGroups";
-import { getUpcomingMeets } from "@/lib/mockMeets";
 import type { FeedItem } from "@/lib/types";
 
 // ── Feed rendering ──────────────────────────────────────────────────────────
@@ -57,51 +57,6 @@ function FeedItemRenderer({ item }: { item: FeedItem }) {
   }
 }
 
-// ── Groups list panel — simple flat list matching Figma ──────────────────────
-
-function GroupsListContent() {
-  const userGroups = getUserGroups("shawn");
-
-  return (
-    <div className="flex flex-col">
-      {userGroups.map((group) => (
-        <GroupCard key={group.id} group={group} />
-      ))}
-    </div>
-  );
-}
-
-// ── Feed content ────────────────────────────────────────────────────────────
-
-function FeedContent() {
-  const feedItems = getFeedForUser("shawn");
-
-  if (DEMO_NEW_USER) {
-    return (
-      <>
-        <HomeWelcome />
-        <DogsNearYou />
-        <div className="feed-list">
-          {getNewUserFeed().map((item) => (
-            <FeedItemRenderer key={item.feedId} item={item} />
-          ))}
-        </div>
-      </>
-    );
-  }
-
-  const dogPhotos = mockUser.pets.map((p) => p.imageUrl);
-
-  return (
-    <div className="feed-list">
-      <FeedCTA dogPhotos={dogPhotos} />
-      {feedItems.map((item) => (
-        <FeedItemRenderer key={item.feedId} item={item} />
-      ))}
-    </div>
-  );
-}
-
 // ── Mobile tabs (Feed | Groups) ─────────────────────────────────────────────
 
 const TABS = [
@@ -124,38 +79,66 @@ function HomePageInner() {
     }
   };
 
-  // Mobile view: map tab to panel
   const mobileView: MobileView = activeTab === "groups" ? "list" : "detail";
 
-  // Groups panel header — matches Figma heading/3 style
-  const groupsHeader = (
-    <h2 className="font-heading text-lg font-bold text-fg-primary" style={{ fontSize: "var(--text-xl)", lineHeight: 1.2 }}>
-      My Groups
-    </h2>
-  );
-
-  const upcomingMeets = getUpcomingMeets();
+  const userGroups = getUserGroups("shawn");
+  const feedItems = getFeedForUser("shawn");
+  const dogPhotos = mockUser.pets.map((p) => p.imageUrl);
 
   return (
     <div className="page-container home-page-shell">
-      {/* Tab bar — mobile only */}
-      <div className="home-tab-bar">
+      {/* TabBar — visible on collapsed/mobile, hidden on desktop */}
+      <div className="panel-tabbar home-tab-bar">
         <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
       </div>
 
       <MasterDetailShell
         mobileView={mobileView}
         listPanel={
-          <ListPanel header={groupsHeader}>
-            <GroupsListContent />
-          </ListPanel>
+          <div className="list-panel">
+            {/* Header — visible on desktop, hidden on mobile/collapsed */}
+            <div className="list-panel-header panel-header-desktop">
+              <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
+                My Groups
+              </h2>
+            </div>
+
+            {/* Body — scrollable */}
+            <PanelBody>
+              <LayoutList>
+                {userGroups.map((group) => (
+                  <GroupCard key={group.id} group={group} />
+                ))}
+              </LayoutList>
+              <Spacer />
+            </PanelBody>
+          </div>
         }
         detailPanel={
-          <DetailPanel>
-            <FeedContent />
-          </DetailPanel>
+          <div className="detail-panel">
+            <PanelBody>
+              {DEMO_NEW_USER ? (
+                <>
+                  <HomeWelcome />
+                  <DogsNearYou />
+                  <LayoutList>
+                    {getNewUserFeed().map((item) => (
+                      <FeedItemRenderer key={item.feedId} item={item} />
+                    ))}
+                  </LayoutList>
+                </>
+              ) : (
+                <LayoutList>
+                  <FeedCTA dogPhotos={dogPhotos} />
+                  {feedItems.map((item) => (
+                    <FeedItemRenderer key={item.feedId} item={item} />
+                  ))}
+                </LayoutList>
+              )}
+              <Spacer />
+            </PanelBody>
+          </div>
         }
-        infoPanel={<UpcomingPanel meets={upcomingMeets} />}
       />
     </div>
   );

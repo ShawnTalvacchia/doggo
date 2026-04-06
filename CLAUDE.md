@@ -81,13 +81,13 @@ See `docs/CONTRIBUTING.md` for full details.
 | `docs/implementation/component-inventory.md` | Built components catalog |
 | `docs/CONTRIBUTING.md` | Workflow rules, doc categories, naming conventions |
 
-## Current Phase: 21 (active) — Pages & Content Build-out
+## Current Phase: 22 (active) — Panel Architecture & Page Alignment
 
-**Goal:** Flesh out inner content across all pages. Bring Discover Meets/Groups to same interactive filter level as Care. Migrate Bookings + Notifications to shared layout. Build Notifications from scratch. See `docs/phases/phase-21-pages-and-content.md`.
+**Goal:** Establish a canonical panel component system (Panel → PanelBody → LayoutSection/LayoutList → Spacer) and migrate all pages to use it. Work through pages in order: Home, Discover, then remaining pages. See `docs/phases/phase-22-panel-architecture.md`.
 
-**Previous phases:** Phase 19 delivered layout system + groups + feed. Phase 20 cleaned up docs + removed 9 dead components.
+**Previous phases:** Phase 21 built out all page content (filters, notifications, bookings detail). Phase 20 cleaned up docs + removed dead components. Phase 19 delivered layout system + groups + feed.
 
-**Board:** See `docs/phases/phase-21-pages-and-content.md` and `docs/ROADMAP.md`.
+**Board:** See `docs/phases/phase-22-panel-architecture.md` and `docs/ROADMAP.md`.
 
 ## Strategic Context
 
