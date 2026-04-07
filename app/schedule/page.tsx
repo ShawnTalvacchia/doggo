@@ -256,7 +256,7 @@ export default function SchedulePage() {
     : [];
 
   const detailContent = selectedMeet ? (
-      <div className="flex flex-col gap-md" style={{ padding: "var(--space-md)" }}>
+      <div className="flex flex-col gap-md">
         {/* Card 1 — Overview: chips + title + attendance */}
         <div className="bg-surface-top rounded-panel p-md shadow-xs flex flex-col gap-md">
           {/* Type + attribute chips + actions */}
@@ -503,6 +503,9 @@ export default function SchedulePage() {
         listPanel={
           <div className="list-panel">
             <div className="list-panel-header panel-header-desktop">
+              <h2 className="font-heading text-lg font-bold text-fg-primary m-0">My Schedule</h2>
+            </div>
+            <div className="list-panel-filters panel-header-desktop">
               <TabBar tabs={TABS} activeKey={filter} onChange={(key) => setFilter(key as ScheduleFilter)} />
             </div>
             <PanelBody>
