@@ -1,5 +1,5 @@
 ---
-status: active
+status: complete
 last-reviewed: 2026-04-06
 review-trigger: When any task is completed or blocked
 ---
@@ -20,12 +20,12 @@ review-trigger: When any task is completed or blocked
 
 | Task | Description | Status |
 |------|-------------|--------|
-| A1 | Persistent header: cover, name, badges, actions (above tabs) | pending |
-| A2 | Tab system: Feed · Meets · Members · Chat (URL state) | pending |
-| A3 | Feed tab: posts + gallery | pending |
-| A4 | Meets tab: CardMeet variant="group" + create CTA | pending |
-| A5 | Members tab: member cards with connection badges | pending |
-| A6 | Chat tab: join-gated, messages, compose | pending |
+| A1 | Persistent header: cover, name, badges, actions (above tabs) | done |
+| A2 | Tab system: Feed · Meets · Members · Chat (URL state) | done |
+| A3 | Feed tab: posts + gallery | done |
+| A4 | Meets tab: CardMeet variant="group" + create CTA | done |
+| A5 | Members tab: member cards with connection badges | done |
+| A6 | Chat tab: join-gated, messages, compose | done |
 
 **File:** `app/communities/[id]/page.tsx`
 
@@ -35,9 +35,9 @@ review-trigger: When any task is completed or blocked
 
 | Task | Description | Status |
 |------|-------------|--------|
-| B1 | Page wrapper (single centered column) | pending |
-| B2 | Tab content in PanelBody + Spacer | pending |
-| B3 | Always-visible tabs (not panel-tabbar) | pending |
+| B1 | Page wrapper (single centered column) | done |
+| B2 | Tab content in PanelBody + Spacer | done |
+| B3 | Always-visible tabs (not panel-tabbar) | done |
 
 ---
 
@@ -45,8 +45,22 @@ review-trigger: When any task is completed or blocked
 
 | Task | Description | Status |
 |------|-------------|--------|
-| C1 | Phase board + roadmap + CLAUDE.md | pending |
-| C2 | Content audit status updates | pending |
+| C1 | Phase board + roadmap + CLAUDE.md | done |
+| C2 | Content audit status updates | done |
+
+---
+
+## Workstream D — CardGroup & Filter Polish
+
+| Task | Description | Status |
+|------|-------------|--------|
+| D1 | Align CardGroup layout with CardMeet (stacked icon-text rows) | done |
+| D2 | Change Hosted icon from Wrench to Storefront | done |
+| D3 | Visibility filter: single-select, default Open | done |
+| D4 | Group size slider: "No limit" at max value | done |
+| D5 | Add dog size filter (Small/Medium/Large segments) | done |
+| D6 | Add focus area filter (6 checkboxes in accordion) | done |
+| D7 | Remove orphaned card-schedule-meta CSS | done |
 
 ---
 
