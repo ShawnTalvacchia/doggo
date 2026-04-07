@@ -365,6 +365,20 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
+## Phase 24 — Group Detail Restructure (active)
+
+**Goal:** Restructure the Group/Community detail page from a single scrollable column into a tabbed layout (Feed · Meets · Members · Chat) with panel architecture.
+
+**Key work:**
+- Add TabBar with URL-based tab state (matching Home page pattern)
+- Persistent header (cover, name, badges, actions) above tabs
+- Each tab: Feed (posts + gallery), Meets (CardMeet group variant), Members (connection badges), Chat (join-gated, messages + compose)
+- PanelBody + Spacer for tab content scroll behavior
+
+**Board:** [[phase-24-group-detail]]
+
+---
+
 ## Out of Scope
 
 Not built, not demoed:

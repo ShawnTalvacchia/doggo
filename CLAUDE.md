@@ -85,11 +85,11 @@ See `docs/CONTRIBUTING.md` for full details.
 | `docs/implementation/component-inventory.md` | Built components catalog |
 | `docs/CONTRIBUTING.md` | Workflow rules, doc categories, naming conventions |
 
-## Current Phase: 23 (active) — Schedule Page & CardMeet Rebuild
+## Current Phase: 24 (active) — Group Detail Restructure
 
-Rebuild the My Schedule detail panel content, simplify CardMeet per the content audit, and remove old orphaned card components. See `docs/phases/phase-23-schedule-cardmeet.md`.
+Restructure the Group/Community detail page into a tabbed layout (Feed · Meets · Members · Chat) with panel architecture. See `docs/phases/phase-24-group-detail.md`.
 
-**Previous:** Phase 22 built canonical panel system (PanelBody → LayoutSection/LayoutList → Spacer) and migrated all pages. Phase 21 built out all page content. Phase 20 cleaned up docs + removed dead components. Phase 19 delivered layout system + groups + feed.
+**Previous:** Phase 23 rebuilt Schedule detail panel, simplified CardMeet, deleted old card components. Phase 22 built canonical panel system (PanelBody → LayoutSection/LayoutList → Spacer) and migrated all pages. Phase 21 built out all page content. Phase 20 cleaned up docs + removed dead components. Phase 19 delivered layout system + groups + feed.
 
 **Board:** See `docs/phases/phase-23-schedule-cardmeet.md` and `docs/ROADMAP.md`.
 

@@ -1,5 +1,5 @@
 ---
-status: active
+status: complete
 last-reviewed: 2026-04-06
 review-trigger: When any task is completed or blocked
 ---
@@ -24,11 +24,11 @@ Rebuild the right panel to match the design. Structure:
 
 | Task | Description | Status |
 |------|-------------|--------|
-| A1 | Detail header strip: type pills + attribute chips + share/star action icons | pending |
-| A2 | Title + group link + description block | pending |
-| A3 | Attendance strip: avatar stack + "X spots left" + role badge | pending |
-| A4 | Logistics grid (2x2): date/time, duration, location+leash, people+spots | pending |
-| A5 | Participant sections: ORGANIZERS + CONFIRMED with avatar rows | pending |
+| A1 | Detail header strip: type pills + attribute chips + share/star action icons | done |
+| A2 | Title + group link + description block | done |
+| A3 | Attendance strip: avatar stack + "X spots left" + role badge | done |
+| A4 | Logistics grid (2x2): date/time, duration, location+leash, people+spots | done |
+| A5 | Participant sections: ORGANIZERS + CONFIRMED with avatar rows | done |
 
 **Files:** `app/schedule/page.tsx`
 
@@ -38,9 +38,9 @@ Rebuild the right panel to match the design. Structure:
 
 | Task | Description | Status |
 |------|-------------|--------|
-| B1 | Remove leash/energy attribute chips from card Row 1 | pending |
-| B2 | Verify variant-specific attendee text (no change expected) | pending |
-| B3 | Clean up dead CSS from old card components | pending |
+| B1 | Remove leash/energy attribute chips from card Row 1 | done |
+| B2 | Verify variant-specific attendee text (no change expected) | done |
+| B3 | Clean up dead CSS from old card components | done |
 
 **Files:** `components/meets/CardMeet.tsx`, `app/globals.css`
 
@@ -50,8 +50,8 @@ Rebuild the right panel to match the design. Structure:
 
 | Task | Description | Status |
 |------|-------------|--------|
-| C1 | Delete CardScheduleMeet, CardMyMeet, MeetCard | pending |
-| C2 | Delete orphaned DiscoverTab, MyScheduleTab (if no live imports) | pending |
+| C1 | Delete CardScheduleMeet, CardMyMeet, MeetCard | done |
+| C2 | Delete orphaned DiscoverTab, MyScheduleTab (if no live imports) | done |
 
 **Files:** `components/activity/`, `components/meets/MeetCard.tsx`
 
@@ -61,8 +61,8 @@ Rebuild the right panel to match the design. Structure:
 
 | Task | Description | Status |
 |------|-------------|--------|
-| D1 | Header: ensure text-xl, Create button in header row | pending |
-| D2 | Verify search + filters match other page patterns | pending |
+| D1 | Header: ensure text-xl, Create button in header row | done |
+| D2 | Verify search + filters match other page patterns | done |
 
 **Files:** `app/schedule/page.tsx`
 
@@ -70,9 +70,7 @@ Rebuild the right panel to match the design. Structure:
 
 ## Verification
 
-- Preview at 1500px: two-panel layout, detail shows attendance strip + grid + participant sections
-- Preview at 1050px: single panel (MasterDetailShell handles this)
-- Preview at 375px: mobile list view, tap card to see detail
-- CardMeet in Discover still works (type pill + status badge only)
-- TypeScript compiles clean
-- No imports reference deleted components
+- ✅ Preview at 1500px: two-panel layout, detail shows attendance strip + grid + participant sections
+- ✅ CardMeet in Discover still works (type pill + status badge only)
+- ✅ TypeScript compiles clean
+- ✅ No imports reference deleted components

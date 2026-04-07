@@ -3,11 +3,10 @@
 import Link from "next/link";
 import {
   MapPin,
-  Users,
-  Lightning,
+  UsersThree,
   Tree,
   UsersFour,
-  Wrench,
+  Storefront,
   Dog,
   CalendarDots,
   Check,
@@ -20,7 +19,7 @@ import type { Group, GroupType } from "@/lib/types";
 const TYPE_CONFIG: Record<GroupType, { label: string; Icon: typeof Tree }> = {
   park: { label: "Park", Icon: Tree },
   community: { label: "Community", Icon: UsersFour },
-  service: { label: "Hosted", Icon: Wrench },
+  service: { label: "Hosted", Icon: Storefront },
 };
 
 /* ── Types ──────────────────────────────────────────────────────── */
@@ -39,8 +38,6 @@ export function CardGroup({ group, variant = "my-groups", isMember = false }: Ca
   const dogCount = group.members.reduce((sum, m) => sum + m.dogNames.length, 0);
   const upcomingEvents = group.meetIds.length || 0;
   const typeInfo = TYPE_CONFIG[group.groupType];
-
-  // Show up to 5 member avatars
   const visibleMembers = group.members.slice(0, 5);
 
   return (
@@ -49,7 +46,7 @@ export function CardGroup({ group, variant = "my-groups", isMember = false }: Ca
       className="card-schedule-meet"
       style={{ textDecoration: "none" }}
     >
-      {/* Row 1: Chips — type + visibility + joined status */}
+      {/* Row 1: Type pill + visibility + joined status */}
       <div className="flex flex-wrap items-center gap-xs">
         <span className="card-schedule-chip card-schedule-chip--primary">
           <typeInfo.Icon size={14} weight="light" />
@@ -58,11 +55,10 @@ export function CardGroup({ group, variant = "my-groups", isMember = false }: Ca
 
         {group.visibility === "approval" && (
           <span className="card-schedule-chip">
-            Approval
+            Approval required
           </span>
         )}
 
-        {/* "Joined" chip — discover only, when user is already a member */}
         {variant === "discover" && isMember && (
           <>
             <span className="flex-1" />
@@ -103,32 +99,27 @@ export function CardGroup({ group, variant = "my-groups", isMember = false }: Ca
         </h3>
       </div>
 
-      {/* Row 3: Meta — wrapping grid */}
-      <div className="card-schedule-meta">
-        <span className="card-schedule-meta-item">
-          <MapPin size={16} weight="light" />
+      {/* Row 3: Location */}
+      <div className="flex flex-col gap-xs">
+        <div className="flex items-center gap-xs text-sm text-fg-secondary">
+          <MapPin size={16} weight="light" className="shrink-0" />
           {group.location || group.neighbourhood}
-        </span>
+        </div>
 
-        <span className="card-schedule-meta-item">
-          <Users size={16} weight="light" />
-          {group.members.length} members
-        </span>
-
-        <span className="card-schedule-meta-item">
-          <Dog size={16} weight="light" />
-          {dogCount} dogs
-        </span>
-
-        {upcomingEvents > 0 && (
-          <span className="card-schedule-meta-item">
-            <CalendarDots size={16} weight="light" />
-            {upcomingEvents} upcoming {upcomingEvents === 1 ? "event" : "events"}
-          </span>
-        )}
+        {/* Row 4: Members + dogs */}
+        <div className="flex items-center gap-xs text-sm text-fg-tertiary">
+          <UsersThree size={16} weight="light" className="shrink-0" />
+          {group.members.length} members · {dogCount} {dogCount === 1 ? "dog" : "dogs"}
+          {upcomingEvents > 0 && (
+            <>
+              <span style={{ padding: "0 2px" }}>·</span>
+              {upcomingEvents} upcoming {upcomingEvents === 1 ? "event" : "events"}
+            </>
+          )}
+        </div>
       </div>
 
-      {/* Row 4: Member avatars */}
+      {/* Row 5: Member avatars */}
       <div className="flex items-center">
         {visibleMembers.map((m, i) =>
           m.avatarUrl ? (

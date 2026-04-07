@@ -11,8 +11,7 @@ import {
   CaretUp,
   Tree,
   UsersFour,
-  Wrench,
-  Users,
+  Storefront,
   Dog,
 } from "@phosphor-icons/react";
 import { DiscoverShell } from "@/components/discover/DiscoverShell";
@@ -41,7 +40,7 @@ const GROUP_TYPES = [
     key: "service" as GroupType,
     label: "Hosted",
     description: "Provider-run service groups",
-    icon: Wrench,
+    icon: Storefront,
   },
 ] as const;
 
@@ -53,7 +52,22 @@ const GROUP_TYPE_LABELS: Record<GroupType, string> = {
 
 const VISIBILITY_OPTIONS = [
   { value: "open", label: "Open" },
-  { value: "approval", label: "Approval" },
+  { value: "approval", label: "Approval required" },
+];
+
+const DOG_SIZE_OPTIONS = [
+  { value: "small", label: "Small" },
+  { value: "medium", label: "Medium" },
+  { value: "large", label: "Large" },
+];
+
+const FOCUS_AREAS = [
+  "Socialisation",
+  "Exercise",
+  "Training",
+  "Puppy play",
+  "Senior dogs",
+  "Reactive dogs",
 ];
 
 const NEIGHBOURHOODS = [
@@ -140,12 +154,19 @@ function AccordionCheckbox({ label, defaultChecked = false }: { label: string; d
 
 /** Hub panel — filter form (group type selected) */
 function GroupsFilterPanel({ activeType }: { activeType: GroupType }) {
-  const [selectedVisibility, setSelectedVisibility] = useState<string[]>([]);
+  const [selectedVisibility, setSelectedVisibility] = useState<string[]>(["open"]);
   const [maxMembers, setMaxMembers] = useState(50);
+  const [selectedDogSizes, setSelectedDogSizes] = useState<string[]>([]);
   const [neighbourhoodsOpen, setNeighbourhoodsOpen] = useState(true);
+  const [focusOpen, setFocusOpen] = useState(false);
 
   const label = GROUP_TYPE_LABELS[activeType];
   const typeInfo = GROUP_TYPES.find((t) => t.key === activeType);
+
+  // Single-select: clicking a visibility option sets it (replacing the other)
+  const handleVisibilityToggle = (val: string) => {
+    setSelectedVisibility([val]);
+  };
 
   return (
     <>
@@ -186,7 +207,7 @@ function GroupsFilterPanel({ activeType }: { activeType: GroupType }) {
           </div>
         </div>
 
-        {/* Visibility */}
+        {/* Visibility — single-select (Open vs Approval required) */}
         {activeType !== "park" && (
           <div className="filter-field">
             <div className="label">Visibility</div>
@@ -194,19 +215,15 @@ function GroupsFilterPanel({ activeType }: { activeType: GroupType }) {
               ariaLabel="Group visibility"
               options={VISIBILITY_OPTIONS}
               selectedValues={selectedVisibility}
-              onToggle={(val) =>
-                setSelectedVisibility((prev) =>
-                  prev.includes(val) ? prev.filter((v) => v !== val) : [...prev, val],
-                )
-              }
+              onToggle={handleVisibilityToggle}
               variant="filter"
             />
           </div>
         )}
 
-        {/* Max members */}
+        {/* Max members — 50 = no limit */}
         <div className="filter-field">
-          <div className="label">Max members</div>
+          <div className="label">Group size</div>
           <Slider
             min={2}
             max={50}
@@ -215,7 +232,48 @@ function GroupsFilterPanel({ activeType }: { activeType: GroupType }) {
             onChange={(v) => setMaxMembers(v)}
           />
           <div className="flex items-center gap-sm">
-            <span className="text-sm text-fg-tertiary">Up to {maxMembers} members</span>
+            <span className="text-sm text-fg-tertiary">
+              {maxMembers >= 50 ? "No limit" : `Up to ${maxMembers} members`}
+            </span>
+          </div>
+        </div>
+
+        {/* Dog size */}
+        <div className="filter-field">
+          <div className="label">Dog size</div>
+          <MultiSelectSegmentBar
+            ariaLabel="Dog size"
+            options={DOG_SIZE_OPTIONS}
+            selectedValues={selectedDogSizes}
+            onToggle={(val) =>
+              setSelectedDogSizes((prev) =>
+                prev.includes(val) ? prev.filter((v) => v !== val) : [...prev, val],
+              )
+            }
+            variant="filter"
+          />
+        </div>
+
+        {/* Focus accordion */}
+        <div className="filter-accordion-stack">
+          <div className="filter-accordion">
+            <button
+              type="button"
+              className={`filter-accordion-btn${focusOpen ? " open" : ""}`}
+              onClick={() => setFocusOpen((o) => !o)}
+            >
+              Focus
+              <span className="accordion-caret">
+                <CaretUp size={24} weight="regular" />
+              </span>
+            </button>
+            <div className={`filter-accordion-body${focusOpen ? " open" : ""}`}>
+              <div className="filter-accordion-inner">
+                {FOCUS_AREAS.map((name) => (
+                  <AccordionCheckbox key={name} label={name} />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 

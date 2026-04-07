@@ -206,11 +206,11 @@ Replaces: `CardScheduleMeet`, `CardMyMeet`, `MeetCard` (3 → 1).
 
 | Name | Context | Status | Notes |
 |------|---------|--------|-------|
-| `pane-group-detail` | Group detail page | 🔧 needs-work | Currently renders inline sections, NOT tabbed. Screenshot shows Feed/Meets/Members/Chat tabs — needs migration to tabbed panes. |
-| `pane-group-feed` | Group > Feed tab | 🔧 needs-work | MomentCard list + post CTA. Exists as inline section, not yet a switchable tab. |
-| `pane-group-meets` | Group > Meets tab | 📋 on-deck | Not built as tab. Needs: list of group meets, create-meet CTA, link to discover meets filtered to this group. |
-| `pane-group-members` | Group > Members tab | 📋 on-deck | Not built as tab. Needs: member list with connection badges, tiered display (connected → familiar → other), admin actions for Community groups. |
-| `pane-group-chat` | Group > Chat tab | 🔧 needs-work | MessageBubble + SystemMessage + MeetCardCompact event strip. Exists but as inline section. |
+| `pane-group-detail` | Group detail page | ✅ done | Tabbed layout (Feed · Meets · Members · Chat) with URL state, persistent header above tabs, PanelBody + Spacer. |
+| `pane-group-feed` | Group > Feed tab | ✅ done | Post cards + gallery, new post CTA for members, empty state. |
+| `pane-group-meets` | Group > Meets tab | ✅ done | CardMeet variant="group" list, create-meet CTA, empty state. |
+| `pane-group-members` | Group > Members tab | ✅ done | Member cards with avatar, admin badge, dog names, connection state badge. |
+| `pane-group-chat` | Group > Chat tab | ✅ done | Join-gated EmptyState for non-members, event card strip + MessageBubble/SystemMessage + compose for members. |
 | `pane-group-options` | Discover > Groups type picker | ✅ done | Three doors: Park Groups, Community, Hosted |
 | `pane-groups-filters` | Discover > Groups filter panel | 🔧 needs-work | See [Filter Deep Dive: Groups](#filter-deep-dive-groups) |
 

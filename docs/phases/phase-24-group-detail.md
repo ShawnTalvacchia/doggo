@@ -1,0 +1,60 @@
+---
+status: active
+last-reviewed: 2026-04-06
+review-trigger: When any task is completed or blocked
+---
+
+# Phase 24 — Group Detail Restructure
+
+**Goal:** Restructure the Group/Community detail page from a single scrollable column into a tabbed layout with panel architecture, consistent with every other page in the app.
+
+**Depends on:** Phase 22 (panel architecture), Phase 23 (CardMeet unified component).
+
+**References:**
+- `docs/implementation/content-audit.md` — Groups section
+- `app/home/page.tsx` — Reference pattern for URL-based tabs
+
+---
+
+## Workstream A — Page Restructure
+
+| Task | Description | Status |
+|------|-------------|--------|
+| A1 | Persistent header: cover, name, badges, actions (above tabs) | pending |
+| A2 | Tab system: Feed · Meets · Members · Chat (URL state) | pending |
+| A3 | Feed tab: posts + gallery | pending |
+| A4 | Meets tab: CardMeet variant="group" + create CTA | pending |
+| A5 | Members tab: member cards with connection badges | pending |
+| A6 | Chat tab: join-gated, messages, compose | pending |
+
+**File:** `app/communities/[id]/page.tsx`
+
+---
+
+## Workstream B — Layout & CSS
+
+| Task | Description | Status |
+|------|-------------|--------|
+| B1 | Page wrapper (single centered column) | pending |
+| B2 | Tab content in PanelBody + Spacer | pending |
+| B3 | Always-visible tabs (not panel-tabbar) | pending |
+
+---
+
+## Workstream C — Doc Updates
+
+| Task | Description | Status |
+|------|-------------|--------|
+| C1 | Phase board + roadmap + CLAUDE.md | pending |
+| C2 | Content audit status updates | pending |
+
+---
+
+## Verification
+
+- Preview at desktop: tabs visible, header persistent, tab content scrollable
+- Preview at mobile: same layout, tabs always visible
+- Tab switching works (Feed → Meets → Members → Chat)
+- Chat tab: join gate for non-members, messages for members
+- TypeScript compiles clean
+- URL updates on tab change
