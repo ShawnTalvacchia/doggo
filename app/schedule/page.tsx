@@ -26,6 +26,7 @@ import {
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { TabBar } from "@/components/ui/TabBar";
 import { CardMeet, type MeetRole } from "@/components/meets/CardMeet";
 import { MasterDetailShell } from "@/components/layout/MasterDetailShell";
 import { PanelBody } from "@/components/layout/PanelBody";
@@ -131,7 +132,6 @@ function BookingBlock({
 export default function SchedulePage() {
   const [filter, setFilter] = useState<ScheduleFilter>("joining");
   const [selectedMeetId, setSelectedMeetId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const myMeets = getUserMeets(CURRENT_USER);
   const { bookings } = useBookings();
@@ -141,7 +141,7 @@ export default function SchedulePage() {
     (b) => b.ownerId === CURRENT_USER && (b.status === "active" || b.status === "upcoming")
   );
 
-  const filters: { key: ScheduleFilter; label: string }[] = [
+  const TABS = [
     { key: "joining", label: "Joining" },
     { key: "invited", label: "Invited" },
     { key: "care", label: "Care" },
@@ -167,11 +167,6 @@ export default function SchedulePage() {
         if (filter === "invited") return role === "interested";
         return true;
       })
-      .filter((m) => {
-        if (!searchQuery) return true;
-        const q = searchQuery.toLowerCase();
-        return m.title.toLowerCase().includes(q) || m.location.toLowerCase().includes(q);
-      })
       .map((m) => ({
         kind: "meet" as const,
         meet: m,
@@ -179,7 +174,7 @@ export default function SchedulePage() {
         sortKey: `${m.date}T${m.time}`,
       }))
       .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
-  }, [filter, upcomingMeets, activeOwnerBookings, searchQuery]);
+  }, [filter, upcomingMeets, activeOwnerBookings]);
 
   // Selected meet for detail panel (desktop)
   const selectedMeet = selectedMeetId
@@ -261,238 +256,233 @@ export default function SchedulePage() {
     : [];
 
   const detailContent = selectedMeet ? (
-      <div className="flex flex-col gap-lg" style={{ padding: "var(--space-lg)" }}>
-        {/* A1 — Header strip: type pill + attribute chips + actions */}
-        <div className="flex items-center gap-xs">
-          <span className="card-schedule-chip card-schedule-chip--primary">
-            {MEET_ICONS[selectedMeet.type]}
-            {MEET_TYPE_LABELS[selectedMeet.type]}
-          </span>
-          {selectedMeet.leashRule && (
-            <span className="card-schedule-chip">
-              {LEASH_LABELS[selectedMeet.leashRule] || selectedMeet.leashRule}
+      <div className="flex flex-col gap-md" style={{ padding: "var(--space-md)" }}>
+        {/* Card 1 — Overview: chips + title + attendance */}
+        <div className="bg-surface-top rounded-panel p-md shadow-xs flex flex-col gap-md">
+          {/* Type + attribute chips + actions */}
+          <div className="flex items-center gap-xs">
+            <span className="card-schedule-chip card-schedule-chip--primary">
+              {MEET_ICONS[selectedMeet.type]}
+              {MEET_TYPE_LABELS[selectedMeet.type]}
             </span>
-          )}
-          {selectedMeet.energyLevel && selectedMeet.energyLevel !== "any" && (
-            <span className="card-schedule-chip">
-              {ENERGY_LABELS[selectedMeet.energyLevel]}
-            </span>
-          )}
-          <span className="flex-1" />
-          <button className="detail-action-icon" aria-label="Share">
-            <ShareNetwork size={18} weight="light" />
-          </button>
-          <button className="detail-action-icon" aria-label="Save">
-            <BookmarkSimple size={18} weight="light" />
-          </button>
-        </div>
-
-        {/* A2 — Title + group + description */}
-        <div className="flex flex-col gap-sm">
-          <h2
-            className="font-heading font-bold text-fg-primary"
-            style={{ fontSize: "var(--text-xl)", lineHeight: 1.3, margin: 0 }}
-          >
-            {selectedMeet.title}
-          </h2>
-          {selectedMeetGroup && (
-            <Link
-              href={`/groups/${selectedMeetGroup.id}`}
-              className="flex items-center gap-xs text-sm font-semibold no-underline"
-              style={{ color: "var(--status-info-600, #4e63b8)" }}
-            >
-              <UsersThree size={16} weight="light" />
-              {selectedMeetGroup.name}
-            </Link>
-          )}
-          <p className="text-sm text-fg-secondary" style={{ lineHeight: "22px", margin: 0 }}>
-            {selectedMeet.description}
-          </p>
-        </div>
-
-        {/* A3 — Attendance strip */}
-        <div
-          className="flex items-center gap-sm"
-          style={{
-            padding: "var(--space-sm) var(--space-md)",
-            border: "1px solid var(--border-light)",
-            borderRadius: "var(--radius-sm)",
-          }}
-        >
-          {/* Avatar stack */}
-          <div className="flex items-center shrink-0">
-            {selectedMeet.attendees
-              .filter((a) => (a.rsvpStatus ?? "going") === "going")
-              .slice(0, 4)
-              .map((a, i) =>
-                a.avatarUrl ? (
-                  <img
-                    key={a.userId}
-                    src={a.avatarUrl}
-                    alt={a.userName}
-                    className="rounded-full border-2 border-surface-top object-cover"
-                    style={{ width: 28, height: 28, marginLeft: i > 0 ? -8 : 0 }}
-                  />
-                ) : (
-                  <span key={a.userId} style={{ marginLeft: i > 0 ? -8 : 0 }}>
-                    <DefaultAvatar name={a.userName} size={28} className="border-2 border-surface-top" />
-                  </span>
-                )
-              )}
+            {selectedMeet.leashRule && (
+              <span className="card-schedule-chip">
+                {LEASH_LABELS[selectedMeet.leashRule] || selectedMeet.leashRule}
+              </span>
+            )}
+            {selectedMeet.energyLevel && selectedMeet.energyLevel !== "any" && (
+              <span className="card-schedule-chip">
+                {ENERGY_LABELS[selectedMeet.energyLevel]}
+              </span>
+            )}
+            <span className="flex-1" />
+            <button className="detail-action-icon" aria-label="Share">
+              <ShareNetwork size={18} weight="light" />
+            </button>
+            <button className="detail-action-icon" aria-label="Save">
+              <BookmarkSimple size={18} weight="light" />
+            </button>
           </div>
-          <span className="text-sm text-fg-secondary flex-1">
-            <span className="font-semibold">{goingCount}</span> going · {spotsLeft} {spotsLeft === 1 ? "spot" : "spots"} left
-          </span>
-          {selectedRole && (
-            <span
-              className="card-schedule-chip"
-              style={
-                selectedRole === "hosting"
-                  ? { background: "var(--brand-main)", borderColor: "var(--brand-main)", color: "white" }
-                  : { background: "var(--surface-subtle)", borderColor: "var(--surface-subtle)", color: "var(--brand-main)" }
-              }
-            >
-              {selectedRole === "hosting" && <Flag size={13} weight="fill" />}
-              {selectedRole === "joining" && <Check size={13} weight="bold" />}
-              {selectedRole === "interested" && <Star size={13} weight="light" />}
-              {selectedRole === "hosting" ? "Hosting" : selectedRole === "joining" ? "Joining" : "Interested"}
-            </span>
-          )}
-        </div>
 
-        {/* A4 — Logistics grid (2x2) */}
-        <div className="schedule-detail-grid">
-          <div className="flex flex-col gap-xs">
-            <div className="flex items-center gap-xs text-fg-tertiary">
-              <CalendarDots size={14} weight="light" />
-              <span className="text-xs font-semibold" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>Date & Time</span>
+          {/* Title + group + description */}
+          <div className="flex flex-col gap-sm">
+            <h2
+              className="font-heading font-bold text-fg-primary"
+              style={{ fontSize: "var(--text-xl)", lineHeight: 1.3, margin: 0 }}
+            >
+              {selectedMeet.title}
+            </h2>
+            {selectedMeetGroup && (
+              <Link
+                href={`/groups/${selectedMeetGroup.id}`}
+                className="flex items-center gap-xs text-sm font-semibold no-underline"
+                style={{ color: "var(--status-info-600, #4e63b8)" }}
+              >
+                <UsersThree size={16} weight="light" />
+                {selectedMeetGroup.name}
+              </Link>
+            )}
+            <p className="text-sm text-fg-secondary" style={{ lineHeight: "22px", margin: 0 }}>
+              {selectedMeet.description}
+            </p>
+          </div>
+
+          {/* Attendance strip */}
+          <div
+            className="flex items-center gap-sm bg-surface-inset rounded-sm"
+            style={{ padding: "var(--space-sm) var(--space-md)" }}
+          >
+            <div className="flex items-center shrink-0">
+              {selectedMeet.attendees
+                .filter((a) => (a.rsvpStatus ?? "going") === "going")
+                .slice(0, 4)
+                .map((a, i) =>
+                  a.avatarUrl ? (
+                    <img
+                      key={a.userId}
+                      src={a.avatarUrl}
+                      alt={a.userName}
+                      className="rounded-full border-2 border-surface-top object-cover"
+                      style={{ width: 28, height: 28, marginLeft: i > 0 ? -8 : 0 }}
+                    />
+                  ) : (
+                    <span key={a.userId} style={{ marginLeft: i > 0 ? -8 : 0 }}>
+                      <DefaultAvatar name={a.userName} size={28} className="border-2 border-surface-top" />
+                    </span>
+                  )
+                )}
             </div>
-            <span className="text-sm font-semibold text-fg-primary">
-              {new Date(selectedMeet.date + "T00:00:00").toLocaleDateString("en-GB", {
-                weekday: "short",
-                day: "numeric",
-                month: "short",
-              })}, {selectedMeet.time}
+            <span className="text-sm text-fg-secondary flex-1">
+              <span className="font-semibold">{goingCount}</span> going · {spotsLeft} {spotsLeft === 1 ? "spot" : "spots"} left
             </span>
-            {selectedMeet.recurring && (
-              <span className="flex items-center gap-xs text-xs text-fg-tertiary">
-                <ArrowsClockwise size={12} weight="light" />
-                Weekly
+            {selectedRole && (
+              <span
+                className="inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap"
+                style={
+                  selectedRole === "hosting"
+                    ? { padding: "4px 10px", background: "var(--brand-main)", color: "white" }
+                    : { padding: "4px 10px", background: "var(--surface-inset)", color: "var(--brand-main)" }
+                }
+              >
+                {selectedRole === "hosting" && <Flag size={13} weight="fill" />}
+                {selectedRole === "joining" && <Check size={13} weight="bold" />}
+                {selectedRole === "interested" && <Star size={13} weight="light" />}
+                {selectedRole === "hosting" ? "Hosting" : selectedRole === "joining" ? "Joining" : "Interested"}
               </span>
             )}
           </div>
-
-          <div className="flex flex-col gap-xs">
-            <div className="flex items-center gap-xs text-fg-tertiary">
-              <Clock size={14} weight="light" />
-              <span className="text-xs font-semibold" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>Duration</span>
-            </div>
-            <span className="text-sm font-semibold text-fg-primary">
-              {selectedMeet.durationMinutes} min
-            </span>
-          </div>
-
-          <div className="flex flex-col gap-xs">
-            <div className="flex items-center gap-xs text-fg-tertiary">
-              <MapPin size={14} weight="light" />
-              <span className="text-xs font-semibold" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>Location</span>
-            </div>
-            <span className="text-sm text-fg-primary">{selectedMeet.location}</span>
-          </div>
-
-          <div className="flex flex-col gap-xs">
-            <div className="flex items-center gap-xs text-fg-tertiary">
-              <UsersThree size={14} weight="light" />
-              <span className="text-xs font-semibold" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>People</span>
-            </div>
-            <span className="text-sm text-fg-primary">
-              {goingCount}/{selectedMeet.maxAttendees} going · {dogCount} {dogCount === 1 ? "dog" : "dogs"}
-            </span>
-          </div>
         </div>
 
-        {/* What to bring */}
-        {selectedMeet.whatToBring && selectedMeet.whatToBring.length > 0 && (
-          <div className="flex flex-col gap-sm">
-            <span className="flex items-center gap-xs font-body font-bold text-fg-secondary text-sm">
-              <Backpack size={14} weight="light" />
-              What to bring
-            </span>
-            <ul className="flex flex-col gap-xs" style={{ margin: 0, paddingLeft: "var(--space-lg)" }}>
-              {selectedMeet.whatToBring.map((item) => (
-                <li key={item} className="text-sm text-fg-secondary">{item}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {/* Card 2 — Logistics: grid + what to bring + accessibility */}
+        <div className="bg-surface-top rounded-panel p-md shadow-xs flex flex-col gap-md">
+          <div className="schedule-detail-grid">
+            <div className="flex flex-col gap-xs">
+              <div className="flex items-center gap-xs text-fg-tertiary">
+                <CalendarDots size={14} weight="light" />
+                <span className="text-xs font-semibold" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>Date & Time</span>
+              </div>
+              <span className="text-sm font-semibold text-fg-primary">
+                {new Date(selectedMeet.date + "T00:00:00").toLocaleDateString("en-GB", {
+                  weekday: "short",
+                  day: "numeric",
+                  month: "short",
+                })}, {selectedMeet.time}
+              </span>
+              {selectedMeet.recurring && (
+                <span className="flex items-center gap-xs text-xs text-fg-tertiary">
+                  <ArrowsClockwise size={12} weight="light" />
+                  Weekly
+                </span>
+              )}
+            </div>
 
-        {/* Accessibility */}
-        {selectedMeet.accessibilityNotes && (
-          <div className="flex items-start gap-sm bg-surface-inset rounded-sm" style={{ padding: "var(--space-sm) var(--space-md)" }}>
-            <Info size={16} weight="light" className="text-fg-tertiary shrink-0" style={{ marginTop: 2 }} />
-            <span className="text-sm text-fg-secondary">{selectedMeet.accessibilityNotes}</span>
-          </div>
-        )}
+            <div className="flex flex-col gap-xs">
+              <div className="flex items-center gap-xs text-fg-tertiary">
+                <Clock size={14} weight="light" />
+                <span className="text-xs font-semibold" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>Duration</span>
+              </div>
+              <span className="text-sm font-semibold text-fg-primary">
+                {selectedMeet.durationMinutes} min
+              </span>
+            </div>
 
-        {/* A5 — Participant sections */}
-        {organizers.length > 0 && (
-          <div className="flex flex-col gap-sm">
-            <span className="text-xs font-semibold text-fg-tertiary" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              Organisers
-            </span>
-            <div className="flex flex-col gap-sm">
-              {organizers.map((a) => (
-                <Link key={a.userId} href={`/profile/${a.userId}`} className="flex items-center gap-sm no-underline">
-                  {a.avatarUrl ? (
-                    <img src={a.avatarUrl} alt={a.userName} className="rounded-full object-cover shrink-0" style={{ width: 44, height: 44 }} />
-                  ) : (
-                    <DefaultAvatar name={a.userName} size={44} />
-                  )}
-                  <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-fg-primary">
-                      {a.userName}
-                      {a.userId === CURRENT_USER && <span className="text-fg-tertiary font-normal"> (you)</span>}
-                    </span>
-                    <span className="text-xs text-fg-tertiary">{a.dogNames.join(", ")}</span>
-                  </div>
-                </Link>
-              ))}
+            <div className="flex flex-col gap-xs">
+              <div className="flex items-center gap-xs text-fg-tertiary">
+                <MapPin size={14} weight="light" />
+                <span className="text-xs font-semibold" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>Location</span>
+              </div>
+              <span className="text-sm text-fg-primary">{selectedMeet.location}</span>
+            </div>
+
+            <div className="flex flex-col gap-xs">
+              <div className="flex items-center gap-xs text-fg-tertiary">
+                <UsersThree size={14} weight="light" />
+                <span className="text-xs font-semibold" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>People</span>
+              </div>
+              <span className="text-sm text-fg-primary">
+                {goingCount}/{selectedMeet.maxAttendees} going · {dogCount} {dogCount === 1 ? "dog" : "dogs"}
+              </span>
             </div>
           </div>
-        )}
 
-        {confirmed.length > 0 && (
-          <div className="flex flex-col gap-sm">
-            <span className="text-xs font-semibold text-fg-tertiary" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>
-              Confirmed ({confirmed.length})
-            </span>
+          {selectedMeet.whatToBring && selectedMeet.whatToBring.length > 0 && (
             <div className="flex flex-col gap-sm">
-              {confirmed.map((a) => (
-                <Link key={a.userId} href={`/profile/${a.userId}`} className="flex items-center gap-sm no-underline">
-                  {a.avatarUrl ? (
-                    <img src={a.avatarUrl} alt={a.userName} className="rounded-full object-cover shrink-0" style={{ width: 44, height: 44 }} />
-                  ) : (
-                    <DefaultAvatar name={a.userName} size={44} />
-                  )}
-                  <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-fg-primary">
-                      {a.userName}
-                      {a.userId === CURRENT_USER && <span className="text-fg-tertiary font-normal"> (you)</span>}
-                    </span>
-                    <span className="text-xs text-fg-tertiary">{a.dogNames.join(", ")}</span>
-                  </div>
-                </Link>
-              ))}
+              <span className="flex items-center gap-xs font-body font-bold text-fg-secondary text-sm">
+                <Backpack size={14} weight="light" />
+                What to bring
+              </span>
+              <ul className="flex flex-col gap-xs" style={{ margin: 0, paddingLeft: "var(--space-lg)" }}>
+                {selectedMeet.whatToBring.map((item) => (
+                  <li key={item} className="text-sm text-fg-secondary">{item}</li>
+                ))}
+              </ul>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Actions */}
-        <div className="flex flex-col gap-sm">
-          <ButtonAction variant="primary" size="md" href={`/meets/${selectedMeet.id}`}>
-            View full details
-          </ButtonAction>
+          {selectedMeet.accessibilityNotes && (
+            <div className="flex items-start gap-sm bg-surface-inset rounded-sm" style={{ padding: "var(--space-sm) var(--space-md)" }}>
+              <Info size={16} weight="light" className="text-fg-tertiary shrink-0" style={{ marginTop: 2 }} />
+              <span className="text-sm text-fg-secondary">{selectedMeet.accessibilityNotes}</span>
+            </div>
+          )}
         </div>
+
+        {/* Card 3 — People: organisers + confirmed */}
+        {(organizers.length > 0 || confirmed.length > 0) && (
+          <div className="bg-surface-top rounded-panel p-md shadow-xs flex flex-col gap-md">
+            {organizers.length > 0 && (
+              <div className="flex flex-col gap-sm">
+                <span className="text-xs font-semibold text-fg-tertiary" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  Organisers
+                </span>
+                <div className="flex flex-col gap-sm">
+                  {organizers.map((a) => (
+                    <Link key={a.userId} href={`/profile/${a.userId}`} className="flex items-center gap-sm no-underline">
+                      {a.avatarUrl ? (
+                        <img src={a.avatarUrl} alt={a.userName} className="rounded-full object-cover shrink-0" style={{ width: 44, height: 44 }} />
+                      ) : (
+                        <DefaultAvatar name={a.userName} size={44} />
+                      )}
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-fg-primary">
+                          {a.userName}
+                          {a.userId === CURRENT_USER && <span className="text-fg-tertiary font-normal"> (you)</span>}
+                        </span>
+                        <span className="text-xs text-fg-tertiary">{a.dogNames.join(", ")}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {confirmed.length > 0 && (
+              <div className="flex flex-col gap-sm">
+                <span className="text-xs font-semibold text-fg-tertiary" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  Confirmed ({confirmed.length})
+                </span>
+                <div className="flex flex-col gap-sm">
+                  {confirmed.map((a) => (
+                    <Link key={a.userId} href={`/profile/${a.userId}`} className="flex items-center gap-sm no-underline">
+                      {a.avatarUrl ? (
+                        <img src={a.avatarUrl} alt={a.userName} className="rounded-full object-cover shrink-0" style={{ width: 44, height: 44 }} />
+                      ) : (
+                        <DefaultAvatar name={a.userName} size={44} />
+                      )}
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-fg-primary">
+                          {a.userName}
+                          {a.userId === CURRENT_USER && <span className="text-fg-tertiary font-normal"> (you)</span>}
+                        </span>
+                        <span className="text-xs text-fg-tertiary">{a.dogNames.join(", ")}</span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
   ) : (
     <div
@@ -513,35 +503,7 @@ export default function SchedulePage() {
         listPanel={
           <div className="list-panel">
             <div className="list-panel-header panel-header-desktop">
-              <div className="flex items-center justify-between">
-                <h2 className="font-heading text-xl font-semibold text-fg-primary m-0">My Schedule</h2>
-                <ButtonAction variant="primary" size="sm" href="/meets/create" leftIcon={<Plus size={14} weight="bold" />}>
-                  Create
-                </ButtonAction>
-              </div>
-            </div>
-            <div className="list-panel-search">
-              <input
-                type="text"
-                placeholder="Search meets..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-sm border border-edge-regular bg-surface-base px-sm py-xs text-sm text-fg-primary"
-                style={{ outline: "none" }}
-              />
-            </div>
-            <div className="list-panel-filters">
-              <div className="pill-group">
-                {filters.map((f) => (
-                  <button
-                    key={f.key}
-                    className={`pill ${filter === f.key ? "active" : ""}`}
-                    onClick={() => setFilter(f.key)}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
+              <TabBar tabs={TABS} activeKey={filter} onChange={(key) => setFilter(key as ScheduleFilter)} />
             </div>
             <PanelBody>
               <LayoutList>

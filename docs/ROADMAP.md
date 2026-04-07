@@ -351,7 +351,7 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 
 ---
 
-## Phase 23 — Schedule Page & CardMeet Rebuild (active)
+## Phase 23 — Schedule Page & CardMeet Rebuild ✓
 
 **Goal:** Rebuild the My Schedule detail panel content, simplify CardMeet per the content audit, and remove old orphaned card components.
 
@@ -372,6 +372,16 @@ Phases for the interactive prototype. Each phase has a kanban board in `phases/`
 **Status:** Complete. Tabbed group detail page (Feed · Meets · Members · Chat) with persistent header, URL-based tab state, PanelBody + Spacer scroll. Also: CardGroup aligned with CardMeet layout, Storefront icon for Hosted groups, single-select visibility filter, "No limit" group size, dog size + focus area filters, orphaned CSS cleanup.
 
 **Board:** [[phase-24-group-detail]]
+
+---
+
+## Phase 25 — Schedule Polish & Detail Panel Pattern ✓
+
+**Goal:** Fix Schedule page list/detail panels and establish reusable detail section card pattern.
+
+**Status:** Complete. Replaced pill filters with TabBar on Schedule and Inbox pages. Detail panel restructured into 3 elevated section cards (Overview, Logistics, People) on surface-popout background. Removed "View full details" button. Fixed role badge styling to use Tailwind utilities instead of misusing card-schedule-chip. Removed search bar and Create button from header (Create stays in mobile actions).
+
+**Board:** [[phase-25-schedule-polish]]
 
 ---
 

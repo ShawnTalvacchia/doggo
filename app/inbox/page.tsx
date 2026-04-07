@@ -18,6 +18,7 @@ import { PanelBody } from "@/components/layout/PanelBody";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutList } from "@/components/layout/LayoutList";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { TabBar } from "@/components/ui/TabBar";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { Conversation } from "@/lib/types";
 
@@ -197,7 +198,7 @@ export default function InboxPage() {
   const [filter, setFilter] = useState<InboxFilter>("all");
   const [selectedConvId, setSelectedConvId] = useState<string | null>(null);
 
-  const filters: { key: InboxFilter; label: string }[] = [
+  const TABS = [
     { key: "all", label: "All" },
     { key: "care", label: "Care" },
     { key: "groups", label: "Groups" },
@@ -319,20 +320,7 @@ export default function InboxPage() {
         listPanel={
           <div className="list-panel">
             <div className="list-panel-header panel-header-desktop">
-              <h1 className="font-heading text-lg font-semibold text-fg-primary m-0">Inbox</h1>
-            </div>
-            <div className="list-panel-filters">
-              <div className="pill-group">
-                {filters.map((f) => (
-                  <button
-                    key={f.key}
-                    className={`pill ${filter === f.key ? "active" : ""}`}
-                    onClick={() => setFilter(f.key)}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
+              <TabBar tabs={TABS} activeKey={filter} onChange={(key) => setFilter(key as InboxFilter)} />
             </div>
             <PanelBody>
               <LayoutList>

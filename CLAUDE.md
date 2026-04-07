@@ -85,13 +85,13 @@ See `docs/CONTRIBUTING.md` for full details.
 | `docs/implementation/component-inventory.md` | Built components catalog |
 | `docs/CONTRIBUTING.md` | Workflow rules, doc categories, naming conventions |
 
-## Current Phase: 24 (active) — Group Detail Restructure
+## Current Phase: 25 (active) — Schedule Polish & Detail Panel Pattern
 
-Restructure the Group/Community detail page into a tabbed layout (Feed · Meets · Members · Chat) with panel architecture. See `docs/phases/phase-24-group-detail.md`.
+Fix Schedule page list/detail panels: TabBar replaces pill filters, detail sections wrapped in elevated cards, role badge styling unified, "View full details" removed. Pattern applies to Inbox and future detail panels. See `docs/phases/phase-25-schedule-polish.md`.
 
-**Previous:** Phase 23 rebuilt Schedule detail panel, simplified CardMeet, deleted old card components. Phase 22 built canonical panel system (PanelBody → LayoutSection/LayoutList → Spacer) and migrated all pages. Phase 21 built out all page content. Phase 20 cleaned up docs + removed dead components. Phase 19 delivered layout system + groups + feed.
+**Previous:** Phase 24 restructured Group detail into tabbed layout, aligned CardGroup with CardMeet, added groups filters. Phase 23 rebuilt Schedule detail panel, simplified CardMeet. Phase 22 built canonical panel system. Phase 21 built out all page content. Phase 20 cleaned up docs. Phase 19 delivered layout system + groups + feed.
 
-**Board:** See `docs/phases/phase-23-schedule-cardmeet.md` and `docs/ROADMAP.md`.
+**Board:** See `docs/phases/phase-25-schedule-polish.md` and `docs/ROADMAP.md`.
 
 ## Strategic Context
 
