@@ -22,6 +22,11 @@ import {
   Handshake,
   Plus,
   PawPrint,
+  Storefront,
+  Star,
+  MapPinLine,
+  Images,
+  CalendarBlank,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -38,14 +43,46 @@ import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
 import { TagPillRow } from "@/components/posts/TagPill";
 import { PawReaction } from "@/components/posts/PawReaction";
 
-/* ── Tab config ────────────────────────────────────────────────── */
+/* ── Tab config per group type ─────────────────────────────────── */
 
-const TABS = [
-  { key: "feed", label: "Feed" },
-  { key: "meets", label: "Meets" },
-  { key: "members", label: "Members" },
-  { key: "chat", label: "Chat" },
-];
+import type { GroupType } from "@/lib/types";
+
+function getTabsForGroupType(groupType: GroupType) {
+  switch (groupType) {
+    case "park":
+      return [
+        { key: "feed", label: "Feed" },
+        { key: "meets", label: "Meets" },
+        { key: "members", label: "Members" },
+      ];
+    case "care":
+      return [
+        { key: "feed", label: "Feed" },
+        { key: "events", label: "Events" },
+        { key: "services", label: "Services" },
+        { key: "members", label: "Members" },
+        { key: "gallery", label: "Gallery" },
+      ];
+    default: // neighbor, interest
+      return [
+        { key: "feed", label: "Feed" },
+        { key: "meets", label: "Meets" },
+        { key: "members", label: "Members" },
+      ];
+  }
+}
+
+/** Care category display labels */
+const CARE_CATEGORY_LABELS: Record<string, string> = {
+  training: "Dog Trainer",
+  walking: "Dog Walker",
+  grooming: "Grooming Salon",
+  boarding: "Boarding & Daycare",
+  rehab: "Canine Rehabilitation",
+  venue: "Dog-Friendly Venue",
+  vet: "Vet Clinic",
+  other: "Care Provider",
+};
 
 /* ── Page (with Suspense boundary for useSearchParams) ─────────── */
 
@@ -83,6 +120,8 @@ function GroupDetailInner() {
   const isMember = group.members.some((m) => m.userId === "shawn");
   const isAdmin = group.members.some((m) => m.userId === "shawn" && m.role === "admin");
   const totalDogs = group.members.reduce((sum, m) => sum + m.dogNames.length, 0);
+  const isCare = group.groupType === "care";
+  const tabs = getTabsForGroupType(group.groupType);
 
   const handleTabChange = (key: string) => {
     if (key === "feed") {
@@ -126,6 +165,40 @@ function GroupDetailInner() {
 
         {/* Description */}
         <p className="text-sm text-fg-secondary m-0">{group.description}</p>
+
+        {/* Hosted by — care groups only */}
+        {isCare && group.hostedByName && (
+          <div className="flex items-center gap-md rounded-panel bg-surface-top p-md shadow-xs">
+            <img
+              src={group.hostedByAvatarUrl || group.members.find(m => m.userId === group.hostedBy)?.avatarUrl || ""}
+              alt={group.hostedByName}
+              className="rounded-full shrink-0 w-10 h-10 object-cover"
+            />
+            <div className="flex flex-col gap-xs flex-1">
+              <div className="flex items-center gap-xs">
+                <Storefront size={14} weight="fill" className="text-brand-main" />
+                <span className="text-xs font-medium text-fg-tertiary">Hosted by</span>
+              </div>
+              <span className="text-sm font-semibold text-fg-primary">{group.hostedByName}</span>
+              {group.careCategory && (
+                <span className="text-xs text-fg-secondary">
+                  {CARE_CATEGORY_LABELS[group.careCategory] || group.careCategory}
+                </span>
+              )}
+            </div>
+            <ButtonAction variant="outline" size="sm" href={`/profile/${group.hostedBy}`}>
+              View profile
+            </ButtonAction>
+          </div>
+        )}
+
+        {/* Fixed location — care groups with address */}
+        {isCare && group.locationFixed && (
+          <div className="flex items-center gap-xs text-sm text-fg-secondary">
+            <MapPinLine size={14} weight="light" />
+            {group.locationFixed}
+          </div>
+        )}
 
         {/* Meta row */}
         <div className="flex items-center gap-lg text-sm text-fg-tertiary flex-wrap">
@@ -184,7 +257,7 @@ function GroupDetailInner() {
         className="flex items-center px-xl"
         style={{ borderBottom: "1px solid var(--border-light)" }}
       >
-        <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
+        <TabBar tabs={tabs} activeKey={activeTab} onChange={handleTabChange} />
       </div>
 
       {/* ── Tab content ─────────────────────────────────────────── */}
@@ -198,12 +271,20 @@ function GroupDetailInner() {
           />
         )}
 
-        {activeTab === "meets" && (
-          <MeetsTab groupMeets={groupMeets} />
+        {(activeTab === "meets" || activeTab === "events") && (
+          <MeetsTab groupMeets={groupMeets} isCare={isCare} />
+        )}
+
+        {activeTab === "services" && isCare && (
+          <ServicesTab group={group} />
         )}
 
         {activeTab === "members" && (
           <MembersTab group={group} />
+        )}
+
+        {activeTab === "gallery" && isCare && (
+          <GalleryTab group={group} />
         )}
 
         {activeTab === "chat" && (
@@ -302,15 +383,18 @@ function FeedTab({ groupPosts, group, isMember }: FeedTabProps) {
   );
 }
 
-/* ── Meets tab ─────────────────────────────────────────────────── */
+/* ── Meets / Events tab ───────────────────────────────────────── */
 
-function MeetsTab({ groupMeets }: { groupMeets: Meet[] }) {
+function MeetsTab({ groupMeets, isCare }: { groupMeets: Meet[]; isCare: boolean }) {
+  const noun = isCare ? "events" : "meets";
+  const nounSingular = isCare ? "event" : "meet";
+
   return (
     <div className="flex flex-col">
       <LayoutSection>
         <div className="flex items-center justify-between">
           <h3 className="font-heading text-md font-semibold text-fg-primary m-0">
-            Upcoming meets
+            Upcoming {noun}
           </h3>
           <ButtonAction
             variant="tertiary"
@@ -318,7 +402,7 @@ function MeetsTab({ groupMeets }: { groupMeets: Meet[] }) {
             href="/meets/create"
             leftIcon={<Plus size={14} weight="bold" />}
           >
-            Create meet
+            Create {nounSingular}
           </ButtonAction>
         </div>
       </LayoutSection>
@@ -332,12 +416,12 @@ function MeetsTab({ groupMeets }: { groupMeets: Meet[] }) {
       ) : (
         <LayoutSection>
           <EmptyState
-            icon={<Plus size={48} weight="light" />}
-            title="No upcoming meets"
-            subtitle="Create one for the community!"
+            icon={<CalendarBlank size={48} weight="light" />}
+            title={`No upcoming ${noun}`}
+            subtitle={`Create one for the community!`}
             action={
               <ButtonAction variant="primary" size="sm" href="/meets/create">
-                Create meet
+                Create {nounSingular}
               </ButtonAction>
             }
           />
@@ -404,6 +488,146 @@ function MembersTab({ group }: { group: Group }) {
             );
           })}
         </div>
+      </div>
+    </LayoutSection>
+  );
+}
+
+/* ── Services tab (care groups) ───────────────────────────────── */
+
+function ServicesTab({ group }: { group: Group }) {
+  const listings = group.serviceListings || [];
+
+  if (listings.length === 0) {
+    return (
+      <LayoutSection>
+        <EmptyState
+          icon={<Storefront size={48} weight="light" />}
+          title="No services listed yet"
+          subtitle="This provider hasn't added their service menu."
+        />
+      </LayoutSection>
+    );
+  }
+
+  return (
+    <LayoutSection>
+      <div className="flex flex-col gap-md">
+        <h3 className="font-heading text-md font-semibold text-fg-primary m-0">
+          Services
+        </h3>
+        {listings.filter(s => s.active).map((service) => (
+          <div
+            key={service.id}
+            className="flex flex-col gap-sm rounded-panel bg-surface-top p-md shadow-xs"
+          >
+            <div className="flex items-start justify-between gap-md">
+              <div className="flex flex-col gap-xs flex-1">
+                <span className="text-sm font-semibold text-fg-primary">{service.title}</span>
+                <span className="text-xs text-fg-secondary">{service.description}</span>
+              </div>
+              <div className="flex flex-col items-end gap-xs shrink-0">
+                <span className="text-sm font-semibold text-fg-primary">
+                  {service.priceFrom} Kč
+                </span>
+                <span className="text-xs text-fg-tertiary">{service.priceUnit}</span>
+              </div>
+            </div>
+            {service.bookingHref && (
+              <ButtonAction variant="primary" size="sm" href={service.bookingHref}>
+                Book
+              </ButtonAction>
+            )}
+          </div>
+        ))}
+      </div>
+    </LayoutSection>
+  );
+}
+
+/* ── Gallery tab (care groups) ───────────────────────────────── */
+
+function GalleryTab({ group }: { group: Group }) {
+  const photos = group.photos || [];
+  const mode = group.galleryMode || "standard";
+
+  if (photos.length === 0) {
+    return (
+      <LayoutSection>
+        <EmptyState
+          icon={<Images size={48} weight="light" />}
+          title="No photos yet"
+          subtitle="Photos from events and updates will appear here."
+        />
+      </LayoutSection>
+    );
+  }
+
+  return (
+    <LayoutSection>
+      <div className="flex flex-col gap-md">
+        <div className="flex items-center justify-between">
+          <h3 className="font-heading text-md font-semibold text-fg-primary m-0">
+            {mode === "portfolio" ? "Portfolio" : mode === "updates" ? "Updates" : "Gallery"}
+          </h3>
+          <span className="text-xs text-fg-tertiary">{photos.length} photos</span>
+        </div>
+
+        {mode === "portfolio" ? (
+          /* Portfolio mode: 2-column before/after style grid */
+          <div className="grid grid-cols-2 gap-sm">
+            {photos.map((photo, i) => (
+              <div key={i} className="relative aspect-square rounded-panel overflow-hidden">
+                <img src={photo} alt="" className="w-full h-full object-cover" />
+                {i % 2 === 0 && (
+                  <span className="absolute bottom-1 left-1 rounded-pill bg-black/60 text-white text-xs px-sm py-xs">
+                    Before
+                  </span>
+                )}
+                {i % 2 === 1 && (
+                  <span className="absolute bottom-1 left-1 rounded-pill bg-brand-main text-white text-xs px-sm py-xs">
+                    After
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : mode === "updates" ? (
+          /* Updates mode: date-grouped chronological feed */
+          <div className="flex flex-col gap-md">
+            <div className="flex flex-col gap-sm">
+              <span className="text-xs font-medium text-fg-tertiary">Today</span>
+              <div className="grid grid-cols-3 gap-xs">
+                {photos.slice(0, Math.min(3, photos.length)).map((photo, i) => (
+                  <div key={i} className="aspect-square rounded-sm overflow-hidden">
+                    <img src={photo} alt="" className="w-full h-full object-cover" />
+                  </div>
+                ))}
+              </div>
+            </div>
+            {photos.length > 3 && (
+              <div className="flex flex-col gap-sm">
+                <span className="text-xs font-medium text-fg-tertiary">Earlier this week</span>
+                <div className="grid grid-cols-3 gap-xs">
+                  {photos.slice(3).map((photo, i) => (
+                    <div key={i} className="aspect-square rounded-sm overflow-hidden">
+                      <img src={photo} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* Standard mode: simple grid */
+          <div className="grid grid-cols-3 gap-xs">
+            {photos.map((photo, i) => (
+              <div key={i} className="aspect-square rounded-sm overflow-hidden">
+                <img src={photo} alt="" className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </LayoutSection>
   );

@@ -6,6 +6,7 @@ import { ConversationsProvider } from "@/contexts/ConversationsContext";
 import { BookingsProvider } from "@/contexts/BookingsContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { ReviewsProvider } from "@/contexts/ReviewsContext";
+import { PageHeaderProvider } from "@/contexts/PageHeaderContext";
 import { GuestLayout } from "@/components/layout/GuestLayout";
 import { AppNav } from "@/components/layout/AppNav";
 import { BottomNav } from "@/components/layout/BottomNav";
@@ -39,11 +40,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <ReviewsProvider>
               <ConversationsProvider>
                 <BookingsProvider>
-                  <GuestLayout>
-                    <AppNav />
-                    {children}
-                    <BottomNav />
-                  </GuestLayout>
+                  <PageHeaderProvider>
+                    <GuestLayout>
+                      <AppNav />
+                      {children}
+                      <BottomNav />
+                    </GuestLayout>
+                  </PageHeaderProvider>
                 </BookingsProvider>
               </ConversationsProvider>
             </ReviewsProvider>

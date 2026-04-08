@@ -21,22 +21,7 @@ import { LayoutList } from "@/components/layout/LayoutList";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { mockNotifications, type AppNotification } from "@/lib/mockNotifications";
 import type { NotificationType } from "@/lib/types";
-
-/* ── Helpers ── */
-
-function formatRelativeTime(isoString: string): string {
-  const date = new Date(isoString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays === 1) return "Yesterday";
-  return `${diffDays}d ago`;
-}
+import { formatRelativeTime } from "@/lib/dateUtils";
 
 const TYPE_ICONS: Record<NotificationType, typeof Bell> = {
   meet_invite: CalendarBlank,

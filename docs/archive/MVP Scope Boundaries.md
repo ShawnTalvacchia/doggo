@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-03-30
+last-reviewed: 2026-04-08
 tags: [scope, prototype, priorities]
 review-trigger: "before adding new features or starting a new flow"
 ---
@@ -39,7 +39,7 @@ These flows are needed to tell the complete Doggo story end-to-end.
 |---------|--------|-------------|
 | **Landing page** | Built | [[landing-page]] |
 | **Signup flow** | Built | `docs/implementation/signup-reference.md` |
-| **Nav restructure** | Built (Phase 16: sidebar, Groups/Activities rename) | [[Product Vision]] nav section |
+| **Nav restructure** | Built (Phase 16: sidebar, Groups/Activities rename). Home → Community rename planned — see [[Community & Provider Groups Evolution]]. | [[Product Vision]] nav section |
 | **Home feed** | Built (social feed with 10 card types) | — |
 | **Groups & Meets** | Built (Groups Phase 9, Meets Phase 3, types Phase 13) | [[meets]] |
 | **Connections & visibility** | Built (Phase 15: share links, tiered participants) | [[connections]] |
@@ -62,7 +62,7 @@ These strengthen the demo but aren't needed to tell the core story.
 | Feature | Notes |
 |---------|-------|
 | **Payment mock** | Built (Phase 11). Mock checkout with 12% platform fee. |
-| **Business profiles & directory** | Not built. Local pet businesses (vets, groomers, shops). |
+| **Business profiles & directory** | Partially addressed by Care groups (see [[Community & Provider Groups Evolution]]). Provider-hosted groups serve as community-embedded business profiles for trainers, walkers, groomers, boarding, rehab, venues, and vets. Pure directory listing (non-group) not yet built. |
 | ~~**Private groups**~~ | ~~Promoted to Required~~ — built in Phase 9 (open/approval/private). |
 | **Photo gallery per meet** | Built (Phase 8). Post-meet recap with photos. |
 | **Browse & discover** | Not built. Browse nearby Open owners/dogs outside of meets context. |

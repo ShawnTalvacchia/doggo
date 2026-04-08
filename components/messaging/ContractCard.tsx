@@ -2,14 +2,7 @@ import Link from "next/link";
 import { CheckCircle, ArrowRight } from "@phosphor-icons/react";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import type { ChatMessage } from "@/lib/types";
-
-function formatShortDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
+import { formatShortDate } from "@/lib/dateUtils";
 
 export function ContractCard({ msg }: { msg: ChatMessage }) {
   const c = msg.contract!;
@@ -29,7 +22,7 @@ export function ContractCard({ msg }: { msg: ChatMessage }) {
         </p>
         <p className="inbox-contract-meta">With {c.carerName}</p>
       </div>
-      <Link href={`/bookings/${c.bookingId}`} className="inbox-contract-link">
+      <Link href="/bookings" className="inbox-contract-link">
         View booking <ArrowRight size={13} weight="bold" />
       </Link>
     </div>

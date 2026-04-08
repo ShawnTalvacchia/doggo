@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { mockUser } from "@/lib/mockUser";
 import { getFeedForUser, getNewUserFeed } from "@/lib/mockFeed";
@@ -22,10 +22,9 @@ import { MasterDetailShell, type MobileView } from "@/components/layout/MasterDe
 import { PanelBody } from "@/components/layout/PanelBody";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutList } from "@/components/layout/LayoutList";
-import { LayoutSection } from "@/components/layout/LayoutSection";
 import { CardGroup } from "@/components/groups/CardGroup";
 import { getUserGroups } from "@/lib/mockGroups";
-import type { FeedItem } from "@/lib/types";
+import type { FeedItem, GroupType } from "@/lib/types";
 
 // ── Feed rendering ──────────────────────────────────────────────────────────
 
@@ -57,39 +56,92 @@ function FeedItemRenderer({ item }: { item: FeedItem }) {
   }
 }
 
-// ── Mobile tabs (Feed | Groups) ─────────────────────────────────────────────
+// ── Category tabs ──────────────────────────────────────────────────────────
 
-const TABS = [
-  { key: "groups", label: "Groups" },
-  { key: "feed", label: "Feed" },
+type CategoryTab = "all" | "parks" | "neighbors" | "interest" | "care";
+
+const CATEGORY_TABS: { key: CategoryTab; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "parks", label: "Parks" },
+  { key: "neighbors", label: "Neighbors" },
+  { key: "interest", label: "Interest" },
+  { key: "care", label: "Care" },
 ];
+
+/** Map category tab key to GroupType for filtering */
+const TAB_TO_GROUP_TYPE: Record<CategoryTab, GroupType | null> = {
+  all: null,
+  parks: "park",
+  neighbors: "neighbor",
+  interest: "interest",
+  care: "care",
+};
+
+// ── Panel header label per tab ─────────────────────────────────────────────
+
+const TAB_PANEL_TITLE: Record<CategoryTab, string> = {
+  all: "Community",
+  parks: "Parks",
+  neighbors: "Neighbors",
+  interest: "Interest",
+  care: "Care",
+};
 
 // ── Main page ───────────────────────────────────────────────────────────────
 
 function HomePageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const activeTab = searchParams.get("tab") || "feed";
+  const activeTab = (searchParams.get("tab") as CategoryTab) || "all";
 
   const handleTabChange = (key: string) => {
-    if (key === "feed") {
+    if (key === "all") {
       router.replace("/home", { scroll: false });
     } else {
       router.replace(`/home?tab=${key}`, { scroll: false });
     }
   };
 
-  const mobileView: MobileView = activeTab === "groups" ? "list" : "detail";
+  // Collapsed/mobile: show the group list (category tabs filter it).
+  // Tapping a group navigates to /communities/[id] for detail.
+  // Desktop: both panels visible — list (left) + feed (right).
+  const mobileView: MobileView = "list";
 
   const userGroups = getUserGroups("shawn");
   const feedItems = getFeedForUser("shawn");
   const dogPhotos = mockUser.pets.map((p) => p.imageUrl);
 
+  // Filter groups by active category tab
+  const groupType = TAB_TO_GROUP_TYPE[activeTab];
+  const filteredGroups = useMemo(() => {
+    if (!groupType) return userGroups;
+    return userGroups.filter((g) => g.groupType === groupType);
+  }, [userGroups, groupType]);
+
+  // Count groups per category for potential badge display
+  const groupCounts = useMemo(() => {
+    const counts: Record<CategoryTab, number> = { all: userGroups.length, parks: 0, neighbors: 0, interest: 0, care: 0 };
+    for (const g of userGroups) {
+      if (g.groupType === "park") counts.parks++;
+      else if (g.groupType === "neighbor") counts.neighbors++;
+      else if (g.groupType === "interest") counts.interest++;
+      else if (g.groupType === "care") counts.care++;
+    }
+    return counts;
+  }, [userGroups]);
+
+  const panelTitle = TAB_PANEL_TITLE[activeTab];
+
   return (
     <div className="page-container home-page-shell">
       {/* TabBar — visible on collapsed/mobile, hidden on desktop */}
-      <div className="panel-tabbar home-tab-bar">
-        <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
+      <div className="panel-tabbar home-tab-bar" data-view="list">
+        <div className="panel-tabbar-list">
+          <div className="panel-tabbar-title">Community</div>
+          <div className="panel-tabbar-tabs">
+            <TabBar tabs={CATEGORY_TABS} activeKey={activeTab} onChange={handleTabChange} />
+          </div>
+        </div>
       </div>
 
       <MasterDetailShell
@@ -99,16 +151,37 @@ function HomePageInner() {
             {/* Header — visible on desktop, hidden on mobile/collapsed */}
             <div className="list-panel-header panel-header-desktop">
               <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
-                My Groups
+                Community
               </h2>
             </div>
+            {/* Category tabs — desktop: below header, same TabBar as other pages. Mobile uses panel-tabbar above. */}
+            <div className="list-panel-filters panel-header-desktop">
+              <TabBar tabs={CATEGORY_TABS} activeKey={activeTab} onChange={handleTabChange} />
+            </div>
 
-            {/* Body — scrollable */}
+            {/* Body — scrollable group list */}
             <PanelBody>
               <LayoutList>
-                {userGroups.map((group) => (
-                  <CardGroup key={group.id} group={group} variant="my-groups" />
-                ))}
+                {filteredGroups.length > 0 ? (
+                  filteredGroups.map((group) => (
+                    <CardGroup key={group.id} group={group} variant="my-groups" />
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center gap-md p-xl text-center">
+                    <p className="text-fg-tertiary text-md">
+                      {activeTab === "all"
+                        ? "You haven\u2019t joined any groups yet."
+                        : `No ${panelTitle.toLowerCase()} groups yet.`}
+                    </p>
+                    <a
+                      href="/discover/groups"
+                      className="text-brand-main font-semibold text-md"
+                      style={{ textDecoration: "none" }}
+                    >
+                      Explore groups →
+                    </a>
+                  </div>
+                )}
               </LayoutList>
               <Spacer />
             </PanelBody>

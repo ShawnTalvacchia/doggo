@@ -57,41 +57,40 @@ These are non-negotiable. See `docs/implementation/frontend-style.md` for full d
 
 ## Workflow Rules
 
-See `docs/CONTRIBUTING.md` for full details.
+See `docs/CONTRIBUTING.md` for full details, including the phase open/close lifecycle.
 
 1. **Work from the current phase board** in `docs/phases/`. Check it before starting.
 2. **Read referenced docs** before starting a task. Update them if anything changed.
 3. **Doc frontmatter:** Every doc has `status`, `last-reviewed`, `review-trigger`. Update `last-reviewed` when you touch a doc.
 4. **No feature sprawl.** If it's not on the phase board, don't build it without discussion.
 5. **Update feature docs** in `docs/features/` when you modify a feature.
-6. **Flows are the source of truth for user journeys.** `docs/flows/` contains Mermaid-based flow charts for every major user flow. Reference them when planning new phases and writing tasks. When closing a phase, review all affected flows — update step statuses, flag conflicts, and note any new considerations that emerged during the work.
+6. **Phase close = doc review.** Update feature docs, open questions, ROADMAP, and this file. Archive the phase board. See CONTRIBUTING.md for full checklist.
 
 ## Key Docs
 
 | Doc | What it covers |
 |-----|---------------|
-| `docs/ROADMAP.md` | Phase overview and sequencing |
+| `docs/ROADMAP.md` | Phase overview, current state assessment, upcoming work |
+| `docs/CONTRIBUTING.md` | Workflow rules, phase lifecycle, CSS conventions |
 | `docs/strategy/Product Vision.md` | Product strategy, principles, business model, nav structure |
 | `docs/strategy/User Archetypes.md` | Behavioral profiles, two ramps (engagement + provider dial) |
 | `docs/strategy/Trust & Connection Model.md` | Connection states, trust principles, safety & privacy |
-| `docs/strategy/MVP Scope Boundaries.md` | Prototype scope — required / nice-to-have / out |
-| `docs/strategy/Groups Strategy.md` | Three group archetypes, user journeys, provider groups |
+| `docs/strategy/Groups & Care Model.md` | Group taxonomy, provider types, config model, user journeys |
 | `docs/strategy/Content Visibility Model.md` | Two-gate visibility system, tagging privacy rules |
-| `docs/strategy/Open Questions & Assumptions Log.md` | Unresolved strategic questions |
-| `docs/flows/` | User flow charts (Mermaid) with step-by-step build status |
-| `docs/features/` | Feature specs: meets, connections, messaging, explore-and-care, profiles, schedule |
+| `docs/strategy/Open Questions & Assumptions Log.md` | Unresolved strategic questions — review before each phase |
+| `docs/features/` | Feature specs: meets, connections, messaging, explore-and-care, profiles, schedule, landing-page |
 | `docs/implementation/frontend-style.md` | CSS conventions and rules |
 | `docs/implementation/design-tokens.md` | Token reference and mapping notes |
 | `docs/implementation/component-inventory.md` | Built components catalog |
-| `docs/CONTRIBUTING.md` | Workflow rules, doc categories, naming conventions |
+| `docs/implementation/mock-data-plan.md` | Mock data strategy and user journey planning |
 
-## Current Phase: 25 (active) — Schedule Polish & Detail Panel Pattern
+## Current Phase: Content Completion
 
-Fix Schedule page list/detail panels: TabBar replaces pill filters, detail sections wrapped in elevated cards, role badge styling unified, "View full details" removed. Pattern applies to Inbox and future detail panels. See `docs/phases/phase-25-schedule-polish.md`.
+Make every page feel finished — fix structural issues, wire up interactions, fill content gaps. See `docs/ROADMAP.md` for full scope.
 
-**Previous:** Phase 24 restructured Group detail into tabbed layout, aligned CardGroup with CardMeet, added groups filters. Phase 23 rebuilt Schedule detail panel, simplified CardMeet. Phase 22 built canonical panel system. Phase 21 built out all page content. Phase 20 cleaned up docs. Phase 19 delivered layout system + groups + feed.
+Key structural changes: remove group Chat tab (Feed gets flat comments instead), restructure meet detail to tabs (Details · People · Chat), wire Discover filters, build out Bookings provider view.
 
-**Board:** See `docs/phases/phase-25-schedule-polish.md` and `docs/ROADMAP.md`.
+**Upcoming:** Demo Data & Richness → Demo Presentation (3 user personas with switching).
 
 ## Strategic Context
 
@@ -102,8 +101,9 @@ Fix Schedule page list/detail panels: TabBar replaces pill filters, detail secti
 Key decisions:
 - **Connection model:** None (default) → Familiar (one-sided) → Pending → Connected (mutual). See `docs/strategy/Trust & Connection Model.md`.
 - **Everyone starts as an owner.** No separate provider signup. Offering care is a dial, not a switch.
-- **Nav:** Home | Discover | My Schedule | Bookings | Profile (mobile bottom, 5 tabs). Desktop sidebar: Home, Discover, My Schedule, Bookings, Inbox, Notifications, Profile (7 items). Mobile header: create + notifications + inbox.
+- **Nav:** Community | Discover | My Schedule | Bookings | Profile (mobile bottom, 5 tabs). Desktop sidebar: Community, Discover, My Schedule, Bookings, Inbox, Notifications, Profile (7 items). Mobile header: create + notifications + inbox.
 - **Discover as hub.** Three doors: Meets, Groups, Dog Care — not tabs.
-- **Groups strategy.** Three archetypes: Park (auto-generated, open), People (user-created, defaults private), Help (provider-created, service CTAs). See `docs/strategy/Groups Strategy.md`.
+- **Groups:** Four types: Park (auto-generated, open), Neighbor (hyperlocal, private), Interest (shared characteristic, open/private), Care (provider-created, service CTAs). See `docs/strategy/Groups & Care Model.md`.
+- **Group detail:** No Chat tab. Feed with flat comments for async discussion. Meet-level Chat tab for real-time event coordination.
+- **Meet detail:** Tabbed view — Details · People · Chat.
 - **Content visibility.** Two-gate model: context gate (group/meet membership) + relationship gate (connection state). See `docs/strategy/Content Visibility Model.md`.
-- See `docs/strategy/MVP Scope Boundaries.md` for feature priorities (Required / Nice-to-have / Out).

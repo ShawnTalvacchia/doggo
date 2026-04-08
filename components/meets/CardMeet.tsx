@@ -19,6 +19,7 @@ import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import type { Meet, MeetType } from "@/lib/types";
 import { MEET_TYPE_LABELS } from "@/lib/mockMeets";
 import { getGroupById } from "@/lib/mockGroups";
+import { formatMeetDateTime } from "@/lib/dateUtils";
 
 /* ── Constants ─────────────────────────────────────────────────── */
 
@@ -30,14 +31,6 @@ const MEET_ICONS: Record<MeetType, React.ReactNode> = {
 };
 
 /* ── Helpers ────────────────────────────────────────────────────── */
-
-function formatMeetDate(date: string, time: string): string {
-  const d = new Date(`${date}T${time}`);
-  const weekday = d.toLocaleDateString("en-GB", { weekday: "short" });
-  const day = d.getDate();
-  const month = d.toLocaleDateString("en-GB", { month: "short" });
-  return `${weekday} ${day} ${month}, ${time}`;
-}
 
 function totalDogs(meet: Meet): number {
   return meet.attendees.reduce((sum, a) => sum + a.dogNames.length, 0);
@@ -85,9 +78,16 @@ export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetPro
     (a) => (a.rsvpStatus ?? "going") === "going"
   );
   const goingCount = goingAttendees.length;
+  const spotsLeft = meet.maxAttendees - goingCount;
   const group = meet.groupId ? getGroupById(meet.groupId) : null;
   const isCancelled = meet.status === "cancelled";
   const maxAvatars = 5;
+
+  // Host signal: RSVP count (only for hosting + upcoming)
+  const newRsvpCount =
+    role === "hosting" && !isHistory
+      ? Math.max(0, goingAttendees.filter((a) => a.userId !== "shawn").length)
+      : 0;
 
   return (
     <Link
@@ -164,7 +164,7 @@ export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetPro
           <div className="flex items-center gap-xs text-sm text-fg-secondary">
             <CalendarDots size={16} weight="light" className="shrink-0" />
             <span style={{ fontWeight: 600, color: isHistory ? undefined : "var(--text-primary)" }}>
-              {formatMeetDate(meet.date, meet.time)}
+              {formatMeetDateTime(meet.date, meet.time)}
             </span>
             {meet.recurring && (
               <>
@@ -250,13 +250,46 @@ export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetPro
             )}
           </div>
 
+          {/* Spots left — discover variant */}
+          {variant === "discover" && spotsLeft > 0 && spotsLeft <= 5 && (
+            <span className="text-xs font-semibold text-brand-main shrink-0">
+              {spotsLeft} {spotsLeft === 1 ? "spot" : "spots"} left
+            </span>
+          )}
+
+          {/* Host signal: RSVPs — schedule variant */}
+          {newRsvpCount > 0 && (
+            <span className="text-sm font-semibold text-brand-main shrink-0">
+              {newRsvpCount} {newRsvpCount === 1 ? "RSVP" : "RSVPs"}
+            </span>
+          )}
+
           {/* Activity signal — inline next to avatars */}
-          {meet.recentJoinText && !isHistory && (
+          {meet.recentJoinText && !isHistory && !newRsvpCount && (
             <div className="flex items-center gap-xs text-xs text-fg-tertiary">
               <Lightning size={12} weight="fill" className="text-brand-main" />
               {meet.recentJoinText}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Service CTA — care group events */}
+      {!isCancelled && meet.serviceCTA && (
+        <div className="flex items-center justify-between rounded-sm bg-brand-subtle px-md py-sm">
+          <div className="flex items-center gap-sm">
+            {meet.serviceCTA.price && (
+              <span className="text-sm font-semibold text-brand-strong">{meet.serviceCTA.price}</span>
+            )}
+            {meet.serviceCTA.spotsLeft != null && (
+              <span className="text-xs text-fg-secondary">
+                {meet.serviceCTA.spotsLeft} {meet.serviceCTA.spotsLeft === 1 ? "spot" : "spots"} left
+              </span>
+            )}
+          </div>
+          <span className="text-sm font-semibold text-brand-strong">
+            {meet.serviceCTA.label} →
+          </span>
         </div>
       )}
     </Link>

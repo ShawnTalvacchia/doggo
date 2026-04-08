@@ -1,61 +1,40 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
   CalendarDots,
-  PawPrint,
-  Plus,
   Briefcase,
-  MagnifyingGlass,
-  MapPin,
-  Clock,
-  UsersThree,
-  Backpack,
-  Info,
-  PersonSimpleWalk,
-  Tree,
-  Target,
-  Flag,
-  Check,
-  Star,
-  ShareNetwork,
-  BookmarkSimple,
-  ArrowsClockwise,
+  ArrowLeft,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { TabBar } from "@/components/ui/TabBar";
 import { CardMeet, type MeetRole } from "@/components/meets/CardMeet";
+import { MeetDetailPanel } from "@/components/meets/MeetDetailPanel";
+import { SessionRow } from "@/components/schedule/SessionRow";
+import { SessionDetailContent } from "@/components/schedule/SessionDetailContent";
 import { MasterDetailShell } from "@/components/layout/MasterDetailShell";
 import { PanelBody } from "@/components/layout/PanelBody";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutList } from "@/components/layout/LayoutList";
-import { getUserMeets, MEET_TYPE_LABELS, LEASH_LABELS, ENERGY_LABELS } from "@/lib/mockMeets";
-import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
-import { getGroupById } from "@/lib/mockGroups";
+import { getUserMeets } from "@/lib/mockMeets";
+import { getMeetRole } from "@/lib/meetUtils";
+import { formatMeetDate } from "@/lib/dateUtils";
 import { useBookings } from "@/contexts/BookingsContext";
 import { SERVICE_LABELS } from "@/lib/constants/services";
-import type { Meet, Booking } from "@/lib/types";
+import { usePageHeader } from "@/contexts/PageHeaderContext";
+import type { Meet, Booking, BookingSession } from "@/lib/types";
 
 const CURRENT_USER = "shawn";
 
-const MEET_ICONS: Record<string, React.ReactNode> = {
-  walk: <PersonSimpleWalk size={14} weight="light" />,
-  park_hangout: <Tree size={14} weight="light" />,
-  playdate: <PawPrint size={14} weight="light" />,
-  training: <Target size={14} weight="light" />,
-};
+type ScheduleFilter = "upcoming" | "invited" | "care";
 
-type ScheduleFilter = "joining" | "invited" | "care";
-
-function getMeetRole(meet: Meet, userId: string): MeetRole {
-  if (meet.creatorId === userId) return "hosting";
-  const attendee = meet.attendees.find((a) => a.userId === userId);
-  if (attendee?.rsvpStatus === "interested") return "interested";
-  return "joining";
-}
+type Selection =
+  | { type: "meet"; meetId: string }
+  | { type: "session"; bookingId: string; sessionId: string }
+  | null;
 
 function getBookingNextDate(booking: Booking): string | null {
   if (booking.sessions) {
@@ -65,17 +44,13 @@ function getBookingNextDate(booking: Booking): string | null {
   return booking.startDate;
 }
 
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-GB", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-  });
-}
 
 type ScheduleItem =
   | { kind: "meet"; meet: Meet; role: MeetRole; sortKey: string }
+  | { kind: "session"; booking: Booking; session: BookingSession; sortKey: string }
   | { kind: "booking"; booking: Booking; perspective: "owner" | "carer"; sortKey: string };
+
+// ── Booking block (used in Care tab for contract-level view) ──
 
 function BookingBlock({
   booking,
@@ -90,11 +65,11 @@ function BookingBlock({
       : { name: booking.ownerName, avatarUrl: booking.ownerAvatarUrl };
 
   const nextDate = getBookingNextDate(booking);
-  const nextDateLabel = nextDate ? formatDate(nextDate) : null;
+  const nextDateLabel = nextDate ? formatMeetDate(nextDate) : null;
 
   return (
     <Link
-      href={`/bookings/${booking.id}`}
+      href="/bookings"
       className="card-booking-block"
       style={{ textDecoration: "none" }}
     >
@@ -129,12 +104,14 @@ function BookingBlock({
   );
 }
 
+// ── Main page ──
+
 export default function SchedulePage() {
-  const [filter, setFilter] = useState<ScheduleFilter>("joining");
-  const [selectedMeetId, setSelectedMeetId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<ScheduleFilter>("upcoming");
+  const [selection, setSelection] = useState<Selection>(null);
 
   const myMeets = getUserMeets(CURRENT_USER);
-  const { bookings } = useBookings();
+  const { bookings, updateSession } = useBookings();
   const upcomingMeets = myMeets.filter((m) => m.status === "upcoming");
 
   const activeOwnerBookings = bookings.filter(
@@ -142,7 +119,7 @@ export default function SchedulePage() {
   );
 
   const TABS = [
-    { key: "joining", label: "Joining" },
+    { key: "upcoming", label: "Upcoming" },
     { key: "invited", label: "Invited" },
     { key: "care", label: "Care" },
   ];
@@ -159,53 +136,119 @@ export default function SchedulePage() {
         .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
     }
 
-    // Joining = meets user RSVP'd to; Invited = meets with interested status
-    return upcomingMeets
+    if (filter === "invited") {
+      return upcomingMeets
+        .filter((m) => getMeetRole(m, CURRENT_USER) === "interested")
+        .map((m) => ({
+          kind: "meet" as const,
+          meet: m,
+          role: "interested" as MeetRole,
+          sortKey: `${m.date}T${m.time}`,
+        }))
+        .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+    }
+
+    // Upcoming = confirmed meets + individual care sessions, sorted by date
+    const meetItems: ScheduleItem[] = upcomingMeets
       .filter((m) => {
         const role = getMeetRole(m, CURRENT_USER);
-        if (filter === "joining") return role === "joining" || role === "hosting";
-        if (filter === "invited") return role === "interested";
-        return true;
+        return role === "joining" || role === "hosting";
       })
       .map((m) => ({
         kind: "meet" as const,
         meet: m,
         role: getMeetRole(m, CURRENT_USER),
         sortKey: `${m.date}T${m.time}`,
-      }))
-      .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+      }));
+
+    // Flatten booking sessions into individual schedule items
+    const sessionItems: ScheduleItem[] = activeOwnerBookings.flatMap((b) => {
+      if (!b.sessions) {
+        // One-off booking without sessions — show as single session-like item
+        return [{
+          kind: "session" as const,
+          booking: b,
+          session: { id: `${b.id}-oneoff`, date: b.startDate, status: "upcoming" as const },
+          sortKey: b.startDate,
+        }];
+      }
+      return b.sessions
+        .filter((s) => s.status === "upcoming" || s.status === "in_progress")
+        .map((s) => ({
+          kind: "session" as const,
+          booking: b,
+          session: s,
+          sortKey: s.date + (b.recurringSchedule?.time ? `T${b.recurringSchedule.time}` : ""),
+        }));
+    });
+
+    return [...meetItems, ...sessionItems].sort((a, b) => a.sortKey.localeCompare(b.sortKey));
   }, [filter, upcomingMeets, activeOwnerBookings]);
 
-  // Selected meet for detail panel (desktop)
-  const selectedMeet = selectedMeetId
-    ? myMeets.find((m) => m.id === selectedMeetId)
-    : filteredItems.length > 0 && filteredItems[0].kind === "meet"
-    ? filteredItems[0].meet
+  // Resolve selection to actual data
+  const selectedMeet = selection?.type === "meet"
+    ? myMeets.find((m) => m.id === selection.meetId) ?? null
     : null;
 
-  const mobileView = selectedMeetId ? "detail" as const : "list" as const;
+  const selectedSession = selection?.type === "session"
+    ? (() => {
+        const b = bookings.find((bk) => bk.id === selection.bookingId);
+        if (!b) return null;
+        const s = b.sessions?.find((ss) => ss.id === selection.sessionId)
+          ?? (selection.sessionId.endsWith("-oneoff") ? { id: selection.sessionId, date: b.startDate, status: "upcoming" as const } : null);
+        return s ? { booking: b, session: s } : null;
+      })()
+    : null;
+
+  // Auto-select first item if nothing selected
+  const autoSelectedMeet = !selection
+    ? (() => {
+        const first = filteredItems.find((item) => item.kind === "meet");
+        return first?.kind === "meet" ? first.meet : null;
+      })()
+    : null;
+
+  const autoSelectedSession = !selection && !autoSelectedMeet
+    ? (() => {
+        const first = filteredItems.find((item) => item.kind === "session");
+        return first?.kind === "session" ? { booking: first.booking, session: first.session } : null;
+      })()
+    : null;
+
+  const activeMeet = selectedMeet ?? autoSelectedMeet;
+  const activeSession = selectedSession ?? autoSelectedSession;
+  const hasSelection = activeMeet || activeSession;
+
+  const mobileView = selection ? "detail" as const : "list" as const;
 
   const listContent = (
     <>
-      {/* Mobile actions */}
-      <div className="activity-mobile-actions" style={{ padding: "0 var(--space-md)" }}>
-        <ButtonAction variant="outline" size="sm" href="/discover?tab=care" leftIcon={<MagnifyingGlass size={14} weight="light" />}>
-          Find Care
-        </ButtonAction>
-        <ButtonAction variant="primary" size="sm" href="/meets/create" leftIcon={<Plus size={14} weight="bold" />}>
-          Create
-        </ButtonAction>
-      </div>
-
       {/* Timeline */}
       {filteredItems.length > 0 ? (
         <div className="flex flex-col">
           {filteredItems.map((item) => {
             if (item.kind === "meet") {
+              const isActive = activeMeet?.id === item.meet.id;
               return (
-                <div key={item.meet.id} onClick={() => setSelectedMeetId(item.meet.id)} style={{ cursor: "pointer" }}>
+                <div
+                  key={item.meet.id}
+                  onClick={() => setSelection({ type: "meet", meetId: item.meet.id })}
+                  style={{ cursor: "pointer" }}
+                >
                   <CardMeet meet={item.meet} variant="schedule" role={item.role} />
                 </div>
+              );
+            }
+            if (item.kind === "session") {
+              const isActive = activeSession?.session.id === item.session.id;
+              return (
+                <SessionRow
+                  key={`${item.booking.id}-${item.session.id}`}
+                  booking={item.booking}
+                  session={item.session}
+                  isActive={isActive}
+                  onClick={() => setSelection({ type: "session", bookingId: item.booking.id, sessionId: item.session.id })}
+                />
               );
             }
             return (
@@ -236,268 +279,59 @@ export default function SchedulePage() {
     </>
   );
 
-  const selectedMeetGroup = selectedMeet?.groupId ? getGroupById(selectedMeet.groupId) : null;
-  const goingCount = selectedMeet
-    ? selectedMeet.attendees.filter((a) => a.rsvpStatus !== "interested").length
-    : 0;
-  const dogCount = selectedMeet
-    ? selectedMeet.attendees.reduce((sum, a) => sum + a.dogNames.length, 0)
-    : 0;
-
-  const selectedRole = selectedMeet ? getMeetRole(selectedMeet, CURRENT_USER) : null;
-  const spotsLeft = selectedMeet ? selectedMeet.maxAttendees - goingCount : 0;
-  const organizers = selectedMeet
-    ? selectedMeet.attendees.filter((a) => a.userId === selectedMeet.creatorId)
-    : [];
-  const confirmed = selectedMeet
-    ? selectedMeet.attendees.filter(
-        (a) => a.userId !== selectedMeet.creatorId && (a.rsvpStatus ?? "going") === "going"
-      )
-    : [];
-
-  const detailContent = selectedMeet ? (
-      <div className="flex flex-col gap-md">
-        {/* Card 1 — Overview: chips + title + attendance */}
-        <div className="bg-surface-top rounded-panel p-md shadow-xs flex flex-col gap-md">
-          {/* Type + attribute chips + actions */}
-          <div className="flex items-center gap-xs">
-            <span className="card-schedule-chip card-schedule-chip--primary">
-              {MEET_ICONS[selectedMeet.type]}
-              {MEET_TYPE_LABELS[selectedMeet.type]}
-            </span>
-            {selectedMeet.leashRule && (
-              <span className="card-schedule-chip">
-                {LEASH_LABELS[selectedMeet.leashRule] || selectedMeet.leashRule}
-              </span>
-            )}
-            {selectedMeet.energyLevel && selectedMeet.energyLevel !== "any" && (
-              <span className="card-schedule-chip">
-                {ENERGY_LABELS[selectedMeet.energyLevel]}
-              </span>
-            )}
-            <span className="flex-1" />
-            <button className="detail-action-icon" aria-label="Share">
-              <ShareNetwork size={18} weight="light" />
-            </button>
-            <button className="detail-action-icon" aria-label="Save">
-              <BookmarkSimple size={18} weight="light" />
-            </button>
-          </div>
-
-          {/* Title + group + description */}
-          <div className="flex flex-col gap-sm">
-            <h2
-              className="font-heading font-bold text-fg-primary"
-              style={{ fontSize: "var(--text-xl)", lineHeight: 1.3, margin: 0 }}
-            >
-              {selectedMeet.title}
-            </h2>
-            {selectedMeetGroup && (
-              <Link
-                href={`/groups/${selectedMeetGroup.id}`}
-                className="flex items-center gap-xs text-sm font-semibold no-underline"
-                style={{ color: "var(--status-info-600, #4e63b8)" }}
-              >
-                <UsersThree size={16} weight="light" />
-                {selectedMeetGroup.name}
-              </Link>
-            )}
-            <p className="text-sm text-fg-secondary" style={{ lineHeight: "22px", margin: 0 }}>
-              {selectedMeet.description}
-            </p>
-          </div>
-
-          {/* Attendance strip */}
-          <div
-            className="flex items-center gap-sm bg-surface-inset rounded-sm"
-            style={{ padding: "var(--space-sm) var(--space-md)" }}
-          >
-            <div className="flex items-center shrink-0">
-              {selectedMeet.attendees
-                .filter((a) => (a.rsvpStatus ?? "going") === "going")
-                .slice(0, 4)
-                .map((a, i) =>
-                  a.avatarUrl ? (
-                    <img
-                      key={a.userId}
-                      src={a.avatarUrl}
-                      alt={a.userName}
-                      className="rounded-full border-2 border-surface-top object-cover"
-                      style={{ width: 28, height: 28, marginLeft: i > 0 ? -8 : 0 }}
-                    />
-                  ) : (
-                    <span key={a.userId} style={{ marginLeft: i > 0 ? -8 : 0 }}>
-                      <DefaultAvatar name={a.userName} size={28} className="border-2 border-surface-top" />
-                    </span>
-                  )
-                )}
-            </div>
-            <span className="text-sm text-fg-secondary flex-1">
-              <span className="font-semibold">{goingCount}</span> going · {spotsLeft} {spotsLeft === 1 ? "spot" : "spots"} left
-            </span>
-            {selectedRole && (
-              <span
-                className="inline-flex items-center gap-1 text-xs font-semibold rounded-full whitespace-nowrap"
-                style={
-                  selectedRole === "hosting"
-                    ? { padding: "4px 10px", background: "var(--brand-main)", color: "white" }
-                    : { padding: "4px 10px", background: "var(--surface-inset)", color: "var(--brand-main)" }
-                }
-              >
-                {selectedRole === "hosting" && <Flag size={13} weight="fill" />}
-                {selectedRole === "joining" && <Check size={13} weight="bold" />}
-                {selectedRole === "interested" && <Star size={13} weight="light" />}
-                {selectedRole === "hosting" ? "Hosting" : selectedRole === "joining" ? "Joining" : "Interested"}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Card 2 — Logistics: grid + what to bring + accessibility */}
-        <div className="bg-surface-top rounded-panel p-md shadow-xs flex flex-col gap-md">
-          <div className="schedule-detail-grid">
-            <div className="flex flex-col gap-xs">
-              <div className="flex items-center gap-xs text-fg-tertiary">
-                <CalendarDots size={14} weight="light" />
-                <span className="text-xs font-semibold" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>Date & Time</span>
-              </div>
-              <span className="text-sm font-semibold text-fg-primary">
-                {new Date(selectedMeet.date + "T00:00:00").toLocaleDateString("en-GB", {
-                  weekday: "short",
-                  day: "numeric",
-                  month: "short",
-                })}, {selectedMeet.time}
-              </span>
-              {selectedMeet.recurring && (
-                <span className="flex items-center gap-xs text-xs text-fg-tertiary">
-                  <ArrowsClockwise size={12} weight="light" />
-                  Weekly
-                </span>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-xs">
-              <div className="flex items-center gap-xs text-fg-tertiary">
-                <Clock size={14} weight="light" />
-                <span className="text-xs font-semibold" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>Duration</span>
-              </div>
-              <span className="text-sm font-semibold text-fg-primary">
-                {selectedMeet.durationMinutes} min
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-xs">
-              <div className="flex items-center gap-xs text-fg-tertiary">
-                <MapPin size={14} weight="light" />
-                <span className="text-xs font-semibold" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>Location</span>
-              </div>
-              <span className="text-sm text-fg-primary">{selectedMeet.location}</span>
-            </div>
-
-            <div className="flex flex-col gap-xs">
-              <div className="flex items-center gap-xs text-fg-tertiary">
-                <UsersThree size={14} weight="light" />
-                <span className="text-xs font-semibold" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>People</span>
-              </div>
-              <span className="text-sm text-fg-primary">
-                {goingCount}/{selectedMeet.maxAttendees} going · {dogCount} {dogCount === 1 ? "dog" : "dogs"}
-              </span>
-            </div>
-          </div>
-
-          {selectedMeet.whatToBring && selectedMeet.whatToBring.length > 0 && (
-            <div className="flex flex-col gap-sm">
-              <span className="flex items-center gap-xs font-body font-bold text-fg-secondary text-sm">
-                <Backpack size={14} weight="light" />
-                What to bring
-              </span>
-              <ul className="flex flex-col gap-xs" style={{ margin: 0, paddingLeft: "var(--space-lg)" }}>
-                {selectedMeet.whatToBring.map((item) => (
-                  <li key={item} className="text-sm text-fg-secondary">{item}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {selectedMeet.accessibilityNotes && (
-            <div className="flex items-start gap-sm bg-surface-inset rounded-sm" style={{ padding: "var(--space-sm) var(--space-md)" }}>
-              <Info size={16} weight="light" className="text-fg-tertiary shrink-0" style={{ marginTop: 2 }} />
-              <span className="text-sm text-fg-secondary">{selectedMeet.accessibilityNotes}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Card 3 — People: organisers + confirmed */}
-        {(organizers.length > 0 || confirmed.length > 0) && (
-          <div className="bg-surface-top rounded-panel p-md shadow-xs flex flex-col gap-md">
-            {organizers.length > 0 && (
-              <div className="flex flex-col gap-sm">
-                <span className="text-xs font-semibold text-fg-tertiary" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  Organisers
-                </span>
-                <div className="flex flex-col gap-sm">
-                  {organizers.map((a) => (
-                    <Link key={a.userId} href={`/profile/${a.userId}`} className="flex items-center gap-sm no-underline">
-                      {a.avatarUrl ? (
-                        <img src={a.avatarUrl} alt={a.userName} className="rounded-full object-cover shrink-0" style={{ width: 44, height: 44 }} />
-                      ) : (
-                        <DefaultAvatar name={a.userName} size={44} />
-                      )}
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-fg-primary">
-                          {a.userName}
-                          {a.userId === CURRENT_USER && <span className="text-fg-tertiary font-normal"> (you)</span>}
-                        </span>
-                        <span className="text-xs text-fg-tertiary">{a.dogNames.join(", ")}</span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {confirmed.length > 0 && (
-              <div className="flex flex-col gap-sm">
-                <span className="text-xs font-semibold text-fg-tertiary" style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                  Confirmed ({confirmed.length})
-                </span>
-                <div className="flex flex-col gap-sm">
-                  {confirmed.map((a) => (
-                    <Link key={a.userId} href={`/profile/${a.userId}`} className="flex items-center gap-sm no-underline">
-                      {a.avatarUrl ? (
-                        <img src={a.avatarUrl} alt={a.userName} className="rounded-full object-cover shrink-0" style={{ width: 44, height: 44 }} />
-                      ) : (
-                        <DefaultAvatar name={a.userName} size={44} />
-                      )}
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-fg-primary">
-                          {a.userName}
-                          {a.userId === CURRENT_USER && <span className="text-fg-tertiary font-normal"> (you)</span>}
-                        </span>
-                        <span className="text-xs text-fg-tertiary">{a.dogNames.join(", ")}</span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+  // ── Compose detail panel content ──
+  const detailContent = activeMeet
+    ? <MeetDetailPanel meet={activeMeet} currentUserId={CURRENT_USER} />
+    : activeSession
+    ? <SessionDetailContent booking={activeSession.booking} session={activeSession.session} onUpdateSession={updateSession} />
+    : (
+      <div
+        className="flex flex-col items-center justify-center flex-1 gap-md"
+        style={{ padding: "var(--space-xxxl)" }}
+      >
+        <CalendarDots size={48} weight="light" className="text-fg-tertiary" />
+        <span className="text-md text-fg-tertiary">
+          Select an item to see details
+        </span>
       </div>
-  ) : (
-    <div
-      className="flex flex-col items-center justify-center flex-1 gap-md"
-      style={{ padding: "var(--space-xxxl)" }}
-    >
-      <CalendarDots size={48} weight="light" className="text-fg-tertiary" />
-      <span className="text-md text-fg-tertiary">
-        Select a meet to see details
-      </span>
-    </div>
-  );
+    );
+
+  const detailTitle = activeMeet
+    ? activeMeet.title
+    : activeSession
+    ? `${SERVICE_LABELS[activeSession.booking.serviceType]} · ${formatMeetDate(activeSession.session.date)}`
+    : null;
+
+  const { setDetailHeader, clearDetailHeader } = usePageHeader();
+  const handleBack = useCallback(() => setSelection(null), []);
+
+  useEffect(() => {
+    if (selection && detailTitle) {
+      setDetailHeader(detailTitle, handleBack);
+    } else {
+      clearDetailHeader();
+    }
+    return () => clearDetailHeader();
+  }, [selection, detailTitle, setDetailHeader, clearDetailHeader, handleBack]);
 
   return (
     <div className="page-container schedule-page-shell">
+      {/* TabBar — visible on collapsed/mobile, hidden on desktop */}
+      <div className="panel-tabbar" data-view={mobileView}>
+        <div className="panel-tabbar-list">
+          <div className="panel-tabbar-title">My Schedule</div>
+          <div className="panel-tabbar-tabs">
+            <TabBar tabs={TABS} activeKey={filter} onChange={(key) => setFilter(key as ScheduleFilter)} />
+          </div>
+        </div>
+        <div className="panel-tabbar-detail">
+          <button type="button" className="panel-tabbar-back" onClick={() => setSelection(null)}>
+            <ArrowLeft size={20} weight="light" />
+          </button>
+          <span className="panel-tabbar-detail-title">{detailTitle}</span>
+        </div>
+      </div>
+
       <MasterDetailShell
         mobileView={mobileView}
         listPanel={
@@ -518,9 +352,9 @@ export default function SchedulePage() {
         }
         detailPanel={
           <div className="detail-panel">
-            {selectedMeet && (
+            {detailTitle && (
               <div className="detail-panel-header">
-                <span className="font-heading text-base font-semibold text-fg-primary">{selectedMeet.title}</span>
+                <span className="font-heading text-base font-semibold text-fg-primary">{detailTitle}</span>
               </div>
             )}
             <PanelBody>

@@ -569,8 +569,6 @@ a {
   top: 0;
   bottom: 0;
   width: var(--sidebar-width);
-  background: var(--surface-inset);
-  border-right: 1px solid var(--border-strong);
   z-index: 20;
   display: flex;
   flex-direction: column;
@@ -733,8 +731,16 @@ a {
 }
 
 .list-panel-filters {
-  padding: 0 var(--space-md) var(--space-sm);
+  background: var(--surface-popout);
+  padding: 0;
   flex-shrink: 0;
+  border-bottom: 1px solid var(--border-strong);
+}
+.list-panel-filters .tab-main {
+  flex: 1;
+  height: 56px;
+  padding: 0;
+  margin-bottom: -1px;
 }
 
 .list-panel-scroll {
@@ -785,6 +791,7 @@ a {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  background: var(--surface-popout);
 }
 
 /* — Spacer — fills remaining space at bottom of panel body — */
@@ -825,7 +832,7 @@ a {
   flex-shrink: 0;
   padding: 0 var(--space-xxs);
   background: var(--surface-popout);
-  border-bottom: 1.5px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
   z-index: 3;
 }
 .panel-tabbar > div { flex: 1; gap: 0; }
@@ -833,11 +840,46 @@ a {
   flex: 1;
   height: 56px;
   padding: 0;
-  border-bottom: 1.5px solid var(--border-strong);
-  margin-bottom: -1.5px;
+  margin-bottom: -1px;
 }
-.panel-tabbar .tab-main[data-active] {
-  border-bottom-color: var(--text-primary);
+
+/* Panel tabbar sub-sections — list mode vs detail mode */
+.panel-tabbar-list { display: flex; flex-direction: column; width: 100%; }
+.panel-tabbar-detail { display: none; align-items: center; gap: var(--space-sm); width: 100%; height: 56px; padding: 0 var(--space-md); }
+.panel-tabbar[data-view="detail"] .panel-tabbar-list { display: none; }
+.panel-tabbar[data-view="detail"] .panel-tabbar-detail { display: flex; }
+
+.panel-tabbar-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-lg);
+  border-bottom: 1px solid var(--border-regular);
+}
+
+.panel-tabbar-back {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  padding: var(--space-xs);
+}
+
+.panel-tabbar-detail-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Collapsed: show panel-tabbar, hide panel-header-desktop */
@@ -849,14 +891,28 @@ a {
   .panel-header-desktop {
     display: none;
   }
+  .detail-panel-header {
+    display: none;
+  }
 }
 
 /* Mobile: show panel-tabbar, hide panel-header-desktop */
 @media (max-width: 767px) {
   .panel-tabbar {
     display: flex;
+    border-radius: var(--radius-panel) var(--radius-panel) 0 0;
   }
   .panel-header-desktop {
+    display: none;
+  }
+  .detail-panel-header {
+    display: none;
+  }
+  .panel-tabbar-title {
+    display: none; /* title moves to AppNav on mobile */
+  }
+  /* Hide panel-tabbar entirely on mobile when in detail mode — AppNav handles it */
+  .panel-tabbar[data-view="detail"] {
     display: none;
   }
 }
@@ -1010,6 +1066,33 @@ a {
   align-items: center;
   color: inherit;
   text-decoration: none;
+}
+
+/* Detail header (back + title) — shown on mobile when drilling into a detail view */
+.app-nav-detail-header {
+  display: none;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+.app-nav-detail-back {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: var(--text-primary);
+  padding: 0;
+}
+.app-nav-detail-title {
+  font-family: var(--font-heading), sans-serif;
+  font-size: var(--font-size-h4);
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .app-nav-right {
@@ -2643,7 +2726,7 @@ body.guest-route {
   flex-shrink: 0;
   padding: 0 var(--space-xxs);
   background: var(--surface-popout);
-  border-bottom: 1.5px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
   z-index: 3;
 }
 
@@ -2656,12 +2739,7 @@ body.guest-route {
   flex: 1;
   height: 56px;
   padding: 0;
-  border-bottom: 1.5px solid var(--border-strong);
-  margin-bottom: -1.5px;
-}
-
-.discover-mobile-tabs .tab-main[data-active] {
-  border-bottom-color: var(--text-primary);
+  margin-bottom: -1px;
 }
 
 .discover-mobile-tab-content {
@@ -5499,8 +5577,9 @@ body.guest-route {
     padding-bottom: 64px; /* space for fixed bottom nav */
     overflow: hidden;
     flex-direction: column; /* constrain children vertically */
+    align-items: center; /* center page-container horizontally */
   }
-  .page-container { max-width: 100%; flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .page-container { max-width: 100%; flex: 1; display: flex; flex-direction: column; min-height: 0; width: 100%; }
   .page-side-panel,
   .page-spacer { display: none; }
 
@@ -5520,6 +5599,10 @@ body.guest-route {
   }
 
   .app-nav-page-title {
+    display: flex;
+  }
+
+  .app-nav-detail-header {
     display: flex;
   }
 
@@ -7056,6 +7139,11 @@ body.guest-route {
 
 .booking-row:hover {
   background: var(--surface-hover);
+}
+
+.booking-list-item--active .booking-row,
+.booking-list-item--active a {
+  background: var(--surface-inset);
 }
 
 .booking-row-avatar {
@@ -9849,7 +9937,7 @@ body.guest-route {
 }
 
 
-/* Tab component — simple variant (no underline, just text color) */
+/* Tab component — underline style, consistent across all contexts */
 .tab-main {
   display: flex;
   align-items: center;
@@ -9863,6 +9951,7 @@ body.guest-route {
   color: var(--text-gray, #969898);
   background: none;
   border: none;
+  border-bottom: 1px solid var(--border-strong);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -9870,6 +9959,7 @@ body.guest-route {
 .tab-main[data-active] {
   color: var(--text-primary);
   font-weight: var(--weight-bold);
+  border-bottom-color: var(--text-primary);
 }
 
 /* Activity page layout: sticky tab header + scrollable body */
@@ -10407,9 +10497,15 @@ body.guest-route {
   overflow: hidden;
 }
 
-/* Desktop (wide): hide tab bar (groups panel is always visible) */
+/* Desktop (wide): hide mobile tab bar (desktop uses list-panel-filters instead) */
 .home-tab-bar {
   display: none;
+}
+
+/* Community page: 5 category tabs — smaller font to fit in the list panel */
+.home-page-shell .list-panel-filters .tab-main {
+  font-size: 14px;
+  padding: 0 var(--space-sm);
 }
 
 /* ── Collapsed home: single panel + tabs (sidebar still visible above 767px) ── */
@@ -10431,7 +10527,7 @@ body.guest-route {
     flex-shrink: 0;
     padding: 0 var(--space-xxs);
     background: var(--surface-popout);
-    border-bottom: 1.5px solid var(--border-strong);
+    border-bottom: 1px solid var(--border-strong);
     border-radius: var(--radius-panel) var(--radius-panel) 0 0;
     z-index: 3;
   }
@@ -10441,16 +10537,9 @@ body.guest-route {
     gap: 0;
   }
 
+  /* 14px for 5 category tabs — inherits all other styles from .panel-tabbar .tab-main */
   .home-tab-bar .tab-main {
-    flex: 1;
-    height: 56px;
-    padding: 0;
-    border-bottom: 1.5px solid var(--border-strong);
-    margin-bottom: -1.5px;
-  }
-
-  .home-tab-bar .tab-main[data-active] {
-    border-bottom-color: var(--text-primary);
+    font-size: 14px;
   }
 
   /* Hide "My Groups" header — tab already shows context */
@@ -10518,7 +10607,7 @@ body.guest-route {
   overflow: hidden;
 }
 
-@media (min-width: 768px) and (max-width: 1299px) {
+@media (max-width: 1299px) {
   .page-container.schedule-page-shell,
   .page-container.bookings-page-shell,
   .page-container.notifications-page-shell,
@@ -10532,7 +10621,7 @@ body.guest-route {
   .inbox-page-shell {
     background: var(--surface-inset);
     border: 1px solid var(--border-stronger);
-    border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+    border-radius: var(--radius-panel);
   }
 
   .schedule-page-shell .md-shell,

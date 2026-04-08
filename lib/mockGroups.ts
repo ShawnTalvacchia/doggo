@@ -1,5 +1,17 @@
-import type { Group } from "./types";
+import type { Group, CareCategory, CareGroupConfig } from "./types";
 import { mockMeets } from "./mockMeets";
+
+/** Default care group configuration by provider category */
+export const CARE_CONFIG_DEFAULTS: Record<CareCategory, CareGroupConfig> = {
+  training:  { eventsEnabled: true,  bookingCTAsEnabled: true,  discussionEnabled: true,  serviceListingsVisible: true,  locationType: "mobile", capacityEnabled: true,  galleryMode: "standard" },
+  walking:   { eventsEnabled: true,  bookingCTAsEnabled: true,  discussionEnabled: false, serviceListingsVisible: true,  locationType: "mobile", capacityEnabled: true,  galleryMode: "updates" },
+  grooming:  { eventsEnabled: false, bookingCTAsEnabled: true,  discussionEnabled: false, serviceListingsVisible: true,  locationType: "fixed",  capacityEnabled: false, galleryMode: "portfolio" },
+  boarding:  { eventsEnabled: true,  bookingCTAsEnabled: true,  discussionEnabled: true,  serviceListingsVisible: true,  locationType: "fixed",  capacityEnabled: true,  galleryMode: "updates" },
+  rehab:     { eventsEnabled: false, bookingCTAsEnabled: true,  discussionEnabled: true,  serviceListingsVisible: true,  locationType: "fixed",  capacityEnabled: false, galleryMode: "standard" },
+  venue:     { eventsEnabled: true,  bookingCTAsEnabled: false, discussionEnabled: false, serviceListingsVisible: false, locationType: "fixed",  capacityEnabled: false, galleryMode: "standard" },
+  vet:       { eventsEnabled: false, bookingCTAsEnabled: false, discussionEnabled: true,  serviceListingsVisible: false, locationType: "fixed",  capacityEnabled: false, galleryMode: "standard" },
+  other:     { eventsEnabled: true,  bookingCTAsEnabled: true,  discussionEnabled: true,  serviceListingsVisible: true,  locationType: "mobile", capacityEnabled: false, galleryMode: "standard" },
+};
 
 export const mockGroups: Group[] = [
   {
@@ -7,7 +19,7 @@ export const mockGroups: Group[] = [
     name: "Vinohrady Morning Crew",
     description:
       "We meet every week for a morning walk through Riegrovy sady. Chill pace, all dogs welcome. Come as you are — the dogs set the agenda.",
-    groupType: "community",
+    groupType: "neighbor",
     visibility: "open",
     neighbourhood: "Vinohrady",
     location: "Riegrovy sady, Prague 2",
@@ -58,7 +70,7 @@ export const mockGroups: Group[] = [
     name: "Stromovka Off-Leash Club",
     description:
       "Weekend off-leash play sessions in Stromovka park. Bring a ball, bring treats. Dogs run free, owners relax.",
-    groupType: "community",
+    groupType: "interest",
     visibility: "open",
     neighbourhood: "Holešovice",
     location: "Stromovka, Prague 7",
@@ -117,7 +129,7 @@ export const mockGroups: Group[] = [
     name: "Reactive Dog Support",
     description:
       "A safe, private space for owners of reactive dogs. We share tips, coordinate small-group walks, and support each other. No judgement.",
-    groupType: "community",
+    groupType: "interest",
     visibility: "private",
     neighbourhood: "Vinohrady",
     location: "Prague 2",
@@ -154,10 +166,8 @@ export const mockGroups: Group[] = [
     name: "Letná Recall Training",
     description:
       "Small-group recall practice at Letenské sady. Ideal for dogs that need work on coming back when called. Bring high-value treats!",
-    groupType: "service",
+    groupType: "interest",
     visibility: "open",
-    hostedBy: "eva",
-    hostedByName: "Eva",
     neighbourhood: "Letná",
     location: "Letenské sady, Prague 7",
     coverPhotoUrl: "/images/generated/training-session.jpeg",
@@ -196,7 +206,7 @@ export const mockGroups: Group[] = [
     name: "Žižkov Dog Parents",
     description:
       "A neighbourhood group for Žižkov dog owners. Share tips, organise walks, and find dog-sitting help from people nearby. New members need approval — we like to keep it local.",
-    groupType: "community",
+    groupType: "neighbor",
     visibility: "approval",
     neighbourhood: "Žižkov",
     location: "Žižkov, Prague 3",
@@ -238,7 +248,7 @@ export const mockGroups: Group[] = [
     name: "Vinohrady Evening Walkers",
     description:
       "A small group of neighbours who walk together most evenings around Vinohrady. Casual, consistent, and dog-friendly. Created by Tereza after meeting regulars at Riegrovy Sady.",
-    groupType: "community",
+    groupType: "neighbor",
     visibility: "private",
     neighbourhood: "Vinohrady",
     location: "Vinohrady, Prague 2",
@@ -261,7 +271,7 @@ export const mockGroups: Group[] = [
     name: "Prague Reactive Dog Support",
     description:
       "A safe space for owners of reactive dogs in Prague. Share tips, organise small-group meets in quiet parks, and learn together. Approval required — write a short note about your dog when you request to join.",
-    groupType: "community",
+    groupType: "interest",
     visibility: "approval",
     neighbourhood: "Prague-wide",
     location: "Various quiet parks",
@@ -283,23 +293,33 @@ export const mockGroups: Group[] = [
     name: "Klára's Calm Dog Sessions",
     description:
       "Small-group training sessions focused on calm behaviour, recall, and socialisation. Hosted by Klára, a certified dog trainer. Open to all — check upcoming sessions and book your spot.",
-    groupType: "service",
+    groupType: "care",
+    careCategory: "training",
     visibility: "open",
     hostedBy: "klara",
     hostedByName: "Klára",
+    hostedByAvatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
     neighbourhood: "Holešovice",
     location: "Stromovka, Prague 7",
     coverPhotoUrl: "/images/generated/training-session.jpeg",
     creatorId: "klara",
     creatorName: "Klára",
+    galleryMode: "standard",
+    careConfig: CARE_CONFIG_DEFAULTS.training,
+    serviceListings: [
+      { id: "svc-klara-1", title: "Group Training Session", description: "Small-group park session (max 6 dogs). Focus on recall, loose-leash walking, and calm greetings.", priceFrom: 350, priceUnit: "per session", bookingHref: "/bookings", active: true },
+      { id: "svc-klara-2", title: "Puppy Socialisation Class", description: "Structured socialisation for puppies 3–6 months. Safe introductions, confidence building, basic cues.", priceFrom: 400, priceUnit: "per session", bookingHref: "/bookings", active: true },
+      { id: "svc-klara-3", title: "1-on-1 Behaviour Consultation", description: "Private session for reactive dogs, anxiety, or specific behaviour challenges. Includes follow-up plan.", priceFrom: 800, priceUnit: "per session", bookingHref: "/bookings", active: true },
+    ],
+    meetIds: ["meet-care-1"],
     members: [
       { userId: "klara", userName: "Klára", avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80", dogNames: ["Eda"], role: "admin", joinedAt: "2026-01-05" },
       { userId: "daniel", userName: "Daniel", avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80", dogNames: ["Bára"], role: "member", joinedAt: "2026-02-10" },
       { userId: "tomas", userName: "Tomáš", avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80", dogNames: ["Bella"], role: "member", joinedAt: "2026-02-15" },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], role: "member", joinedAt: "2026-03-01" },
+      { userId: "tereza", userName: "Tereza", avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80", dogNames: ["Franta"], role: "member", joinedAt: "2026-03-05" },
     ],
-    meetIds: [],
-    photos: ["/images/generated/training-session.jpeg"],
+    photos: ["/images/generated/training-session.jpeg", "/images/generated/goldie-leash.jpeg"],
     photoPolicy: "encouraged",
     createdAt: "2026-01-05T09:00:00Z",
   },
@@ -308,7 +328,7 @@ export const mockGroups: Group[] = [
     name: "Karlín Dog Neighbors",
     description:
       "A private group for dog owners in Karlín. Walk together, share recommendations, help each other out. Small, local, and trusted.",
-    groupType: "community",
+    groupType: "neighbor",
     visibility: "private",
     neighbourhood: "Karlín",
     location: "Karlín, Prague 8",
@@ -323,6 +343,260 @@ export const mockGroups: Group[] = [
     photos: [],
     photoPolicy: "optional",
     createdAt: "2026-01-20T14:00:00Z",
+  },
+
+  // ── Additional interest groups ─────────────────────────────────────────────
+  {
+    id: "group-doodle-owners",
+    name: "Prague Doodle Owners",
+    description:
+      "Labradoodles, goldendoodles, bernedoodles — if your dog ends in -oodle, you're one of us. Grooming tips, playdate coordination, and lots of curly dog photos.",
+    groupType: "interest",
+    visibility: "open",
+    neighbourhood: "Prague-wide",
+    location: "Various parks, Prague",
+    coverPhotoUrl: "/images/generated/goldie-playing.jpeg",
+    creatorId: "jana",
+    creatorName: "Jana",
+    members: [
+      { userId: "jana", userName: "Jana", avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80", dogNames: ["Rex"], role: "admin", joinedAt: "2026-01-15" },
+      { userId: "eva", userName: "Eva", avatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80", dogNames: ["Luna"], role: "member", joinedAt: "2026-01-20" },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Goldie"], role: "member", joinedAt: "2026-02-01" },
+    ],
+    meetIds: [],
+    photos: ["/images/generated/goldie-playing.jpeg"],
+    photoPolicy: "encouraged",
+    createdAt: "2026-01-15T10:00:00Z",
+  },
+  {
+    id: "group-senior-dogs",
+    name: "Senior Dogs & Slow Walks",
+    description:
+      "For dogs who prefer a gentle pace and owners who enjoy the calm. Short walks, soft trails, and no rush. Age is just a number — but we respect the joints.",
+    groupType: "interest",
+    visibility: "open",
+    neighbourhood: "Prague-wide",
+    location: "Various calm parks, Prague",
+    coverPhotoUrl: "/images/generated/spot-resting.jpeg",
+    creatorId: "martin",
+    creatorName: "Martin",
+    members: [
+      { userId: "martin", userName: "Martin", avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80", dogNames: ["Charlie"], role: "admin", joinedAt: "2026-02-10" },
+      { userId: "tomas", userName: "Tomáš", avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80", dogNames: ["Bella"], role: "member", joinedAt: "2026-02-15" },
+    ],
+    meetIds: [],
+    photos: ["/images/generated/spot-resting.jpeg"],
+    photoPolicy: "encouraged",
+    createdAt: "2026-02-10T09:00:00Z",
+  },
+
+  // ── Additional care groups ────────────────────────────────────────────────
+  {
+    id: "group-pawel-walks",
+    name: "Pawel's Prague Pack",
+    description:
+      "Daily group walks through Prague's best parks. Max 6 dogs per walk, GPS tracking, photo updates every walk. Your dog's favourite part of the day.",
+    groupType: "care",
+    careCategory: "walking",
+    visibility: "open",
+    hostedBy: "pawel",
+    hostedByName: "Pawel",
+    hostedByAvatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+    neighbourhood: "Vinohrady",
+    location: "Various parks, Prague 2–3",
+    coverPhotoUrl: "/images/generated/group-walk-stromovka.jpeg",
+    creatorId: "pawel",
+    creatorName: "Pawel",
+    galleryMode: "updates",
+    careConfig: CARE_CONFIG_DEFAULTS.walking,
+    serviceListings: [
+      { id: "svc-pawel-1", title: "Group Walk", description: "Morning or afternoon group walk, max 6 dogs. Pickup available in Vinohrady and Žižkov.", priceFrom: 250, priceUnit: "per walk", bookingHref: "/bookings", active: true },
+      { id: "svc-pawel-2", title: "Solo Walk", description: "One-on-one walk for dogs who need individual attention or are still socialising.", priceFrom: 350, priceUnit: "per walk", bookingHref: "/bookings", active: true },
+      { id: "svc-pawel-3", title: "Puppy Walk", description: "Gentle, short walks for puppies under 6 months. Focus on exposure and confidence.", priceFrom: 300, priceUnit: "per walk", bookingHref: "/bookings", active: true },
+    ],
+    members: [
+      { userId: "pawel", userName: "Pawel", avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80", dogNames: [], role: "admin", joinedAt: "2025-12-01" },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], role: "member", joinedAt: "2026-01-10" },
+      { userId: "tomas", userName: "Tomáš", avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80", dogNames: ["Bella"], role: "member", joinedAt: "2026-01-15" },
+      { userId: "tereza", userName: "Tereza", avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80", dogNames: ["Franta"], role: "member", joinedAt: "2026-02-01" },
+    ],
+    meetIds: ["meet-care-2"],
+    photos: ["/images/generated/group-walk-stromovka.jpeg", "/images/generated/evening-walk-group.jpeg"],
+    photoPolicy: "encouraged",
+    createdAt: "2025-12-01T08:00:00Z",
+  },
+  {
+    id: "group-dognut-grooming",
+    name: "Dognut Grooming Prague",
+    description:
+      "Prague's friendliest grooming salon. Before & after transformations, coat care tips, and easy online booking. Your dog leaves happy (and smelling great).",
+    groupType: "care",
+    careCategory: "grooming",
+    visibility: "open",
+    hostedBy: "dognut",
+    hostedByName: "Dognut Grooming",
+    hostedByAvatarUrl: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=400&q=80",
+    neighbourhood: "Holešovice",
+    location: "Holešovice, Prague 7",
+    locationFixed: "Komunardů 32, Prague 7",
+    coverPhotoUrl: "/images/generated/goldie-playing.jpeg",
+    creatorId: "dognut",
+    creatorName: "Dognut Grooming",
+    galleryMode: "portfolio",
+    careConfig: CARE_CONFIG_DEFAULTS.grooming,
+    serviceListings: [
+      { id: "svc-dognut-1", title: "Full Groom", description: "Bath, dry, haircut, nail trim, ear clean. All breeds welcome.", priceFrom: 800, priceUnit: "per session", bookingHref: "/bookings", active: true },
+      { id: "svc-dognut-2", title: "Bath & Brush", description: "Wash, blow-dry, and brush-out. Great for short-haired breeds between grooms.", priceFrom: 450, priceUnit: "per session", bookingHref: "/bookings", active: true },
+      { id: "svc-dognut-3", title: "Nail Trim", description: "Quick nail trim. Walk-ins welcome, no appointment needed.", priceFrom: 150, priceUnit: "per visit", active: true },
+      { id: "svc-dognut-4", title: "De-shedding Treatment", description: "Deep brush and de-shedding treatment for double-coated breeds.", priceFrom: 600, priceUnit: "per session", bookingHref: "/bookings", active: true },
+    ],
+    members: [
+      { userId: "dognut", userName: "Dognut Grooming", avatarUrl: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=400&q=80", dogNames: [], role: "admin", joinedAt: "2025-11-01" },
+      { userId: "jana", userName: "Jana", avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80", dogNames: ["Rex"], role: "member", joinedAt: "2025-12-10" },
+      { userId: "eva", userName: "Eva", avatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80", dogNames: ["Luna", "Max"], role: "member", joinedAt: "2026-01-05" },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Goldie"], role: "member", joinedAt: "2026-02-01" },
+    ],
+    meetIds: [],
+    photos: ["/images/generated/goldie-playing.jpeg", "/images/generated/spot-portrait.jpeg"],
+    photoPolicy: "encouraged",
+    createdAt: "2025-11-01T10:00:00Z",
+  },
+
+  // ── New care groups (Phase 31) ─────────────────────────────────────────────
+  {
+    id: "group-happy-tails",
+    name: "Happy Tails Boarding",
+    description:
+      "A small, home-based boarding facility in Dejvice. Daily photo updates so you never have to wonder how your dog is doing. Max 8 dogs at a time — every dog gets personal attention.",
+    groupType: "care",
+    careCategory: "boarding",
+    visibility: "approval",
+    hostedBy: "happy_tails",
+    hostedByName: "Markéta",
+    hostedByAvatarUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80",
+    neighbourhood: "Dejvice",
+    location: "Dejvice, Prague 6",
+    locationFixed: "Na Hutích 12, Prague 6",
+    coverPhotoUrl: "/images/generated/spot-resting.jpeg",
+    creatorId: "happy_tails",
+    creatorName: "Markéta",
+    galleryMode: "updates",
+    capacityEnabled: true,
+    careConfig: CARE_CONFIG_DEFAULTS.boarding,
+    serviceListings: [
+      { id: "svc-ht-1", title: "Overnight Boarding", description: "Home-style overnight stay with garden access. Includes morning and evening walks.", priceFrom: 550, priceUnit: "per night", bookingHref: "/bookings", active: true },
+      { id: "svc-ht-2", title: "Daycare", description: "Full-day care from 7am to 7pm. Structured play sessions and rest time.", priceFrom: 350, priceUnit: "per day", bookingHref: "/bookings", active: true },
+      { id: "svc-ht-3", title: "Holiday Boarding", description: "Extended stays (3+ nights) with daily photo updates and video calls on request.", priceFrom: 500, priceUnit: "per night", bookingHref: "/bookings", active: true },
+    ],
+    members: [
+      { userId: "happy_tails", userName: "Markéta", avatarUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80", dogNames: ["Mia"], role: "admin", joinedAt: "2025-10-01" },
+      { userId: "tereza", userName: "Tereza", avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80", dogNames: ["Franta"], role: "member", joinedAt: "2025-11-15" },
+      { userId: "jana", userName: "Jana", avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80", dogNames: ["Rex"], role: "member", joinedAt: "2025-12-01" },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], role: "member", joinedAt: "2026-01-10" },
+    ],
+    meetIds: [],
+    photos: ["/images/generated/spot-resting.jpeg", "/images/generated/goldie-playing.jpeg", "/images/generated/park-hangout-riegrovy.jpeg"],
+    photoPolicy: "encouraged",
+    createdAt: "2025-10-01T10:00:00Z",
+  },
+  {
+    id: "group-physiodog",
+    name: "PhysioDOG Recovery Community",
+    description:
+      "A supportive community for dogs in rehabilitation and their owners. Recovery progress stories, exercise tips, and specialist Q&A. Membership is for current and former clients.",
+    groupType: "care",
+    careCategory: "rehab",
+    visibility: "private",
+    hostedBy: "physiodog",
+    hostedByName: "Dr. Novotná",
+    hostedByAvatarUrl: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80",
+    neighbourhood: "Smíchov",
+    location: "Smíchov, Prague 5",
+    locationFixed: "Plzeňská 98, Prague 5",
+    coverPhotoUrl: "/images/generated/goldie-leash.jpeg",
+    creatorId: "physiodog",
+    creatorName: "Dr. Novotná",
+    galleryMode: "standard",
+    careConfig: CARE_CONFIG_DEFAULTS.rehab,
+    serviceListings: [
+      { id: "svc-pd-1", title: "Initial Assessment", description: "Full mobility assessment and personalised recovery plan. 60 minutes.", priceFrom: 1200, priceUnit: "per session", bookingHref: "/bookings", active: true },
+      { id: "svc-pd-2", title: "Physiotherapy Session", description: "Hands-on rehab session: hydrotherapy, massage, laser therapy, exercises.", priceFrom: 900, priceUnit: "per session", bookingHref: "/bookings", active: true },
+      { id: "svc-pd-3", title: "Group Hydrotherapy", description: "Small-group underwater treadmill session. Great for post-surgery recovery and senior dogs.", priceFrom: 600, priceUnit: "per session", bookingHref: "/bookings", active: true },
+    ],
+    members: [
+      { userId: "physiodog", userName: "Dr. Novotná", avatarUrl: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80", dogNames: [], role: "admin", joinedAt: "2025-09-01" },
+      { userId: "martin", userName: "Martin", avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80", dogNames: ["Charlie"], role: "member", joinedAt: "2025-10-15" },
+      { userId: "eva", userName: "Eva", avatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80", dogNames: ["Max"], role: "member", joinedAt: "2025-11-01" },
+    ],
+    meetIds: [],
+    photos: ["/images/generated/goldie-leash.jpeg"],
+    photoPolicy: "optional",
+    createdAt: "2025-09-01T10:00:00Z",
+  },
+  {
+    id: "group-cafe-letka",
+    name: "Café Letka Dog Corner",
+    description:
+      "Letná's favourite dog-friendly café. Weekly puppy social hours, dog treat menu, and a warm welcome for four-legged guests. The perfect post-walk stop.",
+    groupType: "care",
+    careCategory: "venue",
+    visibility: "open",
+    hostedBy: "cafe_letka",
+    hostedByName: "Café Letka",
+    hostedByAvatarUrl: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=400&q=80",
+    neighbourhood: "Letná",
+    location: "Letná, Prague 7",
+    locationFixed: "Letenské náměstí 3, Prague 7",
+    coverPhotoUrl: "/images/generated/community-cover-vinohrady.jpeg",
+    creatorId: "cafe_letka",
+    creatorName: "Café Letka",
+    galleryMode: "standard",
+    careConfig: CARE_CONFIG_DEFAULTS.venue,
+    serviceListings: [],
+    members: [
+      { userId: "cafe_letka", userName: "Café Letka", avatarUrl: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=400&q=80", dogNames: [], role: "admin", joinedAt: "2025-10-01" },
+      { userId: "jana", userName: "Jana", avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80", dogNames: ["Rex"], role: "member", joinedAt: "2025-11-01" },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], role: "member", joinedAt: "2025-11-15" },
+      { userId: "tereza", userName: "Tereza", avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80", dogNames: ["Franta"], role: "member", joinedAt: "2025-12-01" },
+      { userId: "eva", userName: "Eva", avatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80", dogNames: ["Luna"], role: "member", joinedAt: "2026-01-10" },
+    ],
+    meetIds: ["meet-care-3"],
+    photos: ["/images/generated/community-cover-vinohrady.jpeg", "/images/generated/park-hangout-riegrovy.jpeg"],
+    photoPolicy: "encouraged",
+    createdAt: "2025-10-01T12:00:00Z",
+  },
+  {
+    id: "group-premiumvet",
+    name: "PremiumVet Prague Community",
+    description:
+      "Health tips, seasonal alerts, and Q&A from PremiumVet's team. Join for vaccination reminders, tick-season warnings, and community wellness events. Your neighbourhood vet, online.",
+    groupType: "care",
+    careCategory: "vet",
+    visibility: "open",
+    hostedBy: "premiumvet",
+    hostedByName: "PremiumVet",
+    hostedByAvatarUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80",
+    neighbourhood: "Vinohrady",
+    location: "Vinohrady, Prague 2",
+    locationFixed: "Mánesova 67, Prague 2",
+    coverPhotoUrl: "/images/generated/spot-portrait.jpeg",
+    creatorId: "premiumvet",
+    creatorName: "PremiumVet",
+    galleryMode: "standard",
+    careConfig: CARE_CONFIG_DEFAULTS.vet,
+    serviceListings: [],
+    members: [
+      { userId: "premiumvet", userName: "PremiumVet", avatarUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80", dogNames: [], role: "admin", joinedAt: "2025-09-01" },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot", "Goldie"], role: "member", joinedAt: "2025-10-01" },
+      { userId: "tereza", userName: "Tereza", avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80", dogNames: ["Franta"], role: "member", joinedAt: "2025-10-15" },
+      { userId: "jana", userName: "Jana", avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80", dogNames: ["Rex"], role: "member", joinedAt: "2025-11-01" },
+      { userId: "martin", userName: "Martin", avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80", dogNames: ["Charlie"], role: "member", joinedAt: "2025-11-15" },
+      { userId: "eva", userName: "Eva", avatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80", dogNames: ["Luna", "Max"], role: "member", joinedAt: "2025-12-01" },
+    ],
+    meetIds: [],
+    photos: ["/images/generated/spot-portrait.jpeg"],
+    photoPolicy: "optional",
+    createdAt: "2025-09-01T08:00:00Z",
   },
 
   // ── Auto-generated park groups ──────────────────────────────────────────────
@@ -466,6 +740,11 @@ export function getAllPublicGroups(): Group[] {
 /** Get groups by type */
 export function getGroupsByType(type: Group["groupType"]): Group[] {
   return mockGroups.filter((g) => g.groupType === type);
+}
+
+/** Get care groups by sub-category */
+export function getGroupsByCareCategory(category: CareCategory): Group[] {
+  return mockGroups.filter((g) => g.groupType === "care" && g.careCategory === category);
 }
 
 /** Get park groups near a neighbourhood */

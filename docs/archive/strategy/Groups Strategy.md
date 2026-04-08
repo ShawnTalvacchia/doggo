@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: draft
-last-reviewed: 2026-04-04
+last-reviewed: 2026-04-09
 tags: [groups, communities, strategy, onboarding, providers]
 review-trigger: "when touching group features, community types, provider groups, or onboarding flows"
 ---
@@ -267,18 +267,20 @@ Frame the three group types as answers to user motivations, not technical catego
 
 ## Group Properties Summary
 
-| Property | Park Group | Community Group | Service Group |
-|---|---|---|---|
-| Created by | Auto-generated | Any user | User with care services listed |
-| Default visibility | Open | Private | Open or Private (provider chooses) |
-| Admin | None (community-moderated) | Creator + appointed | Provider + appointed |
-| Who can post meets | Any member | Any member | Provider (and co-admins) |
-| Service CTAs on meets | No | No | Yes (linked to provider's services) |
-| "Hosted by" section | No | No | Yes (provider profile link) |
-| Content visibility | Public | Members only | Follows group visibility setting |
-| Typical size | Large (50+) | Small-medium (5-30) | Medium (10-50) |
-| Primary value | Discovery, coordination | Belonging, trust, mutual aid | Service delivery, client community |
-| Maps to user archetype | All (entry point) | Routine Owner, Social Seeker | Professional/Aspiring Provider |
+> **Note:** This table reflects the expanded four-type taxonomy shipped in Phase 30. See [[Community & Provider Groups Evolution]] for full details on the Care type and provider configuration.
+
+| Property | Park | Neighbor | Interest | Care |
+|---|---|---|---|---|
+| Created by | Auto-generated | Any user | Any user | User with care services listed |
+| Default visibility | Open | Private | Open or Private | Open or Private (provider chooses) |
+| Admin | None (community-moderated) | Creator + appointed | Creator + appointed | Provider + appointed |
+| Who can post meets | Any member | Any member | Any member | Provider (and co-admins) |
+| Service CTAs on meets | No | No | No | Yes (linked to provider's services) |
+| "Hosted by" section | No | No | No | Yes (provider profile link) |
+| Content visibility | Public | Members only | Follows visibility setting | Follows visibility setting |
+| Typical size | Large (50+) | Small (5–20) | Medium (10–100+) | Medium (10–50) |
+| Primary value | Discovery, coordination | Mutual aid, trust | Shared interest, knowledge | Service delivery, client community |
+| Maps to user archetype | All (entry point) | Routine Owner, Social Seeker | Social Seeker, Occasional-Need | Professional/Aspiring Provider |
 
 ---
 
@@ -294,8 +296,24 @@ Frame the three group types as answers to user motivations, not technical catego
 
 ---
 
+---
+
+## Evolution Notice (April 2026)
+
+This document remains the foundation for group mechanics, privacy rules, tagging, and user journeys. However, the group taxonomy and navigation structure are being evolved in [[Community & Provider Groups Evolution]]. Key changes:
+
+- **Home → Community.** The Home tab is being renamed to Community, with groups as the organizing principle.
+- **"Find Your People" splits into Neighbors + Interest.** Neighborhood mutual-aid groups and interest/breed/activity groups serve different motivations and are now separate categories.
+- **"Find Your Help" becomes Care** with expanded provider type mapping based on Prague market research (trainers, walkers, groomers, boarding, rehab, venues, vets).
+- **Community tab uses MasterDetailShell** with category tabs (All / Parks / Neighbors / Interest / Care) filtering the left panel list and the right panel feed.
+
+See [[Community & Provider Groups Evolution]] for the full updated strategy.
+
+---
+
 ## Related Docs
 
+- [[Community & Provider Groups Evolution]] — expanded group taxonomy, provider mapping, Community tab
 - [[Content Visibility Model]] — who sees what content and why
 - [[Trust & Connection Model]] — connection states, profile visibility
 - [[User Archetypes]] — behavioral profiles, two ramps

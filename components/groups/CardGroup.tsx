@@ -7,19 +7,34 @@ import {
   Tree,
   UsersFour,
   Storefront,
+  House,
+  Heartbeat,
   Dog,
   CalendarDots,
   Check,
+  PawPrint,
 } from "@phosphor-icons/react";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
-import type { Group, GroupType } from "@/lib/types";
+import type { Group, GroupType, CareCategory } from "@/lib/types";
 
 /* ── Constants ─────────────────────────────────────────────────── */
 
 const TYPE_CONFIG: Record<GroupType, { label: string; Icon: typeof Tree }> = {
   park: { label: "Park", Icon: Tree },
-  community: { label: "Community", Icon: UsersFour },
-  service: { label: "Hosted", Icon: Storefront },
+  neighbor: { label: "Neighbors", Icon: House },
+  interest: { label: "Interest", Icon: PawPrint },
+  care: { label: "Care", Icon: Storefront },
+};
+
+const CARE_LABELS: Record<CareCategory, string> = {
+  training: "Training",
+  walking: "Walking",
+  grooming: "Grooming",
+  boarding: "Boarding",
+  rehab: "Rehab",
+  venue: "Venue",
+  vet: "Vet",
+  other: "Care",
 };
 
 /* ── Types ──────────────────────────────────────────────────────── */
@@ -38,6 +53,9 @@ export function CardGroup({ group, variant = "my-groups", isMember = false }: Ca
   const dogCount = group.members.reduce((sum, m) => sum + m.dogNames.length, 0);
   const upcomingEvents = group.meetIds.length || 0;
   const typeInfo = TYPE_CONFIG[group.groupType];
+  const careLabel = group.groupType === "care" && group.careCategory
+    ? CARE_LABELS[group.careCategory]
+    : null;
   const visibleMembers = group.members.slice(0, 5);
 
   return (
@@ -50,7 +68,7 @@ export function CardGroup({ group, variant = "my-groups", isMember = false }: Ca
       <div className="flex flex-wrap items-center gap-xs">
         <span className="card-schedule-chip card-schedule-chip--primary">
           <typeInfo.Icon size={14} weight="light" />
-          {typeInfo.label}
+          {careLabel || typeInfo.label}
         </span>
 
         {group.visibility === "approval" && (
@@ -99,12 +117,28 @@ export function CardGroup({ group, variant = "my-groups", isMember = false }: Ca
         </h3>
       </div>
 
-      {/* Row 3: Location */}
+      {/* Row 3: Location + hosted by */}
       <div className="flex flex-col gap-xs">
         <div className="flex items-center gap-xs text-sm text-fg-secondary">
           <MapPin size={16} weight="light" className="shrink-0" />
           {group.location || group.neighbourhood}
         </div>
+
+        {/* Hosted by — care groups only */}
+        {group.groupType === "care" && group.hostedByName && (
+          <div className="flex items-center gap-xs text-sm text-fg-secondary">
+            <Storefront size={16} weight="light" className="shrink-0 text-brand-main" />
+            Hosted by {group.hostedByName}
+          </div>
+        )}
+
+        {/* Service highlight — care groups with listings */}
+        {group.groupType === "care" && group.serviceListings && group.serviceListings.length > 0 && (
+          <div className="text-xs text-fg-tertiary">
+            {group.serviceListings.filter(s => s.active).slice(0, 2).map(s => s.title).join(" · ")}
+            {" · "}from {Math.min(...group.serviceListings.filter(s => s.active).map(s => s.priceFrom))} Kč
+          </div>
+        )}
 
         {/* Row 4: Members + dogs */}
         <div className="flex items-center gap-xs text-sm text-fg-tertiary">

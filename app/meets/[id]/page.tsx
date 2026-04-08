@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { DetailHeader } from "@/components/layout/DetailHeader";
+import { TabBar } from "@/components/ui/TabBar";
 import {
   MapPin,
   CalendarDots,
@@ -57,6 +58,7 @@ import {
 } from "@/lib/mockMeets";
 import { getMessagesForMeet } from "@/lib/mockMeetMessages";
 import { getConnectionState, CONNECTION_STATE_LABELS } from "@/lib/mockConnections";
+import { formatMeetDate } from "@/lib/dateUtils";
 import type { Meet, MeetType, MeetMessage } from "@/lib/types";
 
 const MEET_ICONS: Record<MeetType, React.ReactNode> = {
@@ -66,14 +68,11 @@ const MEET_ICONS: Record<MeetType, React.ReactNode> = {
   training: <Target size={24} weight="light" />,
 };
 
-function formatDate(date: string): string {
-  const d = new Date(date);
-  return d.toLocaleDateString("en-GB", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-  });
-}
+const MEET_TABS = [
+  { key: "details", label: "Details" },
+  { key: "people", label: "People" },
+  { key: "chat", label: "Chat" },
+];
 
 function formatDuration(minutes: number): string {
   if (minutes < 60) return `${minutes} min`;
@@ -113,11 +112,23 @@ function MessageBubble({ message, isOwn }: { message: MeetMessage; isOwn: boolea
   );
 }
 
+/* ── Page (with Suspense boundary for useSearchParams) ─────────── */
+
 export default function MeetDetailPage() {
+  return (
+    <Suspense>
+      <MeetDetailInner />
+    </Suspense>
+  );
+}
+
+function MeetDetailInner() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeTab = searchParams.get("tab") || "details";
+
   const meet = mockMeets.find((m) => m.id === params.id);
-  const [showThread, setShowThread] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [newMessage, setNewMessage] = useState("");
 
@@ -140,15 +151,23 @@ export default function MeetDetailPage() {
   const isCreator = meet.creatorId === "shawn";
   const messages = getMessagesForMeet(meet.id);
 
+  const handleTabChange = (key: string) => {
+    if (key === "details") {
+      router.replace(`/meets/${meet.id}`, { scroll: false });
+    } else {
+      router.replace(`/meets/${meet.id}?tab=${key}`, { scroll: false });
+    }
+  };
+
   return (
     <div
-      className="flex flex-col gap-xl p-xl mx-auto w-full bg-surface-popout"
+      className="flex flex-col mx-auto w-full bg-surface-popout"
       style={{ maxWidth: "var(--app-page-max-width)", minHeight: "calc(100vh - var(--nav-height))" }}
     >
       <DetailHeader backLabel="Back" />
 
-      {/* Header */}
-      <header className="flex flex-col gap-sm">
+      {/* ── Persistent header (above tabs) ──────────────────────── */}
+      <header className="flex flex-col gap-sm p-xl pb-0">
         <div className="flex items-center gap-sm">
           <span
             className="flex items-center gap-xs rounded-pill px-sm py-xs text-sm font-medium bg-brand-subtle text-brand-strong"
@@ -188,6 +207,74 @@ export default function MeetDetailPage() {
         <p className="text-base text-fg-secondary">{meet.description}</p>
       </header>
 
+      {/* ── Tab bar ─────────────────────────────────────────────── */}
+      <div
+        className="panel-tabbar"
+        style={{ borderBottom: "1px solid var(--border-light)" }}
+      >
+        <TabBar tabs={MEET_TABS} activeKey={activeTab} onChange={handleTabChange} />
+      </div>
+
+      {/* ── Tab content ─────────────────────────────────────────── */}
+      <div className="flex flex-col gap-xl p-xl">
+        {activeTab === "details" && (
+          <DetailsTab
+            meet={meet}
+            goingAttendees={goingAttendees}
+            interestedCount={interestedCount}
+            totalDogs={totalDogs}
+            spotsLeft={spotsLeft}
+            isJoined={isJoined}
+            isCreator={isCreator}
+            onShare={() => setShowShare(true)}
+          />
+        )}
+
+        {activeTab === "people" && (
+          <PeopleTab meet={meet} isJoined={isJoined} />
+        )}
+
+        {activeTab === "chat" && (
+          <ChatTab
+            meet={meet}
+            messages={messages}
+            isJoined={isJoined}
+            newMessage={newMessage}
+            onNewMessageChange={setNewMessage}
+          />
+        )}
+      </div>
+
+      <ShareMeetModal meet={meet} open={showShare} onClose={() => setShowShare(false)} />
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   Details tab
+   ═══════════════════════════════════════════════════════════════ */
+
+function DetailsTab({
+  meet,
+  goingAttendees,
+  interestedCount,
+  totalDogs,
+  spotsLeft,
+  isJoined,
+  isCreator,
+  onShare,
+}: {
+  meet: Meet;
+  goingAttendees: Meet["attendees"];
+  interestedCount: number;
+  totalDogs: number;
+  spotsLeft: number;
+  isJoined: boolean;
+  isCreator: boolean;
+  onShare: () => void;
+}) {
+  return (
+    <>
       {/* Details grid */}
       <div
         className="grid grid-cols-2 gap-lg rounded-panel p-lg bg-surface-top border border-edge-light"
@@ -195,7 +282,7 @@ export default function MeetDetailPage() {
         <div className="flex items-start gap-md">
           <CalendarDots size={24} weight="light" className="text-fg-tertiary shrink-0" style={{ marginTop: 2 }} />
           <div className="flex flex-col">
-            <span className="text-sm font-medium text-fg-primary">{formatDate(meet.date)}</span>
+            <span className="text-sm font-medium text-fg-primary">{formatMeetDate(meet.date)}</span>
             <span className="text-sm text-fg-secondary">{meet.time}</span>
           </div>
         </div>
@@ -267,6 +354,19 @@ export default function MeetDetailPage() {
         </div>
       )}
 
+      {/* Organiser */}
+      <section className="flex flex-col gap-sm">
+        <h2 className="font-heading text-lg font-semibold text-fg-primary">Organiser</h2>
+        <div className="flex items-center gap-md">
+          <img
+            src={meet.creatorAvatarUrl}
+            alt={meet.creatorName}
+            className="w-10 h-10 rounded-full object-cover"
+          />
+          <span className="text-base font-medium text-fg-primary">{meet.creatorName}</span>
+        </div>
+      </section>
+
       {/* Actions */}
       <div className="flex gap-sm flex-wrap">
         {meet.status === "upcoming" && (
@@ -300,86 +400,23 @@ export default function MeetDetailPage() {
         <ButtonAction
           variant="outline"
           size="md"
-          onClick={() => setShowShare(true)}
+          onClick={onShare}
           leftIcon={<ShareNetwork size={18} weight="light" />}
         >
           Share
         </ButtonAction>
-        <ButtonAction
-          variant={showThread ? "secondary" : "outline"}
-          size="md"
-          onClick={() => setShowThread(!showThread)}
-          leftIcon={<ChatCircleDots size={18} weight="light" />}
-        >
-          Group chat{messages.length > 0 ? ` (${messages.length})` : ""}
-        </ButtonAction>
       </div>
+    </>
+  );
+}
 
-      {/* Group thread */}
-      {showThread && (
-        <section className="flex flex-col gap-sm">
-          <h2 className="font-heading text-lg font-semibold text-fg-primary">Group Chat</h2>
-          {!isJoined ? (
-            <EmptyState
-              icon={<ChatCircleDots size={48} weight="light" />}
-              title="RSVP to see the conversation"
-              subtitle="Join this meet to chat with other attendees."
-              action={
-                <ButtonAction variant="primary" size="sm">
-                  Join this meet
-                </ButtonAction>
-              }
-            />
-          ) : (
-            <>
-              <div
-                className="flex flex-col gap-md rounded-panel p-md bg-surface-base border border-edge-light overflow-y-auto"
-                style={{ maxHeight: 400 }}
-              >
-                {messages.map((msg) => (
-                  <MessageBubble
-                    key={msg.id}
-                    message={msg}
-                    isOwn={msg.senderId === "shawn"}
-                  />
-                ))}
-              </div>
-              {/* Compose */}
-              <div className="flex gap-sm">
-                <input
-                  className="input flex-1"
-                  placeholder="Message the group..."
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                />
-                <ButtonAction
-                  variant="primary"
-                  size="md"
-                  disabled={!newMessage.trim()}
-                  leftIcon={<PaperPlaneRight size={16} weight="light" />}
-                  onClick={() => setNewMessage("")}
-                >
-                  Send
-                </ButtonAction>
-              </div>
-            </>
-          )}
-        </section>
-      )}
+/* ═══════════════════════════════════════════════════════════════
+   People tab
+   ═══════════════════════════════════════════════════════════════ */
 
-      {/* Organiser */}
-      <section className="flex flex-col gap-sm">
-        <h2 className="font-heading text-lg font-semibold text-fg-primary">Organiser</h2>
-        <div className="flex items-center gap-md">
-          <img
-            src={meet.creatorAvatarUrl}
-            alt={meet.creatorName}
-            className="w-10 h-10 rounded-full object-cover"
-          />
-          <span className="text-base font-medium text-fg-primary">{meet.creatorName}</span>
-        </div>
-      </section>
-
+function PeopleTab({ meet, isJoined }: { meet: Meet; isJoined: boolean }) {
+  return (
+    <>
       {/* Post-meet reveal for completed meets */}
       {meet.status === "completed" && isJoined && (() => {
         const hiddenAttendees = meet.attendees.filter((a) => {
@@ -399,9 +436,81 @@ export default function MeetDetailPage() {
         attendees={meet.attendees}
         isCompleted={meet.status === "completed"}
       />
+    </>
+  );
+}
 
-      <ShareMeetModal meet={meet} open={showShare} onClose={() => setShowShare(false)} />
-    </div>
+/* ═══════════════════════════════════════════════════════════════
+   Chat tab
+   ═══════════════════════════════════════════════════════════════ */
+
+function ChatTab({
+  meet,
+  messages,
+  isJoined,
+  newMessage,
+  onNewMessageChange,
+}: {
+  meet: Meet;
+  messages: MeetMessage[];
+  isJoined: boolean;
+  newMessage: string;
+  onNewMessageChange: (val: string) => void;
+}) {
+  return (
+    <>
+      <h2 className="font-heading text-lg font-semibold text-fg-primary">Meet Chat</h2>
+      {!isJoined ? (
+        <EmptyState
+          icon={<ChatCircleDots size={48} weight="light" />}
+          title="RSVP to see the conversation"
+          subtitle="Join this meet to chat with other attendees."
+          action={
+            <ButtonAction variant="primary" size="sm">
+              Join this meet
+            </ButtonAction>
+          }
+        />
+      ) : messages.length === 0 ? (
+        <EmptyState
+          icon={<ChatCircleDots size={48} weight="light" />}
+          title="No messages yet"
+          subtitle="Start the conversation — say hello or ask a question about the meet."
+        />
+      ) : (
+        <div
+          className="flex flex-col gap-md rounded-panel p-md bg-surface-base border border-edge-light overflow-y-auto"
+          style={{ maxHeight: 500 }}
+        >
+          {messages.map((msg) => (
+            <MessageBubble
+              key={msg.id}
+              message={msg}
+              isOwn={msg.senderId === "shawn"}
+            />
+          ))}
+        </div>
+      )}
+      {isJoined && (
+        <div className="flex gap-sm">
+          <input
+            className="input flex-1"
+            placeholder="Message the group..."
+            value={newMessage}
+            onChange={(e) => onNewMessageChange(e.target.value)}
+          />
+          <ButtonAction
+            variant="primary"
+            size="md"
+            disabled={!newMessage.trim()}
+            leftIcon={<PaperPlaneRight size={16} weight="light" />}
+            onClick={() => onNewMessageChange("")}
+          >
+            Send
+          </ButtonAction>
+        </div>
+      )}
+    </>
   );
 }
 

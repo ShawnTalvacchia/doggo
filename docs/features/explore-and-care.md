@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-05
+last-reviewed: 2026-04-08
 tags: [discover, care, booking, providers, map, payment, trust-gating]
 review-trigger: "when modifying Discover Care tab, provider profiles, booking flows, payment, or map"
 ---

@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-04
+last-reviewed: 2026-04-08
 tags: [vision, principles, strategy, monetization]
 review-trigger: "before any major feature decision or strategic discussion"
 ---
@@ -97,10 +97,10 @@ People could Venmo each other and skip the platform. But the platform offers:
 ### Mobile (bottom tabs + header)
 
 ```
-Home  |  Discover  |  My Schedule  |  Bookings  |  Profile
+Community  |  Discover  |  My Schedule  |  Bookings  |  Profile
 ```
 
-- **Home** — desktop: Groups panel (left) + Feed (right) via MasterDetailShell. Mobile: Feed | Groups tabs. Groups moved here because browsing groups is infrequent; users join a few then interact from the feed.
+- **Community** (formerly Home) — MasterDetailShell. Left panel: category tabs (All / Parks / Neighbors / Interest / Care) filter the group list. Right panel: aggregated feed (default) or selected group detail. Posts from connections appear in the "All" feed even if not posted to a group. See [[Community & Provider Groups Evolution]] for full spec.
 - **Discover** — three-door hub: Meets, Groups, Dog Care. Each door links to a sub-page with browse/filter UI. Not a tabbed layout — cards with illustrations.
 - **My Schedule** — Upcoming/History toggle with unified timeline of meets + bookings. "What am I committed to?"
 - **Bookings** — two tabs: My Care (owner bookings) and My Services (provider dashboard). "What care am I managing?"
@@ -116,7 +116,7 @@ Create (+) opens the post composer. Notifications bell links to `/notifications`
 
 ```
 DOGGO logo
-Home
+Community
 Discover
 My Schedule
 Bookings
@@ -129,7 +129,7 @@ Desktop uses a left sidebar (200px). 7 items — same top-level destinations as 
 
 ### Care discovery
 
-Provider search lives within Discover hub > Dog Care card. Also accessible via "Find Care" CTAs on the Home feed. See [[explore-and-care]] for the full flow.
+Provider search lives within Discover hub > Dog Care card. Also accessible via "Find Care" CTAs on the Community feed and through the Care tab in the Community left panel. Care groups (provider-hosted) also surface in the Community > Care tab. See [[explore-and-care]] for the full flow and [[Community & Provider Groups Evolution]] for provider group types.
 
 ### Detail pages
 
@@ -162,5 +162,5 @@ Emotional hook → what you can do → how it works → who it's for → care as
 
 - [[User Archetypes]] — who we're building for (ramps, behavioral profiles)
 - [[Trust & Connection Model]] — how trust and relationships work
-- [[Prototype Scope]] — what the demo needs to show
+- ~~[[Prototype Scope]]~~ — archived April 2026 (see `docs/archive/`)
 - [[Open Questions]] — unresolved strategic questions

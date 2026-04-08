@@ -12,6 +12,8 @@ import {
   Tree,
   UsersFour,
   Storefront,
+  House,
+  PawPrint,
   Dog,
 } from "@phosphor-icons/react";
 import { DiscoverShell } from "@/components/discover/DiscoverShell";
@@ -26,19 +28,25 @@ import type { GroupType } from "@/lib/types";
 const GROUP_TYPES = [
   {
     key: "park" as GroupType,
-    label: "Park groups",
-    description: "Auto-created for local parks",
+    label: "Parks",
+    description: "Auto-created for local dog parks",
     icon: Tree,
   },
   {
-    key: "community" as GroupType,
-    label: "Community",
-    description: "User-created social groups",
-    icon: UsersFour,
+    key: "neighbor" as GroupType,
+    label: "Neighbors",
+    description: "Hyperlocal groups for your block or street",
+    icon: House,
   },
   {
-    key: "service" as GroupType,
-    label: "Hosted",
+    key: "interest" as GroupType,
+    label: "Interest",
+    description: "Breed, activity, and need-based communities",
+    icon: PawPrint,
+  },
+  {
+    key: "care" as GroupType,
+    label: "Care",
     description: "Provider-run service groups",
     icon: Storefront,
   },
@@ -46,8 +54,9 @@ const GROUP_TYPES = [
 
 const GROUP_TYPE_LABELS: Record<GroupType, string> = {
   park: "Park Groups",
-  community: "Community Groups",
-  service: "Hosted Groups",
+  neighbor: "Neighborhood Groups",
+  interest: "Interest Groups",
+  care: "Care Groups",
 };
 
 const VISIBILITY_OPTIONS = [
@@ -324,7 +333,7 @@ function GroupsResultsList({ activeType }: { activeType: GroupType | null }) {
 function DiscoverGroupsInner() {
   const searchParams = useSearchParams();
   const groupType = searchParams.get("type") as GroupType | null;
-  const isValidType = groupType && ["park", "community", "service"].includes(groupType);
+  const isValidType = groupType && ["park", "neighbor", "interest", "care"].includes(groupType);
 
   if (isValidType) {
     const typeInfo = GROUP_TYPES.find((t) => t.key === groupType);

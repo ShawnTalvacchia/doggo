@@ -9,6 +9,7 @@ import {
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import type { Conversation } from "@/lib/types";
+import { formatShortDate } from "@/lib/dateUtils";
 
 /**
  * Shown to the carer when a booking inquiry exists but no proposal has been sent yet.
@@ -116,10 +117,3 @@ export function InquiryResponseCard({
   );
 }
 
-function formatShortDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}

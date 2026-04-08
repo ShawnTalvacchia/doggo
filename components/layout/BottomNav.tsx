@@ -6,13 +6,13 @@ import { usePathname, useSearchParams } from "next/navigation";
 import {
   Briefcase,
   CalendarDots,
-  House,
+  Users,
   MagnifyingGlass,
   UserCircle,
 } from "@phosphor-icons/react";
 
 const tabs = [
-  { label: "Home", href: "/home", Icon: House },
+  { label: "Community", href: "/home", Icon: Users },
   { label: "Discover", href: "/discover", Icon: MagnifyingGlass },
   { label: "My Schedule", href: "/schedule", Icon: CalendarDots },
   { label: "Bookings", href: "/bookings", Icon: Briefcase },

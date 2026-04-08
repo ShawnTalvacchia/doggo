@@ -1,14 +1,7 @@
 import { CalendarCheck } from "@phosphor-icons/react";
 import type { ChatMessage, BookingProposalStatus } from "@/lib/types";
 import { SERVICE_LABELS } from "@/lib/constants/services";
-
-function formatShortDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
+import { formatShortDate } from "@/lib/dateUtils";
 
 export function BookingProposalCard({
   msg,

@@ -2,18 +2,7 @@ import Link from "next/link";
 import type { Booking } from "@/lib/types";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
-function formatShortDate(iso: string): string {
-  const d = new Date(iso + "T00:00:00");
-  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-}
-
-function formatDateRange(start: string, end: string | null): string {
-  if (!end) return `From ${formatShortDate(start)}`;
-  return `${formatShortDate(start)} – ${formatShortDate(end)}`;
-}
+import { formatShortDate, formatDateRange } from "@/lib/dateUtils";
 
 function scheduleLabel(booking: Booking): string {
   if (booking.recurringSchedule) {
@@ -39,7 +28,7 @@ export function BookingRow({ booking }: { booking: Booking }) {
   const serviceLabel = SERVICE_LABELS[booking.serviceType];
 
   return (
-    <Link href={`/bookings/${booking.id}`} className={`booking-row${sessionInfo?.live ? " booking-row--live" : ""}`}>
+    <Link href="/bookings" className={`booking-row${sessionInfo?.live ? " booking-row--live" : ""}`}>
       <div className="booking-row-avatar-wrap">
         <img
           src={booking.carerAvatarUrl}

@@ -1,7 +1,7 @@
 ---
 category: strategy
-status: draft
-last-reviewed: 2026-04-04
+status: active
+last-reviewed: 2026-04-09
 tags: [privacy, visibility, content, groups, photos]
 review-trigger: "when touching content sharing, photo features, feed logic, or group visibility"
 ---

@@ -13,6 +13,7 @@ import { SERVICE_LABELS, SUB_SERVICES } from "@/lib/constants/services";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { InputField } from "@/components/ui/InputField";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
+import { formatShortDate } from "@/lib/dateUtils";
 
 /**
  * Simplified proposal builder for carers.
@@ -179,10 +180,3 @@ function getMarketRange(service: ServiceType): string {
   }
 }
 
-function formatShortDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}

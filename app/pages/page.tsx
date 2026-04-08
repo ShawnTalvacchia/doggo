@@ -89,7 +89,7 @@ const siteMap = [
     pages: [
       { name: "My Care", route: "/bookings?tab=care", desc: "Owner bookings — active, upcoming, past care arrangements" },
       { name: "My Services", route: "/bookings?tab=services", desc: "Provider dashboard — visibility, stats, service cards, incoming requests, active clients" },
-      { name: "Booking Detail", route: "/bookings/booking-olga-walks", desc: "Session management, price breakdown, next session, review submission" },
+      { name: "Booking Detail", route: "/bookings?tab=care", desc: "Select a booking to see session management, price breakdown, review — all in the detail panel" },
     ],
   },
   {

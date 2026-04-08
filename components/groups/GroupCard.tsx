@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin, Users, Lightning, Tree, UsersFour, Wrench, Dog } from "@phosphor-icons/react";
+import { MapPin, Users, Lightning, Tree, UsersFour, Wrench, House, PawPrint, Storefront, Dog } from "@phosphor-icons/react";
 import type { Group, GroupType } from "@/lib/types";
 
 const TYPE_CONFIG: Record<GroupType, { label: string; icon: typeof Tree }> = {
   park: { label: "Park", icon: Tree },
-  community: { label: "Community", icon: UsersFour },
-  service: { label: "Hosted", icon: Wrench },
+  neighbor: { label: "Neighbors", icon: House },
+  interest: { label: "Interest", icon: PawPrint },
+  care: { label: "Care", icon: Storefront },
 };
 
 export function GroupCard({ group }: { group: Group }) {

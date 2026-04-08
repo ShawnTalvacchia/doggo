@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
   ChatCircleDots,
@@ -21,25 +21,12 @@ import { ButtonAction } from "@/components/ui/ButtonAction";
 import { TabBar } from "@/components/ui/TabBar";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { Conversation } from "@/lib/types";
+import { formatRelativeTime } from "@/lib/dateUtils";
+import { usePageHeader } from "@/contexts/PageHeaderContext";
 
 const MY_USER_ID = "shawn";
 
 type InboxFilter = "all" | "care" | "groups";
-
-function formatRelativeTime(isoString: string): string {
-  if (!isoString) return "";
-  const date = new Date(isoString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays === 1) return "Yesterday";
-  return `${diffDays}d ago`;
-}
 
 function getLastMessage(conv: Conversation) {
   if (!conv.lastMessageId) return null;
@@ -224,6 +211,19 @@ export default function InboxPage() {
 
   const mobileView: MobileView = selectedConvId ? "detail" : "list";
 
+  const { setDetailHeader, clearDetailHeader } = usePageHeader();
+  const handleBack = useCallback(() => setSelectedConvId(null), []);
+  const detailName = selectedConv ? getOtherParty(selectedConv).name : null;
+
+  useEffect(() => {
+    if (selectedConvId && detailName) {
+      setDetailHeader(detailName, handleBack);
+    } else {
+      clearDetailHeader();
+    }
+    return () => clearDetailHeader();
+  }, [selectedConvId, detailName, setDetailHeader, clearDetailHeader, handleBack]);
+
   const listContent = (
     <>
       {sortedConversations.length > 0 ? (
@@ -315,6 +315,24 @@ export default function InboxPage() {
 
   return (
     <div className="page-container inbox-page-shell">
+      {/* TabBar — visible on collapsed/mobile, hidden on desktop */}
+      <div className="panel-tabbar" data-view={selectedConvId ? "detail" : "list"}>
+        <div className="panel-tabbar-list">
+          <div className="panel-tabbar-title">Inbox</div>
+          <div className="panel-tabbar-tabs">
+            <TabBar tabs={TABS} activeKey={filter} onChange={(key) => setFilter(key as InboxFilter)} />
+          </div>
+        </div>
+        <div className="panel-tabbar-detail">
+          <button type="button" className="panel-tabbar-back" onClick={() => setSelectedConvId(null)}>
+            <ArrowLeft size={20} weight="light" />
+          </button>
+          <span className="panel-tabbar-detail-title">
+            {selectedConv ? getOtherParty(selectedConv).name : ""}
+          </span>
+        </div>
+      </div>
+
       <MasterDetailShell
         mobileView={mobileView}
         listPanel={

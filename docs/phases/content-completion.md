@@ -1,0 +1,67 @@
+---
+status: active
+last-reviewed: 2026-04-08
+review-trigger: When any task is completed or blocked
+---
+
+# Content Completion
+
+**Goal:** Make every page feel finished. Fix structural issues, wire up interactions, fill content gaps. After this phase, no page should have empty panels, placeholder text, or non-functional controls.
+
+**Depends on:** Doc restructure (completed April 8 session). All strategy and feature docs reviewed and aligned.
+
+**Refs:** [[meets]], [[messaging]], [[explore-and-care]], [[Groups & Care Model]], [[profiles]], [[schedule]]
+
+---
+
+## Workstream A — Structural Changes (from recent decisions)
+
+| Task | Description | Refs | Status |
+|------|-------------|------|--------|
+| A1 | Remove Chat tab from neighbor/interest group detail. Update `getTabsForGroupType()` | [[meets]], [[Groups & Care Model]] | todo |
+| A2 | Add flat comment UI to group Feed posts (author avatar, name, text, timestamp). Local-state add. | [[meets]], [[messaging]] | todo |
+| A3 | Restructure meet detail page to tabs: Details · People · Chat. Extract current sections into tab content. | [[meets]] | done |
+
+## Workstream B — Critical Fixes
+
+| Task | Description | Refs | Status |
+|------|-------------|------|--------|
+| B1 | Wire Discover/Care results — render provider cards from mock data when a service type is selected | [[explore-and-care]] | todo |
+| B2 | Wire Discover/Meets filter logic — checkboxes and sliders should filter the results list | [[meets]] | todo |
+| B3 | Wire Discover/Groups filter logic — same as B2 for groups | [[meets]] | todo |
+| B4 | Replace Discover hub placeholder descriptions ("Short text about that") with real copy | [[explore-and-care]] | todo |
+| B5 | Build out Bookings "My Services" tab — provider view showing their service groups, active bookings as provider, incoming requests | [[schedule]], [[profiles]] | todo |
+| B6 | Make Inbox compose input functional (local-state send, message appears in thread) | [[messaging]] | todo |
+
+## Workstream C — Content Fill
+
+| Task | Description | Refs | Status |
+|------|-------------|------|--------|
+| C1 | Ensure every group has 2-3 feed posts with mock comments (once A2 lands) | [[meets]], [[mock-data-plan]] | todo |
+| C2 | Ensure every care group has 1-2 upcoming events in mock data | [[Groups & Care Model]] | todo |
+| C3 | Ensure care group galleries have 6+ photos (enough for all 3 modes to look real) | [[Groups & Care Model]] | todo |
+| C4 | Add mock posts authored by "shawn" so profile Posts tab isn't empty | [[profiles]] | todo |
+| C5 | Expand notification mock data to 15-20 items across all types | -- | todo |
+| C6 | Add feed filtering by category tab on Community right panel | [[meets]] | todo |
+
+## Workstream D — Polish
+
+| Task | Description | Refs | Status |
+|------|-------------|------|--------|
+| D1 | UI tweaks backlog (accumulated during development — list here as discovered) | -- | todo |
+
+---
+
+## Acceptance Criteria
+
+- [ ] Group detail for neighbor/interest groups has no Chat tab
+- [ ] Group Feed posts show flat comments with add-comment input
+- [ ] Meet detail uses tabbed layout (Details · People · Chat)
+- [ ] Discover/Care shows provider result cards when service type selected
+- [ ] Discover/Meets filters actually filter the results list
+- [ ] Discover/Groups filters actually filter the results list
+- [ ] Discover hub has real descriptive copy (no placeholder text)
+- [ ] Bookings "My Services" tab shows provider-relevant content
+- [ ] Inbox compose sends a message (local state, appears in thread)
+- [ ] Every group has feed posts; every care group has events and gallery content
+- [ ] No page has an empty primary content area when viewed as the demo user

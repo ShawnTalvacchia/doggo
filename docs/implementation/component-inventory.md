@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-04-06
+last-reviewed: 2026-04-08
 tags: [components, ui, inventory]
 review-trigger: "when building or refactoring components"
 ---
@@ -49,8 +49,9 @@ components/
                   FeedUpcomingMeet, FeedConnectionActivity, FeedConnectionNudge,
                   FeedCarePrompt, FeedMilestone, FeedDogMoment, FeedCareReview,
                   FeedCTA, MomentCard, MomentCardFromPost
-  meets/        ← MeetCard, MeetCardCompact, ParticipantCard, ParticipantList,
-                  PostMeetReveal, ShareMeetModal
+  meets/        ← CardMeet, MeetCardCompact, MeetDetailPanel, ParticipantCard,
+                  ParticipantList, PostMeetReveal, ShareMeetModal
+  schedule/     ← SessionRow, SessionDetailContent
   chat/         ← SystemMessage
   groups/       ← GroupCard
   home/         ← UpcomingPanel
@@ -146,13 +147,25 @@ On/off toggle for settings that take effect immediately (e.g. Public Profile). F
 ### StatusBadge · `built · documented`
 `components/ui/StatusBadge.tsx`
 
-Small coloured status label for contract lifecycle states. Maps each status to a semantic token pair (strong text + light background fill).
+Small coloured status label for contract lifecycle and session states. Maps each status to a semantic token pair (strong text + light background fill).
 
 | Prop | Type |
 |------|------|
-| `status` | `"upcoming" \| "active" \| "completed" \| "cancelled" \| "paused"` |
+| `status` | `BadgeStatus` = `ContractStatus \| "in_progress"` |
 
-Token mapping: `--status-{success/info/error/warning}-{strong/light}`.
+`in_progress` maps to the `active` CSS class and displays "In progress".
+
+---
+
+### SectionLabel · `built`
+`components/ui/SectionLabel.tsx`
+
+Uppercase section heading used in detail panels and list sections. Renders as `<span>` with `text-xs font-semibold text-fg-tertiary uppercase tracking-wider`.
+
+| Prop | Type |
+|------|------|
+| `children` | `ReactNode` |
+| `className` | `string` (optional, e.g. `"px-md py-sm"`) |
 
 ---
 
@@ -761,7 +774,7 @@ _Ordered by impact vs. effort._
 |-----------|------|---------|--------|
 | `HomeWelcome` | `components/home/HomeWelcome.tsx` | New user welcome hero on Home (personalised greeting, dog photos, CTAs) | `built` |
 | `DogsNearYou` | `components/home/DogsNearYou.tsx` | Horizontal scroll of neighbourhood dogs from meet attendees | `built` |
-| `MeetCard` | `components/meets/MeetCard.tsx` | Meet list card: type badge, group link, meta row, type-specific summary pills (pace/distance for walks, drop-in window for hangouts, age/play style for playdates, skills for training), energy level badge, attendee avatars, spots remaining, activity indicator | `built` |
+| `MeetCard` | ~~deleted~~ | Superseded by `CardMeet` in Phase 29 | `archived` |
 | `MeetRecapHeader` | `components/meets/MeetRecapHeader.tsx` | Post-meet recap summary (title, date, people/dogs/duration stats) | `built` |
 | `MeetPhotoGallery` | `components/meets/MeetPhotoGallery.tsx` | Responsive photo grid for completed meets + "Add yours" placeholder | `built` |
 | `ShareMeetModal` | `components/meets/ShareMeetModal.tsx` | Share/invite modal using ModalSheet (preview card, copy link, share-via icons) | `built` |
@@ -959,7 +972,7 @@ _Ordered by impact vs. effort._
 
 | File | Change |
 |------|--------|
-| `MyScheduleTab.tsx` | Redesigned: Upcoming/History toggle, type filter pills, unified timeline (meets + bookings via BookingBlock), CardMyMeet replaces MeetCard |
+| `MyScheduleTab.tsx` | Redesigned: Upcoming/History toggle, type filter pills, unified timeline (meets + bookings via BookingBlock), CardMeet variant="schedule" |
 | `BookingsTab.tsx` | Removed — replaced by ServicesTab |
 | `globals.css` | Added `.schedule-toggle`, `.schedule-toggle-btn`, `.card-my-meet--hosting`, `.card-my-meet--history`, `.card-my-meet-badge`, `.services-toggle` |
 

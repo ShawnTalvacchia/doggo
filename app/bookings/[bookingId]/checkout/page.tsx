@@ -81,7 +81,7 @@ export default function CheckoutPage() {
         </div>
 
         <div className="flex flex-col gap-sm w-full">
-          <ButtonAction variant="primary" size="md" href={`/bookings/${bookingId}`}>
+          <ButtonAction variant="primary" size="md" href="/bookings">
             View booking details
           </ButtonAction>
           <ButtonAction variant="tertiary" size="md" href="/home">

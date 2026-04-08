@@ -24,8 +24,11 @@ export const PAGE_MENU_GROUPS: PageMenuGroup[] = [
   {
     title: "Community",
     items: [
-      { label: "Home (Feed)", value: "/home" },
-      { label: "Home (Groups)", value: "/home?tab=groups" },
+      { label: "Community (All)", value: "/home" },
+      { label: "Community (Parks)", value: "/home?tab=parks" },
+      { label: "Community (Neighbors)", value: "/home?tab=neighbors" },
+      { label: "Community (Interest)", value: "/home?tab=interest" },
+      { label: "Community (Care)", value: "/home?tab=care" },
       { label: "Meets", value: "/meets" },
       { label: "Create Meet", value: "/meets/create" },
       { label: "Meet Detail", value: "/meets/meet-1" },

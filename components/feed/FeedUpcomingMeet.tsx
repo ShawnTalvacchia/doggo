@@ -4,14 +4,7 @@ import { CalendarDots, MapPin, Users } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { FeedCard } from "./FeedCard";
 import type { Meet } from "@/lib/types";
-
-function formatMeetDate(date: string, time: string): string {
-  const d = new Date(`${date}T${time}`);
-  const weekday = d.toLocaleDateString("en-GB", { weekday: "short" });
-  const day = d.getDate();
-  const month = d.toLocaleDateString("en-GB", { month: "short" });
-  return `${weekday} ${day} ${month}, ${time}`;
-}
+import { formatMeetDateTime } from "@/lib/dateUtils";
 
 export function FeedUpcomingMeet({ meet }: { meet: Meet }) {
   const totalDogs = meet.attendees.reduce((s, a) => s + a.dogNames.length, 0);
@@ -24,7 +17,7 @@ export function FeedUpcomingMeet({ meet }: { meet: Meet }) {
           <div className="flex flex-col gap-xs text-xs text-fg-tertiary">
             <span className="flex items-center gap-xs">
               <CalendarDots size={12} weight="light" />
-              {formatMeetDate(meet.date, meet.time)}
+              {formatMeetDateTime(meet.date, meet.time)}
             </span>
             <span className="flex items-center gap-xs">
               <MapPin size={12} weight="light" />

@@ -1,406 +1,165 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-04-06
+last-reviewed: 2026-04-08
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
 
 # Doggo — Product Roadmap
 
-Phases for the interactive prototype. Each phase has a kanban board in `phases/`.
-
 **Priority:** Demo-quality prototype for user testing and investment. Build horizontally — get the full product story demoable, not one feature deep.
 
----
-
-## Phase 1 — Design System & Foundation ✓
-
-**Goal:** Clean CSS foundation, documented tokens, Tailwind v4 integrated, styleguide as source of truth.
-
-**Status:** Complete. All CSS audited, 61 dead classes removed, 409 raw values tokenized, Tailwind v4 set up, styleguide parity verified.
-
-**Board:** [[phase-1-design-system]]
+**Process:** Each phase follows the lifecycle in CONTRIBUTING.md — open with doc review and conflict check, close with doc updates and acceptance verification. Phase boards live in `phases/` while active, then move to `archive/phases/` when complete.
 
 ---
 
-## Phase 2 — App Shell & Navigation ✓
+## Completed Work (Phases 1–30)
 
-**Goal:** Restructure the app so every subsequent feature has a home. New nav, new landing page, cleaned-up signup, home feed shell.
+30 phases shipped covering: design system, app shell, community core (meets + connections), care & booking flows, profile system, home feed & social posts, layout redesign (sidebar + master-detail), schedule & bookings polish, component consolidation, group taxonomy (park/neighbor/interest/care), and Community tab with category sub-tabs.
 
-**Status:** Complete. Nav restructured (5-tab mobile + desktop links/CTAs), landing page rewritten community-first, home/meets/schedule page shells built, signup simplified (start → profile → pet → visibility → success, role step removed in Phase 6), provider steps deferred to Profile.
+Full history in `archive/phases/`. Key outcomes:
 
-**Board:** [[phase-2-app-shell]]
-
----
-
-## Phase 3 — Community Core ✓
-
-**Goal:** Build the features that make Doggo a community product — meets, connections, and the trust layer.
-
-**Status:** Complete. Meets (browse, create, detail, group chat), connections (none → familiar → pending → connected), post-meet connect prompts, home feed (nearby meets, suggested connections, highlights), schedule populated, meet group threads.
-
-**Board:** [[phase-3-community-core]]
+- **Navigation:** Community | Discover | My Schedule | Bookings | Profile (mobile). 7-item desktop sidebar.
+- **Groups:** Four types (park/neighbor/interest/care) with type-specific detail tabs. Care groups have provider badges, service listings, gallery modes.
+- **Meets:** Four types (walk/park hangout/playdate/training) with type-specific fields. RSVP with Going/Interested states.
+- **Discover:** Three-door hub (Meets, Groups, Dog Care) with filter panels per door.
+- **Care:** Provider profiles, booking conversations, payment mock, trust-gated CTAs.
+- **Inbox:** Direct + booking conversations, tab filtering, three-column desktop layout.
+- **Schedule:** Unified timeline of meets + care sessions, filter tabs, master-detail.
 
 ---
 
-## Phase 4 — Polish & UX ✓
+## Current State — Honest Assessment
 
-**Goal:** Styling consistency, responsive refinement, interaction details, visual polish. Make the prototype feel cohesive.
+The infrastructure is solid but content is thin. Here's what a demo viewer would see:
 
-**Status:** Complete. Navbar simplified, modal pattern formalised, shadow softened, create meet form flattened, status page consolidated, profile page demo nav, logo link fix.
+**Works well:** Group list + detail, meet cards + detail, schedule, notifications, navigation across breakpoints, provider profiles with service data.
 
----
+**Thin but passable:** Community feed (sparse items), inbox (read-only, few messages), bookings (owner view works, provider view stubbed), profile (mostly empty Posts/Services tabs).
 
-## Phase 5 — Care & Profile Enhancement ✓
-
-**Goal:** Polish the existing care/booking flows and make profiles fully functional. Complete the demo story: meets → trust → care.
-
-**Status:** Complete. Booking detail page (status flow, pricing, reviews), profile edit mode (bio, pets, visibility), unified profile layout (own + explore share structure), provider trust signals (connection badges, relationship-aware CTAs), explore interactive map (Leaflet + price markers), 1:1 direct messaging (conversation types, split inbox), enhanced pet profiles (energy, play styles, socialisation, vet info, photo gallery).
-
-**Board:** [[phase-5-care-profile]]
-
----
-
-## Phase 6 — Audit & Alignment ✓
-
-**Goal:** Review everything built in Phases 1–5 against the updated strategy and feature docs. Identify gaps, inconsistencies, and polish opportunities. No new features — refine what exists.
-
-**Key outcomes:**
-- Audit every page against updated strategy docs and feature specs
-- Home page overhaul — more welcoming, more photos, community-focused, features-forward
-- Landing page review — does it communicate the community thesis clearly?
-- Signup flow review — does it match current strategy (no provider role, visibility choice)?
-- Visual consistency pass — do all pages feel like one product?
-- Navigation review — do labels, ordering, and flows match the strategy?
-- Component and token cleanup — any drift or dead code from Phases 1–5?
-- Final doc update pass — ensure all docs match what's actually built
-
-**Progress (March 2026):**
-- ✅ Desktop nav: added "Offer Care" link to `/profile`
-- ✅ Signup: removed Role step, flow is now `start → profile → pet → visibility → success`
-- ✅ `/explore` redirect: bare route now redirects to `/explore/results`
-- ✅ Home page overhaul: personalised greeting, dog photos, community-first CTAs, neighbourhood highlights
-- ✅ Landing page overhaul: hero photo with "Your dog's neighbourhood crew" tagline, "Does your dog have a community?" emotional hook, photo-based meet cards, how-it-works tabs, archetype two-column section (Regular/Connector/Organiser), care-from-community section, testimonials, bottom CTA. Dog-first copy direction throughout.
-- ✅ Feature docs: updated meets.md, signup-reference.md; created landing-page.md feature spec
-- ✅ Product Vision: added Brand Voice & Positioning section
-- ✅ Phase 5 board marked complete
-- ✅ Component inventory updated with new landing components
-- ✅ CONTRIBUTING.md updated with reviews doc category
-- Remaining: visual consistency pass, component/token cleanup, navigation review
-
-**Board:** [[phase-6-audit-alignment]]
-
-**Approach:**
-1. Page-by-page audit: screenshot each page, compare against feature docs, note gaps
-2. Prioritise fixes by demo impact (home page and landing page are the biggest opportunities)
-3. Implement fixes
-4. Final doc update pass
+**Broken or empty:**
+- Discover/Care results panel is **completely empty** — no provider cards render
+- Discover filter checkboxes are **non-functional** (visual only, don't filter results)
+- Bookings "My Services" (provider view) is **mostly stubbed**
+- Discover hub descriptions are **placeholder text** ("Short text about that")
+- Many group feeds and meet lists are empty due to sparse mock data
+- Feed comments don't exist yet (decided feature, not built)
+- Meet detail is a single scroll page (decided to restructure to tabs, not built)
 
 ---
 
-## Phase 7 — Community-Native Care ✓
+## Upcoming Phases
 
-**Goal:** Rethink the booking/care layer through the community/dog-first lens. Provider setup, care discovery, booking conversations, and payment should feel like natural extensions of the community.
+### Content Completion
 
-**Status:** Complete. Provider onboarding via profile edit mode, community-first care discovery, relationship context in booking conversations, payment mock with platform fee, trust signals throughout booking flow.
-
-**Board:** [[phase-7-community-care]]
-
----
-
-## Phase 8 — Community Feel & Empty States ✓
-
-**Goal:** Make the prototype feel alive for new users and strengthen the psychological hooks that turn one-time visitors into regulars.
-
-**Status:** Complete. Neighbourhood identity (Vinohrady, Letná, etc.), social proof stats, activity indicators on MeetCards, new-user welcome state on Home (toggle), onboarding payoff step, post-meet recap with photos and bulk connect, trust signal badges on profiles, share/invite modal on meets.
-
-**Key outcomes:**
-- Hyper-local neighbourhood identity throughout (not "Prague" — "Vinohrady")
-- Home has two states: new-user welcome vs established-user (DEMO_NEW_USER toggle)
-- MeetCards show activity indicators ("Jana joined 2h ago") and "Popular" badges
-- Post-meet recap: photo gallery, stats summary, "Mark all Familiar" bulk action
-- Trust signal badges on profiles ("Walked together 5 times", "Known since Nov 2025")
-- Signup success previews nearby meets and neighbourhood activity
-- Share/invite modal on meet detail with copy link
-
-**Board:** [[phase-8-community-feel]]
-
----
-
-## Phase 9 — Groups & Belonging ✓
-
-**Goal:** Build persistent communities (groups) — the feature that turns meets from one-off events into ongoing belonging.
-
-**Status:** Complete. Communities browse page, detail page (members, meets, chat, gallery), create form, "Your communities" on Home, meet-group cross-links, shared MessageBubble component.
-
-**Board:** [[phase-9-groups-belonging]]
-
----
-
-## Phase 10 — Home Feed & Social Posts ✓
-
-**Goal:** Transform Home into a social feed and introduce user-authored posts (photos + tagging) as a core content type. Rework Profile to surface posts prominently.
-
-**Status:** Complete. Home page rebuilt as social feed (10 card types), personal + community posts with photo grids and tagging (dogs/people/communities/places), paw-print reactions, post composer, tag autocomplete, profile rework (About/Posts/Services tabs with tag approval setting and care CTAs), community model upgraded to three-tier visibility (open/approval/private) with permanent setting and photo policy, FAB + share bar + upcoming strip, new-user feed variant.
-
-**Key outcomes:**
-- Home is a scrollable social feed, not a section dashboard
-- Two post types: personal (to connections) and community (to members)
-- Four tag types (dog, person, community, place) with autocomplete search
-- Tag approval per-user setting (auto/approve/none)
-- Community visibility: open/approval/private (permanent once created)
-- Photo policy per community (encouraged/optional/none)
-- Profile tabs: About | Posts | Services (reviews merged into Services)
-- 10 feed card types: personal post, community post, meet recap, upcoming meet, connection activity, connection nudge, care prompt, milestone, dog moment, care review
-- ~30 new component files, ~11 modified files
-
-**Board:** [[phase-10-home-feed]]
-
----
-
-## Phase 11 — Booking & Care Polish ✓
-
-**Goal:** Make the booking and care flows demo-ready. Enforce connection-based trust gating, add payment mock, consolidate provider setup, and add booking management actions.
-
-**Status:** Complete. Connection gating enforced (TrustGateBanner + disabled CTAs for non-connected users), payment mock checkout page (price breakdown + 12% platform fee + mock Visa payment), provider setup consolidated (all Offer Care links → /profile?tab=services), owner booking actions (cancel with reason, request modification, message carer), care bookings section on Schedule page.
-
-**Deferred to Phase 12:** Carer-side inbox actions (accept/decline/counter inquiry), provider dashboard/earnings, availability calendar/filtering, explore results redesign.
-
-**Board:** [[phase-11-booking-care-polish]]
-
----
-
-## Phase 12 — Demo Ready ✓
-
-**Goal:** Close the last functional gap (carer inbox actions), clean up the design system and CSS, extract inlined components, and polish UX consistency — leaving the codebase ready for a Figma design pass.
-
-**Key outcomes:**
-- Carer inquiry response flow in inbox (accept/decline/suggest changes)
-- Incoming requests on Schedule page for carers
-- Component extraction: ThreadClient.tsx (664→<300 lines), profile/page.tsx (1,438→<600 lines)
-- Dead CSS audit (globals.css 9,720→<8,000 lines)
-- Inline style migration on 5 priority pages
-- EmptyState component + ButtonAction adoption pass
-
-**Board:** [[phase-12-demo-ready]]
-
----
-
-## Phase 13 — Meet Type Enrichment ✓
-
-**Goal:** Flesh out meet types (Walk, Park Hangout, Playdate, Training) with type-specific fields so the demo shows fully differentiated event experiences — not just four labels on the same form.
-
-**Key outcomes:**
-- Type-specific data model: Walk (pace/distance/terrain/route), Park Hangout (drop-in window/amenities/vibe), Playdate (age range/play style/fenced/max dogs), Training (skill focus/experience level/trainer info/equipment)
-- Shared enhancement fields: energy level, what to bring, accessibility notes
-- Conditional creation form sections per type
-- MeetCard type summary pills
-- Detail page type-specific sections
-- All 6 mock meets enriched with type-specific data
-
-**Board:** [[phase-13-meet-type-enrichment]]
-
----
-
-## Phase 14 — Community & Activity Restructure ✓
-
-**Goal:** Elevate communities as a first-class navigation concept, consolidate meets + schedule into a unified "Activity" tab, and add group chat enhancements (join-gated empty states, auto-generated activity, event card strip).
-
-**Key outcomes:**
-- Navigation restructure: Home | Communities | Activity | Inbox | Profile (mobile), Communities + Activity replace Meets + Schedule
-- `/communities` route (moved from `/groups`), user-facing term "community" throughout
-- `/activity` page with three tabs: Discover (meet browse), My Schedule (upcoming + past), Bookings (care arrangements)
-- Join-gated chat: EmptyState with Join CTA when non-member views community or meet chat
-- Auto-generated system messages in community chat (member joined, meet posted, RSVP milestones)
-- Event card strip: horizontal scroll of upcoming meets at top of community chat
-
-**Board:** [[phase-14-community-activity-restructure]]
-
----
-
-## Phase 15 — Trust, Connections & Mock Data Quality ✓
-
-**Goal:** Refine the connection model UX, redesign meet participant lists as a social discovery surface, add share-profile linking, and replace all Unsplash mock images with generated assets authentic to Prague.
-
-**Key outcomes:**
-- Single visibility toggle governs all content including care services (no separate care setting) + informational banner for locked providers
-- Share profile link for direct IRL-to-app connections (`/connect/[code]`)
-- Redesigned meet participant list: tiered by relationship (Connected → Familiar/Open → hidden count), rich cards with relationship context and mutual connections
-- Going / Interested RSVP states on meets
-- Post-meet participant reveal (hidden attendees surfaced with Familiar/Connect actions)
-- Locked profile view for non-Familiar viewers (blurred avatar + explanation)
-- Connection state icon system (Phosphor icons, not text pills)
-- All Unsplash mock images replaced with AI-generated images matching Prague context and mock data characters
-- Default avatar component for users without photos
-
-**Board:** [[phase-15-trust-connections-images]]
-
----
-
-## Phase 16 — Layout Redesign ✓
-
-**Goal:** Replace the top navbar with a desktop sidebar, introduce a centered 640px content shell for all logged-in pages, and rename navigation items ("Groups", "Activities").
-
-**Status:** Complete. Desktop sidebar nav (6 items), LoggedInShell wrapper (640px content + optional side panel), BottomNav updated (5 tabs, Groups/Activities labels, CalendarDots icon), all logged-in pages render inside new shell, doc terminology updated.
-
-**Key outcomes:**
-- Desktop sidebar nav (Home, Groups, Activities, Inbox, Find Care, Profile) replaces top AppNav for logged-in users
-- LoggedInShell layout: sidebar + max-width container (640px) + optional side panel or spacer
-- Mobile bottom nav updated: "Groups" (was Communities), "Activities" (was Activity), CalendarDots icon
-- Find Care is desktop-sidebar-only; mobile gets contextual per-page buttons
-- All logged-in pages render inside the new shell; un-migrated pages continue working
-
-**Board:** [[phase-16-layout-redesign]]
-
----
-
-## Phase 17 — Activities Tab Redesign ✓
-
-**Goal:** Redesign the My Schedule and Services (formerly Bookings) tabs within Activities. Evolve card designs per tab context, add Upcoming/History toggle, ensure card differentiation across Discover, My Schedule, and Services.
-
-**Status:** Complete. My Schedule redesigned with Upcoming/History toggle, CardMyMeet component with role badges (Hosting/Joining/Interested), hosting visual distinction (3px brand left border), unified timeline merging meets + bookings via BookingBlock. Bookings tab renamed to Services and rebuilt as provider dashboard (visibility status, stats strip, service cards, incoming requests, active bookings). Cross-tab card differentiation verified.
-
-**Board:** [[phase-17-activities-tabs]]
-
----
-
-## Phase 18 — Information Architecture Restructure ✓
-
-**Goal:** Restructure the app's navigation and page hierarchy. Unify meet and care discovery under a single Discover page, elevate Schedule to top-level, create a proper Bookings hub (owner + provider), move Inbox and Profile to the mobile header bar.
-
-**Status:** Complete. New 4-tab mobile nav (Home, Discover, My Schedule, Bookings), mobile header (logo + Inbox + avatar), 6-item desktop sidebar, unified `/discover` with Meets + Care tabs, `/schedule` as top-level page, `/bookings` hub with My Care + My Services, enhanced booking detail page, DetailHeader component, redirects from all old routes, dead code cleanup. Meets filter panel + map deferred to Phase 19.
-
-**Board:** [[phase-18-ia-restructure]]
-
----
-
-## Phase 19 — UI Rebuild & Groups Foundation ✓
-
-**Goal:** Rebuild the app's UI around a reusable layout system. Implement the groups strategy. Rethink the home feed. Update navigation. Align all docs.
-
-**Status:** Complete. All 8 workstreams delivered (A–H).
-
-**Key outcomes:**
-- MasterDetailShell, ListPanel, DetailPanel — reusable layout components used across Home, Schedule, Inbox
-- Navigation: 5-tab mobile bottom nav (+ Profile), mobile header (create + notifications + inbox), 7-item desktop sidebar (+ Notifications)
-- Home rebuilt: desktop groups panel + photo feed, mobile Feed | Groups tabs
-- Feed simplified: MomentCard as primary content, Content Visibility Model (four-gate sourcing)
-- Discover restructured: three-door hub (Meets, Groups, Dog Care) at `/discover`, sub-pages at `/discover/meets`, `/discover/groups`, `/discover/care`
-- Schedule: Joining/Invited/Care filters, master-detail layout, search bar
-- Inbox: All/Care/Groups tabs, three-column desktop (list + conversation + contact info)
-- Groups data model: three archetypes (park/community/service), auto-generated park groups (6), service CTAs on meets, mock data for four user journeys (Tereza, Daniel, Klára, Tomáš)
-- Strategy docs: Groups Strategy, Content Visibility Model
-
-**Board:** [[phase-19-ui-rebuild]]
-
----
-
-## Phase 20 — Polish & Alignment ✓
-
-**Goal:** Capture recent mobile UX fixes, Discover filter rebuild, and component cleanup. Realign docs that drifted during rapid Phase 19 iteration. Audit for dead code and consolidate component inventory.
-
-**Status:** Complete. All workstreams delivered.
+**Goal:** Make every page feel finished. Fix structural issues, wire up interactions, fill content gaps. After this phase, every page should have real content and working interactions — no empty panels, no placeholder text, no non-functional controls.
 
 **Key work:**
-- Document recent fixes: scroll-hide nav, mobile panel layout, feed image caps, care filter rebuild
-- Add 5 missing components + 1 hook to component inventory
-- Update feature docs (explore-and-care, care-discovery flow) to reflect DiscoverShell and interactive filters
-- Component audit: identify and remove orphaned legacy components (DiscoverTab, ServicesTab, CareTab)
-- Refresh stale implementation docs (design-tokens, signup-reference)
 
-**Board:** [[phase-20-polish-and-alignment]]
+Structural changes (from recent decisions):
+- Remove group Chat tab from neighbor/interest groups
+- Add flat comments to group Feed posts
+- Restructure meet detail to tabs (Details · People · Chat)
+
+Critical fixes:
+- Wire Discover/Care results — show provider cards from mock data
+- Wire Discover filter logic — checkboxes/sliders should actually filter results
+- Replace Discover hub placeholder descriptions with real copy
+- Build out Bookings provider view ("My Services" tab)
+- Make Inbox compose functional (at least local-state send)
+
+Content fill:
+- Ensure every group has at least 2-3 feed posts and 1-2 upcoming meets
+- Ensure every care group has service listings and gallery content
+- Add real content to profile Posts tabs
+- Fill notification mock data (15-20 items across all types)
+
+UI polish backlog:
+- Feed filtering by category tab on Community right panel
+- Any accumulated UI tweaks from development
+
+**Depends on:** Docs aligned (current session work).
+
+**Refs:** [[meets]], [[messaging]], [[explore-and-care]], [[Groups & Care Model]], [[profiles]]
 
 ---
 
-## Phase 21 — Pages & Content Build-out ✓
+### Demo Data & Richness
 
-**Goal:** Flesh out inner content across all app pages. Bring Discover Meets and Groups up to the same interactive filter level as Care. Migrate Bookings and Notifications to shared layout system. Build Notifications from scratch.
-
-**Status:** Complete.
+**Goal:** Build the mock data layer that makes the prototype feel alive. Richer user journeys, realistic content, enough depth that exploring any page reveals real interactions.
 
 **Key work:**
-- Discover/Meets: interactive filter panel with type-specific accordions, results filtering, mobile tab switching
-- Discover/Groups: interactive filter panel with neighbourhood accordion, results filtering, GroupCard enrichment
-- Notifications: full build from stub (10 notification types, list/detail views, mock data tied to user journeys, unread badge)
-- Bookings: migrated to MasterDetailShell with detail panel (provider info, sessions, schedule, price)
-- Schedule: enriched detail panel (attendees, energy level, leash rule, what to bring, organizer)
-- Layout alignment: page-container wrappers, detail headers, collapsed breakpoint CSS for all MasterDetailShell pages
 
-**Board:** [[phase-21-pages-and-content]]
+User journeys (build out 3 primary demo users):
+- **Tereza** — routine owner, neighborhood anchor, member of park + neighbor groups, casual care provider
+- **Klára** — professional trainer, runs a care group, participates in park groups as owner
+- **Daniel** — anxious new owner, reactive dog support group member, few connections, exploring
+
+Each user needs:
+- Profile with bio, dogs, neighborhood, connections
+- Group memberships with role-appropriate content
+- Schedule with upcoming meets and (for Klára) care bookings
+- Inbox with realistic conversations
+- Notification history
+
+Group data enrichment:
+- Each of the 7 care groups: realistic events, feed posts with comments, photos (6+ per gallery)
+- Park groups: upcoming meets, diverse attendees
+- Neighbor/interest groups: feed posts with comments, member interactions
+
+Mock data quality:
+- Prague-authentic names, neighborhoods, locations
+- Realistic timestamps (not all from the same week)
+- Booking history with varied statuses
+- Provider reviews and ratings
+
+**Refs:** [[mock-data-plan]], [[Groups & Care Model]], [[User Archetypes]], [[image-generation-prompts]]
 
 ---
 
-## Phase 22 — Panel Architecture & Page Alignment ✓
+### Demo Presentation
 
-**Goal:** Establish a canonical panel component system (Panel → PanelBody → LayoutSection/LayoutList → Spacer) and migrate all pages to use it. Work through pages in order: Home, Discover, then remaining pages.
-
-**Status:** Complete.
+**Goal:** Make the prototype presentable to someone who's never seen it. A demo entry page that provides context, lets the viewer choose a persona, and guides them through the product story.
 
 **Key work:**
-- Built PanelBody, Spacer, LayoutSection, LayoutList components
-- PanelHeader (`panel-header-desktop`) hides on mobile/collapsed, TabBar (`panel-tabbar`) hides on desktop
-- Spacer fills remaining space with surface-popout background
-- Migrated all pages: Home → Discover (hub + meets/groups/care) → Schedule → Bookings → Notifications → Inbox
-- Removed old ListPanel/DetailPanel components (fully replaced by raw div + PanelBody pattern)
-- Added panel-max-sm (400px) / panel-max-lg (640px) utility classes
-- Added collapsed breakpoint CSS for inbox-page-shell
-- Deprecate old ListPanel/DetailPanel once migrated
 
-**Board:** [[phase-22-panel-architecture]]
+Demo entry page:
+- Context header explaining what Doggo is (1-2 sentences)
+- 3 persona cards (Tereza, Klára, Daniel) with photo, description, what they'll see
+- "Enter as [name]" → logged in as that user with their data
+- Option to view the landing page (public, not logged in)
 
----
+User switching:
+- Mechanism to switch between users without leaving the app
+- Each user sees their own groups, schedule, connections, inbox, notifications
+- State management for multi-user mock data
 
-## Phase 23 — Schedule Page & CardMeet Rebuild ✓
+Guided elements (optional):
+- First-time hints or tooltips highlighting key features per persona
+- Or: a brief "what to explore" card on the Community page per user
 
-**Goal:** Rebuild the My Schedule detail panel content, simplify CardMeet per the content audit, and remove old orphaned card components.
-
-**Key work:**
-- Schedule detail panel rebuild: attendance strip, 2x2 logistics grid, titled participant sections (ORGANIZERS, CONFIRMED)
-- CardMeet simplification: remove leash/energy chips from cards (move to detail pane)
-- Old component removal: delete CardScheduleMeet, CardMyMeet, MeetCard, orphaned activity tabs
-- Schedule list panel polish: header alignment, search/filters
-
-**Board:** [[phase-23-schedule-cardmeet]]
+**Refs:** [[User Archetypes]], [[Product Vision]], [[mock-data-plan]]
 
 ---
 
-## Phase 24 — Group Detail Restructure ✓
+## Open Questions for Future Phases
 
-**Goal:** Restructure the Group/Community detail page from a single scrollable column into a tabbed layout (Feed · Meets · Members · Chat) with panel architecture.
+These are not yet planned but will become relevant:
 
-**Status:** Complete. Tabbed group detail page (Feed · Meets · Members · Chat) with persistent header, URL-based tab state, PanelBody + Spacer scroll. Also: CardGroup aligned with CardMeet layout, Storefront icon for Hosted groups, single-select visibility filter, "No limit" group size, dog size + focus area filters, orphaned CSS cleanup.
+- **Real backend** — Supabase data model, auth, real-time messaging
+- **Production design pass** — Figma handoff, visual refinement
+- **User testing** — what to test, with whom, what metrics
+- **Monetization prototype** — payment flow, platform fees, provider dashboard
+- **Mobile native** — React Native or PWA decision
 
-**Board:** [[phase-24-group-detail]]
-
----
-
-## Phase 25 — Schedule Polish & Detail Panel Pattern ✓
-
-**Goal:** Fix Schedule page list/detail panels and establish reusable detail section card pattern.
-
-**Status:** Complete. Replaced pill filters with TabBar on Schedule and Inbox pages. Detail panel restructured into 3 elevated section cards (Overview, Logistics, People) on surface-popout background. Removed "View full details" button. Fixed role badge styling to use Tailwind utilities instead of misusing card-schedule-chip. Removed search bar and Create button from header (Create stays in mobile actions).
-
-**Board:** [[phase-25-schedule-polish]]
+See [[Open Questions & Assumptions Log]] for full list.
 
 ---
 
-## Out of Scope
+## Principles
 
-Not built, not demoed:
-- Real payment processing (Stripe)
-- Cross-city expansion / i18n
-- Mobile native app
-- Real-time location / route tracking
-- Algorithmic matching
-- Referral programs
-- Insurance / liability
-
----
-
-## Principles for phasing
-
-1. **Each phase starts and ends with a doc review.** Read all docs, update stale ones, archive completed ones, raise new questions in [[Open Questions]].
-2. **Tasks reference docs.** Every task card links to the docs it should consult.
-3. **No phase ships without styleguide parity.** If a phase adds components or tokens, the styleguide must be updated before the phase closes.
-4. **Demo-first.** When in doubt, prioritise what makes the product story more convincing, not what's technically deepest.
+1. **Each phase starts and ends with a doc review.** Read all docs, update stale ones, raise concerns, check open questions.
+2. **No phase ships without working content.** Empty tabs and placeholder text are bugs, not future work.
+3. **Demo-first.** When in doubt, prioritise what makes the product story more convincing.
+4. **Horizontal, not deep.** Every page should feel 80% complete before any page goes to 100%.

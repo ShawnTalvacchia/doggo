@@ -21,7 +21,7 @@ export function BookingListCard({
 
   return (
     <Link
-      href={`/bookings/${booking.id}`}
+      href="/bookings"
       className="flex items-center gap-md rounded-panel p-md no-underline bg-surface-top border border-edge-light"
     >
       <img

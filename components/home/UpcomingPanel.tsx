@@ -4,12 +4,7 @@ import Link from "next/link";
 import { CalendarDots, MapPin, UsersThree } from "@phosphor-icons/react";
 import { getGroupById } from "@/lib/mockGroups";
 import type { Meet } from "@/lib/types";
-
-function formatShortDate(date: string, time: string): string {
-  const d = new Date(`${date}T${time}`);
-  const weekday = d.toLocaleDateString("en-GB", { weekday: "short" });
-  return `${weekday} ${time}`;
-}
+import { formatCompactDateTime } from "@/lib/dateUtils";
 
 function CardUpcomingEvent({ meet }: { meet: Meet }) {
   const group = meet.groupId ? getGroupById(meet.groupId) : null;
@@ -29,7 +24,7 @@ function CardUpcomingEvent({ meet }: { meet: Meet }) {
       <div className="flex gap-sm w-full">
         <span className="flex items-center gap-xs text-base text-fg-tertiary flex-1">
           <CalendarDots size={16} weight="light" />
-          {formatShortDate(meet.date, meet.time)}
+          {formatCompactDateTime(meet.date, meet.time)}
         </span>
         <span className="flex items-center gap-xs text-base text-fg-tertiary flex-1">
           <MapPin size={16} weight="light" />

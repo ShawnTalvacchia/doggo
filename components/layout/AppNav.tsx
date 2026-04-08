@@ -7,6 +7,7 @@ import { ButtonIcon } from "@/components/ui/ButtonIcon";
 import { NotificationsPanel } from "@/components/ui/NotificationsPanel";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import { useConversations } from "@/contexts/ConversationsContext";
+import { usePageHeader } from "@/contexts/PageHeaderContext";
 import {
   ArrowLeft,
   Bell,
@@ -80,20 +81,30 @@ function LoggedNavLinks({ hideCreate = false }: { hideCreate?: boolean }) {
 
 const loggedRoutes = ["/home", "/communities", "/groups", "/activity", "/discover", "/meets", "/schedule", "/explore", "/inbox", "/notifications", "/bookings", "/profile"];
 
-function getDiscoverTitle(pathname: string) {
+function getPageTitle(pathname: string): string | null {
   if (pathname.startsWith("/discover/care")) return "Dog Care";
   if (pathname.startsWith("/discover/meets")) return "Meets";
   if (pathname.startsWith("/discover/groups")) return "Groups";
-  return "Discover";
+  if (pathname === "/discover") return "Discover";
+  if (pathname.startsWith("/home")) return null;
+  if (pathname.startsWith("/schedule")) return "My Schedule";
+  if (pathname.startsWith("/bookings")) return "Bookings";
+  if (pathname.startsWith("/inbox")) return "Inbox";
+  if (pathname.startsWith("/profile")) return "Profile";
+  if (pathname.startsWith("/notifications")) return "Notifications";
+  return null;
 }
 
 export function AppNav() {
   const pathname = usePathname();
+  const { detailTitle, onBack } = usePageHeader();
   const mode = loggedRoutes.some((r) => pathname.startsWith(r)) ? "logged" : "guest";
   const isSignupRoute = pathname.startsWith("/signup");
   const isStyleguideRoute = pathname.startsWith("/styleguide");
   const isDiscoverRoute = pathname.startsWith("/discover");
   const isDiscoverSubpage = isDiscoverRoute && pathname !== "/discover";
+  const pageTitle = getPageTitle(pathname);
+  const showDetailHeader = !!detailTitle;
   const isContainedNav =
     pathname === "/" ||
     pathname === "/signin" ||
@@ -102,17 +113,27 @@ export function AppNav() {
   const navContent = (
     <>
       <div className="app-nav-brand-wrap">
-        <Link href={mode === "logged" ? "/home" : "/"} className={`app-nav-brand${isDiscoverRoute ? " app-nav-brand--hide-mobile" : ""}`}>
+        <Link href={mode === "logged" ? "/home" : "/"} className={`app-nav-brand${pageTitle || showDetailHeader ? " app-nav-brand--hide-mobile" : ""}`}>
           DOGGO
         </Link>
-        {isDiscoverRoute && (
+        {/* Detail header (back + title) — shown on mobile when a page sets it */}
+        {showDetailHeader && (
+          <div className="app-nav-detail-header">
+            <button type="button" className="app-nav-detail-back" onClick={onBack ?? undefined}>
+              <ArrowLeft size={20} weight="regular" />
+            </button>
+            <span className="app-nav-detail-title">{detailTitle}</span>
+          </div>
+        )}
+        {/* Page title — shown on mobile for list views (hidden when detail is active) */}
+        {pageTitle && !showDetailHeader && (
           <div className="app-nav-page-title">
             {isDiscoverSubpage && (
               <Link href="/discover" className="app-nav-page-title-back">
                 <ArrowLeft size={20} weight="regular" />
               </Link>
             )}
-            <span>{getDiscoverTitle(pathname)}</span>
+            <span>{pageTitle}</span>
           </div>
         )}
       </div>

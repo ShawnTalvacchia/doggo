@@ -2,14 +2,7 @@ import { SERVICE_LABELS } from "@/lib/constants/services";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import type { ChatMessage, Conversation } from "@/lib/types";
-
-function formatShortDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
+import { formatShortDate } from "@/lib/dateUtils";
 
 export function SigningModal({
   msg,

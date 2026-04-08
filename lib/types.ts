@@ -542,8 +542,45 @@ export interface Connection {
 
 export type GroupVisibility = "open" | "approval" | "private";
 
-/** Park = auto-generated, open, no admin. Community = user-created, defaults private. Service = provider-created, has service CTAs. */
-export type GroupType = "park" | "community" | "service";
+/** Care group sub-categories for provider-hosted groups */
+export type CareCategory = "training" | "walking" | "grooming" | "boarding" | "rehab" | "venue" | "vet" | "other";
+
+/** Gallery display mode for care groups */
+export type GalleryMode = "standard" | "portfolio" | "updates";
+
+/** A service listed within a care group (provider's service menu) */
+export interface GroupServiceListing {
+  id: string;
+  title: string;
+  description: string;
+  priceFrom: number;
+  priceUnit: string;        // e.g. "per session", "per walk", "per night"
+  /** Optional booking link (routes to provider's care booking flow) */
+  bookingHref?: string;
+  /** Whether this service is currently offered */
+  active: boolean;
+}
+
+/** Configuration for care groups — controls which features are enabled */
+export interface CareGroupConfig {
+  /** Can the group host events with booking CTAs? */
+  eventsEnabled: boolean;
+  /** Can events link to provider's booking flow? */
+  bookingCTAsEnabled: boolean;
+  /** Is the discussion/post feed active? */
+  discussionEnabled: boolean;
+  /** Show provider's service menu in the group? */
+  serviceListingsVisible: boolean;
+  /** Fixed address / Area-based / Mobile */
+  locationType: "fixed" | "area" | "mobile";
+  /** Show available spots on events/services? */
+  capacityEnabled: boolean;
+  /** Gallery display mode */
+  galleryMode: GalleryMode;
+}
+
+/** Park = auto-generated for parks. Neighbor = hyperlocal mutual-aid. Interest = breed/activity/need. Care = provider-hosted. */
+export type GroupType = "park" | "neighbor" | "interest" | "care";
 
 export type PhotoPolicy = "encouraged" | "optional" | "none";
 
@@ -562,7 +599,7 @@ export interface Group {
   id: string;
   name: string;
   description: string;
-  /** Park / Community / Service archetype */
+  /** Park / Neighbor / Interest / Care archetype */
   groupType: GroupType;
   visibility: GroupVisibility;
   neighbourhood: string;
@@ -577,10 +614,24 @@ export interface Group {
   /** Photo culture setting — controls whether photo posts are allowed/encouraged */
   photoPolicy: PhotoPolicy;
   createdAt: string;
-  /** Service groups only: provider user ID */
+  /** Care groups only: provider user ID */
   hostedBy?: string;
-  /** Service groups only: provider display name */
+  /** Care groups only: provider display name */
   hostedByName?: string;
+  /** Care groups only: service sub-category */
+  careCategory?: CareCategory;
+  /** Care groups only: provider avatar URL */
+  hostedByAvatarUrl?: string;
+  /** Care groups only: provider service listings */
+  serviceListings?: GroupServiceListing[];
+  /** Care groups only: gallery display mode (default: "standard") */
+  galleryMode?: GalleryMode;
+  /** Care groups only: fixed location address */
+  locationFixed?: string;
+  /** Care groups only: show capacity indicators */
+  capacityEnabled?: boolean;
+  /** Care groups only: full configuration */
+  careConfig?: CareGroupConfig;
 }
 
 export type GroupMessageType = "user" | "system";
