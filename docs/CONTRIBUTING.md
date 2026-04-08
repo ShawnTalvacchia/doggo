@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-04-08
+last-reviewed: 2026-04-08T19:00
 tags: [rules, workflow, css, conventions]
 review-trigger: "always — read before any working session"
 ---
@@ -16,9 +16,11 @@ Rules for humans and agents working in this codebase. Read before building.
 
 Phases are the unit of work. Every phase follows this lifecycle. **Do not skip steps.**
 
+**Template:** New phases start from `phases/_phase-template.md`, which includes embedded opening and closing checklists. The checklists are part of the board — they get marked done alongside the tasks.
+
 ### Opening a Phase
 
-Before writing any code for a new phase:
+Before writing any code for a new phase, complete the **Opening Checklist** on the phase board:
 
 1. **Read the phase board** in `phases/`. Understand every task and its references.
 2. **Read all referenced docs** — strategy, feature, and implementation docs cited by the phase.
@@ -26,6 +28,8 @@ Before writing any code for a new phase:
 4. **Audit for conflicts.** Compare what the phase proposes against what's currently built. Raise anything that contradicts existing code, strategy docs, or feature docs. Don't assume the phase board is correct — it may have been written before recent changes.
 5. **Update stale docs.** If any referenced doc has a `last-reviewed` date older than 2 weeks, review and update it now.
 6. **Confirm scope.** If the phase has tasks that feel like they belong in a different phase, or if scope has grown, discuss before starting.
+
+**Enforcement:** The opening checklist items must be checked off on the phase board before the first task moves to `in_progress`. If an agent or human starts building without completing the checklist, stop and finish it first.
 
 ### During a Phase
 
@@ -39,15 +43,17 @@ Before writing any code for a new phase:
 
 ### Closing a Phase
 
-Before marking a phase complete:
+Before marking a phase complete, work through the **Closing Checklist** on the phase board:
 
 1. **Walk through every acceptance criterion.** Verify each one against the running app, not just the code.
 2. **Update all affected feature docs.** If the phase changed how meets, groups, profiles, etc. work, the feature docs must reflect the new reality.
 3. **Update the Open Questions log.** Close any questions this phase resolved. Add any new ones that emerged.
 4. **Update ROADMAP.md.** Mark the phase complete with a summary of key outcomes.
 5. **Review CLAUDE.md.** If the phase changed navigation, key components, or project structure, update the project instructions.
-6. **Archive the phase board.** Move the completed phase board to `archive/phases/`.
+6. **Archive the phase board.** Copy to `archive/phases/`, mark status: archived. (If deletion is blocked, mark the original as archived too.)
 7. **Check upcoming phases.** Does the next phase's scope still make sense given what was just built? Flag any conflicts.
+
+**Enforcement:** The closing checklist items must all be checked off before a new phase can be opened. The ROADMAP should show a clear completion summary, not just "done."
 
 ---
 

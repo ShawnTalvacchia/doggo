@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-08
+last-reviewed: 2026-04-08T19:00
 tags: [messaging, inbox, chat, booking]
 review-trigger: "when modifying inbox, threads, or conversation types"
 ---
@@ -21,7 +21,7 @@ Messaging is the coordination layer for both community and care. The core philos
 | Surface | Purpose | Where it lives |
 |---------|---------|---------------|
 | **Inbox** | Private 1:1 conversations (direct + booking) | `/inbox` — top-level page |
-| **Feed comments** | Async group discussion on posts | Group detail → Feed tab (planned, not yet built) |
+| **Feed comments** | Async group discussion on posts | Group detail → Feed tab (built — flat comments with local-state add) |
 | **Meet chat** | Real-time event coordination | Meet detail → Chat tab |
 
 ---

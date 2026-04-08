@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-08
+last-reviewed: 2026-04-08T19:00
 tags: [questions, risks, assumptions]
 review-trigger: "before starting a new phase, after any strategic discussion"
 ---
@@ -39,7 +39,7 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 **Assumption:** Groups are the right persistent container for community — meets alone aren't enough.
 
-**Resolved:** Four group types (park/neighbor/interest/care). Park groups auto-generated. Group detail tabs vary by type. No Chat tab on groups — Feed with flat comments for async, meet-level chat for real-time coordination. Going/Interested RSVP states. Meet detail restructuring to tabs (Details · People · Chat) — decided, not yet built.
+**Resolved:** Four group types (park/neighbor/interest/care). Park groups auto-generated. Group detail tabs vary by type. No Chat tab on groups — Feed with flat comments for async (built), meet-level chat for real-time coordination (built). Going/Interested RSVP states. Meet detail tabs (Details · People · Chat) — built. Schedule tabs renamed: Upcoming / Interested / Care.
 
 **Open:**
 - Can the platform suggest meets based on patterns? ("3 regulars walk near Letná on Tuesdays")
@@ -109,11 +109,13 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 ## 9. Demo & Presentation
 
+**Partially resolved:** Three personas chosen — Tereza (routine owner/neighbourhood anchor), Klára (professional trainer), Daniel (anxious new owner). Mock data layer built with 20 users, 24 meets, 35 posts, 13 reviews, 10 bookings, 8 conversations, 20 group message threads. Image generation prompts prepared (40 prompts across 7 tiers).
+
 **Open:**
-- Which 3 user personas tell the most compelling demo story?
 - Should the demo entry page present scenarios ("See what it's like as a...") or user profiles?
-- How much mock data is needed per user to feel convincing?
 - Should the demo include a guided tour or let users explore freely?
+- How does persona switching work technically — context provider with user state, or URL-based routing?
+- What does each persona's "highlight reel" look like — which 3-4 pages tell their story best?
 
 ---
 
@@ -125,3 +127,5 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 - Notification strategy — what triggers push vs. quiet delivery?
 - Supabase data model for production — design before building backend.
 - Image storage/hosting for galleries and meet photos.
+- Provider ID dualism — mockData.ts uses `olga-m`, `nikola-r`, `jana-k` while mockUsers.ts uses `jana`, `nikola`. These coexist but will need unification before real backend work.
+- Feed algorithm for multi-user — currently hardcoded to "Vinohrady" neighbourhood. Needs to be user-context-aware for persona switching.

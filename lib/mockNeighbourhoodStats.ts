@@ -9,10 +9,10 @@ export interface NeighbourhoodStats {
 
 export const neighbourhoodStats: NeighbourhoodStats = {
   neighbourhood: "Vinohrady",
-  dogsWalkedThisWeek: 24,
-  meetsThisWeek: 12,
-  activeDogs: 47,
-  newMembersThisMonth: 8,
+  dogsWalkedThisWeek: 38,
+  meetsThisWeek: 16,
+  activeDogs: 52,
+  newMembersThisMonth: 6,
   topMeetSpot: "Riegrovy sady",
 };
 

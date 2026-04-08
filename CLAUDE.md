@@ -84,13 +84,15 @@ See `docs/CONTRIBUTING.md` for full details, including the phase open/close life
 | `docs/implementation/component-inventory.md` | Built components catalog |
 | `docs/implementation/mock-data-plan.md` | Mock data strategy and user journey planning |
 
-## Current Phase: Content Completion
+## Current Phase: Review & Polish
 
-Make every page feel finished — fix structural issues, wire up interactions, fill content gaps. See `docs/ROADMAP.md` for full scope.
+User-driven review of the full prototype. Shawn walks through the app, raises issues (visual bugs, interaction problems, content gaps, UX rough edges). Issues get added to the phase board and fixed before Demo Presentation.
 
-Key structural changes: remove group Chat tab (Feed gets flat comments instead), restructure meet detail to tabs (Details · People · Chat), wire Discover filters, build out Bookings provider view.
+**Phase board:** `docs/phases/review-and-polish.md`
 
-**Upcoming:** Demo Data & Richness → Demo Presentation (3 user personas with switching).
+**Recently completed:** Content Completion (structural changes, filter wiring, content fill) → Demo Data & Richness (20 users, 24 meets, 35 posts, 13 reviews, rich conversations and group threads).
+
+**Upcoming:** Demo Presentation (3 user personas with switching, demo entry page).
 
 ## Strategic Context
 

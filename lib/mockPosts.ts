@@ -411,8 +411,8 @@ export const mockPosts: Post[] = [
       },
       {
         id: "comment-13b",
-        authorId: "kate",
-        authorName: "Kate",
+        authorId: "lucie",
+        authorName: "Lucie",
         authorAvatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
         text: "Months of work and it's so worth it. Well done Maxi!",
         createdAt: "2026-03-22T11:40:00Z",
@@ -581,6 +581,487 @@ export const mockPosts: Post[] = [
       { userId: "eva", userName: "Eva" },
     ],
     comments: [],
+  },
+
+  // group-reactive-dogs (Prague Reactive Dog Support)
+  {
+    id: "post-19",
+    authorId: "ondrej",
+    authorName: "Ondřej",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=400&q=80",
+    groupId: "group-reactive-dogs",
+    groupName: "Prague Reactive Dog Support",
+    photos: ["/images/generated/community-cover-reactive.jpeg"],
+    caption: "Best advice I got: reactive doesn't mean aggressive. It means your dog is communicating fear. Patience and distance work miracles.",
+    tags: [
+      { type: "community", id: "group-reactive-dogs", label: "Prague Reactive Dog Support" },
+    ],
+    createdAt: "2026-04-05T10:30:00Z",
+    reactions: [
+      { userId: "petra", userName: "Petra" },
+      { userId: "eva", userName: "Eva" },
+      { userId: "tomas", userName: "Tomáš" },
+      { userId: "kate", userName: "Kate" },
+    ],
+    comments: [
+      {
+        id: "comment-19a",
+        authorId: "petra",
+        authorName: "Petra",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80",
+        text: "This exactly. Maxi is not trying to be bad — he's just scared. Changed everything when I reframed it.",
+        createdAt: "2026-04-05T10:50:00Z",
+      },
+    ],
+  },
+  {
+    id: "post-20",
+    authorId: "lucie",
+    authorName: "Lucie",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
+    groupId: "group-reactive-dogs",
+    groupName: "Prague Reactive Dog Support",
+    photos: ["/images/generated/training-session.jpeg"],
+    caption: "Posted this for anyone new to the group: BAT (Behaviour Adjustment Training), Look at Me protocol, and desensitization. Three approaches that actually work. Happy to discuss what's worked for your pup.",
+    tags: [
+      { type: "community", id: "group-reactive-dogs", label: "Prague Reactive Dog Support" },
+    ],
+    createdAt: "2026-04-02T14:15:00Z",
+    reactions: [
+      { userId: "eva", userName: "Eva" },
+      { userId: "tomas", userName: "Tomáš" },
+      { userId: "ondrej", userName: "Ondřej" },
+    ],
+    comments: [
+      {
+        id: "comment-20a",
+        authorId: "eva",
+        authorName: "Eva",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
+        text: "BAT has been a game-changer for Luna. Thanks for putting this together.",
+        createdAt: "2026-04-02T14:40:00Z",
+      },
+    ],
+  },
+  {
+    id: "post-21",
+    authorId: "petra",
+    authorName: "Petra",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80",
+    groupId: "group-reactive-dogs",
+    groupName: "Prague Reactive Dog Support",
+    photos: ["/images/generated/spot-portrait.jpeg"],
+    caption: "Maxi had a breakthrough at the vet today. Didn't even need the muzzle. I think I'm more proud than he is. 🐾",
+    tags: [
+      { type: "dog", id: "maxi", label: "Maxi" },
+      { type: "community", id: "group-reactive-dogs", label: "Prague Reactive Dog Support" },
+    ],
+    createdAt: "2026-03-28T16:00:00Z",
+    reactions: [
+      { userId: "eva", userName: "Eva" },
+      { userId: "kate", userName: "Kate" },
+      { userId: "ondrej", userName: "Ondřej" },
+      { userId: "tomas", userName: "Tomáš" },
+    ],
+    comments: [
+      {
+        id: "comment-21a",
+        authorId: "lucie",
+        authorName: "Lucie",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
+        text: "That's HUGE! You've put so much work in. Well done 💚",
+        createdAt: "2026-03-28T16:20:00Z",
+      },
+    ],
+  },
+
+  // park-3 (Riegrovy Sady Dog Walks)
+  {
+    id: "post-22",
+    authorId: "hana",
+    authorName: "Hana",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=400&q=80",
+    groupId: "park-3",
+    groupName: "Riegrovy Sady Dog Walks",
+    photos: ["/images/generated/park-hangout-riegrovy.jpeg"],
+    caption: "Sunday walk was perfect. All the dogs were so chill. Even found a puppy party by accident!",
+    tags: [
+      { type: "community", id: "park-3", label: "Riegrovy Sady Dog Walks" },
+      { type: "place", id: "riegrovy-sady", label: "Riegrovy Sady" },
+    ],
+    createdAt: "2026-04-06T10:45:00Z",
+    reactions: [
+      { userId: "jana", userName: "Jana" },
+      { userId: "shawn", userName: "Shawn" },
+      { userId: "martin", userName: "Martin" },
+    ],
+    comments: [
+      {
+        id: "comment-22a",
+        authorId: "jana",
+        authorName: "Jana",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+        text: "We were there! Rex was so happy. What a vibe!",
+        createdAt: "2026-04-06T11:10:00Z",
+      },
+    ],
+  },
+  {
+    id: "post-23",
+    authorId: "lucie",
+    authorName: "Lucie",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80",
+    groupId: "park-3",
+    groupName: "Riegrovy Sady Dog Walks",
+    photos: ["/images/generated/goldie-playing.jpeg", "/images/generated/post-dog-park-sunset.jpeg"],
+    caption: "The light at 6pm is unreal lately. Stella and Max had a proper play session. Tired pups = happy evening.",
+    tags: [
+      { type: "dog", id: "stella", label: "Stella" },
+      { type: "community", id: "park-3", label: "Riegrovy Sady Dog Walks" },
+    ],
+    createdAt: "2026-03-31T18:15:00Z",
+    reactions: [
+      { userId: "hana", userName: "Hana" },
+      { userId: "martin", userName: "Martin" },
+    ],
+    comments: [],
+  },
+
+  // park-2 (Stromovka Morning Crew)
+  {
+    id: "post-24",
+    authorId: "anezka",
+    authorName: "Anežka",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=400&q=80",
+    groupId: "park-2",
+    groupName: "Stromovka Morning Crew",
+    photos: ["/images/generated/group-walk-stromovka.jpeg"],
+    caption: "The best part of my day. 6:30am walks with this crew is pure magic. Tomáš and Bella were in top form today!",
+    tags: [
+      { type: "person", id: "tomas", label: "Tomáš" },
+      { type: "community", id: "park-2", label: "Stromovka Morning Crew" },
+      { type: "place", id: "stromovka", label: "Stromovka" },
+    ],
+    createdAt: "2026-04-08T07:00:00Z",
+    reactions: [
+      { userId: "tomas", userName: "Tomáš" },
+      { userId: "shawn", userName: "Shawn" },
+      { userId: "jana", userName: "Jana" },
+      { userId: "eva", userName: "Eva" },
+    ],
+    comments: [
+      {
+        id: "comment-24a",
+        authorId: "tomas",
+        authorName: "Tomáš",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+        text: "Bella was flying! She loves Anežka 😊",
+        createdAt: "2026-04-08T07:30:00Z",
+      },
+    ],
+  },
+  {
+    id: "post-25",
+    authorId: "jakub",
+    authorName: "Jakub",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80",
+    groupId: "park-2",
+    groupName: "Stromovka Morning Crew",
+    photos: ["/images/generated/meet-greeting.jpeg"],
+    caption: "Saturday mornings with the crew. This is what community looks like. Same time next week? ☀️",
+    tags: [
+      { type: "community", id: "park-2", label: "Stromovka Morning Crew" },
+      { type: "place", id: "stromovka", label: "Stromovka" },
+    ],
+    createdAt: "2026-04-05T08:30:00Z",
+    reactions: [
+      { userId: "anezka", userName: "Anežka" },
+      { userId: "tomas", userName: "Tomáš" },
+      { userId: "eva", userName: "Eva" },
+    ],
+    comments: [
+      {
+        id: "comment-25a",
+        authorId: "anezka",
+        authorName: "Anežka",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=400&q=80",
+        text: "Always! This is the highlight of my week honestly.",
+        createdAt: "2026-04-05T08:50:00Z",
+      },
+    ],
+  },
+
+  // park-karlin (Karlín Riverside Walks)
+  {
+    id: "post-26",
+    authorId: "filip",
+    authorName: "Filip",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+    groupId: "park-karlin",
+    groupName: "Karlín Riverside Walks",
+    photos: ["/images/generated/spot-park-walk.jpeg"],
+    caption: "6am riverside stroll. The city is quiet, the air is fresh, and the dogs are all zen. Nothing beats it.",
+    tags: [
+      { type: "community", id: "park-karlin", label: "Karlín Riverside Walks" },
+      { type: "place", id: "karlin", label: "Karlín" },
+    ],
+    createdAt: "2026-04-07T06:15:00Z",
+    reactions: [
+      { userId: "adela", userName: "Adéla" },
+      { userId: "jana", userName: "Jana" },
+    ],
+    comments: [],
+  },
+  {
+    id: "post-27",
+    authorId: "adela",
+    authorName: "Adéla",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
+    groupId: "park-karlin",
+    groupName: "Karlín Riverside Walks",
+    photos: ["/images/generated/post-dog-park-sunset.jpeg", "/images/generated/goldie-playing.jpeg"],
+    caption: "The riverside in spring is unbeatable. Sunny morning, good dogs, good company. This is what life should be.",
+    tags: [
+      { type: "community", id: "park-karlin", label: "Karlín Riverside Walks" },
+      { type: "place", id: "karlin", label: "Karlín" },
+    ],
+    createdAt: "2026-04-04T07:45:00Z",
+    reactions: [
+      { userId: "filip", userName: "Filip" },
+      { userId: "martin", userName: "Martin" },
+    ],
+    comments: [
+      {
+        id: "comment-27a",
+        authorId: "filip",
+        authorName: "Filip",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+        text: "Spring hits different out there. See you tomorrow morning!",
+        createdAt: "2026-04-04T08:10:00Z",
+      },
+    ],
+  },
+
+  // group-karlin-neighbours (Karlín Dog Neighbors)
+  {
+    id: "post-28",
+    authorId: "filip",
+    authorName: "Filip",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+    groupId: "group-karlin-neighbours",
+    groupName: "Karlín Dog Neighbors",
+    photos: ["/images/generated/meet-greeting.jpeg"],
+    caption: "Anyone around Kukulova/Sladkovského on weekends? Looking for some dog walking buddies in the neighborhood. Toby is friendly but gets lonely when I'm at work.",
+    tags: [
+      { type: "community", id: "group-karlin-neighbours", label: "Karlín Dog Neighbors" },
+      { type: "place", id: "karlin", label: "Karlín" },
+    ],
+    createdAt: "2026-04-06T19:30:00Z",
+    reactions: [
+      { userId: "adela", userName: "Adéla" },
+    ],
+    comments: [
+      {
+        id: "comment-28a",
+        authorId: "adela",
+        authorName: "Adéla",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
+        text: "I'm right there! Sunny mornings work best for me. Want to coordinate?",
+        createdAt: "2026-04-06T19:50:00Z",
+      },
+    ],
+  },
+  {
+    id: "post-29",
+    authorId: "adela",
+    authorName: "Adéla",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
+    groupId: "group-karlin-neighbours",
+    groupName: "Karlín Dog Neighbors",
+    photos: ["/images/generated/group-walk-stromovka.jpeg"],
+    caption: "Setting up a standing Saturday playdate for our neighborhood dogs. 10am at the small park by the river. Bring your pups! All ages/sizes welcome.",
+    tags: [
+      { type: "community", id: "group-karlin-neighbours", label: "Karlín Dog Neighbors" },
+      { type: "place", id: "karlin", label: "Karlín" },
+    ],
+    createdAt: "2026-04-01T18:00:00Z",
+    reactions: [
+      { userId: "filip", userName: "Filip" },
+    ],
+    comments: [
+      {
+        id: "comment-29a",
+        authorId: "filip",
+        authorName: "Filip",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+        text: "Perfect! Toby and I will be there for sure.",
+        createdAt: "2026-04-01T18:20:00Z",
+      },
+    ],
+  },
+
+  // park-1 (Letná Dog Walks)
+  {
+    id: "post-30",
+    authorId: "marek",
+    authorName: "Marek",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+    groupId: "park-1",
+    groupName: "Letná Dog Walks",
+    photos: ["/images/generated/post-dog-park-sunset.jpeg"],
+    caption: "The view from Letná never gets old. Oscar loves the hilltop. We come here every Sunday.",
+    tags: [
+      { type: "dog", id: "oscar", label: "Oscar" },
+      { type: "community", id: "park-1", label: "Letná Dog Walks" },
+      { type: "place", id: "letna", label: "Letná" },
+    ],
+    createdAt: "2026-04-06T16:30:00Z",
+    reactions: [
+      { userId: "jana", userName: "Jana" },
+      { userId: "eva", userName: "Eva" },
+      { userId: "tomas", userName: "Tomáš" },
+    ],
+    comments: [],
+  },
+
+  // park-5 (Vítkov Park Dogs)
+  {
+    id: "post-31",
+    authorId: "ondrej",
+    authorName: "Ondřej",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=400&q=80",
+    groupId: "park-5",
+    groupName: "Vítkov Park Dogs",
+    photos: ["/images/generated/goldie-playing.jpeg"],
+    caption: "Hill walk at Vítkov with the crew. Rocky doesn't care about the incline, just the company. 🐾",
+    tags: [
+      { type: "dog", id: "rocky", label: "Rocky" },
+      { type: "community", id: "park-5", label: "Vítkov Park Dogs" },
+      { type: "place", id: "vitkov", label: "Vítkov" },
+    ],
+    createdAt: "2026-04-03T17:00:00Z",
+    reactions: [
+      { userId: "martin", userName: "Martin" },
+      { userId: "jana", userName: "Jana" },
+    ],
+    comments: [],
+  },
+
+  // group-senior-dogs (Senior Dogs & Slow Walks)
+  {
+    id: "post-32",
+    authorId: "adela",
+    authorName: "Adéla",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
+    groupId: "group-senior-dogs",
+    groupName: "Senior Dogs & Slow Walks",
+    photos: ["/images/generated/spot-portrait.jpeg"],
+    caption: "Sunny afternoon. No rush. Biscuit and I took our time through the neighborhood. This pace suits us both perfectly.",
+    tags: [
+      { type: "dog", id: "biscuit", label: "Biscuit" },
+      { type: "community", id: "group-senior-dogs", label: "Senior Dogs & Slow Walks" },
+    ],
+    createdAt: "2026-04-05T14:30:00Z",
+    reactions: [
+      { userId: "eva", userName: "Eva" },
+      { userId: "tomas", userName: "Tomáš" },
+    ],
+    comments: [
+      {
+        id: "comment-32a",
+        authorId: "eva",
+        authorName: "Eva",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
+        text: "Luna and I are cheering for Biscuit. The slow pace hits different at this stage of life.",
+        createdAt: "2026-04-05T14:50:00Z",
+      },
+    ],
+  },
+
+  // Personal posts (no groupId)
+  {
+    id: "post-33",
+    authorId: "tereza",
+    authorName: "Tereza",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
+    photos: ["/images/generated/post-adoption-anniversary.jpeg"],
+    caption: "Franta's half-birthday! Hard to believe it's been 6 months. He's gone from scared rescue to absolute goofball. Worth every moment.",
+    tags: [
+      { type: "dog", id: "franta", label: "Franta" },
+    ],
+    createdAt: "2026-04-02T12:00:00Z",
+    reactions: [
+      { userId: "shawn", userName: "Shawn" },
+      { userId: "martin", userName: "Martin" },
+      { userId: "eva", userName: "Eva" },
+      { userId: "jana", userName: "Jana" },
+    ],
+    comments: [
+      {
+        id: "comment-33a",
+        authorId: "martin",
+        authorName: "Martin",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80",
+        text: "What a transformation! Franta's the happiest guy now.",
+        createdAt: "2026-04-02T12:30:00Z",
+      },
+    ],
+  },
+  {
+    id: "post-34",
+    authorId: "klara",
+    authorName: "Klára",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+    photos: ["/images/generated/training-session.jpeg", "/images/generated/post-new-trick.jpeg"],
+    caption: "One of my students' dogs just passed his CGC exam! Watching this journey from a total handful to a well-mannered pup has been amazing. Proud trainer moment. 💚",
+    tags: [
+      { type: "place", id: "letna", label: "Letná" },
+    ],
+    createdAt: "2026-04-07T16:45:00Z",
+    reactions: [
+      { userId: "shawn", userName: "Shawn" },
+      { userId: "daniel", userName: "Daniel" },
+      { userId: "tomas", userName: "Tomáš" },
+      { userId: "eva", userName: "Eva" },
+      { userId: "martin", userName: "Martin" },
+    ],
+    comments: [
+      {
+        id: "comment-34a",
+        authorId: "daniel",
+        authorName: "Daniel",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80",
+        text: "That's incredible! Which dog? Bára and I want to know who we're celebrating!",
+        createdAt: "2026-04-07T17:15:00Z",
+      },
+    ],
+  },
+  {
+    id: "post-35",
+    authorId: "daniel",
+    authorName: "Daniel",
+    authorAvatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80",
+    photos: ["/images/generated/post-first-swim.jpeg"],
+    caption: "Bára took her first swim of the season today! Moments like this are why I got her. Pure joy. 🏊",
+    tags: [
+      { type: "dog", id: "bara", label: "Bára" },
+    ],
+    createdAt: "2026-04-08T15:20:00Z",
+    reactions: [
+      { userId: "klara", userName: "Klára" },
+      { userId: "shawn", userName: "Shawn" },
+      { userId: "tomas", userName: "Tomáš" },
+    ],
+    comments: [
+      {
+        id: "comment-35a",
+        authorId: "klara",
+        authorName: "Klára",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+        text: "That smile! Bára's living her best life with you.",
+        createdAt: "2026-04-08T15:40:00Z",
+      },
+    ],
   },
 ];
 

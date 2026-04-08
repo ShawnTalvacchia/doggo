@@ -1,7 +1,7 @@
 ---
 category: feature
 status: active
-last-reviewed: 2026-04-08
+last-reviewed: 2026-04-08T19:00
 tags: [meets, groups, community, social]
 review-trigger: "when modifying meets, groups, group detail tabs, or meet discovery"
 ---
@@ -156,8 +156,7 @@ This remains the highest-intent moment for building relationships — connecting
 
 - ~~**Meet detail tabs**~~ — **done** (Details · People · Chat)
 - ~~**Group Chat tab removal**~~ — **done** (removed from neighbor/interest groups)
-- **Feed comments** — flat comment UI on group Feed posts (the replacement for group Chat)
-- **Comments on Feed posts** — not yet implemented; Feed currently has posts without comments
+- ~~**Feed comments**~~ — **done** (flat comment UI on group Feed posts, local-state add, built in Content Completion A2)
 - **Outing meet type** — specced but not built
 - **Multiple chat threads per group** — deferred
 - **Map-based meet/group discovery** — deferred

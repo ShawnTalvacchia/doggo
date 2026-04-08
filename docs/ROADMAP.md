@@ -32,91 +32,50 @@ Full history in `archive/phases/`. Key outcomes:
 
 ## Current State — Honest Assessment
 
-The infrastructure is solid but content is thin. Here's what a demo viewer would see:
+*(Updated 2026-04-08 after Content Completion + Demo Data & Richness phases)*
 
-**Works well:** Group list + detail, meet cards + detail, schedule, notifications, navigation across breakpoints, provider profiles with service data.
+The prototype is structurally complete and has a rich mock data layer. Every page has content, working interactions, and realistic data.
 
-**Thin but passable:** Community feed (sparse items), inbox (read-only, few messages), bookings (owner view works, provider view stubbed), profile (mostly empty Posts/Services tabs).
+**Works well:** Group list + detail (with feed comments), meet cards + tabbed detail (Details · People · Chat), schedule with Upcoming/Interested/Care tabs and meet vs care card differentiation, notifications (20+ items), navigation across breakpoints, provider profiles, Discover filtering (Meets, Groups, Care all functional), Bookings (owner + provider views), Inbox (8 conversations — direct + booking + compose), Community feed with four-gate visibility model and category filtering.
 
-**Broken or empty:**
-- Discover/Care results panel is **completely empty** — no provider cards render
-- Discover filter checkboxes are **non-functional** (visual only, don't filter results)
-- Bookings "My Services" (provider view) is **mostly stubbed**
-- Discover hub descriptions are **placeholder text** ("Short text about that")
-- Many group feeds and meet lists are empty due to sparse mock data
-- Feed comments don't exist yet (decided feature, not built)
-- Meet detail is a single scroll page (decided to restructure to tabs, not built)
+**Data layer:** 20 users with full profiles, 24 meets (8 completed + 16 upcoming), 18 groups with 5-8 members each, 35 posts distributed across all group types, 13 reviews, 10 bookings, 12 connections with trust signals, 3 rich group message threads. All cross-referenced and TypeScript-clean.
+
+**Needs review pass:** UI polish, visual consistency, interaction details, edge cases. Image assets still using Unsplash placeholders (generated images in progress).
+
+**Not yet built:**
+- Persona switching (Tereza, Klára, Daniel views — data exists, UI doesn't)
+- Demo entry page
+- Generated image integration (prompts ready, generation in progress)
+
+---
+
+## Completed Phases
+
+### Content Completion ✓
+
+**Completed:** 2026-04-08
+
+Structural changes (group Chat tab removal, Feed flat comments, meet detail tabs), critical wiring (Discover filters, provider cards, Bookings My Services, Inbox compose), content fill (posts, galleries, events, notifications), and schedule polish (card differentiation, tab rename, redundant element removal). All 19 tasks done, D5 (UI tweaks backlog) deferred to Review & Polish.
+
+### Demo Data & Richness ✓
+
+**Completed:** 2026-04-08
+
+Built central user registry (20 users), expanded all mock data files (24 meets, 35 posts, 13 reviews, 10 bookings, 12 connections, 8 conversations, 3 group message threads), cross-reference audit (fixed 6 inconsistencies), TypeScript verified clean. All 16 tasks done.
+
+---
+
+## Current Phase
+
+### Review & Polish
+
+**Goal:** Walk through the entire prototype, identify and fix visual issues, interaction bugs, content gaps, and UX rough edges. This phase is user-driven — Shawn reviews, raises issues, and they get fixed before moving to Demo Presentation.
+
+**Phase board:** `phases/review-and-polish.md`
 
 ---
 
 ## Upcoming Phases
-
-### Content Completion
-
-**Goal:** Make every page feel finished. Fix structural issues, wire up interactions, fill content gaps. After this phase, every page should have real content and working interactions — no empty panels, no placeholder text, no non-functional controls.
-
-**Key work:**
-
-Structural changes (from recent decisions):
-- Remove group Chat tab from neighbor/interest groups
-- Add flat comments to group Feed posts
-- Restructure meet detail to tabs (Details · People · Chat)
-
-Critical fixes:
-- Wire Discover/Care results — show provider cards from mock data
-- Wire Discover filter logic — checkboxes/sliders should actually filter results
-- Replace Discover hub placeholder descriptions with real copy
-- Build out Bookings provider view ("My Services" tab)
-- Make Inbox compose functional (at least local-state send)
-
-Content fill:
-- Ensure every group has at least 2-3 feed posts and 1-2 upcoming meets
-- Ensure every care group has service listings and gallery content
-- Add real content to profile Posts tabs
-- Fill notification mock data (15-20 items across all types)
-
-UI polish backlog:
-- Feed filtering by category tab on Community right panel
-- Any accumulated UI tweaks from development
-
-**Depends on:** Docs aligned (current session work).
-
-**Refs:** [[meets]], [[messaging]], [[explore-and-care]], [[Groups & Care Model]], [[profiles]]
-
----
-
-### Demo Data & Richness
-
-**Goal:** Build the mock data layer that makes the prototype feel alive. Richer user journeys, realistic content, enough depth that exploring any page reveals real interactions.
-
-**Key work:**
-
-User journeys (build out 3 primary demo users):
-- **Tereza** — routine owner, neighborhood anchor, member of park + neighbor groups, casual care provider
-- **Klára** — professional trainer, runs a care group, participates in park groups as owner
-- **Daniel** — anxious new owner, reactive dog support group member, few connections, exploring
-
-Each user needs:
-- Profile with bio, dogs, neighborhood, connections
-- Group memberships with role-appropriate content
-- Schedule with upcoming meets and (for Klára) care bookings
-- Inbox with realistic conversations
-- Notification history
-
-Group data enrichment:
-- Each of the 7 care groups: realistic events, feed posts with comments, photos (6+ per gallery)
-- Park groups: upcoming meets, diverse attendees
-- Neighbor/interest groups: feed posts with comments, member interactions
-
-Mock data quality:
-- Prague-authentic names, neighborhoods, locations
-- Realistic timestamps (not all from the same week)
-- Booking history with varied statuses
-- Provider reviews and ratings
-
-**Refs:** [[mock-data-plan]], [[Groups & Care Model]], [[User Archetypes]], [[image-generation-prompts]]
-
----
 
 ### Demo Presentation
 

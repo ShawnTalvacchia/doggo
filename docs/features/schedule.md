@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-08
+last-reviewed: 2026-04-08T19:00
 tags: [schedule, meets, bookings, timeline]
 review-trigger: "when modifying the My Schedule page or unified timeline"
 ---
@@ -35,14 +35,15 @@ Meet discovery moved to `/discover` (Discover hub > Meets door). Care services/p
 
 - **Desktop:** Master-detail layout via `MasterDetailShell` — schedule list in the left `ListPanel`, selected meet/booking detail in the right `DetailPanel`
 - **Mobile:** Single-column list; tapping an item navigates to its detail page
-- **Filter tabs:** Joining / Invited / Care (replaces the previous Upcoming/History toggle + type pills)
+- **Filter tabs:** Upcoming / Interested / Care (replaces the previous Upcoming/History toggle + type pills)
 - **Search bar** — text filter for quickly finding a specific meet or booking by name
 - **Unified timeline** — meets and bookings merged chronologically within each filter tab
 
 ### Card design (CardMyMeet)
 
 - **Role badge replaces CTA:** "Hosting" (brand bg, flag icon) / "Joining" (dark bg) / "Interested" (outline) instead of action buttons
-- **Hosting distinction:** 3px left border in brand colour for hosting cards
+- **Card type borders:** 3px brand-coloured left border for meet cards; 3px info-blue left border for care sessions (BookingBlock). History cards use muted border colour.
+- **Redundant elements removed:** "Upcoming" status badge hidden when already on Upcoming tab. "Book a spot" CTA hidden when user is already joining/hosting.
 - **5 attendee avatars** (vs 3 in Discover) — you care who's coming
 - **Stronger date emphasis** — semi-bold time formatting in upcoming view
 - **History variant:** muted background (surface-inset), past-tense badges ("Hosted" / "Attended" / "Interested")
@@ -52,7 +53,7 @@ Meet discovery moved to `/discover` (Discover hub > Meets door). Care services/p
 
 - **Unified timeline.** Meets and care bookings appear together, sorted by date. BookingBlock renders bookings inline alongside CardMyMeet cards.
 - **Master-detail on desktop.** Schedule uses `MasterDetailShell` so users can browse the list and view detail side by side without navigating away.
-- **Joining / Invited / Care filters.** Replaces the Upcoming/History toggle and type pills. "Joining" shows meets you've RSVP'd to, "Invited" shows meets you've been invited to, "Care" shows care bookings.
+- **Upcoming / Interested / Care filters.** Replaces the Upcoming/History toggle and type pills. "Upcoming" shows meets you've RSVP'd to (joining or hosting), "Interested" shows meets you've saved/starred, "Care" shows care bookings.
 - **No location filter.** Unlike Discover, My Schedule shows everything you've committed to regardless of location.
 - **Role context matters.** Cards indicate whether you're hosting or joining (different responsibility level).
 

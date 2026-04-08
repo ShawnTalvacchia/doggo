@@ -11,10 +11,14 @@
             "id": "9dcef6f2bebad7ea",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "CONTRIBUTING.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "CONTRIBUTING"
             }
           }
         ]
@@ -184,6 +188,13 @@
   },
   "active": "9dcef6f2bebad7ea",
   "lastOpenFiles": [
+    "phases/review-and-polish.md",
+    "phases/_phase-template.md",
+    "archive/phases/demo-data-richness.md",
+    "archive/phases/content-completion.md",
+    "image-generation-prompts-v2.md",
+    "phases/demo-data-richness.md",
+    "strategy/Groups & Care Model.md",
     "phases/content-completion.md.tmp.5472.1775647702342",
     "phases/content-completion.md",
     "archive/phases/phase-33-demo-scenarios.md",
@@ -192,7 +203,6 @@
     "archive/strategy/Information Architecture.md",
     "archive/strategy/Community & Provider Groups Evolution.md",
     "archive/strategy/Groups Strategy.md",
-    "strategy/Groups & Care Model.md",
     "archive/decisions/chat-design.md",
     "archive/decisions",
     "archive/_template.md",
@@ -207,11 +217,6 @@
     "archive/flows/booking-conversation.md",
     "archive/flows/README.md",
     "archive/flows",
-    "strategy/Roadmap Reassessment.md",
-    "archive/implementation/signup-reference.md",
-    "archive/implementation/content-audit.md",
-    "archive/status-report.md",
-    "archive/strategy/Business Strategy.md",
     "archive/implementation",
     "archive/strategy",
     "archive/phases",
@@ -219,7 +224,6 @@
     "features",
     "Untitled.canvas",
     "archive",
-    "phases",
-    "implementation"
+    "phases"
   ]
 }
