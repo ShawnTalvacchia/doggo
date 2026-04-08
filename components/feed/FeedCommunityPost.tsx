@@ -1,6 +1,7 @@
 "use client";
 
 import { FeedCard } from "./FeedCard";
+import { CommentThread } from "./CommentThread";
 import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
 import { TagPillRow } from "@/components/posts/TagPill";
 import { PawReaction } from "@/components/posts/PawReaction";
@@ -19,6 +20,7 @@ export function FeedCommunityPost({ post }: { post: Post }) {
       media={<PostPhotoGrid photos={post.photos} fullBleed />}
       caption={post.caption}
       action={<PawReaction reactions={post.reactions} />}
+      comments={<CommentThread comments={post.comments} />}
     />
   );
 }

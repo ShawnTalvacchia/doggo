@@ -18,6 +18,8 @@ interface FeedCardProps {
   tags?: React.ReactNode;
   /** Action element (like button) — inline with tags in footer */
   action?: React.ReactNode;
+  /** Comment thread — rendered below footer */
+  comments?: React.ReactNode;
   /** Padded content below media (for non-post cards) */
   children?: React.ReactNode;
 }
@@ -48,6 +50,7 @@ export function FeedCard({
   media,
   tags,
   action,
+  comments,
   children,
 }: FeedCardProps) {
   return (
@@ -110,6 +113,13 @@ export function FeedCard({
         <div className="feed-card-footer">
           {action}
           {tags}
+        </div>
+      )}
+
+      {/* Comments */}
+      {comments && (
+        <div style={{ padding: "0 var(--padding-small) var(--padding-small)" }}>
+          {comments}
         </div>
       )}
 

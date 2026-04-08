@@ -42,6 +42,7 @@ import { getConnectionState } from "@/lib/mockConnections";
 import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
 import { TagPillRow } from "@/components/posts/TagPill";
 import { PawReaction } from "@/components/posts/PawReaction";
+import { CommentThread } from "@/components/feed/CommentThread";
 
 /* ── Tab config per group type ─────────────────────────────────── */
 
@@ -358,6 +359,7 @@ function FeedTab({ groupPosts, group, isMember }: FeedTabProps) {
                 )}
                 <TagPillRow tags={post.tags} />
                 <PawReaction reactions={post.reactions} />
+                <CommentThread comments={post.comments} canComment={isMember} />
               </div>
             ))}
           </div>

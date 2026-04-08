@@ -24,6 +24,7 @@ export const mockPosts: Post[] = [
       { userId: "martin", userName: "Martin" },
       { userId: "petra", userName: "Petra" },
     ],
+    comments: [],
   },
   {
     id: "post-2",
@@ -47,6 +48,7 @@ export const mockPosts: Post[] = [
       { userId: "eva", userName: "Eva" },
       { userId: "martin", userName: "Martin" },
     ],
+    comments: [],
   },
   {
     id: "post-3",
@@ -70,6 +72,7 @@ export const mockPosts: Post[] = [
       { userId: "shawn", userName: "Shawn" },
       { userId: "jana", userName: "Jana" },
     ],
+    comments: [],
   },
   {
     id: "post-4",
@@ -87,6 +90,7 @@ export const mockPosts: Post[] = [
     reactions: [
       { userId: "jana", userName: "Jana" },
     ],
+    comments: [],
   },
 
   // Community posts (with groupId)
@@ -121,6 +125,32 @@ export const mockPosts: Post[] = [
       { userId: "lukas", userName: "Lukáš" },
       { userId: "kate", userName: "Kate" },
     ],
+    comments: [
+      {
+        id: "comment-1",
+        authorId: "shawn",
+        authorName: "Shawn",
+        authorAvatarUrl: "/images/generated/shawn-profile.jpg",
+        text: "Spot was so well behaved today! Proud dog dad moment.",
+        createdAt: "2026-03-22T10:15:00Z",
+      },
+      {
+        id: "comment-2",
+        authorId: "eva",
+        authorName: "Eva",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
+        text: "Luna loved it too. Same time tomorrow?",
+        createdAt: "2026-03-22T10:22:00Z",
+      },
+      {
+        id: "comment-3",
+        authorId: "tomas",
+        authorName: "Tomáš",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+        text: "Bella says yes 🐾",
+        createdAt: "2026-03-22T10:30:00Z",
+      },
+    ],
   },
   {
     id: "post-6",
@@ -145,6 +175,16 @@ export const mockPosts: Post[] = [
       { userId: "jana", userName: "Jana" },
       { userId: "eva", userName: "Eva" },
     ],
+    comments: [
+      {
+        id: "comment-4",
+        authorId: "jana",
+        authorName: "Jana",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+        text: "Finally! Rex could learn a thing or two from Spot 😂",
+        createdAt: "2026-03-21T12:00:00Z",
+      },
+    ],
   },
   {
     id: "post-7",
@@ -168,6 +208,24 @@ export const mockPosts: Post[] = [
       { userId: "tomas", userName: "Tomáš" },
       { userId: "jana", userName: "Jana" },
       { userId: "martin", userName: "Martin" },
+    ],
+    comments: [
+      {
+        id: "comment-5",
+        authorId: "tomas",
+        authorName: "Tomáš",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+        text: "30m?! We're stuck at 5m. Any tips?",
+        createdAt: "2026-03-20T15:20:00Z",
+      },
+      {
+        id: "comment-6",
+        authorId: "eva",
+        authorName: "Eva",
+        authorAvatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
+        text: "High-value treats and patience! We started with just 3m in the garden.",
+        createdAt: "2026-03-20T15:35:00Z",
+      },
     ],
   },
   {
@@ -194,6 +252,7 @@ export const mockPosts: Post[] = [
       { userId: "jana", userName: "Jana" },
       { userId: "eva", userName: "Eva" },
     ],
+    comments: [],
   },
   // A personal post with 4 photos
   {
@@ -227,6 +286,7 @@ export const mockPosts: Post[] = [
       { userId: "klara", userName: "Klára" },
       { userId: "filip", userName: "Filip" },
     ],
+    comments: [],
   },
   // A minimal post — no caption, single tag
   {
@@ -243,6 +303,7 @@ export const mockPosts: Post[] = [
     ],
     createdAt: "2026-03-17T18:00:00Z",
     reactions: [],
+    comments: [],
   },
 ];
 

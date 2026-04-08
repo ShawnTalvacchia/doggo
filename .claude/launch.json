@@ -3,9 +3,11 @@
   "configurations": [
     {
       "name": "doggo-dev",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 3000
+      "runtimeExecutable": "/Users/shawntalvacchia/.nvm/versions/node/v20.19.5/bin/node",
+      "runtimeArgs": ["/Users/shawntalvacchia/Desktop/Doggo/node_modules/.bin/next", "dev"],
+      "cwd": "/Users/shawntalvacchia/Desktop/Doggo",
+      "port": 3000,
+      "autoPort": true
     }
   ]
 }

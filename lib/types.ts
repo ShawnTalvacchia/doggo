@@ -772,6 +772,15 @@ export interface PostReaction {
   userName: string;
 }
 
+export interface PostComment {
+  id: string;
+  authorId: string;
+  authorName: string;
+  authorAvatarUrl: string;
+  text: string;
+  createdAt: string;  // ISO timestamp
+}
+
 export interface Post {
   id: string;
   authorId: string;
@@ -788,6 +797,7 @@ export interface Post {
   tags: PostTag[];
   createdAt: string;  // ISO timestamp
   reactions: PostReaction[];
+  comments: PostComment[];
 }
 
 export type FeedItemType =

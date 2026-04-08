@@ -19,17 +19,17 @@ review-trigger: When any task is completed or blocked
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
 | A1 | Remove Chat tab from neighbor/interest group detail. Update `getTabsForGroupType()` | [[meets]], [[Groups & Care Model]] | todo |
-| A2 | Add flat comment UI to group Feed posts (author avatar, name, text, timestamp). Local-state add. | [[meets]], [[messaging]] | todo |
+| A2 | Add flat comment UI to group Feed posts (author avatar, name, text, timestamp). Local-state add. | [[meets]], [[messaging]] | done |
 | A3 | Restructure meet detail page to tabs: Details · People · Chat. Extract current sections into tab content. | [[meets]] | done |
 
 ## Workstream B — Critical Fixes
 
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
-| B1 | Wire Discover/Care results — render provider cards from mock data when a service type is selected | [[explore-and-care]] | todo |
-| B2 | Wire Discover/Meets filter logic — checkboxes and sliders should filter the results list | [[meets]] | todo |
-| B3 | Wire Discover/Groups filter logic — same as B2 for groups | [[meets]] | todo |
-| B4 | Replace Discover hub placeholder descriptions ("Short text about that") with real copy | [[explore-and-care]] | todo |
+| B1 | Wire Discover/Care results — render provider cards from mock data when a service type is selected | [[explore-and-care]] | done |
+| B2 | Wire Discover/Meets filter logic — checkboxes and sliders should filter the results list | [[meets]] | done |
+| B3 | Wire Discover/Groups filter logic — same as B2 for groups | [[meets]] | done |
+| B4 | Replace Discover hub placeholder descriptions ("Short text about that") with real copy | [[explore-and-care]] | done |
 | B5 | Build out Bookings "My Services" tab — provider view showing their service groups, active bookings as provider, incoming requests | [[schedule]], [[profiles]] | todo |
 | B6 | Make Inbox compose input functional (local-state send, message appears in thread) | [[messaging]] | todo |
 

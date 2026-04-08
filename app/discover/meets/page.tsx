@@ -39,7 +39,7 @@ import {
   EXPERIENCE_LABELS,
   TRAINER_TYPE_LABELS,
 } from "@/lib/mockMeets";
-import type { MeetType } from "@/lib/types";
+import type { Meet, MeetType } from "@/lib/types";
 
 const MEET_TYPES = [
   {
@@ -96,6 +96,7 @@ const LEASH_OPTIONS = [
 ];
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"] as const;
+const DAY_INDEX: Record<string, number> = { Su: 0, Mo: 1, Tu: 2, We: 3, Th: 4, Fr: 5, Sa: 6 };
 
 /* ── Type-specific filter options ── */
 
@@ -120,6 +121,53 @@ const TRAINING_FILTERS = {
   experience: Object.entries(EXPERIENCE_LABELS).map(([k, v]) => v),
   trainerType: Object.entries(TRAINER_TYPE_LABELS).map(([k, v]) => v),
 };
+
+/* ── Shared filter state ── */
+
+interface MeetFilters {
+  selectedDays: string[];
+  selectedEnergy: string[];
+  selectedLeash: string[];
+  selectedSize: string[];
+  maxGroup: number;
+}
+
+const DEFAULT_FILTERS: MeetFilters = {
+  selectedDays: [],
+  selectedEnergy: ["any"],
+  selectedLeash: [],
+  selectedSize: ["any"],
+  maxGroup: 20,
+};
+
+/* ── Filter logic ── */
+
+function applyFilters(meets: Meet[], filters: MeetFilters): Meet[] {
+  return meets.filter((meet) => {
+    // Day filter
+    if (filters.selectedDays.length > 0) {
+      const meetDay = new Date(meet.date).getDay();
+      const selectedDayIndices = filters.selectedDays.map((d) => DAY_INDEX[d]);
+      if (!selectedDayIndices.includes(meetDay)) return false;
+    }
+
+    // Energy filter
+    if (filters.selectedEnergy.length > 0 && !filters.selectedEnergy.includes("any")) {
+      const meetEnergy = meet.energyLevel ?? "any";
+      if (meetEnergy !== "any" && !filters.selectedEnergy.includes(meetEnergy)) return false;
+    }
+
+    // Leash filter
+    if (filters.selectedLeash.length > 0) {
+      if (!filters.selectedLeash.includes(meet.leashRule)) return false;
+    }
+
+    // Max group size filter
+    if (meet.maxAttendees > filters.maxGroup) return false;
+
+    return true;
+  });
+}
 
 /** Hub panel — meet type picker (no type selected yet) */
 function MeetsPickerPanel() {
@@ -194,12 +242,15 @@ function AccordionCheckbox({ label, defaultChecked = false }: { label: string; d
 }
 
 /** Hub panel — filter form (meet type selected) */
-function MeetsFilterPanel({ activeType }: { activeType: MeetType }) {
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
-  const [selectedEnergy, setSelectedEnergy] = useState<string[]>(["any"]);
-  const [selectedLeash, setSelectedLeash] = useState<string[]>([]);
-  const [selectedSize, setSelectedSize] = useState<string[]>(["any"]);
-  const [maxGroup, setMaxGroup] = useState(12);
+function MeetsFilterPanel({
+  activeType,
+  filters,
+  onFiltersChange,
+}: {
+  activeType: MeetType;
+  filters: MeetFilters;
+  onFiltersChange: (update: Partial<MeetFilters>) => void;
+}) {
   const [detailsOpen, setDetailsOpen] = useState(true);
 
   const label = MEET_TYPE_LABELS[activeType];
@@ -213,6 +264,9 @@ function MeetsFilterPanel({ activeType }: { activeType: MeetType }) {
     : activeType === "playdate"
     ? { label: "Playdate preferences", items: [...PLAYDATE_FILTERS.ageRange, ...PLAYDATE_FILTERS.playStyle] }
     : { label: "Training preferences", items: [...TRAINING_FILTERS.skills, ...TRAINING_FILTERS.experience, ...TRAINING_FILTERS.trainerType] };
+
+  const toggleInArray = (arr: string[], val: string) =>
+    arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val];
 
   return (
     <>
@@ -259,11 +313,9 @@ function MeetsFilterPanel({ activeType }: { activeType: MeetType }) {
           <MultiSelectSegmentBar
             ariaLabel="Meet days"
             options={DAYS.map((day) => ({ value: day, label: day }))}
-            selectedValues={selectedDays}
+            selectedValues={filters.selectedDays}
             onToggle={(day) =>
-              setSelectedDays((prev) =>
-                prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
-              )
+              onFiltersChange({ selectedDays: toggleInArray(filters.selectedDays, day) })
             }
             variant="filter"
           />
@@ -275,11 +327,9 @@ function MeetsFilterPanel({ activeType }: { activeType: MeetType }) {
           <MultiSelectSegmentBar
             ariaLabel="Energy level"
             options={ENERGY_OPTIONS}
-            selectedValues={selectedEnergy}
+            selectedValues={filters.selectedEnergy}
             onToggle={(val) =>
-              setSelectedEnergy((prev) =>
-                prev.includes(val) ? prev.filter((v) => v !== val) : [...prev, val],
-              )
+              onFiltersChange({ selectedEnergy: toggleInArray(filters.selectedEnergy, val) })
             }
             variant="filter"
           />
@@ -291,11 +341,9 @@ function MeetsFilterPanel({ activeType }: { activeType: MeetType }) {
           <MultiSelectSegmentBar
             ariaLabel="Leash rule"
             options={LEASH_OPTIONS}
-            selectedValues={selectedLeash}
+            selectedValues={filters.selectedLeash}
             onToggle={(val) =>
-              setSelectedLeash((prev) =>
-                prev.includes(val) ? prev.filter((v) => v !== val) : [...prev, val],
-              )
+              onFiltersChange({ selectedLeash: toggleInArray(filters.selectedLeash, val) })
             }
             variant="filter"
           />
@@ -307,11 +355,9 @@ function MeetsFilterPanel({ activeType }: { activeType: MeetType }) {
           <MultiSelectSegmentBar
             ariaLabel="Dog size"
             options={DOG_SIZE_OPTIONS}
-            selectedValues={selectedSize}
+            selectedValues={filters.selectedSize}
             onToggle={(val) =>
-              setSelectedSize((prev) =>
-                prev.includes(val) ? prev.filter((v) => v !== val) : [...prev, val],
-              )
+              onFiltersChange({ selectedSize: toggleInArray(filters.selectedSize, val) })
             }
             variant="filter"
           />
@@ -324,11 +370,11 @@ function MeetsFilterPanel({ activeType }: { activeType: MeetType }) {
             min={2}
             max={20}
             step={1}
-            value={maxGroup}
-            onChange={(v) => setMaxGroup(v)}
+            value={filters.maxGroup}
+            onChange={(v) => onFiltersChange({ maxGroup: v })}
           />
           <div className="flex items-center gap-sm">
-            <span className="text-sm text-fg-tertiary">Up to {maxGroup} people</span>
+            <span className="text-sm text-fg-tertiary">Up to {filters.maxGroup} people</span>
           </div>
         </div>
 
@@ -360,11 +406,16 @@ function MeetsFilterPanel({ activeType }: { activeType: MeetType }) {
   );
 }
 
-function MeetsResultsList({ activeType }: { activeType: MeetType | null }) {
-  const allUpcoming = mockMeets
+function MeetsResultsList({ activeType, filters }: { activeType: MeetType | null; filters: MeetFilters }) {
+  let results = mockMeets
     .filter((m) => m.status === "upcoming")
     .filter((m) => !activeType || m.type === activeType)
     .sort((a, b) => `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`));
+
+  // Apply filters when a type is selected
+  if (activeType) {
+    results = applyFilters(results, filters);
+  }
 
   const userMeetIds = new Set(
     getUserMeets("shawn")
@@ -372,9 +423,18 @@ function MeetsResultsList({ activeType }: { activeType: MeetType | null }) {
       .map((m) => m.id)
   );
 
+  if (results.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-md p-xl text-center">
+        <PawPrint size={40} weight="light" className="text-fg-tertiary" />
+        <p className="text-sm text-fg-secondary m-0">No meets match your filters. Try adjusting your criteria.</p>
+      </div>
+    );
+  }
+
   return (
     <>
-      {allUpcoming.map((meet) => (
+      {results.map((meet) => (
         <CardMeet
           key={meet.id}
           meet={meet}
@@ -390,12 +450,23 @@ function DiscoverMeetsInner() {
   const searchParams = useSearchParams();
   const meetType = searchParams.get("type") as MeetType | null;
   const isValidType = meetType && ["walk", "park_hangout", "playdate", "training"].includes(meetType);
+  const [filters, setFilters] = useState<MeetFilters>(DEFAULT_FILTERS);
+
+  const handleFiltersChange = (update: Partial<MeetFilters>) => {
+    setFilters((prev) => ({ ...prev, ...update }));
+  };
 
   if (isValidType) {
     const typeInfo = MEET_TYPES.find((t) => t.key === meetType);
     return (
       <DiscoverShell
-        hubPanel={<MeetsFilterPanel activeType={meetType} />}
+        hubPanel={
+          <MeetsFilterPanel
+            activeType={meetType}
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+          />
+        }
         resultsTitle={MEET_TYPE_LABELS[meetType]}
         resultsIcon={
           typeInfo
@@ -405,7 +476,7 @@ function DiscoverMeetsInner() {
               })()
             : undefined
         }
-        resultsContent={<MeetsResultsList activeType={meetType} />}
+        resultsContent={<MeetsResultsList activeType={meetType} filters={filters} />}
         mobileShowResults
       />
     );
@@ -416,7 +487,7 @@ function DiscoverMeetsInner() {
       hubPanel={<MeetsPickerPanel />}
       resultsTitle="Find your pack"
       resultsIcon={<PawPrint size={20} weight="regular" className="text-fg-primary" />}
-      resultsContent={<MeetsResultsList activeType={null} />}
+      resultsContent={<MeetsResultsList activeType={null} filters={DEFAULT_FILTERS} />}
     />
   );
 }

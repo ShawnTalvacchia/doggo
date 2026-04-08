@@ -23,7 +23,7 @@ import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { Slider } from "@/components/ui/Slider";
 import { getAllPublicGroups, getUserGroups } from "@/lib/mockGroups";
-import type { GroupType } from "@/lib/types";
+import type { Group, GroupType } from "@/lib/types";
 
 const GROUP_TYPES = [
   {
@@ -88,6 +88,41 @@ const NEIGHBOURHOODS = [
   "Břevnov",
   "Malá Strana",
 ];
+
+/* ── Shared filter state ── */
+
+interface GroupFilters {
+  selectedVisibility: string[];
+  maxMembers: number;
+  selectedNeighbourhoods: string[];
+}
+
+const DEFAULT_FILTERS: GroupFilters = {
+  selectedVisibility: [],
+  maxMembers: 50,
+  selectedNeighbourhoods: [],
+};
+
+/* ── Filter logic ── */
+
+function applyFilters(groups: Group[], filters: GroupFilters): Group[] {
+  return groups.filter((group) => {
+    // Visibility filter
+    if (filters.selectedVisibility.length > 0) {
+      if (!filters.selectedVisibility.includes(group.visibility)) return false;
+    }
+
+    // Max members
+    if (filters.maxMembers < 50 && group.members.length > filters.maxMembers) return false;
+
+    // Neighbourhood filter
+    if (filters.selectedNeighbourhoods.length > 0) {
+      if (!filters.selectedNeighbourhoods.includes(group.neighbourhood)) return false;
+    }
+
+    return true;
+  });
+}
 
 /** Hub panel — group type picker (no type selected yet) */
 function GroupsPickerPanel() {
@@ -156,25 +191,41 @@ function GroupsPickerPanel() {
 }
 
 /** Checkbox row with local state */
-function AccordionCheckbox({ label, defaultChecked = false }: { label: string; defaultChecked?: boolean }) {
-  const [checked, setChecked] = useState(defaultChecked);
-  return <CheckboxRow label={label} checked={checked} onChange={setChecked} placement="right" />;
+function AccordionCheckbox({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  return <CheckboxRow label={label} checked={checked} onChange={onChange} placement="right" />;
 }
 
 /** Hub panel — filter form (group type selected) */
-function GroupsFilterPanel({ activeType }: { activeType: GroupType }) {
-  const [selectedVisibility, setSelectedVisibility] = useState<string[]>(["open"]);
-  const [maxMembers, setMaxMembers] = useState(50);
+function GroupsFilterPanel({
+  activeType,
+  filters,
+  onFiltersChange,
+}: {
+  activeType: GroupType;
+  filters: GroupFilters;
+  onFiltersChange: (update: Partial<GroupFilters>) => void;
+}) {
   const [selectedDogSizes, setSelectedDogSizes] = useState<string[]>([]);
-  const [neighbourhoodsOpen, setNeighbourhoodsOpen] = useState(true);
   const [focusOpen, setFocusOpen] = useState(false);
+  const [neighbourhoodsOpen, setNeighbourhoodsOpen] = useState(true);
 
   const label = GROUP_TYPE_LABELS[activeType];
   const typeInfo = GROUP_TYPES.find((t) => t.key === activeType);
 
-  // Single-select: clicking a visibility option sets it (replacing the other)
-  const handleVisibilityToggle = (val: string) => {
-    setSelectedVisibility([val]);
+  const toggleNeighbourhood = (name: string) => {
+    const current = filters.selectedNeighbourhoods;
+    const next = current.includes(name)
+      ? current.filter((n) => n !== name)
+      : [...current, name];
+    onFiltersChange({ selectedNeighbourhoods: next });
   };
 
   return (
@@ -223,8 +274,8 @@ function GroupsFilterPanel({ activeType }: { activeType: GroupType }) {
             <MultiSelectSegmentBar
               ariaLabel="Group visibility"
               options={VISIBILITY_OPTIONS}
-              selectedValues={selectedVisibility}
-              onToggle={handleVisibilityToggle}
+              selectedValues={filters.selectedVisibility}
+              onToggle={(val) => onFiltersChange({ selectedVisibility: [val] })}
               variant="filter"
             />
           </div>
@@ -237,12 +288,12 @@ function GroupsFilterPanel({ activeType }: { activeType: GroupType }) {
             min={2}
             max={50}
             step={1}
-            value={maxMembers}
-            onChange={(v) => setMaxMembers(v)}
+            value={filters.maxMembers}
+            onChange={(v) => onFiltersChange({ maxMembers: v })}
           />
           <div className="flex items-center gap-sm">
             <span className="text-sm text-fg-tertiary">
-              {maxMembers >= 50 ? "No limit" : `Up to ${maxMembers} members`}
+              {filters.maxMembers >= 50 ? "No limit" : `Up to ${filters.maxMembers} members`}
             </span>
           </div>
         </div>
@@ -279,7 +330,12 @@ function GroupsFilterPanel({ activeType }: { activeType: GroupType }) {
             <div className={`filter-accordion-body${focusOpen ? " open" : ""}`}>
               <div className="filter-accordion-inner">
                 {FOCUS_AREAS.map((name) => (
-                  <AccordionCheckbox key={name} label={name} />
+                  <AccordionCheckbox
+                    key={name}
+                    label={name}
+                    checked={false}
+                    onChange={() => {}}
+                  />
                 ))}
               </div>
             </div>
@@ -302,7 +358,12 @@ function GroupsFilterPanel({ activeType }: { activeType: GroupType }) {
             <div className={`filter-accordion-body${neighbourhoodsOpen ? " open" : ""}`}>
               <div className="filter-accordion-inner">
                 {NEIGHBOURHOODS.map((name) => (
-                  <AccordionCheckbox key={name} label={name} />
+                  <AccordionCheckbox
+                    key={name}
+                    label={name}
+                    checked={filters.selectedNeighbourhoods.includes(name)}
+                    onChange={() => toggleNeighbourhood(name)}
+                  />
                 ))}
               </div>
             </div>
@@ -314,16 +375,29 @@ function GroupsFilterPanel({ activeType }: { activeType: GroupType }) {
   );
 }
 
-function GroupsResultsList({ activeType }: { activeType: GroupType | null }) {
+function GroupsResultsList({ activeType, filters }: { activeType: GroupType | null; filters: GroupFilters }) {
   const userGroups = getUserGroups("shawn");
   const userGroupIds = new Set(userGroups.map((g) => g.id));
-  const publicGroups = getAllPublicGroups()
+  let results = getAllPublicGroups()
     .filter((g) => !userGroupIds.has(g.id))
     .filter((g) => !activeType || g.groupType === activeType);
 
+  if (activeType) {
+    results = applyFilters(results, filters);
+  }
+
+  if (results.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-md p-xl text-center">
+        <UsersThree size={40} weight="light" className="text-fg-tertiary" />
+        <p className="text-sm text-fg-secondary m-0">No groups match your filters. Try broadening your search.</p>
+      </div>
+    );
+  }
+
   return (
     <>
-      {publicGroups.map((group) => (
+      {results.map((group) => (
         <CardGroup key={group.id} group={group} variant="discover" />
       ))}
     </>
@@ -334,12 +408,23 @@ function DiscoverGroupsInner() {
   const searchParams = useSearchParams();
   const groupType = searchParams.get("type") as GroupType | null;
   const isValidType = groupType && ["park", "neighbor", "interest", "care"].includes(groupType);
+  const [filters, setFilters] = useState<GroupFilters>(DEFAULT_FILTERS);
+
+  const handleFiltersChange = (update: Partial<GroupFilters>) => {
+    setFilters((prev) => ({ ...prev, ...update }));
+  };
 
   if (isValidType) {
     const typeInfo = GROUP_TYPES.find((t) => t.key === groupType);
     return (
       <DiscoverShell
-        hubPanel={<GroupsFilterPanel activeType={groupType} />}
+        hubPanel={
+          <GroupsFilterPanel
+            activeType={groupType}
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+          />
+        }
         resultsTitle={GROUP_TYPE_LABELS[groupType]}
         resultsIcon={
           typeInfo
@@ -349,7 +434,7 @@ function DiscoverGroupsInner() {
               })()
             : undefined
         }
-        resultsContent={<GroupsResultsList activeType={groupType} />}
+        resultsContent={<GroupsResultsList activeType={groupType} filters={filters} />}
         mobileShowResults
       />
     );
@@ -360,7 +445,7 @@ function DiscoverGroupsInner() {
       hubPanel={<GroupsPickerPanel />}
       resultsTitle="Discover Groups"
       resultsIcon={<UsersThree size={20} weight="regular" className="text-fg-primary" />}
-      resultsContent={<GroupsResultsList activeType={null} />}
+      resultsContent={<GroupsResultsList activeType={null} filters={DEFAULT_FILTERS} />}
     />
   );
 }
