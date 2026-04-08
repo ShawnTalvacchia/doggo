@@ -364,7 +364,7 @@ export const mockConversations: Conversation[] = [
     providerId: "jana-k",
     providerName: "Jana K.",
     providerAvatarUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/jana-profile.jpeg",
     ownerId: SHAWN_ID,
     ownerName: SHAWN_NAME,
     ownerAvatarUrl: SHAWN_AVATAR,
@@ -380,7 +380,7 @@ export const mockConversations: Conversation[] = [
     providerId: "eva",
     providerName: "Eva",
     providerAvatarUrl:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/eva-profile.jpeg",
     ownerId: SHAWN_ID,
     ownerName: SHAWN_NAME,
     ownerAvatarUrl: SHAWN_AVATAR,

@@ -8,7 +8,7 @@ export const mockNotifications: AppNotification[] = [
     title: "Jana invited you to a meet",
     body: "Weekend hangout — Stromovka, Sat 21 Mar at 10:00",
     avatarUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/jana-profile.jpeg",
     href: "/meets/meet-2",
     createdAt: "2026-04-05T09:30:00Z",
     read: false,
@@ -19,7 +19,7 @@ export const mockNotifications: AppNotification[] = [
     title: "Martin wants to connect",
     body: "You met at Stromovka Off-Leash Club",
     avatarUrl:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/martin-profile.jpeg",
     href: "/profile/martin",
     createdAt: "2026-04-05T08:15:00Z",
     read: false,
@@ -62,7 +62,7 @@ export const mockNotifications: AppNotification[] = [
     title: "Eva accepted your connection",
     body: "You're now connected — you can message each other and book care",
     avatarUrl:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/eva-profile.jpeg",
     href: "/profile/eva",
     createdAt: "2026-04-03T16:00:00Z",
     read: true,
@@ -73,7 +73,7 @@ export const mockNotifications: AppNotification[] = [
     title: "Jana left you a review",
     body: "\"Shawn was great with Rex. Very reliable and caring.\" ★★★★★",
     avatarUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/jana-profile.jpeg",
     href: "/profile",
     createdAt: "2026-04-03T12:00:00Z",
     read: true,
@@ -84,7 +84,7 @@ export const mockNotifications: AppNotification[] = [
     title: "Eva invited you to training",
     body: "Recall practice — Letná, Sat 22 Mar at 09:00",
     avatarUrl:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/eva-profile.jpeg",
     href: "/meets/meet-3",
     createdAt: "2026-04-02T14:00:00Z",
     read: true,
@@ -128,7 +128,7 @@ export const mockNotifications: AppNotification[] = [
     title: "New post in Prague Doodle Owners",
     body: "Jana shared grooming day results",
     avatarUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/jana-profile.jpeg",
     href: "/communities/group-doodle-owners",
     createdAt: "2026-03-30T10:00:00Z",
     read: true,
@@ -150,7 +150,7 @@ export const mockNotifications: AppNotification[] = [
     title: "Pawel created a new meet",
     body: "Morning Pack Walk — Riegrovy sady, Fri 10 Apr at 09:00",
     avatarUrl:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/marek-profile.jpeg",
     href: "/meets/meet-care-2",
     createdAt: "2026-03-28T12:00:00Z",
     read: true,
@@ -193,7 +193,7 @@ export const mockNotifications: AppNotification[] = [
     title: "Eva commented on your post",
     body: "\"Luna loved it too. Same time tomorrow?\"",
     avatarUrl:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/eva-profile.jpeg",
     href: "/communities/group-1",
     createdAt: "2026-03-24T10:30:00Z",
     read: true,

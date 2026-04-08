@@ -147,7 +147,7 @@ export const mockMeets: Meet[] = [
         userId: "jana",
         userName: "Jana",
         avatarUrl:
-          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+          "/images/generated/jana-profile.jpeg",
         dogNames: ["Rex"],
         neighbourhood: "Vinohrady",
         dogBreed: "German Shepherd",
@@ -198,13 +198,13 @@ export const mockMeets: Meet[] = [
     creatorId: "jana",
     creatorName: "Jana",
     creatorAvatarUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/jana-profile.jpeg",
     attendees: [
       {
         userId: "jana",
         userName: "Jana",
         avatarUrl:
-          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+          "/images/generated/jana-profile.jpeg",
         dogNames: ["Rex"],
         neighbourhood: "Vinohrady",
         dogBreed: "German Shepherd",
@@ -213,7 +213,7 @@ export const mockMeets: Meet[] = [
         userId: "eva",
         userName: "Eva",
         avatarUrl:
-          "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
+          "/images/generated/eva-profile.jpeg",
         dogNames: ["Luna", "Max"],
         neighbourhood: "Letná",
         dogBreed: "Border Collie",
@@ -223,7 +223,7 @@ export const mockMeets: Meet[] = [
         userId: "martin",
         userName: "Martin",
         avatarUrl:
-          "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80",
+          "/images/generated/martin-profile.jpeg",
         dogNames: ["Charlie"],
         neighbourhood: "Holešovice",
         dogBreed: "French Bulldog",
@@ -299,13 +299,13 @@ export const mockMeets: Meet[] = [
     creatorId: "eva",
     creatorName: "Eva",
     creatorAvatarUrl:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/eva-profile.jpeg",
     attendees: [
       {
         userId: "eva",
         userName: "Eva",
         avatarUrl:
-          "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
+          "/images/generated/eva-profile.jpeg",
         dogNames: ["Luna"],
       },
       {
@@ -348,13 +348,13 @@ export const mockMeets: Meet[] = [
     creatorId: "martin",
     creatorName: "Martin",
     creatorAvatarUrl:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/martin-profile.jpeg",
     attendees: [
       {
         userId: "martin",
         userName: "Martin",
         avatarUrl:
-          "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80",
+          "/images/generated/martin-profile.jpeg",
         dogNames: ["Charlie"],
       },
     ],
@@ -445,14 +445,14 @@ export const mockMeets: Meet[] = [
         userId: "jana",
         userName: "Jana",
         avatarUrl:
-          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+          "/images/generated/jana-profile.jpeg",
         dogNames: ["Rex"],
       },
       {
         userId: "eva",
         userName: "Eva",
         avatarUrl:
-          "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
+          "/images/generated/eva-profile.jpeg",
         dogNames: ["Luna"],
       },
     ],
@@ -543,9 +543,9 @@ export const mockMeets: Meet[] = [
     },
     creatorId: "pawel",
     creatorName: "Pawel",
-    creatorAvatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+    creatorAvatarUrl: "/images/generated/marek-profile.jpeg",
     attendees: [
-      { userId: "pawel", userName: "Pawel", avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80", dogNames: [] },
+      { userId: "pawel", userName: "Pawel", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: [] },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"] },
       { userId: "tereza", userName: "Tereza", avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80", dogNames: ["Franta"] },
       { userId: "tomas", userName: "Tomáš", avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80", dogNames: ["Hugo"] },
@@ -583,8 +583,8 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=400&q=80",
     attendees: [
       { userId: "cafe_letka", userName: "Café Letka", avatarUrl: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=400&q=80", dogNames: [] },
-      { userId: "jana", userName: "Jana", avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80", dogNames: ["Rex"] },
-      { userId: "eva", userName: "Eva", avatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80", dogNames: ["Luna"] },
+      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"] },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"] },
     ],
     createdAt: "2026-04-02T10:00:00Z",
   },
@@ -621,10 +621,10 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
     attendees: [
       { userId: "tereza", userName: "Tereza", avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80", dogNames: ["Franta"] },
-      { userId: "marek", userName: "Marek", avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80", dogNames: ["Benny"] },
+      { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"] },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"] },
       { userId: "lucie", userName: "Lucie", avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80", dogNames: ["Pepík"] },
-      { userId: "jana", userName: "Jana", avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80", dogNames: ["Rex"] },
+      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"] },
     ],
     createdAt: "2026-01-15T08:00:00Z",
   },
@@ -659,7 +659,7 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
     attendees: [
       { userId: "tereza", userName: "Tereza", avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80", dogNames: ["Franta"] },
-      { userId: "marek", userName: "Marek", avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80", dogNames: ["Benny"] },
+      { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"] },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"] },
       { userId: "jakub", userName: "Jakub", avatarUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=400&q=80", dogNames: ["Aron"] },
     ],
@@ -693,12 +693,12 @@ export const mockMeets: Meet[] = [
     },
     creatorId: "jana",
     creatorName: "Jana",
-    creatorAvatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+    creatorAvatarUrl: "/images/generated/jana-profile.jpeg",
     attendees: [
-      { userId: "jana", userName: "Jana", avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80", dogNames: ["Rex"] },
+      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"] },
       { userId: "klara", userName: "Klára", avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80", dogNames: ["Eda"] },
-      { userId: "martin", userName: "Martin", avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80", dogNames: ["Charlie"] },
-      { userId: "eva", userName: "Eva", avatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80", dogNames: ["Luna", "Max"] },
+      { userId: "martin", userName: "Martin", avatarUrl: "/images/generated/martin-profile.jpeg", dogNames: ["Charlie"] },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"] },
       { userId: "filip", userName: "Filip", avatarUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80", dogNames: ["Toby"] },
     ],
     createdAt: "2026-02-01T09:00:00Z",
@@ -734,7 +734,7 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80",
     attendees: [
       { userId: "daniel", userName: "Daniel", avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80", dogNames: ["Bára"] },
-      { userId: "hana", userName: "Hana", avatarUrl: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=400&q=80", dogNames: ["Runa"] },
+      { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"] },
       { userId: "klara", userName: "Klára", avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80", dogNames: ["Eda"] },
     ],
     createdAt: "2026-01-21T10:00:00Z",
@@ -812,9 +812,9 @@ export const mockMeets: Meet[] = [
     },
     creatorId: "petra",
     creatorName: "Petra",
-    creatorAvatarUrl: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=400&q=80",
+    creatorAvatarUrl: "/images/generated/petra-profile.jpeg",
     attendees: [
-      { userId: "petra", userName: "Petra", avatarUrl: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=400&q=80", dogNames: ["Daisy"] },
+      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"] },
       { userId: "tomas", userName: "Tomáš", avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80", dogNames: ["Hugo"] },
       { userId: "ondrej", userName: "Ondřej", avatarUrl: "https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=400&q=80", dogNames: ["Rocky"] },
     ],
@@ -851,7 +851,7 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
     attendees: [
       { userId: "tereza", userName: "Tereza", avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80", dogNames: ["Franta"] },
-      { userId: "marek", userName: "Marek", avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80", dogNames: ["Benny"] },
+      { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"] },
       { userId: "lucie", userName: "Lucie", avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80", dogNames: ["Pepík"] },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"] },
     ],
@@ -890,7 +890,7 @@ export const mockMeets: Meet[] = [
     attendees: [
       { userId: "lucie", userName: "Lucie", avatarUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80", dogNames: ["Pepík"] },
       { userId: "zuzana", userName: "Zuzana", avatarUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80", dogNames: ["Mia"] },
-      { userId: "petra", userName: "Petra", avatarUrl: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=400&q=80", dogNames: ["Daisy"] },
+      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"] },
     ],
     createdAt: "2026-02-26T15:00:00Z",
   },
@@ -927,7 +927,7 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
     attendees: [
       { userId: "tereza", userName: "Tereza", avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80", dogNames: ["Franta"] },
-      { userId: "marek", userName: "Marek", avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80", dogNames: ["Benny"], rsvpStatus: "going" },
+      { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"], rsvpStatus: "going" },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot", "Goldie"], rsvpStatus: "going" },
     ],
     recentJoinText: "Marek joined yesterday",
@@ -961,13 +961,13 @@ export const mockMeets: Meet[] = [
     },
     creatorId: "jana",
     creatorName: "Jana",
-    creatorAvatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+    creatorAvatarUrl: "/images/generated/jana-profile.jpeg",
     attendees: [
-      { userId: "jana", userName: "Jana", avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80", dogNames: ["Rex"] },
+      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"] },
       { userId: "klara", userName: "Klára", avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80", dogNames: ["Eda"] },
-      { userId: "martin", userName: "Martin", avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80", dogNames: ["Charlie"] },
+      { userId: "martin", userName: "Martin", avatarUrl: "/images/generated/martin-profile.jpeg", dogNames: ["Charlie"] },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], rsvpStatus: "interested" },
-      { userId: "eva", userName: "Eva", avatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80", dogNames: ["Luna", "Max"] },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"] },
     ],
     recentJoinText: "Eva joined 3h ago",
     createdAt: "2026-04-05T09:00:00Z",
@@ -1003,7 +1003,7 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80",
     attendees: [
       { userId: "daniel", userName: "Daniel", avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80", dogNames: ["Bára"] },
-      { userId: "hana", userName: "Hana", avatarUrl: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=400&q=80", dogNames: ["Runa"] },
+      { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"] },
       { userId: "vitek", userName: "Vítek", avatarUrl: "https://images.unsplash.com/photo-1504257432389-52343af06ae3?auto=format&fit=crop&w=400&q=80", dogNames: ["Sam"] },
     ],
     createdAt: "2026-04-07T10:00:00Z",
@@ -1047,7 +1047,7 @@ export const mockMeets: Meet[] = [
     attendees: [
       { userId: "klara", userName: "Klára", avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80", dogNames: ["Eda"] },
       { userId: "filip", userName: "Filip", avatarUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80", dogNames: ["Toby"] },
-      { userId: "hana", userName: "Hana", avatarUrl: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=400&q=80", dogNames: ["Runa"], rsvpStatus: "interested" },
+      { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"], rsvpStatus: "interested" },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], rsvpStatus: "interested" },
     ],
     createdAt: "2026-04-09T09:30:00Z",
@@ -1084,7 +1084,7 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
     attendees: [
       { userId: "tomas", userName: "Tomáš", avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80", dogNames: ["Hugo"] },
-      { userId: "petra", userName: "Petra", avatarUrl: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=400&q=80", dogNames: ["Daisy"] },
+      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"] },
       { userId: "ondrej", userName: "Ondřej", avatarUrl: "https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=400&q=80", dogNames: ["Rocky"] },
       { userId: "adela", userName: "Adéla", avatarUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80", dogNames: ["Číča"] },
     ],
@@ -1123,7 +1123,7 @@ export const mockMeets: Meet[] = [
       { userId: "tereza", userName: "Tereza", avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80", dogNames: ["Franta"] },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"] },
       { userId: "zuzana", userName: "Zuzana", avatarUrl: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80", dogNames: ["Mia"] },
-      { userId: "marek", userName: "Marek", avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80", dogNames: ["Benny"] },
+      { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"] },
     ],
     createdAt: "2026-04-04T18:00:00Z",
   },
@@ -1156,9 +1156,9 @@ export const mockMeets: Meet[] = [
     },
     creatorId: "eva",
     creatorName: "Eva",
-    creatorAvatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
+    creatorAvatarUrl: "/images/generated/eva-profile.jpeg",
     attendees: [
-      { userId: "eva", userName: "Eva", avatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80", dogNames: ["Luna"] },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"] },
       { userId: "klara", userName: "Klára", avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80", dogNames: ["Eda"] },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Goldie"] },
     ],

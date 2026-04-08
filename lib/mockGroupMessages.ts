@@ -40,7 +40,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "jana",
       senderName: "Jana",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/jana-profile.jpeg",
       text: "We'll be there! Rex has been cooped up all weekend, he needs a good run.",
       sentAt: "2026-03-17T09:15:00Z",
     },
@@ -94,7 +94,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "jana",
       senderName: "Jana",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/jana-profile.jpeg",
       text: "Saturday playdate is on! The field by the pond should be nice and dry.",
       sentAt: "2026-03-19T14:00:00Z",
     },
@@ -104,7 +104,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "eva",
       senderName: "Eva",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/eva-profile.jpeg",
       text: "Luna and Max are ready! Should I bring the frisbee?",
       sentAt: "2026-03-19T15:20:00Z",
     },
@@ -125,7 +125,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "martin",
       senderName: "Martin",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/martin-profile.jpeg",
       text: "Yes! Charlie loves the frisbee. See you all there.",
       sentAt: "2026-03-19T16:00:00Z",
     },
@@ -149,7 +149,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "hana",
       senderName: "Hana",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/hana-profile.jpeg",
       text: "That's amazing Daniel! Runa is still at the 'watch from a distance' stage but hearing your progress gives me hope. How far apart were you?",
       sentAt: "2026-03-25T16:25:00Z",
     },
@@ -234,7 +234,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "petra",
       senderName: "Petra",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/petra-profile.jpeg",
       text: "I can take him Tomáš! Daisy would love the company. I'm home all afternoon. Drop him off whenever you need.",
       sentAt: "2026-03-17T11:12:00Z",
     },
@@ -274,7 +274,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "petra",
       senderName: "Petra",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/petra-profile.jpeg",
       text: "Hugo was an angel! He and Daisy napped together on the couch. Happy to have him anytime. 🐾",
       sentAt: "2026-03-17T17:00:00Z",
     },

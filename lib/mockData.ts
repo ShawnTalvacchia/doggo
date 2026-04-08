@@ -119,7 +119,7 @@ export const providers: ProviderCard[] = [
     priceUnit: "per_visit",
     blurb: "Patient care for shy and senior dogs",
     avatarUrl:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=200&q=80",
+      "/images/generated/eva-profile.jpeg",
     services: ["walk_checkin", "inhome_sitting", "boarding"],
     availableTimes: ["6-11", "15-22"],
     distanceKm: 3.7,
@@ -219,7 +219,7 @@ export const providers: ProviderCard[] = [
     priceUnit: "per_walk",
     blurb: "Active walks and reliable boarding by the river",
     avatarUrl:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80",
+      "/images/generated/martin-profile.jpeg",
     services: ["walk_checkin", "boarding"],
     availableTimes: ["6-11", "15-22"],
     distanceKm: 1.8,
@@ -239,7 +239,7 @@ export const providers: ProviderCard[] = [
     priceUnit: "per_visit",
     blurb: "Affordable care for all dogs — walks and overnight",
     avatarUrl:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80",
+      "/images/generated/jana-profile.jpeg",
     services: ["walk_checkin", "inhome_sitting", "boarding"],
     availableTimes: ["6-11", "11-15"],
     distanceKm: 2.9,

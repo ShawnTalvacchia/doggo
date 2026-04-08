@@ -446,7 +446,7 @@ const providerFallbackDetails: Record<
     aboutBody:
       "I'm a certified dog trainer with five years of experience in Prague's 2nd district. I specialise in structured, purposeful walks that help dogs feel secure and satisfied. Every walk starts with a brief sniff-and-settle and ends with a debrief note to the owner. I take a maximum of two dogs at a time so each one gets real attention.",
     photoMainUrl: DEFAULT_ABOUT_BANNER_URL,
-    photoSideUrl: "/images/generated/care-dog-walking.jpeg",
+    photoSideUrl: "/images/generated/care-nikola-boarding.jpeg",
     photoCountLabel: "(78 photos)",
     careExperience: [
       "Adult dogs",
