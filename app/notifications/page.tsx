@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   Bell,
   CalendarBlank,
+  ChatCircle,
   Handshake,
   HandsClapping,
   UsersThree,
@@ -34,6 +35,9 @@ const TYPE_ICONS: Record<NotificationType, typeof Bell> = {
   session_completed: CheckCircle,
   care_review: Star,
   new_message: EnvelopeSimple,
+  booking_message: EnvelopeSimple,
+  meet_rsvp: CalendarBlank,
+  post_comment: ChatCircle,
 };
 
 const TYPE_LABELS: Record<NotificationType, string> = {
@@ -47,6 +51,9 @@ const TYPE_LABELS: Record<NotificationType, string> = {
   session_completed: "Care",
   care_review: "Review",
   new_message: "Message",
+  booking_message: "Message",
+  meet_rsvp: "Meet",
+  post_comment: "Comment",
 };
 
 /* ── List item ── */
