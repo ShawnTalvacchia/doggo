@@ -315,13 +315,16 @@ export interface Conversation {
 export type NotificationType =
   | "session_completed"
   | "new_message"
+  | "booking_message"
   | "booking_proposal"
   | "booking_confirmed"
   | "meet_invite"
   | "meet_reminder"
+  | "meet_rsvp"
   | "connection_request"
   | "connection_accepted"
   | "group_activity"
+  | "post_comment"
   | "care_review";
 
 export interface AppNotification {

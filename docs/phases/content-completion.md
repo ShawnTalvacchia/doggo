@@ -18,7 +18,7 @@ review-trigger: When any task is completed or blocked
 
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
-| A1 | Remove Chat tab from neighbor/interest group detail. Update `getTabsForGroupType()` | [[meets]], [[Groups & Care Model]] | todo |
+| A1 | Remove Chat tab from neighbor/interest group detail. Update `getTabsForGroupType()` | [[meets]], [[Groups & Care Model]] | done |
 | A2 | Add flat comment UI to group Feed posts (author avatar, name, text, timestamp). Local-state add. | [[meets]], [[messaging]] | done |
 | A3 | Restructure meet detail page to tabs: Details · People · Chat. Extract current sections into tab content. | [[meets]] | done |
 
@@ -30,25 +30,29 @@ review-trigger: When any task is completed or blocked
 | B2 | Wire Discover/Meets filter logic — checkboxes and sliders should filter the results list | [[meets]] | done |
 | B3 | Wire Discover/Groups filter logic — same as B2 for groups | [[meets]] | done |
 | B4 | Replace Discover hub placeholder descriptions ("Short text about that") with real copy | [[explore-and-care]] | done |
-| B5 | Build out Bookings "My Services" tab — provider view showing their service groups, active bookings as provider, incoming requests | [[schedule]], [[profiles]] | todo |
-| B6 | Make Inbox compose input functional (local-state send, message appears in thread) | [[messaging]] | todo |
+| B5 | Build out Bookings "My Services" tab — provider view showing their service groups, active bookings as provider, incoming requests | [[schedule]], [[profiles]] | done |
+| B6 | Make Inbox compose input functional (local-state send, message appears in thread) | [[messaging]] | done |
 
 ## Workstream C — Content Fill
 
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
-| C1 | Ensure every group has 2-3 feed posts with mock comments (once A2 lands) | [[meets]], [[mock-data-plan]] | todo |
-| C2 | Ensure every care group has 1-2 upcoming events in mock data | [[Groups & Care Model]] | todo |
-| C3 | Ensure care group galleries have 6+ photos (enough for all 3 modes to look real) | [[Groups & Care Model]] | todo |
-| C4 | Add mock posts authored by "shawn" so profile Posts tab isn't empty | [[profiles]] | todo |
-| C5 | Expand notification mock data to 15-20 items across all types | -- | todo |
-| C6 | Add feed filtering by category tab on Community right panel | [[meets]] | todo |
+| C1 | Ensure every group has 2-3 feed posts with mock comments (once A2 lands) | [[meets]], [[mock-data-plan]] | done |
+| C2 | Ensure every care group has 1-2 upcoming events in mock data | [[Groups & Care Model]] | done |
+| C3 | Ensure care group galleries have 6+ photos (enough for all 3 modes to look real) | [[Groups & Care Model]] | done |
+| C4 | Add mock posts authored by "shawn" so profile Posts tab isn't empty | [[profiles]] | done |
+| C5 | Expand notification mock data to 15-20 items across all types | -- | done |
+| C6 | Add feed filtering by category tab on Community right panel | [[meets]] | done |
 
 ## Workstream D — Polish
 
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
-| D1 | UI tweaks backlog (accumulated during development — list here as discovered) | -- | todo |
+| D1 | Schedule card consistency: unify Meet vs Care card patterns (shared structure, distinct color accents/strokes) | [[schedule]] | todo |
+| D2 | Remove redundant "Upcoming" label from cards shown under the Upcoming tab | [[schedule]] | todo |
+| D3 | "Book a spot" CTA should not appear on cards in Upcoming (user already booked) — move to Interested tab or Discover | [[schedule]] | todo |
+| D4 | Rename "Invited" tab → "Interested" and wire interest actions to populate it | [[schedule]], [[meets]] | todo |
+| D5 | General UI tweaks backlog (accumulated during development — list here as discovered) | -- | todo |
 
 ---
 

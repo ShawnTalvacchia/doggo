@@ -23,7 +23,7 @@ import { PanelBody } from "@/components/layout/PanelBody";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutList } from "@/components/layout/LayoutList";
 import { CardGroup } from "@/components/groups/CardGroup";
-import { getUserGroups } from "@/lib/mockGroups";
+import { getUserGroups, getGroupById } from "@/lib/mockGroups";
 import type { FeedItem, GroupType } from "@/lib/types";
 
 // ── Feed rendering ──────────────────────────────────────────────────────────
@@ -108,7 +108,7 @@ function HomePageInner() {
   const mobileView: MobileView = "list";
 
   const userGroups = getUserGroups("shawn");
-  const feedItems = getFeedForUser("shawn");
+  const allFeedItems = getFeedForUser("shawn");
   const dogPhotos = mockUser.pets.map((p) => p.imageUrl);
 
   // Filter groups by active category tab
@@ -117,6 +117,28 @@ function HomePageInner() {
     if (!groupType) return userGroups;
     return userGroups.filter((g) => g.groupType === groupType);
   }, [userGroups, groupType]);
+
+  // Filter feed by active category tab
+  const feedItems = useMemo(() => {
+    if (!groupType) return allFeedItems;
+    const groupIdsOfType = new Set(
+      userGroups.filter((g) => g.groupType === groupType).map((g) => g.id)
+    );
+    return allFeedItems.filter((item) => {
+      if (item.type === "community_post" || item.type === "personal_post") {
+        const post = (item as any).post;
+        if (post?.groupId) return groupIdsOfType.has(post.groupId);
+        // Personal posts show only in "all"
+        return false;
+      }
+      if (item.type === "upcoming_meet" || item.type === "meet_recap") {
+        const meet = (item as any).meet;
+        if (meet?.groupId) return groupIdsOfType.has(meet.groupId);
+        return false;
+      }
+      return false;
+    });
+  }, [allFeedItems, groupType, userGroups]);
 
   // Count groups per category for potential badge display
   const groupCounts = useMemo(() => {

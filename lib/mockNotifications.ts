@@ -111,6 +111,93 @@ export const mockNotifications: AppNotification[] = [
     createdAt: "2026-03-31T17:00:00Z",
     read: true,
   },
+  {
+    id: "notif-11",
+    type: "meet_rsvp",
+    title: "Petra is going to your meet",
+    body: "Morning walk — Riegrovy sady, Wed 18 Mar",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80",
+    href: "/meets/meet-1",
+    createdAt: "2026-03-30T14:00:00Z",
+    read: true,
+  },
+  {
+    id: "notif-12",
+    type: "group_activity",
+    title: "New post in Prague Doodle Owners",
+    body: "Jana shared grooming day results",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80",
+    href: "/communities/group-doodle-owners",
+    createdAt: "2026-03-30T10:00:00Z",
+    read: true,
+  },
+  {
+    id: "notif-13",
+    type: "booking_message",
+    title: "New message from Olga",
+    body: "Re: Walks & Check-ins — \"See you Monday at 8!\"",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
+    href: "/inbox",
+    createdAt: "2026-03-29T19:00:00Z",
+    read: true,
+  },
+  {
+    id: "notif-14",
+    type: "meet_invite",
+    title: "Pawel created a new meet",
+    body: "Morning Pack Walk — Riegrovy sady, Fri 10 Apr at 09:00",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+    href: "/meets/meet-care-2",
+    createdAt: "2026-03-28T12:00:00Z",
+    read: true,
+  },
+  {
+    id: "notif-15",
+    type: "connection_request",
+    title: "Petra wants to connect",
+    body: "You met at Reactive Dog Support",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80",
+    href: "/profile/petra",
+    createdAt: "2026-03-27T11:00:00Z",
+    read: true,
+  },
+  {
+    id: "notif-16",
+    type: "group_activity",
+    title: "Klára posted in Calm Dog Sessions",
+    body: "Next session is Thursday 10am at Letná",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+    href: "/communities/group-klara-training",
+    createdAt: "2026-03-26T09:00:00Z",
+    read: true,
+  },
+  {
+    id: "notif-17",
+    type: "meet_reminder",
+    title: "Meet in 2 hours",
+    body: "Recall practice — Letná, today at 09:00",
+    avatarUrl: "/images/generated/training-session.jpeg",
+    href: "/meets/meet-3",
+    createdAt: "2026-03-25T07:00:00Z",
+    read: true,
+  },
+  {
+    id: "notif-18",
+    type: "post_comment",
+    title: "Eva commented on your post",
+    body: "\"Luna loved it too. Same time tomorrow?\"",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&q=80",
+    href: "/communities/group-1",
+    createdAt: "2026-03-24T10:30:00Z",
+    read: true,
+  },
 ];
 
 export function getUnreadCount(): number {
