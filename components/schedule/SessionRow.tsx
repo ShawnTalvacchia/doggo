@@ -13,11 +13,14 @@ export function SessionRow({
   session,
   isActive,
   onClick,
+  hideStatus = false,
 }: {
   booking: Booking;
   session: BookingSession;
   isActive: boolean;
   onClick: () => void;
+  /** When true, suppresses the StatusBadge (e.g. in Upcoming tab where status is implied). */
+  hideStatus?: boolean;
 }) {
   const isOwner = booking.ownerId === CURRENT_USER;
   const other = isOwner
@@ -51,7 +54,7 @@ export function SessionRow({
           {booking.pets.length > 0 && ` · ${booking.pets.join(", ")}`}
         </span>
       </div>
-      <StatusBadge status={session.status} />
+      {!hideStatus && <StatusBadge status={session.status} />}
     </div>
   );
 }

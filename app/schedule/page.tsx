@@ -29,7 +29,7 @@ import type { Meet, Booking, BookingSession } from "@/lib/types";
 
 const CURRENT_USER = "shawn";
 
-type ScheduleFilter = "upcoming" | "invited" | "care";
+type ScheduleFilter = "upcoming" | "interested" | "care";
 
 type Selection =
   | { type: "meet"; meetId: string }
@@ -120,7 +120,7 @@ export default function SchedulePage() {
 
   const TABS = [
     { key: "upcoming", label: "Upcoming" },
-    { key: "invited", label: "Invited" },
+    { key: "interested", label: "Interested" },
     { key: "care", label: "Care" },
   ];
 
@@ -136,7 +136,7 @@ export default function SchedulePage() {
         .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
     }
 
-    if (filter === "invited") {
+    if (filter === "interested") {
       return upcomingMeets
         .filter((m) => getMeetRole(m, CURRENT_USER) === "interested")
         .map((m) => ({
@@ -247,6 +247,7 @@ export default function SchedulePage() {
                   booking={item.booking}
                   session={item.session}
                   isActive={isActive}
+                  hideStatus={filter === "upcoming"}
                   onClick={() => setSelection({ type: "session", bookingId: item.booking.id, sessionId: item.session.id })}
                 />
               );
@@ -263,8 +264,8 @@ export default function SchedulePage() {
       ) : (
         <EmptyState
           icon={<CalendarDots size={48} weight="light" />}
-          title={filter === "care" ? "No care bookings yet." : filter === "invited" ? "No invitations right now." : "Nothing coming up yet."}
-          subtitle={filter === "care" ? "Find care from people you trust." : "Browse meets near you and RSVP."}
+          title={filter === "care" ? "No care bookings yet." : filter === "interested" ? "Nothing saved yet." : "Nothing coming up yet."}
+          subtitle={filter === "care" ? "Find care from people you trust." : filter === "interested" ? "Meets you're interested in will show up here." : "Browse meets near you and RSVP."}
           action={
             <ButtonAction
               variant="primary"

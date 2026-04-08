@@ -48,10 +48,10 @@ review-trigger: When any task is completed or blocked
 
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
-| D1 | Schedule card consistency: unify Meet vs Care card patterns (shared structure, distinct color accents/strokes) | [[schedule]] | todo |
-| D2 | Remove redundant "Upcoming" label from cards shown under the Upcoming tab | [[schedule]] | todo |
-| D3 | "Book a spot" CTA should not appear on cards in Upcoming (user already booked) — move to Interested tab or Discover | [[schedule]] | todo |
-| D4 | Rename "Invited" tab → "Interested" and wire interest actions to populate it | [[schedule]], [[meets]] | todo |
+| D1 | Schedule card consistency: unify Meet vs Care card patterns (shared structure, distinct color accents/strokes) | [[schedule]] | done |
+| D2 | Remove redundant "Upcoming" label from cards shown under the Upcoming tab | [[schedule]] | done |
+| D3 | "Book a spot" CTA should not appear on cards in Upcoming (user already booked) — move to Interested tab or Discover | [[schedule]] | done |
+| D4 | Rename "Invited" tab → "Interested" and wire interest actions to populate it | [[schedule]], [[meets]] | done |
 | D5 | General UI tweaks backlog (accumulated during development — list here as discovered) | -- | todo |
 
 ---

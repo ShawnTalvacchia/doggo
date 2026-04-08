@@ -274,8 +274,8 @@ export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetPro
         </div>
       )}
 
-      {/* Service CTA — care group events */}
-      {!isCancelled && meet.serviceCTA && (
+      {/* Service CTA — care group events (hidden when user already booked/committed) */}
+      {!isCancelled && meet.serviceCTA && !(variant === "schedule" && (role === "joining" || role === "hosting")) && (
         <div className="flex items-center justify-between rounded-sm bg-brand-subtle px-md py-sm">
           <div className="flex items-center gap-sm">
             {meet.serviceCTA.price && (
