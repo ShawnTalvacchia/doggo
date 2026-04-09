@@ -11455,7 +11455,7 @@ body.guest-route {
   flex: 1;
   min-height: 0;
   background: var(--surface-popout);
-  border: 1px solid var(--border-regular);
+  border: 1px solid var(--border-stronger);
   border-radius: var(--radius-panel) var(--radius-panel) 0 0;
   overflow: hidden;
 }
@@ -11720,7 +11720,7 @@ body.guest-route {
   .notifications-page-shell,
   .inbox-page-shell {
     background: var(--surface-inset);
-    border: 1px solid var(--border-regular);
+    border: 1px solid var(--border-stronger);
     border-radius: var(--radius-panel);
   }
 
