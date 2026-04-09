@@ -11,6 +11,7 @@ import { useEffect, useRef } from "react";
  * issues with nested overflow:hidden parents.
  *
  * Only activates on viewports ≤ 767px (mobile).
+ * Handles viewport changes bidirectionally (mobile ↔ desktop).
  */
 
 const SCROLL_CONTAINER_CLASSES = [
@@ -30,6 +31,8 @@ export function useScrollHideNav() {
   const ticking = useRef(false);
   const cooldown = useRef(false);
   const trackedElements = useRef<Set<HTMLElement>>(new Set());
+  const observerRef = useRef<MutationObserver | null>(null);
+  const activeRef = useRef(false);
 
   useEffect(() => {
     const THRESHOLD = 8;
@@ -39,7 +42,6 @@ export function useScrollHideNav() {
     const COOLDOWN_MS = 350;
 
     const mql = window.matchMedia("(max-width: 767px)");
-    if (!mql.matches) return;
 
     function handleScroll(e: Event) {
       const target = e.currentTarget as HTMLElement;
@@ -101,68 +103,85 @@ export function useScrollHideNav() {
       }
     }
 
-    // Initial scan
-    scanAndAttach();
+    // Start listening: scan DOM + watch for future DOM changes
+    function activate() {
+      if (activeRef.current) return;
+      activeRef.current = true;
 
-    // Watch for DOM changes (route navigation adds/removes scroll containers)
-    const observer = new MutationObserver((mutations) => {
-      let needsScan = false;
-      for (const mutation of mutations) {
-        if (mutation.type === "childList") {
-          // Check removed nodes
-          mutation.removedNodes.forEach((node) => {
-            if (node instanceof HTMLElement) {
-              if (isScrollContainer(node)) detachListener(node);
-              // Also check descendants
-              trackedElements.current.forEach((tracked) => {
-                if (!document.body.contains(tracked)) detachListener(tracked);
-              });
-            }
-          });
-          // Check added nodes
-          mutation.addedNodes.forEach((node) => {
-            if (node instanceof HTMLElement) {
-              if (isScrollContainer(node)) {
-                needsScan = true;
-              } else if (node.querySelector) {
-                for (const cls of SCROLL_CONTAINER_CLASSES) {
-                  if (node.querySelector(`.${cls}`)) {
-                    needsScan = true;
-                    break;
+      scanAndAttach();
+
+      const observer = new MutationObserver((mutations) => {
+        let needsScan = false;
+        for (const mutation of mutations) {
+          if (mutation.type === "childList") {
+            // Check removed nodes — detach tracked elements no longer in DOM
+            mutation.removedNodes.forEach((node) => {
+              if (node instanceof HTMLElement) {
+                if (isScrollContainer(node)) detachListener(node);
+                trackedElements.current.forEach((tracked) => {
+                  if (!document.body.contains(tracked)) detachListener(tracked);
+                });
+              }
+            });
+            // Check added nodes — scan if new scroll containers appear
+            mutation.addedNodes.forEach((node) => {
+              if (node instanceof HTMLElement) {
+                if (isScrollContainer(node)) {
+                  needsScan = true;
+                } else if (node.querySelector) {
+                  for (const cls of SCROLL_CONTAINER_CLASSES) {
+                    if (node.querySelector(`.${cls}`)) {
+                      needsScan = true;
+                      break;
+                    }
                   }
                 }
               }
-            }
-          });
+            });
+          }
         }
-      }
-      if (needsScan) scanAndAttach();
-    });
+        if (needsScan) scanAndAttach();
+      });
 
-    observer.observe(document.body, { childList: true, subtree: true });
+      observer.observe(document.body, { childList: true, subtree: true });
+      observerRef.current = observer;
+    }
 
-    const onChange = () => {
-      if (!mql.matches) {
-        document.body.classList.remove("nav-hidden");
-        // Detach all listeners
-        trackedElements.current.forEach((el) => {
-          el.removeEventListener("scroll", handleScroll);
-        });
-        trackedElements.current.clear();
-        observer.disconnect();
-      }
-    };
+    // Stop listening: detach all scroll listeners + observer
+    function deactivate() {
+      if (!activeRef.current) return;
+      activeRef.current = false;
 
-    mql.addEventListener("change", onChange);
-
-    return () => {
+      document.body.classList.remove("nav-hidden");
       trackedElements.current.forEach((el) => {
         el.removeEventListener("scroll", handleScroll);
       });
       trackedElements.current.clear();
-      observer.disconnect();
-      mql.removeEventListener("change", onChange);
-      document.body.classList.remove("nav-hidden");
+
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+        observerRef.current = null;
+      }
+    }
+
+    // React to viewport changes (mobile ↔ desktop)
+    function onViewportChange() {
+      if (mql.matches) {
+        activate();
+      } else {
+        deactivate();
+      }
+    }
+
+    // Initial setup based on current viewport
+    onViewportChange();
+
+    // Listen for viewport changes
+    mql.addEventListener("change", onViewportChange);
+
+    return () => {
+      deactivate();
+      mql.removeEventListener("change", onViewportChange);
     };
   }, []);
 }

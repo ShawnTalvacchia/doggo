@@ -14,7 +14,7 @@ export function FeedMeetRecap({ meet }: { meet: Meet }) {
         <div className="feed-card-col-avatar">
           <div
             className="flex items-center justify-center rounded-full"
-            style={{ width: 36, height: 36, background: "var(--brand-subtle)" }}
+            style={{ width: 40, height: 40, background: "var(--brand-subtle)" }}
           >
             <CalendarDots size={18} weight="fill" style={{ color: "var(--brand-main)" }} />
           </div>

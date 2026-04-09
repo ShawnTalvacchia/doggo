@@ -81,6 +81,10 @@ function HomePageInner() {
   const mainTab = (searchParams.get("view") as MainTab) || "feed";
   const handleMainTabChange = (key: string) => {
     const tab = key as MainTab;
+    // Reset scroll position when switching tabs
+    const scrollBody = document.querySelector(".community-panel-body");
+    if (scrollBody) scrollBody.scrollTop = 0;
+
     if (tab === "feed") {
       router.replace("/home", { scroll: false });
     } else {

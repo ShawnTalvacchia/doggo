@@ -10,8 +10,8 @@ interface FeedCardProps {
   authorAvatarUrl?: string;
   authorHref?: string;
   timestamp?: string;
-  groupName?: string;
-  groupId?: string;
+  /** Context string for header row 1, e.g. "in Stromovka Morning Crew" or "at Letná" */
+  headerContext?: React.ReactNode;
   connectionContext?: string;
   /** Caption text */
   caption?: string;
@@ -46,8 +46,7 @@ export function FeedCard({
   authorAvatarUrl,
   authorHref,
   timestamp,
-  groupName,
-  groupId,
+  headerContext,
   connectionContext,
   caption,
   media,
@@ -70,7 +69,7 @@ export function FeedCard({
     }
   }
 
-  /* ── Two-column Threads layout: avatar | content ── */
+  /* ── Threads-style layout: avatar + two-row header, then content ── */
   if (authorName && authorAvatarUrl) {
     return (
       <article className="feed-card">
@@ -84,10 +83,10 @@ export function FeedCard({
             />
           </div>
 
-          {/* Right column: all content */}
+          {/* Right column: header + content */}
           <div className="feed-card-col-content">
-            {/* Author name + timestamp */}
-            <div className="feed-card-author-row">
+            {/* Row 1: Name + context (primary) */}
+            <div className="feed-card-header-primary">
               {authorHref ? (
                 <Link href={authorHref} className="feed-card-author-name" style={{ textDecoration: "none" }}>
                   {authorName}
@@ -95,33 +94,20 @@ export function FeedCard({
               ) : (
                 <span className="feed-card-author-name">{authorName}</span>
               )}
-              {timestamp && (
-                <span className="feed-card-timestamp">{formatRelativeDate(timestamp)}</span>
+              {headerContext}
+              {connectionContext && (
+                <span className="feed-card-context-text">{connectionContext}</span>
               )}
             </div>
-
-            {/* Group / connection context */}
-            {(groupName || connectionContext) && (
-              <div className="feed-card-context">
-                {groupName && groupId && (
-                  <Link href={`/communities/${groupId}`} className="feed-card-context-link" style={{ textDecoration: "none" }}>
-                    {groupName}
-                  </Link>
-                )}
-                {connectionContext && <span>{connectionContext}</span>}
-              </div>
+            {/* Row 2: Timestamp (secondary) */}
+            {timestamp && (
+              <span className="feed-card-timestamp">{formatRelativeDate(timestamp)}</span>
             )}
 
-            {/* Caption */}
+            {/* Content: caption, tags, photos, actions */}
             {caption && <p className="feed-card-caption">{caption}</p>}
-
-            {/* Tags */}
             {tags && <div className="feed-card-tags">{tags}</div>}
-
-            {/* Photos */}
             {media}
-
-            {/* Action row */}
             {showActions && (
               <div className="feed-card-actions">
                 <button
@@ -141,8 +127,6 @@ export function FeedCard({
                 </button>
               </div>
             )}
-
-            {/* Children slot */}
             {children && <div className="feed-card-children">{children}</div>}
           </div>
         </div>
