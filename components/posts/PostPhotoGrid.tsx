@@ -21,7 +21,9 @@ export function PostPhotoGrid({ photos }: PostPhotoGridProps) {
   if (photos.length === 0) return null;
 
   const count = Math.min(photos.length, 4);
-  const height = count === 1 ? 320 : 220;
+  // Single photo: taller, full width. Multiple: shorter, scrollable.
+  const height = count === 1 ? 320 : 240;
+  const width = count === 1 ? "100%" : 200;
 
   return (
     <div className="post-photo-grid">
@@ -33,8 +35,8 @@ export function PostPhotoGrid({ photos }: PostPhotoGridProps) {
           className="post-photo-grid-img"
           onError={handleImgError}
           style={{
-            flex: "1 1 0",
-            minWidth: 0,
+            width,
+            minWidth: typeof width === "number" ? width : undefined,
             height,
           }}
         />

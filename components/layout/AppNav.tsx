@@ -146,7 +146,7 @@ export function AppNav() {
             <GuestNavLinks />
           )
         ) : (
-          <LoggedNavLinks hideCreate={isDiscoverRoute} />
+          <LoggedNavLinks hideCreate={isDiscoverRoute || pathname.startsWith("/schedule") || pathname.startsWith("/bookings") || pathname.startsWith("/inbox") || pathname.startsWith("/notifications")} />
         )}
       </div>
     </>

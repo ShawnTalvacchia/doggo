@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { DetailHeader } from "@/components/layout/DetailHeader";
+import { usePageHeader } from "@/contexts/PageHeaderContext";
+import { Spacer } from "@/components/layout/Spacer";
 import { TabBar } from "@/components/ui/TabBar";
 import {
   MapPin,
@@ -127,6 +129,7 @@ function MeetDetailInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab") || "details";
+  const { setDetailHeader, clearDetailHeader } = usePageHeader();
 
   const meet = mockMeets.find((m) => m.id === params.id);
   const [showShare, setShowShare] = useState(false);
@@ -151,6 +154,32 @@ function MeetDetailInner() {
   const isCreator = meet.creatorId === "shawn";
   const messages = getMessagesForMeet(meet.id);
 
+  // Right action changes per tab
+  const headerAction = (() => {
+    switch (activeTab) {
+      case "details":
+        return (
+          <ButtonAction
+            variant="outline"
+            size="sm"
+            cta
+            leftIcon={<ShareNetwork size={14} weight="bold" />}
+            onClick={() => setShowShare(true)}
+          >
+            Share
+          </ButtonAction>
+        );
+      default:
+        return undefined;
+    }
+  })();
+
+  // Feed detail header into AppNav on mobile
+  useEffect(() => {
+    setDetailHeader(meet.title, () => router.push("/home"), headerAction);
+    return () => clearDetailHeader();
+  }, [meet.title, activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleTabChange = (key: string) => {
     if (key === "details") {
       router.replace(`/meets/${meet.id}`, { scroll: false });
@@ -160,90 +189,49 @@ function MeetDetailInner() {
   };
 
   return (
-    <div
-      className="flex flex-col mx-auto w-full bg-surface-popout"
-      style={{ maxWidth: "var(--app-page-max-width)", minHeight: "calc(100vh - var(--nav-height))" }}
-    >
-      <DetailHeader backLabel="Back" />
+    <div className="meet-detail-page">
+      {/* ── Header (above panel on desktop, becomes mobile top bar) ── */}
+      <DetailHeader backLabel="Back" title={meet.title} rightAction={headerAction} />
 
-      {/* ── Persistent header (above tabs) ──────────────────────── */}
-      <header className="flex flex-col gap-sm p-xl pb-0">
-        <div className="flex items-center gap-sm">
-          <span
-            className="flex items-center gap-xs rounded-pill px-sm py-xs text-sm font-medium bg-brand-subtle text-brand-strong"
-          >
-            {MEET_ICONS[meet.type]}
-            {MEET_TYPE_LABELS[meet.type]}
-          </span>
-          {meet.recurring && (
-            <span className="flex items-center gap-xs text-xs text-fg-tertiary">
-              <ArrowsClockwise size={14} weight="light" />
-              Weekly
-            </span>
+      {/* ── Panel (rounded card container) ── */}
+      <div className="meet-detail-panel">
+
+        {/* ── Scrollable tab content (tabs sticky inside for glassmorphism) ── */}
+        <div className="meet-detail-body">
+          <div className="meet-detail-tabs">
+            <TabBar tabs={MEET_TABS} activeKey={activeTab} onChange={handleTabChange} />
+          </div>
+          {activeTab === "details" && (
+            <DetailsTab
+              meet={meet}
+              goingAttendees={goingAttendees}
+              interestedCount={interestedCount}
+              totalDogs={totalDogs}
+              spotsLeft={spotsLeft}
+              isJoined={isJoined}
+              isCreator={isCreator}
+              onShare={() => setShowShare(true)}
+            />
           )}
-          {meet.status === "completed" && (
-            <span
-              className="rounded-pill px-sm py-xs text-xs font-medium bg-surface-gray text-fg-secondary"
-            >
-              Completed
-            </span>
+
+          {activeTab === "people" && (
+            <PeopleTab meet={meet} isJoined={isJoined} />
           )}
+
+          {activeTab === "chat" && (
+            <ChatTab
+              meet={meet}
+              messages={messages}
+              isJoined={isJoined}
+              newMessage={newMessage}
+              onNewMessageChange={setNewMessage}
+            />
+          )}
+
+          <Spacer />
         </div>
-        {meet.groupId && (() => {
-          const group = getGroupById(meet.groupId);
-          return group ? (
-            <Link
-              href={`/communities/${group.id}`}
-              className="inline-flex items-center gap-sm rounded-panel p-sm no-underline bg-brand-subtle border border-brand-main self-start"
-            >
-              <UsersThree size={16} weight="fill" className="text-brand-main" />
-              <span className="text-sm font-medium text-brand-strong">
-                {group.name}
-              </span>
-            </Link>
-          ) : null;
-        })()}
-        <h1 className="font-heading text-2xl font-semibold text-fg-primary">{meet.title}</h1>
-        <p className="text-base text-fg-secondary">{meet.description}</p>
-      </header>
 
-      {/* ── Tab bar ─────────────────────────────────────────────── */}
-      <div
-        className="panel-tabbar"
-        style={{ borderBottom: "1px solid var(--border-light)" }}
-      >
-        <TabBar tabs={MEET_TABS} activeKey={activeTab} onChange={handleTabChange} />
-      </div>
-
-      {/* ── Tab content ─────────────────────────────────────────── */}
-      <div className="flex flex-col gap-xl p-xl">
-        {activeTab === "details" && (
-          <DetailsTab
-            meet={meet}
-            goingAttendees={goingAttendees}
-            interestedCount={interestedCount}
-            totalDogs={totalDogs}
-            spotsLeft={spotsLeft}
-            isJoined={isJoined}
-            isCreator={isCreator}
-            onShare={() => setShowShare(true)}
-          />
-        )}
-
-        {activeTab === "people" && (
-          <PeopleTab meet={meet} isJoined={isJoined} />
-        )}
-
-        {activeTab === "chat" && (
-          <ChatTab
-            meet={meet}
-            messages={messages}
-            isJoined={isJoined}
-            newMessage={newMessage}
-            onNewMessageChange={setNewMessage}
-          />
-        )}
-      </div>
+      </div>{/* end meet-detail-panel */}
 
       <ShareMeetModal meet={meet} open={showShare} onClose={() => setShowShare(false)} />
     </div>
@@ -275,6 +263,46 @@ function DetailsTab({
 }) {
   return (
     <>
+      {/* ── Meet header (banner equivalent) ── */}
+      <div className="meet-detail-header">
+        <div className="flex items-center gap-sm">
+          <span className="flex items-center gap-xs rounded-pill px-sm py-xs text-sm font-medium bg-brand-subtle text-brand-strong">
+            {MEET_ICONS[meet.type]}
+            {MEET_TYPE_LABELS[meet.type]}
+          </span>
+          {meet.recurring && (
+            <span className="flex items-center gap-xs text-xs text-fg-tertiary">
+              <ArrowsClockwise size={14} weight="light" />
+              Weekly
+            </span>
+          )}
+          {meet.status === "completed" && (
+            <span className="rounded-pill px-sm py-xs text-xs font-medium bg-surface-gray text-fg-secondary">
+              Completed
+            </span>
+          )}
+        </div>
+        {meet.groupId && (() => {
+          const group = getGroupById(meet.groupId);
+          return group ? (
+            <Link
+              href={`/communities/${group.id}`}
+              className="inline-flex items-center gap-sm rounded-panel p-sm no-underline bg-brand-subtle border border-brand-main self-start"
+            >
+              <UsersThree size={16} weight="fill" className="text-brand-main" />
+              <span className="text-sm font-medium text-brand-strong">
+                {group.name}
+              </span>
+            </Link>
+          ) : null;
+        })()}
+        <h1>{meet.title}</h1>
+        <p>{meet.description}</p>
+      </div>
+
+      {/* ── Details content ── */}
+      <div className="meet-detail-content">
+
       {/* Details grid */}
       <div
         className="grid grid-cols-2 gap-lg rounded-panel p-lg bg-surface-top border border-edge-light"
@@ -406,6 +434,8 @@ function DetailsTab({
           Share
         </ButtonAction>
       </div>
+
+      </div>{/* end meet-detail-content */}
     </>
   );
 }
@@ -416,7 +446,7 @@ function DetailsTab({
 
 function PeopleTab({ meet, isJoined }: { meet: Meet; isJoined: boolean }) {
   return (
-    <>
+    <div className="meet-detail-content">
       {/* Post-meet reveal for completed meets */}
       {meet.status === "completed" && isJoined && (() => {
         const hiddenAttendees = meet.attendees.filter((a) => {
@@ -436,7 +466,7 @@ function PeopleTab({ meet, isJoined }: { meet: Meet; isJoined: boolean }) {
         attendees={meet.attendees}
         isCompleted={meet.status === "completed"}
       />
-    </>
+    </div>
   );
 }
 
@@ -458,7 +488,7 @@ function ChatTab({
   onNewMessageChange: (val: string) => void;
 }) {
   return (
-    <>
+    <div className="meet-detail-content">
       <h2 className="font-heading text-lg font-semibold text-fg-primary">Meet Chat</h2>
       {!isJoined ? (
         <EmptyState
@@ -478,10 +508,7 @@ function ChatTab({
           subtitle="Start the conversation — say hello or ask a question about the meet."
         />
       ) : (
-        <div
-          className="flex flex-col gap-md rounded-panel p-md bg-surface-base border border-edge-light overflow-y-auto"
-          style={{ maxHeight: 500 }}
-        >
+        <div className="meet-chat-messages">
           {messages.map((msg) => (
             <MessageBubble
               key={msg.id}
@@ -492,7 +519,7 @@ function ChatTab({
         </div>
       )}
       {isJoined && (
-        <div className="flex gap-sm">
+        <div className="meet-chat-input">
           <input
             className="input flex-1"
             placeholder="Message the group..."
@@ -510,7 +537,7 @@ function ChatTab({
           </ButtonAction>
         </div>
       )}
-    </>
+    </div>
   );
 }
 

@@ -176,13 +176,11 @@ function GroupDetailInner() {
       {/* ── Panel (rounded card container) ── */}
       <div className="group-detail-panel">
 
-      {/* ── Tab bar (always at panel top, outside scroll) ─── */}
-      <div className="group-detail-tabs">
-        <TabBar tabs={tabs} activeKey={activeTab} onChange={handleTabChange} />
-      </div>
-
-      {/* ── Scrollable tab content ─────────────────────────── */}
+      {/* ── Scrollable tab content (tabs sticky inside for glassmorphism) ── */}
       <div className="group-detail-body">
+        <div className="group-detail-tabs">
+          <TabBar tabs={tabs} activeKey={activeTab} onChange={handleTabChange} />
+        </div>
         {activeTab === "feed" && (
           <FeedTab
             groupPosts={groupPosts}

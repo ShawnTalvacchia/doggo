@@ -1,40 +1,47 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
-import Link from "next/link";
-import {
-  CalendarDots,
-  Briefcase,
-  ArrowLeft,
-} from "@phosphor-icons/react";
+import { useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import { CalendarDots } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { StatusBadge } from "@/components/ui/StatusBadge";
 import { TabBar } from "@/components/ui/TabBar";
-import { CardMeet, type MeetRole } from "@/components/meets/CardMeet";
-import { MeetDetailPanel } from "@/components/meets/MeetDetailPanel";
-import { SessionRow } from "@/components/schedule/SessionRow";
-import { SessionDetailContent } from "@/components/schedule/SessionDetailContent";
-import { MasterDetailShell } from "@/components/layout/MasterDetailShell";
-import { PanelBody } from "@/components/layout/PanelBody";
+import { ScheduleMeetCard, ScheduleCareCard, ScheduleBookingCard } from "@/components/schedule/ScheduleCard";
 import { Spacer } from "@/components/layout/Spacer";
-import { LayoutList } from "@/components/layout/LayoutList";
 import { getUserMeets } from "@/lib/mockMeets";
 import { getMeetRole } from "@/lib/meetUtils";
-import { formatMeetDate } from "@/lib/dateUtils";
 import { useBookings } from "@/contexts/BookingsContext";
-import { SERVICE_LABELS } from "@/lib/constants/services";
-import { usePageHeader } from "@/contexts/PageHeaderContext";
 import type { Meet, Booking, BookingSession } from "@/lib/types";
+import type { MeetRole } from "@/components/meets/CardMeet";
+
+/* ── Date grouping helper ── */
+
+function getDateKey(sortKey: string): string {
+  // sortKey is "YYYY-MM-DD" or "YYYY-MM-DDTHH:MM"
+  return sortKey.slice(0, 10);
+}
+
+function formatDateHeader(dateStr: string): string {
+  const d = new Date(dateStr + "T00:00:00");
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  if (d.getTime() === today.getTime()) return "Today";
+  if (d.getTime() === tomorrow.getTime()) return "Tomorrow";
+
+  return d.toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "short",
+  });
+}
 
 const CURRENT_USER = "shawn";
 
 type ScheduleFilter = "upcoming" | "interested" | "care";
-
-type Selection =
-  | { type: "meet"; meetId: string }
-  | { type: "session"; bookingId: string; sessionId: string }
-  | null;
 
 function getBookingNextDate(booking: Booking): string | null {
   if (booking.sessions) {
@@ -44,74 +51,28 @@ function getBookingNextDate(booking: Booking): string | null {
   return booking.startDate;
 }
 
-
 type ScheduleItem =
   | { kind: "meet"; meet: Meet; role: MeetRole; sortKey: string }
   | { kind: "session"; booking: Booking; session: BookingSession; sortKey: string }
   | { kind: "booking"; booking: Booking; perspective: "owner" | "carer"; sortKey: string };
 
-// ── Booking block (used in Care tab for contract-level view) ──
+/* ── Page (with Suspense for useSearchParams) ── */
 
-function BookingBlock({
-  booking,
-  perspective,
-}: {
-  booking: Booking;
-  perspective: "owner" | "carer";
-}) {
-  const other =
-    perspective === "owner"
-      ? { name: booking.carerName, avatarUrl: booking.carerAvatarUrl }
-      : { name: booking.ownerName, avatarUrl: booking.ownerAvatarUrl };
-
-  const nextDate = getBookingNextDate(booking);
-  const nextDateLabel = nextDate ? formatMeetDate(nextDate) : null;
-
+export default function SchedulePage() {
   return (
-    <Link
-      href="/bookings"
-      className="card-booking-block"
-      style={{ textDecoration: "none" }}
-    >
-      <div className="card-booking-block-icon">
-        <Briefcase size={16} weight="light" />
-      </div>
-      <img
-        src={other.avatarUrl}
-        alt={other.name}
-        className="rounded-full shrink-0 object-cover"
-        style={{ width: 32, height: 32 }}
-      />
-      <div className="flex flex-col flex-1 gap-xs min-w-0">
-        <span className="text-sm font-semibold text-fg-primary">
-          {SERVICE_LABELS[booking.serviceType]}{" "}
-          <span className="font-normal text-fg-secondary">with {other.name}</span>
-        </span>
-        {(nextDateLabel || booking.pets.length > 0) && (
-          <span className="text-xs text-fg-tertiary truncate">
-            {nextDateLabel && (
-              <>
-                {nextDateLabel}
-                {booking.recurringSchedule && ` · ${booking.recurringSchedule.timeLabel}`}
-              </>
-            )}
-            {booking.pets.length > 0 && ` · ${booking.pets.join(", ")}`}
-          </span>
-        )}
-      </div>
-      <StatusBadge status={booking.status} />
-    </Link>
+    <Suspense>
+      <ScheduleInner />
+    </Suspense>
   );
 }
 
-// ── Main page ──
-
-export default function SchedulePage() {
-  const [filter, setFilter] = useState<ScheduleFilter>("upcoming");
-  const [selection, setSelection] = useState<Selection>(null);
+function ScheduleInner() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const filter = (searchParams.get("view") as ScheduleFilter) || "upcoming";
 
   const myMeets = getUserMeets(CURRENT_USER);
-  const { bookings, updateSession } = useBookings();
+  const { bookings } = useBookings();
   const upcomingMeets = myMeets.filter((m) => m.status === "upcoming");
 
   const activeOwnerBookings = bookings.filter(
@@ -120,9 +81,17 @@ export default function SchedulePage() {
 
   const TABS = [
     { key: "upcoming", label: "Upcoming" },
-    { key: "interested", label: "Interested" },
     { key: "care", label: "Care" },
+    { key: "interested", label: "Interested" },
   ];
+
+  const handleFilterChange = (key: string) => {
+    if (key === "upcoming") {
+      router.replace("/schedule", { scroll: false });
+    } else {
+      router.replace(`/schedule?view=${key}`, { scroll: false });
+    }
+  };
 
   const filteredItems = useMemo((): ScheduleItem[] => {
     if (filter === "care") {
@@ -161,10 +130,8 @@ export default function SchedulePage() {
         sortKey: `${m.date}T${m.time}`,
       }));
 
-    // Flatten booking sessions into individual schedule items
     const sessionItems: ScheduleItem[] = activeOwnerBookings.flatMap((b) => {
       if (!b.sessions) {
-        // One-off booking without sessions — show as single session-like item
         return [{
           kind: "session" as const,
           booking: b,
@@ -185,186 +152,80 @@ export default function SchedulePage() {
     return [...meetItems, ...sessionItems].sort((a, b) => a.sortKey.localeCompare(b.sortKey));
   }, [filter, upcomingMeets, activeOwnerBookings]);
 
-  // Resolve selection to actual data
-  const selectedMeet = selection?.type === "meet"
-    ? myMeets.find((m) => m.id === selection.meetId) ?? null
-    : null;
-
-  const selectedSession = selection?.type === "session"
-    ? (() => {
-        const b = bookings.find((bk) => bk.id === selection.bookingId);
-        if (!b) return null;
-        const s = b.sessions?.find((ss) => ss.id === selection.sessionId)
-          ?? (selection.sessionId.endsWith("-oneoff") ? { id: selection.sessionId, date: b.startDate, status: "upcoming" as const } : null);
-        return s ? { booking: b, session: s } : null;
-      })()
-    : null;
-
-  // Auto-select first item if nothing selected
-  const autoSelectedMeet = !selection
-    ? (() => {
-        const first = filteredItems.find((item) => item.kind === "meet");
-        return first?.kind === "meet" ? first.meet : null;
-      })()
-    : null;
-
-  const autoSelectedSession = !selection && !autoSelectedMeet
-    ? (() => {
-        const first = filteredItems.find((item) => item.kind === "session");
-        return first?.kind === "session" ? { booking: first.booking, session: first.session } : null;
-      })()
-    : null;
-
-  const activeMeet = selectedMeet ?? autoSelectedMeet;
-  const activeSession = selectedSession ?? autoSelectedSession;
-  const hasSelection = activeMeet || activeSession;
-
-  const mobileView = selection ? "detail" as const : "list" as const;
-
-  const listContent = (
-    <>
-      {/* Timeline */}
-      {filteredItems.length > 0 ? (
-        <div className="flex flex-col">
-          {filteredItems.map((item) => {
-            if (item.kind === "meet") {
-              const isActive = activeMeet?.id === item.meet.id;
-              return (
-                <div
-                  key={item.meet.id}
-                  onClick={() => setSelection({ type: "meet", meetId: item.meet.id })}
-                  style={{ cursor: "pointer" }}
-                >
-                  <CardMeet meet={item.meet} variant="schedule" role={item.role} />
-                </div>
-              );
-            }
-            if (item.kind === "session") {
-              const isActive = activeSession?.session.id === item.session.id;
-              return (
-                <SessionRow
-                  key={`${item.booking.id}-${item.session.id}`}
-                  booking={item.booking}
-                  session={item.session}
-                  isActive={isActive}
-                  hideStatus={filter === "upcoming"}
-                  onClick={() => setSelection({ type: "session", bookingId: item.booking.id, sessionId: item.session.id })}
-                />
-              );
-            }
-            return (
-              <BookingBlock
-                key={item.booking.id}
-                booking={item.booking}
-                perspective={item.perspective}
-              />
-            );
-          })}
-        </div>
-      ) : (
-        <EmptyState
-          icon={<CalendarDots size={48} weight="light" />}
-          title={filter === "care" ? "No care bookings yet." : filter === "interested" ? "Nothing saved yet." : "Nothing coming up yet."}
-          subtitle={filter === "care" ? "Find care from people you trust." : filter === "interested" ? "Meets you're interested in will show up here." : "Browse meets near you and RSVP."}
-          action={
-            <ButtonAction
-              variant="primary"
-              size="sm"
-              href={filter === "care" ? "/discover/care" : "/discover/meets"}
-            >
-              {filter === "care" ? "Find Care" : "Browse meets"}
-            </ButtonAction>
-          }
-        />
-      )}
-    </>
-  );
-
-  // ── Compose detail panel content ──
-  const detailContent = activeMeet
-    ? <MeetDetailPanel meet={activeMeet} currentUserId={CURRENT_USER} />
-    : activeSession
-    ? <SessionDetailContent booking={activeSession.booking} session={activeSession.session} onUpdateSession={updateSession} />
-    : (
-      <div
-        className="flex flex-col items-center justify-center flex-1 gap-md"
-        style={{ padding: "var(--space-xxxl)" }}
-      >
-        <CalendarDots size={48} weight="light" className="text-fg-tertiary" />
-        <span className="text-md text-fg-tertiary">
-          Select an item to see details
-        </span>
-      </div>
-    );
-
-  const detailTitle = activeMeet
-    ? activeMeet.title
-    : activeSession
-    ? `${SERVICE_LABELS[activeSession.booking.serviceType]} · ${formatMeetDate(activeSession.session.date)}`
-    : null;
-
-  const { setDetailHeader, clearDetailHeader } = usePageHeader();
-  const handleBack = useCallback(() => setSelection(null), []);
-
-  useEffect(() => {
-    if (selection && detailTitle) {
-      setDetailHeader(detailTitle, handleBack);
-    } else {
-      clearDetailHeader();
-    }
-    return () => clearDetailHeader();
-  }, [selection, detailTitle, setDetailHeader, clearDetailHeader, handleBack]);
-
   return (
-    <div className="page-container schedule-page-shell">
-      {/* TabBar — visible on collapsed/mobile, hidden on desktop */}
-      <div className="panel-tabbar" data-view={mobileView}>
-        <div className="panel-tabbar-list">
-          <div className="panel-tabbar-title">My Schedule</div>
-          <div className="panel-tabbar-tabs">
-            <TabBar tabs={TABS} activeKey={filter} onChange={(key) => setFilter(key as ScheduleFilter)} />
-          </div>
-        </div>
-        <div className="panel-tabbar-detail">
-          <button type="button" className="panel-tabbar-back" onClick={() => setSelection(null)}>
-            <ArrowLeft size={20} weight="light" />
-          </button>
-          <span className="panel-tabbar-detail-title">{detailTitle}</span>
-        </div>
+    <div className="schedule-page-shell">
+      {/* ── Desktop page header (hidden on mobile — AppNav handles it) ── */}
+      <div className="schedule-page-header">
+        <h1 className="schedule-page-title">My Schedule</h1>
       </div>
 
-      <MasterDetailShell
-        mobileView={mobileView}
-        listPanel={
-          <div className="list-panel">
-            <div className="list-panel-header panel-header-desktop">
-              <h2 className="font-heading text-lg font-bold text-fg-primary m-0">My Schedule</h2>
-            </div>
-            <div className="list-panel-filters panel-header-desktop">
-              <TabBar tabs={TABS} activeKey={filter} onChange={(key) => setFilter(key as ScheduleFilter)} />
-            </div>
-            <PanelBody>
-              <LayoutList>
-                {listContent}
-              </LayoutList>
-              <Spacer />
-            </PanelBody>
+      {/* ── Panel ── */}
+      <div className="schedule-panel">
+
+        {/* ── Scrollable body (tabs sticky inside for glassmorphism) ── */}
+        <div className="schedule-body">
+          <div className="schedule-tabs">
+            <TabBar tabs={TABS} activeKey={filter} onChange={handleFilterChange} />
           </div>
-        }
-        detailPanel={
-          <div className="detail-panel">
-            {detailTitle && (
-              <div className="detail-panel-header">
-                <span className="font-heading text-base font-semibold text-fg-primary">{detailTitle}</span>
-              </div>
-            )}
-            <PanelBody>
-              {detailContent}
-              <Spacer />
-            </PanelBody>
-          </div>
-        }
-      />
+          {filteredItems.length > 0 ? (
+            <div className="flex flex-col">
+              {filteredItems.map((item, idx) => {
+                const dateKey = getDateKey(item.sortKey);
+                const prevDateKey = idx > 0 ? getDateKey(filteredItems[idx - 1].sortKey) : null;
+                const showDateHeader = dateKey !== prevDateKey;
+
+                const card =
+                  item.kind === "meet" ? (
+                    <ScheduleMeetCard
+                      key={item.meet.id}
+                      meet={item.meet}
+                      role={item.role}
+                    />
+                  ) : item.kind === "session" ? (
+                    <ScheduleCareCard
+                      key={`${item.booking.id}-${item.session.id}`}
+                      booking={item.booking}
+                      session={item.session}
+                    />
+                  ) : (
+                    <ScheduleBookingCard
+                      key={item.booking.id}
+                      booking={item.booking}
+                      perspective={item.perspective}
+                    />
+                  );
+
+                if (showDateHeader) {
+                  return (
+                    <div key={`group-${dateKey}`}>
+                      <div className="sched-date-group">{formatDateHeader(dateKey)}</div>
+                      {card}
+                    </div>
+                  );
+                }
+                return card;
+              })}
+            </div>
+          ) : (
+            <EmptyState
+              icon={<CalendarDots size={48} weight="light" />}
+              title={filter === "care" ? "No care bookings yet." : filter === "interested" ? "Nothing saved yet." : "Nothing coming up yet."}
+              subtitle={filter === "care" ? "Find care from people you trust." : filter === "interested" ? "Meets you're interested in will show up here." : "Browse meets near you and RSVP."}
+              action={
+                <ButtonAction
+                  variant="primary"
+                  size="sm"
+                  href={filter === "care" ? "/discover/care" : "/discover/meets"}
+                >
+                  {filter === "care" ? "Find Care" : "Browse meets"}
+                </ButtonAction>
+              }
+            />
+          )}
+          <Spacer />
+        </div>
+
+      </div>{/* end schedule-panel */}
     </div>
   );
 }

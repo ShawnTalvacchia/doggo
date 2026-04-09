@@ -13,7 +13,7 @@ interface TabBarProps {
 
 export function TabBar({ tabs, activeKey, onChange }: TabBarProps) {
   return (
-    <div className="flex items-end justify-start gap-md">
+    <div className="tab-bar-container">
       {tabs.map((tab) => {
         const isActive = tab.key === activeKey;
         return (

@@ -3,43 +3,48 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Detects scroll direction inside any scroll container element
+ * Detects scroll direction inside known scroll-container elements
  * and toggles `nav-hidden` class on `<body>` when scrolling down.
- * Adjusts scroll position to prevent content jumps when the nav
- * hides/shows and the panel height changes.
+ *
+ * Uses a MutationObserver to dynamically discover scroll containers
+ * and attaches listeners directly, avoiding capture-phase delegation
+ * issues with nested overflow:hidden parents.
  *
  * Only activates on viewports ≤ 767px (mobile).
  */
+
+const SCROLL_CONTAINER_CLASSES = [
+  "list-panel-scroll",
+  "detail-panel-scroll",
+  "discover-mobile-tab-content",
+  "discover-hub-body",
+  "discover-results-list",
+  "community-panel-body",
+  "group-detail-body",
+  "meet-detail-body",
+  "schedule-body",
+];
+
 export function useScrollHideNav() {
   const lastY = useRef(0);
   const ticking = useRef(false);
   const cooldown = useRef(false);
-  const activeContainer = useRef<HTMLElement | null>(null);
+  const trackedElements = useRef<Set<HTMLElement>>(new Set());
 
   useEffect(() => {
-    const THRESHOLD = 10; // px before toggling
+    const THRESHOLD = 8;
     const TOP_NAV_H = 56;
     const BOTTOM_NAV_H = 64;
-    const TOTAL_OFFSET = TOP_NAV_H + BOTTOM_NAV_H; // 120px total reclaimed
-    const COOLDOWN_MS = 400; // ignore scroll during CSS transition
+    const TOTAL_OFFSET = TOP_NAV_H + BOTTOM_NAV_H;
+    const COOLDOWN_MS = 350;
+
+    const mql = window.matchMedia("(max-width: 767px)");
+    if (!mql.matches) return;
 
     function handleScroll(e: Event) {
-      const target = e.target as HTMLElement;
-      if (!target || !target.classList) return;
+      const target = e.currentTarget as HTMLElement;
+      if (!target) return;
 
-      // Only handle our known scroll containers
-      const isScrollContainer =
-        target.classList.contains("list-panel-scroll") ||
-        target.classList.contains("detail-panel-scroll") ||
-        target.classList.contains("discover-mobile-tab-content") ||
-        target.classList.contains("discover-hub-body") ||
-        target.classList.contains("discover-results-list") ||
-        target.classList.contains("community-panel-body") ||
-        target.classList.contains("group-detail-body");
-
-      if (!isScrollContainer) return;
-
-      // Skip during cooldown (CSS transition in progress)
       if (cooldown.current) {
         lastY.current = target.scrollTop;
         return;
@@ -53,27 +58,17 @@ export function useScrollHideNav() {
         const delta = currentY - lastY.current;
         const isHidden = document.body.classList.contains("nav-hidden");
 
-        // Only hide nav if content is significantly taller than the panel.
-        // Must have at least 1.5 viewports of scroll depth so the effect
-        // feels natural rather than disruptive on barely-scrollable content.
-        const MIN_SCROLL_DEPTH = target.clientHeight * 0.5 + TOTAL_OFFSET;
+        // Only hide if there's meaningful scrollable depth
+        const MIN_SCROLL_DEPTH = TOTAL_OFFSET;
         const canHide = target.scrollHeight - target.clientHeight > MIN_SCROLL_DEPTH;
 
         if (delta > THRESHOLD && currentY > TOP_NAV_H && !isHidden && canHide) {
-          // Hiding nav — panel will grow, offset scroll to keep content stable
-          activeContainer.current = target;
           cooldown.current = true;
           document.body.classList.add("nav-hidden");
-          target.scrollTop = currentY + TOP_NAV_H;
-          lastY.current = target.scrollTop;
           setTimeout(() => { cooldown.current = false; }, COOLDOWN_MS);
         } else if (delta < -THRESHOLD && isHidden) {
-          // Showing nav — panel will shrink, offset scroll to keep content stable
-          activeContainer.current = target;
           cooldown.current = true;
           document.body.classList.remove("nav-hidden");
-          target.scrollTop = Math.max(0, currentY - TOP_NAV_H);
-          lastY.current = target.scrollTop;
           setTimeout(() => { cooldown.current = false; }, COOLDOWN_MS);
         }
 
@@ -82,26 +77,90 @@ export function useScrollHideNav() {
       });
     }
 
-    // Only attach on mobile
-    const mql = window.matchMedia("(max-width: 767px)");
-    if (!mql.matches) return;
+    function isScrollContainer(el: HTMLElement): boolean {
+      return SCROLL_CONTAINER_CLASSES.some((cls) => el.classList.contains(cls));
+    }
 
-    // Use capture to catch scroll events on nested elements
-    document.addEventListener("scroll", handleScroll, true);
+    function attachListener(el: HTMLElement) {
+      if (trackedElements.current.has(el)) return;
+      trackedElements.current.add(el);
+      el.addEventListener("scroll", handleScroll, { passive: true });
+    }
+
+    function detachListener(el: HTMLElement) {
+      if (!trackedElements.current.has(el)) return;
+      trackedElements.current.delete(el);
+      el.removeEventListener("scroll", handleScroll);
+    }
+
+    // Scan DOM for existing scroll containers
+    function scanAndAttach() {
+      for (const cls of SCROLL_CONTAINER_CLASSES) {
+        const els = document.querySelectorAll<HTMLElement>(`.${cls}`);
+        els.forEach((el) => attachListener(el));
+      }
+    }
+
+    // Initial scan
+    scanAndAttach();
+
+    // Watch for DOM changes (route navigation adds/removes scroll containers)
+    const observer = new MutationObserver((mutations) => {
+      let needsScan = false;
+      for (const mutation of mutations) {
+        if (mutation.type === "childList") {
+          // Check removed nodes
+          mutation.removedNodes.forEach((node) => {
+            if (node instanceof HTMLElement) {
+              if (isScrollContainer(node)) detachListener(node);
+              // Also check descendants
+              trackedElements.current.forEach((tracked) => {
+                if (!document.body.contains(tracked)) detachListener(tracked);
+              });
+            }
+          });
+          // Check added nodes
+          mutation.addedNodes.forEach((node) => {
+            if (node instanceof HTMLElement) {
+              if (isScrollContainer(node)) {
+                needsScan = true;
+              } else if (node.querySelector) {
+                for (const cls of SCROLL_CONTAINER_CLASSES) {
+                  if (node.querySelector(`.${cls}`)) {
+                    needsScan = true;
+                    break;
+                  }
+                }
+              }
+            }
+          });
+        }
+      }
+      if (needsScan) scanAndAttach();
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
 
     const onChange = () => {
       if (!mql.matches) {
         document.body.classList.remove("nav-hidden");
-        document.removeEventListener("scroll", handleScroll, true);
-      } else {
-        document.addEventListener("scroll", handleScroll, true);
+        // Detach all listeners
+        trackedElements.current.forEach((el) => {
+          el.removeEventListener("scroll", handleScroll);
+        });
+        trackedElements.current.clear();
+        observer.disconnect();
       }
     };
 
     mql.addEventListener("change", onChange);
 
     return () => {
-      document.removeEventListener("scroll", handleScroll, true);
+      trackedElements.current.forEach((el) => {
+        el.removeEventListener("scroll", handleScroll);
+      });
+      trackedElements.current.clear();
+      observer.disconnect();
       mql.removeEventListener("change", onChange);
       document.body.classList.remove("nav-hidden");
     };

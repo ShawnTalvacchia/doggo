@@ -167,30 +167,31 @@ function HomePageInner() {
 
       {/* ── Panel ─────────────────────────────────────────── */}
       <div className="community-panel">
-        {/* Main tab bar */}
-        <div className="community-panel-tabs">
-          <TabBar tabs={MAIN_TABS} activeKey={mainTab} onChange={handleMainTabChange} />
-        </div>
+        {/* Single scroll body — tabs sticky inside for glassmorphism */}
+        <div className="community-panel-body">
+          {/* Sticky glass tab bar */}
+          <div className="community-panel-tabs">
+            <TabBar tabs={MAIN_TABS} activeKey={mainTab} onChange={handleMainTabChange} />
+          </div>
 
-        {/* Groups view */}
-        {mainTab === "groups" && (
-          <>
-            {/* Category filter pills */}
-            <div className="community-filter-pills">
-              {CATEGORY_PILLS.map((pill) => (
-                <button
-                  key={pill.key}
-                  type="button"
-                  className={`pill${categoryFilter === pill.key ? " active" : ""}`}
-                  onClick={() => setCategoryFilter(pill.key)}
-                >
-                  {pill.label}
-                </button>
-              ))}
-            </div>
+          {/* Groups view */}
+          {mainTab === "groups" && (
+            <>
+              {/* Category filter pills */}
+              <div className="community-filter-pills">
+                {CATEGORY_PILLS.map((pill) => (
+                  <button
+                    key={pill.key}
+                    type="button"
+                    className={`pill${categoryFilter === pill.key ? " active" : ""}`}
+                    onClick={() => setCategoryFilter(pill.key)}
+                  >
+                    {pill.label}
+                  </button>
+                ))}
+              </div>
 
-            {/* Group cards */}
-            <div className="community-panel-body">
+              {/* Group cards */}
               {filteredGroups.length > 0 ? (
                 <div className="community-group-list">
                   {filteredGroups.map((group) => (
@@ -213,30 +214,30 @@ function HomePageInner() {
                   </Link>
                 </div>
               )}
-            </div>
-          </>
-        )}
+            </>
+          )}
 
-        {/* Feed view */}
-        {mainTab === "feed" && (
-          <div className="community-panel-body">
-            {DEMO_NEW_USER ? (
-              <>
-                <HomeWelcome />
-                <DogsNearYou />
-                {getNewUserFeed().map((item) => (
-                  <FeedItemRenderer key={item.feedId} item={item} />
-                ))}
-              </>
-            ) : (
-              <>
-                {feedItems.map((item) => (
-                  <FeedItemRenderer key={item.feedId} item={item} />
-                ))}
-              </>
-            )}
-          </div>
-        )}
+          {/* Feed view */}
+          {mainTab === "feed" && (
+            <>
+              {DEMO_NEW_USER ? (
+                <>
+                  <HomeWelcome />
+                  <DogsNearYou />
+                  {getNewUserFeed().map((item) => (
+                    <FeedItemRenderer key={item.feedId} item={item} />
+                  ))}
+                </>
+              ) : (
+                <>
+                  {feedItems.map((item) => (
+                    <FeedItemRenderer key={item.feedId} item={item} />
+                  ))}
+                </>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

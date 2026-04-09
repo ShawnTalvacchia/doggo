@@ -12,8 +12,6 @@ export function FeedCommunityPost({ post }: { post: Post }) {
       authorAvatarUrl={post.authorAvatarUrl}
       authorHref={`/profile/${post.authorId}`}
       timestamp={post.createdAt}
-      groupName={post.groupName}
-      groupId={post.groupId}
       tags={post.tags.length > 0 ? <TagPillRow tags={post.tags} /> : undefined}
       media={<PostPhotoGrid photos={post.photos} />}
       caption={post.caption}

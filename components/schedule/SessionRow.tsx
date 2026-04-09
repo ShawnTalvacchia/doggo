@@ -18,7 +18,7 @@ export function SessionRow({
   booking: Booking;
   session: BookingSession;
   isActive: boolean;
-  onClick: () => void;
+  onClick?: () => void;
   /** When true, suppresses the StatusBadge (e.g. in Upcoming tab where status is implied). */
   hideStatus?: boolean;
 }) {

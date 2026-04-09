@@ -50,8 +50,6 @@ export function MomentCard({
       authorAvatarUrl={authorAvatarUrl}
       authorHref={`/profile/${authorId}`}
       timestamp={createdAt}
-      groupName={groupName}
-      groupId={groupId}
       connectionContext={connectionContext}
       caption={caption}
       media={photos.length > 0 ? <PostPhotoGrid photos={photos} /> : undefined}
@@ -81,8 +79,6 @@ export function MomentCardFromPost({
       reactions={post.reactions}
       comments={post.comments}
       createdAt={post.createdAt}
-      groupName={post.groupName}
-      groupId={post.groupId}
       connectionContext={connectionContext}
     />
   );
