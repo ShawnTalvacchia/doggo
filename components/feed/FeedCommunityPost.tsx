@@ -1,10 +1,8 @@
 "use client";
 
 import { FeedCard } from "./FeedCard";
-import { CommentThread } from "./CommentThread";
 import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
 import { TagPillRow } from "@/components/posts/TagPill";
-import { PawReaction } from "@/components/posts/PawReaction";
 import type { Post } from "@/lib/types";
 
 export function FeedCommunityPost({ post }: { post: Post }) {
@@ -16,11 +14,11 @@ export function FeedCommunityPost({ post }: { post: Post }) {
       timestamp={post.createdAt}
       groupName={post.groupName}
       groupId={post.groupId}
-      tags={<TagPillRow tags={post.tags} />}
-      media={<PostPhotoGrid photos={post.photos} fullBleed />}
+      tags={post.tags.length > 0 ? <TagPillRow tags={post.tags} /> : undefined}
+      media={<PostPhotoGrid photos={post.photos} />}
       caption={post.caption}
-      action={<PawReaction reactions={post.reactions} />}
-      comments={<CommentThread comments={post.comments} />}
+      reactions={post.reactions}
+      comments={post.comments}
     />
   );
 }

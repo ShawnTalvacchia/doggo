@@ -17,12 +17,12 @@ export function FeedConnectionNudge({ item }: { item: FeedConnectionNudgeItem })
         />
         <div className="flex flex-col flex-1 gap-xs">
           <span className="text-sm font-medium text-fg-primary">{item.userName}</span>
-          <span className="text-xs text-fg-tertiary">
+          <span className="text-sm text-fg-tertiary">
             {item.sharedMeets} meets together
             {item.dogNames.length > 0 && (
               <>
                 {" · "}
-                <Dog size={10} weight="light" style={{ display: "inline", verticalAlign: "middle" }} />
+                <Dog size={12} weight="light" style={{ display: "inline", verticalAlign: "middle" }} />
                 {" "}{item.dogNames.join(", ")}
               </>
             )}

@@ -97,7 +97,7 @@ function getPageTitle(pathname: string): string | null {
 
 export function AppNav() {
   const pathname = usePathname();
-  const { detailTitle, onBack } = usePageHeader();
+  const { detailTitle, onBack, rightAction } = usePageHeader();
   const mode = loggedRoutes.some((r) => pathname.startsWith(r)) ? "logged" : "guest";
   const isSignupRoute = pathname.startsWith("/signup");
   const isStyleguideRoute = pathname.startsWith("/styleguide");
@@ -123,6 +123,7 @@ export function AppNav() {
               <ArrowLeft size={20} weight="regular" />
             </button>
             <span className="app-nav-detail-title">{detailTitle}</span>
+            {rightAction && <div className="app-nav-detail-action">{rightAction}</div>}
           </div>
         )}
         {/* Page title — shown on mobile for list views (hidden when detail is active) */}
@@ -137,7 +138,7 @@ export function AppNav() {
           </div>
         )}
       </div>
-      <div className="app-nav-mode">
+      <div className={`app-nav-mode${showDetailHeader ? " app-nav-mode--detail" : ""}`}>
         {mode === "guest" ? (
           isSignupRoute || isStyleguideRoute ? (
             <SignupNavLinks />

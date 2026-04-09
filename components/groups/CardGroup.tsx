@@ -47,23 +47,29 @@ interface CardGroupProps {
   isMember?: boolean;
 }
 
-/* ── Component ──────────────────────────────────────────────────── */
+/* ── Inner content (shared between Link and div wrappers) ─────── */
 
-export function CardGroup({ group, variant = "my-groups", isMember = false }: CardGroupProps) {
-  const dogCount = group.members.reduce((sum, m) => sum + m.dogNames.length, 0);
-  const upcomingEvents = group.meetIds.length || 0;
-  const typeInfo = TYPE_CONFIG[group.groupType];
-  const careLabel = group.groupType === "care" && group.careCategory
-    ? CARE_LABELS[group.careCategory]
-    : null;
-  const visibleMembers = group.members.slice(0, 5);
-
+function CardGroupContent({
+  group,
+  variant,
+  isMember,
+  typeInfo,
+  careLabel,
+  dogCount,
+  upcomingEvents,
+  visibleMembers,
+}: {
+  group: Group;
+  variant: "discover" | "my-groups";
+  isMember: boolean;
+  typeInfo: { label: string; Icon: typeof Tree };
+  careLabel: string | null;
+  dogCount: number;
+  upcomingEvents: number;
+  visibleMembers: Group["members"];
+}) {
   return (
-    <Link
-      href={`/communities/${group.id}`}
-      className="card-schedule-meet"
-      style={{ textDecoration: "none" }}
-    >
+    <>
       {/* Row 1: Type pill + visibility + joined status */}
       <div className="flex flex-wrap items-center gap-xs">
         <span className="card-schedule-chip card-schedule-chip--primary">
@@ -194,6 +200,37 @@ export function CardGroup({ group, variant = "my-groups", isMember = false }: Ca
           </span>
         )}
       </div>
+    </>
+  );
+}
+
+/* ── Component ──────────────────────────────────────────────────── */
+
+export function CardGroup({ group, variant = "my-groups", isMember = false }: CardGroupProps) {
+  const dogCount = group.members.reduce((sum, m) => sum + m.dogNames.length, 0);
+  const upcomingEvents = group.meetIds.length || 0;
+  const typeInfo = TYPE_CONFIG[group.groupType];
+  const careLabel = group.groupType === "care" && group.careCategory
+    ? CARE_LABELS[group.careCategory]
+    : null;
+  const visibleMembers = group.members.slice(0, 5);
+
+  return (
+    <Link
+      href={`/communities/${group.id}`}
+      className="card-schedule-meet"
+      style={{ textDecoration: "none" }}
+    >
+      <CardGroupContent
+        group={group}
+        variant={variant}
+        isMember={isMember}
+        typeInfo={typeInfo}
+        careLabel={careLabel}
+        dogCount={dogCount}
+        upcomingEvents={upcomingEvents}
+        visibleMembers={visibleMembers}
+      />
     </Link>
   );
 }

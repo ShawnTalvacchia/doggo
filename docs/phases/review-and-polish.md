@@ -41,7 +41,21 @@ Unlike other phases, Review & Polish starts with an **empty task list**. Shawn r
 
 | # | Description | Category | Page/Component | Status |
 |---|-------------|----------|----------------|--------|
-| | *(tasks added during review)* | | | |
+| A1 | ~~Community groups should open in detail panel~~ → Superseded by A6 | Interaction | — | superseded |
+| A2 | Inbox panel widths should match Discover (400/640/640) | Visual | inbox/page.tsx, globals.css | done |
+| A3 | Inbox should show full conversation inline (not last 5 + "Open full") | UX | inbox/page.tsx | done |
+| A4 | Inbox third panel: rich contact info (dogs, relationship, shared groups/meets, booking context) | UX | inbox/page.tsx | done |
+| A5 | Inbox detail panel: add message composer UI | UX | inbox/page.tsx, globals.css | done |
+| A6 | Community page: single panel, Groups/Feed tabs, header above panel, groups link to full subpage | UX | home/page.tsx, globals.css | done |
+| A7 | Group detail: banner → info → sticky tabs, back button via router.back() | UX | communities/[id]/page.tsx, globals.css | done |
+| A8 | CardGroup: remove onSelect/isSelected dual-mode, always use Link navigation | Cleanup | CardGroup.tsx | done |
+| A9 | Feed card redesign: Threads-style two-column layout, unified FeedCard component | Visual | FeedCard.tsx, globals.css | done |
+| A10 | Group detail: tabs at panel top (outside scroll), banner/info inside Feed tab | UX | communities/[id]/page.tsx, globals.css | done |
+| A11 | Dynamic header action per tab (Post / Create meet / Invite) | UX | communities/[id]/page.tsx | done |
+| A12 | Outline button hover: surface-popout + shadow-sm | Visual | globals.css | done |
+| A13 | Feed-first default tab on Community page | UX | home/page.tsx | done |
+| A14 | Members tab: group by connection state, add actions (message, connect), shared groups/meets labels, richer pet info | UX | communities/[id]/page.tsx | future |
+| A15 | Gallery tab: album support, grouping by event/date | UX | communities/[id]/page.tsx | future |
 
 ---
 
@@ -50,7 +64,7 @@ Unlike other phases, Review & Polish starts with an **empty task list**. Shawn r
 | # | Description | Category | Page/Component | Status |
 |---|-------------|----------|----------------|--------|
 | B1 | D5 backlog items from Content Completion (general UI tweaks) | Visual | Various | todo |
-| B2 | Swap Unsplash placeholder URLs for generated images (when ready) | Content | All mock files | todo |
+| B2 | Swap Unsplash placeholder URLs for generated images (when ready) | Content | All mock files | done |
 
 ---
 

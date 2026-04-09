@@ -1,15 +1,18 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from "react";
-import Link from "next/link";
+import { getUserById } from "@/lib/mockUsers";
+import { getConnectionState, CONNECTION_STATE_LABELS } from "@/lib/mockConnections";
+import { getUserGroups } from "@/lib/mockGroups";
+import { getUserMeets } from "@/lib/mockMeets";
 import {
   ChatCircleDots,
-  ChatText,
   Handshake,
   UsersThree,
   Heart,
   PawPrint,
   ArrowLeft,
+  PaperPlaneTilt,
 } from "@phosphor-icons/react";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { SERVICE_LABELS } from "@/lib/constants/services";
@@ -123,55 +126,208 @@ function ConversationRow({
 function ContactInfoPanel({ conv }: { conv: Conversation }) {
   const other = getOtherParty(conv);
   const isDirect = conv.conversationType === "direct";
+  const user = getUserById(other.id);
+  const connection = getConnectionState(other.id);
+
+  // Compute shared groups
+  const myGroups = getUserGroups("shawn");
+  const theirGroups = getUserGroups(other.id);
+  const sharedGroups = myGroups.filter((g) => theirGroups.some((tg) => tg.id === g.id));
+
+  // Compute shared meets
+  const myMeets = getUserMeets("shawn");
+  const theirMeets = getUserMeets(other.id);
+  const sharedMeets = myMeets.filter((m) => theirMeets.some((tm) => tm.id === m.id));
+
+  // Dogs from the user profile
+  const dogs = user?.pets ?? [];
 
   return (
-    <div className="flex flex-col gap-lg p-lg">
-      {/* Avatar + name */}
-      <div className="flex flex-col items-center gap-sm">
+    <div className="inbox-contact-panel">
+      {/* ── Profile header ── */}
+      <div className="inbox-contact-header">
         <img
           src={other.avatarUrl}
           alt={other.name}
           className="rounded-full object-cover"
-          style={{ width: 72, height: 72 }}
+          style={{ width: 80, height: 80 }}
         />
-        <h3 className="font-heading text-lg font-semibold text-fg-primary m-0">{other.name}</h3>
+        <h3 className="font-heading text-lg font-semibold text-fg-primary m-0">
+          {user ? `${user.firstName} ${user.lastName}` : other.name}
+        </h3>
+        {user?.neighbourhood && (
+          <span className="text-sm text-fg-secondary">{user.neighbourhood}</span>
+        )}
+        {connection && (
+          <span className={`inbox-contact-badge inbox-contact-badge--${connection.state}`}>
+            {CONNECTION_STATE_LABELS[connection.state] ?? connection.state}
+          </span>
+        )}
+        {user?.memberSince && (
+          <span className="text-xs text-fg-tertiary">
+            Member since {new Date(user.memberSince + "-01").toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
+          </span>
+        )}
         <ButtonAction variant="outline" size="sm" href={`/discover/profile/${other.id}`}>
           View profile
         </ButtonAction>
       </div>
 
-      {/* Trust signals */}
-      <div className="flex flex-col gap-sm rounded-panel bg-surface-inset p-md">
-        <h4 className="text-xs font-semibold text-fg-secondary uppercase tracking-wide m-0">
-          Trust signals
-        </h4>
-        <div className="flex items-center gap-xs text-sm text-fg-secondary">
-          <PawPrint size={14} weight="light" />
-          <span>3 meets together</span>
+      {/* ── Dogs ── */}
+      {dogs.length > 0 && (
+        <div className="inbox-contact-section">
+          <h4 className="inbox-contact-section-title">
+            <PawPrint size={14} weight="light" />
+            {dogs.length === 1 ? "Dog" : "Dogs"}
+          </h4>
+          <div className="flex flex-col gap-sm">
+            {dogs.map((dog) => (
+              <div key={dog.name} className="inbox-contact-dog">
+                {dog.imageUrl && (
+                  <img
+                    src={dog.imageUrl}
+                    alt={dog.name}
+                    className="rounded-full object-cover shrink-0"
+                    style={{ width: 40, height: 40 }}
+                  />
+                )}
+                <div className="flex flex-col" style={{ gap: 2 }}>
+                  <span className="text-sm font-semibold text-fg-primary">{dog.name}</span>
+                  <span className="text-xs text-fg-secondary">
+                    {[dog.breed, dog.ageLabel, dog.weightLabel].filter(Boolean).join(" · ")}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="flex items-center gap-xs text-sm text-fg-secondary">
-          <UsersThree size={14} weight="light" />
-          <span>2 shared groups</span>
-        </div>
-        <div className="flex items-center gap-xs text-sm text-fg-secondary">
+      )}
+
+      {/* ── Relationship context ── */}
+      <div className="inbox-contact-section">
+        <h4 className="inbox-contact-section-title">
           <Handshake size={14} weight="light" />
-          <span>5 mutual connections</span>
+          Relationship
+        </h4>
+        <div className="flex flex-col gap-xs">
+          <div className="flex items-center gap-xs text-sm text-fg-secondary">
+            <PawPrint size={14} weight="light" className="shrink-0" />
+            <span>{sharedMeets.length} meet{sharedMeets.length !== 1 ? "s" : ""} together</span>
+          </div>
+          <div className="flex items-center gap-xs text-sm text-fg-secondary">
+            <UsersThree size={14} weight="light" className="shrink-0" />
+            <span>{sharedGroups.length} shared group{sharedGroups.length !== 1 ? "s" : ""}</span>
+          </div>
+          {connection?.mutualConnections && connection.mutualConnections.length > 0 && (
+            <div className="flex items-center gap-xs text-sm text-fg-secondary">
+              <Handshake size={14} weight="light" className="shrink-0" />
+              <span>{connection.mutualConnections.length} mutual: {connection.mutualConnections.join(", ")}</span>
+            </div>
+          )}
+          {connection?.firstMetDate && (
+            <div className="flex items-center gap-xs text-sm text-fg-tertiary">
+              <span>First met {new Date(connection.firstMetDate).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}</span>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Care CTA (only for booking conversations) */}
-      {!isDirect && (
-        <div className="flex flex-col gap-sm rounded-panel bg-surface-top shadow-sm p-md">
-          <div className="flex items-center gap-xs">
-            <Heart size={16} weight="light" className="text-brand-main" />
-            <h4 className="text-sm font-semibold text-fg-primary m-0">Request Care</h4>
+      {/* ── Shared groups list ── */}
+      {sharedGroups.length > 0 && (
+        <div className="inbox-contact-section">
+          <h4 className="inbox-contact-section-title">
+            <UsersThree size={14} weight="light" />
+            Groups in common
+          </h4>
+          <div className="flex flex-col gap-xs">
+            {sharedGroups.map((g) => (
+              <div key={g.id} className="inbox-contact-group-row">
+                {g.coverPhotoUrl && (
+                  <img
+                    src={g.coverPhotoUrl}
+                    alt={g.name}
+                    className="rounded-sm object-cover shrink-0"
+                    style={{ width: 36, height: 36 }}
+                  />
+                )}
+                <div className="flex flex-col" style={{ gap: 1 }}>
+                  <span className="text-sm font-semibold text-fg-primary">{g.name}</span>
+                  <span className="text-xs text-fg-tertiary capitalize">{g.groupType} group · {g.neighbourhood}</span>
+                </div>
+              </div>
+            ))}
           </div>
-          <p className="text-xs text-fg-secondary m-0">
-            {other.name} offers walking, sitting, and boarding services.
-          </p>
-          <ButtonAction variant="primary" size="sm" href={`/discover/profile/${other.id}`}>
+        </div>
+      )}
+
+      {/* ── Upcoming shared meets ── */}
+      {sharedMeets.filter((m) => m.status === "upcoming").length > 0 && (
+        <div className="inbox-contact-section">
+          <h4 className="inbox-contact-section-title">
+            <PawPrint size={14} weight="light" />
+            Upcoming meets together
+          </h4>
+          <div className="flex flex-col gap-xs">
+            {sharedMeets
+              .filter((m) => m.status === "upcoming")
+              .slice(0, 3)
+              .map((m) => (
+                <div key={m.id} className="inbox-contact-meet-row">
+                  <div className="flex flex-col" style={{ gap: 1 }}>
+                    <span className="text-sm font-semibold text-fg-primary">{m.title}</span>
+                    <span className="text-xs text-fg-tertiary">
+                      {new Date(m.date).toLocaleDateString("en-GB", { weekday: "short", month: "short", day: "numeric" })} · {m.time}
+                    </span>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Booking context (care conversations only) ── */}
+      {!isDirect && (
+        <div className="inbox-contact-section inbox-contact-booking">
+          <h4 className="inbox-contact-section-title">
+            <Heart size={14} weight="light" className="text-brand-main" />
+            Booking details
+          </h4>
+          <div className="flex flex-col gap-xs text-sm">
+            <div className="flex justify-between">
+              <span className="text-fg-secondary">Service</span>
+              <span className="text-fg-primary font-semibold">{SERVICE_LABELS[conv.inquiry.serviceType]}</span>
+            </div>
+            {conv.inquiry.dogName && (
+              <div className="flex justify-between">
+                <span className="text-fg-secondary">Dog</span>
+                <span className="text-fg-primary">{conv.inquiry.dogName}</span>
+              </div>
+            )}
+            {conv.inquiry.startDate && (
+              <div className="flex justify-between">
+                <span className="text-fg-secondary">Date</span>
+                <span className="text-fg-primary">
+                  {new Date(conv.inquiry.startDate).toLocaleDateString("en-GB", { month: "short", day: "numeric" })}
+                  {conv.inquiry.endDate && ` – ${new Date(conv.inquiry.endDate).toLocaleDateString("en-GB", { month: "short", day: "numeric" })}`}
+                </span>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <span className="text-fg-secondary">Status</span>
+              <span className="inbox-contact-status">{conv.status}</span>
+            </div>
+          </div>
+          <ButtonAction variant="primary" size="sm" href={`/discover/profile/${other.id}`} style={{ marginTop: "var(--space-sm)" }}>
             View services
           </ButtonAction>
+        </div>
+      )}
+
+      {/* ── Bio ── */}
+      {user?.bio && (
+        <div className="inbox-contact-section">
+          <h4 className="inbox-contact-section-title">About</h4>
+          <p className="text-sm text-fg-secondary m-0">{user.bio}</p>
         </div>
       )}
     </div>
@@ -248,65 +404,65 @@ export default function InboxPage() {
   );
 
   const detailContent = selectedConv ? (
-    <div className="flex flex-col gap-lg p-lg">
-      {/* Mobile back button */}
-      <div className="inbox-mobile-back">
-        <button
-          className="flex items-center gap-xs text-sm text-fg-secondary bg-transparent border-0 p-0"
-          style={{ cursor: "pointer" }}
-          onClick={() => setSelectedConvId(null)}
-        >
-          <ArrowLeft size={16} weight="light" />
-          Back
+    <>
+      {/* Messages — scrollable area */}
+      <div className="inbox-messages">
+        {selectedConv.messages.map((msg) => {
+          const isMe =
+            (msg.sender === "owner" && selectedConv.ownerId === MY_USER_ID) ||
+            (msg.sender === "provider" && selectedConv.providerId === MY_USER_ID);
+
+          if (msg.type === "booking_proposal") {
+            return (
+              <div key={msg.id} className="inbox-msg inbox-msg--system">
+                <div className="inbox-msg-booking">
+                  <span className="text-xs font-semibold text-brand-main uppercase tracking-wide">
+                    Booking proposal
+                  </span>
+                  {msg.text && <p className="text-sm text-fg-primary m-0">{msg.text}</p>}
+                  <span className="text-xs text-fg-tertiary">
+                    {new Date(msg.sentAt).toLocaleTimeString("en-GB", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div
+              key={msg.id}
+              className={`inbox-msg ${isMe ? "inbox-msg--mine" : "inbox-msg--theirs"}`}
+            >
+              <div className={`inbox-msg-bubble ${isMe ? "inbox-msg-bubble--mine" : "inbox-msg-bubble--theirs"}`}>
+                {msg.text && <p className="text-sm text-fg-primary m-0">{msg.text}</p>}
+                <span className="text-xs text-fg-tertiary">
+                  {new Date(msg.sentAt).toLocaleTimeString("en-GB", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Composer */}
+      <div className="inbox-composer">
+        <input
+          type="text"
+          placeholder="Type a message…"
+          className="inbox-composer-input"
+          onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}
+        />
+        <button type="button" className="inbox-composer-send" aria-label="Send">
+          <PaperPlaneTilt size={20} weight="light" />
         </button>
       </div>
-      <div className="flex items-center gap-sm">
-        <img
-          src={getOtherParty(selectedConv).avatarUrl}
-          alt={getOtherParty(selectedConv).name}
-          className="rounded-full object-cover shrink-0"
-          style={{ width: 40, height: 40 }}
-        />
-        <div className="flex flex-col">
-          <span className="font-heading text-md font-semibold text-fg-primary">
-            {getOtherParty(selectedConv).name}
-          </span>
-          <span className="text-xs text-fg-tertiary">
-            {selectedConv.conversationType === "direct"
-              ? "Direct message"
-              : SERVICE_LABELS[selectedConv.inquiry.serviceType]}
-          </span>
-        </div>
-      </div>
-
-      {/* Message preview */}
-      <div className="flex flex-col gap-sm">
-        {selectedConv.messages.slice(-5).map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex flex-col gap-xs rounded-sm p-sm ${
-              (msg.sender === "owner" && selectedConv.ownerId === MY_USER_ID) ||
-              (msg.sender === "provider" && selectedConv.providerId === MY_USER_ID)
-                ? "bg-brand-50 self-end"
-                : "bg-surface-inset self-start"
-            }`}
-            style={{ maxWidth: "80%" }}
-          >
-            {msg.text && <p className="text-sm text-fg-primary m-0">{msg.text}</p>}
-            <span className="text-xs text-fg-tertiary">
-              {new Date(msg.sentAt).toLocaleTimeString("en-GB", {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <ButtonAction variant="primary" size="md" href={`/inbox/${selectedConv.id}`}>
-        Open full conversation
-      </ButtonAction>
-    </div>
+    </>
   ) : (
     <div className="flex items-center justify-center h-full text-fg-tertiary text-sm">
       Select a conversation
@@ -349,18 +505,28 @@ export default function InboxPage() {
           </div>
         }
         detailPanel={
-          <div className="detail-panel">
+          <div className="detail-panel inbox-detail">
             {selectedConv && (
               <div className="detail-panel-header">
-                <span className="font-heading text-base font-semibold text-fg-primary">
-                  {getOtherParty(selectedConv).name}
-                </span>
+                <img
+                  src={getOtherParty(selectedConv).avatarUrl}
+                  alt={getOtherParty(selectedConv).name}
+                  className="rounded-full object-cover shrink-0"
+                  style={{ width: 32, height: 32 }}
+                />
+                <div className="flex flex-col" style={{ gap: 2 }}>
+                  <span className="font-heading text-md font-semibold text-fg-primary">
+                    {getOtherParty(selectedConv).name}
+                  </span>
+                  <span className="text-xs text-fg-tertiary">
+                    {selectedConv.conversationType === "direct"
+                      ? "Direct message"
+                      : SERVICE_LABELS[selectedConv.inquiry.serviceType]}
+                  </span>
+                </div>
               </div>
             )}
-            <PanelBody>
-              {detailContent}
-              <Spacer />
-            </PanelBody>
+            {detailContent}
           </div>
         }
         infoPanel={

@@ -27,7 +27,7 @@ export function FeedConnectionActivity({ item }: { item: FeedConnectionActivityI
             {" "}{item.activity}
           </span>
           {item.connectionContext && (
-            <span className="text-xs text-fg-tertiary">{item.connectionContext}</span>
+            <span className="text-sm text-fg-tertiary">{item.connectionContext}</span>
           )}
         </div>
         <Link

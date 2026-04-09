@@ -18,7 +18,7 @@ export function FeedDogMoment({ item }: { item: FeedDogMomentItem }) {
           <span className="text-sm text-fg-primary">
             <span className="font-medium">{item.dogName}</span> {item.momentText}
           </span>
-          <span className="text-xs text-fg-tertiary">
+          <span className="text-sm text-fg-tertiary">
             {item.ownerName}&apos;s dog
           </span>
         </div>

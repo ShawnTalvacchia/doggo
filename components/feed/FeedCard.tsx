@@ -1,6 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { Heart, ChatCircle, PaperPlaneTilt } from "@phosphor-icons/react";
+import type { PostReaction, PostComment } from "@/lib/types";
 
 interface FeedCardProps {
   authorName?: string;
@@ -10,17 +13,17 @@ interface FeedCardProps {
   groupName?: string;
   groupId?: string;
   connectionContext?: string;
-  /** Caption text — rendered above photos */
+  /** Caption text */
   caption?: string;
-  /** Full-bleed content (photos) */
+  /** Photo/media content */
   media?: React.ReactNode;
-  /** Tag pills — rendered below photos, in the footer row with action */
+  /** Tag pills — rendered between caption and photos */
   tags?: React.ReactNode;
-  /** Action element (like button) — inline with tags in footer */
-  action?: React.ReactNode;
-  /** Comment thread — rendered below footer */
-  comments?: React.ReactNode;
-  /** Padded content below media (for non-post cards) */
+  /** Reactions data — presence enables the action row */
+  reactions?: PostReaction[];
+  /** Comments data for the Comment count */
+  comments?: PostComment[];
+  /** Generic children for non-post cards (activity, nudges, etc.) */
   children?: React.ReactNode;
 }
 
@@ -49,86 +52,110 @@ export function FeedCard({
   caption,
   media,
   tags,
-  action,
+  reactions,
   comments,
   children,
 }: FeedCardProps) {
-  return (
-    <article className="feed-card">
-      {/* Author header */}
-      {authorName && (
-        <div className="flex flex-col gap-sm" style={{ padding: "var(--padding-small)" }}>
-          <div className="flex items-center gap-lg">
-            {authorAvatarUrl && (
-              <img
-                src={authorAvatarUrl}
-                alt={authorName}
-                className="rounded-full shrink-0 object-cover"
-                style={{ width: 36, height: 36 }}
-              />
-            )}
-            <div className="flex flex-col flex-1 min-w-0">
-              <div className="flex items-center gap-xs flex-wrap">
-                {authorHref ? (
-                  <Link href={authorHref} className="text-sm font-semibold text-fg-primary" style={{ textDecoration: "none" }}>
-                    {authorName}
-                  </Link>
-                ) : (
-                  <span className="text-sm font-semibold text-fg-primary">{authorName}</span>
-                )}
-                {groupName && groupId && (
-                  <span className="text-xs text-fg-tertiary">
-                    in{" "}
-                    <Link href={`/communities/${groupId}`} className="text-fg-tertiary" style={{ textDecoration: "none" }}>
-                      {groupName}
-                    </Link>
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-xs">
-                {timestamp && (
-                  <span className="text-xs text-fg-tertiary" style={{ lineHeight: "16px" }}>{formatRelativeDate(timestamp)}</span>
-                )}
-                {connectionContext && (
-                  <span className="text-xs text-fg-tertiary">· {connectionContext}</span>
-                )}
-              </div>
-            </div>
+  const [localReactions, setLocalReactions] = useState(reactions ?? []);
+  const hasLiked = localReactions.some((r) => r.userId === "shawn");
+  const likeCount = localReactions.length;
+  const commentCount = comments?.length ?? 0;
+  const showActions = reactions !== undefined;
+
+  function toggleLike() {
+    if (hasLiked) {
+      setLocalReactions(localReactions.filter((r) => r.userId !== "shawn"));
+    } else {
+      setLocalReactions([...localReactions, { userId: "shawn", userName: "You" }]);
+    }
+  }
+
+  /* ── Two-column Threads layout: avatar | content ── */
+  if (authorName && authorAvatarUrl) {
+    return (
+      <article className="feed-card">
+        <div className="feed-card-body">
+          {/* Left column: avatar */}
+          <div className="feed-card-col-avatar">
+            <img
+              src={authorAvatarUrl}
+              alt={authorName}
+              className="feed-card-avatar"
+            />
           </div>
 
-          {/* Caption — below author info, above photos */}
-          {caption && (
-            <p className="text-sm text-fg-secondary m-0" style={{ lineHeight: "20px" }}>
-              {caption}
-            </p>
-          )}
-        </div>
-      )}
+          {/* Right column: all content */}
+          <div className="feed-card-col-content">
+            {/* Author name + timestamp */}
+            <div className="feed-card-author-row">
+              {authorHref ? (
+                <Link href={authorHref} className="feed-card-author-name" style={{ textDecoration: "none" }}>
+                  {authorName}
+                </Link>
+              ) : (
+                <span className="feed-card-author-name">{authorName}</span>
+              )}
+              {timestamp && (
+                <span className="feed-card-timestamp">{formatRelativeDate(timestamp)}</span>
+              )}
+            </div>
 
-      {/* Media — full bleed */}
-      {media}
+            {/* Group / connection context */}
+            {(groupName || connectionContext) && (
+              <div className="feed-card-context">
+                {groupName && groupId && (
+                  <Link href={`/communities/${groupId}`} className="feed-card-context-link" style={{ textDecoration: "none" }}>
+                    {groupName}
+                  </Link>
+                )}
+                {connectionContext && <span>{connectionContext}</span>}
+              </div>
+            )}
 
-      {/* Footer: Like button + tags in one flat flex-wrap row */}
-      {(tags || action) && (
-        <div className="feed-card-footer">
-          {action}
-          {tags}
-        </div>
-      )}
+            {/* Caption */}
+            {caption && <p className="feed-card-caption">{caption}</p>}
 
-      {/* Comments */}
-      {comments && (
-        <div style={{ padding: "0 var(--padding-small) var(--padding-small)" }}>
-          {comments}
-        </div>
-      )}
+            {/* Tags */}
+            {tags && <div className="feed-card-tags">{tags}</div>}
 
-      {/* Generic children — padded (for non-post cards like activity updates) */}
-      {children && (
-        <div className="flex flex-col gap-sm px-lg py-lg">
-          {children}
+            {/* Photos */}
+            {media}
+
+            {/* Action row */}
+            {showActions && (
+              <div className="feed-card-actions">
+                <button
+                  type="button"
+                  className={`feed-card-action${hasLiked ? " feed-card-action--active" : ""}`}
+                  onClick={toggleLike}
+                >
+                  <Heart size={18} weight={hasLiked ? "fill" : "light"} />
+                  {likeCount > 0 && <span>{likeCount}</span>}
+                </button>
+                <button type="button" className="feed-card-action">
+                  <ChatCircle size={18} weight="light" />
+                  {commentCount > 0 && <span>{commentCount}</span>}
+                </button>
+                <button type="button" className="feed-card-action">
+                  <PaperPlaneTilt size={18} weight="light" />
+                </button>
+              </div>
+            )}
+
+            {/* Children slot */}
+            {children && <div className="feed-card-children">{children}</div>}
+          </div>
         </div>
-      )}
+      </article>
+    );
+  }
+
+  /* ── Fallback: no-author cards (upcoming meets, nudges, etc.) ── */
+  return (
+    <article className="feed-card">
+      <div className="feed-card-body feed-card-body--simple">
+        {children && <div className="feed-card-children">{children}</div>}
+      </div>
     </article>
   );
 }

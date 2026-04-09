@@ -1,13 +1,13 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { mockUser } from "@/lib/mockUser";
+import Link from "next/link";
+import { Plus, Camera } from "@phosphor-icons/react";
 import { getFeedForUser, getNewUserFeed } from "@/lib/mockFeed";
 import { DEMO_NEW_USER } from "@/lib/mockUserState";
 import { HomeWelcome } from "@/components/home/HomeWelcome";
 import { DogsNearYou } from "@/components/home/DogsNearYou";
-import { FeedCTA } from "@/components/feed/FeedCTA";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { FeedMeetRecap } from "@/components/feed/FeedMeetRecap";
 import { FeedUpcomingMeet } from "@/components/feed/FeedUpcomingMeet";
@@ -18,12 +18,9 @@ import { FeedMilestone } from "@/components/feed/FeedMilestone";
 import { FeedDogMoment } from "@/components/feed/FeedDogMoment";
 import { FeedCareReview } from "@/components/feed/FeedCareReview";
 import { TabBar } from "@/components/ui/TabBar";
-import { MasterDetailShell, type MobileView } from "@/components/layout/MasterDetailShell";
-import { PanelBody } from "@/components/layout/PanelBody";
-import { Spacer } from "@/components/layout/Spacer";
-import { LayoutList } from "@/components/layout/LayoutList";
+import { ButtonAction } from "@/components/ui/ButtonAction";
 import { CardGroup } from "@/components/groups/CardGroup";
-import { getUserGroups, getGroupById } from "@/lib/mockGroups";
+import { getUserGroups } from "@/lib/mockGroups";
 import type { FeedItem, GroupType } from "@/lib/types";
 
 // ── Feed rendering ──────────────────────────────────────────────────────────
@@ -31,7 +28,6 @@ import type { FeedItem, GroupType } from "@/lib/types";
 function FeedItemRenderer({ item }: { item: FeedItem }) {
   switch (item.type) {
     case "personal_post":
-      return <MomentCardFromPost post={item.post} />;
     case "community_post":
       return <MomentCardFromPost post={item.post} />;
     case "meet_recap":
@@ -56,11 +52,11 @@ function FeedItemRenderer({ item }: { item: FeedItem }) {
   }
 }
 
-// ── Category tabs ──────────────────────────────────────────────────────────
+// ── Group category filter pills ─────────────────────────────────────────────
 
-type CategoryTab = "all" | "parks" | "neighbors" | "interest" | "care";
+type CategoryFilter = "all" | "parks" | "neighbors" | "interest" | "care";
 
-const CATEGORY_TABS: { key: CategoryTab; label: string }[] = [
+const CATEGORY_PILLS: { key: CategoryFilter; label: string }[] = [
   { key: "all", label: "All" },
   { key: "parks", label: "Parks" },
   { key: "neighbors", label: "Neighbors" },
@@ -68,8 +64,7 @@ const CATEGORY_TABS: { key: CategoryTab; label: string }[] = [
   { key: "care", label: "Care" },
 ];
 
-/** Map category tab key to GroupType for filtering */
-const TAB_TO_GROUP_TYPE: Record<CategoryTab, GroupType | null> = {
+const FILTER_TO_GROUP_TYPE: Record<CategoryFilter, GroupType | null> = {
   all: null,
   parks: "park",
   neighbors: "neighbor",
@@ -77,48 +72,46 @@ const TAB_TO_GROUP_TYPE: Record<CategoryTab, GroupType | null> = {
   care: "care",
 };
 
-// ── Panel header label per tab ─────────────────────────────────────────────
+// ── Main tabs (inside panel) ────────────────────────────────────────────────
 
-const TAB_PANEL_TITLE: Record<CategoryTab, string> = {
-  all: "Community",
-  parks: "Parks",
-  neighbors: "Neighbors",
-  interest: "Interest",
-  care: "Care",
-};
+type MainTab = "groups" | "feed";
+
+const MAIN_TABS: { key: MainTab; label: string }[] = [
+  { key: "feed", label: "Feed" },
+  { key: "groups", label: "Groups" },
+];
 
 // ── Main page ───────────────────────────────────────────────────────────────
 
 function HomePageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const activeTab = (searchParams.get("tab") as CategoryTab) || "all";
 
-  const handleTabChange = (key: string) => {
-    if (key === "all") {
+  // Main tab: groups or feed
+  const mainTab = (searchParams.get("view") as MainTab) || "feed";
+  const handleMainTabChange = (key: string) => {
+    const tab = key as MainTab;
+    if (tab === "feed") {
       router.replace("/home", { scroll: false });
     } else {
-      router.replace(`/home?tab=${key}`, { scroll: false });
+      router.replace(`/home?view=${tab}`, { scroll: false });
     }
   };
 
-  // Collapsed/mobile: show the group list (category tabs filter it).
-  // Tapping a group navigates to /communities/[id] for detail.
-  // Desktop: both panels visible — list (left) + feed (right).
-  const mobileView: MobileView = "list";
+  // Category filter (only relevant in groups view)
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("all");
 
   const userGroups = getUserGroups("shawn");
   const allFeedItems = getFeedForUser("shawn");
-  const dogPhotos = mockUser.pets.map((p) => p.imageUrl);
 
-  // Filter groups by active category tab
-  const groupType = TAB_TO_GROUP_TYPE[activeTab];
+  // Filter groups by category
+  const groupType = FILTER_TO_GROUP_TYPE[categoryFilter];
   const filteredGroups = useMemo(() => {
     if (!groupType) return userGroups;
     return userGroups.filter((g) => g.groupType === groupType);
   }, [userGroups, groupType]);
 
-  // Filter feed by active category tab
+  // Filter feed items when category is active
   const feedItems = useMemo(() => {
     if (!groupType) return allFeedItems;
     const groupIdsOfType = new Set(
@@ -128,7 +121,6 @@ function HomePageInner() {
       if (item.type === "community_post" || item.type === "personal_post") {
         const post = (item as any).post;
         if (post?.groupId) return groupIdsOfType.has(post.groupId);
-        // Personal posts show only in "all"
         return false;
       }
       if (item.type === "upcoming_meet" || item.type === "meet_recap") {
@@ -140,101 +132,112 @@ function HomePageInner() {
     });
   }, [allFeedItems, groupType, userGroups]);
 
-  // Count groups per category for potential badge display
-  const groupCounts = useMemo(() => {
-    const counts: Record<CategoryTab, number> = { all: userGroups.length, parks: 0, neighbors: 0, interest: 0, care: 0 };
-    for (const g of userGroups) {
-      if (g.groupType === "park") counts.parks++;
-      else if (g.groupType === "neighbor") counts.neighbors++;
-      else if (g.groupType === "interest") counts.interest++;
-      else if (g.groupType === "care") counts.care++;
-    }
-    return counts;
-  }, [userGroups]);
-
-  const panelTitle = TAB_PANEL_TITLE[activeTab];
+  // Header action button changes per tab
+  const headerAction = mainTab === "groups" ? (
+    <ButtonAction
+      variant="outline"
+      size="sm"
+      cta
+      leftIcon={<Plus size={14} weight="bold" />}
+      href="/communities/create"
+    >
+      Create Community
+    </ButtonAction>
+  ) : (
+    <ButtonAction
+      variant="outline"
+      size="sm"
+      cta
+      leftIcon={<Camera size={14} weight="light" />}
+      href="/posts/create"
+    >
+      Post
+    </ButtonAction>
+  );
 
   return (
-    <div className="page-container home-page-shell">
-      {/* TabBar — visible on collapsed/mobile, hidden on desktop */}
-      <div className="panel-tabbar home-tab-bar" data-view="list">
-        <div className="panel-tabbar-list">
-          <div className="panel-tabbar-title">Community</div>
-          <div className="panel-tabbar-tabs">
-            <TabBar tabs={CATEGORY_TABS} activeKey={activeTab} onChange={handleTabChange} />
-          </div>
+    <div className="community-page-shell">
+      {/* ── Page header ───────────────────────────────────── */}
+      <div className="community-page-header">
+        <h1 className="community-page-title">Community</h1>
+        <div className="community-page-header-action">
+          {headerAction}
         </div>
       </div>
 
-      <MasterDetailShell
-        mobileView={mobileView}
-        listPanel={
-          <div className="list-panel">
-            {/* Header — visible on desktop, hidden on mobile/collapsed */}
-            <div className="list-panel-header panel-header-desktop">
-              <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
-                Community
-              </h2>
-            </div>
-            {/* Category tabs — desktop: below header, same TabBar as other pages. Mobile uses panel-tabbar above. */}
-            <div className="list-panel-filters panel-header-desktop">
-              <TabBar tabs={CATEGORY_TABS} activeKey={activeTab} onChange={handleTabChange} />
+      {/* ── Panel ─────────────────────────────────────────── */}
+      <div className="community-panel">
+        {/* Main tab bar */}
+        <div className="community-panel-tabs">
+          <TabBar tabs={MAIN_TABS} activeKey={mainTab} onChange={handleMainTabChange} />
+        </div>
+
+        {/* Groups view */}
+        {mainTab === "groups" && (
+          <>
+            {/* Category filter pills */}
+            <div className="community-filter-pills">
+              {CATEGORY_PILLS.map((pill) => (
+                <button
+                  key={pill.key}
+                  type="button"
+                  className={`pill${categoryFilter === pill.key ? " active" : ""}`}
+                  onClick={() => setCategoryFilter(pill.key)}
+                >
+                  {pill.label}
+                </button>
+              ))}
             </div>
 
-            {/* Body — scrollable group list */}
-            <PanelBody>
-              <LayoutList>
-                {filteredGroups.length > 0 ? (
-                  filteredGroups.map((group) => (
+            {/* Group cards */}
+            <div className="community-panel-body">
+              {filteredGroups.length > 0 ? (
+                <div className="community-group-list">
+                  {filteredGroups.map((group) => (
                     <CardGroup key={group.id} group={group} variant="my-groups" />
-                  ))
-                ) : (
-                  <div className="flex flex-col items-center gap-md p-xl text-center">
-                    <p className="text-fg-tertiary text-md">
-                      {activeTab === "all"
-                        ? "You haven\u2019t joined any groups yet."
-                        : `No ${panelTitle.toLowerCase()} groups yet.`}
-                    </p>
-                    <a
-                      href="/discover/groups"
-                      className="text-brand-main font-semibold text-md"
-                      style={{ textDecoration: "none" }}
-                    >
-                      Explore groups →
-                    </a>
-                  </div>
-                )}
-              </LayoutList>
-              <Spacer />
-            </PanelBody>
-          </div>
-        }
-        detailPanel={
-          <div className="detail-panel">
-            <PanelBody>
-              {DEMO_NEW_USER ? (
-                <>
-                  <HomeWelcome />
-                  <DogsNearYou />
-                  <LayoutList>
-                    {getNewUserFeed().map((item) => (
-                      <FeedItemRenderer key={item.feedId} item={item} />
-                    ))}
-                  </LayoutList>
-                </>
-              ) : (
-                <LayoutList>
-                  <FeedCTA dogPhotos={dogPhotos} />
-                  {feedItems.map((item) => (
-                    <FeedItemRenderer key={item.feedId} item={item} />
                   ))}
-                </LayoutList>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-md p-xl text-center">
+                  <p className="text-fg-tertiary text-md">
+                    {categoryFilter === "all"
+                      ? "You haven\u2019t joined any groups yet."
+                      : `No ${categoryFilter} groups yet.`}
+                  </p>
+                  <Link
+                    href="/discover/groups"
+                    className="text-brand-main font-semibold text-md"
+                    style={{ textDecoration: "none" }}
+                  >
+                    Explore groups →
+                  </Link>
+                </div>
               )}
-              <Spacer />
-            </PanelBody>
+            </div>
+          </>
+        )}
+
+        {/* Feed view */}
+        {mainTab === "feed" && (
+          <div className="community-panel-body">
+            {DEMO_NEW_USER ? (
+              <>
+                <HomeWelcome />
+                <DogsNearYou />
+                {getNewUserFeed().map((item) => (
+                  <FeedItemRenderer key={item.feedId} item={item} />
+                ))}
+              </>
+            ) : (
+              <>
+                {feedItems.map((item) => (
+                  <FeedItemRenderer key={item.feedId} item={item} />
+                ))}
+              </>
+            )}
           </div>
-        }
-      />
+        )}
+      </div>
     </div>
   );
 }

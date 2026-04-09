@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { DetailHeader } from "@/components/layout/DetailHeader";
 import { TabBar } from "@/components/ui/TabBar";
-import { PanelBody } from "@/components/layout/PanelBody";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutSection } from "@/components/layout/LayoutSection";
 import { LayoutList } from "@/components/layout/LayoutList";
@@ -12,9 +12,11 @@ import {
   MapPin,
   UsersThree,
   Lock,
-  Globe,
   ShieldCheck,
   Camera,
+  CaretDown,
+  Check,
+  UserPlus,
   CameraSlash,
   Prohibit,
   ChatCircleDots,
@@ -23,7 +25,6 @@ import {
   Plus,
   PawPrint,
   Storefront,
-  Star,
   MapPinLine,
   Images,
   CalendarBlank,
@@ -32,45 +33,48 @@ import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CardMeet } from "@/components/meets/CardMeet";
 import { MeetCardCompact } from "@/components/meets/MeetCardCompact";
-import { MeetPhotoGallery } from "@/components/meets/MeetPhotoGallery";
 import { MessageBubble } from "@/components/chat/MessageBubble";
 import { SystemMessage } from "@/components/chat/SystemMessage";
 import { getGroupById, getGroupMeets } from "@/lib/mockGroups";
 import { getMessagesForGroup } from "@/lib/mockGroupMessages";
 import { getPostsByGroup } from "@/lib/mockPosts";
 import { getConnectionState } from "@/lib/mockConnections";
-import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
-import { TagPillRow } from "@/components/posts/TagPill";
-import { PawReaction } from "@/components/posts/PawReaction";
-import { CommentThread } from "@/components/feed/CommentThread";
+import { MomentCardFromPost } from "@/components/feed/MomentCard";
 
 /* ── Tab config per group type ─────────────────────────────────── */
 
 import type { GroupType } from "@/lib/types";
 
-function getTabsForGroupType(groupType: GroupType) {
-  switch (groupType) {
-    case "park":
-      return [
-        { key: "feed", label: "Feed" },
-        { key: "meets", label: "Meets" },
-        { key: "members", label: "Members" },
-      ];
-    case "care":
-      return [
-        { key: "feed", label: "Feed" },
-        { key: "events", label: "Events" },
-        { key: "services", label: "Services" },
-        { key: "members", label: "Members" },
-        { key: "gallery", label: "Gallery" },
-      ];
-    default: // neighbor, interest
-      return [
-        { key: "feed", label: "Feed" },
-        { key: "meets", label: "Meets" },
-        { key: "members", label: "Members" },
-      ];
+function getTabsForGroupType(groupType: GroupType, hasPhotos: boolean) {
+  const base = (() => {
+    switch (groupType) {
+      case "park":
+        return [
+          { key: "feed", label: "Feed" },
+          { key: "meets", label: "Meets" },
+          { key: "members", label: "Members" },
+        ];
+      case "care":
+        return [
+          { key: "feed", label: "Feed" },
+          { key: "events", label: "Events" },
+          { key: "services", label: "Services" },
+          { key: "members", label: "Members" },
+        ];
+      default: // neighbor, interest
+        return [
+          { key: "feed", label: "Feed" },
+          { key: "meets", label: "Meets" },
+          { key: "members", label: "Members" },
+        ];
+    }
+  })();
+
+  if (hasPhotos) {
+    base.push({ key: "gallery", label: "Gallery" });
   }
+
+  return base;
 }
 
 /** Care category display labels */
@@ -100,6 +104,7 @@ function GroupDetailInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab") || "feed";
+  const { setDetailHeader, clearDetailHeader } = usePageHeader();
 
   const group = getGroupById(params.id as string);
   const [joinRequested, setJoinRequested] = useState(false);
@@ -122,7 +127,38 @@ function GroupDetailInner() {
   const isAdmin = group.members.some((m) => m.userId === "shawn" && m.role === "admin");
   const totalDogs = group.members.reduce((sum, m) => sum + m.dogNames.length, 0);
   const isCare = group.groupType === "care";
-  const tabs = getTabsForGroupType(group.groupType);
+  const tabs = getTabsForGroupType(group.groupType, group.photos.length > 0);
+
+  // Right action changes per tab
+  const headerAction = isMember ? (() => {
+    switch (activeTab) {
+      case "meets":
+      case "events":
+        return (
+          <ButtonAction variant="outline" size="sm" cta leftIcon={<Plus size={14} weight="bold" />} href="/meets/create">
+            Create {isCare ? "event" : "meet"}
+          </ButtonAction>
+        );
+      case "members":
+        return (
+          <ButtonAction variant="outline" size="sm" cta leftIcon={<UserPlus size={14} weight="bold" />}>
+            Invite
+          </ButtonAction>
+        );
+      default:
+        return group.photoPolicy !== "none" ? (
+          <ButtonAction variant="outline" size="sm" cta leftIcon={<Camera size={14} weight="light" />} href="/posts/create">
+            Post
+          </ButtonAction>
+        ) : undefined;
+    }
+  })() : undefined;
+
+  // Feed detail header into AppNav on mobile
+  useEffect(() => {
+    setDetailHeader(group.name, () => router.push("/home"), headerAction);
+    return () => clearDetailHeader();
+  }, [group.name, activeTab, isMember]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTabChange = (key: string) => {
     if (key === "feed") {
@@ -133,21 +169,94 @@ function GroupDetailInner() {
   };
 
   return (
-    <div
-      className="flex flex-col"
-      style={{ maxWidth: "var(--app-page-max-width)", margin: "0 auto", width: "100%" }}
-    >
-      {/* ── Persistent header (above tabs) ──────────────────────── */}
+    <div className="group-detail-page">
+      {/* ── Header (above panel on desktop, becomes mobile top bar) ── */}
+      <DetailHeader backLabel="Back" title={group.name} rightAction={headerAction} />
 
-      <DetailHeader backHref="/home?tab=groups" backLabel="Groups" />
+      {/* ── Panel (rounded card container) ── */}
+      <div className="group-detail-panel">
 
-      {/* Cover photo */}
+      {/* ── Tab bar (always at panel top, outside scroll) ─── */}
+      <div className="group-detail-tabs">
+        <TabBar tabs={tabs} activeKey={activeTab} onChange={handleTabChange} />
+      </div>
+
+      {/* ── Scrollable tab content ─────────────────────────── */}
+      <div className="group-detail-body">
+        {activeTab === "feed" && (
+          <FeedTab
+            groupPosts={groupPosts}
+            group={group}
+            isMember={isMember}
+            isAdmin={isAdmin}
+            isCare={isCare}
+            totalDogs={totalDogs}
+            joinRequested={joinRequested}
+            onJoinRequest={() => setJoinRequested(true)}
+          />
+        )}
+
+        {(activeTab === "meets" || activeTab === "events") && (
+          <MeetsTab groupMeets={groupMeets} isCare={isCare} />
+        )}
+
+        {activeTab === "services" && isCare && (
+          <ServicesTab group={group} />
+        )}
+
+        {activeTab === "members" && (
+          <MembersTab group={group} />
+        )}
+
+        {activeTab === "gallery" && (
+          <GalleryTab group={group} />
+        )}
+
+        {activeTab === "chat" && (
+          <ChatTab
+            group={group}
+            messages={messages}
+            groupMeets={groupMeets}
+            isMember={isMember}
+            joinRequested={joinRequested}
+            onJoinRequest={() => setJoinRequested(true)}
+          />
+        )}
+
+        <Spacer />
+      </div>
+
+      </div>{/* end group-detail-panel */}
+    </div>
+  );
+}
+
+/* ── Feed tab ──────────────────────────────────────────────────── */
+
+import type { Group, Meet } from "@/lib/types";
+import type { GroupMessage } from "@/lib/types";
+
+interface FeedTabProps {
+  groupPosts: ReturnType<typeof getPostsByGroup>;
+  group: Group;
+  isMember: boolean;
+  isAdmin: boolean;
+  isCare: boolean;
+  totalDogs: number;
+  joinRequested: boolean;
+  onJoinRequest: () => void;
+}
+
+function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, joinRequested, onJoinRequest }: FeedTabProps) {
+  return (
+    <>
+      {/* ── Banner + info (only in Feed tab) ── */}
       <div
-        className="w-full h-[200px] bg-cover bg-center"
+        className="group-detail-banner"
         style={{ backgroundImage: `url(${group.coverPhotoUrl})` }}
       />
 
-      <div className="flex flex-col gap-md px-xl pt-lg pb-md">
+      <div className="group-detail-info">
         {/* Group name + badges */}
         <div className="flex items-center gap-sm flex-wrap">
           <h1 className="font-heading text-2xl font-semibold text-fg-primary m-0">
@@ -222,166 +331,62 @@ function GroupDetailInner() {
           </span>
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-sm flex-wrap">
+        {/* Actions — full-width buttons */}
+        <div className="group-action-buttons">
           {isMember ? (
-            <ButtonAction variant={isAdmin ? "secondary" : "outline"} size="md" disabled={isAdmin}>
-              {isAdmin ? "You're an admin" : "Leave community"}
-            </ButtonAction>
+            <button type="button" className="group-action-btn-status">
+              {isAdmin ? (
+                <>
+                  <ShieldCheck size={16} weight="fill" />
+                  Admin
+                  <CaretDown size={12} weight="bold" />
+                </>
+              ) : (
+                <>
+                  <Check size={16} weight="bold" />
+                  Joined
+                  <CaretDown size={12} weight="bold" />
+                </>
+              )}
+            </button>
           ) : group.visibility === "approval" ? (
-            <ButtonAction
-              variant={joinRequested ? "secondary" : "primary"}
-              size="md"
+            <button
+              type="button"
+              className="group-action-btn-status"
+              onClick={onJoinRequest}
               disabled={joinRequested}
-              onClick={() => setJoinRequested(true)}
             >
               {joinRequested ? "Request sent" : "Request to join"}
-            </ButtonAction>
+            </button>
           ) : (
-            <ButtonAction variant="primary" size="md">
+            <button type="button" className="group-action-btn-invite">
               Join community
-            </ButtonAction>
+            </button>
           )}
-          <ButtonAction
-            variant="outline"
-            size="md"
-            leftIcon={<UsersThree size={16} weight="light" />}
-          >
+          <button type="button" className="group-action-btn-invite">
+            <UserPlus size={16} weight="bold" />
             Invite
-          </ButtonAction>
+          </button>
         </div>
       </div>
 
-      {/* ── Tab bar ─────────────────────────────────────────────── */}
-
-      <div
-        className="flex items-center px-xl"
-        style={{ borderBottom: "1px solid var(--border-light)" }}
-      >
-        <TabBar tabs={tabs} activeKey={activeTab} onChange={handleTabChange} />
-      </div>
-
-      {/* ── Tab content ─────────────────────────────────────────── */}
-
-      <PanelBody>
-        {activeTab === "feed" && (
-          <FeedTab
-            groupPosts={groupPosts}
-            group={group}
-            isMember={isMember}
-          />
-        )}
-
-        {(activeTab === "meets" || activeTab === "events") && (
-          <MeetsTab groupMeets={groupMeets} isCare={isCare} />
-        )}
-
-        {activeTab === "services" && isCare && (
-          <ServicesTab group={group} />
-        )}
-
-        {activeTab === "members" && (
-          <MembersTab group={group} />
-        )}
-
-        {activeTab === "gallery" && isCare && (
-          <GalleryTab group={group} />
-        )}
-
-        {activeTab === "chat" && (
-          <ChatTab
-            group={group}
-            messages={messages}
-            groupMeets={groupMeets}
-            isMember={isMember}
-            joinRequested={joinRequested}
-            onJoinRequest={() => setJoinRequested(true)}
-          />
-        )}
-
-        <Spacer />
-      </PanelBody>
-    </div>
-  );
-}
-
-/* ── Feed tab ──────────────────────────────────────────────────── */
-
-import type { Group, Meet } from "@/lib/types";
-import type { GroupMessage } from "@/lib/types";
-
-interface FeedTabProps {
-  groupPosts: ReturnType<typeof getPostsByGroup>;
-  group: Group;
-  isMember: boolean;
-}
-
-function FeedTab({ groupPosts, group, isMember }: FeedTabProps) {
-  return (
-    <LayoutSection>
-      <div className="flex flex-col gap-lg">
-        {/* Post CTA */}
-        {isMember && group.photoPolicy !== "none" && (
-          <div className="flex justify-end">
-            <ButtonAction
-              variant="tertiary"
-              size="sm"
-              href="/posts/create"
-              leftIcon={<Camera size={14} weight="light" />}
-            >
-              New post
-            </ButtonAction>
-          </div>
-        )}
-
-        {/* Posts */}
-        {group.photoPolicy !== "none" && groupPosts.length > 0 ? (
-          <div className="flex flex-col gap-md">
-            {groupPosts.map((post) => (
-              <div
-                key={post.id}
-                className="flex flex-col gap-sm rounded-panel bg-surface-top p-md shadow-xs"
-              >
-                <div className="flex items-center gap-sm">
-                  <img
-                    src={post.authorAvatarUrl}
-                    alt={post.authorName}
-                    className="rounded-full shrink-0 w-7 h-7 object-cover"
-                  />
-                  <span className="text-sm font-medium text-fg-primary">{post.authorName}</span>
-                  <span className="text-xs text-fg-tertiary">
-                    {new Date(post.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-                  </span>
-                </div>
-                <PostPhotoGrid photos={post.photos} />
-                {post.caption && (
-                  <p className="text-sm text-fg-primary m-0">{post.caption}</p>
-                )}
-                <TagPillRow tags={post.tags} />
-                <PawReaction reactions={post.reactions} />
-                <CommentThread comments={post.comments} canComment={isMember} />
-              </div>
-            ))}
-          </div>
-        ) : group.photoPolicy === "none" ? null : (
-          <div className="flex flex-col items-center gap-md rounded-panel p-lg text-center bg-surface-inset">
+      {/* ── Posts ── */}
+      {group.photoPolicy !== "none" && groupPosts.length > 0 ? (
+        <div className="group-feed-list">
+          {groupPosts.map((post) => (
+            <MomentCardFromPost key={post.id} post={post} />
+          ))}
+        </div>
+      ) : group.photoPolicy === "none" ? null : (
+        <LayoutSection>
+          <div className="flex flex-col items-center gap-md p-lg text-center">
             <p className="text-sm text-fg-secondary m-0">
               No posts yet. {isMember ? "Share a moment with the community!" : "Join to see and create posts."}
             </p>
           </div>
-        )}
-
-        {/* Gallery */}
-        {group.photos.length > 0 && (
-          <div className="flex flex-col gap-sm">
-            <h3 className="font-heading text-md font-semibold text-fg-primary m-0">
-              Community photos
-            </h3>
-            <MeetPhotoGallery photos={group.photos} />
-          </div>
-        )}
-      </div>
-    </LayoutSection>
+        </LayoutSection>
+      )}
+    </>
   );
 }
 
@@ -393,22 +398,6 @@ function MeetsTab({ groupMeets, isCare }: { groupMeets: Meet[]; isCare: boolean 
 
   return (
     <div className="flex flex-col">
-      <LayoutSection>
-        <div className="flex items-center justify-between">
-          <h3 className="font-heading text-md font-semibold text-fg-primary m-0">
-            Upcoming {noun}
-          </h3>
-          <ButtonAction
-            variant="tertiary"
-            size="sm"
-            href="/meets/create"
-            leftIcon={<Plus size={14} weight="bold" />}
-          >
-            Create {nounSingular}
-          </ButtonAction>
-        </div>
-      </LayoutSection>
-
       {groupMeets.length > 0 ? (
         <LayoutList>
           {groupMeets.map((meet) => (
@@ -438,11 +427,7 @@ function MeetsTab({ groupMeets, isCare }: { groupMeets: Meet[]; isCare: boolean 
 function MembersTab({ group }: { group: Group }) {
   return (
     <LayoutSection>
-      <div className="flex flex-col gap-md">
-        <h3 className="font-heading text-md font-semibold text-fg-primary m-0">
-          Members ({group.members.length})
-        </h3>
-        <div className="flex flex-col gap-sm">
+      <div className="flex flex-col gap-sm">
           {group.members.map((member) => {
             const conn = getConnectionState(member.userId);
             const isYou = member.userId === "shawn";
@@ -489,7 +474,6 @@ function MembersTab({ group }: { group: Group }) {
               </div>
             );
           })}
-        </div>
       </div>
     </LayoutSection>
   );
@@ -568,13 +552,6 @@ function GalleryTab({ group }: { group: Group }) {
   return (
     <LayoutSection>
       <div className="flex flex-col gap-md">
-        <div className="flex items-center justify-between">
-          <h3 className="font-heading text-md font-semibold text-fg-primary m-0">
-            {mode === "portfolio" ? "Portfolio" : mode === "updates" ? "Updates" : "Gallery"}
-          </h3>
-          <span className="text-xs text-fg-tertiary">{photos.length} photos</span>
-        </div>
-
         {mode === "portfolio" ? (
           /* Portfolio mode: 2-column before/after style grid */
           <div className="grid grid-cols-2 gap-sm">

@@ -33,7 +33,9 @@ export function useScrollHideNav() {
         target.classList.contains("detail-panel-scroll") ||
         target.classList.contains("discover-mobile-tab-content") ||
         target.classList.contains("discover-hub-body") ||
-        target.classList.contains("discover-results-list");
+        target.classList.contains("discover-results-list") ||
+        target.classList.contains("community-panel-body") ||
+        target.classList.contains("group-detail-body");
 
       if (!isScrollContainer) return;
 

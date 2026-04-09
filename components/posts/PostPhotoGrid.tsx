@@ -2,7 +2,7 @@
 
 interface PostPhotoGridProps {
   photos: string[];
-  /** When true, removes rounded corners for full-bleed in feed cards */
+  /** Legacy prop — ignored */
   fullBleed?: boolean;
 }
 
@@ -13,39 +13,29 @@ function handleImgError(e: React.SyntheticEvent<HTMLImageElement>) {
 }
 
 /**
- * Photo grid using flex-wrap layout (matches Figma card-post content-card).
- * Photos use flex: 1 0 0 with min-width constraints to auto-wrap into rows.
- * - 1 photo: full width
- * - 2 photos: side by side (min-width 238px each)
- * - 3-4 photos: 2-col wrapping (min-width 178px each)
+ * Threads-style photo grid.
+ * Single horizontal row, each image individually rounded.
+ * Shorter/wider proportions with visible gap.
  */
-export function PostPhotoGrid({ photos, fullBleed = false }: PostPhotoGridProps) {
+export function PostPhotoGrid({ photos }: PostPhotoGridProps) {
   if (photos.length === 0) return null;
 
-  const radius = fullBleed ? undefined : "var(--radius-panel)";
   const count = Math.min(photos.length, 4);
-  const minW = count <= 2 ? 238 : 178;
-  // Cap image heights so tall/portrait photos don't dominate the feed
-  const maxH = count === 1 ? 420 : count === 2 ? 320 : 260;
+  const height = count === 1 ? 320 : 220;
 
   return (
-    <div
-      className="flex flex-wrap overflow-hidden"
-      style={{ gap: 2, borderRadius: radius }}
-    >
+    <div className="post-photo-grid">
       {photos.slice(0, 4).map((url, i) => (
         <img
           key={i}
           src={url}
           alt=""
+          className="post-photo-grid-img"
           onError={handleImgError}
           style={{
-            flex: "1 0 0",
-            minWidth: minW,
-            minHeight: 178,
-            maxHeight: maxH,
-            objectFit: "cover",
-            display: "block",
+            flex: "1 1 0",
+            minWidth: 0,
+            height,
           }}
         />
       ))}

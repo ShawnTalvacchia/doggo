@@ -38,7 +38,7 @@ export function FeedCareReview({ item }: { item: FeedCareReviewItem }) {
             ))}
           </div>
           {item.snippet && (
-            <p className="text-xs text-fg-secondary m-0" style={{ fontStyle: "italic" }}>
+            <p className="text-sm text-fg-secondary m-0" style={{ fontStyle: "italic" }}>
               &ldquo;{item.snippet}&rdquo;
             </p>
           )}

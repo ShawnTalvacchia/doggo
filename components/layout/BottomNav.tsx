@@ -24,16 +24,15 @@ const hubPrefixes = ["/home", "/communities", "/groups", "/discover", "/schedule
 
 /** Routes that are detail pages — hide bottom nav even though they're logged-in */
 const detailPatterns = [
-  /^\/communities\/.+/,   // group detail, create
-  /^\/groups\/.+/,        // group detail (legacy)
-  /^\/discover\/profile/, // provider profile
-  /^\/meets\/.+/,         // meet detail, create
-  /^\/inbox\/.+/,         // message thread
-  /^\/bookings\/.+/,      // booking detail, checkout
-  /^\/profile\/.+/,       // other user's profile
-  /^\/posts\/.+/,         // create post
-  /^\/explore\/.*/,       // legacy explore routes
-  /^\/connect\/.+/,       // share link
+  /^\/communities\/create/, // group create (but NOT group detail)
+  /^\/groups\/.+/,          // group detail (legacy)
+  /^\/discover\/profile/,   // provider profile
+  /^\/meets\/create/,       // meet create (but NOT meet detail)
+  /^\/inbox\/.+/,           // message thread
+  /^\/bookings\/.+/,        // booking detail, checkout
+  /^\/posts\/.+/,           // create post
+  /^\/explore\/.*/,         // legacy explore routes
+  /^\/connect\/.+/,         // share link
 ];
 
 function BottomNavInner() {

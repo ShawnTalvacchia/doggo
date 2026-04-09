@@ -3,7 +3,6 @@
 import { FeedCard } from "./FeedCard";
 import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
 import { TagPillRow } from "@/components/posts/TagPill";
-import { PawReaction } from "@/components/posts/PawReaction";
 import type { Post } from "@/lib/types";
 
 export function FeedPersonalPost({ post, connectionContext }: { post: Post; connectionContext?: string }) {
@@ -14,10 +13,11 @@ export function FeedPersonalPost({ post, connectionContext }: { post: Post; conn
       authorHref={`/profile/${post.authorId}`}
       timestamp={post.createdAt}
       connectionContext={connectionContext}
-      tags={<TagPillRow tags={post.tags} />}
-      media={<PostPhotoGrid photos={post.photos} fullBleed />}
+      tags={post.tags.length > 0 ? <TagPillRow tags={post.tags} /> : undefined}
+      media={<PostPhotoGrid photos={post.photos} />}
       caption={post.caption}
-      action={<PawReaction reactions={post.reactions} />}
+      reactions={post.reactions}
+      comments={post.comments}
     />
   );
 }
