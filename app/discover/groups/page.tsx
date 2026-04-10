@@ -17,6 +17,7 @@ import {
   Dog,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
+import { DetailHeader } from "@/components/layout/DetailHeader";
 import { Spacer } from "@/components/layout/Spacer";
 import { TabBar } from "@/components/ui/TabBar";
 import { CardGroup } from "@/components/groups/CardGroup";
@@ -399,27 +400,8 @@ function DiscoverGroupsInner() {
     ];
 
     return (
-      <PageColumn hideHeader>
+      <PageColumn hideHeader abovePanel={<DetailHeader backHref="/discover/groups" title={GROUP_TYPE_LABELS[groupType]} />}>
         <div className="page-column-panel-body">
-          <div
-            className="flex items-center gap-sm"
-            style={{
-              padding: "var(--space-md) var(--space-lg)",
-              borderBottom: "1px solid var(--border-regular)",
-            }}
-          >
-            <Link
-              href="/discover/groups"
-              className="flex items-center gap-xs text-fg-secondary"
-              style={{ textDecoration: "none" }}
-            >
-              <ArrowLeft size={20} weight="light" />
-              <span className="text-md font-medium">Groups</span>
-            </Link>
-            <span className="text-fg-tertiary text-sm" style={{ marginLeft: "auto" }}>
-              {GROUP_TYPE_LABELS[groupType]}
-            </span>
-          </div>
           <div className="page-column-panel-tabs">
             <TabBar
               tabs={TABS}
@@ -445,27 +427,8 @@ function DiscoverGroupsInner() {
   }
 
   return (
-    <PageColumn hideHeader>
+    <PageColumn hideHeader abovePanel={<DetailHeader backHref="/discover" title="Groups" />}>
       <div className="page-column-panel-body">
-        <div
-          className="flex items-center gap-sm"
-          style={{
-            padding: "var(--space-md) var(--space-lg)",
-            borderBottom: "1px solid var(--border-regular)",
-          }}
-        >
-          <Link
-            href="/discover"
-            className="flex items-center gap-xs text-fg-secondary"
-            style={{ textDecoration: "none" }}
-          >
-            <ArrowLeft size={20} weight="light" />
-            <span className="text-md font-medium">Discover</span>
-          </Link>
-          <span className="text-fg-tertiary text-sm" style={{ marginLeft: "auto" }}>
-            Groups
-          </span>
-        </div>
         <GroupsPickerPanel />
       </div>
     </PageColumn>

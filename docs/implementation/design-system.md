@@ -50,10 +50,10 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 | Component | Purpose | Notes |
 |-----------|---------|-------|
 | `LoggedInShell` | Top-level shell: Sidebar + content area | Wraps all logged-in routes. Calls `useScrollHideNav`. |
-| `Sidebar` | Desktop 7-item nav (Community → Profile) | Hidden on mobile. |
+| `Sidebar` | Desktop 7-item nav (Community → Profile) | Hidden on mobile. Width: 180px. |
 | `AppNav` | Top navigation bar (3 modes: Guest, Signup, Logged) | Mobile only for logged-in routes. |
 | `BottomNav` | Mobile 5-tab nav | Community, Discover, My Schedule, Bookings, Profile. |
-| `MasterDetailShell` | 2-or-3 column layout for hub pages | List (320px) + Detail (flex) + optional Info (280px). Mobile: one panel via `mobileView`. Used by Inbox, Bookings, Notifications. |
+| `PageColumn` | Canonical single-column page layout | Centered 640px column. Used by all pages (Community, Schedule, Discover sub-pages, Inbox, Bookings, etc.). Replaced MasterDetailShell and DiscoverShell (both deleted). |
 | `PanelBody` | Scrollable panel interior | Use inside raw `<div className="list-panel">` or `<div className="detail-panel">`. |
 | `LayoutSection` | Padded content block inside PanelBody | Adds horizontal padding. |
 | `LayoutList` | Edge-to-edge card list inside PanelBody | No horizontal padding. |
@@ -85,8 +85,12 @@ Shared CSS classes in `globals.css` that are used across multiple components. Us
 | `.avatar` | 40×40 circle image | Standard user/dog avatar |
 | `.card-schedule-meet` | Schedule/booking card | Left accent border, consistent padding |
 | `.feed-card-*` | Feed card layout system | Two-column (avatar + content), two-row header |
+| `.feed-card-provider-badge` | "Carer" badge on feed cards | Shown on posts by care providers |
+| `FeedShareNudge` | Share prompt in community feed | Encourages photo/content sharing |
+| `.sched-card-days` | Day chips on schedule care cards | Shows recurring day abbreviations |
+| `.sched-card-role--providing` | Provider role badge on schedule cards | Distinguishes provider vs owner perspective |
 | `.filter-accordion` | Inline collapsible filter sections | Used in FilterBody |
-| `.md-shell` / `.list-panel` / `.detail-panel` | MasterDetailShell panels | Panel layout primitives |
+| `.md-shell` / `.list-panel` / `.detail-panel` | *(Deleted)* MasterDetailShell panels | Replaced by PageColumn |
 
 ---
 
@@ -101,7 +105,7 @@ Single-panel pages (Community, Schedule) use their own shell classes instead of 
 | Group detail | `.group-detail-page` | — | Banner + info + sticky tabs |
 | Meet detail | `.meet-detail-page` | — | Tabbed: Details · People · Chat |
 
-MasterDetailShell pages: Inbox, Bookings, Notifications.
+All pages now use PageColumn. MasterDetailShell and DiscoverShell have been deleted.
 
 ---
 
@@ -112,6 +116,7 @@ Active list of things to merge, simplify, or remove. Work these down over time.
 | Item | Issue | Proposed fix |
 |------|-------|-------------|
 | `ListPanel` / `DetailPanel` | Legacy components still in codebase, CLAUDE.md says don't use | Remove files, update any remaining imports to use `PanelBody` + raw divs |
+| `MasterDetailShell` / `DiscoverShell` | Deleted — replaced by PageColumn | Remove any lingering CSS or references |
 | Provider ID mismatch | `mockData.ts` uses `olga-m`, `nikola-r`; `mockUsers.ts` uses `jana`, `nikola` | Unify to one naming scheme before backend work |
 | `frontend-style.md` | Retired — content merged into CONTRIBUTING.md and this doc | Delete file after confirming no remaining references |
 | `component-inventory.md` | Retired — replaced by this doc | Archive to `archive/implementation/` |

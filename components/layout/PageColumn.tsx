@@ -9,6 +9,8 @@ interface PageColumnProps {
   headerAction?: ReactNode;
   /** Hide the header row entirely — for detail pages that render their own header inside the panel */
   hideHeader?: boolean;
+  /** Content rendered between the header and the panel (e.g. DetailHeader for drill-down pages) */
+  abovePanel?: ReactNode;
   /** Panel content: tabs, lists, cards, etc. */
   children: ReactNode;
   /** Additional class on the outer wrapper */
@@ -25,6 +27,7 @@ export function PageColumn({
   title,
   headerAction,
   hideHeader = false,
+  abovePanel,
   children,
   className,
 }: PageColumnProps) {
@@ -38,6 +41,8 @@ export function PageColumn({
           )}
         </div>
       )}
+
+      {abovePanel}
 
       <div className="page-column-panel">{children}</div>
     </div>

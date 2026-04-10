@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-08T19:00
+last-reviewed: 2026-04-10
 tags: [messaging, inbox, chat, booking]
 review-trigger: "when modifying inbox, threads, or conversation types"
 ---
@@ -43,7 +43,7 @@ The Inbox contains two conversation types sharing one UI:
 
 Tab-based filtering: **All** · **Care** · **Groups**
 
-**Desktop:** Three-column via MasterDetailShell — conversation list (left), active thread (center), contact info panel (right).
+**Desktop:** Uses PageColumn (centered 640px single-column layout). Conversation list with tap-to-open thread detail.
 
 **Mobile:** Conversation list → tap → thread detail with back button.
 

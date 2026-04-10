@@ -72,29 +72,16 @@ function priceLabel(booking: Booking): string {
 function BookingSection({
   title,
   bookings,
-  selectedId,
-  onSelect,
 }: {
   title: string;
   bookings: Booking[];
-  selectedId: string | null;
-  onSelect: (id: string) => void;
 }) {
   if (bookings.length === 0) return null;
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-xs">
       <SectionLabel className="px-md py-sm">{title}</SectionLabel>
       {bookings.map((b) => (
-        <div
-          key={b.id}
-          className={b.id === selectedId ? "booking-list-item--active" : ""}
-          onClick={() => onSelect(b.id)}
-          style={{ cursor: "pointer" }}
-        >
-          <div style={{ pointerEvents: "none" }}>
-            <BookingRow booking={b} />
-          </div>
-        </div>
+        <BookingRow key={b.id} booking={b} />
       ))}
     </div>
   );
@@ -750,9 +737,9 @@ function MyCareContent({
 
   return (
     <LayoutList>
-      <BookingSection title="Active" bookings={active} selectedId={selectedId} onSelect={onSelect} />
-      <BookingSection title="Upcoming" bookings={upcoming} selectedId={selectedId} onSelect={onSelect} />
-      <BookingSection title="Past" bookings={past} selectedId={selectedId} onSelect={onSelect} />
+      <BookingSection title="Active" bookings={active} />
+      <BookingSection title="Upcoming" bookings={upcoming} />
+      <BookingSection title="Past" bookings={past} />
     </LayoutList>
   );
 }

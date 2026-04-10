@@ -1,7 +1,7 @@
 ---
 category: feature
 status: active
-last-reviewed: 2026-04-08T19:00
+last-reviewed: 2026-04-10
 tags: [meets, groups, community, social]
 review-trigger: "when modifying meets, groups, group detail tabs, or meet discovery"
 ---
@@ -87,6 +87,7 @@ Meet detail uses a tabbed layout:
 |-----|---------|
 | **Details** | Type badge, date/time, location, duration, description. Type-specific info (pace, terrain, age range, etc.). RSVP actions. Link to parent group. |
 | **People** | Attendee list tiered by connection state (Connected → Familiar/Open → hidden count). Post-meet reveal for completed meets. |
+| **Photos** | `MeetPhotoGallery` — photo grid for completed meets. For upcoming meets without photos, a share prompt encourages attendees to add photos. |
 | **Chat** | Event-scoped coordination thread. Requires RSVP to participate. Time-bound — "running late", "great walk today!" |
 
 ### Meet types
@@ -107,7 +108,7 @@ All types share enhancement fields: energy level, what to bring, accessibility n
 - **Going** — committed, counted toward capacity
 - **Interested** — social signal, not counted toward capacity
 
-Creates lower commitment bar and more social proof ("12 going, 5 interested").
+RSVP is interactive: tapping cycles through Going → Interested → Leave with local state. Creates lower commitment bar and more social proof ("12 going, 5 interested").
 
 ### Visibility (per meet)
 

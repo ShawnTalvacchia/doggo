@@ -179,7 +179,6 @@ function MeetDetailInner() {
           <ButtonAction
             variant="outline"
             size="sm"
-            cta
             leftIcon={<ShareNetwork size={14} weight="bold" />}
             onClick={() => setShowShare(true)}
           >

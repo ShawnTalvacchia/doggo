@@ -135,19 +135,19 @@ function GroupDetailInner() {
       case "meets":
       case "events":
         return (
-          <ButtonAction variant="outline" size="sm" cta leftIcon={<Plus size={14} weight="bold" />} href="/meets/create">
-            Create {isCare ? "event" : "meet"}
+          <ButtonAction variant="primary" size="sm" leftIcon={<Plus size={14} weight="bold" />} href="/meets/create">
+            Create
           </ButtonAction>
         );
       case "members":
         return (
-          <ButtonAction variant="outline" size="sm" cta leftIcon={<UserPlus size={14} weight="bold" />}>
+          <ButtonAction variant="primary" size="sm" leftIcon={<UserPlus size={14} weight="bold" />}>
             Invite
           </ButtonAction>
         );
       default:
         return group.photoPolicy !== "none" ? (
-          <ButtonAction variant="outline" size="sm" cta leftIcon={<Camera size={14} weight="light" />} href="/posts/create">
+          <ButtonAction variant="primary" size="sm" leftIcon={<Camera size={14} weight="light" />} href="/posts/create">
             Post
           </ButtonAction>
         ) : undefined;

@@ -7271,6 +7271,164 @@ body.guest-route {
   margin: 0;
 }
 
+/* ── Booking card (redesigned) ──────────────────────────── */
+
+.booking-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  margin: 0 var(--space-md) var(--space-sm);
+  background: var(--surface-top);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-regular);
+  border-left: 3px solid var(--status-info-main);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.12s ease;
+}
+
+.booking-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+}
+
+.booking-card-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.booking-card-avatars {
+  position: relative;
+  width: 48px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+.booking-card-avatar-person {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--surface-top);
+  z-index: 1;
+}
+
+.booking-card-avatar-pet {
+  position: absolute;
+  left: 20px;
+  top: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--surface-top);
+  z-index: 2;
+}
+
+.booking-card-avatar-pet--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-inset);
+  color: var(--text-tertiary);
+}
+
+.booking-card-identity {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.booking-card-name {
+  font-size: var(--font-size-body-reg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.booking-card-pets {
+  font-size: var(--font-size-body-xs);
+  color: var(--text-tertiary);
+}
+
+.booking-card-service {
+  font-family: var(--font-body);
+  font-size: var(--font-size-body-reg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+
+.booking-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.booking-card-detail-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--font-size-body-sm);
+  color: var(--text-secondary);
+}
+
+.booking-card-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.booking-card-progress-bar {
+  flex: 1;
+  height: 4px;
+  background: var(--surface-inset);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.booking-card-progress-fill {
+  height: 100%;
+  background: var(--brand-main);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.booking-card-progress-label {
+  font-size: var(--font-size-body-xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.booking-card-next {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--font-size-body-sm);
+  color: var(--text-secondary);
+  padding-top: var(--space-xs);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.booking-card-next--live {
+  color: var(--status-success-strong);
+  font-weight: var(--weight-semibold);
+}
+
+.booking-card-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--status-success-main);
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
 /* ── Empty state ─────────────────────────────────────────── */
 
 .bookings-empty {
@@ -7404,7 +7562,7 @@ body.guest-route {
 
 .page-detail-header-title {
   font-family: var(--font-heading);
-  font-size: var(--text-lg);
+  font-size: 17px;
   font-weight: var(--weight-semibold);
   color: var(--text-primary);
   white-space: nowrap;
@@ -11358,7 +11516,7 @@ body.guest-route {
   flex: 1;
   height: 40px;
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border-regular);
+  border: 1px solid var(--border-stronger);
   background: var(--surface-top);
   color: var(--text-primary);
   font-family: var(--font-body);

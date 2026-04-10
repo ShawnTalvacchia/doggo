@@ -18,6 +18,7 @@ import {
   Users,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
+import { DetailHeader } from "@/components/layout/DetailHeader";
 import { Spacer } from "@/components/layout/Spacer";
 import { TabBar } from "@/components/ui/TabBar";
 import { CardMeet } from "@/components/meets/CardMeet";
@@ -442,29 +443,8 @@ function DiscoverMeetsInner() {
     ];
 
     return (
-      <PageColumn hideHeader>
+      <PageColumn hideHeader abovePanel={<DetailHeader backHref="/discover/meets" title={MEET_TYPE_LABELS[meetType]} />}>
         <div className="page-column-panel-body">
-          {/* Back header */}
-          <div
-            className="flex items-center gap-sm"
-            style={{
-              padding: "var(--space-md) var(--space-lg)",
-              borderBottom: "1px solid var(--border-regular)",
-            }}
-          >
-            <Link
-              href="/discover/meets"
-              className="flex items-center gap-xs text-fg-secondary"
-              style={{ textDecoration: "none" }}
-            >
-              <ArrowLeft size={20} weight="light" />
-              <span className="text-md font-medium">Meets</span>
-            </Link>
-            <span className="text-fg-tertiary text-sm" style={{ marginLeft: "auto" }}>
-              {MEET_TYPE_LABELS[meetType]}
-            </span>
-          </div>
-
           {/* Results/Filters tabs */}
           <div className="page-column-panel-tabs">
             <TabBar
@@ -493,28 +473,8 @@ function DiscoverMeetsInner() {
 
   // No type selected — show the meet type picker
   return (
-    <PageColumn hideHeader>
+    <PageColumn hideHeader abovePanel={<DetailHeader backHref="/discover" title="Meets" />}>
       <div className="page-column-panel-body">
-        {/* Back header */}
-        <div
-          className="flex items-center gap-sm"
-          style={{
-            padding: "var(--space-md) var(--space-lg)",
-            borderBottom: "1px solid var(--border-regular)",
-          }}
-        >
-          <Link
-            href="/discover"
-            className="flex items-center gap-xs text-fg-secondary"
-            style={{ textDecoration: "none" }}
-          >
-            <ArrowLeft size={20} weight="light" />
-            <span className="text-md font-medium">Discover</span>
-          </Link>
-          <span className="text-fg-tertiary text-sm" style={{ marginLeft: "auto" }}>
-            Meets
-          </span>
-        </div>
         <MeetsPickerPanel />
       </div>
     </PageColumn>

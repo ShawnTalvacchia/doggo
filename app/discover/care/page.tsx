@@ -17,6 +17,7 @@ import {
   Repeat,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
+import { DetailHeader } from "@/components/layout/DetailHeader";
 import { Spacer } from "@/components/layout/Spacer";
 import { TabBar } from "@/components/ui/TabBar";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
@@ -296,27 +297,8 @@ function DiscoverCareInner() {
     ];
 
     return (
-      <PageColumn hideHeader>
+      <PageColumn hideHeader abovePanel={<DetailHeader backHref="/discover/care" title={SERVICE_LABELS[service]} />}>
         <div className="page-column-panel-body">
-          <div
-            className="flex items-center gap-sm"
-            style={{
-              padding: "var(--space-md) var(--space-lg)",
-              borderBottom: "1px solid var(--border-regular)",
-            }}
-          >
-            <Link
-              href="/discover/care"
-              className="flex items-center gap-xs text-fg-secondary"
-              style={{ textDecoration: "none" }}
-            >
-              <ArrowLeft size={20} weight="light" />
-              <span className="text-md font-medium">Dog Care</span>
-            </Link>
-            <span className="text-fg-tertiary text-sm" style={{ marginLeft: "auto" }}>
-              {SERVICE_LABELS[service]}
-            </span>
-          </div>
           <div className="page-column-panel-tabs">
             <TabBar
               tabs={TABS}
@@ -344,27 +326,8 @@ function DiscoverCareInner() {
   }
 
   return (
-    <PageColumn hideHeader>
+    <PageColumn hideHeader abovePanel={<DetailHeader backHref="/discover" title="Dog Care" />}>
       <div className="page-column-panel-body">
-        <div
-          className="flex items-center gap-sm"
-          style={{
-            padding: "var(--space-md) var(--space-lg)",
-            borderBottom: "1px solid var(--border-regular)",
-          }}
-        >
-          <Link
-            href="/discover"
-            className="flex items-center gap-xs text-fg-secondary"
-            style={{ textDecoration: "none" }}
-          >
-            <ArrowLeft size={20} weight="light" />
-            <span className="text-md font-medium">Discover</span>
-          </Link>
-          <span className="text-fg-tertiary text-sm" style={{ marginLeft: "auto" }}>
-            Dog Care
-          </span>
-        </div>
         <CarePickerPanel />
       </div>
     </PageColumn>

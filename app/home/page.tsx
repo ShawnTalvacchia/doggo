@@ -151,19 +151,17 @@ function HomePageInner() {
   // Header action button changes per tab
   const headerAction = mainTab === "groups" ? (
     <ButtonAction
-      variant="outline"
+      variant="primary"
       size="sm"
-      cta
       leftIcon={<Plus size={14} weight="bold" />}
       href="/communities/create"
     >
-      Create Community
+      Create
     </ButtonAction>
   ) : (
     <ButtonAction
-      variant="outline"
+      variant="primary"
       size="sm"
-      cta
       leftIcon={<Camera size={14} weight="light" />}
       href="/posts/create"
     >

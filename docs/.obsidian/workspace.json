@@ -188,6 +188,8 @@
   },
   "active": "9dcef6f2bebad7ea",
   "lastOpenFiles": [
+    "archive/phases/layout-unification.md",
+    "archive/phases/page-content-and-interactions.md",
     "phases/layout-unification.md",
     "CONTRIBUTING.md",
     "phases/review-and-polish.md",
@@ -214,8 +216,6 @@
     "archive/flows/onboarding.md",
     "archive/flows/meet-discovery.md",
     "archive/flows/groups.md",
-    "archive/flows/meet-creation.md",
-    "archive/flows/care-discovery.md",
     "archive/flows",
     "archive/implementation",
     "archive/strategy",

@@ -33,16 +33,18 @@ Meet discovery moved to `/discover` (Discover hub > Meets door). Care services/p
 
 ### Layout
 
-- **Single-panel layout** — `.schedule-page-shell` + `.schedule-panel` (not MasterDetailShell). Simple scrollable list with sticky filter tabs.
+- **Single-panel layout** — uses `PageColumn` (centered 640px column). Simple scrollable list with sticky filter tabs.
 - **Desktop:** Centered panel (max-width 640px) with page header above
 - **Mobile:** Full-width panel, page header hidden (AppNav handles title)
 - **Filter tabs:** Upcoming / Interested / Care (sticky, glassmorphism background)
+- **Interested tab** auto-populates from meets in the user's joined groups
 - **Unified timeline** — meets and bookings merged chronologically, grouped by date headers
 
 ### Card design (CardMyMeet)
 
 - **Role badge replaces CTA:** "Hosting" (brand bg, flag icon) / "Joining" (dark bg) / "Interested" (outline) instead of action buttons
-- **Card type borders:** 3px brand-coloured left border for meet cards; 3px info-blue left border for care sessions (BookingBlock). History cards use muted border colour.
+- **Card type borders:** 3px brand-coloured left border for meet cards; 3px info-blue left border + blue tint background for care sessions (BookingBlock). History cards use muted border colour.
+- **Care card details:** Sub-service names (e.g. "30-min walk"), recurring day chips, and provider/owner role badges ("Providing" / "Booked") on care cards.
 - **Redundant elements removed:** "Upcoming" status badge hidden when already on Upcoming tab. "Book a spot" CTA hidden when user is already joining/hosting.
 - **5 attendee avatars** (vs 3 in Discover) — you care who's coming
 - **Stronger date emphasis** — semi-bold time formatting in upcoming view
@@ -52,7 +54,7 @@ Meet discovery moved to `/discover` (Discover hub > Meets door). Care services/p
 ### Key decisions
 
 - **Unified timeline.** Meets and care bookings appear together, sorted by date. BookingBlock renders bookings inline alongside CardMyMeet cards.
-- **Single-panel layout.** Schedule is a simple scrollable list, not a MasterDetailShell. Tapping a card navigates to the meet/booking detail page.
+- **Single-panel layout.** Schedule is a simple scrollable list using PageColumn. Tapping a card navigates to the meet/booking detail page.
 - **Upcoming / Interested / Care filters.** Replaces the Upcoming/History toggle and type pills. "Upcoming" shows meets you've RSVP'd to (joining or hosting), "Interested" shows meets you've saved/starred, "Care" shows care bookings.
 - **No location filter.** Unlike Discover, My Schedule shows everything you've committed to regardless of location.
 - **Role context matters.** Cards indicate whether you're hosting or joining (different responsibility level).
