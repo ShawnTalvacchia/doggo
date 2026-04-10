@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-08T19:00
+last-reviewed: 2026-04-10
 tags: [schedule, meets, bookings, timeline]
 review-trigger: "when modifying the My Schedule page or unified timeline"
 ---
@@ -33,11 +33,11 @@ Meet discovery moved to `/discover` (Discover hub > Meets door). Care services/p
 
 ### Layout
 
-- **Desktop:** Master-detail layout via `MasterDetailShell` — schedule list in the left `ListPanel`, selected meet/booking detail in the right `DetailPanel`
-- **Mobile:** Single-column list; tapping an item navigates to its detail page
-- **Filter tabs:** Upcoming / Interested / Care (replaces the previous Upcoming/History toggle + type pills)
-- **Search bar** — text filter for quickly finding a specific meet or booking by name
-- **Unified timeline** — meets and bookings merged chronologically within each filter tab
+- **Single-panel layout** — `.schedule-page-shell` + `.schedule-panel` (not MasterDetailShell). Simple scrollable list with sticky filter tabs.
+- **Desktop:** Centered panel (max-width 640px) with page header above
+- **Mobile:** Full-width panel, page header hidden (AppNav handles title)
+- **Filter tabs:** Upcoming / Interested / Care (sticky, glassmorphism background)
+- **Unified timeline** — meets and bookings merged chronologically, grouped by date headers
 
 ### Card design (CardMyMeet)
 
@@ -52,7 +52,7 @@ Meet discovery moved to `/discover` (Discover hub > Meets door). Care services/p
 ### Key decisions
 
 - **Unified timeline.** Meets and care bookings appear together, sorted by date. BookingBlock renders bookings inline alongside CardMyMeet cards.
-- **Master-detail on desktop.** Schedule uses `MasterDetailShell` so users can browse the list and view detail side by side without navigating away.
+- **Single-panel layout.** Schedule is a simple scrollable list, not a MasterDetailShell. Tapping a card navigates to the meet/booking detail page.
 - **Upcoming / Interested / Care filters.** Replaces the Upcoming/History toggle and type pills. "Upcoming" shows meets you've RSVP'd to (joining or hosting), "Interested" shows meets you've saved/starred, "Care" shows care bookings.
 - **No location filter.** Unlike Discover, My Schedule shows everything you've committed to regardless of location.
 - **Role context matters.** Cards indicate whether you're hosting or joining (different responsibility level).

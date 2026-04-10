@@ -33,6 +33,10 @@ import {
   Backpack,
   ShieldCheck,
   Heartbeat,
+  Star,
+  Check,
+  SignOut,
+  Camera,
 } from "@phosphor-icons/react";
 import Link from "next/link";
 import { ButtonAction } from "@/components/ui/ButtonAction";
@@ -40,6 +44,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ShareMeetModal } from "@/components/meets/ShareMeetModal";
 import { ParticipantList } from "@/components/meets/ParticipantList";
 import { PostMeetReveal } from "@/components/meets/PostMeetReveal";
+import { MeetPhotoGallery } from "@/components/meets/MeetPhotoGallery";
 import { getConnectionState as getConnState } from "@/lib/mockConnections";
 import { getGroupById } from "@/lib/mockGroups";
 import {
@@ -134,6 +139,7 @@ function MeetDetailInner() {
   const meet = mockMeets.find((m) => m.id === params.id);
   const [showShare, setShowShare] = useState(false);
   const [newMessage, setNewMessage] = useState("");
+  const [rsvpStatus, setRsvpStatus] = useState<"none" | "going" | "interested">("none");
 
   if (!meet) {
     return (
@@ -146,12 +152,23 @@ function MeetDetailInner() {
     );
   }
 
+  // Derive RSVP from mock data on first render
+  const myAttendee = meet.attendees.find((a) => a.userId === "shawn");
+  const isCreator = meet.creatorId === "shawn";
+
+  useEffect(() => {
+    if (isCreator) {
+      setRsvpStatus("going");
+    } else if (myAttendee) {
+      setRsvpStatus(myAttendee.rsvpStatus === "interested" ? "interested" : "going");
+    }
+  }, [meet.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const isJoined = rsvpStatus === "going" || isCreator;
   const goingAttendees = meet.attendees.filter((a) => (a.rsvpStatus ?? "going") === "going");
   const interestedCount = meet.attendees.filter((a) => a.rsvpStatus === "interested").length;
   const totalDogs = meet.attendees.reduce((sum, a) => sum + a.dogNames.length, 0);
   const spotsLeft = meet.maxAttendees - goingAttendees.length;
-  const isJoined = meet.attendees.some((a) => a.userId === "shawn");
-  const isCreator = meet.creatorId === "shawn";
   const messages = getMessagesForMeet(meet.id);
 
   // Right action changes per tab
@@ -208,8 +225,9 @@ function MeetDetailInner() {
               interestedCount={interestedCount}
               totalDogs={totalDogs}
               spotsLeft={spotsLeft}
-              isJoined={isJoined}
               isCreator={isCreator}
+              rsvpStatus={rsvpStatus}
+              onRsvpChange={setRsvpStatus}
               onShare={() => setShowShare(true)}
             />
           )}
@@ -248,8 +266,9 @@ function DetailsTab({
   interestedCount,
   totalDogs,
   spotsLeft,
-  isJoined,
   isCreator,
+  rsvpStatus,
+  onRsvpChange,
   onShare,
 }: {
   meet: Meet;
@@ -257,8 +276,9 @@ function DetailsTab({
   interestedCount: number;
   totalDogs: number;
   spotsLeft: number;
-  isJoined: boolean;
   isCreator: boolean;
+  rsvpStatus: "none" | "going" | "interested";
+  onRsvpChange: (status: "none" | "going" | "interested") => void;
   onShare: () => void;
 }) {
   return (
@@ -395,27 +415,99 @@ function DetailsTab({
         </div>
       </section>
 
+      {/* Photo gallery for completed meets / share prompt for upcoming */}
+      {meet.photos && meet.photos.length > 0 ? (
+        <MeetPhotoGallery photos={meet.photos} />
+      ) : meet.status === "completed" && rsvpStatus === "going" ? (
+        <div
+          className="flex items-center gap-md rounded-panel p-lg border-2 border-dashed border-edge-light"
+          style={{ cursor: "pointer" }}
+        >
+          <Camera size={28} weight="light" className="text-fg-tertiary shrink-0" />
+          <div className="flex flex-col gap-xs">
+            <span className="text-sm font-semibold text-fg-primary">Share photos from this meet</span>
+            <span className="text-xs text-fg-tertiary">Add your moments — attendees will see them here.</span>
+          </div>
+        </div>
+      ) : null}
+
       {/* Actions */}
       <div className="flex gap-sm flex-wrap">
         {meet.status === "upcoming" && (
           <>
-            {isJoined ? (
-              <ButtonAction variant={isCreator ? "secondary" : "outline"} size="md" disabled={isCreator}>
-                {isCreator ? "You're hosting" : "Leave meet"}
+            {isCreator ? (
+              <ButtonAction variant="secondary" size="md" disabled>
+                You&apos;re hosting
               </ButtonAction>
-            ) : (
+            ) : rsvpStatus === "going" ? (
               <>
-                <ButtonAction variant="primary" size="md" disabled={spotsLeft === 0}>
+                <ButtonAction
+                  variant="primary"
+                  size="md"
+                  leftIcon={<Check size={16} weight="bold" />}
+                  onClick={() => {}}
+                >
+                  Going
+                </ButtonAction>
+                <ButtonAction
+                  variant="outline"
+                  size="md"
+                  leftIcon={<SignOut size={16} weight="light" />}
+                  onClick={() => onRsvpChange("none")}
+                >
+                  Leave
+                </ButtonAction>
+              </>
+            ) : rsvpStatus === "interested" ? (
+              <>
+                <ButtonAction
+                  variant="primary"
+                  size="md"
+                  onClick={() => onRsvpChange("going")}
+                  disabled={spotsLeft === 0}
+                >
                   {spotsLeft > 0 ? "Join this meet" : "Meet is full"}
                 </ButtonAction>
-                <ButtonAction variant="outline" size="md">
+                <ButtonAction
+                  variant="primary"
+                  size="md"
+                  leftIcon={<Star size={16} weight="fill" />}
+                  onClick={() => {}}
+                  className="!bg-[var(--status-warning-main)] !text-white"
+                >
+                  Interested
+                </ButtonAction>
+                <ButtonAction
+                  variant="outline"
+                  size="md"
+                  onClick={() => onRsvpChange("none")}
+                >
+                  Remove
+                </ButtonAction>
+              </>
+            ) : (
+              <>
+                <ButtonAction
+                  variant="primary"
+                  size="md"
+                  disabled={spotsLeft === 0}
+                  onClick={() => onRsvpChange("going")}
+                >
+                  {spotsLeft > 0 ? "Join this meet" : "Meet is full"}
+                </ButtonAction>
+                <ButtonAction
+                  variant="outline"
+                  size="md"
+                  leftIcon={<Star size={16} weight="light" />}
+                  onClick={() => onRsvpChange("interested")}
+                >
                   Interested
                 </ButtonAction>
               </>
             )}
           </>
         )}
-        {meet.status === "completed" && isJoined && (
+        {meet.status === "completed" && rsvpStatus === "going" && (
           <ButtonAction
             variant="primary"
             size="md"

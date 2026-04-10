@@ -17,8 +17,10 @@ import { FeedCarePrompt } from "@/components/feed/FeedCarePrompt";
 import { FeedMilestone } from "@/components/feed/FeedMilestone";
 import { FeedDogMoment } from "@/components/feed/FeedDogMoment";
 import { FeedCareReview } from "@/components/feed/FeedCareReview";
+import { FeedShareNudge } from "@/components/feed/FeedShareNudge";
 import { TabBar } from "@/components/ui/TabBar";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { PageColumn } from "@/components/layout/PageColumn";
 import { CardGroup } from "@/components/groups/CardGroup";
 import { getUserGroups } from "@/lib/mockGroups";
 import type { FeedItem, GroupType } from "@/lib/types";
@@ -47,6 +49,8 @@ function FeedItemRenderer({ item }: { item: FeedItem }) {
       return <FeedDogMoment item={item} />;
     case "care_review":
       return <FeedCareReview item={item} />;
+    case "share_nudge":
+      return <FeedShareNudge item={item} />;
     default:
       return null;
   }
@@ -82,7 +86,7 @@ function HomePageInner() {
   const handleMainTabChange = (key: string) => {
     const tab = key as MainTab;
     // Reset scroll position when switching tabs
-    const scrollBody = document.querySelector(".community-panel-body");
+    const scrollBody = document.querySelector(".page-column-panel-body");
     if (scrollBody) scrollBody.scrollTop = 0;
 
     if (tab === "feed") {
@@ -168,23 +172,13 @@ function HomePageInner() {
   );
 
   return (
-    <div className="community-page-shell">
-      {/* ── Page header ───────────────────────────────────── */}
-      <div className="community-page-header">
-        <h1 className="community-page-title">Community</h1>
-        <div className="community-page-header-action">
-          {headerAction}
+    <PageColumn title="Community" headerAction={headerAction}>
+      {/* Single scroll body — tabs sticky inside for glassmorphism */}
+      <div className="page-column-panel-body">
+        {/* Sticky glass tab bar */}
+        <div className="page-column-panel-tabs">
+          <TabBar tabs={MAIN_TABS} activeKey={mainTab} onChange={handleMainTabChange} />
         </div>
-      </div>
-
-      {/* ── Panel ─────────────────────────────────────────── */}
-      <div className="community-panel">
-        {/* Single scroll body — tabs sticky inside for glassmorphism */}
-        <div className="community-panel-body">
-          {/* Sticky glass tab bar */}
-          <div className="community-panel-tabs">
-            <TabBar tabs={MAIN_TABS} activeKey={mainTab} onChange={handleMainTabChange} />
-          </div>
 
           {/* Groups view */}
           {mainTab === "groups" && (
@@ -252,9 +246,8 @@ function HomePageInner() {
               )}
             </>
           )}
-        </div>
       </div>
-    </div>
+    </PageColumn>
   );
 }
 

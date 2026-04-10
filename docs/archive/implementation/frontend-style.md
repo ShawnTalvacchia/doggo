@@ -1,12 +1,10 @@
 ---
 category: implementation
-status: archived
-last-reviewed: 2026-04-10
+status: active
+last-reviewed: 2026-04-04
 tags: [css, conventions, accessibility]
-review-trigger: "n/a — archived, content merged into CONTRIBUTING.md and design-system.md"
+review-trigger: "when writing or reviewing CSS"
 ---
-
-> **ARCHIVED:** Content merged into `CONTRIBUTING.md` (CSS rules section) and `design-system.md`. Kept for historical reference only.
 
 # Frontend Styling Rules
 

@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-04-05
+last-reviewed: 2026-04-10
 tags: [tokens, css, figma, design-system]
 review-trigger: "when adding or changing CSS variables"
 ---
@@ -279,7 +279,7 @@ All semantic tokens are mapped to Tailwind utilities via the `@theme` block in `
 | `--font-size-*` | `text-*` | `text-lg` |
 | `--weight-*` | `font-*` | `font-semibold` |
 
-**Rule:** Use Tailwind utilities in JSX for new code. Only create CSS classes for complex patterns (pseudo-elements, animations, 9+ properties). See `frontend-style.md`.
+**Rule:** Use Tailwind utilities in JSX for new code. Only create CSS classes for complex patterns (pseudo-elements, animations, 9+ properties). See `design-system.md` for component and pattern reference.
 
 ---
 

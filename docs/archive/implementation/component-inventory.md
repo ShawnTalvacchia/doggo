@@ -1,12 +1,10 @@
 ---
 category: implementation
-status: archived
-last-reviewed: 2026-04-10
+status: active
+last-reviewed: 2026-04-08
 tags: [components, ui, inventory]
-review-trigger: "n/a — archived, replaced by design-system.md"
+review-trigger: "when building or refactoring components"
 ---
-
-> **ARCHIVED:** This doc has been replaced by `design-system.md`. Kept for historical reference only.
 
 # Component Inventory
 _Doggo · Updated March 2026_

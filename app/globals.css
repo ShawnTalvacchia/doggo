@@ -485,7 +485,7 @@
   --app-page-max-width: 768px;
 
   /* Layout shell (Phase 16 redesign) */
-  --sidebar-width: 200px;
+  --sidebar-width: 180px;
   --content-max-width: 640px;
   --side-panel-width: 320px;
   --padding-main: var(--space-xxl); /* 24px desktop, 0 mobile */
@@ -557,7 +557,7 @@ a {
   display: flex;
   justify-content: center;
   gap: var(--space-md);
-  padding: 8px 24px 0;
+  padding: 20px 24px 0;
   overflow-y: auto;
   min-height: 0;
 }
@@ -572,36 +572,36 @@ a {
   z-index: 20;
   display: flex;
   flex-direction: column;
-  padding: 8px var(--space-lg) 16px;
+  padding: 20px 12px 16px;
 }
 
 .sidebar-brand {
   font-family: var(--font-heading), sans-serif;
   font-weight: 900;
-  font-size: 24px;
-  line-height: 40px; /* 40px logo container — aligns with page header */
-  height: 40px;
+  font-size: 22px;
+  line-height: 32px;
+  height: 32px;
   color: var(--text-primary);
   text-decoration: none;
   padding: 0 var(--space-sm);
-  margin-bottom: 8px;
+  margin-bottom: 20px;
 }
 
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: 8px;
 }
 
 .sidebar-nav-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  height: 48px;
+  height: 40px;
   padding: var(--space-sm);
   font-family: var(--font-body), sans-serif;
-  font-weight: var(--weight-semibold);
-  font-size: var(--font-size-body-md);
+  font-weight: var(--weight-medium);
+  font-size: 15px;
   line-height: 1.35;
   color: var(--text-tertiary);
   text-decoration: none;
@@ -616,6 +616,7 @@ a {
 
 .sidebar-nav-item--active {
   color: var(--brand-main);
+  font-weight: var(--weight-semibold);
 }
 
 /* Page container — centered main column (640px) */
@@ -10733,6 +10734,21 @@ body.guest-route {
   color: var(--text-primary);
 }
 
+.feed-card-provider-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 6px;
+  font-size: var(--font-size-body-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--status-info-strong);
+  background: var(--status-info-light);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.6;
+}
+
 .feed-card-context-text {
   color: var(--text-tertiary);
   font-weight: var(--weight-regular);
@@ -10980,6 +10996,98 @@ body.guest-route {
 .page-container.bookings-page-shell,
 .page-container.notifications-page-shell {
   max-width: 1052px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   PageColumn — canonical single-column layout for all logged-in pages
+   ═══════════════════════════════════════════════════════════════════ */
+
+.page-column {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 640px;
+  flex: 1;
+  min-height: 0;
+}
+
+.page-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  margin-bottom: 12px;
+  padding: 0 var(--space-md);
+  flex-shrink: 0;
+}
+
+.page-column-title {
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 32px;
+}
+
+.page-column-action {
+  flex-shrink: 0;
+}
+
+.page-column-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background: var(--surface-inset);
+  border: 1px solid var(--border-stronger);
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  overflow: hidden;
+}
+
+/* Scrollable body inside the panel — used directly by page content */
+.page-column-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  background: var(--surface-popout);
+}
+
+/* Sticky glassmorphism tab bar inside the panel */
+.page-column-panel-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  padding: var(--space-sm) var(--space-md);
+  background: color-mix(in srgb, var(--surface-popout) 72%, transparent);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+}
+
+.page-column-panel-tabs .tab-bar-container {
+  flex: 1;
+}
+
+.page-column-panel-tabs .tab-main {
+  flex: 1;
+}
+
+@media (max-width: 767px) {
+  .page-column-header {
+    display: none;
+  }
+
+  .page-column {
+    max-width: 100%;
+  }
+
+  .page-column-panel {
+    border-radius: var(--radius-panel);
+  }
+
+  body.nav-hidden .page-column-panel {
+    border-radius: 0;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -11527,6 +11635,7 @@ body.guest-route {
 
 .sched-card--care {
   border-left-color: var(--status-info-main);
+  background: color-mix(in srgb, var(--status-info-light) 25%, var(--surface-top));
 }
 
 /* Row 1: Tag + time + recurring */
@@ -11577,6 +11686,13 @@ body.guest-route {
   color: var(--text-tertiary);
 }
 
+.sched-card-days {
+  font-size: var(--font-size-body-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+
 /* Row 2: Title */
 .sched-card-title {
   margin: 0;
@@ -11621,6 +11737,11 @@ body.guest-route {
   flex-shrink: 0;
   background: var(--surface-inset);
   color: var(--text-secondary);
+}
+
+.sched-card-role--providing {
+  background: var(--status-info-light);
+  color: var(--status-info-strong);
 }
 
 /* ── Avatar combo: person + pet overlapping ── */

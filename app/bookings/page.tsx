@@ -35,8 +35,7 @@ import { ButtonAction } from "@/components/ui/ButtonAction";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { ServicesTab } from "@/components/activity/ServicesTab";
 import { CancelBookingModal } from "@/components/bookings/CancelBookingModal";
-import { MasterDetailShell, type MobileView } from "@/components/layout/MasterDetailShell";
-import { PanelBody } from "@/components/layout/PanelBody";
+import { PageColumn } from "@/components/layout/PageColumn";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutList } from "@/components/layout/LayoutList";
 import { LayoutSection } from "@/components/layout/LayoutSection";
@@ -874,8 +873,6 @@ function BookingsPageInner() {
     setSelectedBookingId(null);
   };
 
-  const mobileView: MobileView = selectedBookingId ? "detail" : "list";
-
   // Detail panel header label
   const detailHeaderLabel = activeBooking
     ? perspective === "owner"
@@ -898,75 +895,56 @@ function BookingsPageInner() {
   }, [selectedBookingId, detailHeaderLabel, setDetailHeader, clearDetailHeader, handleBack]);
 
   return (
-    <div className="page-container bookings-page-shell">
-      {/* TabBar — visible on collapsed/mobile, hidden on desktop */}
-      <div className="panel-tabbar" data-view={mobileView}>
-        <div className="panel-tabbar-list">
-          <div className="panel-tabbar-title">Bookings</div>
-          <div className="panel-tabbar-tabs">
-            <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
-          </div>
-        </div>
-        <div className="panel-tabbar-detail">
-          <button type="button" className="panel-tabbar-back" onClick={() => setSelectedBookingId(null)}>
-            <ArrowLeft size={20} weight="light" />
-          </button>
-          <span className="panel-tabbar-detail-title">{detailHeaderLabel}</span>
-        </div>
-      </div>
-
-      <MasterDetailShell
-        mobileView={mobileView}
-        listPanel={
-          <div className="list-panel">
-            <div className="list-panel-header panel-header-desktop">
-              <h2 className="font-heading text-lg font-bold text-fg-primary m-0">Bookings</h2>
+    <PageColumn
+      title={selectedBookingId ? undefined : "Bookings"}
+      hideHeader={!!selectedBookingId}
+    >
+      <div className="page-column-panel-body">
+        {selectedBookingId && activeBooking ? (
+          <>
+            {/* Detail view with back */}
+            <div
+              className="flex items-center gap-sm"
+              style={{
+                padding: "var(--space-md) var(--space-lg)",
+                borderBottom: "1px solid var(--border-regular)",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setSelectedBookingId(null)}
+                className="flex items-center gap-xs text-fg-secondary"
+                style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+              >
+                <ArrowLeft size={20} weight="light" />
+                <span className="text-md font-medium">Bookings</span>
+              </button>
+              <span className="text-fg-tertiary text-sm" style={{ marginLeft: "auto" }}>
+                {detailHeaderLabel}
+              </span>
             </div>
-            <div className="list-panel-filters panel-header-desktop">
+            <BookingDetail booking={activeBooking} perspective={perspective} />
+            <Spacer />
+          </>
+        ) : (
+          <>
+            {/* List view with tabs */}
+            <div className="page-column-panel-tabs">
               <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
             </div>
-            <PanelBody>
-              {activeTab === "care" && (
-                <MyCareContent selectedId={activeBooking?.id ?? null} onSelect={setSelectedBookingId} />
-              )}
-              {activeTab === "services" && (
-                <MyServicesContent selectedId={selectedBookingId} onSelect={setSelectedBookingId} />
-              )}
-              <Spacer />
-            </PanelBody>
-          </div>
-        }
-        detailPanel={
-          <div className="detail-panel">
-            {detailHeaderLabel && (
-              <div className="detail-panel-header">
-                <span className="font-heading text-base font-semibold text-fg-primary">
-                  {detailHeaderLabel}
-                </span>
-              </div>
+            {activeTab === "care" && (
+              <MyCareContent selectedId={null} onSelect={setSelectedBookingId} />
             )}
-            <PanelBody>
-              {activeBooking ? (
-                <BookingDetail booking={activeBooking} perspective={perspective} />
-              ) : activeTab === "services" ? (
-                <ServicesTab />
-              ) : (
-                <div
-                  className="flex flex-col items-center justify-center flex-1 gap-md"
-                  style={{ padding: "var(--space-xxxl)" }}
-                >
-                  <Briefcase size={48} weight="light" className="text-fg-tertiary" />
-                  <span className="text-md text-fg-tertiary">
-                    Select a booking to see details
-                  </span>
-                </div>
-              )}
-              <Spacer />
-            </PanelBody>
-          </div>
-        }
-      />
-    </div>
+            {activeTab === "services" && (
+              activeTab === "services" && !selectedBookingId ? (
+                <MyServicesContent selectedId={null} onSelect={setSelectedBookingId} />
+              ) : null
+            )}
+            <Spacer />
+          </>
+        )}
+      </div>
+    </PageColumn>
   );
 }
 

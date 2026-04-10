@@ -16,8 +16,9 @@ import {
   CalendarBlank,
   Repeat,
 } from "@phosphor-icons/react";
-import { DiscoverShell } from "@/components/discover/DiscoverShell";
+import { PageColumn } from "@/components/layout/PageColumn";
 import { Spacer } from "@/components/layout/Spacer";
+import { TabBar } from "@/components/ui/TabBar";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { Slider } from "@/components/ui/Slider";
@@ -63,18 +64,6 @@ const WALK_SERVICES = ["Drop-in visit", "Group walk", "Solo walk"];
 function CarePickerPanel() {
   return (
     <>
-      <div className="list-panel-header panel-header-desktop">
-        <Link
-          href="/discover"
-          className="flex items-center gap-sm"
-          style={{ textDecoration: "none" }}
-        >
-          <ArrowLeft size={20} weight="regular" className="text-fg-primary" />
-          <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
-            Dog Care
-          </h2>
-        </Link>
-      </div>
       <div className="discover-hub-body">
         <div className="flex flex-col gap-md">
           <span className="font-body font-bold text-fg-secondary text-lg">
@@ -139,18 +128,6 @@ function CareFilterPanel({ activeService }: { activeService: ServiceType }) {
 
   return (
     <>
-      <div className="list-panel-header panel-header-desktop">
-        <Link
-          href="/discover/care"
-          className="flex items-center gap-sm"
-          style={{ textDecoration: "none" }}
-        >
-          <ArrowLeft size={20} weight="regular" className="text-fg-primary" />
-          <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
-            Dog Care
-          </h2>
-        </Link>
-      </div>
       <div className="discover-hub-body" style={{ gap: "var(--space-xxl)" }}>
         {/* Service */}
         <div className="filter-field">
@@ -310,32 +287,87 @@ function DiscoverCareInner() {
   const searchParams = useSearchParams();
   const service = searchParams.get("service") as ServiceType | null;
   const isValidService = service && ["walk_checkin", "inhome_sitting", "boarding"].includes(service);
+  const [activeTab, setActiveTab] = useState<"results" | "filters">("results");
 
   if (isValidService) {
+    const TABS = [
+      { key: "results", label: "Results" },
+      { key: "filters", label: "Filters" },
+    ];
+
     return (
-      <DiscoverShell
-        hubPanel={<CareFilterPanel activeService={service} />}
-        resultsTitle={SERVICE_LABELS[service]}
-        resultsIcon={
-          CARE_SERVICES.find((s) => s.key === service)
-            ? (() => {
-                const Ico = CARE_SERVICES.find((s) => s.key === service)!.icon;
-                return <Ico size={20} weight="regular" className="text-fg-primary" />;
-              })()
-            : undefined
-        }
-        activeService={service}
-        mobileShowResults
-      />
+      <PageColumn hideHeader>
+        <div className="page-column-panel-body">
+          <div
+            className="flex items-center gap-sm"
+            style={{
+              padding: "var(--space-md) var(--space-lg)",
+              borderBottom: "1px solid var(--border-regular)",
+            }}
+          >
+            <Link
+              href="/discover/care"
+              className="flex items-center gap-xs text-fg-secondary"
+              style={{ textDecoration: "none" }}
+            >
+              <ArrowLeft size={20} weight="light" />
+              <span className="text-md font-medium">Dog Care</span>
+            </Link>
+            <span className="text-fg-tertiary text-sm" style={{ marginLeft: "auto" }}>
+              {SERVICE_LABELS[service]}
+            </span>
+          </div>
+          <div className="page-column-panel-tabs">
+            <TabBar
+              tabs={TABS}
+              activeKey={activeTab}
+              onChange={(key) => setActiveTab(key as "results" | "filters")}
+            />
+          </div>
+          {activeTab === "results" ? (
+            <div className="flex flex-col">
+              {/* Care results will be rendered by DiscoverShell's provider list — for now show filter panel content */}
+              <div className="flex flex-col items-center gap-md p-xl text-center">
+                <Heart size={40} weight="light" className="text-fg-tertiary" />
+                <p className="text-sm text-fg-secondary m-0">
+                  Provider results for {SERVICE_LABELS[service]}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <CareFilterPanel activeService={service} />
+          )}
+          <Spacer size="sm" />
+        </div>
+      </PageColumn>
     );
   }
 
   return (
-    <DiscoverShell
-      hubPanel={<CarePickerPanel />}
-      resultsTitle="Find Dog Care"
-      resultsIcon={<Heart size={20} weight="regular" className="text-fg-primary" />}
-    />
+    <PageColumn hideHeader>
+      <div className="page-column-panel-body">
+        <div
+          className="flex items-center gap-sm"
+          style={{
+            padding: "var(--space-md) var(--space-lg)",
+            borderBottom: "1px solid var(--border-regular)",
+          }}
+        >
+          <Link
+            href="/discover"
+            className="flex items-center gap-xs text-fg-secondary"
+            style={{ textDecoration: "none" }}
+          >
+            <ArrowLeft size={20} weight="light" />
+            <span className="text-md font-medium">Discover</span>
+          </Link>
+          <span className="text-fg-tertiary text-sm" style={{ marginLeft: "auto" }}>
+            Dog Care
+          </span>
+        </div>
+        <CarePickerPanel />
+      </div>
+    </PageColumn>
   );
 }
 

@@ -46,7 +46,7 @@ export function Sidebar() {
               className={`sidebar-nav-item${active ? " sidebar-nav-item--active" : ""}`}
               aria-current={active ? "page" : undefined}
             >
-              <Icon size={24} weight={active ? "fill" : "light"} />
+              <Icon size={22} weight={active ? "fill" : "light"} />
               {label}
             </Link>
           );

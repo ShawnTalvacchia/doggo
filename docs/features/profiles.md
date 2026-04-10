@@ -208,4 +208,4 @@ Users with no photo get an initials-based avatar on a coloured background (colou
 - [[explore-and-care]] — provider profiles in the care discovery flow
 - [[phase-10-home-feed]] — posts, tagging, and paw reactions
 - [[phase-11-booking-care-polish]] — connection gating, provider setup consolidation
-- `docs/implementation/component-inventory.md` — component catalog
+- `docs/implementation/design-system.md` — components, patterns, CSS classes

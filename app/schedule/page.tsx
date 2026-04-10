@@ -7,9 +7,11 @@ import { CalendarDots } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { TabBar } from "@/components/ui/TabBar";
+import { PageColumn } from "@/components/layout/PageColumn";
 import { ScheduleMeetCard, ScheduleCareCard, ScheduleBookingCard } from "@/components/schedule/ScheduleCard";
 import { Spacer } from "@/components/layout/Spacer";
-import { getUserMeets } from "@/lib/mockMeets";
+import { getUserMeets, mockMeets } from "@/lib/mockMeets";
+import { getUserGroups } from "@/lib/mockGroups";
 import { getMeetRole } from "@/lib/meetUtils";
 import { useBookings } from "@/contexts/BookingsContext";
 import type { Meet, Booking, BookingSession } from "@/lib/types";
@@ -78,6 +80,9 @@ function ScheduleInner() {
   const activeOwnerBookings = bookings.filter(
     (b) => b.ownerId === CURRENT_USER && (b.status === "active" || b.status === "upcoming")
   );
+  const activeCarerBookings = bookings.filter(
+    (b) => b.carerId === CURRENT_USER && (b.status === "active" || b.status === "upcoming")
+  );
 
   const TABS = [
     { key: "upcoming", label: "Upcoming" },
@@ -95,26 +100,50 @@ function ScheduleInner() {
 
   const filteredItems = useMemo((): ScheduleItem[] => {
     if (filter === "care") {
-      return activeOwnerBookings
-        .map((b) => ({
-          kind: "booking" as const,
-          booking: b,
-          perspective: "owner" as const,
-          sortKey: getBookingNextDate(b) ?? b.startDate,
-        }))
-        .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+      const ownerItems = activeOwnerBookings.map((b) => ({
+        kind: "booking" as const,
+        booking: b,
+        perspective: "owner" as const,
+        sortKey: getBookingNextDate(b) ?? b.startDate,
+      }));
+      const carerItems = activeCarerBookings.map((b) => ({
+        kind: "booking" as const,
+        booking: b,
+        perspective: "carer" as const,
+        sortKey: getBookingNextDate(b) ?? b.startDate,
+      }));
+      return [...ownerItems, ...carerItems].sort((a, b) => a.sortKey.localeCompare(b.sortKey));
     }
 
     if (filter === "interested") {
-      return upcomingMeets
+      // 1. Explicitly interested meets
+      const interestedItems = upcomingMeets
         .filter((m) => getMeetRole(m, CURRENT_USER) === "interested")
         .map((m) => ({
           kind: "meet" as const,
           meet: m,
           role: "interested" as MeetRole,
           sortKey: `${m.date}T${m.time}`,
-        }))
-        .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+        }));
+
+      // 2. Auto-populated: upcoming meets from joined groups where user hasn't RSVP'd
+      const myGroupIds = new Set(getUserGroups(CURRENT_USER).map((g) => g.id));
+      const myMeetIds = new Set(myMeets.map((m) => m.id));
+      const suggestedItems = mockMeets
+        .filter((m) =>
+          m.status === "upcoming" &&
+          m.groupId &&
+          myGroupIds.has(m.groupId) &&
+          !myMeetIds.has(m.id)
+        )
+        .map((m) => ({
+          kind: "meet" as const,
+          meet: m,
+          role: "interested" as MeetRole,
+          sortKey: `${m.date}T${m.time}`,
+        }));
+
+      return [...interestedItems, ...suggestedItems].sort((a, b) => a.sortKey.localeCompare(b.sortKey));
     }
 
     // Upcoming = confirmed meets + individual care sessions, sorted by date
@@ -130,7 +159,8 @@ function ScheduleInner() {
         sortKey: `${m.date}T${m.time}`,
       }));
 
-    const sessionItems: ScheduleItem[] = activeOwnerBookings.flatMap((b) => {
+    const allActiveBookings = [...activeOwnerBookings, ...activeCarerBookings];
+    const sessionItems: ScheduleItem[] = allActiveBookings.flatMap((b) => {
       if (!b.sessions) {
         return [{
           kind: "session" as const,
@@ -150,23 +180,15 @@ function ScheduleInner() {
     });
 
     return [...meetItems, ...sessionItems].sort((a, b) => a.sortKey.localeCompare(b.sortKey));
-  }, [filter, upcomingMeets, activeOwnerBookings]);
+  }, [filter, upcomingMeets, activeOwnerBookings, activeCarerBookings]);
 
   return (
-    <div className="schedule-page-shell">
-      {/* ── Desktop page header (hidden on mobile — AppNav handles it) ── */}
-      <div className="schedule-page-header">
-        <h1 className="schedule-page-title">My Schedule</h1>
-      </div>
-
-      {/* ── Panel ── */}
-      <div className="schedule-panel">
-
-        {/* ── Scrollable body (tabs sticky inside for glassmorphism) ── */}
-        <div className="schedule-body">
-          <div className="schedule-tabs">
-            <TabBar tabs={TABS} activeKey={filter} onChange={handleFilterChange} />
-          </div>
+    <PageColumn title="My Schedule">
+      {/* ── Scrollable body (tabs sticky inside for glassmorphism) ── */}
+      <div className="page-column-panel-body">
+        <div className="page-column-panel-tabs">
+          <TabBar tabs={TABS} activeKey={filter} onChange={handleFilterChange} />
+        </div>
           {filteredItems.length > 0 ? (
             <div className="flex flex-col">
               {filteredItems.map((item, idx) => {
@@ -223,9 +245,7 @@ function ScheduleInner() {
             />
           )}
           <Spacer />
-        </div>
-
-      </div>{/* end schedule-panel */}
-    </div>
+      </div>
+    </PageColumn>
   );
 }

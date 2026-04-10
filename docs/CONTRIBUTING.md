@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-04-08T19:00
+last-reviewed: 2026-04-10
 tags: [rules, workflow, css, conventions]
 review-trigger: "always — read before any working session"
 ---
@@ -76,6 +76,9 @@ Before marking a phase complete, work through the **Closing Checklist** on the p
 
 ## CSS & Design System Rules
 
+Full component and pattern reference: `implementation/design-system.md`
+Token reference: `implementation/design-tokens.md`
+
 ### Tailwind-first authoring (new code)
 1. **Use Tailwind utilities** for new components — layout, spacing, typography, colors
 2. Utilities reference CSS custom properties via the `@theme` block in `globals.css`
@@ -91,16 +94,29 @@ Before marking a phase complete, work through the **Closing Checklist** on the p
 - Every CSS variable in `globals.css` must appear in the styleguide
 - Dead/unused tokens get removed, not commented out
 
+### Inline style policy
+- **Allowed:** Dynamic values (measured widths, transforms from state), one-off demo rendering
+- **Avoid:** Static layout, color, spacing, radius, typography, borders in `style={{}}`
+- When a static inline style appears in product surfaces, move it to `globals.css` with a semantic class name
+
 ### Class naming
 - Domain-prefixed: `.explore-*`, `.inbox-*`, `.profile-*`
 - Shared primitives: `.btn-*`, `.form-*`, `.card-*`
 - Modifiers use `--`: `.btn--primary`, `.card--compact`
+- Name by behavior/intent, not by location (e.g. `FilterBody`, not `DiscoverFilterPanel`)
 
 ### Accessibility baseline
-- Touch targets: 32px minimum
+- Touch targets: 32px minimum, 40px preferred for primary controls
 - Color contrast: check against surface backgrounds
 - Interactive elements need `:focus-visible` styles
 - Semantic HTML before ARIA
+
+### Style migration checklist
+When updating existing styles:
+1. Replace static inline styles with class-based tokenized CSS
+2. Replace hardcoded colors with semantic tokens
+3. Check for undefined token references
+4. If introducing a compatibility alias, document in `design-tokens.md`
 
 ---
 

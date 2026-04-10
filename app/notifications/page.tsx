@@ -15,8 +15,7 @@ import {
   CheckCircle,
   ArrowLeft,
 } from "@phosphor-icons/react";
-import { MasterDetailShell, type MobileView } from "@/components/layout/MasterDetailShell";
-import { PanelBody } from "@/components/layout/PanelBody";
+import { PageColumn } from "@/components/layout/PageColumn";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutList } from "@/components/layout/LayoutList";
 import { ButtonAction } from "@/components/ui/ButtonAction";
@@ -229,65 +228,50 @@ export default function NotificationsPage() {
     ? mockNotifications.find((n) => n.id === selectedId) ?? null
     : null;
 
-  const mobileView: MobileView = selected ? "detail" : "list";
-
   return (
-    <div className="page-container notifications-page-shell">
-    <MasterDetailShell
-      mobileView={mobileView}
-      listPanel={
-        <div className="list-panel">
-          <div className="list-panel-header panel-header-desktop">
-            <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
-              Notifications
-            </h2>
-          </div>
-          <PanelBody>
+    <PageColumn title={selected ? undefined : "Notifications"} hideHeader={!!selected}>
+      <div className="page-column-panel-body">
+        {selected ? (
+          <>
+            {/* Detail view with back */}
+            <div
+              className="flex items-center gap-sm"
+              style={{
+                padding: "var(--space-md) var(--space-lg)",
+                borderBottom: "1px solid var(--border-regular)",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setSelectedId(null)}
+                className="flex items-center gap-xs text-fg-secondary"
+                style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+              >
+                <ArrowLeft size={20} weight="light" />
+                <span className="text-md font-medium">Back</span>
+              </button>
+            </div>
+            <NotificationDetail
+              notification={selected}
+              onBack={() => setSelectedId(null)}
+            />
+          </>
+        ) : (
+          <>
             <LayoutList>
               {mockNotifications.map((notif) => (
                 <NotificationRow
                   key={notif.id}
                   notification={notif}
-                  isActive={notif.id === selectedId}
+                  isActive={false}
                   onClick={() => setSelectedId(notif.id)}
                 />
               ))}
             </LayoutList>
             <Spacer />
-          </PanelBody>
-        </div>
-      }
-      detailPanel={
-        <div className="detail-panel">
-          {selected && (
-            <div className="detail-panel-header">
-              <span className="font-heading text-base font-semibold text-fg-primary">
-                {selected.title}
-              </span>
-            </div>
-          )}
-          <PanelBody>
-            {selected ? (
-              <NotificationDetail
-                notification={selected}
-                onBack={() => setSelectedId(null)}
-              />
-            ) : (
-              <div
-                className="flex flex-col items-center justify-center flex-1 gap-md"
-                style={{ padding: "var(--space-xxxl)" }}
-              >
-                <Bell size={48} weight="light" className="text-fg-tertiary" />
-                <span className="text-md text-fg-tertiary">
-                  Select a notification to see details
-                </span>
-              </div>
-            )}
-            <Spacer />
-          </PanelBody>
-        </div>
-      }
-    />
-    </div>
+          </>
+        )}
+      </div>
+    </PageColumn>
   );
 }

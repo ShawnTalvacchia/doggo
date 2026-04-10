@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo } from "react";
 import { getUserById } from "@/lib/mockUsers";
 import { getConnectionState, CONNECTION_STATE_LABELS } from "@/lib/mockConnections";
 import { getUserGroups } from "@/lib/mockGroups";
@@ -16,8 +16,7 @@ import {
 } from "@phosphor-icons/react";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { SERVICE_LABELS } from "@/lib/constants/services";
-import { MasterDetailShell, type MobileView } from "@/components/layout/MasterDetailShell";
-import { PanelBody } from "@/components/layout/PanelBody";
+import { PageColumn } from "@/components/layout/PageColumn";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutList } from "@/components/layout/LayoutList";
 import { ButtonAction } from "@/components/ui/ButtonAction";
@@ -25,7 +24,6 @@ import { TabBar } from "@/components/ui/TabBar";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { Conversation } from "@/lib/types";
 import { formatRelativeTime } from "@/lib/dateUtils";
-import { usePageHeader } from "@/contexts/PageHeaderContext";
 
 const MY_USER_ID = "shawn";
 
@@ -365,20 +363,7 @@ export default function InboxPage() {
     ? conversations.find((c) => c.id === selectedConvId)
     : sortedConversations[0] ?? null;
 
-  const mobileView: MobileView = selectedConvId ? "detail" : "list";
-
-  const { setDetailHeader, clearDetailHeader } = usePageHeader();
-  const handleBack = useCallback(() => setSelectedConvId(null), []);
   const detailName = selectedConv ? getOtherParty(selectedConv).name : null;
-
-  useEffect(() => {
-    if (selectedConvId && detailName) {
-      setDetailHeader(detailName, handleBack);
-    } else {
-      clearDetailHeader();
-    }
-    return () => clearDetailHeader();
-  }, [selectedConvId, detailName, setDetailHeader, clearDetailHeader, handleBack]);
 
   const listContent = (
     <>
@@ -470,76 +455,57 @@ export default function InboxPage() {
   );
 
   return (
-    <div className="page-container inbox-page-shell">
-      {/* TabBar — visible on collapsed/mobile, hidden on desktop */}
-      <div className="panel-tabbar" data-view={selectedConvId ? "detail" : "list"}>
-        <div className="panel-tabbar-list">
-          <div className="panel-tabbar-title">Inbox</div>
-          <div className="panel-tabbar-tabs">
+    <PageColumn title={selectedConvId ? undefined : "Inbox"} hideHeader={!!selectedConvId}>
+      {selectedConvId && selectedConv ? (
+        <div className="inbox-detail" style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
+          {/* Detail header with back + contact info */}
+          <div
+            className="flex items-center gap-md"
+            style={{
+              padding: "var(--space-md) var(--space-lg)",
+              borderBottom: "1px solid var(--border-regular)",
+              flexShrink: 0,
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setSelectedConvId(null)}
+              className="flex items-center"
+              style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+            >
+              <ArrowLeft size={20} weight="light" className="text-fg-secondary" />
+            </button>
+            <img
+              src={getOtherParty(selectedConv).avatarUrl}
+              alt={getOtherParty(selectedConv).name}
+              className="rounded-full object-cover shrink-0"
+              style={{ width: 32, height: 32 }}
+            />
+            <div className="flex flex-col" style={{ gap: 2 }}>
+              <span className="font-heading text-md font-semibold text-fg-primary">
+                {getOtherParty(selectedConv).name}
+              </span>
+              <span className="text-xs text-fg-tertiary">
+                {selectedConv.conversationType === "direct"
+                  ? "Direct message"
+                  : SERVICE_LABELS[selectedConv.inquiry.serviceType]}
+              </span>
+            </div>
+          </div>
+          {detailContent}
+        </div>
+      ) : (
+        <div className="page-column-panel-body">
+          {/* List view with tabs */}
+          <div className="page-column-panel-tabs">
             <TabBar tabs={TABS} activeKey={filter} onChange={(key) => setFilter(key as InboxFilter)} />
           </div>
+          <LayoutList>
+            {listContent}
+          </LayoutList>
+          <Spacer />
         </div>
-        <div className="panel-tabbar-detail">
-          <button type="button" className="panel-tabbar-back" onClick={() => setSelectedConvId(null)}>
-            <ArrowLeft size={20} weight="light" />
-          </button>
-          <span className="panel-tabbar-detail-title">
-            {selectedConv ? getOtherParty(selectedConv).name : ""}
-          </span>
-        </div>
-      </div>
-
-      <MasterDetailShell
-        mobileView={mobileView}
-        listPanel={
-          <div className="list-panel">
-            <div className="list-panel-header panel-header-desktop">
-              <TabBar tabs={TABS} activeKey={filter} onChange={(key) => setFilter(key as InboxFilter)} />
-            </div>
-            <PanelBody>
-              <LayoutList>
-                {listContent}
-              </LayoutList>
-              <Spacer />
-            </PanelBody>
-          </div>
-        }
-        detailPanel={
-          <div className="detail-panel inbox-detail">
-            {selectedConv && (
-              <div className="detail-panel-header">
-                <img
-                  src={getOtherParty(selectedConv).avatarUrl}
-                  alt={getOtherParty(selectedConv).name}
-                  className="rounded-full object-cover shrink-0"
-                  style={{ width: 32, height: 32 }}
-                />
-                <div className="flex flex-col" style={{ gap: 2 }}>
-                  <span className="font-heading text-md font-semibold text-fg-primary">
-                    {getOtherParty(selectedConv).name}
-                  </span>
-                  <span className="text-xs text-fg-tertiary">
-                    {selectedConv.conversationType === "direct"
-                      ? "Direct message"
-                      : SERVICE_LABELS[selectedConv.inquiry.serviceType]}
-                  </span>
-                </div>
-              </div>
-            )}
-            {detailContent}
-          </div>
-        }
-        infoPanel={
-          selectedConv ? (
-            <div className="detail-panel">
-              <PanelBody>
-                <ContactInfoPanel conv={selectedConv} />
-                <Spacer />
-              </PanelBody>
-            </div>
-          ) : undefined
-        }
-      />
-    </div>
+      )}
+    </PageColumn>
   );
 }

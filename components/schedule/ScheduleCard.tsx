@@ -13,6 +13,8 @@ import {
   Star,
   Briefcase,
   Clock,
+  HandHeart,
+  User,
 } from "@phosphor-icons/react";
 import type { Meet, MeetType, Booking, BookingSession } from "@/lib/types";
 import { MEET_TYPE_LABELS } from "@/lib/mockMeets";
@@ -172,6 +174,7 @@ export function ScheduleCareCard({
     ? { name: booking.carerName, avatarUrl: booking.carerAvatarUrl }
     : { name: booking.ownerName, avatarUrl: booking.ownerAvatarUrl };
   const timeLabel = booking.recurringSchedule?.timeLabel;
+  const days = booking.recurringSchedule?.days;
 
   // Get the first pet's avatar for the combo
   const firstPetName = booking.pets[0] ?? null;
@@ -188,7 +191,7 @@ export function ScheduleCareCard({
       className="sched-card sched-card--care"
       style={{ textDecoration: "none" }}
     >
-      {/* Row 1: Time (left) · recurring · pill (right) */}
+      {/* Row 1: Time (left) · recurring days · pill (right) */}
       <div className="sched-card-top">
         {timeLabel && (
           <span className="sched-card-time">
@@ -196,10 +199,9 @@ export function ScheduleCareCard({
             {timeLabel}
           </span>
         )}
-        {booking.recurringSchedule && (
-          <span className="sched-card-recurring">
-            <ArrowsClockwise size={12} weight="light" />
-            Recurring
+        {days && (
+          <span className="sched-card-days">
+            {days.join(" · ")}
           </span>
         )}
         <span className="flex-1" />
@@ -209,12 +211,12 @@ export function ScheduleCareCard({
         </span>
       </div>
 
-      {/* Row 2: Service type */}
+      {/* Row 2: Service type + sub-service */}
       <h3 className="sched-card-title">
-        {SERVICE_LABELS[booking.serviceType]}
+        {booking.subService ?? SERVICE_LABELS[booking.serviceType]}
       </h3>
 
-      {/* Row 3: Avatar combo + "Person and Pet" */}
+      {/* Row 3: Avatar combo + person/pet + role */}
       <div className="sched-card-meta">
         {firstPetName && (
           <AvatarCombo
@@ -235,6 +237,11 @@ export function ScheduleCareCard({
         <span className="sched-card-names truncate">
           {other.name}
           {petLabel && <span className="sched-card-names-pets"> and {petLabel}</span>}
+        </span>
+        <span className="flex-1" />
+        <span className={`sched-card-role ${!isOwner ? "sched-card-role--providing" : ""}`}>
+          {isOwner ? <User size={11} weight="light" /> : <HandHeart size={11} weight="fill" />}
+          {isOwner ? "Your carer" : "Providing"}
         </span>
       </div>
     </Link>
@@ -255,6 +262,7 @@ export function ScheduleBookingCard({
       ? { name: booking.carerName, avatarUrl: booking.carerAvatarUrl }
       : { name: booking.ownerName, avatarUrl: booking.ownerAvatarUrl };
   const timeLabel = booking.recurringSchedule?.timeLabel;
+  const days = booking.recurringSchedule?.days;
 
   const firstPetName = booking.pets[0] ?? null;
   const firstPetAvatar = firstPetName
@@ -268,7 +276,7 @@ export function ScheduleBookingCard({
       className="sched-card sched-card--care"
       style={{ textDecoration: "none" }}
     >
-      {/* Row 1: Time (left) · recurring · pill (right) */}
+      {/* Row 1: Time (left) · recurring days · pill (right) */}
       <div className="sched-card-top">
         {timeLabel && (
           <span className="sched-card-time">
@@ -276,10 +284,9 @@ export function ScheduleBookingCard({
             {timeLabel}
           </span>
         )}
-        {booking.recurringSchedule && (
-          <span className="sched-card-recurring">
-            <ArrowsClockwise size={12} weight="light" />
-            Recurring
+        {days && (
+          <span className="sched-card-days">
+            {days.join(" · ")}
           </span>
         )}
         <span className="flex-1" />
@@ -289,12 +296,12 @@ export function ScheduleBookingCard({
         </span>
       </div>
 
-      {/* Row 2: Service type */}
+      {/* Row 2: Sub-service or service type */}
       <h3 className="sched-card-title">
-        {SERVICE_LABELS[booking.serviceType]}
+        {booking.subService ?? SERVICE_LABELS[booking.serviceType]}
       </h3>
 
-      {/* Row 3: Avatar combo + names + status */}
+      {/* Row 3: Avatar combo + names + perspective role */}
       <div className="sched-card-meta">
         {firstPetName && (
           <AvatarCombo
@@ -317,8 +324,9 @@ export function ScheduleBookingCard({
           {petLabel && <span className="sched-card-names-pets"> and {petLabel}</span>}
         </span>
         <span className="flex-1" />
-        <span className="sched-card-role">
-          {booking.status === "active" ? "Active" : "Upcoming"}
+        <span className={`sched-card-role ${perspective === "carer" ? "sched-card-role--providing" : ""}`}>
+          {perspective === "owner" ? <User size={11} weight="light" /> : <HandHeart size={11} weight="fill" />}
+          {perspective === "owner" ? "Your carer" : "Providing"}
         </span>
       </div>
     </Link>

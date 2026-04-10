@@ -16,8 +16,9 @@ import {
   PawPrint,
   Dog,
 } from "@phosphor-icons/react";
-import { DiscoverShell } from "@/components/discover/DiscoverShell";
+import { PageColumn } from "@/components/layout/PageColumn";
 import { Spacer } from "@/components/layout/Spacer";
+import { TabBar } from "@/components/ui/TabBar";
 import { CardGroup } from "@/components/groups/CardGroup";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
@@ -128,18 +129,6 @@ function applyFilters(groups: Group[], filters: GroupFilters): Group[] {
 function GroupsPickerPanel() {
   return (
     <>
-      <div className="list-panel-header panel-header-desktop">
-        <Link
-          href="/discover"
-          className="flex items-center gap-sm"
-          style={{ textDecoration: "none" }}
-        >
-          <ArrowLeft size={20} weight="regular" className="text-fg-primary" />
-          <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
-            Groups
-          </h2>
-        </Link>
-      </div>
       <div className="discover-hub-body">
         <div className="flex flex-col gap-md">
           <span className="font-body font-bold text-fg-secondary text-lg">
@@ -230,18 +219,6 @@ function GroupsFilterPanel({
 
   return (
     <>
-      <div className="list-panel-header panel-header-desktop">
-        <Link
-          href="/discover/groups"
-          className="flex items-center gap-sm"
-          style={{ textDecoration: "none" }}
-        >
-          <ArrowLeft size={20} weight="regular" className="text-fg-primary" />
-          <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
-            Groups
-          </h2>
-        </Link>
-      </div>
       <div className="discover-hub-body" style={{ gap: "var(--space-xxl)" }}>
         {/* Group type */}
         <div className="filter-field">
@@ -409,44 +386,89 @@ function DiscoverGroupsInner() {
   const groupType = searchParams.get("type") as GroupType | null;
   const isValidType = groupType && ["park", "neighbor", "interest", "care"].includes(groupType);
   const [filters, setFilters] = useState<GroupFilters>(DEFAULT_FILTERS);
+  const [activeTab, setActiveTab] = useState<"results" | "filters">("results");
 
   const handleFiltersChange = (update: Partial<GroupFilters>) => {
     setFilters((prev) => ({ ...prev, ...update }));
   };
 
   if (isValidType) {
-    const typeInfo = GROUP_TYPES.find((t) => t.key === groupType);
+    const TABS = [
+      { key: "results", label: "Results" },
+      { key: "filters", label: "Filters" },
+    ];
+
     return (
-      <DiscoverShell
-        hubPanel={
-          <GroupsFilterPanel
-            activeType={groupType}
-            filters={filters}
-            onFiltersChange={handleFiltersChange}
-          />
-        }
-        resultsTitle={GROUP_TYPE_LABELS[groupType]}
-        resultsIcon={
-          typeInfo
-            ? (() => {
-                const Ico = typeInfo.icon;
-                return <Ico size={20} weight="regular" className="text-fg-primary" />;
-              })()
-            : undefined
-        }
-        resultsContent={<GroupsResultsList activeType={groupType} filters={filters} />}
-        mobileShowResults
-      />
+      <PageColumn hideHeader>
+        <div className="page-column-panel-body">
+          <div
+            className="flex items-center gap-sm"
+            style={{
+              padding: "var(--space-md) var(--space-lg)",
+              borderBottom: "1px solid var(--border-regular)",
+            }}
+          >
+            <Link
+              href="/discover/groups"
+              className="flex items-center gap-xs text-fg-secondary"
+              style={{ textDecoration: "none" }}
+            >
+              <ArrowLeft size={20} weight="light" />
+              <span className="text-md font-medium">Groups</span>
+            </Link>
+            <span className="text-fg-tertiary text-sm" style={{ marginLeft: "auto" }}>
+              {GROUP_TYPE_LABELS[groupType]}
+            </span>
+          </div>
+          <div className="page-column-panel-tabs">
+            <TabBar
+              tabs={TABS}
+              activeKey={activeTab}
+              onChange={(key) => setActiveTab(key as "results" | "filters")}
+            />
+          </div>
+          {activeTab === "results" ? (
+            <div className="flex flex-col">
+              <GroupsResultsList activeType={groupType} filters={filters} />
+            </div>
+          ) : (
+            <GroupsFilterPanel
+              activeType={groupType}
+              filters={filters}
+              onFiltersChange={handleFiltersChange}
+            />
+          )}
+          <Spacer size="sm" />
+        </div>
+      </PageColumn>
     );
   }
 
   return (
-    <DiscoverShell
-      hubPanel={<GroupsPickerPanel />}
-      resultsTitle="Discover Groups"
-      resultsIcon={<UsersThree size={20} weight="regular" className="text-fg-primary" />}
-      resultsContent={<GroupsResultsList activeType={null} filters={DEFAULT_FILTERS} />}
-    />
+    <PageColumn hideHeader>
+      <div className="page-column-panel-body">
+        <div
+          className="flex items-center gap-sm"
+          style={{
+            padding: "var(--space-md) var(--space-lg)",
+            borderBottom: "1px solid var(--border-regular)",
+          }}
+        >
+          <Link
+            href="/discover"
+            className="flex items-center gap-xs text-fg-secondary"
+            style={{ textDecoration: "none" }}
+          >
+            <ArrowLeft size={20} weight="light" />
+            <span className="text-md font-medium">Discover</span>
+          </Link>
+          <span className="text-fg-tertiary text-sm" style={{ marginLeft: "auto" }}>
+            Groups
+          </span>
+        </div>
+        <GroupsPickerPanel />
+      </div>
+    </PageColumn>
   );
 }
 

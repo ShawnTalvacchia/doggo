@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-04-08
+last-reviewed: 2026-04-10
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
@@ -14,9 +14,11 @@ review-trigger: "at the start and end of every phase"
 
 ---
 
-## Completed Work (Phases 1–30)
+## Completed Work (Phases 1–30 + Review & Polish)
 
-30 phases shipped covering: design system, app shell, community core (meets + connections), care & booking flows, profile system, home feed & social posts, layout redesign (sidebar + master-detail), schedule & bookings polish, component consolidation, group taxonomy (park/neighbor/interest/care), and Community tab with category sub-tabs.
+30 build phases shipped covering: design system, app shell, community core (meets + connections), care & booking flows, profile system, home feed & social posts, layout redesign (sidebar + master-detail), schedule & bookings polish, component consolidation, group taxonomy (park/neighbor/interest/care), and Community tab with category sub-tabs.
+
+Review & Polish phase completed user-driven review: feed card redesign (two-column layout with contextual headers), community multi-select filter pills, scroll-to-hide nav rewrite (MutationObserver + direct listeners), sidebar hover states, vertical spacing tightening, page header weight unification, schedule page CSS cleanup (removed incorrect MasterDetailShell collapsed rules). Doc restructure: retired `component-inventory.md` and `frontend-style.md`, created unified `design-system.md`.
 
 Full history in `archive/phases/`. Key outcomes:
 
@@ -26,77 +28,99 @@ Full history in `archive/phases/`. Key outcomes:
 - **Discover:** Three-door hub (Meets, Groups, Dog Care) with filter panels per door.
 - **Care:** Provider profiles, booking conversations, payment mock, trust-gated CTAs.
 - **Inbox:** Direct + booking conversations, tab filtering, three-column desktop layout.
-- **Schedule:** Unified timeline of meets + care sessions, filter tabs, master-detail.
+- **Schedule:** Unified timeline of meets + care sessions, filter tabs, single-panel layout.
 
 ---
 
 ## Current State — Honest Assessment
 
-*(Updated 2026-04-08 after Content Completion + Demo Data & Richness phases)*
+*(Updated 2026-04-10 after Review & Polish phase close)*
 
-The prototype is structurally complete and has a rich mock data layer. Every page has content, working interactions, and realistic data.
+The prototype is structurally complete with rich mock data. Every page has content, working interactions, and realistic data. The design system is stabilizing — Tailwind v4 utilities for new code, semantic tokens throughout, feed cards and community filters recently redesigned.
 
-**Works well:** Group list + detail (with feed comments), meet cards + tabbed detail (Details · People · Chat), schedule with Upcoming/Interested/Care tabs and meet vs care card differentiation, notifications (20+ items), navigation across breakpoints, provider profiles, Discover filtering (Meets, Groups, Care all functional), Bookings (owner + provider views), Inbox (8 conversations — direct + booking + compose), Community feed with four-gate visibility model and category filtering.
+**Works well:** Community feed with contextual post headers and multi-select category filtering, group list + detail (with feed comments), meet cards + tabbed detail, schedule with filter tabs, navigation across breakpoints, Discover filtering, sidebar with hover states.
 
-**Data layer:** 20 users with full profiles, 24 meets (8 completed + 16 upcoming), 18 groups with 5-8 members each, 35 posts distributed across all group types, 13 reviews, 10 bookings, 12 connections with trust signals, 3 rich group message threads. All cross-referenced and TypeScript-clean.
+**Data layer:** 20 users, 24 meets, 18 groups, 35 posts, 13 reviews, 10 bookings, 12 connections, 8 conversations, 3 group threads. All cross-referenced and TypeScript-clean.
 
-**Needs review pass:** UI polish, visual consistency, interaction details, edge cases. Image assets still using Unsplash placeholders (generated images in progress).
+**Needs significant work:**
+- Meet page tab content (Details, People, Chat all need fleshing out)
+- Booking page (not functional, needs provider vs owner views designed)
+- Inbox (structural issues, conversation flow incomplete)
+- Profiles — both self and other-user (layout mess, need design thinking)
+- Notifications (started, needs more content)
+- Create flows (meets, groups, posts) — none exist yet
+- Photo sharing and tagging UX
+- Provider elevation (cards, schedule differentiation, visibility)
+- Dog pages/sections (currently minimal, need to be worked into profiles)
+- "Interested" list should be much longer (auto-populated from group events)
 
-**Not yet built:**
-- Persona switching (Tereza, Klára, Daniel views — data exists, UI doesn't)
-- Demo entry page
-- Generated image integration (prompts ready, generation in progress)
+**Known bugs on Polish Log:**
+- "Any" filter pill logic (still not working correctly)
+- Slider "no max" option missing for group size
+- Provider ID mismatch between mockData.ts and mockUsers.ts
 
 ---
 
-## Completed Phases
+## Polish Log (permanent)
 
-### Content Completion ✓
-
-**Completed:** 2026-04-08
-
-Structural changes (group Chat tab removal, Feed flat comments, meet detail tabs), critical wiring (Discover filters, provider cards, Bookings My Services, Inbox compose), content fill (posts, galleries, events, notifications), and schedule polish (card differentiation, tab rename, redundant element removal). All 19 tasks done, D5 (UI tweaks backlog) deferred to Review & Polish.
-
-### Demo Data & Richness ✓
-
-**Completed:** 2026-04-08
-
-Built central user registry (20 users), expanded all mock data files (24 meets, 35 posts, 13 reviews, 10 bookings, 12 connections, 8 conversations, 3 group message threads), cross-reference audit (fixed 6 inconsistencies), TypeScript verified clean. All 16 tasks done.
+`phases/polish-log.md` — running list of UI tweaks and small bugs. Not a phase — lives alongside whatever phase is active. Any session can pull from it.
 
 ---
 
 ## Current Phase
 
-### Review & Polish
+### Page Content & Interactions
 
-**Goal:** Walk through the entire prototype, identify and fix visual issues, interaction bugs, content gaps, and UX rough edges. This phase is user-driven — Shawn reviews, raises issues, and they get fixed before moving to Demo Presentation.
+**Goal:** Build out page content, interaction flows, and provider-focused features. The pages exist structurally but need real content under their tabs, working create flows, and differentiated provider experiences.
 
-**Phase board:** `phases/review-and-polish.md`
+**Key work:**
+- Meet page: flesh out Details, People, Chat tabs; RSVP states (Going/Interested/Not Going); meet creation flow
+- Schedule cards: differentiate provider/host cards visually (solid color, stronger presence)
+- Care card headers: add drop-off times, relevant scheduling info
+- Create flows: create meet, create group, create post (compose UIs)
+- Photo sharing: upload UI, tag-a-dog, tag-a-place, share prompts
+- Interested list: expand with auto-populated events from joined groups
+- Provider elevation: make provider activity more visible and differentiated
+
+**Phase board:** `phases/page-content-and-interactions.md`
 
 ---
 
 ## Upcoming Phases
 
+### Bookings & Care Provider Flow
+
+**Goal:** Make the booking page functional and design the provider vs owner experience. What does a provider see on their schedule, inbox, and profile? How does a booking flow from inquiry to completion?
+
+**Key work:** Booking page for both perspectives, provider schedule management, booking status flow, provider inbox actions, care history.
+
+**Refs:** [[explore-and-care]], [[messaging]], [[schedule]]
+
+### Profiles & Dogs
+
+**Goal:** Design and build comprehensive profile pages (self and other-user) and decide how dogs are surfaced — own pages, sub-sections, or both. Consider how profiles differ for providers vs casual users.
+
+**Key work:** Self-profile redesign, other-user profile with relationship-aware content, dog profiles/sections, profile completeness, provider profile elevation.
+
+**Refs:** [[profiles]], [[Trust & Connection Model]], [[User Archetypes]]
+
+### Inbox & Notifications
+
+**Goal:** Fix inbox structure and build a complete messaging experience. Notifications needs more content types and interaction patterns.
+
+**Key work:** Inbox conversation flow, message compose, booking conversation threading, notification types and actions, read states.
+
+**Refs:** [[messaging]], [[connections]]
+
 ### Demo Presentation
 
-**Goal:** Make the prototype presentable to someone who's never seen it. A demo entry page that provides context, lets the viewer choose a persona, and guides them through the product story.
+**Goal:** Make the prototype presentable to someone who's never seen it. Demo entry page, persona switching, guided exploration.
 
 **Key work:**
-
-Demo entry page:
-- Context header explaining what Doggo is (1-2 sentences)
-- 3 persona cards (Tereza, Klára, Daniel) with photo, description, what they'll see
-- "Enter as [name]" → logged in as that user with their data
-- Option to view the landing page (public, not logged in)
-
-User switching:
-- Mechanism to switch between users without leaving the app
-- Each user sees their own groups, schedule, connections, inbox, notifications
-- State management for multi-user mock data
-
-Guided elements (optional):
-- First-time hints or tooltips highlighting key features per persona
-- Or: a brief "what to explore" card on the Community page per user
+- Demo entry page with context + 3 persona cards (Tereza, Klára, Daniel)
+- User switching mechanism (each user sees their own data)
+- Landing page option (public, not logged in)
+- Optional guided hints per persona
 
 **Refs:** [[User Archetypes]], [[Product Vision]], [[mock-data-plan]]
 

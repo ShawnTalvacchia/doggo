@@ -13,34 +13,14 @@ Read this before every session. These rules override defaults.
 
 ## CSS & Design System Rules
 
-These are non-negotiable. See `docs/implementation/frontend-style.md` for full details.
+These are non-negotiable. See `docs/implementation/design-system.md` for components, patterns, and consolidation targets.
 
-1. **Tailwind utilities first** for new code. Use token-mapped utilities (`bg-surface-base`, `text-fg-primary`, `gap-md`, `rounded-panel`, `font-semibold`). See `@theme` block in `globals.css` for all available mappings.
-2. **No new simple CSS classes.** If a style is 1-3 properties (flex, color, spacing, typography), use Tailwind utilities in JSX. Only create CSS classes for complex patterns (pseudo-elements, animations, 9+ properties).
-3. **Existing CSS classes are fine** — migrate incrementally, not all at once. Old and new styles coexist.
-4. **Semantic tokens still apply.** Tailwind utilities reference the same CSS custom properties. Never raw hex/rgb.
-5. **No orphan tokens.** Every CSS variable in `globals.css` must appear in the styleguide. New token = styleguide entry in the same session.
-6. **Component inventory:** New reusable components get an entry in `docs/implementation/component-inventory.md`.
-
-## Component Usage Rules
-
-**Always use existing components instead of raw HTML + utility classes.** Check `components/ui/` and `components/layout/` before building anything from scratch.
-
-| Need | Use | NOT |
-|------|-----|-----|
-| Any clickable action (button, link, CTA) | `<ButtonAction>` with appropriate `variant`, `size`, `cta`, `href` props | Raw `<a>`, `<button>`, or `<Link>` with utility classes |
-| Icon-only button | `<ButtonIcon>` | Raw `<button>` with an icon inside |
-| Text input | `<InputField>` | Raw `<input>` with manual label/error markup |
-| Checkbox | `<CheckboxRow>` | Raw `<input type="checkbox">` |
-| Filter pill group | `.pill-group` + `.pill` / `.pill.active` CSS classes | Inline Tailwind pill recreations |
-| Form page header | `<FormHeader>` | Manual `<h1>` + `<p>` in form pages |
-| Form page footer (back/continue) | `<FormFooter>` | Manual button rows in form pages |
-| Scrollable panel body | `<PanelBody>` inside raw `<div className="list-panel">` or `<div className="detail-panel">` | Old `<ListPanel>` / `<DetailPanel>` (removed) |
-| Bottom spacer in panels | `<Spacer>` (last child of PanelBody) | Manual `<div>` with flex-grow |
-| Padded content block | `<LayoutSection>` inside PanelBody | Manual `<div>` with inline padding |
-| Edge-to-edge card list | `<LayoutList>` inside PanelBody | Manual `<div className="flex flex-col">` |
-
-**Why:** Consistency. Raw elements bypass the design system and produce visual mismatches (wrong padding, colors, hover states, font weights). The component handles all of that.
+1. **Tailwind utilities first** for new code. Use token-mapped utilities. See `@theme` block in `globals.css` for all available mappings.
+2. **No new simple CSS classes.** If a style is 1-3 properties, use Tailwind utilities in JSX. Only create CSS classes for complex patterns (pseudo-elements, animations, 9+ properties).
+3. **Existing CSS classes are fine** — migrate incrementally, not all at once.
+4. **Semantic tokens only.** Never raw hex/rgb. See `docs/implementation/design-tokens.md`.
+5. **No orphan tokens.** Every CSS variable in `globals.css` must appear in the styleguide.
+6. **Check `components/ui/` and `components/layout/` before building anything.** Use existing components instead of raw HTML + utility classes.
 
 ### Tailwind naming conventions
 | Token | Tailwind utility | Example |
@@ -79,20 +59,21 @@ See `docs/CONTRIBUTING.md` for full details, including the phase open/close life
 | `docs/strategy/Content Visibility Model.md` | Two-gate visibility system, tagging privacy rules |
 | `docs/strategy/Open Questions & Assumptions Log.md` | Unresolved strategic questions — review before each phase |
 | `docs/features/` | Feature specs: meets, connections, messaging, explore-and-care, profiles, schedule, landing-page |
-| `docs/implementation/frontend-style.md` | CSS conventions and rules |
-| `docs/implementation/design-tokens.md` | Token reference and mapping notes |
-| `docs/implementation/component-inventory.md` | Built components catalog |
+| `docs/implementation/design-system.md` | Components, patterns, CSS classes, consolidation targets |
+| `docs/implementation/design-tokens.md` | Token reference and Figma→CSS mapping |
 | `docs/implementation/mock-data-plan.md` | Mock data strategy and user journey planning |
 
-## Current Phase: Review & Polish
+## Current Phase: Page Content & Interactions
 
-User-driven review of the full prototype. Shawn walks through the app, raises issues (visual bugs, interaction problems, content gaps, UX rough edges). Issues get added to the phase board and fixed before Demo Presentation.
+Building out page content, interaction flows, and provider-focused features across the prototype. Meet page tabs, schedule card differentiation, RSVP states, create flows (meets, groups, posts), photo sharing and tagging.
 
-**Phase board:** `docs/phases/review-and-polish.md`
+**Phase board:** `docs/phases/page-content-and-interactions.md`
 
-**Recently completed:** Content Completion (structural changes, filter wiring, content fill) → Demo Data & Richness (20 users, 24 meets, 35 posts, 13 reviews, rich conversations and group threads).
+**Polish Log:** `docs/phases/polish-log.md` — running list of UI tweaks and small fixes, worked on alongside any active phase.
 
-**Upcoming:** Demo Presentation (3 user personas with switching, demo entry page).
+**Recently completed:** Review & Polish (feed card redesign, community filter rework, spacing tightening, scroll-to-hide rewrite, sidebar hover states, header weight unification).
+
+**Upcoming phases:** Bookings & Care Provider Flow → Profiles & Dogs → Inbox & Notifications → Demo Presentation. See ROADMAP.md.
 
 ## Strategic Context
 

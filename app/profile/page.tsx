@@ -1,10 +1,9 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ListBullets } from "@phosphor-icons/react";
-import Link from "next/link";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { PageColumn } from "@/components/layout/PageColumn";
 import { ProfileHeaderOwn } from "@/components/profile/ProfileHeaderOwn";
 import { ProfileAboutTab } from "@/components/profile/ProfileAboutTab";
 import { ProfileServicesTab } from "@/components/profile/ProfileServicesTab";
@@ -97,7 +96,6 @@ function ProfileInner() {
     (searchParams.get("tab") as ProfileTab) ?? "about";
   const [activeTab, setActiveTab] = useState<ProfileTab>(initialTab);
   const [editing, setEditing] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
 
   // Editable state (local, resets on refresh — prototype only)
   const [user, setUser] = useState<UserProfile>(mockUser);
@@ -122,13 +120,6 @@ function ProfileInner() {
     user.tagApproval ?? "auto"
   );
 
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 621px)");
-    const onChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    setIsDesktop(mq.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
 
   function startEditing() {
     setEditBio(user.bio);
@@ -211,80 +202,23 @@ function ProfileInner() {
       </>
     );
 
-  // ── Desktop layout ─────────────────────────────────────────────────────────
-
-  if (isDesktop) {
-    return (
-      <main className="profile-page-shell">
-        <section className="profile-desktop-layout">
-          <aside className="profile-desktop-left-col">
-            {/* Demo nav link */}
-            <div className="profile-desktop-back-row">
-              <Link href="/pages" className="profile-desktop-back-link">
-                <ListBullets size={16} weight="light" />
-                Prototype Overview
-              </Link>
-            </div>
-            <div className="profile-desktop-profile">
-              <ProfileHeaderOwn
-                user={user}
-                state="expanded"
-                editing={editing}
-                onEdit={startEditing}
-                onSave={saveEditing}
-                onCancel={cancelEditing}
-              />
-            </div>
-          </aside>
-
-          <section className="profile-desktop-right-col">
-            <div className="profile-desktop-tabs-wrap">
-              <TabBar
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
-                variant="desktop"
-              />
-            </div>
-            <div className="profile-desktop-right-scroll">{activeContent}</div>
-          </section>
-        </section>
-      </main>
-    );
-  }
-
-  // ── Mobile layout ──────────────────────────────────────────────────────────
-
   return (
-    <main className="profile-page-shell">
-      <section className="profile-page-panel">
-        <div className="profile-fixed-top">
-          {/* Demo nav */}
-          <div className="flex items-center gap-xs p-sm bg-surface-inset border-b border-edge-light">
-            <ButtonAction
-              variant="secondary"
-              size="sm"
-              href="/pages"
-              leftIcon={<ListBullets size={16} weight="light" />}
-            >
-              Prototype Overview
-            </ButtonAction>
-          </div>
+    <PageColumn hideHeader>
+      <div className="page-column-panel-body">
+        <ProfileHeaderOwn
+          user={user}
+          state="expanded"
+          editing={editing}
+          onEdit={startEditing}
+          onSave={saveEditing}
+          onCancel={cancelEditing}
+        />
 
-          <ProfileHeaderOwn
-            user={user}
-            state="expanded"
-            editing={editing}
-            onEdit={startEditing}
-            onSave={saveEditing}
-            onCancel={cancelEditing}
-          />
+        <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
 
-          <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
-        </div>
-
-        <div className="profile-scroll-body">{activeContent}</div>
-      </section>
-    </main>
+        {activeContent}
+      </div>
+    </PageColumn>
   );
 }
 

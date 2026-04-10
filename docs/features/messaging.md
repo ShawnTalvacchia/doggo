@@ -21,7 +21,7 @@ Messaging is the coordination layer for both community and care. The core philos
 | Surface | Purpose | Where it lives |
 |---------|---------|---------------|
 | **Inbox** | Private 1:1 conversations (direct + booking) | `/inbox` — top-level page |
-| **Feed comments** | Async group discussion on posts | Group detail → Feed tab (built — flat comments with local-state add) |
+| **Feed comments** | Async group discussion on posts | Group detail → Feed tab (built — flat comments with local-state add, replaces group Chat tab) |
 | **Meet chat** | Real-time event coordination | Meet detail → Chat tab |
 
 ---
@@ -63,9 +63,9 @@ Event-scoped coordination thread on the meet detail page (Chat tab). Time-bound 
 
 ---
 
-## Feed Comments (Planned)
+## Feed Comments (Built)
 
-Group feed posts will have flat comments for async discussion. This replaces the previous group Chat tab. Not yet built — currently Feed posts have no comment UI.
+Group feed posts have flat comments for async discussion. This replaces the previous group Chat tab. Comments are local-state with an add-comment UI. Built during Content Completion phase.
 
 ---
 
@@ -80,7 +80,6 @@ Group feed posts will have flat comments for async discussion. This replaces the
 
 ## Not Yet Built
 
-- **Feed comments** — flat comments on group feed posts (replaces group Chat tab)
 - **Message requests** — for Open/Familiar contacts not yet Connected
 - **Read receipts / typing indicators**
 - **Media sharing** in conversations

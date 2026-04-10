@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FeedCard } from "./FeedCard";
 import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
 import { TagPillRow } from "@/components/posts/TagPill";
-import { getDogById } from "@/lib/mockUsers";
+import { getDogById, getUserById } from "@/lib/mockUsers";
 import type { Post, PostTag, PostReaction, PostComment } from "@/lib/types";
 
 interface MomentCardProps {
@@ -112,6 +112,8 @@ export function MomentCard({
   connectionContext,
 }: MomentCardProps) {
   const { headerContext, remainingTags } = buildHeaderContext(tags, groupName, groupId);
+  const authorUser = getUserById(authorId);
+  const isCareProvider = !!(authorUser?.carerProfile?.publicProfile);
 
   return (
     <FeedCard
@@ -121,6 +123,7 @@ export function MomentCard({
       timestamp={createdAt}
       headerContext={headerContext}
       connectionContext={connectionContext}
+      isCareProvider={isCareProvider}
       caption={caption}
       media={photos.length > 0 ? <PostPhotoGrid photos={photos} /> : undefined}
       tags={remainingTags.length > 0 ? <TagPillRow tags={remainingTags} /> : undefined}

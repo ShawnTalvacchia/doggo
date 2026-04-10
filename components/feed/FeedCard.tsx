@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Heart, ChatCircle, PaperPlaneTilt } from "@phosphor-icons/react";
+import { Heart, ChatCircle, PaperPlaneTilt, HandHeart } from "@phosphor-icons/react";
 import type { PostReaction, PostComment } from "@/lib/types";
 
 interface FeedCardProps {
@@ -13,6 +13,8 @@ interface FeedCardProps {
   /** Context string for header row 1, e.g. "in Stromovka Morning Crew" or "at Letná" */
   headerContext?: React.ReactNode;
   connectionContext?: string;
+  /** Show a care provider badge next to the author name */
+  isCareProvider?: boolean;
   /** Caption text */
   caption?: string;
   /** Photo/media content */
@@ -54,6 +56,7 @@ export function FeedCard({
   reactions,
   comments,
   children,
+  isCareProvider,
 }: FeedCardProps) {
   const [localReactions, setLocalReactions] = useState(reactions ?? []);
   const hasLiked = localReactions.some((r) => r.userId === "shawn");
@@ -85,7 +88,7 @@ export function FeedCard({
 
           {/* Right column: header + content */}
           <div className="feed-card-col-content">
-            {/* Row 1: Name + context (primary) */}
+            {/* Row 1: Name + provider badge + context (primary) */}
             <div className="feed-card-header-primary">
               {authorHref ? (
                 <Link href={authorHref} className="feed-card-author-name" style={{ textDecoration: "none" }}>
@@ -93,6 +96,12 @@ export function FeedCard({
                 </Link>
               ) : (
                 <span className="feed-card-author-name">{authorName}</span>
+              )}
+              {isCareProvider && (
+                <span className="feed-card-provider-badge">
+                  <HandHeart size={12} weight="fill" />
+                  Carer
+                </span>
               )}
               {headerContext}
               {connectionContext && (

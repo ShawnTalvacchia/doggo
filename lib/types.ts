@@ -814,7 +814,8 @@ export type FeedItemType =
   | "find_care_prompt"
   | "milestone"
   | "dog_moment"
-  | "care_review";
+  | "care_review"
+  | "share_nudge";
 
 export interface FeedItemBase {
   feedId: string;
@@ -886,6 +887,11 @@ export interface FeedCareReviewItem extends FeedItemBase {
   snippet: string;
 }
 
+export interface FeedShareNudgeItem extends FeedItemBase {
+  type: "share_nudge";
+  meet: Meet;
+}
+
 export type FeedItem =
   | FeedPostItem
   | FeedMeetRecapItem
@@ -895,7 +901,8 @@ export type FeedItem =
   | FeedCarePromptItem
   | FeedMilestoneItem
   | FeedDogMomentItem
-  | FeedCareReviewItem;
+  | FeedCareReviewItem
+  | FeedShareNudgeItem;
 
 // ── Places ────────────────────────────────────────────────────────────────────
 

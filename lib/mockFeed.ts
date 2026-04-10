@@ -3,6 +3,7 @@ import type {
   FeedPostItem,
   FeedMeetRecapItem,
   FeedUpcomingMeetItem,
+  FeedShareNudgeItem,
 } from "./types";
 import { mockPosts } from "./mockPosts";
 import { mockMeets } from "./mockMeets";
@@ -138,6 +139,24 @@ export function getFeedForUser(userId: string): FeedItem[] {
       timestamp: meet.createdAt,
       meet,
     } as FeedMeetRecapItem);
+  }
+
+  // ── Share nudges: completed meets user attended, no photos yet ───────────
+  const completedNoPhotos = mockMeets.filter(
+    (m) =>
+      m.status === "completed" &&
+      (!m.photos || m.photos.length === 0) &&
+      m.attendees.some((a) => a.userId === userId)
+  );
+  // Show the most recent one as a nudge (use recent timestamp so it surfaces high)
+  if (completedNoPhotos.length > 0) {
+    const nudgeMeet = completedNoPhotos[0];
+    items.push({
+      feedId: `feed-share-nudge-${nudgeMeet.id}`,
+      type: "share_nudge",
+      timestamp: "2026-03-22T08:00:00Z",
+      meet: nudgeMeet,
+    } as FeedShareNudgeItem);
   }
 
   // ── Contextual: upcoming meets within 48h that user is attending ─────────

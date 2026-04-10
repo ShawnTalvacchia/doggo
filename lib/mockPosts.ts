@@ -1,6 +1,39 @@
 import type { Post } from "./types";
 
 export const mockPosts: Post[] = [
+  // Provider post in community group — demonstrates care provider badge
+  {
+    id: "post-klara-community",
+    authorId: "klara",
+    authorName: "Klára",
+    authorAvatarUrl:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+    groupId: "group-1",
+    groupName: "Vinohrady Morning Crew",
+    photos: ["/images/generated/park-hangout-riegrovy.jpeg"],
+    caption:
+      "Great session this morning! If anyone's interested in recall training, I'm running a small group next Thursday at Riegrovy sady. DM me for details.",
+    tags: [
+      { type: "place", id: "riegrovy-sady", label: "Riegrovy sady" },
+      { type: "community", id: "group-1", label: "Vinohrady Morning Crew" },
+    ],
+    createdAt: "2026-03-23T10:30:00Z",
+    reactions: [
+      { userId: "shawn", userName: "Shawn" },
+      { userId: "jana", userName: "Jana" },
+      { userId: "tereza", userName: "Tereza" },
+    ],
+    comments: [
+      {
+        id: "comment-klara-1",
+        authorId: "shawn",
+        authorName: "Shawn",
+        authorAvatarUrl: "/images/generated/shawn-profile.jpg",
+        text: "Spot could use some recall help — count us in!",
+        createdAt: "2026-03-23T11:00:00Z",
+      },
+    ],
+  },
   // Personal posts (no groupId)
   {
     id: "post-1",

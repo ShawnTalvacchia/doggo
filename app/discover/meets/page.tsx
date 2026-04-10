@@ -17,8 +17,9 @@ import {
   Lightning,
   Users,
 } from "@phosphor-icons/react";
-import { DiscoverShell } from "@/components/discover/DiscoverShell";
+import { PageColumn } from "@/components/layout/PageColumn";
 import { Spacer } from "@/components/layout/Spacer";
+import { TabBar } from "@/components/ui/TabBar";
 import { CardMeet } from "@/components/meets/CardMeet";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
@@ -173,18 +174,6 @@ function applyFilters(meets: Meet[], filters: MeetFilters): Meet[] {
 function MeetsPickerPanel() {
   return (
     <>
-      <div className="list-panel-header panel-header-desktop">
-        <Link
-          href="/discover"
-          className="flex items-center gap-sm"
-          style={{ textDecoration: "none" }}
-        >
-          <ArrowLeft size={20} weight="regular" className="text-fg-primary" />
-          <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
-            Meets
-          </h2>
-        </Link>
-      </div>
       <div className="discover-hub-body">
         <div className="flex flex-col gap-md">
           <span className="font-body font-bold text-fg-secondary text-lg">
@@ -270,18 +259,6 @@ function MeetsFilterPanel({
 
   return (
     <>
-      <div className="list-panel-header panel-header-desktop">
-        <Link
-          href="/discover/meets"
-          className="flex items-center gap-sm"
-          style={{ textDecoration: "none" }}
-        >
-          <ArrowLeft size={20} weight="regular" className="text-fg-primary" />
-          <h2 className="font-heading text-lg font-bold text-fg-primary m-0">
-            Meets
-          </h2>
-        </Link>
-      </div>
       <div className="discover-hub-body" style={{ gap: "var(--space-xxl)" }}>
         {/* Meet type */}
         <div className="filter-field">
@@ -451,44 +428,96 @@ function DiscoverMeetsInner() {
   const meetType = searchParams.get("type") as MeetType | null;
   const isValidType = meetType && ["walk", "park_hangout", "playdate", "training"].includes(meetType);
   const [filters, setFilters] = useState<MeetFilters>(DEFAULT_FILTERS);
+  const [activeTab, setActiveTab] = useState<"results" | "filters">("results");
 
   const handleFiltersChange = (update: Partial<MeetFilters>) => {
     setFilters((prev) => ({ ...prev, ...update }));
   };
 
+  // When a meet type is selected, show results with a Results/Filters toggle
   if (isValidType) {
-    const typeInfo = MEET_TYPES.find((t) => t.key === meetType);
+    const TABS = [
+      { key: "results", label: "Results" },
+      { key: "filters", label: "Filters" },
+    ];
+
     return (
-      <DiscoverShell
-        hubPanel={
-          <MeetsFilterPanel
-            activeType={meetType}
-            filters={filters}
-            onFiltersChange={handleFiltersChange}
-          />
-        }
-        resultsTitle={MEET_TYPE_LABELS[meetType]}
-        resultsIcon={
-          typeInfo
-            ? (() => {
-                const Ico = typeInfo.icon;
-                return <Ico size={20} weight="regular" className="text-fg-primary" />;
-              })()
-            : undefined
-        }
-        resultsContent={<MeetsResultsList activeType={meetType} filters={filters} />}
-        mobileShowResults
-      />
+      <PageColumn hideHeader>
+        <div className="page-column-panel-body">
+          {/* Back header */}
+          <div
+            className="flex items-center gap-sm"
+            style={{
+              padding: "var(--space-md) var(--space-lg)",
+              borderBottom: "1px solid var(--border-regular)",
+            }}
+          >
+            <Link
+              href="/discover/meets"
+              className="flex items-center gap-xs text-fg-secondary"
+              style={{ textDecoration: "none" }}
+            >
+              <ArrowLeft size={20} weight="light" />
+              <span className="text-md font-medium">Meets</span>
+            </Link>
+            <span className="text-fg-tertiary text-sm" style={{ marginLeft: "auto" }}>
+              {MEET_TYPE_LABELS[meetType]}
+            </span>
+          </div>
+
+          {/* Results/Filters tabs */}
+          <div className="page-column-panel-tabs">
+            <TabBar
+              tabs={TABS}
+              activeKey={activeTab}
+              onChange={(key) => setActiveTab(key as "results" | "filters")}
+            />
+          </div>
+
+          {activeTab === "results" ? (
+            <div className="flex flex-col">
+              <MeetsResultsList activeType={meetType} filters={filters} />
+            </div>
+          ) : (
+            <MeetsFilterPanel
+              activeType={meetType}
+              filters={filters}
+              onFiltersChange={handleFiltersChange}
+            />
+          )}
+          <Spacer size="sm" />
+        </div>
+      </PageColumn>
     );
   }
 
+  // No type selected — show the meet type picker
   return (
-    <DiscoverShell
-      hubPanel={<MeetsPickerPanel />}
-      resultsTitle="Find your pack"
-      resultsIcon={<PawPrint size={20} weight="regular" className="text-fg-primary" />}
-      resultsContent={<MeetsResultsList activeType={null} filters={DEFAULT_FILTERS} />}
-    />
+    <PageColumn hideHeader>
+      <div className="page-column-panel-body">
+        {/* Back header */}
+        <div
+          className="flex items-center gap-sm"
+          style={{
+            padding: "var(--space-md) var(--space-lg)",
+            borderBottom: "1px solid var(--border-regular)",
+          }}
+        >
+          <Link
+            href="/discover"
+            className="flex items-center gap-xs text-fg-secondary"
+            style={{ textDecoration: "none" }}
+          >
+            <ArrowLeft size={20} weight="light" />
+            <span className="text-md font-medium">Discover</span>
+          </Link>
+          <span className="text-fg-tertiary text-sm" style={{ marginLeft: "auto" }}>
+            Meets
+          </span>
+        </div>
+        <MeetsPickerPanel />
+      </div>
+    </PageColumn>
   );
 }
 
