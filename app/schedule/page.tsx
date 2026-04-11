@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { CalendarDots } from "@phosphor-icons/react";
@@ -10,6 +10,7 @@ import { TabBar } from "@/components/ui/TabBar";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { ScheduleMeetCard, ScheduleCareCard, ScheduleBookingCard } from "@/components/schedule/ScheduleCard";
 import { Spacer } from "@/components/layout/Spacer";
+import { FilterPillRow } from "@/components/ui/FilterPillRow";
 import { getUserMeets, mockMeets } from "@/lib/mockMeets";
 import { getUserGroups } from "@/lib/mockGroups";
 import { getMeetRole } from "@/lib/meetUtils";
@@ -72,10 +73,12 @@ function ScheduleInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const filter = (searchParams.get("view") as ScheduleFilter) || "upcoming";
+  const [careSubFilter, setCareSubFilter] = useState<"all" | "getting" | "providing">("all");
 
   const myMeets = getUserMeets(CURRENT_USER);
   const { bookings } = useBookings();
-  const upcomingMeets = myMeets.filter((m) => m.status === "upcoming");
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const upcomingMeets = myMeets.filter((m) => m.status === "upcoming" && m.date >= todayIso);
 
   const activeOwnerBookings = bookings.filter(
     (b) => b.ownerId === CURRENT_USER && (b.status === "active" || b.status === "upcoming")
@@ -100,18 +103,18 @@ function ScheduleInner() {
 
   const filteredItems = useMemo((): ScheduleItem[] => {
     if (filter === "care") {
-      const ownerItems = activeOwnerBookings.map((b) => ({
+      const ownerItems = careSubFilter !== "providing" ? activeOwnerBookings.map((b) => ({
         kind: "booking" as const,
         booking: b,
         perspective: "owner" as const,
         sortKey: getBookingNextDate(b) ?? b.startDate,
-      }));
-      const carerItems = activeCarerBookings.map((b) => ({
+      })) : [];
+      const carerItems = careSubFilter !== "getting" ? activeCarerBookings.map((b) => ({
         kind: "booking" as const,
         booking: b,
         perspective: "carer" as const,
         sortKey: getBookingNextDate(b) ?? b.startDate,
-      }));
+      })) : [];
       return [...ownerItems, ...carerItems].sort((a, b) => a.sortKey.localeCompare(b.sortKey));
     }
 
@@ -170,7 +173,7 @@ function ScheduleInner() {
         }];
       }
       return b.sessions
-        .filter((s) => s.status === "upcoming" || s.status === "in_progress")
+        .filter((s) => (s.status === "upcoming" || s.status === "in_progress") && s.date >= todayIso)
         .map((s) => ({
           kind: "session" as const,
           booking: b,
@@ -180,7 +183,7 @@ function ScheduleInner() {
     });
 
     return [...meetItems, ...sessionItems].sort((a, b) => a.sortKey.localeCompare(b.sortKey));
-  }, [filter, upcomingMeets, activeOwnerBookings, activeCarerBookings]);
+  }, [filter, careSubFilter, upcomingMeets, activeOwnerBookings, activeCarerBookings]);
 
   return (
     <PageColumn title="My Schedule">
@@ -189,6 +192,17 @@ function ScheduleInner() {
         <div className="page-column-panel-tabs">
           <TabBar tabs={TABS} activeKey={filter} onChange={handleFilterChange} />
         </div>
+        {filter === "care" && (
+          <FilterPillRow
+            pills={[
+              { key: "all", label: "All" },
+              { key: "getting", label: "Getting Care" },
+              { key: "providing", label: "Providing" },
+            ]}
+            activeKey={careSubFilter}
+            onChange={(key) => setCareSubFilter(key as "all" | "getting" | "providing")}
+          />
+        )}
           {filteredItems.length > 0 ? (
             <div className="flex flex-col">
               {filteredItems.map((item, idx) => {

@@ -1,20 +1,13 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense, useState, useMemo } from "react";
 import {
-  ArrowLeft,
   Heart,
   MapPin,
-  CaretRight,
   CaretUp,
-  PawPrint,
-  House,
-  Bed,
   Dog,
-  CalendarBlank,
-  Repeat,
+  SlidersHorizontal,
+  MagnifyingGlass,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { DetailHeader } from "@/components/layout/DetailHeader";
@@ -23,321 +16,192 @@ import { TabBar } from "@/components/ui/TabBar";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { Slider } from "@/components/ui/Slider";
+import { ButtonAction } from "@/components/ui/ButtonAction";
+import { CardExploreResult } from "@/components/explore/CardExploreResult";
 import { getExploreRateBounds } from "@/lib/pricing";
+import { providers } from "@/lib/mockData";
 import type { ServiceType } from "@/lib/types";
 
-const CARE_SERVICES: {
-  key: ServiceType;
-  label: string;
-  description: string;
-  icon: typeof PawPrint;
-}[] = [
-  {
-    key: "walk_checkin",
-    label: "Walks & check-ins",
-    description: "Short visits at your home",
-    icon: PawPrint,
-  },
-  {
-    key: "inhome_sitting",
-    label: "In-home sitting",
-    description: "Overnight care at your home",
-    icon: House,
-  },
-  {
-    key: "boarding",
-    label: "Boarding",
-    description: "Your dog stays with a trusted host",
-    icon: Bed,
-  },
-];
+/* ── Constants ── */
 
-const SERVICE_LABELS: Record<ServiceType, string> = {
-  walk_checkin: "Walks & Check-ins",
-  inhome_sitting: "In-home Sitting",
-  boarding: "Boarding",
-};
+const TYPE_TABS: { key: string; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "walk_checkin", label: "Walks" },
+  { key: "inhome_sitting", label: "Sitting" },
+  { key: "boarding", label: "Boarding" },
+];
 
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"] as const;
 const WALK_SERVICES = ["Drop-in visit", "Group walk", "Solo walk"];
 
-/** Hub panel — service picker (no service selected yet) */
-function CarePickerPanel() {
-  return (
-    <>
-      <div className="discover-hub-body">
-        <div className="flex flex-col gap-md">
-          <span className="font-body font-bold text-fg-secondary text-lg">
-            Near
-          </span>
-          <div
-            className="bg-surface-top border border-edge-stronger flex items-center gap-sm rounded-sm"
-            style={{ padding: "var(--space-sm) var(--space-md)" }}
-          >
-            <MapPin size={20} weight="light" className="text-fg-tertiary shrink-0" />
-            <span className="text-md text-fg-tertiary">Vinohrady</span>
-          </div>
-        </div>
+/* ── Filter state ── */
 
-        <div className="flex flex-col gap-md">
-          <span className="font-body font-bold text-fg-secondary text-lg">
-            What are you looking for?
-          </span>
-          <div className="flex flex-col gap-lg">
-            {CARE_SERVICES.map((svc) => (
-              <Link
-                key={svc.key}
-                href={`/discover/care?service=${svc.key}`}
-                className="bg-surface-top border border-edge-stronger flex items-center gap-md rounded-sm"
-                style={{
-                  textDecoration: "none",
-                  padding: "var(--space-lg)",
-                  overflow: "hidden",
-                }}
-              >
-                <svc.icon size={32} weight="regular" className="text-fg-secondary shrink-0" />
-                <div className="flex flex-col flex-1 min-w-0">
-                  <span className="font-body font-semibold text-md text-fg-secondary">
-                    {svc.label}
-                  </span>
-                  <span className="text-sm text-fg-secondary" style={{ lineHeight: "20px" }}>
-                    {svc.description}
-                  </span>
-                </div>
-                <CaretRight size={20} weight="light" className="text-fg-secondary shrink-0" />
-              </Link>
-            ))}
-          </div>
-        </div>
-        <Spacer size="sm" />
-      </div>
-    </>
-  );
+interface CareFilters {
+  selectedDays: string[];
+  visitMode: "one_time" | "repeat";
 }
 
-/** Hub panel — filter form (service selected) */
-function CareFilterPanel({ activeService }: { activeService: ServiceType }) {
+const DEFAULT_FILTERS: CareFilters = {
+  selectedDays: [],
+  visitMode: "repeat",
+};
+
+/* ── Filter panel ── */
+
+function CareFilterPanel({
+  filters,
+  onFiltersChange,
+}: {
+  filters: CareFilters;
+  onFiltersChange: (update: Partial<CareFilters>) => void;
+}) {
   const [servicesOpen, setServicesOpen] = useState(true);
-  const [visitMode, setVisitMode] = useState<"one_time" | "repeat">("repeat");
-  const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [minRate, setMinRate] = useState(150);
   const [maxRate, setMaxRate] = useState(950);
-
-  const label = SERVICE_LABELS[activeService];
-  const svc = CARE_SERVICES.find((s) => s.key === activeService);
-  const rateBounds = getExploreRateBounds(activeService);
+  const rateBounds = getExploreRateBounds("walk_checkin");
 
   return (
-    <>
-      <div className="discover-hub-body" style={{ gap: "var(--space-xxl)" }}>
-        {/* Service */}
-        <div className="filter-field">
-          <div className="label">Service</div>
-          <div
-            className="bg-surface-top border border-edge-stronger flex items-center gap-sm rounded-sm"
-            style={{ padding: "var(--space-sm) var(--space-md)" }}
-          >
-            {svc && <svc.icon size={20} weight="regular" className="text-fg-tertiary shrink-0" />}
-            <span className="font-body text-md text-fg-secondary">{label}</span>
-          </div>
+    <div className="discover-hub-body" style={{ gap: "var(--space-xxl)" }}>
+      <div className="filter-field">
+        <div className="label">Pets</div>
+        <div className="bg-surface-top border border-edge-stronger flex items-center gap-sm rounded-sm" style={{ padding: "var(--space-sm) var(--space-md)" }}>
+          <Dog size={20} weight="regular" className="text-fg-tertiary shrink-0" />
+          <span className="font-body text-md text-fg-tertiary">Lucy, Spot</span>
         </div>
-
-        {/* Pets */}
-        <div className="filter-field">
-          <div className="label">Pets</div>
-          <div
-            className="bg-surface-top border border-edge-stronger flex items-center gap-sm rounded-sm"
-            style={{ padding: "var(--space-sm) var(--space-md)" }}
-          >
-            <Dog size={20} weight="regular" className="text-fg-tertiary shrink-0" />
-            <span className="font-body text-md text-fg-tertiary">Lucy, Spot</span>
-          </div>
-        </div>
-
-        {/* Nearby */}
-        <div className="filter-field">
-          <div className="label">Nearby</div>
-          <div
-            className="bg-surface-top border border-edge-stronger flex items-center gap-sm rounded-sm"
-            style={{ padding: "var(--space-sm) var(--space-md)" }}
-          >
-            <MapPin size={20} weight="light" className="text-fg-tertiary shrink-0" />
-            <span className="font-body text-md text-fg-tertiary">Vinohrady</span>
-          </div>
-        </div>
-
-        {/* How often */}
-        <div className="filter-field">
-          <div className="label">How often?</div>
-          <div className="filter-visit-row">
-            <button
-              type="button"
-              className={`filter-option-card${visitMode === "one_time" ? " active" : ""}`}
-              onClick={() => setVisitMode("one_time")}
-            >
-              <strong>One Time</strong>
-              <span>Daily visits for a short period</span>
-            </button>
-            <button
-              type="button"
-              className={`filter-option-card${visitMode === "repeat" ? " active" : ""}`}
-              onClick={() => setVisitMode("repeat")}
-            >
-              <strong>Repeat Weekly</strong>
-              <span>Ongoing weekly schedule</span>
-            </button>
-          </div>
-        </div>
-
-        {/* For which days — interactive segment bar */}
-        <div className="filter-field">
-          <div className="label">For which days?</div>
-          <MultiSelectSegmentBar
-            ariaLabel="Repeat weekly days"
-            options={DAYS.map((day) => ({ value: day, label: day }))}
-            selectedValues={selectedDays}
-            onToggle={(day) =>
-              setSelectedDays((prev) =>
-                prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day],
-              )
-            }
-            variant="filter"
-          />
-        </div>
-
-        {/* Price range — interactive dual slider */}
-        <div className="filter-field">
-          <div className="label">Price range</div>
-          <Slider
-            dual
-            min={rateBounds.min}
-            max={rateBounds.max}
-            step={50}
-            minValue={minRate}
-            maxValue={maxRate}
-            onMinChange={(v) => setMinRate(v)}
-            onMaxChange={(v) => setMaxRate(v)}
-          />
-          <div className="filter-minmax-row">
-            <div className="filter-field">
-              <div className="label">Min. per walk</div>
-              <input
-                className="input"
-                type="number"
-                min={rateBounds.min}
-                max={rateBounds.max}
-                value={minRate}
-                onChange={(e) => {
-                  const v = Number(e.target.value) || rateBounds.min;
-                  setMinRate(Math.min(Math.max(v, rateBounds.min), maxRate));
-                }}
-              />
-            </div>
-            <div className="filter-field">
-              <div className="label">Max. per walk</div>
-              <input
-                className="input"
-                type="number"
-                min={rateBounds.min}
-                max={rateBounds.max}
-                value={maxRate}
-                onChange={(e) => {
-                  const v = Number(e.target.value) || rateBounds.max;
-                  setMaxRate(Math.max(Math.min(v, rateBounds.max), minRate));
-                }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Services accordion — interactive checkboxes */}
-        <div className="filter-accordion-stack">
-          <div className="filter-accordion">
-            <button
-              type="button"
-              className={`filter-accordion-btn${servicesOpen ? " open" : ""}`}
-              onClick={() => setServicesOpen((o) => !o)}
-            >
-              Services
-              <span className="accordion-caret">
-                <CaretUp size={24} weight="regular" />
-              </span>
-            </button>
-            <div className={`filter-accordion-body${servicesOpen ? " open" : ""}`}>
-              <div className="filter-accordion-inner">
-                {WALK_SERVICES.map((name) => (
-                  <AccordionCheckbox key={name} label={name} />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-        <Spacer size="sm" />
       </div>
-    </>
+
+      <div className="filter-field">
+        <div className="label">Nearby</div>
+        <div className="bg-surface-top border border-edge-stronger flex items-center gap-sm rounded-sm" style={{ padding: "var(--space-sm) var(--space-md)" }}>
+          <MapPin size={20} weight="light" className="text-fg-tertiary shrink-0" />
+          <span className="font-body text-md text-fg-tertiary">Vinohrady</span>
+        </div>
+      </div>
+
+      <div className="filter-field">
+        <div className="label">How often?</div>
+        <div className="filter-visit-row">
+          <button type="button" className={`filter-option-card${filters.visitMode === "one_time" ? " active" : ""}`} onClick={() => onFiltersChange({ visitMode: "one_time" })}>
+            <strong>One Time</strong>
+            <span>Daily visits for a short period</span>
+          </button>
+          <button type="button" className={`filter-option-card${filters.visitMode === "repeat" ? " active" : ""}`} onClick={() => onFiltersChange({ visitMode: "repeat" })}>
+            <strong>Repeat Weekly</strong>
+            <span>Ongoing weekly schedule</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="filter-field">
+        <div className="label">For which days?</div>
+        <MultiSelectSegmentBar
+          ariaLabel="Repeat weekly days"
+          options={DAYS.map((day) => ({ value: day, label: day }))}
+          selectedValues={filters.selectedDays}
+          onToggle={(day) => onFiltersChange({ selectedDays: filters.selectedDays.includes(day) ? filters.selectedDays.filter((d) => d !== day) : [...filters.selectedDays, day] })}
+          variant="filter"
+        />
+      </div>
+
+      <div className="filter-field">
+        <div className="label">Price range</div>
+        <Slider dual min={rateBounds.min} max={rateBounds.max} step={50} minValue={minRate} maxValue={maxRate} onMinChange={setMinRate} onMaxChange={setMaxRate} />
+        <div className="filter-minmax-row">
+          <div className="filter-field">
+            <div className="label">Min. per session</div>
+            <input className="input" type="number" min={rateBounds.min} max={rateBounds.max} value={minRate} onChange={(e) => setMinRate(Math.min(Math.max(Number(e.target.value) || rateBounds.min, rateBounds.min), maxRate))} />
+          </div>
+          <div className="filter-field">
+            <div className="label">Max. per session</div>
+            <input className="input" type="number" min={rateBounds.min} max={rateBounds.max} value={maxRate} onChange={(e) => setMaxRate(Math.max(Math.min(Number(e.target.value) || rateBounds.max, rateBounds.max), minRate))} />
+          </div>
+        </div>
+      </div>
+
+      <div className="filter-accordion-stack">
+        <div className="filter-accordion">
+          <button type="button" className={`filter-accordion-btn${servicesOpen ? " open" : ""}`} onClick={() => setServicesOpen((o) => !o)}>
+            Services
+            <span className="accordion-caret"><CaretUp size={24} weight="regular" /></span>
+          </button>
+          <div className={`filter-accordion-body${servicesOpen ? " open" : ""}`}>
+            <div className="filter-accordion-inner">
+              {WALK_SERVICES.map((name) => {
+                const [checked, setChecked] = useState(false); // eslint-disable-line react-hooks/rules-of-hooks
+                return <CheckboxRow key={name} label={name} checked={checked} onChange={setChecked} placement="right" />;
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+      <Spacer size="sm" />
+    </div>
   );
 }
 
-/** Checkbox row with local state for accordion items */
-function AccordionCheckbox({ label, defaultChecked = false }: { label: string; defaultChecked?: boolean }) {
-  const [checked, setChecked] = useState(defaultChecked);
-  return <CheckboxRow label={label} checked={checked} onChange={setChecked} placement="right" />;
-}
+/* ── Results ── */
 
-function DiscoverCareInner() {
-  const searchParams = useSearchParams();
-  const service = searchParams.get("service") as ServiceType | null;
-  const isValidService = service && ["walk_checkin", "inhome_sitting", "boarding"].includes(service);
-  const [activeTab, setActiveTab] = useState<"results" | "filters">("results");
+function CareResultsList({ serviceFilter }: { serviceFilter: string }) {
+  const results = useMemo(() => {
+    if (serviceFilter === "all") return providers;
+    return providers.filter((p) => p.services.includes(serviceFilter as ServiceType));
+  }, [serviceFilter]);
 
-  if (isValidService) {
-    const TABS = [
-      { key: "results", label: "Results" },
-      { key: "filters", label: "Filters" },
-    ];
-
+  if (results.length === 0) {
     return (
-      <PageColumn hideHeader abovePanel={<DetailHeader backHref="/discover/care" title={SERVICE_LABELS[service]} />}>
-        <div className="page-column-panel-body">
-          <div className="page-column-panel-tabs">
-            <TabBar
-              tabs={TABS}
-              activeKey={activeTab}
-              onChange={(key) => setActiveTab(key as "results" | "filters")}
-            />
-          </div>
-          {activeTab === "results" ? (
-            <div className="flex flex-col">
-              {/* Care results will be rendered by DiscoverShell's provider list — for now show filter panel content */}
-              <div className="flex flex-col items-center gap-md p-xl text-center">
-                <Heart size={40} weight="light" className="text-fg-tertiary" />
-                <p className="text-sm text-fg-secondary m-0">
-                  Provider results for {SERVICE_LABELS[service]}
-                </p>
-              </div>
-            </div>
-          ) : (
-            <CareFilterPanel activeService={service} />
-          )}
-          <Spacer size="sm" />
-        </div>
-      </PageColumn>
+      <div className="flex flex-col items-center gap-md p-xl text-center">
+        <Heart size={40} weight="light" className="text-fg-tertiary" />
+        <p className="text-sm text-fg-secondary m-0">No carers match your filters.</p>
+      </div>
     );
   }
+  return <>{results.map((p) => <CardExploreResult key={p.id} provider={p} />)}</>;
+}
+
+/* ── Main page ── */
+
+function DiscoverCareInner() {
+  const [activeType, setActiveType] = useState("all");
+  const [filters, setFilters] = useState<CareFilters>(DEFAULT_FILTERS);
+  const [showFilters, setShowFilters] = useState(false);
+
+  const resultCount = useMemo(() => {
+    if (activeType === "all") return providers.length;
+    return providers.filter((p) => p.services.includes(activeType as ServiceType)).length;
+  }, [activeType]);
 
   return (
     <PageColumn hideHeader abovePanel={<DetailHeader backHref="/discover" title="Dog Care" />}>
-      <div className="page-column-panel-body">
-        <CarePickerPanel />
+      <div className="page-column-panel-body" style={{ position: "relative" }}>
+        <div className="page-column-panel-tabs">
+          <TabBar tabs={TYPE_TABS} activeKey={activeType} onChange={(key) => { setActiveType(key); setShowFilters(false); }} />
+        </div>
+
+        {showFilters ? (
+          <>
+            <CareFilterPanel filters={filters} onFiltersChange={(u) => setFilters((p) => ({ ...p, ...u }))} />
+            <div className="discover-floating-btn">
+              <ButtonAction variant="primary" size="md" cta leftIcon={<MagnifyingGlass size={16} weight="bold" />} onClick={() => setShowFilters(false)}>
+                View {resultCount} {resultCount === 1 ? "result" : "results"}
+              </ButtonAction>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="flex flex-col"><CareResultsList serviceFilter={activeType} /></div>
+            <div className="discover-floating-btn">
+              <ButtonAction variant="secondary" size="md" cta leftIcon={<SlidersHorizontal size={16} weight="bold" />} onClick={() => setShowFilters(true)}>
+                Filters
+              </ButtonAction>
+            </div>
+          </>
+        )}
+        <Spacer size="sm" />
       </div>
     </PageColumn>
   );
 }
 
 export default function DiscoverCarePage() {
-  return (
-    <Suspense fallback={null}>
-      <DiscoverCareInner />
-    </Suspense>
-  );
+  return <Suspense fallback={null}><DiscoverCareInner /></Suspense>;
 }

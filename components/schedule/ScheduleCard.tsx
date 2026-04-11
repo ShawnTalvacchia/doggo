@@ -13,13 +13,13 @@ import {
   Star,
   Briefcase,
   Clock,
-  HandHeart,
-  User,
+  CalendarDots,
 } from "@phosphor-icons/react";
 import type { Meet, MeetType, Booking, BookingSession } from "@/lib/types";
 import { MEET_TYPE_LABELS } from "@/lib/mockMeets";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import { getUserById } from "@/lib/mockUsers";
+import { formatShortDate } from "@/lib/dateUtils";
 import type { MeetRole } from "@/components/meets/CardMeet";
 
 /* ── Icons ─────────────────────────────────────────────────────── */
@@ -59,6 +59,35 @@ function getPetAvatarUrl(ownerId: string, petName: string): string | null {
     (p) => p.name.toLowerCase() === petName.toLowerCase()
   );
   return pet?.imageUrl ?? null;
+}
+
+/** Map sub-service / service type to an action verb */
+function getServiceVerb(booking: Booking): string {
+  const sub = booking.subService?.toLowerCase() ?? "";
+  if (sub.includes("walk")) return "walking";
+  if (sub.includes("sitting") || sub.includes("visit")) return "minding";
+  if (sub.includes("overnight") || sub.includes("boarding")) return "hosting";
+  if (sub.includes("training") || sub.includes("session")) return "training";
+
+  // Fallback by service type
+  if (booking.serviceType === "walk_checkin") return "walking";
+  if (booking.serviceType === "inhome_sitting") return "minding";
+  if (booking.serviceType === "boarding") return "hosting";
+  return "caring for";
+}
+
+/** Build a descriptive label for the care relationship */
+function buildCareLabel(booking: Booking, isOwner: boolean): string {
+  const petNames = booking.pets.join(" & ");
+  const verb = getServiceVerb(booking);
+
+  if (isOwner) {
+    // "Olga walking Spot"
+    return `${booking.carerName} ${verb} ${petNames}`;
+  }
+  // "Walking Spot for Marie"
+  const capitalVerb = verb.charAt(0).toUpperCase() + verb.slice(1);
+  return `${capitalVerb} ${petNames} for ${booking.ownerName}`;
 }
 
 /* ── Avatar combo: person + dog overlapping ──────────────────── */
@@ -108,11 +137,12 @@ export function ScheduleMeetCard({
   const goingCount = meet.attendees.filter(
     (a) => (a.rsvpStatus ?? "going") === "going"
   ).length;
+  const isHosting = role === "hosting";
 
   return (
     <Link
       href={`/meets/${meet.id}`}
-      className="sched-card sched-card--meet"
+      className={`sched-card sched-card--meet${isHosting ? " sched-card--providing" : ""}`}
       style={{ textDecoration: "none" }}
     >
       {/* Row 1: Time (left) · recurring · pill (right) */}
@@ -145,12 +175,7 @@ export function ScheduleMeetCard({
         <span>{goingCount}/{meet.maxAttendees}</span>
         <span className="flex-1" />
         <span
-          className="sched-card-role"
-          style={
-            role === "hosting"
-              ? { background: "var(--brand-main)", color: "white" }
-              : undefined
-          }
+          className={`sched-card-role${isHosting ? " sched-card-role--hosting" : ""}`}
         >
           {ROLE_ICONS[role]}
           {ROLE_LABELS[role]}
@@ -170,11 +195,13 @@ export function ScheduleCareCard({
   session: BookingSession;
 }) {
   const isOwner = booking.ownerId === CURRENT_USER;
+  const isProviding = !isOwner;
   const other = isOwner
     ? { name: booking.carerName, avatarUrl: booking.carerAvatarUrl }
     : { name: booking.ownerName, avatarUrl: booking.ownerAvatarUrl };
   const timeLabel = booking.recurringSchedule?.timeLabel;
   const days = booking.recurringSchedule?.days;
+  const isOneOff = !booking.recurringSchedule;
 
   // Get the first pet's avatar for the combo
   const firstPetName = booking.pets[0] ?? null;
@@ -182,16 +209,15 @@ export function ScheduleCareCard({
     ? getPetAvatarUrl(booking.ownerId, firstPetName)
     : null;
 
-  // Build "Person and Pet(s)" label
-  const petLabel = booking.pets.length > 0 ? booking.pets.join(" & ") : null;
+  const careLabel = buildCareLabel(booking, isOwner);
 
   return (
     <Link
       href={`/bookings/${booking.id}`}
-      className="sched-card sched-card--care"
+      className={`sched-card sched-card--care${isProviding ? " sched-card--providing" : ""}`}
       style={{ textDecoration: "none" }}
     >
-      {/* Row 1: Time (left) · recurring days · pill (right) */}
+      {/* Row 1: Time or date range (left) · recurring days or drop-off · pill (right) */}
       <div className="sched-card-top">
         {timeLabel && (
           <span className="sched-card-time">
@@ -199,9 +225,20 @@ export function ScheduleCareCard({
             {timeLabel}
           </span>
         )}
+        {!timeLabel && isOneOff && (
+          <span className="sched-card-time">
+            <CalendarDots size={14} weight="light" />
+            {formatShortDate(booking.startDate)}{booking.endDate ? ` – ${formatShortDate(booking.endDate)}` : ""}
+          </span>
+        )}
         {days && (
           <span className="sched-card-days">
             {days.join(" · ")}
+          </span>
+        )}
+        {isOneOff && (
+          <span className="sched-card-recurring">
+            Drop-off
           </span>
         )}
         <span className="flex-1" />
@@ -216,7 +253,7 @@ export function ScheduleCareCard({
         {booking.subService ?? SERVICE_LABELS[booking.serviceType]}
       </h3>
 
-      {/* Row 3: Avatar combo + person/pet + role */}
+      {/* Row 3: Avatar combo + descriptive relationship text */}
       <div className="sched-card-meta">
         {firstPetName && (
           <AvatarCombo
@@ -235,13 +272,7 @@ export function ScheduleCareCard({
           />
         )}
         <span className="sched-card-names truncate">
-          {other.name}
-          {petLabel && <span className="sched-card-names-pets"> and {petLabel}</span>}
-        </span>
-        <span className="flex-1" />
-        <span className={`sched-card-role ${!isOwner ? "sched-card-role--providing" : ""}`}>
-          {isOwner ? <User size={11} weight="light" /> : <HandHeart size={11} weight="fill" />}
-          {isOwner ? "Your carer" : "Providing"}
+          {careLabel}
         </span>
       </div>
     </Link>
@@ -257,26 +288,29 @@ export function ScheduleBookingCard({
   booking: Booking;
   perspective: "owner" | "carer";
 }) {
-  const other =
-    perspective === "owner"
-      ? { name: booking.carerName, avatarUrl: booking.carerAvatarUrl }
-      : { name: booking.ownerName, avatarUrl: booking.ownerAvatarUrl };
+  const isOwner = perspective === "owner";
+  const isProviding = !isOwner;
+  const other = isOwner
+    ? { name: booking.carerName, avatarUrl: booking.carerAvatarUrl }
+    : { name: booking.ownerName, avatarUrl: booking.ownerAvatarUrl };
   const timeLabel = booking.recurringSchedule?.timeLabel;
   const days = booking.recurringSchedule?.days;
+  const isOneOff = !booking.recurringSchedule;
 
   const firstPetName = booking.pets[0] ?? null;
   const firstPetAvatar = firstPetName
     ? getPetAvatarUrl(booking.ownerId, firstPetName)
     : null;
-  const petLabel = booking.pets.length > 0 ? booking.pets.join(" & ") : null;
+
+  const careLabel = buildCareLabel(booking, isOwner);
 
   return (
     <Link
       href={`/bookings/${booking.id}`}
-      className="sched-card sched-card--care"
+      className={`sched-card sched-card--care${isProviding ? " sched-card--providing" : ""}`}
       style={{ textDecoration: "none" }}
     >
-      {/* Row 1: Time (left) · recurring days · pill (right) */}
+      {/* Row 1: Time or date range (left) · recurring days or drop-off · pill (right) */}
       <div className="sched-card-top">
         {timeLabel && (
           <span className="sched-card-time">
@@ -284,9 +318,20 @@ export function ScheduleBookingCard({
             {timeLabel}
           </span>
         )}
+        {!timeLabel && isOneOff && (
+          <span className="sched-card-time">
+            <CalendarDots size={14} weight="light" />
+            {formatShortDate(booking.startDate)}{booking.endDate ? ` – ${formatShortDate(booking.endDate)}` : ""}
+          </span>
+        )}
         {days && (
           <span className="sched-card-days">
             {days.join(" · ")}
+          </span>
+        )}
+        {isOneOff && (
+          <span className="sched-card-recurring">
+            Drop-off
           </span>
         )}
         <span className="flex-1" />
@@ -301,7 +346,7 @@ export function ScheduleBookingCard({
         {booking.subService ?? SERVICE_LABELS[booking.serviceType]}
       </h3>
 
-      {/* Row 3: Avatar combo + names + perspective role */}
+      {/* Row 3: Avatar combo + descriptive relationship text */}
       <div className="sched-card-meta">
         {firstPetName && (
           <AvatarCombo
@@ -320,13 +365,7 @@ export function ScheduleBookingCard({
           />
         )}
         <span className="sched-card-names truncate">
-          {other.name}
-          {petLabel && <span className="sched-card-names-pets"> and {petLabel}</span>}
-        </span>
-        <span className="flex-1" />
-        <span className={`sched-card-role ${perspective === "carer" ? "sched-card-role--providing" : ""}`}>
-          {perspective === "owner" ? <User size={11} weight="light" /> : <HandHeart size={11} weight="fill" />}
-          {perspective === "owner" ? "Your carer" : "Providing"}
+          {careLabel}
         </span>
       </div>
     </Link>

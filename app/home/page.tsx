@@ -3,7 +3,8 @@
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Plus, Camera } from "@phosphor-icons/react";
+import { Plus } from "@phosphor-icons/react";
+import { CameraPlusFill } from "@/components/icons/CameraPlusFill";
 import { getFeedForUser, getNewUserFeed } from "@/lib/mockFeed";
 import { DEMO_NEW_USER } from "@/lib/mockUserState";
 import { HomeWelcome } from "@/components/home/HomeWelcome";
@@ -22,6 +23,7 @@ import { TabBar } from "@/components/ui/TabBar";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { CardGroup } from "@/components/groups/CardGroup";
+import { FilterPillRow } from "@/components/ui/FilterPillRow";
 import { getUserGroups } from "@/lib/mockGroups";
 import type { FeedItem, GroupType } from "@/lib/types";
 
@@ -96,42 +98,23 @@ function HomePageInner() {
     }
   };
 
-  // Category filter — multi-select (empty set = "All")
-  const [activeFilters, setActiveFilters] = useState<Set<GroupType>>(new Set());
-
-  const handlePillClick = (key: GroupType | "all") => {
-    if (key === "all") {
-      // "All" clears all specific selections
-      setActiveFilters(new Set());
-    } else {
-      setActiveFilters((prev) => {
-        const next = new Set(prev);
-        if (next.has(key)) {
-          next.delete(key); // toggle off
-        } else {
-          next.add(key); // toggle on
-        }
-        return next;
-      });
-    }
-  };
-
-  const isAllActive = activeFilters.size === 0;
+  // Category filter — single select
+  const [activeCategory, setActiveCategory] = useState<GroupType | "all">("all");
 
   const userGroups = getUserGroups("shawn");
   const allFeedItems = getFeedForUser("shawn");
 
-  // Filter groups by selected categories
+  // Filter groups by selected category
   const filteredGroups = useMemo(() => {
-    if (activeFilters.size === 0) return userGroups;
-    return userGroups.filter((g) => activeFilters.has(g.groupType));
-  }, [userGroups, activeFilters]);
+    if (activeCategory === "all") return userGroups;
+    return userGroups.filter((g) => g.groupType === activeCategory);
+  }, [userGroups, activeCategory]);
 
-  // Filter feed items by selected categories
+  // Filter feed items by selected category
   const feedItems = useMemo(() => {
-    if (activeFilters.size === 0) return allFeedItems;
+    if (activeCategory === "all") return allFeedItems;
     const groupIdsOfType = new Set(
-      userGroups.filter((g) => activeFilters.has(g.groupType)).map((g) => g.id)
+      userGroups.filter((g) => g.groupType === activeCategory).map((g) => g.id)
     );
     return allFeedItems.filter((item) => {
       if (item.type === "community_post" || item.type === "personal_post") {
@@ -146,13 +129,14 @@ function HomePageInner() {
       }
       return false;
     });
-  }, [allFeedItems, activeFilters, userGroups]);
+  }, [allFeedItems, activeCategory, userGroups]);
 
   // Header action button changes per tab
   const headerAction = mainTab === "groups" ? (
     <ButtonAction
       variant="primary"
       size="sm"
+      cta
       leftIcon={<Plus size={14} weight="bold" />}
       href="/communities/create"
     >
@@ -162,7 +146,8 @@ function HomePageInner() {
     <ButtonAction
       variant="primary"
       size="sm"
-      leftIcon={<Camera size={14} weight="light" />}
+      cta
+      leftIcon={<CameraPlusFill size={14} />}
       href="/posts/create"
     >
       Post
@@ -181,22 +166,12 @@ function HomePageInner() {
           {/* Groups view */}
           {mainTab === "groups" && (
             <>
-              {/* Category filter pills (multi-select; "All" resets) */}
-              <div className="community-filter-pills">
-                {CATEGORY_PILLS.map((pill) => {
-                  const isActive = pill.key === "all" ? isAllActive : activeFilters.has(pill.key);
-                  return (
-                    <button
-                      key={pill.key}
-                      type="button"
-                      className={`pill${isActive ? " active" : ""}`}
-                      onClick={() => handlePillClick(pill.key)}
-                    >
-                      {pill.label}
-                    </button>
-                  );
-                })}
-              </div>
+              {/* Category filter pills */}
+              <FilterPillRow
+                pills={CATEGORY_PILLS}
+                activeKey={activeCategory}
+                onChange={(key) => setActiveCategory(key as GroupType | "all")}
+              />
 
               {/* Group cards */}
               {filteredGroups.length > 0 ? (
@@ -208,7 +183,7 @@ function HomePageInner() {
               ) : (
                 <div className="flex flex-col items-center gap-md p-xl text-center">
                   <p className="text-fg-tertiary text-md">
-                    {isAllActive
+                    {activeCategory === "all"
                       ? "You haven\u2019t joined any groups yet."
                       : "No groups match your filters."}
                   </p>

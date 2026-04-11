@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { DetailHeader } from "@/components/layout/DetailHeader";
+import { CameraPlusFill } from "@/components/icons/CameraPlusFill";
 import { TabBar } from "@/components/ui/TabBar";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutSection } from "@/components/layout/LayoutSection";
@@ -13,10 +14,10 @@ import {
   UsersThree,
   Lock,
   ShieldCheck,
-  Camera,
   CaretDown,
   Check,
   UserPlus,
+  Camera,
   CameraSlash,
   Prohibit,
   ChatCircleDots,
@@ -135,19 +136,19 @@ function GroupDetailInner() {
       case "meets":
       case "events":
         return (
-          <ButtonAction variant="primary" size="sm" leftIcon={<Plus size={14} weight="bold" />} href="/meets/create">
+          <ButtonAction variant="primary" size="sm" cta leftIcon={<Plus size={14} weight="bold" />} href="/meets/create">
             Create
           </ButtonAction>
         );
       case "members":
         return (
-          <ButtonAction variant="primary" size="sm" leftIcon={<UserPlus size={14} weight="bold" />}>
+          <ButtonAction variant="primary" size="sm" cta leftIcon={<UserPlus size={14} weight="bold" />}>
             Invite
           </ButtonAction>
         );
       default:
         return group.photoPolicy !== "none" ? (
-          <ButtonAction variant="primary" size="sm" leftIcon={<Camera size={14} weight="light" />} href="/posts/create">
+          <ButtonAction variant="primary" size="sm" cta leftIcon={<CameraPlusFill size={14} />} href="/posts/create">
             Post
           </ButtonAction>
         ) : undefined;

@@ -15,6 +15,7 @@ import { useEffect, useRef } from "react";
  */
 
 const SCROLL_CONTAINER_CLASSES = [
+  "page-column-panel-body",
   "list-panel-scroll",
   "detail-panel-scroll",
   "discover-mobile-tab-content",
