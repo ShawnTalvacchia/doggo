@@ -105,7 +105,7 @@ export function AppNav() {
   const isDiscoverRoute = pathname.startsWith("/discover");
   const isDiscoverSubpage = isDiscoverRoute && pathname !== "/discover";
   const pageTitle = getPageTitle(pathname);
-  const showDetailHeader = !!detailTitle;
+  const showDetailHeader = detailTitle !== null;
   const isContainedNav =
     pathname === "/" ||
     pathname === "/signin" ||
