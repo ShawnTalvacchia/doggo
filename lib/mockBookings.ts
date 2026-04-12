@@ -1,8 +1,9 @@
 import type { Booking } from "./types";
 
 // ── Active ongoing — Olga, solo walks Mon/Wed/Fri ──────────────────────────────
-// Today is 2026-03-07 (Sat). Walks started Mon Mar 2.
-// Completed: Mar 2, Mar 4, Mar 6 | Upcoming: Mar 9, Mar 11, Mar 13
+// Rolling weekly. Today is 2026-04-12 (Sun).
+// Shows recent completed sessions + upcoming next week.
+// Booking started early March — weeks of history.
 
 const olgaBooking: Booking = {
   id: "booking-olga-walks",
@@ -30,18 +31,23 @@ const olgaBooking: Booking = {
     lineItems: [
       { label: "Solo walk", amount: 330, unit: "per session" },
     ],
-    total: 330,
+    total: 990,
     currency: "Kč",
-    billingCycle: "per_session",
+    billingCycle: "weekly",
   },
+  ownerNotes: "Spot pulls on leash near other dogs — use the harness on the hook by the front door. Key is under the blue pot on the left. He gets one treat after the walk, they're in the jar on the kitchen counter.",
+  carerNotes: "I usually do Riegrovy sady loop, about 45 min. I'll send a photo update after each walk.",
   status: "active",
   sessions: [
-    { id: "s-olga-1", date: "2026-04-02", status: "completed", note: "Spot did great, very energetic today!" },
-    { id: "s-olga-2", date: "2026-04-04", status: "completed", note: "Met a new friend in the park 🐕" },
-    { id: "s-olga-3", date: "2026-04-07", status: "completed" },
-    { id: "s-olga-4", date: "2026-04-09", status: "completed" },
-    { id: "s-olga-5", date: "2026-04-11", status: "upcoming" },
-    { id: "s-olga-6", date: "2026-04-14", status: "upcoming" },
+    // Past sessions (rolling history)
+    { id: "s-olga-1", date: "2026-03-30", status: "completed" },
+    { id: "s-olga-2", date: "2026-04-01", status: "completed" },
+    { id: "s-olga-3", date: "2026-04-03", status: "completed", note: "Met a new friend in the park" },
+    { id: "s-olga-4", date: "2026-04-06", status: "completed", note: "Spot did great, very energetic today!" },
+    { id: "s-olga-5", date: "2026-04-08", status: "completed" },
+    { id: "s-olga-6", date: "2026-04-10", status: "completed" },
+    // Next session only
+    { id: "s-olga-7", date: "2026-04-13", status: "upcoming" },
   ],
   signedAt: "2026-02-28T14:30:00Z",
   paymentStatus: "paid",
@@ -75,6 +81,7 @@ const nikolaBooking: Booking = {
     currency: "Kč",
     billingCycle: "total",
   },
+  ownerNotes: "Spot takes half a Benadryl at bedtime — pills are in the kitchen drawer. Goldie needs her food mixed with warm water. Both dogs sleep in the living room, beds are already set up.",
   status: "upcoming",
   signedAt: "2026-03-05T10:15:00Z",
   paymentStatus: "unpaid",
@@ -172,19 +179,20 @@ const shawnCarerActiveBooking: Booking = {
     time: "09:00",
     timeLabel: "9:00–10:00am",
   },
+  ownerNotes: "Molly is friendly with all dogs but gets excited around bikes. Please keep her on a short lead near the cycle path.",
   sessions: [
-    { id: "skc-1", date: "2026-04-01", status: "completed" },
-    { id: "skc-2", date: "2026-04-03", status: "completed" },
-    { id: "skc-3", date: "2026-04-08", status: "completed" },
-    { id: "skc-4", date: "2026-04-10", status: "completed" },
-    { id: "skc-5", date: "2026-04-15", status: "upcoming" },
-    { id: "skc-6", date: "2026-04-17", status: "upcoming" },
+    { id: "skc-1", date: "2026-03-31", status: "completed" },
+    { id: "skc-2", date: "2026-04-02", status: "completed" },
+    { id: "skc-3", date: "2026-04-07", status: "completed" },
+    { id: "skc-4", date: "2026-04-09", status: "completed", note: "Molly was great with the group today" },
+    // Next session only
+    { id: "skc-5", date: "2026-04-14", status: "upcoming" },
   ],
   price: {
     lineItems: [{ label: "Group walk", amount: 250, unit: "per session" }],
-    total: 250,
+    total: 500,
     currency: "Kč",
-    billingCycle: "per_session",
+    billingCycle: "weekly",
   },
   status: "active",
   signedAt: "2026-03-01T11:30:00Z",
@@ -213,10 +221,12 @@ const klaraTrainingDaniel: Booking = {
     time: "10:00",
     timeLabel: "10:00–11:00am",
   },
+  ownerNotes: "Bára is reactive to other dogs, especially on-leash. She's fine with people. Please meet us at the park entrance, not the car park — too many dogs there.",
+  carerNotes: "We're working on threshold training. Current distance is 5m from trigger dogs. Don't push closer than 4m yet.",
   sessions: [
-    { id: "kd-1", date: "2026-02-12", status: "completed", note: "Good first session. Bára responded well to the threshold exercises." },
-    { id: "kd-2", date: "2026-02-19", status: "completed", note: "Bára stayed under threshold with Eda at 5m. Big progress." },
-    { id: "kd-3", date: "2026-02-26", status: "completed" },
+    { id: "kd-1", date: "2026-03-12", status: "completed", note: "Good session. Bára responded well to the threshold exercises." },
+    { id: "kd-2", date: "2026-03-19", status: "completed", note: "Bára stayed under threshold with Eda at 5m. Big progress." },
+    { id: "kd-3", date: "2026-03-26", status: "completed" },
     { id: "kd-4", date: "2026-04-02", status: "completed" },
     { id: "kd-5", date: "2026-04-09", status: "completed" },
     { id: "kd-6", date: "2026-04-16", status: "upcoming" },
@@ -225,7 +235,7 @@ const klaraTrainingDaniel: Booking = {
     lineItems: [{ label: "1-on-1 reactive dog session", amount: 600, unit: "per session" }],
     total: 600,
     currency: "Kč",
-    billingCycle: "per_session",
+    billingCycle: "weekly",
   },
   status: "active",
   signedAt: "2026-02-08T14:00:00Z",
@@ -352,19 +362,19 @@ const klaraTrainingHana: Booking = {
     time: "11:00",
     timeLabel: "11:00am–12:00pm",
   },
+  ownerNotes: "Runa is nervous in new environments. Please give her a few minutes to settle before starting exercises.",
   sessions: [
-    { id: "kh-1", date: "2026-01-16", status: "completed" },
-    { id: "kh-2", date: "2026-01-23", status: "completed" },
-    { id: "kh-3", date: "2026-01-30", status: "completed" },
-    { id: "kh-4", date: "2026-02-06", status: "completed" },
-    { id: "kh-5", date: "2026-04-03", status: "completed" },
-    { id: "kh-6", date: "2026-04-17", status: "upcoming" },
+    { id: "kh-1", date: "2026-03-20", status: "completed" },
+    { id: "kh-2", date: "2026-03-27", status: "completed" },
+    { id: "kh-3", date: "2026-04-03", status: "completed" },
+    { id: "kh-4", date: "2026-04-10", status: "completed" },
+    { id: "kh-5", date: "2026-04-17", status: "upcoming" },
   ],
   price: {
     lineItems: [{ label: "1-on-1 reactive dog session", amount: 600, unit: "per session" }],
     total: 600,
     currency: "Kč",
-    billingCycle: "per_session",
+    billingCycle: "weekly",
   },
   status: "active",
   signedAt: "2026-01-14T09:00:00Z",

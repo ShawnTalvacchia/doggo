@@ -1,6 +1,6 @@
 ---
-status: active
-last-reviewed: 2026-04-10
+status: archived
+last-reviewed: 2026-04-12
 review-trigger: When any task is completed or blocked
 ---
 

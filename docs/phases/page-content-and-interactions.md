@@ -1,6 +1,6 @@
 ---
-status: active
-last-reviewed: 2026-04-10
+status: archived
+last-reviewed: 2026-04-12
 review-trigger: When any task is completed or blocked
 ---
 
@@ -76,22 +76,22 @@ Tasks will be added as work begins. Initial scope based on current priorities:
 
 ## Acceptance Criteria
 
-- [ ] Meet page tabs have real, useful content
-- [ ] Users can express interest / RSVP on meets
-- [ ] At least one create flow works end-to-end (meet or post)
-- [ ] Provider cards are visually distinct from regular user cards
-- [ ] Schedule page shows relevant header info on all card types
-- [ ] TypeScript compiles clean
-- [ ] Feature docs updated for any changed behavior
+- [x] Meet page tabs have real, useful content
+- [x] Users can express interest / RSVP on meets
+- [x] At least one create flow works end-to-end (meet or post)
+- [x] Provider cards are visually distinct from regular user cards
+- [x] Schedule page shows relevant header info on all card types
+- [x] TypeScript compiles clean
+- [x] Feature docs updated for any changed behavior
 
 ---
 
 ## Closing Checklist
 
-- [ ] Walk through every acceptance criterion against the running app
-- [ ] Update all affected feature docs in `docs/features/`
-- [ ] Update Open Questions log — close resolved, add new
-- [ ] Update ROADMAP.md — mark phase complete with summary
-- [ ] Review CLAUDE.md — update current phase, key decisions, structural changes
-- [ ] Archive this phase board (copy to `archive/phases/`, mark status: archived)
-- [ ] Check next phase scope for conflicts with what was just built
+- [x] Walk through every acceptance criterion against the running app
+- [x] Update all affected feature docs in `docs/features/`
+- [x] Update Open Questions log — close resolved, add new
+- [x] Update ROADMAP.md — mark phase complete with summary
+- [x] Review CLAUDE.md — update current phase, key decisions, structural changes
+- [x] Archive this phase board (copy to `archive/phases/`, mark status: archived)
+- [x] Check next phase scope for conflicts with what was just built

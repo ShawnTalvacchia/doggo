@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import {
-  Clock,
+  Tag,
   ArrowsClockwise,
   CalendarDots,
   PawPrint,
-  ChatCircleDots,
 } from "@phosphor-icons/react";
 import type { Booking } from "@/lib/types";
 import { SERVICE_LABELS } from "@/lib/constants/services";
@@ -42,8 +41,10 @@ function sessionProgress(booking: Booking): { completed: number; total: number }
 
 function priceLabel(booking: Booking): string {
   const { total, billingCycle } = booking.price;
+  if (billingCycle === "weekly") return `${total.toLocaleString()} Kč / week`;
   if (billingCycle === "per_session") return `${total.toLocaleString()} Kč / session`;
   if (billingCycle === "per_night") return `${total.toLocaleString()} Kč / night`;
+  if (billingCycle === "monthly_est") return `~${total.toLocaleString()} Kč / month`;
   return `${total.toLocaleString()} Kč total`;
 }
 
@@ -113,13 +114,13 @@ export function BookingRow({ booking }: { booking: Booking }) {
           <span>{scheduleLabel(booking)}</span>
         </div>
         <div className="booking-card-detail-row">
-          <Clock size={14} weight="light" className="text-fg-tertiary shrink-0" />
+          <Tag size={14} weight="light" className="text-fg-tertiary shrink-0" />
           <span>{priceLabel(booking)}</span>
         </div>
       </div>
 
-      {/* Row 4: Progress bar for ongoing bookings with sessions */}
-      {progress && progress.total > 1 && (
+      {/* Row 4: Progress bar for one-off bookings with sessions only */}
+      {progress && progress.total > 1 && booking.type === "one_off" && (
         <div className="booking-card-progress">
           <div className="booking-card-progress-bar">
             <div

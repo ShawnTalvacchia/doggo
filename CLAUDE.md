@@ -63,17 +63,17 @@ See `docs/CONTRIBUTING.md` for full details, including the phase open/close life
 | `docs/implementation/design-tokens.md` | Token reference and Figma→CSS mapping |
 | `docs/implementation/mock-data-plan.md` | Mock data strategy and user journey planning |
 
-## Current Phase: Page Content & Interactions
+## Current Phase: Profiles & Dogs
 
-Building out page content, interaction flows, and provider-focused features across the prototype. Meet page tabs, schedule card differentiation, RSVP states, create flows (meets, groups, posts), photo sharing and tagging.
+Designing and building comprehensive profile pages (self and other-user) and dog profiles/sections. Includes provider profile services section deferred from Bookings phase.
 
-**Phase board:** `docs/phases/page-content-and-interactions.md`
+**Phase board:** `docs/phases/profiles-and-dogs.md`
 
 **Polish Log:** `docs/phases/polish-log.md` — running list of UI tweaks and small fixes, worked on alongside any active phase.
 
-**Recently completed:** Review & Polish (feed card redesign, community filter rework, spacing tightening, scroll-to-hide rewrite, sidebar hover states, header weight unification).
+**Recently completed:** Bookings & Care Provider Flow (tabbed booking detail for owner/provider, rolling weekly billing, session check-in/check-out, care instructions, Chat tab, aggregate stats, BookingRow polish, success color palette). Page Content & Interactions. Layout Unification (PageColumn everywhere, sidebar 180px).
 
-**Upcoming phases:** Bookings & Care Provider Flow → Profiles & Dogs → Inbox & Notifications → Demo Presentation. See ROADMAP.md.
+**Upcoming phases:** Inbox & Notifications → Demo Presentation. See ROADMAP.md.
 
 ## Strategic Context
 
@@ -84,8 +84,10 @@ Building out page content, interaction flows, and provider-focused features acro
 Key decisions:
 - **Connection model:** None (default) → Familiar (one-sided) → Pending → Connected (mutual). See `docs/strategy/Trust & Connection Model.md`.
 - **Everyone starts as an owner.** No separate provider signup. Offering care is a dial, not a switch.
+- **Rolling weekly billing.** Recurring bookings use `billingCycle: "weekly"` with one upcoming session at a time. No fixed session counts for ongoing arrangements.
+- **Booking detail tabs.** Info / Sessions / Chat — matches meet and group detail patterns. Provider sees session check-in actions, owner sees aggregate stats.
 - **Nav:** Community | Discover | My Schedule | Bookings | Profile (mobile bottom, 5 tabs). Desktop sidebar: Community, Discover, My Schedule, Bookings, Inbox, Notifications, Profile (7 items). Mobile header: create + notifications + inbox.
-- **Discover as hub.** Three doors: Meets, Groups, Dog Care — not tabs.
+- **Discover as hub.** Three doors: Meets, Groups, Dog Care. Each door → results with FilterPillRow for type + floating Filters button. No more type picker pages.
 - **Groups:** Four types: Park (auto-generated, open), Neighbor (hyperlocal, private), Interest (shared characteristic, open/private), Care (provider-created, service CTAs). See `docs/strategy/Groups & Care Model.md`.
 - **Group detail:** No Chat tab. Feed with flat comments for async discussion. Meet-level Chat tab for real-time event coordination.
 - **Meet detail:** Tabbed view — Details · People · Chat.

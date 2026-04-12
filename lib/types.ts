@@ -250,7 +250,7 @@ export interface BookingPrice {
   lineItems: PriceLineItem[];
   total: number;
   currency: "Kč";
-  billingCycle: "per_session" | "per_night" | "total" | "monthly_est";
+  billingCycle: "per_session" | "per_night" | "total" | "monthly_est" | "weekly";
 }
 
 export interface BookingSession {
@@ -259,6 +259,7 @@ export interface BookingSession {
   status: "upcoming" | "in_progress" | "completed" | "cancelled";
   checkedInAt?: string; // ISO timestamp — set when status moves to in_progress
   note?: string;
+  photoUrl?: string;    // optional session photo from provider
 }
 
 export interface Booking {
@@ -282,6 +283,9 @@ export interface Booking {
   recurringSchedule?: RecurringSchedule;  // only for ongoing
   // Price
   price: BookingPrice;
+  // Notes
+  ownerNotes?: string;  // care instructions from owner (feeding, habits, key location, etc.)
+  carerNotes?: string;  // provider notes (house rules, what to bring, etc.)
   // State
   status: ContractStatus;
   sessions?: BookingSession[];  // ongoing only

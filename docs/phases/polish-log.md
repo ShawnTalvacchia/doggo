@@ -24,7 +24,6 @@ Running list of UI tweaks, small bugs, and visual fixes. Not a phase — this li
 | P2 | Group size slider has no "no max" option — some groups are unlimited | Interaction | Discover filters / group creation | 2026-04-10 |
 | P3 | Schedule care cards need header info — drop-off time or relevant scheduling detail | Content | My Schedule | 2026-04-10 |
 | P4 | Provider ID mismatch — mockData.ts uses `olga-m`, `nikola-r`; mockUsers.ts uses `olga`, `nikola` | Data | Mock data files | 2026-04-10 |
-
 ---
 
 ## Done

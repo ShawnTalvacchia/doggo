@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-10
+last-reviewed: 2026-04-13
 tags: [schedule, meets, bookings, timeline]
 review-trigger: "when modifying the My Schedule page or unified timeline"
 ---
@@ -37,13 +37,16 @@ Meet discovery moved to `/discover` (Discover hub > Meets door). Care services/p
 - **Desktop:** Centered panel (max-width 640px) with page header above
 - **Mobile:** Full-width panel, page header hidden (AppNav handles title)
 - **Filter tabs:** Upcoming / Interested / Care (sticky, glassmorphism background)
+- **Care tab filter pills:** All / Getting Care / Providing — lets users filter care bookings by role
 - **Interested tab** auto-populates from meets in the user's joined groups
 - **Unified timeline** — meets and bookings merged chronologically, grouped by date headers
 
 ### Card design (CardMyMeet)
 
 - **Role badge replaces CTA:** "Hosting" (brand bg, flag icon) / "Joining" (dark bg) / "Interested" (outline) instead of action buttons
-- **Card type borders:** 3px brand-coloured left border for meet cards; 3px info-blue left border + blue tint background for care sessions (BookingBlock). History cards use muted border colour.
+- **Card type borders:** Meet cards have 3px brand-coloured left border. Care cards where user is provider or host have full accent border (all four sides). History cards use muted border colour.
+- **Care card labels:** Action verb format — e.g. "Olga walking Spot" — showing provider, service, and dog name.
+- **Tag badge variants:** Hosting cards use solid brand background tag. Providing cards use solid info-main background with "Providing" text. Standard joining/booked tags use default styles.
 - **Care card details:** Sub-service names (e.g. "30-min walk"), recurring day chips, and provider/owner role badges ("Providing" / "Booked") on care cards.
 - **Redundant elements removed:** "Upcoming" status badge hidden when already on Upcoming tab. "Book a spot" CTA hidden when user is already joining/hosting.
 - **5 attendee avatars** (vs 3 in Discover) — you care who's coming
@@ -53,9 +56,9 @@ Meet discovery moved to `/discover` (Discover hub > Meets door). Care services/p
 
 ### Key decisions
 
-- **Unified timeline.** Meets and care bookings appear together, sorted by date. BookingBlock renders bookings inline alongside CardMyMeet cards.
+- **Unified timeline.** Meets and care bookings appear together, sorted by date. BookingBlock renders bookings inline alongside CardMyMeet cards. Recurring bookings use rolling weekly billing — only one upcoming session shown at a time.
 - **Single-panel layout.** Schedule is a simple scrollable list using PageColumn. Tapping a card navigates to the meet/booking detail page.
-- **Upcoming / Interested / Care filters.** Replaces the Upcoming/History toggle and type pills. "Upcoming" shows meets you've RSVP'd to (joining or hosting), "Interested" shows meets you've saved/starred, "Care" shows care bookings.
+- **Upcoming / Interested / Care filters.** Replaces the Upcoming/History toggle and type pills. "Upcoming" shows meets you've RSVP'd to (joining or hosting), "Interested" shows meets you've saved/starred (auto-populated from joined groups), "Care" shows care bookings with sub-filter pills (All / Getting Care / Providing).
 - **No location filter.** Unlike Discover, My Schedule shows everything you've committed to regardless of location.
 - **Role context matters.** Cards indicate whether you're hosting or joining (different responsibility level).
 
@@ -73,6 +76,7 @@ Meet discovery moved to `/discover` (Discover hub > Meets door). Care services/p
 - **Phase 17:** My Schedule redesigned (Upcoming/History toggle, CardMyMeet with role badges, hosting distinction, unified timeline with BookingBlock). Bookings tab renamed to Services, rebuilt as provider dashboard.
 - **Phase 18:** My Schedule elevated back to top-level at `/schedule`. Discover tab moved to `/discover`. Services tab moved to `/bookings?tab=services`. `/activity` now redirects to `/discover`.
 - **Phase 19:** Filters replaced with Joining / Invited / Care tabs. Master-detail layout via MasterDetailShell on desktop. Search bar added. Bottom nav gains Profile as 5th tab.
+- **Page Content & Interactions:** Schedule cards redesigned — care cards show action verb labels, provider/host cards get full accent borders, tag badges inverted for hosting (solid brand) and providing (solid info-main). Care tab gains filter pills (All / Getting Care / Providing). Interested tab auto-populates from joined groups. Mock data dates updated to April 2026.
 
 ---
 

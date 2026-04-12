@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-04-10
+last-reviewed: 2026-04-12
 tags: [design-system, components, patterns, css]
 review-trigger: "when building or refactoring components, adding CSS patterns, or consolidating styles"
 ---
@@ -43,6 +43,8 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 | `ConnectionIcon` | Visual connection state indicator | `state` |
 | `DefaultAvatar` | Fallback avatar with initials | `name`, `size` |
 | `BookingRow` | Booking list item (My Bookings + My Services) | `booking`, `perspective` |
+| `FilterPillRow` | Unified horizontal scrollable filter pills | `pills`, `activePill`, `onChange` |
+| `CameraPlusFill` | Camera icon with plus badge (photo upload prompt) | `size`, `className` |
 | `NotificationsPanel` | Dropdown notifications list | — |
 
 ## Layout (`components/layout/`)
@@ -53,12 +55,12 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 | `Sidebar` | Desktop 7-item nav (Community → Profile) | Hidden on mobile. Width: 180px. |
 | `AppNav` | Top navigation bar (3 modes: Guest, Signup, Logged) | Mobile only for logged-in routes. |
 | `BottomNav` | Mobile 5-tab nav | Community, Discover, My Schedule, Bookings, Profile. |
-| `PageColumn` | Canonical single-column page layout | Centered 640px column. Used by all pages (Community, Schedule, Discover sub-pages, Inbox, Bookings, etc.). Replaced MasterDetailShell and DiscoverShell (both deleted). |
+| `PageColumn` | Canonical single-column page layout | Centered 640px column. Used by all pages (Community, Schedule, Discover sub-pages, Inbox, Bookings, etc.). Replaced MasterDetailShell and DiscoverShell (both deleted). `abovePanel` prop for content above the panel (e.g. filter pills). |
 | `PanelBody` | Scrollable panel interior | Use inside raw `<div className="list-panel">` or `<div className="detail-panel">`. |
 | `LayoutSection` | Padded content block inside PanelBody | Adds horizontal padding. |
 | `LayoutList` | Edge-to-edge card list inside PanelBody | No horizontal padding. |
 | `Spacer` | Bottom spacer (last child of PanelBody) | Prevents content from being clipped by panel border-radius. |
-| `DetailHeader` | Back-button header for detail/subpages | Uses `router.back()`. |
+| `DetailHeader` | Back-button header for detail/subpages | Back target wraps arrow + title as single clickable area. Uses `router.back()`. |
 | `FormHeader` / `FormFooter` | Multi-step form page header and footer | Back/Continue button row. |
 | `GuestLayout` | Layout shell for public/guest routes | — |
 | `ListPanel` | *(Legacy — avoid for new code)* | Wrapper for list panels. Use `PanelBody` inside raw div instead. |
@@ -89,6 +91,8 @@ Shared CSS classes in `globals.css` that are used across multiple components. Us
 | `FeedShareNudge` | Share prompt in community feed | Encourages photo/content sharing |
 | `.sched-card-days` | Day chips on schedule care cards | Shows recurring day abbreviations |
 | `.sched-card-role--providing` | Provider role badge on schedule cards | Distinguishes provider vs owner perspective |
+| `.filter-pill-row` | Unified horizontal filter pill row | Used by all Discover sub-pages and Schedule Care tab. Replaced `discover-type-pill` CSS. |
+| `.booking-card` | Redesigned booking/care card | Full accent border for provider/host cards, action verb labels |
 | `.filter-accordion` | Inline collapsible filter sections | Used in FilterBody |
 | `.md-shell` / `.list-panel` / `.detail-panel` | *(Deleted)* MasterDetailShell panels | Replaced by PageColumn |
 
@@ -122,6 +126,7 @@ Active list of things to merge, simplify, or remove. Work these down over time.
 | `component-inventory.md` | Retired — replaced by this doc | Archive to `archive/implementation/` |
 | Duplicate CSS for single-panel pages | Community and Schedule shells follow the same pattern but have separate CSS | Consider a shared `.single-panel-shell` base class |
 | `.feed-card-body--simple` variant | Only used for authorless cards; may be removable | Audit usage, consider removing if unused |
+| `discover-type-pill` CSS | Consolidated into `.filter-pill-row` | Remove old class if no remaining references |
 
 ---
 

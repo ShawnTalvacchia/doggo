@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-08T19:00
+last-reviewed: 2026-04-13
 tags: [questions, risks, assumptions]
 review-trigger: "before starting a new phase, after any strategic discussion"
 ---
@@ -39,7 +39,7 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 **Assumption:** Groups are the right persistent container for community — meets alone aren't enough.
 
-**Resolved:** Four group types (park/neighbor/interest/care). Park groups auto-generated. Group detail tabs vary by type. No Chat tab on groups — Feed with flat comments for async (built), meet-level chat for real-time coordination (built). Going/Interested RSVP states. Meet detail tabs (Details · People · Chat) — built. Schedule tabs renamed: Upcoming / Interested / Care.
+**Resolved:** Four group types (park/neighbor/interest/care). Park groups auto-generated. Group detail tabs vary by type. No Chat tab on groups — Feed with flat comments for async (built), meet-level chat for real-time coordination (built). Going/Interested RSVP states with interactive cycle (Going/Interested/Leave). Meet detail tabs (Details · People · Chat) — built with photo gallery. Schedule tabs: Upcoming / Care / Interested. Care tab has sub-filter pills (All / Getting Care / Providing). Interested tab auto-populates from joined groups. Discover flow refactored: hub → results with FilterPillRow + floating Filters button (no more type picker pages). Care group discovery path resolved: Discover > Dog Care with filter pills for service type.
 
 **Open:**
 - Can the platform suggest meets based on patterns? ("3 regulars walk near Letná on Tuesdays")
@@ -47,7 +47,6 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 - Should meet discovery include a map view?
 - Park group scaling — what happens when a park group hits 500 members?
 - Can neighborhood groups be auto-suggested based on user density?
-- Care group discovery path — how do new users find care groups? (Discover > Groups > Care? Provider profiles? Both?)
 - Cross-category groups — a trainer at a specific park: Care or Parks?
 - Can community groups (neighbor/interest) have optional service CTAs for casual helpers?
 
@@ -57,12 +56,14 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 **Assumption:** Users are comfortable evolving owner → helper → provider when framed as community contribution. No separate provider identity — it's a dial, not a switch.
 
-**Resolved:** No separate provider signup. Provider toggle from existing profile. Same layout with additional sections. Care groups created by providers with config options per category.
+**Resolved:** No separate provider signup. Provider toggle from existing profile. Same layout with additional sections. Care groups created by providers with config options per category. Rolling weekly billing model for recurring bookings — sessions generate one at a time, no fixed session count. Provider session actions: Start → Complete → Add note. Booking detail page works for both owner and provider perspectives with tabbed layout (Info / Sessions / Chat).
 
 **Open:**
 - At what point does "helping" feel like a job?
 - Where does pricing surface before a formal arrangement?
 - Should creating a Care group require having services listed first?
+- How does a booking proposal actually get created? (conversation → proposal card flow not yet designed)
+- Should providers be able to set cancellation policies (e.g. 24hr notice)?
 
 ---
 
@@ -99,11 +100,10 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 ## 8. Navigation & UX
 
-**Resolved:** Mobile bottom nav: Community | Discover | My Schedule | Bookings | Profile (5 tabs). Desktop sidebar: Community, Discover, My Schedule, Bookings, Inbox, Notifications, Profile (7 items). Mobile header: create + notifications + inbox. Home renamed to Community with category sub-tabs.
+**Resolved:** Mobile bottom nav: Community | Discover | My Schedule | Bookings | Profile (5 tabs). Desktop sidebar: Community, Discover, My Schedule, Bookings, Inbox, Notifications, Profile (7 items). Mobile header: create + notifications + inbox. Home renamed to Community with category sub-tabs. All pages unified to PageColumn single-column layout (640px centered). Sidebar tightened to 180px. MasterDetailShell and DiscoverShell deleted. Sidebar active state: neutral (transparent-dark-4 + text-primary). Header action buttons: CTA pill variant (brand for primary, outline for secondary). DetailHeader and PageColumn headers aligned (40px, 16px padding). Scroll-to-hide nav restored via page-column-panel-body class.
 
 **Open:**
 - What populates the Community feed for a brand-new user with zero activity?
-- Is Discover the right place for care provider search, or should it be more prominent?
 
 ---
 
