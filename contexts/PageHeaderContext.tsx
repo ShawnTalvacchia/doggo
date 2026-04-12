@@ -12,7 +12,8 @@ interface PageHeaderState {
 }
 
 interface PageHeaderContextValue extends PageHeaderState {
-  setDetailHeader: (title: string, onBack: () => void, rightAction?: ReactNode) => void;
+  /** Set mobile detail header. Pass onBack=null to hide the back button (list-view mode). */
+  setDetailHeader: (title: string, onBack: (() => void) | null, rightAction?: ReactNode) => void;
   clearDetailHeader: () => void;
 }
 
@@ -27,7 +28,7 @@ const PageHeaderContext = createContext<PageHeaderContextValue>({
 export function PageHeaderProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<PageHeaderState>({ detailTitle: null, onBack: null, rightAction: null });
 
-  const setDetailHeader = useCallback((title: string, onBack: () => void, rightAction?: ReactNode) => {
+  const setDetailHeader = useCallback((title: string, onBack: (() => void) | null, rightAction?: ReactNode) => {
     setState({ detailTitle: title, onBack, rightAction: rightAction ?? null });
   }, []);
 

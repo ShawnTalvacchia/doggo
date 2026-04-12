@@ -1,18 +1,21 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import {
   ChatCircleDots,
   MagnifyingGlass,
   PawPrint,
+  X,
 } from "@phosphor-icons/react";
 import { useConversations } from "@/contexts/ConversationsContext";
+import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { getConnectionsByState } from "@/lib/mockConnections";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutList } from "@/components/layout/LayoutList";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ButtonIcon } from "@/components/ui/ButtonIcon";
 import type { Conversation, ChatMessage } from "@/lib/types";
 import { formatRelativeTime } from "@/lib/dateUtils";
 
@@ -52,9 +55,47 @@ interface InboxRow {
   dogNames: string[];
   preview: string;
   timeAgo: string;
-  sortKey: string; // ISO date for sorting
+  sortKey: string;
   hasUnread: boolean;
   hasConversation: boolean;
+}
+
+// ── Search input for mobile nav header ───────────────────────────
+
+function NavSearchInput({
+  value,
+  onChange,
+  onClear,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onClear: () => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // Auto-focus when search mode activates
+    setTimeout(() => inputRef.current?.focus(), 50);
+  }, []);
+
+  return (
+    <div className="inbox-nav-search">
+      <MagnifyingGlass size={16} weight="light" className="text-fg-tertiary shrink-0" />
+      <input
+        ref={inputRef}
+        type="text"
+        placeholder="Search people..."
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="inbox-nav-search-input"
+      />
+      {value && (
+        <button type="button" onClick={onClear} className="inbox-nav-search-clear">
+          <X size={14} weight="bold" />
+        </button>
+      )}
+    </div>
+  );
 }
 
 // ── Row component ────────────────────────────────────────────────
@@ -113,7 +154,35 @@ function InboxUserRow({ row }: { row: InboxRow }) {
 
 export default function InboxPage() {
   const { conversations } = useConversations();
+  const { setDetailHeader, clearDetailHeader } = usePageHeader();
   const [search, setSearch] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+
+  const startSearch = useCallback(() => setIsSearching(true), []);
+  const cancelSearch = useCallback(() => {
+    setIsSearching(false);
+    setSearch("");
+  }, []);
+
+  // Set mobile nav header: "Inbox" + search icon, or search input
+  useEffect(() => {
+    if (isSearching) {
+      setDetailHeader(
+        "",
+        cancelSearch,
+        <NavSearchInput value={search} onChange={setSearch} onClear={() => setSearch("")} />
+      );
+    } else {
+      setDetailHeader(
+        "Inbox",
+        null,
+        <ButtonIcon label="Search" onClick={startSearch}>
+          <MagnifyingGlass size={24} weight="light" />
+        </ButtonIcon>
+      );
+    }
+    return () => clearDetailHeader();
+  }, [isSearching, search]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const rows = useMemo(() => {
     const result: InboxRow[] = [];
@@ -180,15 +249,16 @@ export default function InboxPage() {
   return (
     <PageColumn title="Inbox">
       <div className="page-column-panel-body">
-        {/* Search */}
-        <div className="flex items-center gap-sm px-lg py-md border-b border-edge-regular">
+        {/* Desktop search — hidden on mobile (nav header handles it) */}
+        <div className="inbox-desktop-search">
           <MagnifyingGlass size={18} weight="light" className="text-fg-tertiary shrink-0" />
           <input
             type="text"
             placeholder="Search people..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 text-sm bg-transparent border-none outline-none text-fg-primary placeholder:text-fg-tertiary"
+            className="flex-1 bg-transparent border-none outline-none text-fg-primary placeholder:text-fg-tertiary"
+            style={{ fontSize: 16 }}
           />
         </div>
 

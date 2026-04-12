@@ -1076,6 +1076,13 @@ a {
   margin-left: auto;
   flex-shrink: 0;
 }
+
+/* When detail action contains a search input, let it expand */
+.app-nav-detail-action:has(.inbox-nav-search) {
+  flex: 1;
+  min-width: 0;
+  margin-left: 0;
+}
 .app-nav-detail-back {
   background: none;
   border: none;
@@ -5705,6 +5712,15 @@ body.guest-route {
     padding-bottom: 0;
   }
 
+  /* Profile subpage: hide bottom nav so user must back out */
+  body.profile-subpage .bottom-nav {
+    transform: translateY(100%);
+  }
+
+  body.profile-subpage .logged-shell-main {
+    padding-bottom: 0;
+  }
+
   /* Styleguide: keep top nav visible at all viewports */
   body.styleguide {
     --nav-height: 65px;
@@ -7584,6 +7600,64 @@ body.guest-route {
 /* ============================================================
    Inbox — /inbox (list) + /inbox/[id] (thread)
    ============================================================ */
+
+/* ── Inbox search ──────────────────────────────────────────── */
+
+/* Desktop: inline search bar inside panel body */
+.inbox-desktop-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--border-regular);
+}
+
+/* Mobile: search input in the nav header */
+.inbox-nav-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex: 1;
+  min-width: 0;
+  background: var(--surface-inset);
+  border-radius: var(--radius-pill);
+  padding: 6px 12px;
+}
+
+.inbox-nav-search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px; /* Prevents iOS zoom */
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.inbox-nav-search-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.inbox-nav-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--transparent-dark-10);
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 767px) {
+  .inbox-desktop-search {
+    display: none;
+  }
+}
 
 /* ── Inbox list page ────────────────────────────────────────── */
 

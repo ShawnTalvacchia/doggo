@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useCallback } from "react";
+import { Suspense, useCallback, useEffect } from "react";
 import {
   PawPrint,
   MapPin,
@@ -23,6 +23,7 @@ import { PostsTab } from "@/components/profile/PostsTab";
 import { ProfileChatTab } from "@/components/profile/ProfileChatTab";
 import { getConnectionState, getCommunityCarers } from "@/lib/mockConnections";
 import { useConversations } from "@/contexts/ConversationsContext";
+import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { providers } from "@/lib/mockData";
 import { getUserById } from "@/lib/mockUsers";
 import { SERVICE_LABELS } from "@/lib/constants/services";
@@ -75,6 +76,17 @@ function UserProfileInner() {
     ...(hasCare ? [{ key: "services", label: "Services" }] : []),
     ...(showChatTab ? [{ key: "chat", label: "Chat" }] : []),
   ];
+
+  // Mobile nav: show name with back button, hide bottom nav
+  const { setDetailHeader, clearDetailHeader } = usePageHeader();
+  useEffect(() => {
+    setDetailHeader(name, () => router.back());
+    document.body.classList.add("profile-subpage");
+    return () => {
+      clearDetailHeader();
+      document.body.classList.remove("profile-subpage");
+    };
+  }, [name]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <PageColumn hideHeader abovePanel={<DetailHeader title={name} />}>

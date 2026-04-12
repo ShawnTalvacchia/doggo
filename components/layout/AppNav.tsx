@@ -90,7 +90,8 @@ function getPageTitle(pathname: string): string | null {
   if (pathname.startsWith("/schedule")) return "My Schedule";
   if (pathname.startsWith("/bookings")) return "Bookings";
   if (pathname.startsWith("/inbox")) return "Inbox";
-  if (pathname.startsWith("/profile")) return "Profile";
+  if (pathname === "/profile") return "Profile";
+  if (pathname.startsWith("/profile/")) return null; // Detail header handles it
   if (pathname.startsWith("/notifications")) return "Notifications";
   return null;
 }
@@ -119,9 +120,11 @@ export function AppNav() {
         {/* Detail header (back + title) — shown on mobile when a page sets it */}
         {showDetailHeader && (
           <div className="app-nav-detail-header">
-            <button type="button" className="app-nav-detail-back" onClick={onBack ?? undefined}>
-              <ArrowLeft size={20} weight="regular" />
-            </button>
+            {onBack && (
+              <button type="button" className="app-nav-detail-back" onClick={onBack}>
+                <ArrowLeft size={20} weight="regular" />
+              </button>
+            )}
             <span className="app-nav-detail-title">{detailTitle}</span>
             {rightAction && <div className="app-nav-detail-action">{rightAction}</div>}
           </div>
