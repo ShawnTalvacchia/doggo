@@ -11,7 +11,7 @@ import {
 import { PageColumn } from "@/components/layout/PageColumn";
 import { DetailHeader } from "@/components/layout/DetailHeader";
 import { Spacer } from "@/components/layout/Spacer";
-import { TabBar } from "@/components/ui/TabBar";
+import { FilterPillRow } from "@/components/ui/FilterPillRow";
 import { CardMeet } from "@/components/meets/CardMeet";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
@@ -258,14 +258,12 @@ function DiscoverMeetsInner() {
   return (
     <PageColumn hideHeader abovePanel={<DetailHeader backHref="/discover" title="Meets" />}>
       <div className="page-column-panel-body" style={{ position: "relative" }}>
-        {/* Type tabs — always visible */}
-        <div className="page-column-panel-tabs">
-          <TabBar
-            tabs={TYPE_TABS}
-            activeKey={activeType}
-            onChange={(key) => { setActiveType(key); setShowFilters(false); }}
-          />
-        </div>
+        {/* Type filter pills — scrollable on mobile */}
+        <FilterPillRow
+          pills={TYPE_TABS}
+          activeKey={activeType}
+          onChange={(key) => { setActiveType(key); setShowFilters(false); }}
+        />
 
         {showFilters ? (
           <>

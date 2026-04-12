@@ -2689,6 +2689,13 @@ body.guest-route {
   overflow-x: auto;
   flex-shrink: 0;
   border-bottom: 1px solid var(--border-subtle);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE/Edge */
+}
+
+.filter-pill-row::-webkit-scrollbar {
+  display: none;                  /* Chrome/Safari */
 }
 
 .filter-pill {
@@ -11900,9 +11907,19 @@ body.guest-route {
   color: var(--brand-main);
 }
 
+.sched-card-tag--hosting {
+  background: var(--brand-main);
+  color: var(--text-white);
+}
+
 .sched-card-tag--care {
   background: var(--status-info-light);
   color: var(--status-info-strong);
+}
+
+.sched-card-tag--providing {
+  background: var(--status-info-main);
+  color: var(--text-white);
 }
 
 .sched-card-time {
@@ -11978,8 +11995,8 @@ body.guest-route {
 }
 
 .sched-card-role--hosting {
-  background: var(--brand-main);
-  color: var(--text-white);
+  background: none;
+  color: var(--brand-strong);
 }
 
 .sched-card-role--providing {

@@ -12,7 +12,7 @@ import {
 import { PageColumn } from "@/components/layout/PageColumn";
 import { DetailHeader } from "@/components/layout/DetailHeader";
 import { Spacer } from "@/components/layout/Spacer";
-import { TabBar } from "@/components/ui/TabBar";
+import { FilterPillRow } from "@/components/ui/FilterPillRow";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { Slider } from "@/components/ui/Slider";
@@ -173,9 +173,11 @@ function DiscoverCareInner() {
   return (
     <PageColumn hideHeader abovePanel={<DetailHeader backHref="/discover" title="Dog Care" />}>
       <div className="page-column-panel-body" style={{ position: "relative" }}>
-        <div className="page-column-panel-tabs">
-          <TabBar tabs={TYPE_TABS} activeKey={activeType} onChange={(key) => { setActiveType(key); setShowFilters(false); }} />
-        </div>
+        <FilterPillRow
+          pills={TYPE_TABS}
+          activeKey={activeType}
+          onChange={(key) => { setActiveType(key); setShowFilters(false); }}
+        />
 
         {showFilters ? (
           <>

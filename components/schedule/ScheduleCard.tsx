@@ -158,7 +158,7 @@ export function ScheduleMeetCard({
           </span>
         )}
         <span className="flex-1" />
-        <span className="sched-card-tag sched-card-tag--meet">
+        <span className={`sched-card-tag ${isHosting ? "sched-card-tag--hosting" : "sched-card-tag--meet"}`}>
           {MEET_ICONS[meet.type]}
           {MEET_TYPE_LABELS[meet.type]}
         </span>
@@ -177,8 +177,8 @@ export function ScheduleMeetCard({
         <span
           className={`sched-card-role${isHosting ? " sched-card-role--hosting" : ""}`}
         >
-          {ROLE_ICONS[role]}
-          {ROLE_LABELS[role]}
+          {isHosting ? <Flag size={11} weight="fill" /> : ROLE_ICONS[role]}
+          {isHosting ? "Hosting" : ROLE_LABELS[role]}
         </span>
       </div>
     </Link>
@@ -242,9 +242,9 @@ export function ScheduleCareCard({
           </span>
         )}
         <span className="flex-1" />
-        <span className="sched-card-tag sched-card-tag--care">
+        <span className={`sched-card-tag ${isProviding ? "sched-card-tag--providing" : "sched-card-tag--care"}`}>
           <Briefcase size={13} weight="light" />
-          Care
+          {isProviding ? "Providing" : "Care"}
         </span>
       </div>
 
@@ -335,9 +335,9 @@ export function ScheduleBookingCard({
           </span>
         )}
         <span className="flex-1" />
-        <span className="sched-card-tag sched-card-tag--care">
+        <span className={`sched-card-tag ${isProviding ? "sched-card-tag--providing" : "sched-card-tag--care"}`}>
           <Briefcase size={13} weight="light" />
-          Care
+          {isProviding ? "Providing" : "Care"}
         </span>
       </div>
 
