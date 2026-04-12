@@ -116,7 +116,8 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/bookings/booking-olga-walks)",
       "Bash(chmod +x node_modules/next/dist/bin/next)",
       "WebFetch(domain:support.rover.com)",
-      "WebFetch(domain:www.rover.com)"
+      "WebFetch(domain:www.rover.com)",
+      "Bash(echo \"EXIT_CODE=$?\")"
     ]
   }
 }

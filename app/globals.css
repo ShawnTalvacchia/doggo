@@ -7932,24 +7932,31 @@ body.guest-route {
 }
 
 .inbox-service-chip {
-  font-size: var(--font-size-fine);
-  font-weight: var(--weight-medium);
-  color: var(--brand-500);
-  background: var(--brand-12);
-  border-radius: var(--radius-xxs);
-  padding: 1px 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 8px;
+  font-size: var(--font-size-body-xs);
+  font-weight: var(--weight-semibold);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: var(--brand-subtle);
+  color: var(--brand-main);
 }
 
 .inbox-direct-chip {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: var(--font-size-fine);
-  font-weight: var(--weight-medium);
-  color: var(--text-secondary);
+  padding: 1px 8px;
+  font-size: var(--font-size-body-xs);
+  font-weight: var(--weight-semibold);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  flex-shrink: 0;
   background: var(--transparent-light-6);
-  border-radius: var(--radius-xxs);
-  padding: 1px 6px;
+  color: var(--text-secondary);
 }
 
 .inbox-section-label {
@@ -8046,6 +8053,29 @@ body.guest-route {
   height: 100%;
   max-width: var(--app-page-max-width);
   margin: 0 auto;
+}
+
+/* ── Thread embedded mode (inside profile tab) ───────────────── */
+
+.profile-chat-tab {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.inbox-thread-embedded {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.inbox-thread-shell--embedded {
+  max-width: none;
+  flex: 1;
+  min-height: 0;
 }
 
 /* ── Thread header ───────────────────────────────────────────── */
@@ -9260,21 +9290,19 @@ body.guest-route {
 .inbox-carer-badge {
   display: inline-flex;
   align-items: center;
-  padding: 1px 7px;
-  border-radius: var(--radius-circle);
-  font-size: var(--font-size-fine);
+  padding: 1px 8px;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-body-xs);
   font-weight: var(--weight-semibold);
-  background: var(--brand-50, #e8f4ff);
-  color: var(--brand-500, #2563eb);
-  border: 1px solid var(--brand-200, #93c5fd);
+  background: var(--status-info-light);
+  color: var(--status-info-strong);
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 /* "As carer" badge variant inside thread header */
 .inbox-carer-badge--thread {
-  font-size: var(--font-size-body-xs);
-  padding: 1px 6px;
+  padding: 1px 8px;
 }
 
 /* Thread header — name row with badge */
@@ -10969,16 +10997,26 @@ body.guest-route {
   background: var(--surface-popout);
 }
 
+.page-column-panel-body--no-scroll {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-column-panel-body--no-scroll .page-column-panel-tabs {
+  position: relative;
+  flex-shrink: 0;
+}
+
 /* Sticky glassmorphism tab bar inside the panel */
 .page-column-panel-tabs {
   position: sticky;
   top: 0;
   z-index: 4;
   padding: var(--space-sm) var(--space-md);
-  background: color-mix(in srgb, var(--surface-popout) 72%, transparent);
-  backdrop-filter: blur(16px) saturate(1.2);
-  -webkit-backdrop-filter: blur(16px) saturate(1.2);
-  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  background: color-mix(in srgb, var(--surface-popout) 85%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .page-column-panel-tabs .tab-bar-container {
@@ -11219,10 +11257,17 @@ body.guest-route {
 
 .group-detail-tabs .tab-bar-container {
   flex: 1;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.group-detail-tabs .tab-bar-container::-webkit-scrollbar {
+  display: none;
 }
 
 .group-detail-tabs .tab-main {
-  flex: 1;
+  flex: 0 0 auto;
 }
 
 .group-detail-body {

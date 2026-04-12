@@ -4,7 +4,8 @@ import { useState, useEffect, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { DetailHeader } from "@/components/layout/DetailHeader";
-import { CameraPlusFill } from "@/components/icons/CameraPlusFill";
+import { AddPostIcon } from "@/components/icons/AddPostIcon";
+import { ButtonIcon } from "@/components/ui/ButtonIcon";
 import { TabBar } from "@/components/ui/TabBar";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutSection } from "@/components/layout/LayoutSection";
@@ -148,9 +149,9 @@ function GroupDetailInner() {
         );
       default:
         return group.photoPolicy !== "none" ? (
-          <ButtonAction variant="primary" size="sm" cta leftIcon={<CameraPlusFill size={14} />} href="/posts/create">
-            Post
-          </ButtonAction>
+          <ButtonIcon label="Create post" href="/posts/create">
+            <AddPostIcon size={28} />
+          </ButtonIcon>
         ) : undefined;
     }
   })() : undefined;

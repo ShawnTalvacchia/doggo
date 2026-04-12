@@ -4,8 +4,6 @@ import { providers } from "./mockData";
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 const olga = providers.find((p) => p.id === "olga-m")!;
-const nikola = providers.find((p) => p.id === "nikola-r")!;
-const jana = providers.find((p) => p.id === "jana-k")!;
 
 const SHAWN_ID = "shawn";
 const SHAWN_NAME = "Shawn Talvacchia";
@@ -15,7 +13,7 @@ const SHAWN_AVATAR =
 const MARIE_AVATAR =
   "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=120&q=80";
 
-// ── Conversation 1 — Olga, walk/check-in, dog Mochi ───────────────────────────
+// ── Conversation — Olga, walk/check-in, dog Mochi ────────────────────────────
 
 const olgaMessages: ChatMessage[] = [
   {
@@ -56,7 +54,7 @@ const olgaMessages: ChatMessage[] = [
   },
 ];
 
-// ── Conversation 2 — Nikola, boarding, dog Pepper ─────────────────────────────
+// ── Conversation — Nikola, boarding, dog Pepper ──────────────────────────────
 
 const nikolaMessages: ChatMessage[] = [
   {
@@ -97,9 +95,11 @@ const nikolaMessages: ChatMessage[] = [
   },
 ];
 
-// ── Conversation 3 — Jana, walk/check-in, dog Bruno, pending booking ──────────
+// ── Conversation — Jana (merged: direct social + booking for walks) ──────────
+// Jana is a friend AND a dog walker — one unified thread covers both
 
 const janaMessages: ChatMessage[] = [
+  // Booking discussion (earlier)
   {
     id: "jm-1",
     conversationId: "jana-conv",
@@ -162,11 +162,48 @@ const janaMessages: ChatMessage[] = [
       status: "pending",
     },
     sentAt: "2026-03-06T08:11:00Z",
+    read: true,
+  },
+  // Social chat (later — after meeting at a park hangout)
+  {
+    id: "jd-1",
+    conversationId: "jana-conv",
+    sender: "owner",
+    type: "text",
+    text: "Hey Jana! Great meeting you and your pup at the park hangout yesterday. Spot really enjoyed playing with Rex!",
+    sentAt: "2026-03-14T18:30:00Z",
+    read: true,
+  },
+  {
+    id: "jd-2",
+    conversationId: "jana-conv",
+    sender: "provider",
+    type: "text",
+    text: "Hi Shawn! It was lovely meeting you too! Rex was so tired after playing with Spot — he slept the whole evening 😄 We should do that again sometime!",
+    sentAt: "2026-03-14T19:15:00Z",
+    read: true,
+  },
+  {
+    id: "jd-3",
+    conversationId: "jana-conv",
+    sender: "owner",
+    type: "text",
+    text: "Absolutely! Are you going to the Vinohrady walk this Saturday? I was thinking of taking both Spot and Goldie this time.",
+    sentAt: "2026-03-15T08:20:00Z",
+    read: true,
+  },
+  {
+    id: "jd-4",
+    conversationId: "jana-conv",
+    sender: "provider",
+    type: "text",
+    text: "Yes, I'll be there! Looking forward to meeting Goldie. See you Saturday morning 🐾",
+    sentAt: "2026-03-15T09:05:00Z",
     read: false,
   },
 ];
 
-// ── Conversation 4 — Marie Novak messages Shawn (Shawn is carer) ──────────────
+// ── Conversation — Marie (Shawn is carer/provider) ───────────────────────────
 
 const marieMessages: ChatMessage[] = [
   {
@@ -198,53 +235,12 @@ const marieMessages: ChatMessage[] = [
   },
 ];
 
-// ── Direct message conversations (1:1 between connected users) ──────────────
-
-const janaDirectMessages: ChatMessage[] = [
-  {
-    id: "jd-1",
-    conversationId: "jana-direct",
-    sender: "owner",
-    type: "text",
-    text: "Hey Jana! Great meeting you and your pup at the park hangout yesterday. Spot really enjoyed playing with Rex!",
-    sentAt: "2026-03-14T18:30:00Z",
-    read: true,
-  },
-  {
-    id: "jd-2",
-    conversationId: "jana-direct",
-    sender: "provider",
-    type: "text",
-    text: "Hi Shawn! It was lovely meeting you too! Rex was so tired after playing with Spot — he slept the whole evening 😄 We should do that again sometime!",
-    sentAt: "2026-03-14T19:15:00Z",
-    read: true,
-  },
-  {
-    id: "jd-3",
-    conversationId: "jana-direct",
-    sender: "owner",
-    type: "text",
-    text: "Absolutely! Are you going to the Vinohrady walk this Saturday? I was thinking of taking both Spot and Goldie this time.",
-    sentAt: "2026-03-15T08:20:00Z",
-    read: true,
-  },
-  {
-    id: "jd-4",
-    conversationId: "jana-direct",
-    sender: "provider",
-    type: "text",
-    text: "Yes, I'll be there! Looking forward to meeting Goldie. See you Saturday morning 🐾",
-    sentAt: "2026-03-15T09:05:00Z",
-    read: false,
-  },
-];
-
-// ── Conversation 6 — Tereza, direct message (fellow walker) ─────────────────
+// ── Conversation — Tereza, direct message (fellow walker) ────────────────────
 
 const terezaDirectMessages: ChatMessage[] = [
   {
     id: "td-1",
-    conversationId: "tereza-direct",
+    conversationId: "tereza-conv",
     sender: "provider",
     type: "text",
     text: "Hey Shawn! Thanks for coming to the evening walk last week. Franta and Spot really got on well. Are you planning to come again this Thursday?",
@@ -253,7 +249,7 @@ const terezaDirectMessages: ChatMessage[] = [
   },
   {
     id: "td-2",
-    conversationId: "tereza-direct",
+    conversationId: "tereza-conv",
     sender: "owner",
     type: "text",
     text: "Hey! Yes, Thursday works — I'll bring Spot. Should I bring Goldie too or is the group getting big?",
@@ -262,7 +258,7 @@ const terezaDirectMessages: ChatMessage[] = [
   },
   {
     id: "td-3",
-    conversationId: "tereza-direct",
+    conversationId: "tereza-conv",
     sender: "provider",
     type: "text",
     text: "Bring both! It's still a small group — just me, Marek, and Lucie confirmed so far. The more the merrier 🐕",
@@ -271,12 +267,12 @@ const terezaDirectMessages: ChatMessage[] = [
   },
 ];
 
-// ── Conversation 7 — Klára, booking inquiry (training for Spot) ──────────────
+// ── Conversation — Klára, booking (training for Spot) ────────────────────────
 
 const klaraBookingMessages: ChatMessage[] = [
   {
     id: "kb-1",
-    conversationId: "klara-booking",
+    conversationId: "klara-conv",
     sender: "owner",
     type: "text",
     text: "Hi Klára! I'd love to book a socialisation session for Spot. He's nervous around new dogs and I've heard amazing things about your work with Daniel's dog Bára. Do you have any openings?",
@@ -285,7 +281,7 @@ const klaraBookingMessages: ChatMessage[] = [
   },
   {
     id: "kb-2",
-    conversationId: "klara-booking",
+    conversationId: "klara-conv",
     sender: "provider",
     type: "text",
     text: "Hi Shawn! Thanks for reaching out — Daniel's been great to work with. I have a spot in my Wednesday group session at Stromovka, or I can do a 1-on-1 if you'd prefer to start with something calmer. What works better for Spot?",
@@ -294,7 +290,7 @@ const klaraBookingMessages: ChatMessage[] = [
   },
   {
     id: "kb-3",
-    conversationId: "klara-booking",
+    conversationId: "klara-conv",
     sender: "owner",
     type: "text",
     text: "I think 1-on-1 first would be best. He can be unpredictable with new dogs. How much is that?",
@@ -303,7 +299,7 @@ const klaraBookingMessages: ChatMessage[] = [
   },
   {
     id: "kb-4",
-    conversationId: "klara-booking",
+    conversationId: "klara-conv",
     sender: "provider",
     type: "text",
     text: "600 Kč for a 60-minute session. We'd do it at Stromovka — quiet area near the pond. I'll bring Eda as the calm dog for controlled introductions. He's a Border Collie, super gentle. Want to try next Wednesday at 10?",
@@ -312,7 +308,7 @@ const klaraBookingMessages: ChatMessage[] = [
   },
   {
     id: "kb-5",
-    conversationId: "klara-booking",
+    conversationId: "klara-conv",
     sender: "owner",
     type: "text",
     text: "That sounds perfect. Wednesday at 10 it is! Looking forward to it.",
@@ -321,20 +317,37 @@ const klaraBookingMessages: ChatMessage[] = [
   },
   {
     id: "kb-6",
-    conversationId: "klara-booking",
+    conversationId: "klara-conv",
     sender: "provider",
     type: "booking_proposal",
     text: "I've sent you a booking proposal for the session.",
+    proposal: {
+      bookingType: "one_off",
+      serviceType: "walk_checkin",
+      subService: "Calm dog introduction",
+      pets: ["Spot"],
+      startDate: "2026-03-26",
+      endDate: null,
+      recurringSchedule: undefined,
+      price: {
+        lineItems: [{ label: "Calm dog introduction (60 min)", amount: 600, unit: "per session" }],
+        total: 600,
+        currency: "Kč",
+        billingCycle: "per_session",
+      },
+      status: "pending",
+    },
     sentAt: "2026-03-22T12:30:00Z",
     read: false,
   },
 ];
 
-// Placeholder for second direct message (Eva — familiar, message request scenario)
+// ── Conversation — Eva, direct message (familiar, met at park) ───────────────
+
 const evaDirectMessages: ChatMessage[] = [
   {
     id: "ed-1",
-    conversationId: "eva-direct",
+    conversationId: "eva-conv",
     sender: "owner",
     type: "text",
     text: "Hi Eva! We met briefly at the Letná Park hangout last week. Luna and Spot seemed to get along really well — would love to set up a playdate sometime if you're up for it!",
@@ -357,46 +370,39 @@ const EMPTY_INQUIRY = {
 };
 
 export const mockConversations: Conversation[] = [
-  // ── Direct messages ──
+  // ── Jana (merged: social + booking) ──
   {
-    id: "jana-direct",
-    conversationType: "direct",
-    providerId: "jana-k",
+    id: "jana-conv",
+    conversationType: "booking",
+    providerId: "jana",
     providerName: "Jana K.",
-    providerAvatarUrl:
-      "/images/generated/jana-profile.jpeg",
+    providerAvatarUrl: "/images/generated/jana-profile.jpeg",
     ownerId: SHAWN_ID,
     ownerName: SHAWN_NAME,
     ownerAvatarUrl: SHAWN_AVATAR,
     status: "active",
-    inquiry: EMPTY_INQUIRY,
-    messages: janaDirectMessages,
+    inquiry: {
+      bookingType: "ongoing",
+      serviceType: "walk_checkin",
+      subService: "Solo walk",
+      pets: ["Goldie"],
+      startDate: "2026-09-01",
+      endDate: null,
+      recurringSchedule: { days: ["Mon", "Tue", "Wed", "Thu", "Fri"], time: "08:00", timeLabel: "8:00–9:00am" },
+      dogName: "Goldie",
+      message: janaMessages[0].text!,
+    },
+    messages: janaMessages,
     lastMessageId: "jd-4",
     unreadCount: 1,
   },
+  // ── Tereza (direct) ──
   {
-    id: "eva-direct",
-    conversationType: "direct",
-    providerId: "eva",
-    providerName: "Eva",
-    providerAvatarUrl:
-      "/images/generated/eva-profile.jpeg",
-    ownerId: SHAWN_ID,
-    ownerName: SHAWN_NAME,
-    ownerAvatarUrl: SHAWN_AVATAR,
-    status: "active",
-    inquiry: EMPTY_INQUIRY,
-    messages: evaDirectMessages,
-    lastMessageId: "ed-1",
-    unreadCount: 0,
-  },
-  {
-    id: "tereza-direct",
+    id: "tereza-conv",
     conversationType: "direct",
     providerId: "tereza",
     providerName: "Tereza Nováková",
-    providerAvatarUrl:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80",
+    providerAvatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80",
     ownerId: SHAWN_ID,
     ownerName: SHAWN_NAME,
     ownerAvatarUrl: SHAWN_AVATAR,
@@ -406,14 +412,13 @@ export const mockConversations: Conversation[] = [
     lastMessageId: "td-3",
     unreadCount: 1,
   },
-  // ── Booking conversations ──
+  // ── Klára (booking) ──
   {
-    id: "klara-booking",
+    id: "klara-conv",
     conversationType: "booking",
     providerId: "klara",
     providerName: "Klára Horáčková",
-    providerAvatarUrl:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    providerAvatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
     ownerId: SHAWN_ID,
     ownerName: SHAWN_NAME,
     ownerAvatarUrl: SHAWN_AVATAR,
@@ -432,10 +437,11 @@ export const mockConversations: Conversation[] = [
     lastMessageId: "kb-6",
     unreadCount: 1,
   },
+  // ── Olga (booking — no user profile yet, uses provider ID) ──
   {
     id: "olga-conv",
     conversationType: "booking",
-    providerId: olga.id,
+    providerId: "olga-m",
     providerName: olga.name,
     providerAvatarUrl: olga.avatarUrl,
     ownerId: SHAWN_ID,
@@ -457,12 +463,13 @@ export const mockConversations: Conversation[] = [
     lastMessageId: "om-4",
     unreadCount: 1,
   },
+  // ── Nikola (booking) ──
   {
     id: "nikola-conv",
     conversationType: "booking",
-    providerId: nikola.id,
-    providerName: nikola.name,
-    providerAvatarUrl: nikola.avatarUrl,
+    providerId: "nikola",
+    providerName: "Nikola R.",
+    providerAvatarUrl: "/images/generated/nikola-profile.jpeg",
     ownerId: SHAWN_ID,
     ownerName: SHAWN_NAME,
     ownerAvatarUrl: SHAWN_AVATAR,
@@ -481,31 +488,23 @@ export const mockConversations: Conversation[] = [
     lastMessageId: "nm-4",
     unreadCount: 1,
   },
+  // ── Eva (direct — familiar, met at park) ──
   {
-    id: "jana-conv",
-    conversationType: "booking",
-    providerId: jana.id,
-    providerName: jana.name,
-    providerAvatarUrl: jana.avatarUrl,
+    id: "eva-conv",
+    conversationType: "direct",
+    providerId: "eva",
+    providerName: "Eva",
+    providerAvatarUrl: "/images/generated/eva-profile.jpeg",
     ownerId: SHAWN_ID,
     ownerName: SHAWN_NAME,
     ownerAvatarUrl: SHAWN_AVATAR,
     status: "active",
-    inquiry: {
-      bookingType: "ongoing",
-      serviceType: "walk_checkin",
-      subService: "Solo walk",
-      pets: ["Goldie"],
-      startDate: "2026-09-01",
-      endDate: null,
-      recurringSchedule: { days: ["Mon", "Tue", "Wed", "Thu", "Fri"], time: "08:00", timeLabel: "8:00–9:00am" },
-      dogName: "Goldie",
-      message: janaMessages[0].text!,
-    },
-    messages: janaMessages,
-    lastMessageId: "jm-5",
-    unreadCount: 1,
+    inquiry: EMPTY_INQUIRY,
+    messages: evaDirectMessages,
+    lastMessageId: "ed-1",
+    unreadCount: 0,
   },
+  // ── Marie (Shawn is provider) ──
   {
     id: "marie-conv",
     conversationType: "booking",

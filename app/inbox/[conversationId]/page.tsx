@@ -1,35 +1,37 @@
 "use client";
 
-import { use } from "react";
-import { notFound } from "next/navigation";
-import { useSearchParams } from "next/navigation";
+import { use, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useConversations } from "@/contexts/ConversationsContext";
-import { ThreadClient } from "./ThreadClient";
-import type { ServiceType } from "@/lib/types";
+
+const MY_USER_ID = "shawn";
 
 interface Props {
   params: Promise<{ conversationId: string }>;
 }
 
-export default function ThreadPage({ params }: Props) {
+/**
+ * Legacy route: redirects /inbox/[conversationId] to the profile chat tab.
+ * Chat now lives on user profiles at /profile/[userId]?tab=chat.
+ */
+export default function ThreadRedirectPage({ params }: Props) {
   const { conversationId } = use(params);
-  const searchParams = useSearchParams();
+  const router = useRouter();
   const { getConversation } = useConversations();
   const conversation = getConversation(conversationId);
 
-  if (!conversation) notFound();
+  useEffect(() => {
+    if (!conversation) {
+      router.replace("/inbox");
+      return;
+    }
+    // Determine the other party's userId
+    const otherUserId =
+      conversation.ownerId === MY_USER_ID
+        ? conversation.providerId
+        : conversation.ownerId;
+    router.replace(`/profile/${otherUserId}?tab=chat`);
+  }, [conversation, router]);
 
-  // Pre-fill inquiry form from URL search params (passed through from explore filters)
-  const initialService = (searchParams.get("service") as ServiceType | null) ?? null;
-  const initialStart = searchParams.get("start") ?? null;
-  const initialEnd = searchParams.get("end") ?? null;
-
-  return (
-    <ThreadClient
-      conv={conversation}
-      initialService={initialService}
-      initialStart={initialStart}
-      initialEnd={initialEnd}
-    />
-  );
+  return null;
 }

@@ -71,11 +71,14 @@ export function ThreadClient({
   initialService = null,
   initialStart = null,
   initialEnd = null,
+  embedded = false,
 }: {
   conv: Conversation;
   initialService?: ServiceType | null;
   initialStart?: string | null;
   initialEnd?: string | null;
+  /** When true, hides the header and uses flex layout (for embedding in profile tabs) */
+  embedded?: boolean;
 }) {
   const { addMessage, updateInquiry, updateProposalStatus } = useConversations();
   const { createBooking } = useBookings();
@@ -310,9 +313,10 @@ export function ThreadClient({
     isCarerPerspective && !isDirect && !isNew && !hasProposal && !inquiryDeclined;
 
   return (
-    <div className="inbox-thread-outer">
-    <div className="inbox-thread-shell">
-      {/* Header */}
+    <div className={embedded ? "inbox-thread-embedded" : "inbox-thread-outer"}>
+    <div className={`inbox-thread-shell${embedded ? " inbox-thread-shell--embedded" : ""}`}>
+      {/* Header — hidden in embedded mode (profile page shows its own) */}
+      {!embedded && (
       <div className="inbox-thread-header">
         <Link href="/inbox" className="inbox-thread-back" aria-label="Back to inbox">
           <ArrowLeft size={20} weight="regular" />
@@ -345,6 +349,7 @@ export function ThreadClient({
           )}
         </div>
       </div>
+      )}
 
       {/* Body */}
       <div className="inbox-thread-body" ref={bodyRef}>

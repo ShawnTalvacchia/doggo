@@ -20,7 +20,9 @@ import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import { TrustSignalBadges } from "@/components/profile/TrustSignalBadges";
 import { PetCard } from "@/components/profile/PetCard";
 import { PostsTab } from "@/components/profile/PostsTab";
+import { ProfileChatTab } from "@/components/profile/ProfileChatTab";
 import { getConnectionState, getCommunityCarers } from "@/lib/mockConnections";
+import { useConversations } from "@/contexts/ConversationsContext";
 import { providers } from "@/lib/mockData";
 import { getUserById } from "@/lib/mockUsers";
 import { SERVICE_LABELS } from "@/lib/constants/services";
@@ -62,15 +64,21 @@ function UserProfileInner() {
   const hasCare = !!userProfile?.carerProfile || !!provider || !!communityCarer;
   const isLocked = !isProfileOpen && connState === "none";
 
+  // Show Chat tab when connected or when there's an existing conversation
+  const { getConversationForUser } = useConversations();
+  const existingConv = getConversationForUser(userId);
+  const showChatTab = connState === "connected" || !!existingConv;
+
   const tabs = [
     { key: "about", label: "About" },
     { key: "posts", label: "Posts" },
     ...(hasCare ? [{ key: "services", label: "Services" }] : []),
+    ...(showChatTab ? [{ key: "chat", label: "Chat" }] : []),
   ];
 
   return (
     <PageColumn hideHeader abovePanel={<DetailHeader title={name} />}>
-      <div className="page-column-panel-body">
+      <div className={`page-column-panel-body${activeTab === "chat" ? " page-column-panel-body--no-scroll" : ""}`}>
 
         {/* Tabs — hidden for locked profiles */}
         {!isLocked && (
@@ -170,13 +178,13 @@ function UserProfileInner() {
                   <>
                     <ButtonAction variant="primary" size="md" cta className="flex-1"
                       leftIcon={<ChatCircleDots size={16} weight="fill" />}
-                      href="/inbox">
+                      onClick={() => handleTabChange("chat")}>
                       Message
                     </ButtonAction>
                     {hasCare && (
                       <ButtonAction variant="outline" size="md" cta className="flex-1"
                         leftIcon={<CalendarDots size={16} weight="light" />}
-                        href="/inbox">
+                        onClick={() => handleTabChange("chat")}>
                         Book care
                       </ButtonAction>
                     )}
@@ -273,7 +281,12 @@ function UserProfileInner() {
           </div>
         )}
 
-        <Spacer />
+        {/* ── Chat tab ── */}
+        {!isLocked && activeTab === "chat" && showChatTab && (
+          <ProfileChatTab userId={userId} userName={name} avatarUrl={avatarUrl} />
+        )}
+
+        {activeTab !== "chat" && <Spacer />}
       </div>
     </PageColumn>
   );

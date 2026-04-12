@@ -152,7 +152,7 @@ export function SessionDetailContent({
               variant="outline"
               size="sm"
               leftIcon={<ChatCircleDots size={14} weight="light" />}
-              href={`/inbox/${booking.conversationId}`}
+              href={`/profile/${other.id}?tab=chat`}
             >
               Message {other.name}
             </ButtonAction>

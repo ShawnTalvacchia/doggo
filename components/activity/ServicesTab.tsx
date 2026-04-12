@@ -312,7 +312,7 @@ export function ServicesTab() {
               {incomingRequests.map((conv) => (
                 <Link
                   key={conv.id}
-                  href={`/inbox/${conv.id}`}
+                  href={`/profile/${conv.ownerId}?tab=chat`}
                   className="flex items-center gap-md rounded-panel p-md no-underline bg-surface-top border border-edge-light"
                 >
                   <img

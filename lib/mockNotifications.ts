@@ -140,7 +140,7 @@ export const mockNotifications: AppNotification[] = [
     body: "Re: Walks & Check-ins — \"See you Monday at 8!\"",
     avatarUrl:
       "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
-    href: "/inbox",
+    href: "/profile/olga-m?tab=chat",
     createdAt: "2026-03-29T19:00:00Z",
     read: true,
   },

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import {
   Bell,
@@ -13,15 +12,15 @@ import {
   Star,
   EnvelopeSimple,
   CheckCircle,
-  ArrowLeft,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
-import { Spacer } from "@/components/layout/Spacer";
 import { LayoutList } from "@/components/layout/LayoutList";
-import { ButtonAction } from "@/components/ui/ButtonAction";
-import { mockNotifications, type AppNotification } from "@/lib/mockNotifications";
+import { useNotifications } from "@/contexts/NotificationsContext";
+import type { AppNotification } from "@/lib/types";
 import type { NotificationType } from "@/lib/types";
 import { formatRelativeTime } from "@/lib/dateUtils";
+
+/* ── Icon + label maps ── */
 
 const TYPE_ICONS: Record<NotificationType, typeof Bell> = {
   meet_invite: CalendarBlank,
@@ -40,11 +39,11 @@ const TYPE_ICONS: Record<NotificationType, typeof Bell> = {
 };
 
 const TYPE_LABELS: Record<NotificationType, string> = {
-  meet_invite: "Meet Invite",
-  meet_reminder: "Reminder",
-  connection_request: "Connection Request",
+  meet_invite: "Meet",
+  meet_reminder: "Meet",
+  connection_request: "Connection",
   connection_accepted: "Connection",
-  group_activity: "Group Activity",
+  group_activity: "Group",
   booking_proposal: "Booking",
   booking_confirmed: "Booking",
   session_completed: "Care",
@@ -55,42 +54,28 @@ const TYPE_LABELS: Record<NotificationType, string> = {
   post_comment: "Comment",
 };
 
-/* ── List item ── */
+/* ── Notification row ── */
 
 function NotificationRow({
   notification,
-  isActive,
-  onClick,
+  onTap,
 }: {
   notification: AppNotification;
-  isActive: boolean;
-  onClick: () => void;
+  onTap: () => void;
 }) {
   const TypeIcon = TYPE_ICONS[notification.type] || Bell;
+  const label = TYPE_LABELS[notification.type] || "Notification";
 
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex items-start gap-md w-full text-left${isActive ? " bg-surface-inset" : ""}`}
-      style={{
-        padding: "var(--space-lg)",
-        borderBottom: "1px solid var(--border-regular)",
-        cursor: "pointer",
-        background: isActive ? "var(--surface-inset)" : undefined,
-      }}
+  const inner = (
+    <div
+      className={`flex items-start gap-md w-full p-lg border-b border-edge-regular${
+        !notification.read ? " bg-surface-popout" : ""
+      }`}
     >
       {/* Unread dot */}
-      <div className="flex items-center shrink-0" style={{ width: 8, paddingTop: 6 }}>
+      <div className="flex items-center shrink-0 w-2 pt-1.5">
         {!notification.read && (
-          <div
-            className="rounded-full"
-            style={{
-              width: 8,
-              height: 8,
-              background: "var(--brand-main)",
-            }}
-          />
+          <div className="w-2 h-2 rounded-full bg-brand-main" />
         )}
       </div>
 
@@ -99,177 +84,101 @@ function NotificationRow({
         <img
           src={notification.avatarUrl}
           alt=""
-          className="rounded-full object-cover shrink-0"
-          style={{ width: 40, height: 40 }}
+          className="w-10 h-10 rounded-full object-cover shrink-0"
         />
       ) : (
-        <div
-          className="rounded-full bg-surface-inset flex items-center justify-center shrink-0"
-          style={{ width: 40, height: 40 }}
-        >
+        <div className="w-10 h-10 rounded-full bg-surface-inset flex items-center justify-center shrink-0">
           <TypeIcon size={20} weight="light" className="text-fg-tertiary" />
         </div>
       )}
 
       {/* Content */}
       <div className="flex flex-col flex-1 min-w-0 gap-xs">
-        <span
-          className={`text-md ${notification.read ? "text-fg-secondary" : "text-fg-primary font-semibold"}`}
-          style={{ lineHeight: "20px" }}
-        >
-          {notification.title}
-        </span>
-        <span className="text-sm text-fg-tertiary" style={{ lineHeight: "18px" }}>
-          {notification.body}
-        </span>
-        <span className="text-xs text-fg-tertiary" style={{ marginTop: 2 }}>
-          {formatRelativeTime(notification.createdAt)}
-        </span>
-      </div>
-    </button>
-  );
-}
-
-/* ── Detail panel ── */
-
-function NotificationDetail({
-  notification,
-  onBack,
-}: {
-  notification: AppNotification;
-  onBack: () => void;
-}) {
-  const TypeIcon = TYPE_ICONS[notification.type] || Bell;
-  const typeLabel = TYPE_LABELS[notification.type] || "Notification";
-
-  return (
-    <>
-        <div className="flex flex-col items-center gap-lg" style={{ padding: "var(--space-xxxl) var(--space-lg)" }}>
-          {/* Avatar */}
-          {notification.avatarUrl ? (
-            <img
-              src={notification.avatarUrl}
-              alt=""
-              className="rounded-full object-cover"
-              style={{ width: 64, height: 64 }}
-            />
-          ) : (
-            <div
-              className="rounded-full bg-surface-inset flex items-center justify-center"
-              style={{ width: 64, height: 64 }}
-            >
-              <TypeIcon size={28} weight="light" className="text-fg-tertiary" />
-            </div>
-          )}
-
-          {/* Type badge */}
+        <div className="flex items-center justify-between gap-sm">
           <span
-            className="text-xs font-semibold rounded-pill"
-            style={{
-              padding: "2px 10px",
-              background: "var(--surface-inset)",
-              color: "var(--text-secondary)",
-            }}
-          >
-            {typeLabel}
-          </span>
-
-          {/* Title */}
-          <h3
-            className="font-heading font-bold text-fg-primary text-center"
-            style={{ fontSize: "var(--text-xl)", lineHeight: 1.3, margin: 0 }}
+            className={`text-md leading-snug truncate ${
+              notification.read ? "text-fg-secondary" : "text-fg-primary font-semibold"
+            }`}
           >
             {notification.title}
-          </h3>
-
-          {/* Body */}
-          <p
-            className="text-md text-fg-secondary text-center"
-            style={{ lineHeight: "24px", margin: 0, maxWidth: 400 }}
-          >
-            {notification.body}
-          </p>
-
-          {/* Timestamp */}
-          <span className="text-sm text-fg-tertiary">
+          </span>
+          <span className="text-xs text-fg-tertiary shrink-0">
             {formatRelativeTime(notification.createdAt)}
           </span>
-
-          {/* Action button */}
-          {notification.href && (
-            <ButtonAction
-              variant="primary"
-              size="md"
-              href={notification.href}
-              style={{ marginTop: "var(--space-md)" }}
-            >
-              {notification.type === "meet_invite" && "View Meet"}
-              {notification.type === "meet_reminder" && "View Meet"}
-              {notification.type === "connection_request" && "View Profile"}
-              {notification.type === "connection_accepted" && "View Profile"}
-              {notification.type === "group_activity" && "View Group"}
-              {notification.type === "booking_confirmed" && "View Booking"}
-              {notification.type === "booking_proposal" && "View Booking"}
-              {notification.type === "session_completed" && "View Booking"}
-              {notification.type === "care_review" && "View Review"}
-              {notification.type === "new_message" && "View Message"}
-            </ButtonAction>
-          )}
         </div>
-    </>
+        <span className="text-sm text-fg-tertiary leading-snug line-clamp-2">
+          {notification.body}
+        </span>
+        <span className="text-xs text-fg-tertiary mt-0.5">
+          {label}
+        </span>
+      </div>
+    </div>
+  );
+
+  if (notification.href) {
+    return (
+      <Link href={notification.href} onClick={onTap} className="block">
+        {inner}
+      </Link>
+    );
+  }
+
+  return (
+    <button type="button" onClick={onTap} className="block w-full text-left">
+      {inner}
+    </button>
   );
 }
 
 /* ── Page ── */
 
 export default function NotificationsPage() {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const selected = selectedId
-    ? mockNotifications.find((n) => n.id === selectedId) ?? null
-    : null;
+  const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
+
+  const handleTap = (id: string) => {
+    markRead(id);
+  };
 
   return (
-    <PageColumn title={selected ? undefined : "Notifications"} hideHeader={!!selected}>
+    <PageColumn title="Notifications">
       <div className="page-column-panel-body">
-        {selected ? (
-          <>
-            {/* Detail view with back */}
-            <div
-              className="flex items-center gap-sm"
-              style={{
-                padding: "var(--space-md) var(--space-lg)",
-                borderBottom: "1px solid var(--border-regular)",
-              }}
+        {/* Mark all read header */}
+        {unreadCount > 0 && (
+          <div className="flex items-center justify-between px-lg py-md border-b border-edge-regular">
+            <span className="text-sm text-fg-secondary">
+              {unreadCount} unread
+            </span>
+            <button
+              type="button"
+              onClick={markAllRead}
+              className="text-sm font-semibold text-brand-main"
             >
-              <button
-                type="button"
-                onClick={() => setSelectedId(null)}
-                className="flex items-center gap-xs text-fg-secondary"
-                style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
-              >
-                <ArrowLeft size={20} weight="light" />
-                <span className="text-md font-medium">Back</span>
-              </button>
-            </div>
-            <NotificationDetail
-              notification={selected}
-              onBack={() => setSelectedId(null)}
+              Mark all as read
+            </button>
+          </div>
+        )}
+
+        {/* Notification list */}
+        <LayoutList>
+          {notifications.map((notif) => (
+            <NotificationRow
+              key={notif.id}
+              notification={notif}
+              onTap={() => handleTap(notif.id)}
             />
-          </>
-        ) : (
-          <>
-            <LayoutList>
-              {mockNotifications.map((notif) => (
-                <NotificationRow
-                  key={notif.id}
-                  notification={notif}
-                  isActive={false}
-                  onClick={() => setSelectedId(notif.id)}
-                />
-              ))}
-            </LayoutList>
-            <Spacer />
-          </>
+          ))}
+        </LayoutList>
+
+        {/* Empty state */}
+        {notifications.length === 0 && (
+          <div className="flex flex-col items-center gap-md py-xxxl px-lg text-center">
+            <Bell size={40} weight="light" className="text-fg-tertiary" />
+            <p className="text-md text-fg-secondary">No notifications yet</p>
+            <p className="text-sm text-fg-tertiary">
+              When people invite you to meets, send connection requests, or message you, you&apos;ll see it here.
+            </p>
+          </div>
         )}
       </div>
     </PageColumn>

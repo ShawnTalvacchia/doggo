@@ -28,6 +28,8 @@ interface ConversationsContextValue {
   conversations: Conversation[];
   getConversation: (id: string) => Conversation | undefined;
   getConversationByProvider: (providerId: string) => Conversation | undefined;
+  /** Find the conversation where the other party matches userId (checks providerId and ownerId) */
+  getConversationForUser: (userId: string) => Conversation | undefined;
   /** Returns existing booking conversation id, or creates a new one and returns its id */
   getOrCreateConversation: (provider: ProviderInfo, service: ServiceType | null) => string;
   /** Returns existing direct message conversation id, or creates a new one and returns its id */
@@ -59,6 +61,19 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
 
   const getConversationByProvider = useCallback(
     (providerId: string) => conversations.find((c) => c.providerId === providerId),
+    [conversations]
+  );
+
+  const getConversationForUser = useCallback(
+    (userId: string) => {
+      // The signed-in user is always "shawn", so the other party is either
+      // providerId (when Shawn is the owner) or ownerId (when Shawn is the provider).
+      return conversations.find(
+        (c) =>
+          (c.ownerId === "shawn" && c.providerId === userId) ||
+          (c.providerId === "shawn" && c.ownerId === userId)
+      );
+    },
     [conversations]
   );
 
@@ -197,6 +212,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
         conversations,
         getConversation,
         getConversationByProvider,
+        getConversationForUser,
         getOrCreateConversation,
         getOrCreateDirectConversation,
         addMessage,
