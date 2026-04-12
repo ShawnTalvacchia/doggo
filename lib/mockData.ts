@@ -107,6 +107,7 @@ export const providers: ProviderCard[] = [
     mutualConnections: 1,
     lat: 50.0748,
     lng: 14.4369,
+    userId: "nikola",
   },
   {
     id: "jana-k",

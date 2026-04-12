@@ -12,7 +12,6 @@ import { DatePicker, DateTrigger, type DateRange } from "@/components/ui/DatePic
 import { RecurringSchedulePicker } from "@/components/ui/RecurringSchedulePicker";
 import { BookingModal } from "@/components/overlays/BookingModal";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
-import { ProfileHeader } from "@/components/explore/ProfileHeader";
 import { FilterBody } from "@/components/explore/FilterBody";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { CardExploreResult } from "@/components/explore/CardExploreResult";
@@ -280,9 +279,6 @@ export default function ComponentsPage() {
 
   // BookingModal demo
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
-
-  // ProfileHeader demo
-  const [profileHeaderState, setProfileHeaderState] = useState<"expanded" | "condensed">("expanded");
 
   // FilterBody demo
   const [filterState, setFilterState] = useState<ExploreFilters>({
@@ -1040,43 +1036,6 @@ export default function ComponentsPage() {
       </GroupSection>
 
       <GroupSection group="explore" activeGroup={activeGroup}>
-      {/* ── ProfileHeader ─────────────────────────────────────────────────────── */}
-      <section className="sg-section">
-        <h2 className="sg-section-title">ProfileHeader</h2>
-        <p className="sg-body-copy" style={{ maxWidth: "64ch" }}>
-          Provider profile header with two visual states driven by scroll position on the profile
-          page. <strong>Expanded</strong>: full avatar, name, location, rating, trust signals, and
-          a "Contact [Name]" CTA (md). <strong>Condensed</strong>: compact avatar, name, and
-          "Contact" CTA (sm). The parent page switches between states based on{" "}
-          <code>IntersectionObserver</code>.
-        </p>
-        <Demo label="ProfileHeader" note="Toggle state below">
-          <div style={{ width: "100%", display: "grid", gap: 12 }}>
-            <div style={{ display: "flex", gap: 8 }}>
-              {(["expanded", "condensed"] as const).map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  className={`sg-btn-ctrl-pill${profileHeaderState === s ? " active" : ""}`}
-                  onClick={() => setProfileHeaderState(s)}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-            <ProfileHeader
-              provider={DEMO_PROVIDER}
-              state={profileHeaderState}
-              onContact={() => {}}
-            />
-          </div>
-        </Demo>
-        <PropTable>
-          <PropRow name="provider" type="ProviderCard" />
-          <PropRow name="state" type='"expanded" | "condensed"' note='Controlled by scroll IntersectionObserver on profile page' />
-          <PropRow name="onContact" type="() => void" note="Opens BookingModal" />
-        </PropTable>
-      </section>
 
       {/* ── FilterBody accordion ─────────────────────────────────────────────── */}
       <section className="sg-section">
@@ -1130,7 +1089,7 @@ export default function ComponentsPage() {
             "NotificationsPanel", "BookingModal",
             "FormHeader", "FormFooter",
             "AppNav (guest / signup / logged)", "BottomNav",
-            "CardExploreResult", "ProfileHeader",
+            "CardExploreResult",
             "FilterPanelDesktop", "FilterPanelMobile",
             "FilterBody", "MapView (Leaflet)",
             "SignupProgressBar", "SignupProfilePreview",

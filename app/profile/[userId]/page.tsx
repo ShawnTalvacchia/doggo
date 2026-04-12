@@ -1,119 +1,99 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { useState } from "react";
-import { DetailHeader } from "@/components/layout/DetailHeader";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useCallback } from "react";
 import {
   PawPrint,
   MapPin,
   CalendarDots,
-  Handshake,
   ChatCircleDots,
   LockSimple,
   UsersThree,
 } from "@phosphor-icons/react";
+import { PageColumn } from "@/components/layout/PageColumn";
+import { DetailHeader } from "@/components/layout/DetailHeader";
+import { TabBar } from "@/components/ui/TabBar";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { Spacer } from "@/components/layout/Spacer";
 import { ConnectionIcon } from "@/components/ui/ConnectionIcon";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import { TrustSignalBadges } from "@/components/profile/TrustSignalBadges";
+import { PetCard } from "@/components/profile/PetCard";
 import { PostsTab } from "@/components/profile/PostsTab";
 import { getConnectionState, getCommunityCarers } from "@/lib/mockConnections";
 import { providers } from "@/lib/mockData";
+import { getUserById } from "@/lib/mockUsers";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 
-type ProfileTab = "about" | "posts" | "services";
+/* ── Page ── */
 
-export default function UserProfilePage() {
+function UserProfileInner() {
   const { userId } = useParams<{ userId: string }>();
-  const [activeTab, setActiveTab] = useState<ProfileTab>("about");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const activeTab = searchParams.get("tab") ?? "about";
 
-  // Find user data from connections + providers
+  const handleTabChange = useCallback((key: string) => {
+    if (key === "about") {
+      router.replace(`/profile/${userId}`, { scroll: false });
+    } else {
+      router.replace(`/profile/${userId}?tab=${key}`, { scroll: false });
+    }
+  }, [router, userId]);
+
+  // Resolve user data from multiple sources
   const connection = getConnectionState(userId);
-  const provider = providers.find((p) => p.id === userId);
+  const userProfile = getUserById(userId);
+  const provider = providers.find((p) => p.id === userId || p.userId === userId);
   const communityCarer = getCommunityCarers().find((c) => c.userId === userId);
 
-  const name = connection?.userName ?? provider?.name ?? userId;
-  const avatarUrl = connection?.avatarUrl ?? provider?.avatarUrl ?? "";
-  const location = connection?.location ?? provider?.district ?? "";
-  const dogs = connection?.dogNames ?? [];
+  const name = userProfile
+    ? `${userProfile.firstName} ${userProfile.lastName}`
+    : connection?.userName ?? provider?.name ?? userId;
+  const firstName = userProfile?.firstName ?? name.split(" ")[0];
+  const avatarUrl = userProfile?.avatarUrl ?? connection?.avatarUrl ?? provider?.avatarUrl ?? "";
+  const location = userProfile?.location ?? connection?.location ?? provider?.district ?? "";
+  const dogs = userProfile?.pets ?? [];
+  const dogNames = connection?.dogNames ?? dogs.map((d) => d.name);
   const connState = connection?.state ?? "none";
   const isProfileOpen = connection?.profileOpen ?? false;
   const sharedGroups = connection?.sharedGroups ?? [];
 
-  const offersCare = !!provider || !!communityCarer;
-
-  // Locked profile: no relationship and profile is not open
+  const hasCare = !!userProfile?.carerProfile || !!provider || !!communityCarer;
   const isLocked = !isProfileOpen && connState === "none";
 
-  const tabs: { key: ProfileTab; label: string; show: boolean }[] = [
-    { key: "about", label: "About", show: true },
-    { key: "posts", label: "Posts", show: true },
-    { key: "services", label: "Services", show: offersCare },
+  const tabs = [
+    { key: "about", label: "About" },
+    { key: "posts", label: "Posts" },
+    ...(hasCare ? [{ key: "services", label: "Services" }] : []),
   ];
 
   return (
-    <main className="profile-page-shell">
-      <section className="profile-page-panel" style={{ maxWidth: 720, margin: "0 auto" }}>
-        <DetailHeader backLabel="Back" />
+    <PageColumn hideHeader abovePanel={<DetailHeader title={name} />}>
+      <div className="page-column-panel-body">
 
-        {/* Header */}
-        <div className="flex flex-col items-center gap-md p-lg text-center">
-          {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt={name}
-              className="rounded-full"
-              style={{
-                width: 80,
-                height: 80,
-                objectFit: "cover",
-                ...(isLocked ? { filter: "brightness(0.6) blur(1px)" } : {}),
-              }}
-            />
-          ) : (
-            <DefaultAvatar name={name} size={80} />
-          )}
-          <div>
+        {/* Tabs — hidden for locked profiles */}
+        {!isLocked && (
+          <div className="page-column-panel-tabs">
+            <TabBar tabs={tabs} activeKey={activeTab} onChange={handleTabChange} />
+          </div>
+        )}
+
+        {/* ── Locked profile state ── */}
+        {isLocked && (
+          <div className="flex flex-col items-center gap-lg" style={{ padding: "var(--space-xl) var(--space-lg)" }}>
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={name}
+                className="rounded-full object-cover"
+                style={{ width: 96, height: 96, filter: "brightness(0.6) blur(1px)" }}
+              />
+            ) : (
+              <DefaultAvatar name={name} size={96} />
+            )}
             <h1 className="font-heading text-xl font-semibold text-fg-primary m-0">{name}</h1>
-            {location && (
-              <p className="flex items-center justify-center gap-xs text-sm text-fg-secondary mt-xs">
-                <MapPin size={14} weight="light" /> {location}
-              </p>
-            )}
-            {dogs.length > 0 && (
-              <p className="flex items-center justify-center gap-xs text-sm text-fg-tertiary mt-xs">
-                <PawPrint size={14} weight="light" /> {dogs.join(", ")}
-                {connection?.dogBreed && ` · ${connection.dogBreed}`}
-              </p>
-            )}
-          </div>
 
-          {/* Connection state icon */}
-          <div className="flex items-center gap-sm flex-wrap justify-center">
-            <ConnectionIcon
-              state={connState}
-              theyMarkedFamiliar={connection?.theyMarkedFamiliar}
-              profileOpen={isProfileOpen}
-              size={16}
-              showLabel
-            />
-            {communityCarer && communityCarer.meetsShared > 0 && (
-              <span className="text-xs text-fg-tertiary">
-                {communityCarer.meetsShared} meets together
-              </span>
-            )}
-            {provider?.mutualConnections && provider.mutualConnections > 0 && (
-              <span className="text-xs text-fg-tertiary">
-                {provider.mutualConnections} mutual connections
-              </span>
-            )}
-          </div>
-
-          {/* Trust signal badges */}
-          {connection && !isLocked && <TrustSignalBadges connection={connection} />}
-
-          {/* Locked profile message */}
-          {isLocked && (
             <div className="flex flex-col items-center gap-sm rounded-panel p-lg bg-surface-inset w-full" style={{ maxWidth: 360 }}>
               <LockSimple size={28} weight="light" className="text-fg-tertiary" />
               <p className="text-sm text-fg-secondary m-0 text-center">
@@ -126,160 +106,183 @@ export default function UserProfilePage() {
                 </p>
               )}
             </div>
-          )}
-
-          {/* CTA */}
-          {!isLocked && (
-            <div className="flex items-center gap-sm">
-              {connState === "connected" && (
-                <>
-                  <ButtonAction variant="primary" size="md" href={`/inbox`}
-                    leftIcon={<ChatCircleDots size={16} weight="light" />}>
-                    Message {name.split(" ")[0]}
-                  </ButtonAction>
-                  {offersCare && (
-                    <ButtonAction variant="secondary" size="md" href={`/inbox`}
-                      leftIcon={<CalendarDots size={16} weight="light" />}>
-                      Book care
-                    </ButtonAction>
-                  )}
-                </>
-              )}
-              {connState === "familiar" && (
-                <ButtonAction variant="primary" size="md">
-                  Connect with {name.split(" ")[0]}
-                </ButtonAction>
-              )}
-              {connState === "pending" && (
-                <ButtonAction variant="outline" size="md" disabled>
-                  Request sent
-                </ButtonAction>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Tabs — hidden for locked profiles */}
-        {!isLocked && (
-          <div className="profile-tabs" role="tablist" aria-label="Profile sections">
-            {tabs.filter((t) => t.show).map(({ key, label }) => (
-              <button
-                key={key}
-                type="button"
-                role="tab"
-                aria-selected={activeTab === key}
-                onClick={() => setActiveTab(key)}
-                className={`profile-tab${activeTab === key ? " profile-tab--active" : ""}`}
-              >
-                {label}
-              </button>
-            ))}
           </div>
         )}
 
-        {/* Tab content */}
-        {!isLocked && <div className="p-lg">
-          {activeTab === "about" && (
-            <div className="flex flex-col gap-lg">
-              {provider?.blurb && (
-                <section className="profile-info-card">
-                  <h3 className="profile-card-subtitle">About</h3>
-                  <p className="profile-card-copy">{provider.blurb}</p>
-                </section>
-              )}
-              {!provider?.blurb && connection && (
-                <section className="profile-info-card">
-                  <h3 className="profile-card-subtitle">About</h3>
-                  <p className="profile-card-copy text-fg-secondary">
-                    {name} is a dog owner in {location}.
-                  </p>
-                </section>
-              )}
-              {provider && (
-                <section className="profile-info-card">
-                  <div className="flex items-center gap-sm">
-                    <span className="text-sm text-fg-secondary">
-                      {provider.rating} ★ · {provider.reviewCount} reviews
-                    </span>
-                    {provider.distanceKm && (
-                      <span className="text-sm text-fg-tertiary">
-                        · {provider.distanceKm} km away
-                      </span>
-                    )}
-                  </div>
-                </section>
-              )}
-            </div>
-          )}
+        {/* ── About tab ── */}
+        {!isLocked && activeTab === "about" && (
+          <div className="flex flex-col gap-lg" style={{ padding: "var(--space-lg)" }}>
 
-          {activeTab === "services" && provider && (
-            <div className="flex flex-col gap-lg">
-              <section className="profile-info-card">
-                <div className="flex items-center gap-sm">
-                  <span className="flex items-center gap-xs rounded-pill px-md py-xs text-sm font-medium"
-                    style={{ background: "var(--brand-subtle)", color: "var(--brand-strong)" }}>
-                    <PawPrint size={16} weight="fill" /> Open to helping
+            {/* Hero section */}
+            <div className="flex flex-col items-center gap-md" style={{ paddingBottom: "var(--space-md)" }}>
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={name}
+                  className="rounded-full object-cover"
+                  style={{ width: 96, height: 96 }}
+                />
+              ) : (
+                <DefaultAvatar name={name} size={96} />
+              )}
+              <div className="flex flex-col items-center gap-xs text-center">
+                <h1 className="font-heading text-xl font-semibold text-fg-primary m-0">{name}</h1>
+                {location && (
+                  <span className="flex items-center gap-xs text-sm text-fg-secondary">
+                    <MapPin size={13} weight="fill" className="shrink-0" /> {location}
                   </span>
+                )}
+                {dogNames.length > 0 && (
+                  <span className="flex items-center gap-xs text-sm text-fg-tertiary">
+                    <PawPrint size={13} weight="light" className="shrink-0" />
+                    {dogNames.join(", ")}
+                    {connection?.dogBreed && ` · ${connection.dogBreed}`}
+                  </span>
+                )}
+              </div>
+
+              {/* Connection state */}
+              <div className="flex items-center gap-sm flex-wrap justify-center">
+                <ConnectionIcon
+                  state={connState}
+                  theyMarkedFamiliar={connection?.theyMarkedFamiliar}
+                  profileOpen={isProfileOpen}
+                  size={16}
+                  showLabel
+                />
+                {communityCarer && communityCarer.meetsShared > 0 && (
+                  <span className="text-xs text-fg-tertiary">
+                    {communityCarer.meetsShared} meets together
+                  </span>
+                )}
+                {provider?.mutualConnections && provider.mutualConnections > 0 && (
+                  <span className="text-xs text-fg-tertiary">
+                    {provider.mutualConnections} mutual connections
+                  </span>
+                )}
+              </div>
+
+              {connection && <TrustSignalBadges connection={connection} />}
+
+              {/* CTA buttons */}
+              <div className="flex gap-sm w-full" style={{ maxWidth: 400 }}>
+                {connState === "connected" && (
+                  <>
+                    <ButtonAction variant="primary" size="md" cta className="flex-1"
+                      leftIcon={<ChatCircleDots size={16} weight="fill" />}
+                      href="/inbox">
+                      Message
+                    </ButtonAction>
+                    {hasCare && (
+                      <ButtonAction variant="outline" size="md" cta className="flex-1"
+                        leftIcon={<CalendarDots size={16} weight="light" />}
+                        href="/inbox">
+                        Book care
+                      </ButtonAction>
+                    )}
+                  </>
+                )}
+                {connState === "familiar" && (
+                  <ButtonAction variant="primary" size="md" cta className="flex-1">
+                    Connect with {firstName}
+                  </ButtonAction>
+                )}
+                {connState === "pending" && (
+                  <ButtonAction variant="outline" size="md" cta className="flex-1" disabled>
+                    Request sent
+                  </ButtonAction>
+                )}
+              </div>
+            </div>
+
+            {/* About section */}
+            {(provider?.blurb || userProfile?.bio || connection) && (
+              <section className="profile-info-card">
+                <h3 className="profile-card-subtitle">About</h3>
+                <p className="profile-card-copy">
+                  {provider?.blurb ?? userProfile?.bio ?? `${name} is a dog owner in ${location}.`}
+                </p>
+              </section>
+            )}
+
+            {/* Provider stats */}
+            {provider && (
+              <section className="profile-info-card">
+                <div className="flex items-center gap-sm text-sm text-fg-secondary">
+                  <span>{provider.rating} ★ · {provider.reviewCount} reviews</span>
+                  {provider.distanceKm && (
+                    <span className="text-fg-tertiary">· {provider.distanceKm} km away</span>
+                  )}
                 </div>
               </section>
-              <section className="profile-info-card">
-                <h3 className="profile-card-subtitle">Services</h3>
-                <div className="profile-services-list">
-                  {provider.services.map((svcType) => (
-                    <div key={svcType} className="profile-service-card">
-                      <div className="profile-service-top">
-                        <span className="profile-service-name">{SERVICE_LABELS[svcType]}</span>
-                        <div className="profile-service-price-wrap">
-                          <span className="profile-service-price">
-                            from {provider.priceFrom.toLocaleString()} Kč
+            )}
+
+            {/* Dogs — PetCards with collapsed default for other users */}
+            {dogs.length > 0 && (
+              <section className="flex flex-col gap-md">
+                <h3 className="profile-card-subtitle" style={{ padding: "0 var(--space-lg)" }}>
+                  {firstName}&apos;s Dogs
+                </h3>
+                {dogs.map((pet) => (
+                  <PetCard key={pet.id} pet={pet} defaultExpanded={false} />
+                ))}
+              </section>
+            )}
+          </div>
+        )}
+
+        {/* ── Posts tab ── */}
+        {!isLocked && activeTab === "posts" && (
+          <PostsTab userId={userId} />
+        )}
+
+        {/* ── Services tab ── */}
+        {!isLocked && activeTab === "services" && (
+          <div className="flex flex-col gap-lg" style={{ padding: "var(--space-lg)" }}>
+            {/* Open to helping badge */}
+            <section className="profile-info-card">
+              <span className="flex items-center gap-xs rounded-pill px-md py-xs text-sm font-medium"
+                style={{ background: "var(--brand-subtle)", color: "var(--brand-strong)", display: "inline-flex" }}>
+                <PawPrint size={16} weight="fill" /> Open to helping
+              </span>
+            </section>
+
+            {/* Service cards — from provider catalog or community carer data */}
+            <section className="profile-info-card">
+              <h3 className="profile-card-subtitle">Services</h3>
+              <div className="profile-services-list">
+                {(provider?.services ?? communityCarer?.services ?? []).map((svcType) => (
+                  <div key={svcType} className="profile-service-card">
+                    <div className="profile-service-top">
+                      <span className="profile-service-name">{SERVICE_LABELS[svcType]}</span>
+                      <div className="profile-service-price-wrap">
+                        <span className="profile-service-price">
+                          from {(provider?.priceFrom ?? communityCarer?.priceFrom ?? 0).toLocaleString()} Kč
+                          {provider?.priceUnit && (
                             <span className="profile-service-unit">
                               {" "}/ {provider.priceUnit === "per_visit" ? "visit" : provider.priceUnit === "per_walk" ? "walk" : "night"}
                             </span>
-                          </span>
-                        </div>
+                          )}
+                        </span>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </section>
-            </div>
-          )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
 
-          {activeTab === "services" && !provider && communityCarer && (
-            <div className="flex flex-col gap-lg">
-              <section className="profile-info-card">
-                <div className="flex items-center gap-sm">
-                  <span className="flex items-center gap-xs rounded-pill px-md py-xs text-sm font-medium"
-                    style={{ background: "var(--brand-subtle)", color: "var(--brand-strong)" }}>
-                    <PawPrint size={16} weight="fill" /> Open to helping
-                  </span>
-                </div>
-              </section>
-              <section className="profile-info-card">
-                <h3 className="profile-card-subtitle">Services</h3>
-                <div className="profile-services-list">
-                  {communityCarer.services.map((svcType) => (
-                    <div key={svcType} className="profile-service-card">
-                      <div className="profile-service-top">
-                        <span className="profile-service-name">{SERVICE_LABELS[svcType]}</span>
-                        <div className="profile-service-price-wrap">
-                          <span className="profile-service-price">
-                            from {communityCarer.priceFrom} Kč
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            </div>
-          )}
+        <Spacer />
+      </div>
+    </PageColumn>
+  );
+}
 
-          {activeTab === "posts" && (
-            <PostsTab userId={userId} />
-          )}
-        </div>}
-      </section>
-    </main>
+export default function UserProfilePage() {
+  return (
+    <Suspense fallback={<div />}>
+      <UserProfileInner />
+    </Suspense>
   );
 }

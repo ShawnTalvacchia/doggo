@@ -85,6 +85,8 @@ export interface ProviderCard {
   // Map coordinates (WGS84) — client-side only, not stored in DB
   lat?: number;
   lng?: number;
+  // Bridge to mockUsers — maps provider catalog ID to user registry ID
+  userId?: string;
 }
 
 /** A single rate row inside a service block (e.g. Holiday Rate, Additional Dog Rate) */

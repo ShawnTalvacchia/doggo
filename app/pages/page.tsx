@@ -73,7 +73,7 @@ const siteMap = [
     label: "accessed via Find Care CTA",
     pages: [
       { name: "Results", route: "/discover?tab=care", desc: "Provider cards with filters (service, price, availability), interactive Leaflet map" },
-      { name: "Provider Profile", route: "/discover/profile/olga-m", desc: "Info / Services / Reviews tabs, photo gallery, trust signals, contact modal" },
+      { name: "Provider Profile", route: "/profile/olga-m", desc: "Unified profile with About / Posts / Services tabs" },
     ],
   },
   {

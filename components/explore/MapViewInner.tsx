@@ -46,7 +46,7 @@ function priceLabel(p: ProviderCard): string {
 }
 
 function buildPopupHtml(provider: ProviderCard, serviceParam: string): string {
-  const href = `/discover/profile/${provider.id}${serviceParam}`;
+  const href = `/profile/${provider.userId ?? provider.id}${serviceParam}`;
   // Stars: render filled/half stars as a simple string
   const stars = "★".repeat(Math.round(provider.rating));
   return `

@@ -31,11 +31,12 @@ export function CardExploreResult({
   const connBadge = conn?.state === "connected" ? "Connected" : conn?.state === "familiar" ? "Familiar" : null;
 
   // Carry the full filter state into the profile URL so back navigation can restore it.
+  const profileId = provider.userId ?? provider.id;
   const profileHref = returnQuery
-    ? `/discover/profile/${provider.id}?${returnQuery}`
+    ? `/profile/${profileId}?${returnQuery}`
     : activeService
-      ? `/discover/profile/${provider.id}?service=${activeService}`
-      : `/discover/profile/${provider.id}`;
+      ? `/profile/${profileId}?service=${activeService}`
+      : `/profile/${profileId}`;
 
   return (
     <Link href={profileHref} className="result-card">

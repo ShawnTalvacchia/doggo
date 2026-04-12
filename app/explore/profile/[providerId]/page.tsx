@@ -12,7 +12,7 @@ export default function ExploreProfileRedirect({
   const router = useRouter();
 
   useEffect(() => {
-    router.replace(`/discover/profile/${providerId}`);
+    router.replace(`/profile/${providerId}`);
   }, [providerId, router]);
 
   return null;

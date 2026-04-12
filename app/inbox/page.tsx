@@ -166,7 +166,7 @@ function ContactInfoPanel({ conv }: { conv: Conversation }) {
             Member since {new Date(user.memberSince + "-01").toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
           </span>
         )}
-        <ButtonAction variant="outline" size="sm" href={`/discover/profile/${other.id}`}>
+        <ButtonAction variant="outline" size="sm" href={`/profile/${other.id}`}>
           View profile
         </ButtonAction>
       </div>
@@ -315,7 +315,7 @@ function ContactInfoPanel({ conv }: { conv: Conversation }) {
               <span className="inbox-contact-status">{conv.status}</span>
             </div>
           </div>
-          <ButtonAction variant="primary" size="sm" href={`/discover/profile/${other.id}`} style={{ marginTop: "var(--space-sm)" }}>
+          <ButtonAction variant="primary" size="sm" href={`/profile/${other.id}`} style={{ marginTop: "var(--space-sm)" }}>
             View services
           </ButtonAction>
         </div>
