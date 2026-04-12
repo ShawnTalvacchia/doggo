@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-04-13
+last-reviewed: 2026-04-12
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
@@ -28,6 +28,8 @@ UI Consistency pass: Discover flow refactored (type pickers removed, FilterPillR
 
 Bookings & Care Provider Flow phase: Booking detail page restructured into tabbed layout (Info / Sessions / Chat). Owner view with aggregate stats (sessions completed, duration, next session), CTA pill buttons (Message + Cancel). Provider view with "You're providing" pill, session check-in actions (Start / Complete / Add note). Rolling weekly billing model for recurring bookings — sessions generate one at a time. Care instructions (owner/carer notes). Chat tab with embedded conversation. BookingRow card polish (Tag icon, divider removal, service hierarchy). Success color palette shifted from neon mint to muted sea green. Deferred: booking proposal card in conversation, provider inbox actions, provider profile services section (→ Inbox & Notifications and Profiles & Dogs phases).
 
+Profiles & Dogs phase: Unified three separate profile pages (own, other-user, provider) into one PageColumn + TabBar pattern. Own profile rewritten with inline hero on About tab. Other-user profile with DetailHeader, connection-gated CTA pill buttons (Message/Book/Connect/disabled). PetCard expand/collapse with `defaultExpanded` prop. Provider profile route (`/discover/profile/[providerId]`) redirected to `/profile/[userId]` via `userId` bridge field on ProviderCard. Services tab shows provider data from multiple sources. ~200 lines dead CSS removed (old profile shell, header, desktop two-column layout). ProfileHeader and ProfileHeaderOwn components deleted. Deferred: profile completeness indicator, empty state design.
+
 Full history in `archive/phases/`. Key outcomes:
 
 - **Navigation:** Community | Discover | My Schedule | Bookings | Profile (mobile). 7-item desktop sidebar. Neutral active state (transparent-dark-4). CTA pill buttons for header actions.
@@ -44,25 +46,22 @@ Full history in `archive/phases/`. Key outcomes:
 
 ## Current State — Honest Assessment
 
-*(Updated 2026-04-13 after Bookings & Care Provider Flow phase close)*
+*(Updated 2026-04-12 after Profiles & Dogs phase close)*
 
-The prototype is feature-rich with consistent layout and interactions across all pages. Every page uses PageColumn, has real content, and has working interactions. The design system is stable — unified FilterPillRow, consistent header treatment, neutral sidebar nav. Bookings now have a full owner/provider experience with tabbed detail pages, session management, and rolling weekly billing.
+The prototype is feature-rich with consistent layout and interactions across all pages. Every page uses PageColumn, has real content, and has working interactions. The design system is stable — unified FilterPillRow, consistent header treatment, neutral sidebar nav. Profiles are now unified: one PageColumn + TabBar pattern for own, other-user, and provider profiles. Provider profile route redirects to the unified page.
 
-**Works well:** Interactive RSVP on meets, schedule cards with descriptive care labels and accent borders, Discover flow (hub → results with filter pills + floating buttons), community feed with care provider badges, booking detail with tabbed layout and session check-in/check-out, booking list with clean card design, photo gallery on completed meets, scroll-to-hide nav on mobile.
+**Works well:** Interactive RSVP on meets, schedule cards with descriptive care labels and accent borders, Discover flow (hub → results with filter pills + floating buttons), community feed with care provider badges, booking detail with tabbed layout and session check-in/check-out, booking list with clean card design, photo gallery on completed meets, scroll-to-hide nav on mobile, unified profile pages with connection-gated CTAs, PetCard expand/collapse.
 
-**Data layer:** 20 users, 24 meets, 18 groups, 35+ posts, 13 reviews, 10 bookings, 12 connections, 8 conversations, 3 group threads. Session/meet dates updated to April 2026. All cross-referenced and TypeScript-clean.
+**Data layer:** 20 users, 24 meets, 18 groups, 35+ posts, 13 reviews, 10 bookings, 12 connections, 8 conversations, 3 group threads. Session/meet dates updated to April 2026. Provider ID bridge field (`userId`) added to ProviderCard. All cross-referenced and TypeScript-clean.
 
 **Needs significant work:**
-- Profiles — both self and other-user (need design thinking)
-- Provider profile section (services, availability — deferred from Bookings phase)
-- Dog pages/sections (currently minimal)
 - Inbox (PageColumn layout done, but conversation flow incomplete, booking proposal card not built)
 - Notifications (started, needs more content types)
-- Orphan CSS cleanup from Layout Unification (old shell classes still in globals.css)
+- Demo presentation layer (persona switching, guided exploration)
 
 **Known bugs on Polish Log:**
 - Slider "no max" option missing for group size
-- Provider ID mismatch between mockData.ts and mockUsers.ts
+- Remaining provider ID mappings needed (olga-m, jana-k)
 
 ---
 
@@ -74,32 +73,19 @@ The prototype is feature-rich with consistent layout and interactions across all
 
 ## Current Phase
 
-### Profiles & Dogs
-
-**Goal:** Design and build comprehensive profile pages (self and other-user) and decide how dogs are surfaced — own pages, sub-sections, or both. Consider how profiles differ for providers vs casual users. Also includes provider profile services section deferred from Bookings phase.
-
-**Key work:**
-- Self-profile redesign — tabs, content sections, edit flow
-- Other-user profile — relationship-aware content (what you see depends on connection state)
-- Dog profiles/sections — own pages, inline sections, or both
-- Provider profile elevation — services listing, availability, reviews (deferred P3 from Bookings phase)
-- Profile completeness indicators
-
-**Phase board:** `phases/profiles-and-dogs.md`
-
-**Refs:** [[profiles]], [[Trust & Connection Model]], [[User Archetypes]]
-
----
-
-## Upcoming Phases
-
 ### Inbox & Notifications
 
 **Goal:** Fix inbox structure and build a complete messaging experience. Notifications needs more content types and interaction patterns. Includes deferred booking conversation items from Bookings phase.
 
 **Key work:** Inbox conversation flow, message compose, booking proposal card (accept/counter/decline — deferred P2/L1), provider inbox actions, notification types and actions, read states.
 
+**Phase board:** `phases/inbox-and-notifications.md`
+
 **Refs:** [[messaging]], [[connections]], [[explore-and-care]]
+
+---
+
+## Upcoming Phases
 
 ### Demo Presentation
 

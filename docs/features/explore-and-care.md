@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-13
+last-reviewed: 2026-04-12
 tags: [discover, care, booking, providers, map, payment, trust-gating]
 review-trigger: "when modifying Discover Care tab, provider profiles, booking flows, payment, or map"
 ---
@@ -28,8 +28,8 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 
 ## Current State
 
-- **Pages:** `/discover` (hub with three doors: Meets, Groups, Dog Care), `/discover/care` (provider search with filters + map), `/discover/meets` (meet browse), `/discover/groups` (group browse), `/discover/profile/[providerId]` (provider profile), `/bookings/[bookingId]` (booking detail), `/bookings/[bookingId]/checkout` (payment mock)
-- **Components:** CardExploreResult, FilterPillRow, FilterPanelDesktop/Mobile, MapView (Leaflet), ProfileHeader, TrustGateBanner, CancelBookingModal, BookingRow, StatusBadge, TabBar (on detail page)
+- **Pages:** `/discover` (hub with three doors: Meets, Groups, Dog Care), `/discover/care` (provider search with filters + map), `/discover/meets` (meet browse), `/discover/groups` (group browse), `/profile/[userId]` (unified profile — provider profiles redirect here from `/discover/profile/[providerId]`), `/bookings/[bookingId]` (booking detail), `/bookings/[bookingId]/checkout` (payment mock)
+- **Components:** CardExploreResult, FilterPillRow, FilterPanelDesktop/Mobile, MapView (Leaflet), TrustGateBanner, CancelBookingModal, BookingRow, StatusBadge, TabBar (on detail page)
 - **Data:** Mock providers, mock bookings with payment status
 - **Status:** Built — full explore flow, trust-gated CTAs, payment mock, booking management
 
@@ -40,7 +40,7 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 - **Provider results:** Filterable list with price, distance, rating, services. Map with price-marker pins. Community carers section for connected providers.
 - **Care filter panel:** The filter panel at `/discover/care` uses **interactive UI primitives** — MultiSelectSegmentBar for day-of-week selection, dual Slider for price range, CheckboxRow for service toggles, and an accordion pattern for expanding service sub-types. All built from existing components, not custom markup.
 - **Interactive map:** Leaflet with Carto Positron tiles, price markers, 3-column desktop layout
-- **Provider profiles:** Info/Services/Reviews tabs, gallery, trust signals
+- **Provider profiles:** Unified at `/profile/[userId]` — About/Posts/Services tabs, trust signals. Old `/discover/profile/[providerId]` redirects via `userId` bridge field on ProviderCard. `ProfileHeader` component deleted.
 - **Connection gating (Phase 11):** CTAs enforced by connection state:
   - **Connected:** "Message [name]" + "Book care" — full access
   - **Familiar:** "Connect with [name]" — must connect before booking. TrustGateBanner shows context.

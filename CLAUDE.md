@@ -63,17 +63,17 @@ See `docs/CONTRIBUTING.md` for full details, including the phase open/close life
 | `docs/implementation/design-tokens.md` | Token reference and Figma→CSS mapping |
 | `docs/implementation/mock-data-plan.md` | Mock data strategy and user journey planning |
 
-## Current Phase: Profiles & Dogs
+## Current Phase: Inbox & Notifications
 
-Designing and building comprehensive profile pages (self and other-user) and dog profiles/sections. Includes provider profile services section deferred from Bookings phase.
+Fix inbox structure and build a complete messaging experience. Notifications needs more content types and interaction patterns. Includes deferred booking conversation items from Bookings phase.
 
-**Phase board:** `docs/phases/profiles-and-dogs.md`
+**Phase board:** `docs/phases/inbox-and-notifications.md`
 
 **Polish Log:** `docs/phases/polish-log.md` — running list of UI tweaks and small fixes, worked on alongside any active phase.
 
-**Recently completed:** Bookings & Care Provider Flow (tabbed booking detail for owner/provider, rolling weekly billing, session check-in/check-out, care instructions, Chat tab, aggregate stats, BookingRow polish, success color palette). Page Content & Interactions. Layout Unification (PageColumn everywhere, sidebar 180px).
+**Recently completed:** Profiles & Dogs (unified profile pages with PageColumn + TabBar, PetCard expand/collapse, connection-gated CTAs, provider profile redirect, ~200 lines dead CSS removed). Bookings & Care Provider Flow. Page Content & Interactions. Layout Unification.
 
-**Upcoming phases:** Inbox & Notifications → Demo Presentation. See ROADMAP.md.
+**Upcoming phases:** Demo Presentation. See ROADMAP.md.
 
 ## Strategic Context
 
@@ -92,3 +92,6 @@ Key decisions:
 - **Group detail:** No Chat tab. Feed with flat comments for async discussion. Meet-level Chat tab for real-time event coordination.
 - **Meet detail:** Tabbed view — Details · People · Chat.
 - **Content visibility.** Two-gate model: context gate (group/meet membership) + relationship gate (connection state). See `docs/strategy/Content Visibility Model.md`.
+- **Unified profiles.** All profiles use PageColumn + TabBar. Own profile: title="Profile". Other-user: hideHeader + DetailHeader. Provider profile route redirects to `/profile/[userId]` via `userId` bridge field on ProviderCard.
+- **PetCard expand/collapse.** `defaultExpanded` prop — true on own profile, false on other profiles. Header always visible (photo, name, breed, age).
+- **Connection-gated CTAs on profiles.** Pill-shaped ButtonAction with `cta` prop. Connected → Message + Book Care. Familiar → Connect. Pending/None → disabled.

@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-08
+last-reviewed: 2026-04-12
 tags: [profile, pets, provider, edit, posts, tagging]
 review-trigger: "when modifying profile pages, pet cards, posts, or provider sections"
 ---
@@ -16,76 +16,87 @@ Owner profiles, pet profiles, posts, and care provider sections — all part of 
 
 Every user has one profile. There is no separate "provider account." Users who offer care have additional sections visible on the same profile (services, availability, reviews). The profile page serves double duty: it's how you manage your own identity/pets/settings, and it's how others learn about you and your dogs.
 
-Own profile and explore provider profile share the same layout structure, CSS classes, and tab pattern — ensuring visual consistency whether you're viewing yourself or someone else.
+All profile pages use the **PageColumn + TabBar** pattern — the same layout as every other page in the app. No custom shell, no two-column desktop layout.
 
 ---
 
 ## Current State
 
-- **Pages:** `/profile` (own profile, edit mode), `/profile/[userId]` (other user's profile), `/discover/profile/[providerId]` (provider profile with trust signals)
-- **Components:** `ProfileHeaderOwn`, `ProfileHeader`, `PetCard`, `PetEditCard`, `PostsTab`, `TagApprovalSetting`
-- **Data:** `lib/mockUser.ts` (own profile + pets), `lib/mockPosts.ts` (posts), `lib/mockData.ts` (provider profiles)
-- **Status:** Built — unified layout, edit mode, enhanced pet profiles, trust signals, posts tab, tag approval
+- **Pages:** `/profile` (own profile, edit mode), `/profile/[userId]` (other user and provider profiles)
+- **Redirects:** `/discover/profile/[providerId]` → `/profile/[userId]` (via `userId` field on ProviderCard), `/explore/profile/[providerId]` → `/profile/[userId]`
+- **Components:** `PetCard` (expand/collapse), `PetEditCard`, `PostsTab`, `TagApprovalSetting`, `TabBar`, `PageColumn`, `DetailHeader`
+- **Data:** `lib/mockUser.ts` (own profile + pets), `lib/mockPosts.ts` (posts), `lib/mockData.ts` (provider profiles with `userId` bridge field)
+- **Status:** Built — unified PageColumn layout, edit mode, PetCard expand/collapse, connection-gated CTAs, provider services on profile
 
-### Layout structure (shared)
+### Layout structure
 
-**Desktop:** Sidebar (avatar, name, location, member-since, actions) + right panel (tabs + scrollable content)
+**All viewports:** PageColumn → page-column-panel-body → page-column-panel-tabs → TabBar → tab content. Single column, 640px max-width, centered. Same pattern as meets, groups, bookings, schedule.
 
-**Mobile:** Fixed top bar (condensed header + tabs) + scrollable body below
+**Own profile:** PageColumn with title="Profile" (standard header). Tabs: About | Posts | Services.
 
-**Tabs:** About | Posts | Services (Phase 10 — replaces the previous About | Services | Reviews)
+**Other-user profile:** PageColumn with hideHeader + DetailHeader (back nav via abovePanel prop). Tabs: About | Posts | Services (Services only shown if user has provider data).
+
+**Locked profile:** No tabs. Lock icon + explanation message. No CTA buttons.
 
 ### Own profile
 
+- Hero section inline in About tab: avatar (large), name, location, member since, Edit/Save/Cancel buttons, Share Profile
 - Edit mode for bio, location, visibility toggle
-- Pet management: add, edit, delete pets
-- PetEditCard matches signup flow layout
+- Pet management: PetCards with expand/collapse (defaultExpanded=true on own profile)
 - Tag approval setting: auto-approve / review first / don't allow tagging
 - Care CTAs: Find Care + Offer Care / Manage Services
 - Connection list with state badges
 - **Posts tab:** photo grid of user's posts with "New post" CTA
+- **Services tab:** editable services, availability, visibility toggle
 
 ### Other user profiles (`/profile/[userId]`)
 
-- Same three tabs (About / Posts / Services), read-only
+- Same TabBar pattern, read-only
+- Hero section: avatar, name, location, dogs summary, connection badge, trust signal badges
+- Provider stats (rating, reviews) shown in hero when user has provider data
+- PetCards shown collapsed (defaultExpanded=false)
 - Posts tab shows their posts visible to you
-- Trust signals: connection badge, shared meets
-- Relationship-aware CTAs:
+- Services tab only appears if user has carerProfile or matching provider card
+- Relationship-aware CTAs (pill-shaped, full-width):
   - **Connected:** "Message [name]" + "Book care"
   - **Familiar:** "Connect with [name]"
   - **Pending:** "Request sent" (disabled)
   - **None:** "Meet [name] first" (disabled)
 
-### Provider profiles (`/discover/profile/[providerId]`)
+### Provider data resolution
 
-- Extended profile with Info / Services / Reviews tabs
-- Trust signals: connection badge, distance, mutual connections
-- **TrustGateBanner** (Phase 11): contextual banner when not connected, explaining why actions are locked
-- Connection-gated CTAs enforced (Phase 11):
-  - **Connected:** Message + Book care
-  - **Familiar:** Connect first (booking blocked)
-  - **None:** Disabled — "Meet [name] first"
-  - **Pending:** Disabled — "Request sent"
+Other-user profiles check multiple data sources to build provider content:
+1. `getUserById(userId)` — base user data + carerProfile
+2. `providers.find(p => p.userId === userId || p.id === userId)` — provider catalog data
+3. `getCommunityCarers()` — community carer entries
+
+The `userId` field on `ProviderCard` bridges between provider catalog IDs (e.g. `nikola-r`) and user registry IDs (e.g. `nikola`).
 
 ---
 
 ## Key Decisions
 
-1. **One profile, one layout** — own and other-user profiles use the same CSS classes. Visual consistency at the layout level.
+1. **One profile, one layout** — own and other-user profiles both use PageColumn + TabBar. No custom shells. Consistent with every other page.
 
-2. **Providers are just users with more sections** — no separate provider profile page. The same profile gains Services sections when a user offers care. "Dial, not a switch."
+2. **Providers are just users with more sections** — no separate provider profile page. The same profile gains a Services tab when a user offers care. "Dial, not a switch."
 
-3. **Posts are first-class** — the Posts tab shows a user's photo posts with captions, tags, and paw reactions. Posts replace the old Reviews tab as the second tab. Reviews moved into the Services tab.
+3. **Provider profile redirect** — the old `/discover/profile/[providerId]` route now redirects to `/profile/[userId]`. All links across the app (Discover cards, map popups, inbox) point directly to `/profile/[userId]`.
 
-4. **Profile gallery is a filtered view** — the gallery/posts visible on a profile are filtered per-viewer using the Content Visibility Model's two-gate system: the **context gate** (does the viewer share a group/meet context with this user?) and the **relationship gate** (connection state between viewer and profile owner). A Connected user sees more content than a Familiar viewer, who sees more than a stranger. See [[Content Visibility Model]] for the full rules.
+4. **PetCard expand/collapse** — pet cards show header (photo, name, breed, age) by default. Expanded view shows energy level, play styles, socialisation notes, health info, and photo gallery. `defaultExpanded` prop controls initial state (true on own profile, false on other profiles).
 
-5. **Tags filtered by relationship gate** — tags on posts and photos are visibility-filtered per-viewer. A viewer only sees tags for people/dogs they have a relationship with (Connected or Familiar). Tags for unknown users are hidden, not removed — the content owner still sees all their tags. This prevents profile galleries from leaking social graph information to strangers.
+5. **Connection-gated CTAs** — pill-shaped ButtonAction components with `cta` prop. Actions gated by connection state: Message + Book Care for connected users, Connect for familiar, disabled states for pending/none.
 
-6. **Tag approval is per-user** — users control how they can be tagged: auto-approve (default), review first, or don't allow. Dog tagging inherits the owner's setting.
+6. **URL-based tab state** — tabs use `?tab=about` query params for persistence and deep linking.
 
-7. **Connection state gates actions** — not just badges. Phase 11 enforces that non-connected users cannot book care or initiate conversations from profiles.
+7. **Posts are first-class** — the Posts tab shows a user's photo posts with captions, tags, and paw reactions. Posts replace the old Reviews tab as the second tab. Reviews moved into the Services tab.
 
-8. **Provider setup lives in the profile** — all "Offer Care" entry points across the app route to `/profile?tab=services`. No separate provider signup flow.
+8. **Profile gallery is a filtered view** — the gallery/posts visible on a profile are filtered per-viewer using the Content Visibility Model's two-gate system.
+
+9. **Tags filtered by relationship gate** — tags on posts and photos are visibility-filtered per-viewer. A viewer only sees tags for people/dogs they have a relationship with.
+
+10. **Tag approval is per-user** — users control how they can be tagged: auto-approve (default), review first, or don't allow.
+
+11. **Provider setup lives in the profile** — all "Offer Care" entry points across the app route to `/profile?tab=services`.
 
 ---
 
@@ -102,7 +113,7 @@ Own profile and explore provider profile share the same layout structure, CSS cl
 | Health & notes | textarea | Allergies, medical conditions, etc. |
 | Photo | image | Primary pet photo |
 
-### Enhanced (optional)
+### Enhanced (optional, visible when expanded)
 
 | Field | Type | Notes |
 |-------|------|-------|
@@ -150,8 +161,8 @@ Profile About tab → Click "Edit" on a section → Section enters edit mode
 
 ```
 Feed / meet attendees / connection list / explore results
-→ Tap user → Profile page (About / Posts / Services)
-→ See trust signals + connection badge
+→ Tap user → /profile/[userId] (PageColumn + DetailHeader)
+→ See trust signals + connection badge + PetCards (collapsed)
 → CTA gated by connection state
 ```
 
@@ -182,8 +193,6 @@ In list contexts (search results, community members, meet attendees):
 
 When a user adds care services while their profile is Locked, an informational banner appears on the services tab: "Your profile is private — only people you've marked as Familiar or Connected with can see your services. Want to make your profile public?"
 
-The banner links to the existing visibility toggle. Dismissing is fine — casual providers who only help friends should stay Locked.
-
 ### Default avatar
 
 Users with no photo get an initials-based avatar on a coloured background (colour derived from user ID for consistency). Component: `components/ui/DefaultAvatar.tsx`.
@@ -193,7 +202,8 @@ Users with no photo get an initials-based avatar on a coloured background (colou
 ## Future
 
 - **Care history section** — past bookings (as owner and as carer) visible on profile
-- **Profile completeness indicator** — gentle nudge to fill out enhanced pet fields
+- **Profile completeness indicator** — gentle nudge to fill out enhanced pet fields (deferred from Profiles & Dogs phase)
+- **Empty state design** — what does a sparse profile look like? (deferred from Profiles & Dogs phase)
 - **Video posts** — deferred from Phase 10 due to hosting complexity
 - **Comments on posts** — future phase, currently reactions only
 - **Personal post audience controls** — currently connections + tagged communities, no custom audience picker

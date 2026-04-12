@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-13
+last-reviewed: 2026-04-12
 tags: [questions, risks, assumptions]
 review-trigger: "before starting a new phase, after any strategic discussion"
 ---
@@ -127,5 +127,5 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 - Notification strategy — what triggers push vs. quiet delivery?
 - Supabase data model for production — design before building backend.
 - Image storage/hosting for galleries and meet photos.
-- Provider ID dualism — mockData.ts uses `olga-m`, `nikola-r`, `jana-k` while mockUsers.ts uses `jana`, `nikola`. These coexist but will need unification before real backend work.
+- Provider ID dualism — **partially resolved**: `userId` bridge field added to ProviderCard, `nikola-r` maps to `nikola`. All profile links now use `/profile/[userId]` pattern. Remaining providers (`olga-m`, `jana-k`) still need `userId` mapping — not blocking demo but needed before real backend.
 - Feed algorithm for multi-user — currently hardcoded to "Vinohrady" neighbourhood. Needs to be user-context-aware for persona switching.
