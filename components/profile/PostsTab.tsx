@@ -3,6 +3,7 @@
 import { Camera, Plus } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { FeedCommunityPost } from "@/components/feed/FeedCommunityPost";
+import { usePostComposer } from "@/contexts/PostComposerContext";
 import { getPostsByUser } from "@/lib/mockPosts";
 
 interface PostsTabProps {
@@ -11,6 +12,7 @@ interface PostsTabProps {
 }
 
 export function PostsTab({ userId, isOwnProfile = false }: PostsTabProps) {
+  const { openComposer } = usePostComposer();
   const posts = getPostsByUser(userId);
 
   return (
@@ -22,7 +24,7 @@ export function PostsTab({ userId, isOwnProfile = false }: PostsTabProps) {
           <ButtonAction
             variant="primary"
             size="sm"
-            href="/posts/create"
+            onClick={() => openComposer()}
             leftIcon={<Plus size={14} weight="bold" />}
           >
             New post
@@ -40,7 +42,7 @@ export function PostsTab({ userId, isOwnProfile = false }: PostsTabProps) {
             <ButtonAction
               variant="primary"
               size="md"
-              href="/posts/create"
+              onClick={() => openComposer()}
               leftIcon={<Camera size={16} weight="light" />}
             >
               Share a moment

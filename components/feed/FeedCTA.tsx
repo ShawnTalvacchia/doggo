@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { Camera } from "@phosphor-icons/react";
+import { usePostComposer } from "@/contexts/PostComposerContext";
 
 interface FeedCTAProps {
   dogPhotos?: string[];
@@ -13,17 +13,19 @@ interface FeedCTAProps {
  * tertiary prompt text, outlined Post button.
  */
 export function FeedCTA({ dogPhotos = [] }: FeedCTAProps) {
+  const { openComposer } = usePostComposer();
   const photos = dogPhotos.slice(0, 2);
 
   return (
-    <Link
-      href="/posts/create"
-      className="bg-surface-top border border-edge-regular flex items-center gap-md"
+    <button
+      type="button"
+      onClick={() => openComposer()}
+      className="bg-surface-top border border-edge-regular flex items-center gap-md w-full"
       style={{
         height: 64,
         padding: "0 var(--padding-small)",
-        textDecoration: "none",
-        boxShadow: "0px 2px 4px 0px rgba(0, 0, 0, 0.04)",
+        cursor: "pointer",
+        textAlign: "left",
       }}
     >
       {/* Dog avatar stack */}
@@ -66,6 +68,6 @@ export function FeedCTA({ dogPhotos = [] }: FeedCTAProps) {
         <Camera size={16} weight="light" />
         Post
       </span>
-    </Link>
+    </button>
   );
 }

@@ -18,16 +18,16 @@ review-trigger: When any task is completed or blocked
 
 Complete before writing any code. Mark each item done.
 
-- [ ] Read every task and its referenced docs
-- [ ] Review Open Questions log — flag anything affecting this phase
-- [ ] Walk through own profile (`/profile`) — note what feels thin, broken, or missing
-- [ ] Walk through other-user profiles (`/profile/tereza`, `/profile/klara`, `/profile/daniel`) — note gaps
-- [ ] Walk through locked profile view — is the explanation clear and the gate working?
-- [ ] Review current About tab content for each mock user — is it enough to tell a story?
-- [ ] Review post composer — confirm the broken modal layout (P7 on polish log)
-- [ ] Review Posts tab — confirm corner radius and attribution issues (P8 on polish log)
-- [ ] Check Services tab with provider profiles (klara, nikola, olga) — is the content rich enough?
-- [ ] Confirm scope — no tasks that belong in a different phase
+- [x] Read every task and its referenced docs
+- [x] Review Open Questions log — flag anything affecting this phase
+- [x] Walk through own profile (`/profile`) — bio good, carer profile thin (generic bio, 1 service only)
+- [x] Walk through other-user profiles — 12/20 users have thin bios, 12 pets lack socialisation notes
+- [x] Walk through locked profile view — gate works, 8 users locked (some with thin content behind the gate)
+- [x] Review current About tab content for each mock user — 5 rich (tereza, daniel, klara, eva, hana), 12 thin, 3 moderate
+- [x] Review post composer — P7 confirmed: form-shell height calc doesn't account for page-shell padding
+- [x] Review Posts tab — P8 needs verification (attribution, corner radius)
+- [x] Check Services tab with provider profiles — klara/tereza/petra have carerProfiles in mockUsers but NOT in Explore providers array (data mismatch)
+- [x] Confirm scope — all tasks fit this phase, no scope conflicts
 
 ---
 
@@ -41,7 +41,7 @@ The About tab is the first thing a visitor sees. It needs to tell a story — no
 |---|-------------|--------|
 | A1 | Review and enrich mock user bios — every user should have a distinct, personality-rich bio (2-4 sentences). Currently most are one-liners or fallback text | todo |
 | A2 | "About" section structure — consider splitting into subsections: bio, interests/lifestyle, neighbourhood context. What would make someone feel they *know* this person? | todo |
-| A3 | Trust signals review — TrustSignalBadges currently shows walks together, known since, met at. Are these the right signals? Do they tell a trust story? Consider: mutual connections, shared groups, care history | todo |
+| A3 | Trust signals review — added mutual connections ("You both know X") and shared groups ("Both in X") badges. Centered badge layout. Now 5 badge types: walks, known since, met at, mutual connections, shared groups | done |
 | A4 | Connection state display — review how None/Familiar/Pending/Connected render. Is the badge clear? Is the gate understandable? | todo |
 | A5 | Dogs section — PetCards are feature-complete but review the content. Do mock dogs have enough personality (socialisation notes, play styles, vet info)? Expand where thin | todo |
 | A6 | Own profile About tab — review the edit experience. Is the flow smooth? Does it feel like a real profile editor? | todo |
@@ -52,8 +52,8 @@ The About tab is the first thing a visitor sees. It needs to tell a story — no
 | # | Description | Status |
 |---|-------------|--------|
 | B1 | Fix corner radius on post images in profile context (P8 from polish log) | todo |
-| B2 | Add group/meet/care attribution to post headers — posts on the profile should show where they were posted (e.g. "in Riegrovy Sady Dog Walks" or "from Morning Walk at Letná") | todo |
-| B3 | Add header link matching main feed — post headers should link to the group/meet/context the same way community feed headers do | todo |
+| B2 | Add group/meet/care attribution to post headers — FeedCommunityPost now uses buildHeaderContext (shared with MomentCard) to show "in [Group]" / "at [Place]" / "with [Dogs]" context | done |
+| B3 | Add header link matching main feed — headerContext includes clickable Link to group. Also added isCareProvider badge. Remaining tags shown (group/place consumed by header) | done |
 | B4 | Review post content — do mock posts tell stories? Does each user have enough posts to feel real? | todo |
 | B5 | "New post" CTA on own profile — review placement and styling | todo |
 
@@ -61,9 +61,9 @@ The About tab is the first thing a visitor sees. It needs to tell a story — no
 
 | # | Description | Status |
 |---|-------------|--------|
-| C1 | Diagnose and fix post composer layout (P7 from polish log). Currently broken — full audit of the FormHeader/FormBody/FormFooter structure | todo |
-| C2 | Review composer flow: does selecting photos, writing caption, adding tags, and choosing community feel smooth? | todo |
-| C3 | Verify composer is accessible from all entry points (profile Posts tab CTA, community page, home header +) | todo |
+| C1 | Diagnose and fix post composer layout (P7 from polish log). Fixed: desktop form-shell height calc (was 80px short of page-shell padding), mobile uses 100dvh for full viewport | done |
+| C2 | Redesign composer as modal (desktop) / bottom sheet (mobile) using ModalSheet. Minimal-first: photo hero, camera button, borderless caption, tag action row (Location/Pets/People/Community with inline pickers) | done |
+| C3 | Wire PostComposerProvider into layout, update all entry points (AppNav, HomeFAB, ShareMomentBar, FeedCTA, CompactGreeting, PostsTab, GroupDetailPanel, communities page) to use openComposer() | done |
 
 ### Services Tab — Fuller Content
 

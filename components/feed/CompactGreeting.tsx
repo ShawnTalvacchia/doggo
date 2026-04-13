@@ -2,9 +2,12 @@
 
 import { MapPin, Camera, MagnifyingGlass } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { usePostComposer } from "@/contexts/PostComposerContext";
 import type { UserProfile } from "@/lib/types";
 
 export function CompactGreeting({ user }: { user: UserProfile }) {
+  const { openComposer } = usePostComposer();
+
   return (
     <div className="feed-greeting">
       <div className="feed-greeting-info">
@@ -43,7 +46,7 @@ export function CompactGreeting({ user }: { user: UserProfile }) {
           variant="primary"
           size="sm"
           cta
-          href="/posts/create"
+          onClick={() => openComposer()}
           leftIcon={<Camera size={16} weight="bold" />}
         >
           Add Post

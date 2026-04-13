@@ -1,6 +1,6 @@
 "use client";
 
-import { Footprints, Calendar, MapPin } from "@phosphor-icons/react";
+import { Footprints, Calendar, MapPin, UsersThree, HandsClapping } from "@phosphor-icons/react";
 import type { Connection } from "@/lib/types";
 import { mockMeets } from "@/lib/mockMeets";
 
@@ -36,10 +36,34 @@ export function TrustSignalBadges({ connection }: { connection: Connection }) {
     }
   }
 
+  if (connection.mutualConnections && connection.mutualConnections.length > 0) {
+    const names = connection.mutualConnections;
+    const text = names.length === 1
+      ? `You both know ${names[0]}`
+      : names.length === 2
+      ? `You both know ${names[0]} and ${names[1]}`
+      : `${names.length} mutual connections`;
+    badges.push({
+      icon: <UsersThree size={12} weight="light" />,
+      text,
+    });
+  }
+
+  if (connection.sharedGroups && connection.sharedGroups.length > 0) {
+    const groups = connection.sharedGroups;
+    const text = groups.length === 1
+      ? `Both in ${groups[0]}`
+      : `${groups.length} shared groups`;
+    badges.push({
+      icon: <HandsClapping size={12} weight="light" />,
+      text,
+    });
+  }
+
   if (badges.length === 0) return null;
 
   return (
-    <div className="flex items-center gap-xs flex-wrap">
+    <div className="flex items-center gap-xs flex-wrap justify-center">
       {badges.map((badge, i) => (
         <span
           key={i}

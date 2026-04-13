@@ -61,8 +61,9 @@ export function useScrollHideNav() {
         const delta = currentY - lastY.current;
         const isHidden = document.body.classList.contains("nav-hidden");
 
-        // Only hide if there's meaningful scrollable depth
-        const MIN_SCROLL_DEPTH = TOTAL_OFFSET;
+        // Only hide if content significantly overflows the container
+        // (prevents distracting hide/show on pages that barely scroll)
+        const MIN_SCROLL_DEPTH = 300;
         const canHide = target.scrollHeight - target.clientHeight > MIN_SCROLL_DEPTH;
 
         if (delta > THRESHOLD && currentY > TOP_NAV_H && !isHidden && canHide) {

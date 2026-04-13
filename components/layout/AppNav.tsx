@@ -15,6 +15,7 @@ import {
   DotsThree,
 } from "@phosphor-icons/react";
 import { AddPostIcon } from "@/components/icons/AddPostIcon";
+import { usePostComposer } from "@/contexts/PostComposerContext";
 
 function GuestNavLinks() {
   return (
@@ -45,6 +46,7 @@ function SignupNavLinks() {
 function LoggedNavLinks({ hideCreate = false }: { hideCreate?: boolean }) {
   const { unreadCount } = useNotifications();
   const { conversations } = useConversations();
+  const { openComposer } = usePostComposer();
   const [notifOpen, setNotifOpen] = useState(false);
   const notifWrapRef = useRef<HTMLDivElement>(null);
 
@@ -56,7 +58,7 @@ function LoggedNavLinks({ hideCreate = false }: { hideCreate?: boolean }) {
       {/* Right icon row: Create, Notifications, Inbox */}
       <div className="app-nav-icon-row">
         {!hideCreate && (
-          <ButtonIcon label="Create" href="/posts/create">
+          <ButtonIcon label="Create" onClick={() => openComposer()}>
             <AddPostIcon size={28} />
           </ButtonIcon>
         )}

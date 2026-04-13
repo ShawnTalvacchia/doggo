@@ -7,9 +7,12 @@ import { BookingsProvider } from "@/contexts/BookingsContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { ReviewsProvider } from "@/contexts/ReviewsContext";
 import { PageHeaderProvider } from "@/contexts/PageHeaderContext";
+import { PostComposerProvider } from "@/contexts/PostComposerContext";
 import { GuestLayout } from "@/components/layout/GuestLayout";
 import { AppNav } from "@/components/layout/AppNav";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { PostComposer } from "@/components/posts/PostComposer";
+import { ViewTransitionManager } from "@/components/layout/ViewTransitionManager";
 
 const headingFont = Poppins({
   subsets: ["latin"],
@@ -41,11 +44,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <ConversationsProvider>
                 <BookingsProvider>
                   <PageHeaderProvider>
-                    <GuestLayout>
-                      <AppNav />
-                      {children}
-                      <BottomNav />
-                    </GuestLayout>
+                    <PostComposerProvider>
+                      <ViewTransitionManager />
+                      <GuestLayout>
+                        <AppNav />
+                        {children}
+                        <BottomNav />
+                      </GuestLayout>
+                      <PostComposer />
+                    </PostComposerProvider>
                   </PageHeaderProvider>
                 </BookingsProvider>
               </ConversationsProvider>

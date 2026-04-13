@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Plus } from "@phosphor-icons/react";
 import { CameraPlusFill } from "@/components/icons/CameraPlusFill";
+import { usePostComposer } from "@/contexts/PostComposerContext";
 import { getFeedForUser, getNewUserFeed } from "@/lib/mockFeed";
 import { DEMO_NEW_USER } from "@/lib/mockUserState";
 import { HomeWelcome } from "@/components/home/HomeWelcome";
@@ -82,6 +83,7 @@ const MAIN_TABS: { key: MainTab; label: string }[] = [
 function HomePageInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { openComposer } = usePostComposer();
 
   // Main tab: groups or feed
   const mainTab = (searchParams.get("view") as MainTab) || "feed";
@@ -148,7 +150,7 @@ function HomePageInner() {
       size="sm"
       cta
       leftIcon={<CameraPlusFill size={14} />}
-      href="/posts/create"
+      onClick={() => openComposer()}
     >
       Post
     </ButtonAction>

@@ -120,7 +120,13 @@
       "Bash(echo \"EXIT_CODE=$?\")",
       "Bash(node -e \"require\\('fs'\\).readFileSync\\('/Users/shawntalvacchia/Desktop/Doggo/node_modules/next/dist/bin/next', 'utf8'\\).slice\\(0,50\\)\")",
       "Bash(pip3 install:*)",
-      "Bash(find /Users/shawntalvacchia/Desktop/Doggo/components/profile -type f -name \"*.tsx\" -exec basename {} \\\\;)"
+      "Bash(find /Users/shawntalvacchia/Desktop/Doggo/components/profile -type f -name \"*.tsx\" -exec basename {} \\\\;)",
+      "Bash(find /Users/shawntalvacchia/Desktop/Doggo -type f \\\\\\( -name \"*.tsx\" -o -name \"*.ts\" \\\\\\) -exec grep -l \"createPortal\\\\|Portal\" {} \\\\;)",
+      "Bash(find /Users/shawntalvacchia/Desktop/Doggo -type f \\\\\\( -name \"*.tsx\" -o -name \"*.ts\" \\\\\\) ! -path \"*/node_modules/*\" ! -path \"*/.next/*\" -exec grep -l \"onTouchStart\\\\|onTouchMove\\\\|onTouchEnd\\\\|addEventListener.*touch\\\\|addEventListener.*gesture\" {} \\\\;)",
+      "Bash(npm info:*)",
+      "Bash(npx -y next-view-transitions --help)",
+      "Bash(npm view:*)",
+      "Bash(curl -s http://localhost:3000)"
     ]
   }
 }

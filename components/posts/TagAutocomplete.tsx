@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { PawPrint, User, UsersThree, MapPin, X } from "@phosphor-icons/react";
+import { PawPrint, User, UsersThree, MapPin, Handshake, X } from "@phosphor-icons/react";
 import type { PostTag, PostTagType } from "@/lib/types";
 import { mockUser } from "@/lib/mockUser";
 import { mockConnections } from "@/lib/mockConnections";
 import { mockGroups, getUserGroups } from "@/lib/mockGroups";
+import { getUserMeets } from "@/lib/mockMeets";
 import { PLACES } from "@/lib/constants/places";
 import { TagPill } from "./TagPill";
 
@@ -14,6 +15,7 @@ const TYPE_ICONS: Record<PostTagType, typeof PawPrint> = {
   person: User,
   community: UsersThree,
   place: MapPin,
+  meet: Handshake,
 };
 
 const TYPE_LABELS: Record<PostTagType, string> = {
@@ -21,6 +23,7 @@ const TYPE_LABELS: Record<PostTagType, string> = {
   person: "People",
   community: "Communities",
   place: "Places",
+  meet: "Meets",
 };
 
 function getAllSearchableEntities(): { type: PostTagType; id: string; label: string }[] {
@@ -49,6 +52,11 @@ function getAllSearchableEntities(): { type: PostTagType; id: string; label: str
   // Places
   for (const place of PLACES) {
     entities.push({ type: "place", id: place.id, label: place.name });
+  }
+
+  // Meets
+  for (const meet of getUserMeets("shawn")) {
+    entities.push({ type: "meet", id: meet.id, label: meet.title });
   }
 
   return entities;
@@ -155,7 +163,7 @@ export function TagAutocomplete({ selectedTags, onAddTag, onRemoveTag }: TagAuto
               marginTop: 4,
             }}
           >
-            {(["dog", "person", "community", "place"] as PostTagType[]).map((type) => {
+            {(["dog", "person", "community", "place", "meet"] as PostTagType[]).map((type) => {
               const items = grouped.get(type);
               if (!items || items.length === 0) return null;
               const Icon = TYPE_ICONS[type];

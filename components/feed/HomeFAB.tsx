@@ -1,12 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { Plus } from "@phosphor-icons/react";
+import { usePostComposer } from "@/contexts/PostComposerContext";
 
 export function HomeFAB() {
+  const { openComposer } = usePostComposer();
+
   return (
-    <Link
-      href="/posts/create"
+    <button
+      type="button"
+      onClick={() => openComposer()}
       className="flex items-center justify-center rounded-full shadow-lg"
       style={{
         position: "fixed",
@@ -17,11 +20,12 @@ export function HomeFAB() {
         background: "var(--brand-main)",
         color: "white",
         zIndex: 50,
-        textDecoration: "none",
+        border: "none",
+        cursor: "pointer",
       }}
       aria-label="Share a moment"
     >
       <Plus size={24} weight="bold" />
-    </Link>
+    </button>
   );
 }

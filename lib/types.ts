@@ -766,7 +766,7 @@ export interface UserProfile {
 
 // ── Posts & Feed ──────────────────────────────────────────────────────────────
 
-export type PostTagType = "dog" | "person" | "community" | "place";
+export type PostTagType = "dog" | "person" | "community" | "place" | "meet";
 
 export interface PostTag {
   type: PostTagType;

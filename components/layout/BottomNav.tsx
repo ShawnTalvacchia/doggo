@@ -19,37 +19,35 @@ const tabs = [
   { label: "Profile", href: "/profile", Icon: UserCircle },
 ] as const;
 
-/** Routes that show the bottom nav (logged-in hub pages) */
-const hubPrefixes = ["/home", "/communities", "/groups", "/discover", "/schedule", "/bookings", "/inbox", "/notifications", "/profile"];
-
-/** Routes that are detail pages — hide bottom nav even though they're logged-in */
-const detailPatterns = [
-  /^\/communities\/create/, // group create (but NOT group detail)
-  /^\/groups\/.+/,          // group detail (legacy)
-  /^\/discover\/profile/,   // provider profile
-  /^\/meets\/create/,       // meet create (but NOT meet detail)
-  /^\/inbox\/.+/,           // message thread
-  /^\/bookings\/.+/,        // booking detail, checkout
-  /^\/posts\/.+/,           // create post
-  /^\/explore\/.*/,         // legacy explore routes
-  /^\/connect\/.+/,         // share link
+/**
+ * Bottom nav shows ONLY on main hub routes (the 5 tab destinations + top-level sub-sections).
+ * All detail/subpages hide it — users navigate back via the header back button
+ * or native browser swipe-back gesture.
+ */
+const hubRoutes = [
+  /^\/home$/,
+  /^\/home\?/,               // home with query params (view=groups etc.)
+  /^\/discover$/,
+  /^\/discover\?/,           // discover with query params
+  /^\/discover\/(meets|groups|care)$/,  // discover sub-tabs
+  /^\/schedule$/,
+  /^\/bookings$/,
+  /^\/profile$/,
+  /^\/inbox$/,
+  /^\/notifications$/,
 ];
 
 function BottomNavInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Only show on logged-in routes
-  const isLoggedRoute = hubPrefixes.some((p) =>
-    pathname === p || pathname.startsWith(p + "/")
-  );
-  if (!isLoggedRoute) return null;
+  // Build the full path with search params for matching
+  const search = searchParams.toString();
+  const fullPath = search ? `${pathname}?${search}` : pathname;
 
-  // Hide on styleguide
-  if (pathname.startsWith("/styleguide")) return null;
-
-  // Hide on detail pages
-  if (detailPatterns.some((pattern) => pattern.test(pathname))) return null;
+  // Only show on hub routes — all subpages/detail pages hide bottom nav
+  const isHubRoute = hubRoutes.some((pattern) => pattern.test(fullPath));
+  if (!isHubRoute) return null;
 
   // Determine active tab — communities routes map to Home
   // /profile/[userId] is someone else's profile — don't highlight any nav item

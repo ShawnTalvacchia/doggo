@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { PawPrint, User, UsersThree, MapPin } from "@phosphor-icons/react";
+import { PawPrint, User, UsersThree, MapPin, Handshake } from "@phosphor-icons/react";
 import type { PostTag } from "@/lib/types";
 
 const TAG_ICONS = {
@@ -9,6 +9,7 @@ const TAG_ICONS = {
   person: User,
   community: UsersThree,
   place: MapPin,
+  meet: Handshake,
 } as const;
 
 const TAG_HREFS: Record<string, string | null> = {
@@ -16,6 +17,7 @@ const TAG_HREFS: Record<string, string | null> = {
   person: "/profile",
   community: "/communities",
   place: null,
+  meet: null,
 };
 
 export function TagPill({ tag }: { tag: PostTag }) {

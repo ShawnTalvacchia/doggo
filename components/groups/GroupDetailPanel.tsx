@@ -44,6 +44,7 @@ import { getPostsByGroup } from "@/lib/mockPosts";
 import { getConnectionState } from "@/lib/mockConnections";
 import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
 import { TagPillRow } from "@/components/posts/TagPill";
+import { usePostComposer } from "@/contexts/PostComposerContext";
 import { PawReaction } from "@/components/posts/PawReaction";
 import { CommentThread } from "@/components/feed/CommentThread";
 
@@ -277,12 +278,14 @@ export function GroupDetailPanel({ group, compact = false }: GroupDetailPanelPro
 /* ── Feed tab ──────────────────────────────────────────────────── */
 
 function FeedTab({ groupPosts, group, isMember }: { groupPosts: ReturnType<typeof getPostsByGroup>; group: Group; isMember: boolean }) {
+  const { openComposer } = usePostComposer();
+
   return (
     <LayoutSection>
       <div className="flex flex-col gap-lg">
         {isMember && group.photoPolicy !== "none" && (
           <div className="flex justify-end">
-            <ButtonAction variant="tertiary" size="sm" href="/posts/create" leftIcon={<Camera size={14} weight="light" />}>
+            <ButtonAction variant="tertiary" size="sm" onClick={() => openComposer(group.id)} leftIcon={<Camera size={14} weight="light" />}>
               New post
             </ButtonAction>
           </div>

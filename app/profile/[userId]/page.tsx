@@ -5,6 +5,7 @@ import { Suspense, useCallback, useEffect } from "react";
 import {
   PawPrint,
   MapPin,
+  Calendar,
   CalendarDots,
   ChatCircleDots,
   LockSimple,
@@ -216,14 +217,18 @@ function UserProfileInner() {
             </div>
 
             {/* About section */}
-            {(provider?.blurb || userProfile?.bio || connection) && (
-              <section className="profile-info-card">
-                <h3 className="profile-card-subtitle">About</h3>
-                <p className="profile-card-copy">
-                  {provider?.blurb ?? userProfile?.bio ?? `${name} is a dog owner in ${location}.`}
+            <section className="profile-info-card">
+              <h3 className="profile-card-subtitle">About</h3>
+              <p className="profile-card-copy">
+                {userProfile?.bio ?? provider?.blurb ?? `${name} is a dog owner in ${location}.`}
+              </p>
+              {userProfile?.memberSince && (
+                <p className="flex items-center gap-xs text-xs text-fg-tertiary m-0" style={{ marginTop: "var(--space-sm)" }}>
+                  <Calendar size={12} weight="light" />
+                  Member since {new Date(userProfile.memberSince + "-01").toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
                 </p>
-              </section>
-            )}
+              )}
+            </section>
 
             {/* Provider stats */}
             {provider && (
@@ -234,6 +239,14 @@ function UserProfileInner() {
                     <span className="text-fg-tertiary">· {provider.distanceKm} km away</span>
                   )}
                 </div>
+              </section>
+            )}
+
+            {/* Carer bio — shown when user has carerProfile but isn't in provider catalog */}
+            {!provider && userProfile?.carerProfile?.bio && (
+              <section className="profile-info-card">
+                <h3 className="profile-card-subtitle">About their care services</h3>
+                <p className="profile-card-copy">{userProfile.carerProfile.bio}</p>
               </section>
             )}
 
@@ -267,29 +280,75 @@ function UserProfileInner() {
               </span>
             </section>
 
-            {/* Service cards — from provider catalog or community carer data */}
+            {/* Service cards — prefer carerProfile (richer), fallback to provider catalog */}
             <section className="profile-info-card">
               <h3 className="profile-card-subtitle">Services</h3>
               <div className="profile-services-list">
-                {(provider?.services ?? communityCarer?.services ?? []).map((svcType) => (
-                  <div key={svcType} className="profile-service-card">
-                    <div className="profile-service-top">
-                      <span className="profile-service-name">{SERVICE_LABELS[svcType]}</span>
-                      <div className="profile-service-price-wrap">
-                        <span className="profile-service-price">
-                          from {(provider?.priceFrom ?? communityCarer?.priceFrom ?? 0).toLocaleString()} Kč
-                          {provider?.priceUnit && (
+                {userProfile?.carerProfile?.services
+                  ? userProfile.carerProfile.services.filter(s => s.enabled).map((svc) => (
+                    <div key={svc.serviceType} className="profile-service-card">
+                      <div className="profile-service-top">
+                        <span className="profile-service-name">{SERVICE_LABELS[svc.serviceType]}</span>
+                        <div className="profile-service-price-wrap">
+                          <span className="profile-service-price">
+                            {svc.pricePerUnit.toLocaleString()} Kč
                             <span className="profile-service-unit">
-                              {" "}/ {provider.priceUnit === "per_visit" ? "visit" : provider.priceUnit === "per_walk" ? "walk" : "night"}
+                              {" "}/ {svc.priceUnit === "per_visit" ? "visit" : "night"}
                             </span>
-                          )}
-                        </span>
+                          </span>
+                        </div>
+                      </div>
+                      {svc.subServices.length > 0 && (
+                        <div className="profile-service-subs">
+                          {svc.subServices.map((sub) => (
+                            <span key={sub} className="rounded-pill px-sm py-xs text-xs bg-surface-inset text-fg-secondary">{sub}</span>
+                          ))}
+                        </div>
+                      )}
+                      {svc.notes && (
+                        <p className="profile-service-notes">{svc.notes}</p>
+                      )}
+                    </div>
+                  ))
+                  : (provider?.services ?? communityCarer?.services ?? []).map((svcType) => (
+                    <div key={svcType} className="profile-service-card">
+                      <div className="profile-service-top">
+                        <span className="profile-service-name">{SERVICE_LABELS[svcType]}</span>
+                        <div className="profile-service-price-wrap">
+                          <span className="profile-service-price">
+                            from {(provider?.priceFrom ?? communityCarer?.priceFrom ?? 0).toLocaleString()} Kč
+                            {provider?.priceUnit && (
+                              <span className="profile-service-unit">
+                                {" "}/ {provider.priceUnit === "per_visit" ? "visit" : provider.priceUnit === "per_walk" ? "walk" : "night"}
+                              </span>
+                            )}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                }
               </div>
             </section>
+
+            {/* Availability */}
+            {userProfile?.carerProfile?.availability && userProfile.carerProfile.availability.length > 0 && (
+              <section className="profile-info-card">
+                <h3 className="profile-card-subtitle">Availability</h3>
+                <div className="profile-avail-grid">
+                  {userProfile.carerProfile.availability.map((slot) => (
+                    <div key={slot.day} className="profile-avail-row">
+                      <span className="profile-avail-day">{slot.day.charAt(0).toUpperCase() + slot.day.slice(1, 3)}</span>
+                      <div className="profile-avail-slots">
+                        {slot.slots.map((s) => (
+                          <span key={s} className="rounded-pill px-sm py-xs text-xs bg-brand-subtle text-brand-strong">{s}</span>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         )}
 

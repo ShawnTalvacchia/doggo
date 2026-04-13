@@ -480,6 +480,25 @@ lib/
 
 ---
 
+## Post Composer — Contextual Suggestion Pills (Wire During Persona/Flow Building)
+
+The post composer's tag accordion rows can show suggestion pills in the header for one-tap adding. Currently:
+- **Location**: suggests 1 (single-select)
+- **Pets**: suggests all owned pets
+- **People**: suggests up to 3 connections
+- **Community**: no suggestions (needs context)
+- **Meet**: no suggestions (needs context)
+
+**Future contextual logic to wire:**
+- **Community & Meet**: Only suggest if the user is currently at / recently attended a meet, or is posting from within a group. The `preselectedGroupId` already handles the "posting from a group" case. For meets, detect if there's an active/recent meet (within last 2 hours?) and auto-suggest it + its associated group + its location.
+- **Pets during care**: If the user (as a care provider) is currently in an active booking, suggest the client's dog instead of their own.
+- **Location**: Could auto-suggest based on the meet location or the user's current neighbourhood.
+- **People**: Could prioritize people who were at the same recent meet.
+
+This would make the composer feel context-aware: finish a walk with Vinohrady Morning Crew at Riegrovy Sady → open composer → location, community, and meet are all pre-suggested. One tap each.
+
+---
+
 ## Open Questions
 
 1. **Shawn's role in the demo.** Is Shawn always the logged-in user? Or should we support switching perspective to see the app as Tereza, Daniel, or Klára? (Affects how many "my bookings / my groups / my feed" views we need to populate.)

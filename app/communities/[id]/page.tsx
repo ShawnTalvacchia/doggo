@@ -42,6 +42,7 @@ import { getMessagesForGroup } from "@/lib/mockGroupMessages";
 import { getPostsByGroup } from "@/lib/mockPosts";
 import { getConnectionState } from "@/lib/mockConnections";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
+import { usePostComposer } from "@/contexts/PostComposerContext";
 
 /* ── Tab config per group type ─────────────────────────────────── */
 
@@ -107,6 +108,7 @@ function GroupDetailInner() {
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab") || "feed";
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
+  const { openComposer } = usePostComposer();
 
   const group = getGroupById(params.id as string);
   const [joinRequested, setJoinRequested] = useState(false);
@@ -149,7 +151,7 @@ function GroupDetailInner() {
         );
       default:
         return group.photoPolicy !== "none" ? (
-          <ButtonIcon label="Create post" href="/posts/create">
+          <ButtonIcon label="Create post" onClick={() => openComposer(group.id)}>
             <AddPostIcon size={28} />
           </ButtonIcon>
         ) : undefined;

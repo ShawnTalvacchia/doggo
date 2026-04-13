@@ -30,7 +30,7 @@ interface MomentCardProps {
  * Priority: group ("in") > place ("at") > dogs ("with")
  * Whatever appears in the header gets removed from the tag pills.
  */
-function buildHeaderContext(
+export function buildHeaderContext(
   tags: PostTag[],
   groupName?: string,
   groupId?: string,
