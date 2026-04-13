@@ -63,35 +63,36 @@ See `docs/CONTRIBUTING.md` for full details, including the phase open/close life
 | `docs/implementation/design-tokens.md` | Token reference and Figma→CSS mapping |
 | `docs/implementation/mock-data-plan.md` | Mock data strategy and user journey planning |
 
-## Current Phase: Inbox & Notifications
+## Current Phase: Profiles Deep Pass
 
-Fix inbox structure and build a complete messaging experience. Notifications needs more content types and interaction patterns. Includes deferred booking conversation items from Bookings phase.
+Deep page-by-page passes to make every surface the best it can be. See `docs/ROADMAP.md` for the full arc.
 
-**Phase board:** `docs/phases/inbox-and-notifications.md`
+**Phase board:** `docs/phases/profiles-deep-pass.md`
 
 **Polish Log:** `docs/phases/polish-log.md` — running list of UI tweaks and small fixes, worked on alongside any active phase.
 
-**Recently completed:** Profiles & Dogs (unified profile pages with PageColumn + TabBar, PetCard expand/collapse, connection-gated CTAs, provider profile redirect, ~200 lines dead CSS removed). Bookings & Care Provider Flow. Page Content & Interactions. Layout Unification.
+**Recently completed:** Inbox & Notifications (chat-on-profiles architecture, inbox as connections list, 13 notification types with grouping, booking conversation flow end-to-end). Profiles & Dogs. Bookings & Care Provider Flow. Page Content & Interactions. Layout Unification. 30+ prior phases.
 
-**Upcoming phases:** Demo Presentation. See ROADMAP.md.
+**Upcoming phases:** Meets Deep Pass → Community & Groups → Discover & Care → Schedule & Bookings → Design System Maturation → Mock World Building → Cross-Cutting Flow Testing → Demo Presentation. See ROADMAP.md.
 
 ## Strategic Context
 
-**Demo-first.** The highest priority is fleshing out the full product as an interactive prototype for user testing and investment. Not a production MVP — a convincing demo that tells the complete Doggo story.
+**Build the best version, not the fastest.** The goal is a world that feels real — when a tester sits down with a persona, they should forget they're looking at a prototype. Deep page-by-page passes before demo layer. Quality over speed.
 
 **Community-first thesis.** Meets build trust → trust enables care → care is booked and tracked. The prototype demonstrates this full funnel. Full strategy in `docs/strategy/Product Vision.md`.
 
+**Three Ways In:** Find Your Park (open groups) → Find Your People (neighbourhood/interest groups) → Find Your Help (provider-run care groups). All doors lead to the same place: a network of people who know each other and each other's dogs.
+
+**User Journeys deck** (`docs/strategy/User Journeys.pptx`): Four personas — Tereza (routine owner/neighbourhood anchor), Daniel (anxious new owner), Klára (professional trainer), Tomáš (busy professional). Each journey demonstrates the community→trust→care funnel.
+
 Key decisions:
-- **Connection model:** None (default) → Familiar (one-sided) → Pending → Connected (mutual). See `docs/strategy/Trust & Connection Model.md`.
+- **Connection model:** None (default) → Familiar (one-sided, silent) → Pending → Connected (mutual). Post-meet review flow is the primary Familiar trigger. See `docs/strategy/Trust & Connection Model.md`.
 - **Everyone starts as an owner.** No separate provider signup. Offering care is a dial, not a switch.
-- **Rolling weekly billing.** Recurring bookings use `billingCycle: "weekly"` with one upcoming session at a time. No fixed session counts for ongoing arrangements.
-- **Booking detail tabs.** Info / Sessions / Chat — matches meet and group detail patterns. Provider sees session check-in actions, owner sees aggregate stats.
-- **Nav:** Community | Discover | My Schedule | Bookings | Profile (mobile bottom, 5 tabs). Desktop sidebar: Community, Discover, My Schedule, Bookings, Inbox, Notifications, Profile (7 items). Mobile header: create + notifications + inbox.
-- **Discover as hub.** Three doors: Meets, Groups, Dog Care. Each door → results with FilterPillRow for type + floating Filters button. No more type picker pages.
-- **Groups:** Four types: Park (auto-generated, open), Neighbor (hyperlocal, private), Interest (shared characteristic, open/private), Care (provider-created, service CTAs). See `docs/strategy/Groups & Care Model.md`.
-- **Group detail:** No Chat tab. Feed with flat comments for async discussion. Meet-level Chat tab for real-time event coordination.
-- **Meet detail:** Tabbed view — Details · People · Chat.
-- **Content visibility.** Two-gate model: context gate (group/meet membership) + relationship gate (connection state). See `docs/strategy/Content Visibility Model.md`.
-- **Unified profiles.** All profiles use PageColumn + TabBar. Own profile: title="Profile". Other-user: hideHeader + DetailHeader. Provider profile route redirects to `/profile/[userId]` via `userId` bridge field on ProviderCard.
-- **PetCard expand/collapse.** `defaultExpanded` prop — true on own profile, false on other profiles. Header always visible (photo, name, breed, age).
-- **Connection-gated CTAs on profiles.** Pill-shaped ButtonAction with `cta` prop. Connected → Message + Book Care. Familiar → Connect. Pending/None → disabled.
+- **Chat on profiles.** Profiles are the relationship hub — About, Posts, Services, Chat tabs. Inbox is a connections list linking to `/profile/[userId]?tab=chat`.
+- **Rolling weekly billing.** Recurring bookings use `billingCycle: "weekly"` with one upcoming session at a time.
+- **Booking detail tabs.** Info / Sessions / Chat. Provider sees session check-in actions, owner sees aggregate stats.
+- **Nav:** Community | Discover | My Schedule | Bookings | Profile (mobile bottom, 5 tabs). Desktop sidebar adds Inbox + Notifications (7 items). Mobile header: create + notifications + inbox.
+- **Discover as hub.** Three doors: Meets, Groups, Dog Care → results with FilterPillRow + floating Filters button.
+- **Groups:** Four types: Park / Neighbor / Interest / Care. See `docs/strategy/Groups & Care Model.md`.
+- **Unified profiles.** All profiles use PageColumn + TabBar. Connection-gated CTAs. Provider profile route redirects to `/profile/[userId]`.
+- **Content visibility.** Two-gate model: context gate + relationship gate. See `docs/strategy/Content Visibility Model.md`.

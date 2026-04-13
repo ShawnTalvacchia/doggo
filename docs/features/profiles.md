@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-12
+last-reviewed: 2026-04-13
 tags: [profile, pets, provider, edit, posts, tagging]
 review-trigger: "when modifying profile pages, pet cards, posts, or provider sections"
 ---
@@ -34,9 +34,19 @@ All profile pages use the **PageColumn + TabBar** pattern — the same layout as
 
 **Own profile:** PageColumn with title="Profile" (standard header). Tabs: About | Posts | Services.
 
-**Other-user profile:** PageColumn with hideHeader + DetailHeader (back nav via abovePanel prop). Tabs: About | Posts | Services (Services only shown if user has provider data).
+**Other-user profile:** PageColumn with hideHeader + DetailHeader (back nav via abovePanel prop). Tabs: About | Posts | Services | Chat. Services only shown if user has provider data. Chat tab shown when connected or when an existing conversation exists.
 
 **Locked profile:** No tabs. Lock icon + explanation message. No CTA buttons.
+
+### Chat tab
+
+The Chat tab embeds the full messaging thread directly on the profile page using `ProfileChatTab` → `ThreadClient` in embedded mode. This makes profiles the relationship hub — About, Posts, Services, Chat all in one place.
+
+- **Shown when:** user is connected OR has an existing conversation
+- **Entry points:** "Message" CTA on profile, "Book care" CTA, inbox row tap, notification tap
+- **Empty state:** conversation starter with "Say hello" button
+- **URL:** `/profile/[userId]?tab=chat` — deep-linkable
+- **Scroll:** `page-column-panel-body--no-scroll` disables parent scroll when chat is active; thread manages its own scroll
 
 ### Own profile
 

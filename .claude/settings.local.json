@@ -117,7 +117,10 @@
       "Bash(chmod +x node_modules/next/dist/bin/next)",
       "WebFetch(domain:support.rover.com)",
       "WebFetch(domain:www.rover.com)",
-      "Bash(echo \"EXIT_CODE=$?\")"
+      "Bash(echo \"EXIT_CODE=$?\")",
+      "Bash(node -e \"require\\('fs'\\).readFileSync\\('/Users/shawntalvacchia/Desktop/Doggo/node_modules/next/dist/bin/next', 'utf8'\\).slice\\(0,50\\)\")",
+      "Bash(pip3 install:*)",
+      "Bash(find /Users/shawntalvacchia/Desktop/Doggo/components/profile -type f -name \"*.tsx\" -exec basename {} \\\\;)"
     ]
   }
 }

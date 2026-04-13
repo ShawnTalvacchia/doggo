@@ -41,7 +41,7 @@ export function InquiryResponseCard({
 
   if (showDecline) {
     return (
-      <div className="rounded-panel bg-surface-base border border-edge-regular p-md" style={{ width: "100%", maxWidth: 448 }}>
+      <div className="rounded-panel bg-surface-base border border-edge-regular p-md w-full max-w-md">
         <p className="text-sm font-semibold text-fg-primary mb-sm">
           Decline {ownerFirst}&apos;s inquiry?
         </p>
@@ -73,7 +73,7 @@ export function InquiryResponseCard({
   }
 
   return (
-    <div className="rounded-panel bg-surface-base border border-edge-regular p-md" style={{ width: "100%", maxWidth: 448 }}>
+    <div className="rounded-panel bg-surface-base border border-edge-regular p-md w-full max-w-md">
       <p className="text-sm font-semibold text-fg-primary mb-sm">
         New inquiry from {ownerFirst}
       </p>

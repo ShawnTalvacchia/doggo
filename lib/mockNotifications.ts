@@ -31,7 +31,7 @@ export const mockNotifications: AppNotification[] = [
     body: "Klára accepted your booking for Tue 8 Apr, 14:00 — Solo walk",
     avatarUrl:
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
-    href: "/bookings",
+    href: "/bookings/booking-klara",
     createdAt: "2026-04-04T18:00:00Z",
     read: false,
   },
@@ -107,7 +107,7 @@ export const mockNotifications: AppNotification[] = [
     body: "Klára completed Spot's solo walk. Leave a review?",
     avatarUrl:
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
-    href: "/bookings",
+    href: "/bookings/booking-klara",
     createdAt: "2026-03-31T17:00:00Z",
     read: true,
   },
@@ -120,6 +120,17 @@ export const mockNotifications: AppNotification[] = [
       "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80",
     href: "/meets/meet-1",
     createdAt: "2026-03-30T14:00:00Z",
+    read: true,
+  },
+  {
+    id: "notif-11b",
+    type: "meet_rsvp",
+    title: "Tomáš is going to your meet",
+    body: "Morning walk — Riegrovy sady, Wed 18 Mar",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+    href: "/meets/meet-1",
+    createdAt: "2026-03-30T13:30:00Z",
     read: true,
   },
   {
@@ -196,6 +207,27 @@ export const mockNotifications: AppNotification[] = [
       "/images/generated/eva-profile.jpeg",
     href: "/communities/group-1",
     createdAt: "2026-03-24T10:30:00Z",
+    read: true,
+  },
+  {
+    id: "notif-19",
+    type: "new_message",
+    title: "New message from Jana",
+    body: "\"Hey! Are you free for a walk this weekend?\"",
+    avatarUrl: "/images/generated/jana-profile.jpeg",
+    href: "/profile/jana?tab=chat",
+    createdAt: "2026-03-23T15:00:00Z",
+    read: true,
+  },
+  {
+    id: "notif-20",
+    type: "booking_proposal",
+    title: "Klára sent a booking proposal",
+    body: "Solo walk — 600 Kč per session, starting Tue 8 Apr",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+    href: "/profile/klara?tab=chat",
+    createdAt: "2026-03-22T11:00:00Z",
     read: true,
   },
 ];

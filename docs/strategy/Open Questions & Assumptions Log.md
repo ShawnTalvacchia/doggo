@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-12
+last-reviewed: 2026-04-13
 tags: [questions, risks, assumptions]
 review-trigger: "before starting a new phase, after any strategic discussion"
 ---
@@ -27,11 +27,12 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 **Assumption:** The four-state connection model (None → Familiar → Pending → Connected) maps to real trust-building.
 
-**Resolved:** Familiar is one-sided, Connected is mutual. Post-meet connect prompt is the primary trigger. Care services gate on Connected status. Connection model is universal (no separate provider relationships). Trust ladder replaced by contextual signals.
+**Resolved:** Familiar is one-sided, silent (no notification), Connected is mutual. Post-meet review flow is the primary trigger for Familiar marking — card stack of attendees with Mark Familiar / Connect / Skip actions, plus batch "Mark all" option. Care services gate on Connected status. Connection model is universal (no separate provider relationships). Trust ladder replaced by contextual signals. Only locked-profile users can mark Familiar (Open users skip to Connect). You can only mark someone Familiar if their profile is visible to you (not locked).
 
 **Open:**
 - How many IRL interactions before users feel comfortable going Familiar → Connected?
 - Will Locked users feel excluded or empowered?
+- Should the post-meet review flow trigger immediately after the meet ends, or after a delay (e.g. next morning)?
 
 ---
 
@@ -62,7 +63,6 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 - At what point does "helping" feel like a job?
 - Where does pricing surface before a formal arrangement?
 - Should creating a Care group require having services listed first?
-- How does a booking proposal actually get created? (conversation → proposal card flow not yet designed)
 - Should providers be able to set cancellation policies (e.g. 24hr notice)?
 
 ---

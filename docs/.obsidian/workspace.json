@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "phases/polish-log.md",
+                "file": "strategy/User Archetypes.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "polish-log"
+              "title": "User Archetypes"
             }
           }
         ]
@@ -188,6 +188,9 @@
   },
   "active": "9dcef6f2bebad7ea",
   "lastOpenFiles": [
+    "phases/profiles-deep-pass.md",
+    "archive/phases/inbox-and-notifications.md",
+    "phases/polish-log.md",
     "archive/phases/layout-unification.md",
     "archive/phases/page-content-and-interactions.md",
     "phases/layout-unification.md",
@@ -213,9 +216,6 @@
     "archive/flows/provider-setup.md",
     "archive/flows/profile-management.md",
     "archive/flows/post-meet-connection.md",
-    "archive/flows/onboarding.md",
-    "archive/flows/meet-discovery.md",
-    "archive/flows/groups.md",
     "archive/flows",
     "archive/implementation",
     "archive/strategy",

@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-08
+last-reviewed: 2026-04-13
 tags: [vision, principles, strategy, monetization]
 review-trigger: "before any major feature decision or strategic discussion"
 ---
@@ -19,6 +19,22 @@ Organic growth comes from owners connecting with each other, not from owners sea
 **Meets build trust. Trust enables care. Care is booked and tracked.**
 
 The community is the acquisition and trust layer. The marketplace emerges from it.
+
+### Three Ways In
+
+Groups are the connective tissue. Every user enters through one of three doors:
+
+| Door | What it is | Barrier | Examples |
+|------|-----------|---------|----------|
+| **Find Your Park** | Auto-generated groups for major dog parks. Open, no admin, anyone posts a walk. | Lowest — just show up | "Riegrovy Sady Dog Walks", "Letná Off-Leash" |
+| **Find Your People** | Neighbourhood circles, breed groups, activity crews. Small, trusted, high-utility. Where mutual aid lives. | Medium — request to join | "Vinohrady Evening Walkers", "Prague Reactive Dog Support" |
+| **Find Your Help** | Provider-run groups with booking CTAs on meets. Your walker's schedule, your trainer's sessions. Community-wrapped service. | Low-Medium — join or book | "Klára's Calm Dog Sessions", "Olga's Walking Group" |
+
+All three doors lead to the same place: a network of people who know each other and each other's dogs. The booking system exists to protect the friendships that form — clear rates, clear records, no scorekeeping.
+
+### The Key Insight
+
+*Good fences make good neighbours.* When neighbours become friends through their dogs, informal care naturally follows. But informal favours are hard to keep balanced. The booking system removes the awkwardness: rates are posted, bookings are tracked, nobody's keeping score.
 
 ---
 

@@ -52,7 +52,10 @@ function BottomNavInner() {
   if (detailPatterns.some((pattern) => pattern.test(pathname))) return null;
 
   // Determine active tab — communities routes map to Home
-  const activeHref = pathname.startsWith("/home") || pathname.startsWith("/communities") || pathname.startsWith("/groups")
+  // /profile/[userId] is someone else's profile — don't highlight any nav item
+  const activeHref = pathname.startsWith("/profile/")
+    ? null
+    : pathname.startsWith("/home") || pathname.startsWith("/communities") || pathname.startsWith("/groups")
     ? "/home"
     : pathname.startsWith("/discover") || pathname.startsWith("/explore")
     ? "/discover"
@@ -75,7 +78,7 @@ function BottomNavInner() {
             className={`bottom-nav-tab${isActive ? " active" : ""}`}
             aria-current={isActive ? "page" : undefined}
           >
-            <Icon size={24} weight={isActive ? "fill" : "regular"} />
+            <Icon size={24} weight={isActive ? "fill" : "light"} />
             <span className="bottom-nav-label">{label}</span>
           </Link>
         );

@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-03-27
+last-reviewed: 2026-04-13
 tags: [trust, connections, privacy, safety]
 review-trigger: "when touching connection states, visibility, or trust signals"
 ---
@@ -35,7 +35,9 @@ Users have one of four relationship states with each other person. These are the
 
 **None** is the default. Like a private Instagram account — you see the profile pic, name, dog, and neighbourhood. Enough to recognise someone from a meet. Not enough to dig deeper or make contact.
 
-**Familiar** is one-sided and selective. A user can mark specific people as Familiar — granting them expanded visibility and the ability to send a message request — without exposing themselves broadly. This is the primary mechanism for cautious users to build their social graph after meeting people IRL.
+**Familiar** is one-sided and silent. A user can mark specific people as Familiar — granting them expanded visibility and the ability to send a message request or connect request — without exposing themselves broadly. **No notification is sent.** The other person simply sees more of your profile the next time they visit. This is the primary mechanism for cautious users to build their social graph after meeting people IRL.
+
+**Who can mark Familiar:** Only users with locked profiles. Open profiles are already visible to everyone, so the Familiar action doesn't apply — they skip straight to connect requests. A user can only mark someone as Familiar if that person's profile is not locked (i.e., the profile is visible enough to evaluate). You cannot mark a locked stranger as Familiar — you'd need to meet them at an event first (see post-meet review below).
 
 **Pending** is transitional. One person has sent a connect request; the other hasn't responded yet.
 
@@ -75,9 +77,30 @@ Meet attendee lists are filtered by actionable relationship, not shown as a flat
 
 1. **Visible with full cards:** Connected users, Familiar (either direction), Open profiles
 2. **Hidden individually, shown as count:** Locked users with None relationship → "3 other attendees"
-3. **Post-meet reveal:** After a meet ends, previously hidden attendees are surfaced with basic info and Familiar/Connect/Skip actions
+3. **Post-meet review:** After a meet ends, all attendees are surfaced in a review flow (see below)
 
 This prevents dead-end cards (locked profile with no action available) while maintaining the privacy of locked users. The meet itself is the trust-building event — hidden attendees become visible *because* you showed up and met them in person.
+
+### Post-meet review flow
+
+After a meet ends, attendees are prompted to review the people they met. This is the primary moment where Familiar relationships are created.
+
+**The flow:**
+1. Meet ends (time passes, or organiser marks it complete)
+2. Each attendee sees a prompt: "How was the meet? Review who you met"
+3. A card stack or list shows each attendee with: avatar, name, dog name, and action buttons
+4. **Actions per person:**
+   - **Mark as Familiar** (if your profile is locked and theirs is not locked) — silently grants them expanded access to your profile
+   - **Connect** (if their profile is visible to you — Open or you've been marked Familiar by them) — sends a connection request
+   - **Skip** — no action, move to next person
+5. **Batch action:** "Mark all as Familiar" for users who want to open up to the whole group at once
+
+**Key rules:**
+- Familiar is silent — no notification sent, no "Someone marked you as Familiar" alert
+- You can only mark someone Familiar if you can see their profile (it's not locked to you). You can't mark a locked stranger — the meet is what earned the visibility, and the post-meet reveal shows them
+- Open profile users don't need to mark Familiar (their profile is already visible) — they go straight to Connect
+- The review flow is optional — users can dismiss it and mark people individually later from their profiles
+- Attendees who didn't actually show up (RSVP'd but weren't confirmed/checked in) are excluded from the review
 
 ---
 

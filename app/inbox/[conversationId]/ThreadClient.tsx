@@ -17,7 +17,6 @@ import type {
 import { InquiryForm, type InquirySubmitData } from "@/components/messaging/InquiryForm";
 import { BookingProposalCard } from "@/components/messaging/BookingProposalCard";
 import { InquiryChips } from "@/components/messaging/InquiryChips";
-import { RelationshipBanner } from "@/components/messaging/RelationshipBanner";
 import { PaymentCard } from "@/components/messaging/PaymentCard";
 import { ContractCard } from "@/components/messaging/ContractCard";
 import { SigningModal } from "@/components/messaging/SigningModal";
@@ -363,12 +362,6 @@ export function ThreadClient({
           />
         ) : (
           <>
-            {!isDirect && (
-              <RelationshipBanner
-                otherUserId={conv.providerId === MY_USER_ID ? conv.ownerId : conv.providerId}
-                otherName={otherParty.name}
-              />
-            )}
             {!isDirect && <InquiryChips conv={conv} />}
             {isNew && isDirect && (
               <div className="inbox-direct-empty">
@@ -388,7 +381,7 @@ export function ThreadClient({
                     return (
                       <div
                         key={msg.id}
-                        className={`inbox-message-wrap inbox-message-wrap--${msg.sender}`}
+                        className="inbox-message-wrap inbox-message-wrap--full"
                       >
                         <BookingProposalCard
                           msg={msg}

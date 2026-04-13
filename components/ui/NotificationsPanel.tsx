@@ -3,9 +3,17 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import {
-  CalendarCheck,
-  ChatCircleDots,
+  Bell,
+  Briefcase,
+  CalendarBlank,
+  ChatCircle,
   CheckCircle,
+  EnvelopeSimple,
+  Handshake,
+  HandsClapping,
+  Star,
+  UsersThree,
+  UserPlus,
   X,
   BellSlash,
 } from "@phosphor-icons/react";
@@ -13,14 +21,32 @@ import { useNotifications } from "@/contexts/NotificationsContext";
 import type { NotificationType } from "@/lib/types";
 import { formatRelativeTime } from "@/lib/dateUtils";
 
+const TYPE_ICONS: Record<NotificationType, typeof Bell> = {
+  meet_invite: CalendarBlank,
+  meet_reminder: CalendarBlank,
+  meet_rsvp: UserPlus,
+  connection_request: Handshake,
+  connection_accepted: HandsClapping,
+  group_activity: UsersThree,
+  booking_proposal: Briefcase,
+  booking_confirmed: CheckCircle,
+  session_completed: CheckCircle,
+  care_review: Star,
+  new_message: EnvelopeSimple,
+  booking_message: EnvelopeSimple,
+  post_comment: ChatCircle,
+};
+
+const TYPE_STYLES: Partial<Record<NotificationType, string>> = {
+  session_completed: "notif-type-icon--done",
+  booking_confirmed: "notif-type-icon--confirmed",
+  booking_proposal: "notif-type-icon--proposal",
+};
+
 function NotifIcon({ type }: { type: NotificationType }) {
-  if (type === "session_completed")
-    return <CheckCircle size={16} weight="fill" className="notif-type-icon notif-type-icon--done" />;
-  if (type === "booking_proposal")
-    return <CalendarCheck size={16} weight="fill" className="notif-type-icon notif-type-icon--proposal" />;
-  if (type === "booking_confirmed")
-    return <CalendarCheck size={16} weight="fill" className="notif-type-icon notif-type-icon--confirmed" />;
-  return <ChatCircleDots size={16} weight="fill" className="notif-type-icon notif-type-icon--message" />;
+  const Icon = TYPE_ICONS[type] || Bell;
+  const style = TYPE_STYLES[type] || "notif-type-icon--message";
+  return <Icon size={16} weight="fill" className={`notif-type-icon ${style}`} />;
 }
 
 // ── Panel ─────────────────────────────────────────────────────────────────────

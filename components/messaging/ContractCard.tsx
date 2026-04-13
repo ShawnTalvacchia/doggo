@@ -22,7 +22,7 @@ export function ContractCard({ msg }: { msg: ChatMessage }) {
         </p>
         <p className="inbox-contract-meta">With {c.carerName}</p>
       </div>
-      <Link href="/bookings" className="inbox-contract-link">
+      <Link href={`/bookings/${c.bookingId}`} className="inbox-contract-link">
         View booking <ArrowRight size={13} weight="bold" />
       </Link>
     </div>

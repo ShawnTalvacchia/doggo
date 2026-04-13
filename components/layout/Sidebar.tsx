@@ -30,6 +30,9 @@ export function Sidebar() {
     return match.some((m) => pathname === m || pathname.startsWith(m + "/"));
   }
 
+  // /profile/[userId] is someone else's profile — don't highlight any nav item
+  const isOtherProfile = pathname.startsWith("/profile/");
+
   return (
     <aside className="sidebar">
       <Link href="/home" className="sidebar-brand">
@@ -38,7 +41,7 @@ export function Sidebar() {
 
       <nav className="sidebar-nav" aria-label="Main navigation">
         {navItems.map(({ label, href, Icon, match }) => {
-          const active = isActive(match);
+          const active = isOtherProfile ? false : isActive(match);
           return (
             <Link
               key={href}

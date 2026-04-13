@@ -1,4 +1,5 @@
 import { CalendarCheck } from "@phosphor-icons/react";
+import { ButtonAction } from "@/components/ui/ButtonAction";
 import type { ChatMessage, BookingProposalStatus } from "@/lib/types";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import { formatShortDate } from "@/lib/dateUtils";
@@ -85,18 +86,12 @@ export function BookingProposalCard({
       <div className="inbox-proposal-footer">
         {p.status === "pending" && canRespond ? (
           <div className="inbox-proposal-actions">
-            <button
-              className="inbox-proposal-btn inbox-proposal-btn--accept"
-              onClick={() => onAccept(msg.id)}
-            >
+            <ButtonAction variant="primary" size="md" onClick={() => onAccept(msg.id)} className="flex-1">
               Review & sign
-            </button>
-            <button
-              className="inbox-proposal-btn inbox-proposal-btn--decline"
-              onClick={() => onDecline(msg.id)}
-            >
+            </ButtonAction>
+            <ButtonAction variant="outline" size="md" onClick={() => onDecline(msg.id)} className="flex-1">
               Decline
-            </button>
+            </ButtonAction>
           </div>
         ) : (
           <span className={`inbox-proposal-status inbox-proposal-status--${p.status}`}>
