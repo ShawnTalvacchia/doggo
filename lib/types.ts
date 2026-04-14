@@ -474,6 +474,8 @@ export interface Meet {
   recentJoinText?: string;
   /** Flagged as popular (shows badge on card) */
   isPopular?: boolean;
+  /** Cover photo for the meet (hero image) */
+  coverPhotoUrl?: string;
   /** Photo URLs from a completed meet */
   photos?: string[];
 

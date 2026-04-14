@@ -105,6 +105,7 @@ export const mockMeets: Meet[] = [
     type: "walk",
     groupId: "group-1",
     title: "Morning walk — Riegrovy sady",
+    coverPhotoUrl: "/images/generated/group-walk-stromovka.jpeg",
     description:
       "Relaxed morning walk through the park. We usually do a loop around the upper path and let the dogs sniff around. All sizes welcome.",
     location: "Riegrovy sady, Prague 2",
@@ -170,6 +171,7 @@ export const mockMeets: Meet[] = [
     type: "park_hangout",
     groupId: "group-2",
     title: "Weekend hangout — Stromovka",
+    coverPhotoUrl: "/images/generated/park-hangout-riegrovy.jpeg",
     description:
       "Casual Saturday hangout in the big field by the pond. Bring a ball, bring treats. Dogs play, owners chat.",
     location: "Stromovka, Prague 7",
@@ -273,6 +275,7 @@ export const mockMeets: Meet[] = [
     type: "training",
     groupId: "group-4",
     title: "Recall practice — Letná",
+    coverPhotoUrl: "/images/generated/evening-walk-group.jpeg",
     description:
       "Small group recall training session. Ideal for dogs that need work on coming back when called. Bring high-value treats!",
     location: "Letenské sady, Prague 7",
@@ -408,6 +411,7 @@ export const mockMeets: Meet[] = [
   {
     id: "meet-6",
     type: "walk",
+    coverPhotoUrl: "/images/generated/group-walk-stromovka.jpeg",
     title: "Sunday morning walk — Riegrovy sady",
     description: "Our regular Sunday morning group walk. Great turnout this week!",
     location: "Riegrovy sady, Prague 2",
@@ -472,6 +476,7 @@ export const mockMeets: Meet[] = [
     type: "training",
     groupId: "group-klara-training",
     title: "Calm Dog Group Session — Stromovka",
+    coverPhotoUrl: "/images/generated/spot-park-walk.jpeg",
     description:
       "Small-group training focused on calm greetings and loose-leash walking. Max 6 dogs. All levels welcome.",
     location: "Stromovka, Prague 7",
@@ -557,6 +562,7 @@ export const mockMeets: Meet[] = [
     type: "park_hangout",
     groupId: "group-cafe-letka",
     title: "Puppy Social Hour at Café Letka",
+    coverPhotoUrl: "/images/generated/meet-greeting.jpeg",
     description:
       "Weekly puppy meetup at Café Letka's dog-friendly terrace. Puppies under 1 year welcome. Free dog treat with every coffee!",
     location: "Café Letka, Letná, Prague 7",

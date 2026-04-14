@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "strategy/User Archetypes.md",
+                "file": "strategy/Open Questions & Assumptions Log.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "User Archetypes"
+              "title": "Open Questions & Assumptions Log"
             }
           }
         ]
@@ -188,9 +188,12 @@
   },
   "active": "9dcef6f2bebad7ea",
   "lastOpenFiles": [
+    "phases/polish-log.md",
+    "phases/punch-list.md",
+    "strategy/Open Questions & Assumptions Log.md",
+    "strategy/User Archetypes.md",
     "phases/profiles-deep-pass.md",
     "archive/phases/inbox-and-notifications.md",
-    "phases/polish-log.md",
     "archive/phases/layout-unification.md",
     "archive/phases/page-content-and-interactions.md",
     "phases/layout-unification.md",
@@ -213,9 +216,6 @@
     "archive/decisions/chat-design.md",
     "archive/decisions",
     "archive/_template.md",
-    "archive/flows/provider-setup.md",
-    "archive/flows/profile-management.md",
-    "archive/flows/post-meet-connection.md",
     "archive/flows",
     "archive/implementation",
     "archive/strategy",

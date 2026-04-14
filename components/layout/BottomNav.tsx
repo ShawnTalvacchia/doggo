@@ -29,7 +29,6 @@ const hubRoutes = [
   /^\/home\?/,               // home with query params (view=groups etc.)
   /^\/discover$/,
   /^\/discover\?/,           // discover with query params
-  /^\/discover\/(meets|groups|care)$/,  // discover sub-tabs
   /^\/schedule$/,
   /^\/bookings$/,
   /^\/profile$/,

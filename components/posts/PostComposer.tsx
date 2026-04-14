@@ -59,7 +59,7 @@ const TAG_TYPE_ICON: Record<PostTagType, typeof MapPin> = {
 const SINGLE_SELECT_TYPES: Set<PostTagType> = new Set(["place", "meet"]);
 
 /** Types that don't show suggestion pills in the header (context-dependent — will be wired during persona/flow building) */
-const NO_SUGGESTIONS: Set<PostTagType> = new Set(["community", "meet"]);
+const NO_SUGGESTIONS: Set<PostTagType> = new Set(["community", "meet", "person"]);
 
 const TAG_ROWS: { type: PostTagType; label: string }[] = [
   { type: "place", label: "Add location" },
@@ -100,14 +100,18 @@ function getEntitiesForType(type: PostTagType): TagOption[] {
 function getSuggestions(type: PostTagType, selectedKeys: Set<string>): TagOption[] {
   if (NO_SUGGESTIONS.has(type)) return [];
 
-  const isSingle = SINGLE_SELECT_TYPES.has(type);
-  const max = type === "dog"
-    ? mockUser.pets.length   // suggest all owned pets
-    : isSingle ? 1 : 3;
+  // Dogs: only suggest owner's pets (max 3), not connections' dogs
+  if (type === "dog") {
+    return mockUser.pets
+      .slice(0, 3)
+      .map((p) => ({ type: "dog" as const, id: p.id, label: p.name, imageUrl: p.imageUrl }))
+      .filter((e) => !selectedKeys.has(`${e.type}-${e.id}`));
+  }
 
+  // Single-select types: suggest 1
   return getEntitiesForType(type)
     .filter((e) => !selectedKeys.has(`${e.type}-${e.id}`))
-    .slice(0, max);
+    .slice(0, 1);
 }
 
 /* ── Sub-components ── */

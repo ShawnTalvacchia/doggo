@@ -1,10 +1,12 @@
 ---
-status: active
-last-reviewed: 2026-04-13
+status: paused
+last-reviewed: 2026-04-14
 review-trigger: When any task is completed or blocked
 ---
 
 # Profiles Deep Pass
+
+> **Paused 2026-04-14.** Trust signals (A3), composer rebuild (C1–C3), and post header attribution (B2/B3) shipped. Remaining work is content/personality enrichment that overlaps heavily with **Mock World Building** — it's more efficient to do it once, with a coherent four-persona world, than to enrich profiles in isolation now. The remaining About/Posts/Services tasks will be folded into Mock World Building (or revisited as a polish pass after the next deep passes). Moving to Meets Deep Pass next.
 
 **Goal:** Make profiles feel like real people with real lives. The profile is the relationship hub — About, Posts, Services, Chat — it needs to be the strongest page in the app. When a tester views a profile, they should think: "I'd trust this person with my dog."
 
@@ -51,7 +53,7 @@ The About tab is the first thing a visitor sees. It needs to tell a story — no
 
 | # | Description | Status |
 |---|-------------|--------|
-| B1 | Fix corner radius on post images in profile context (P8 from polish log) | todo |
+| B1 | Fix corner radius on post images in profile context (P8 from punch list) | todo |
 | B2 | Add group/meet/care attribution to post headers — FeedCommunityPost now uses buildHeaderContext (shared with MomentCard) to show "in [Group]" / "at [Place]" / "with [Dogs]" context | done |
 | B3 | Add header link matching main feed — headerContext includes clickable Link to group. Also added isCareProvider badge. Remaining tags shown (group/place consumed by header) | done |
 | B4 | Review post content — do mock posts tell stories? Does each user have enough posts to feel real? | todo |
@@ -61,7 +63,7 @@ The About tab is the first thing a visitor sees. It needs to tell a story — no
 
 | # | Description | Status |
 |---|-------------|--------|
-| C1 | Diagnose and fix post composer layout (P7 from polish log). Fixed: desktop form-shell height calc (was 80px short of page-shell padding), mobile uses 100dvh for full viewport | done |
+| C1 | Diagnose and fix post composer layout (P7 from punch list). Fixed: desktop form-shell height calc (was 80px short of page-shell padding), mobile uses 100dvh for full viewport | done |
 | C2 | Redesign composer as modal (desktop) / bottom sheet (mobile) using ModalSheet. Minimal-first: photo hero, camera button, borderless caption, tag action row (Location/Pets/People/Community with inline pickers) | done |
 | C3 | Wire PostComposerProvider into layout, update all entry points (AppNav, HomeFAB, ShareMomentBar, FeedCTA, CompactGreeting, PostsTab, GroupDetailPanel, communities page) to use openComposer() | done |
 

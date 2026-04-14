@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-04-10
+last-reviewed: 2026-04-13
 tags: [rules, workflow, css, conventions]
 review-trigger: "always — read before any working session"
 ---
@@ -27,7 +27,8 @@ Before writing any code for a new phase, complete the **Opening Checklist** on t
 3. **Review Open Questions** (`strategy/Open Questions & Assumptions Log.md`). Check if any unresolved questions affect this phase. Resolve or flag them before building.
 4. **Audit for conflicts.** Compare what the phase proposes against what's currently built. Raise anything that contradicts existing code, strategy docs, or feature docs. Don't assume the phase board is correct — it may have been written before recent changes.
 5. **Update stale docs.** If any referenced doc has a `last-reviewed` date older than 2 weeks, review and update it now.
-6. **Confirm scope.** If the phase has tasks that feel like they belong in a different phase, or if scope has grown, discuss before starting.
+6. **Scan the Punch List** (`phases/punch-list.md`). Check if any open items overlap with the new phase's scope — adopt them into the phase board or note the overlap.
+7. **Confirm scope.** If the phase has tasks that feel like they belong in a different phase, or if scope has grown, discuss before starting.
 
 **Enforcement:** The opening checklist items must be checked off on the phase board before the first task moves to `in_progress`. If an agent or human starts building without completing the checklist, stop and finish it first.
 
@@ -50,8 +51,9 @@ Before marking a phase complete, work through the **Closing Checklist** on the p
 3. **Update the Open Questions log.** Close any questions this phase resolved. Add any new ones that emerged.
 4. **Update ROADMAP.md.** Mark the phase complete with a summary of key outcomes.
 5. **Review CLAUDE.md.** If the phase changed navigation, key components, or project structure, update the project instructions.
-6. **Archive the phase board.** Copy to `archive/phases/`, mark status: archived. (If deletion is blocked, mark the original as archived too.)
-7. **Check upcoming phases.** Does the next phase's scope still make sense given what was just built? Flag any conflicts.
+6. **Review Punch List changes.** Read completed items and change reports in `phases/punch-list.md` since the last phase close. Check if any completed fixes affected feature docs, design-system.md, or design-tokens.md — update anything that was missed.
+7. **Archive the phase board.** Copy to `archive/phases/`, mark status: archived. (If deletion is blocked, mark the original as archived too.)
+8. **Check upcoming phases.** Does the next phase's scope still make sense given what was just built? Flag any conflicts.
 
 **Enforcement:** The closing checklist items must all be checked off before a new phase can be opened. The ROADMAP should show a clear completion summary, not just "done."
 

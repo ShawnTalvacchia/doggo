@@ -63,17 +63,17 @@ See `docs/CONTRIBUTING.md` for full details, including the phase open/close life
 | `docs/implementation/design-tokens.md` | Token reference and Figma→CSS mapping |
 | `docs/implementation/mock-data-plan.md` | Mock data strategy and user journey planning |
 
-## Current Phase: Profiles Deep Pass
+## Current Phase: Meets Deep Pass
 
 Deep page-by-page passes to make every surface the best it can be. See `docs/ROADMAP.md` for the full arc.
 
-**Phase board:** `docs/phases/profiles-deep-pass.md`
+**Phase board:** `docs/phases/meets-deep-pass.md`
 
-**Polish Log:** `docs/phases/polish-log.md` — running list of UI tweaks and small fixes, worked on alongside any active phase.
+**Punch List:** `docs/phases/punch-list.md` — running list of UI tweaks and small fixes. Self-contained workflow instructions inside the file. Work from it in any session — read the file and follow its workflow section.
 
-**Recently completed:** Inbox & Notifications (chat-on-profiles architecture, inbox as connections list, 13 notification types with grouping, booking conversation flow end-to-end). Profiles & Dogs. Bookings & Care Provider Flow. Page Content & Interactions. Layout Unification. 30+ prior phases.
+**Recently completed / paused:** Profiles Deep Pass paused 2026-04-14 — trust signals, post composer rebuild (ModalSheet), and post header attribution shipped; remaining content enrichment folded into Mock World Building. Inbox & Notifications. Profiles & Dogs. Bookings & Care Provider Flow. Page Content & Interactions. Layout Unification. 30+ prior phases.
 
-**Upcoming phases:** Meets Deep Pass → Community & Groups → Discover & Care → Schedule & Bookings → Design System Maturation → Mock World Building → Cross-Cutting Flow Testing → Demo Presentation. See ROADMAP.md.
+**Upcoming phases:** Community & Groups → Discover & Care → Schedule & Bookings → Design System Maturation → Mock World Building → Cross-Cutting Flow Testing → Demo Presentation. See ROADMAP.md.
 
 ## Strategic Context
 

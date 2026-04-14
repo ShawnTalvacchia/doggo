@@ -63,7 +63,7 @@ export function useScrollHideNav() {
 
         // Only hide if content significantly overflows the container
         // (prevents distracting hide/show on pages that barely scroll)
-        const MIN_SCROLL_DEPTH = 300;
+        const MIN_SCROLL_DEPTH = 800;
         const canHide = target.scrollHeight - target.clientHeight > MIN_SCROLL_DEPTH;
 
         if (delta > THRESHOLD && currentY > TOP_NAV_H && !isHidden && canHide) {

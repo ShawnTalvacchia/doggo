@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-04-12
+last-reviewed: 2026-04-14
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
@@ -64,13 +64,13 @@ The prototype is feature-rich with consistent layout and interactions across all
 - Post composer — modal layout is broken
 - Design system — ButtonAction variant system needs rethinking (destructive as modifier, not standalone)
 
-**Known bugs on Polish Log:** See `phases/polish-log.md`
+**Known bugs on Punch List:** See `phases/punch-list.md`
 
 ---
 
-## Polish Log (permanent)
+## Punch List (permanent)
 
-`phases/polish-log.md` — running list of UI tweaks and small bugs. Not a phase — lives alongside whatever phase is active. Any session can pull from it.
+`phases/punch-list.md` — running list of UI tweaks and small bugs. Not a phase — lives alongside whatever phase is active. Any session can pull from it. Items that outgrow the punch list get promoted to the Backlog below.
 
 ---
 
@@ -86,29 +86,23 @@ The prototype is feature-rich with consistent layout and interactions across all
 
 ## Current Phase
 
-### Profiles Deep Pass
+### Meets Deep Pass
 
-**Status:** Phase board created, opening checklist pending.
+**Status:** Opened 2026-04-14. Initial meet detail redesign landed (cover hero, info strip, attendees, social proof, rules, sticky RSVP). Iterating from user feedback while the rest of the phase board is worked through.
 
-**Phase board:** `phases/profiles-deep-pass.md`
+**Phase board:** `phases/meets-deep-pass.md`
+
+### Profiles Deep Pass — Paused
+
+**Status:** Paused 2026-04-14. Trust signals (mutual connections + shared groups badges), post composer rebuild (ModalSheet with accordion tag rows), and post header attribution shipped. Remaining About/Posts/Services content enrichment overlaps with Mock World Building — folded there to avoid doing the work twice in isolation.
+
+**Phase board:** `phases/profiles-deep-pass.md` (status: paused)
 
 ---
 
 ## Upcoming Phases
 
 Phases are deep passes — each one takes a major surface and makes it the best it can be. Not just polish: rethink content, fix visual issues, consider what's missing, add depth to mock data.
-
-### Profiles Deep Pass
-
-**Goal:** Make profiles feel like real people with real lives. The profile is the relationship hub — About, Posts, Services, Chat — it needs to be the strongest page in the app.
-
-**Key work:**
-- About tab — richer content, better layout, trust signals that tell a story
-- Services tab — fuller content (user has a detailed list to provide)
-- Posts tab — fix corner radius, add group/meet/care attribution to post headers, add link matching main feed
-- Own profile — review edit flows, provider setup experience
-- Post composer — fix broken modal layout
-- Consider: what makes someone look at a profile and think "I'd trust this person with my dog"?
 
 ### Meets Deep Pass
 
@@ -200,6 +194,16 @@ Phases are deep passes — each one takes a major surface and makes it the best 
 - The world should be rich enough that free exploration is also rewarding
 
 **Refs:** [[User Archetypes]], [[Product Vision]], [[mock-data-plan]]
+
+---
+
+## Backlog
+
+Items promoted from the Punch List that are too large for a quick fix but don't belong in a specific phase yet. Review this list when planning new phases.
+
+| Item | Origin | Notes |
+|------|--------|-------|
+| — | *(nothing yet)* | — |
 
 ---
 

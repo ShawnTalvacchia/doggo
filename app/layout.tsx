@@ -12,7 +12,6 @@ import { GuestLayout } from "@/components/layout/GuestLayout";
 import { AppNav } from "@/components/layout/AppNav";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { PostComposer } from "@/components/posts/PostComposer";
-import { ViewTransitionManager } from "@/components/layout/ViewTransitionManager";
 
 const headingFont = Poppins({
   subsets: ["latin"],
@@ -45,7 +44,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <BookingsProvider>
                   <PageHeaderProvider>
                     <PostComposerProvider>
-                      <ViewTransitionManager />
                       <GuestLayout>
                         <AppNav />
                         {children}

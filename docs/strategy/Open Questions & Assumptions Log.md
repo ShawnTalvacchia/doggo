@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-13
+last-reviewed: 2026-04-14
 tags: [questions, risks, assumptions]
 review-trigger: "before starting a new phase, after any strategic discussion"
 ---
@@ -64,6 +64,9 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 - Where does pricing surface before a formal arrangement?
 - Should creating a Care group require having services listed first?
 - Should providers be able to set cancellation policies (e.g. 24hr notice)?
+- What does the session completion flow look like for providers? (Visit report card: photos, notes, GPS summary, timestamps — see `docs/strategy/Competitive Research - Time To Pet.md`)
+- Should owners receive real-time updates during active care sessions (live GPS, mid-session photos)?
+- What pet info should surface in the provider's "in-session" view? (medication, vet contact, behavioural notes, emergency info)
 
 ---
 

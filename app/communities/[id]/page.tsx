@@ -182,7 +182,7 @@ function GroupDetailInner() {
 
       {/* ── Scrollable tab content (tabs sticky inside for glassmorphism) ── */}
       <div className="group-detail-body">
-        <div className="group-detail-tabs">
+        <div className="detail-tabs detail-tabs--scroll">
           <TabBar tabs={tabs} activeKey={activeTab} onChange={handleTabChange} />
         </div>
         {activeTab === "feed" && (
