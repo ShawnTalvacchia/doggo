@@ -30,7 +30,7 @@ export default function ShareProfilePage() {
     return (
       <main className="flex flex-col items-center justify-center gap-lg p-xl" style={{ minHeight: "60vh" }}>
         <ShareNetwork size={48} weight="light" className="text-fg-tertiary" />
-        <h1 className="font-heading text-xl font-semibold text-fg-primary">Profile not found</h1>
+        <h1 className="font-heading text-3xl font-medium text-fg-primary">Profile not found</h1>
         <p className="text-sm text-fg-secondary text-center" style={{ maxWidth: 320 }}>
           This link may have expired or doesn&apos;t exist. Ask your friend to share their profile again.
         </p>
@@ -69,7 +69,7 @@ export default function ShareProfilePage() {
 
         {/* Name */}
         <div>
-          <h1 className="font-heading text-2xl font-semibold text-fg-primary m-0">
+          <h1 className="font-heading text-3xl font-medium text-fg-primary m-0">
             {user.firstName}
           </h1>
           {user.neighbourhood && (

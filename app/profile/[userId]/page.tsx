@@ -113,7 +113,7 @@ function UserProfileInner() {
             ) : (
               <DefaultAvatar name={name} size={96} />
             )}
-            <h1 className="font-heading text-xl font-semibold text-fg-primary m-0">{name}</h1>
+            <h1 className="font-heading text-3xl font-medium text-fg-primary m-0">{name}</h1>
 
             <div className="flex flex-col items-center gap-sm rounded-panel p-lg bg-surface-inset w-full" style={{ maxWidth: 360 }}>
               <LockSimple size={28} weight="light" className="text-fg-tertiary" />
@@ -147,7 +147,7 @@ function UserProfileInner() {
                 <DefaultAvatar name={name} size={96} />
               )}
               <div className="flex flex-col items-center gap-xs text-center">
-                <h1 className="font-heading text-xl font-semibold text-fg-primary m-0">{name}</h1>
+                <h1 className="font-heading text-3xl font-medium text-fg-primary m-0">{name}</h1>
                 {location && (
                   <span className="flex items-center gap-xs text-sm text-fg-secondary">
                     <MapPin size={13} weight="fill" className="shrink-0" /> {location}

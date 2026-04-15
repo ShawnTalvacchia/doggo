@@ -118,7 +118,7 @@ export default function PostMeetConnectPage() {
 
       {/* Dog-centred greeting */}
       <div className="flex flex-col items-center gap-sm text-center">
-        <h1 className="font-heading text-2xl font-semibold text-fg-primary">
+        <h1 className="font-heading text-3xl font-medium text-fg-primary">
           Great meet!
         </h1>
         <p className="text-base text-fg-secondary">{dogPhrase}</p>

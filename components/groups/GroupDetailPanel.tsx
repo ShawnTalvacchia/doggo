@@ -132,7 +132,7 @@ export function GroupDetailPanel({ group, compact = false }: GroupDetailPanelPro
               style={{ width: 40, height: 40 }}
             />
           )}
-          <h1 className="font-heading text-xl font-semibold text-fg-primary m-0">
+          <h1 className="font-heading text-3xl font-medium text-fg-primary m-0">
             {group.name}
           </h1>
           {group.visibility !== "open" && (
@@ -318,7 +318,7 @@ function FeedTab({ groupPosts, group, isMember }: { groupPosts: ReturnType<typeo
         )}
         {group.photos.length > 0 && (
           <div className="flex flex-col gap-sm">
-            <h3 className="font-heading text-md font-semibold text-fg-primary m-0">Community photos</h3>
+            <h3 className="font-heading text-xs font-medium text-fg-secondary m-0">Community photos</h3>
             <MeetPhotoGallery photos={group.photos} />
           </div>
         )}
@@ -336,7 +336,7 @@ function MeetsTab({ groupMeets, isCare }: { groupMeets: Meet[]; isCare: boolean 
     <div className="flex flex-col">
       <LayoutSection>
         <div className="flex items-center justify-between">
-          <h3 className="font-heading text-md font-semibold text-fg-primary m-0">Upcoming {noun}</h3>
+          <h3 className="font-heading text-xs font-medium text-fg-secondary m-0">Upcoming {noun}</h3>
           <ButtonAction variant="tertiary" size="sm" href="/meets/create" leftIcon={<Plus size={14} weight="bold" />}>
             Create {nounSingular}
           </ButtonAction>
@@ -368,7 +368,7 @@ function MembersTab({ group }: { group: Group }) {
   return (
     <LayoutSection>
       <div className="flex flex-col gap-md">
-        <h3 className="font-heading text-md font-semibold text-fg-primary m-0">Members ({group.members.length})</h3>
+        <h3 className="font-heading text-xs font-medium text-fg-secondary m-0">Members ({group.members.length})</h3>
         <div className="flex flex-col gap-sm">
           {group.members.map((member) => {
             const conn = getConnectionState(member.userId);
@@ -417,7 +417,7 @@ function ServicesTab({ group }: { group: Group }) {
   return (
     <LayoutSection>
       <div className="flex flex-col gap-md">
-        <h3 className="font-heading text-md font-semibold text-fg-primary m-0">Services</h3>
+        <h3 className="font-heading text-xs font-medium text-fg-secondary m-0">Services</h3>
         {listings.filter(s => s.active).map((service) => (
           <div key={service.id} className="flex flex-col gap-sm rounded-panel bg-surface-top p-md shadow-xs">
             <div className="flex items-start justify-between gap-md">
@@ -454,7 +454,7 @@ function GalleryTab({ group }: { group: Group }) {
     <LayoutSection>
       <div className="flex flex-col gap-md">
         <div className="flex items-center justify-between">
-          <h3 className="font-heading text-md font-semibold text-fg-primary m-0">
+          <h3 className="font-heading text-xs font-medium text-fg-secondary m-0">
             {mode === "portfolio" ? "Portfolio" : mode === "updates" ? "Updates" : "Gallery"}
           </h3>
           <span className="text-xs text-fg-tertiary">{photos.length} photos</span>

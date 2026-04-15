@@ -71,7 +71,7 @@ export default function CheckoutPage() {
           >
             <CheckCircle size={36} weight="fill" className="text-success" />
           </div>
-          <h1 className="font-heading text-2xl font-semibold text-fg-primary">
+          <h1 className="font-heading text-3xl font-medium text-fg-primary">
             Booking confirmed & paid
           </h1>
           <p className="text-sm text-fg-secondary">
@@ -103,7 +103,7 @@ export default function CheckoutPage() {
     >
       <DetailHeader backHref={`/bookings/${bookingId}`} backLabel="Booking" />
 
-      <h1 className="font-heading text-2xl font-semibold text-fg-primary">
+      <h1 className="font-heading text-3xl font-medium text-fg-primary">
         Checkout
       </h1>
 

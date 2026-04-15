@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-04-13
+last-reviewed: 2026-04-15
 tags: [rules, workflow, css, conventions]
 review-trigger: "always — read before any working session"
 ---
@@ -49,13 +49,21 @@ Before marking a phase complete, work through the **Closing Checklist** on the p
 1. **Walk through every acceptance criterion.** Verify each one against the running app, not just the code.
 2. **Update all affected feature docs.** If the phase changed how meets, groups, profiles, etc. work, the feature docs must reflect the new reality.
 3. **Update the Open Questions log.** Close any questions this phase resolved. Add any new ones that emerged.
-4. **Update ROADMAP.md.** Mark the phase complete with a summary of key outcomes.
+4. **Update ROADMAP.md.** Move the completed phase out of "Current Phase." Do NOT add a completion summary — the archived phase board is the record.
 5. **Review CLAUDE.md.** If the phase changed navigation, key components, or project structure, update the project instructions.
 6. **Review Punch List changes.** Read completed items and change reports in `phases/punch-list.md` since the last phase close. Check if any completed fixes affected feature docs, design-system.md, or design-tokens.md — update anything that was missed.
 7. **Archive the phase board.** Copy to `archive/phases/`, mark status: archived. (If deletion is blocked, mark the original as archived too.)
-8. **Check upcoming phases.** Does the next phase's scope still make sense given what was just built? Flag any conflicts.
+8. **Trim pass.** Skim the Roadmap, CLAUDE.md, and touched docs. Cut anything stale, redundant, or duplicated. See Doc Hygiene Rules.
+9. **Strategic review.** This is the most important step. Stop building and think. Read the Open Questions log, the Roadmap, the relevant strategy and competitive research docs, and the next phase's scope. Then present a brief to the team covering:
+   - **What changed.** How does the work just completed shift our understanding of the product? Did building it reveal anything we didn't anticipate?
+   - **Open questions worth resolving now.** Which unresolved questions from the log would benefit from research or discussion before the next phase opens? Don't just list them — recommend whether to research, discuss, or defer, and why.
+   - **Alternatives and challenges.** Is there anything in the current design, feature set, or direction that deserves reconsideration? Are we overbuilding something? Underbuilding something? Is a competitor doing something that should change our approach? Are there simpler paths we're ignoring?
+   - **Research suggestions.** If competitive research, user research, or technical spikes would be valuable before the next phase, say so and describe what to look into.
+   - **Next phase readiness.** Does the next phase's scope still make sense? Should anything be added, cut, or reordered?
 
-**Enforcement:** The closing checklist items must all be checked off before a new phase can be opened. The ROADMAP should show a clear completion summary, not just "done."
+   This isn't a checkbox — it's a thinking mode. Take the time to do it well. The goal is to surface insights and recommendations, not just confirm that docs are updated.
+
+**Enforcement:** The closing checklist items must all be checked off before a new phase can be opened.
 
 ---
 
@@ -132,3 +140,47 @@ When updating existing styles:
 | `phases/` | Active phase boards only (completed boards → archive) |
 | `archive/` | Completed/superseded docs kept for reference |
 | root | Meta docs (this file, ROADMAP, CLAUDE.md) |
+
+---
+
+## Doc Hygiene Rules
+
+These prevent the documentation from bloating over time. **Treat these as seriously as the code rules.**
+
+### One home, many references
+
+Every piece of information has exactly one home doc. Other docs reference it — they don't repeat it.
+
+| Information type | Home doc | Other docs should... |
+|-----------------|----------|---------------------|
+| Product decisions, strategy | `strategy/` docs | Reference: "See Trust & Connection Model.md" |
+| What a feature does, how it works | `features/` doc for that feature | Reference: "See features/profiles.md" |
+| Competitive research, market insights | `strategy/Competitive Research - *.md` | Reference by name, don't copy action items |
+| Phase-specific tasks | Phase board in `phases/` | Not appear in the Roadmap or feature docs |
+| Open questions | `Open Questions & Assumptions Log.md` | Not be duplicated in strategy or feature docs |
+| Build history, what was shipped | `archive/phases/` | Not be summarized in the Roadmap |
+
+**The test:** If you're writing something and it already exists elsewhere, write a reference instead. If you can't point to where it lives, then this is the home — write it here and reference it from elsewhere.
+
+### The Roadmap is a compass, not a changelog
+
+The Roadmap tracks: where we're going, what phase we're in, what's coming next, and key strategic considerations. It does NOT track: what was built in previous phases (that's `archive/`), detailed task lists (that's phase boards), or current state assessments (that's the phase board + code).
+
+When closing a phase, do NOT add a completion summary to the Roadmap. Archive the phase board — that IS the record.
+
+### When adding new information
+
+Before writing, ask:
+
+1. **Does a home doc already exist for this?** → Add it there, reference from elsewhere.
+2. **Am I duplicating something?** → Stop. Write a reference instead.
+3. **Am I adding tasks to a strategy doc?** → Tasks belong in phase boards. Strategy docs describe considerations and open questions — when a phase opens, the board pulls from them.
+4. **Am I making a doc longer?** → Could I make it shorter instead? Can anything be cut or consolidated?
+
+### Periodic cleanup
+
+At every phase close, in addition to the existing checklist:
+
+- **Trim pass.** Skim the Roadmap, CLAUDE.md, and any docs you touched. Is anything stale, redundant, or duplicated? Cut it.
+- **Challenge the product.** Flag anything that feels overcomplicated, underspecified, or inconsistent with the vision. Raise it with the team rather than silently working around it.
+- **Question the docs.** Are we maintaining docs nobody reads? Is anything documented in two places? Could two docs merge?

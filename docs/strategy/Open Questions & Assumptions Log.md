@@ -33,6 +33,8 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 - How many IRL interactions before users feel comfortable going Familiar → Connected?
 - Will Locked users feel excluded or empowered?
 - Should the post-meet review flow trigger immediately after the meet ends, or after a delay (e.g. next morning)?
+- **Hybrid trust model:** Should Doggo offer lightweight top-down trust signals (verified ID, community participation score, "X shared connections") alongside community-built trust? Fluv's vetting-first model shows users want some confidence before committing, even if Doggo's community trust is deeper long-term. See `docs/strategy/Competitive Research - Fluv.md`.
+- Should there be an "intro session" (free/reduced first meeting) for owners booking a provider they haven't met at community events?
 
 ---
 
@@ -90,18 +92,39 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 ---
 
-## 7. Prague & Cultural
+## 7. Prague, Cold Start & Go-to-Market
 
-**Assumption:** Prague dog culture values routine, parks, informal socialisation. Letná, Stromovka, Riegrovy sady are the right seed neighbourhoods.
+**Assumption:** Prague dog culture values routine, parks, informal socialisation. Seeding with providers who use meets as a client acquisition channel solves both sides of the marketplace.
+
+**Refs:** `Competitive Research - Prague Dog Care Scene.md` (trust patterns, badge taxonomy, seeding strategy)
 
 **Open:**
-- Are there existing informal networks we're replicating or competing with?
+- Need to map Czech-language informal networks (Facebook groups, forums) beyond the English expat ones we've found
 - What expectations exist around verification/identity in Czech culture?
-- Are the chosen seed neighbourhoods actually the densest for dog owners?
+- Are Vinohrady/Letná/Vršovice the densest neighbourhoods for dog owners?
+- Can we recruit 3-5 providers willing to host weekly meets? What's the pitch?
+- What's the ROI timeline — how many weeks before meet attendees convert to paying clients?
+- Does provider-hosted meets feel organic or salesy?
+- Should Doggo offer seed provider incentives (free period, reduced fee, featured placement)?
 
 ---
 
-## 8. Navigation & UX
+## 8. Trust Badges & Hybrid Trust
+
+**Assumption:** Community-earned trust is primary, but lightweight top-down signals (verified ID, network overlap, credentials) bridge the gap for users who haven't built connections yet.
+
+**Refs:** `Competitive Research - Prague Dog Care Scene.md` (badge taxonomy), `Competitive Research - Fluv.md` (hybrid trust model)
+
+**Open:**
+- Which badges matter most to owners for MVP? Prioritise from the full taxonomy.
+- Self-declared credentials only at launch, or verify any?
+- How do badges display on compact cards vs. full profiles? Max count before clutter?
+- Does "Trusted by your network" require Connected, or does Familiar count?
+- Should there be an "intro session" (free/reduced) for the direct-discovery booking path?
+
+---
+
+## 9. Navigation & UX
 
 **Resolved:** Mobile bottom nav: Community | Discover | My Schedule | Bookings | Profile (5 tabs). Desktop sidebar: Community, Discover, My Schedule, Bookings, Inbox, Notifications, Profile (7 items). Mobile header: create + notifications + inbox. Home renamed to Community with category sub-tabs. All pages unified to PageColumn single-column layout (640px centered). Sidebar tightened to 180px. MasterDetailShell and DiscoverShell deleted. Sidebar active state: neutral (transparent-dark-4 + text-primary). Header action buttons: CTA pill variant (brand for primary, outline for secondary). DetailHeader and PageColumn headers aligned (40px, 16px padding). Scroll-to-hide nav restored via page-column-panel-body class.
 
@@ -110,7 +133,7 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 ---
 
-## 9. Demo & Presentation
+## 10. Demo & Presentation
 
 **Partially resolved:** Three personas chosen — Tereza (routine owner/neighbourhood anchor), Klára (professional trainer), Daniel (anxious new owner). Mock data layer built with 20 users, 24 meets, 35 posts, 13 reviews, 10 bookings, 8 conversations, 20 group message threads. Image generation prompts prepared (40 prompts across 7 tiers).
 
@@ -122,7 +145,7 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 ---
 
-## 10. Technical
+## 11. Technical
 
 **Resolved:** Chat uses mock data, designed for Supabase Realtime swap.
 

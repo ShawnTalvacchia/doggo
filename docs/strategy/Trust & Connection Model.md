@@ -139,6 +139,7 @@ Trust signals are displayed on profiles and in relevant contexts (provider cards
 - Reviews from completed care arrangements
 - Response consistency
 - Verified identity (future — when implemented)
+- Provider trust badges — three-tier system (community-earned, credential, platform). See `Competitive Research - Prague Dog Care Scene.md` for full taxonomy.
 
 ### What we avoid
 
@@ -202,3 +203,5 @@ Both paths lead to the same place: a network of Connected users who trust each o
 - [[User Archetypes]] — how different users experience the trust ramps
 - [[connections]] — feature spec for the connection system
 - [[profiles]] — how trust signals display on profiles
+- [[Competitive Research - Prague Dog Care Scene]] — badge taxonomy, Prague trust patterns, cold-start seeding strategy
+- [[Competitive Research - Fluv]] — hybrid trust model question, vetting vs. community trust

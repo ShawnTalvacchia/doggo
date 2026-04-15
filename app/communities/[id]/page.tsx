@@ -261,7 +261,7 @@ function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, join
       <div className="group-detail-info">
         {/* Group name + badges */}
         <div className="flex items-center gap-sm flex-wrap">
-          <h1 className="font-heading text-2xl font-semibold text-fg-primary m-0">
+          <h1 className="font-heading text-3xl font-medium text-fg-primary m-0">
             {group.name}
           </h1>
           {group.visibility !== "open" && (
@@ -501,7 +501,7 @@ function ServicesTab({ group }: { group: Group }) {
   return (
     <LayoutSection>
       <div className="flex flex-col gap-md">
-        <h3 className="font-heading text-md font-semibold text-fg-primary m-0">
+        <h3 className="font-heading text-xs font-medium text-fg-secondary m-0">
           Services
         </h3>
         {listings.filter(s => s.active).map((service) => (

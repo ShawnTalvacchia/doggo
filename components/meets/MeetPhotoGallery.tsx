@@ -7,7 +7,7 @@ export function MeetPhotoGallery({ photos }: { photos: string[] }) {
 
   return (
     <section className="flex flex-col gap-sm">
-      <h3 className="font-heading text-md font-semibold text-fg-primary m-0">
+      <h3 className="font-heading text-xs font-medium text-fg-secondary m-0">
         Photos from the meet
       </h3>
       <div

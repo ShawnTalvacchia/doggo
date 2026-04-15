@@ -58,6 +58,9 @@ See `docs/CONTRIBUTING.md` for full details, including the phase open/close life
 | `docs/strategy/Groups & Care Model.md` | Group taxonomy, provider types, config model, user journeys |
 | `docs/strategy/Content Visibility Model.md` | Two-gate visibility system, tagging privacy rules |
 | `docs/strategy/Open Questions & Assumptions Log.md` | Unresolved strategic questions — review before each phase |
+| `docs/strategy/Competitive Research - Prague Dog Care Scene.md` | Prague provider trust patterns, trust badge taxonomy, cold-start seeding strategy |
+| `docs/strategy/Competitive Research - Fluv.md` | Fluv analysis, hybrid trust model question, pre-booking meet-and-greet |
+| `docs/strategy/Competitive Research - Time To Pet.md` | TTP analysis, visit report cards, real-time session updates, in-session UI |
 | `docs/features/` | Feature specs: meets, connections, messaging, explore-and-care, profiles, schedule, landing-page |
 | `docs/implementation/design-system.md` | Components, patterns, CSS classes, consolidation targets |
 | `docs/implementation/design-tokens.md` | Token reference and Figma→CSS mapping |
@@ -71,9 +74,9 @@ Deep page-by-page passes to make every surface the best it can be. See `docs/ROA
 
 **Punch List:** `docs/phases/punch-list.md` — running list of UI tweaks and small fixes. Self-contained workflow instructions inside the file. Work from it in any session — read the file and follow its workflow section.
 
-**Recently completed / paused:** Profiles Deep Pass paused 2026-04-14 — trust signals, post composer rebuild (ModalSheet), and post header attribution shipped; remaining content enrichment folded into Mock World Building. Inbox & Notifications. Profiles & Dogs. Bookings & Care Provider Flow. Page Content & Interactions. Layout Unification. 30+ prior phases.
+**Profiles Deep Pass:** Paused 2026-04-14. Trust signals, post composer, post attribution shipped. Remaining work folded into Mock World Building.
 
-**Upcoming phases:** Community & Groups → Discover & Care → Schedule & Bookings → Design System Maturation → Mock World Building → Cross-Cutting Flow Testing → Demo Presentation. See ROADMAP.md.
+**Upcoming:** Community & Groups → Discover & Care → Schedule & Bookings → Mock World Building → Cross-Cutting Flow Testing → Demo Presentation. See ROADMAP.md.
 
 ## Strategic Context
 

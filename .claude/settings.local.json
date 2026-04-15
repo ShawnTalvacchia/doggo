@@ -131,7 +131,10 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/meets/meet-2)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/meets/meet-care-1)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/meets/meet-6)",
-      "Bash(echo \"exit=$?\")"
+      "Bash(echo \"exit=$?\")",
+      "Bash(awk '/id: \"meet-/{meet=$0} /attendees/{if\\(meet\\) print meet, NR}' /Users/shawntalvacchia/Desktop/Doggo/lib/mockMeets.ts)",
+      "Bash(awk '/id: \"meet-/{id=$0} /coverPhotoUrl:/{print id; cover=$0; if\\(cover ~ /undefined/\\) print \"  NO COVER\"} /^\\\\s*\\\\}/ && id{id=\"\"}' /Users/shawntalvacchia/Desktop/Doggo/lib/mockMeets.ts)",
+      "Bash(awk ':*)"
     ]
   }
 }

@@ -373,7 +373,7 @@ function DetailsTab({
         </div>
 
         {/* Title — match group exactly via Tailwind utilities */}
-        <h1 className="font-heading text-2xl font-semibold text-fg-primary m-0">
+        <h1 className="font-heading text-3xl font-medium text-fg-primary m-0">
           {meet.title}
         </h1>
 

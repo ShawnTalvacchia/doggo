@@ -11983,14 +11983,6 @@ body:has(.bottom-nav) .inbox-page {
   background: var(--surface-popout);
 }
 
-.meet-title {
-  font-family: var(--font-heading);
-  font-size: var(--text-2xl);
-  font-weight: var(--weight-semibold);
-  color: var(--text-primary);
-  line-height: 1.2;
-  margin: 0;
-}
 
 .meet-badge-row {
   display: flex;

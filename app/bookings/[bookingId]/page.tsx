@@ -492,7 +492,7 @@ export default function BookingDetailPage() {
             {/* Notes / Care instructions */}
             {(booking.ownerNotes || booking.carerNotes) && (
               <div className="flex flex-col gap-sm">
-                <h3 className="text-md font-semibold text-fg-primary m-0">Care instructions</h3>
+                <h3 className="font-heading text-xs font-medium text-fg-secondary m-0">Care instructions</h3>
                 <div className="flex flex-col rounded-panel border border-edge-regular overflow-hidden">
                   {booking.ownerNotes && (
                     <div className="flex flex-col gap-xs bg-surface-top"
@@ -522,7 +522,7 @@ export default function BookingDetailPage() {
             {/* Pricing breakdown — only for one-off bookings with multiple line items */}
             {booking.type === "one_off" && booking.price.lineItems.length > 1 && (
               <div className="flex flex-col gap-sm">
-                <h3 className="text-md font-semibold text-fg-primary m-0">Pricing</h3>
+                <h3 className="font-heading text-xs font-medium text-fg-secondary m-0">Pricing</h3>
                 <div className="flex flex-col gap-xs rounded-panel p-md bg-surface-top border border-edge-regular">
                   {booking.price.lineItems.map((item, i) => (
                     <div key={i} className="flex justify-between items-center">
