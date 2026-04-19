@@ -14,6 +14,7 @@ import {
   Briefcase,
   Clock,
   CalendarDots,
+  Handshake,
 } from "@phosphor-icons/react";
 import type { Meet, MeetType, Booking, BookingSession } from "@/lib/types";
 import { MEET_TYPE_LABELS } from "@/lib/mockMeets";
@@ -130,19 +131,24 @@ function AvatarCombo({
 export function ScheduleMeetCard({
   meet,
   role,
+  isRecent = false,
 }: {
   meet: Meet;
   role: MeetRole;
+  /** Recent completed meet — links to connect page, shows Review CTA */
+  isRecent?: boolean;
 }) {
   const goingCount = meet.attendees.filter(
     (a) => (a.rsvpStatus ?? "going") === "going"
   ).length;
   const isHosting = role === "hosting";
 
+  const href = isRecent ? `/meets/${meet.id}/connect` : `/meets/${meet.id}`;
+
   return (
     <Link
-      href={`/meets/${meet.id}`}
-      className={`sched-card sched-card--meet${isHosting ? " sched-card--providing" : ""}`}
+      href={href}
+      className={`sched-card sched-card--meet${isHosting ? " sched-card--providing" : ""}${isRecent ? " sched-card--recent" : ""}`}
       style={{ textDecoration: "none" }}
     >
       {/* Row 1: Time (left) · recurring · pill (right) */}
@@ -151,10 +157,16 @@ export function ScheduleMeetCard({
           <Clock size={14} weight="light" />
           {formatTime(meet.time)}
         </span>
-        {meet.recurring && (
+        {meet.recurring && !isRecent && (
           <span className="sched-card-recurring">
             <ArrowsClockwise size={12} weight="light" />
             Weekly
+          </span>
+        )}
+        {isRecent && (
+          <span className="sched-card-recurring">
+            <Check size={12} weight="bold" />
+            Completed
           </span>
         )}
         <span className="flex-1" />
@@ -167,19 +179,26 @@ export function ScheduleMeetCard({
       {/* Row 2: Title */}
       <h3 className="sched-card-title">{meet.title}</h3>
 
-      {/* Row 3: Location + going + role */}
+      {/* Row 3: Location + going + role / review CTA */}
       <div className="sched-card-meta">
         <MapPin size={14} weight="light" className="shrink-0" />
         <span className="truncate">{meet.location}</span>
         <span className="sched-card-dot">·</span>
         <span>{goingCount}/{meet.maxAttendees}</span>
         <span className="flex-1" />
-        <span
-          className={`sched-card-role${isHosting ? " sched-card-role--hosting" : ""}`}
-        >
-          {isHosting ? <Flag size={11} weight="fill" /> : ROLE_ICONS[role]}
-          {isHosting ? "Hosting" : ROLE_LABELS[role]}
-        </span>
+        {isRecent ? (
+          <span className="sched-card-role sched-card-role--review">
+            <Handshake size={11} weight="fill" />
+            Review
+          </span>
+        ) : (
+          <span
+            className={`sched-card-role${isHosting ? " sched-card-role--hosting" : ""}`}
+          >
+            {isHosting ? <Flag size={11} weight="fill" /> : ROLE_ICONS[role]}
+            {isHosting ? "Hosting" : ROLE_LABELS[role]}
+          </span>
+        )}
       </div>
     </Link>
   );

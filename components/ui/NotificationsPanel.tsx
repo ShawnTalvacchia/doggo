@@ -25,6 +25,7 @@ const TYPE_ICONS: Record<NotificationType, typeof Bell> = {
   meet_invite: CalendarBlank,
   meet_reminder: CalendarBlank,
   meet_rsvp: UserPlus,
+  post_meet_review: Handshake,
   connection_request: Handshake,
   connection_accepted: HandsClapping,
   group_activity: UsersThree,

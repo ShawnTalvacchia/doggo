@@ -327,6 +327,7 @@ export type NotificationType =
   | "meet_invite"
   | "meet_reminder"
   | "meet_rsvp"
+  | "post_meet_review"
   | "connection_request"
   | "connection_accepted"
   | "group_activity"

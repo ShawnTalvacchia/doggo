@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { CalendarDots } from "@phosphor-icons/react";
+import { CalendarDots, CaretDown, CaretUp } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { TabBar } from "@/components/ui/TabBar";
@@ -74,11 +74,26 @@ function ScheduleInner() {
   const searchParams = useSearchParams();
   const filter = (searchParams.get("view") as ScheduleFilter) || "upcoming";
   const [careSubFilter, setCareSubFilter] = useState<"all" | "getting" | "providing">("all");
+  const [recentExpanded, setRecentExpanded] = useState(false);
 
   const myMeets = getUserMeets(CURRENT_USER);
   const { bookings } = useBookings();
   const todayIso = new Date().toISOString().slice(0, 10);
   const upcomingMeets = myMeets.filter((m) => m.status === "upcoming" && m.date >= todayIso);
+
+  // Recent completed meets the user attended (last 14 days) — drive the Review CTA
+  const recentCutoffIso = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() - 14);
+    return d.toISOString().slice(0, 10);
+  })();
+  const recentCompletedMeets = myMeets
+    .filter((m) => m.status === "completed" && m.date >= recentCutoffIso && m.date < todayIso)
+    .filter((m) => {
+      const role = getMeetRole(m, CURRENT_USER);
+      return role === "joining" || role === "hosting";
+    })
+    .sort((a, b) => b.date.localeCompare(a.date)); // most recent first
 
   const activeOwnerBookings = bookings.filter(
     (b) => b.ownerId === CURRENT_USER && (b.status === "active" || b.status === "upcoming")
@@ -203,6 +218,39 @@ function ScheduleInner() {
             onChange={(key) => setCareSubFilter(key as "all" | "getting" | "providing")}
           />
         )}
+          {/* Recent completed meets — only on Upcoming tab. Show most recent, expand for rest. */}
+          {filter === "upcoming" && recentCompletedMeets.length > 0 && (
+            <div className="flex flex-col">
+              <div className="sched-date-group">Review recent meets</div>
+              {(recentExpanded ? recentCompletedMeets : recentCompletedMeets.slice(0, 1)).map((m) => (
+                <ScheduleMeetCard
+                  key={`recent-${m.id}`}
+                  meet={m}
+                  role={getMeetRole(m, CURRENT_USER)}
+                  isRecent
+                />
+              ))}
+              {recentCompletedMeets.length > 1 && (
+                <button
+                  type="button"
+                  className="sched-recent-toggle"
+                  onClick={() => setRecentExpanded((v) => !v)}
+                >
+                  {recentExpanded ? (
+                    <>
+                      <CaretUp size={14} weight="bold" />
+                      Show less
+                    </>
+                  ) : (
+                    <>
+                      <CaretDown size={14} weight="bold" />
+                      View {recentCompletedMeets.length - 1} more
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          )}
           {filteredItems.length > 0 ? (
             <div className="flex flex-col">
               {filteredItems.map((item, idx) => {

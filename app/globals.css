@@ -12791,6 +12791,145 @@ body:has(.bottom-nav) .inbox-page {
   color: var(--text-white);
 }
 
+/* Review CTA pill for recent completed meets */
+.sched-card-role--review {
+  background: var(--brand-main);
+  color: var(--text-white);
+  padding: 3px 10px;
+}
+
+/* Recent completed meet — brand accent, same bright feel as other cards */
+.sched-card--recent {
+  border: 1px solid var(--brand-main);
+  border-left: 3px solid var(--brand-main);
+}
+
+/* ── Attendee row (post-meet review, future reusable pattern) ── */
+
+.attendee-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-top);
+  border: 1px solid var(--border-regular);
+  border-radius: var(--radius-sm);
+}
+
+.attendee-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.attendee-name {
+  font-family: var(--font-body);
+  font-size: var(--font-size-body-md);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.attendee-dogs {
+  font-family: var(--font-body);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--weight-regular);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+/* Avatar stack — person + dog(s), overlapping with white stroke */
+.attendee-avatar-stack {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.attendee-avatar-stack .attendee-avatar {
+  border: 2px solid var(--surface-top);
+}
+
+.attendee-avatar-stack .attendee-avatar + .attendee-avatar {
+  margin-left: -12px;
+}
+
+.attendee-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--surface-inset);
+}
+
+.attendee-avatar--locked {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  background: var(--surface-inset);
+}
+
+.attendee-action {
+  flex-shrink: 0;
+}
+
+.attendee-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--brand-main);
+  padding: 0 var(--space-xs);
+}
+
+.attendee-status--muted {
+  color: var(--text-tertiary);
+  font-weight: var(--weight-regular);
+}
+
+@media (max-width: 480px) {
+  .attendee-row {
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+  }
+  .attendee-avatar {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* "View more recent" toggle button */
+.sched-recent-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  margin: 0 var(--space-md) var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: transparent;
+  border: none;
+  font-family: var(--font-body);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--brand-main);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.sched-recent-toggle:hover {
+  background: var(--on-hover-light);
+}
+
 /* ── Avatar combo: person + pet overlapping ── */
 .sched-avatar-combo {
   position: relative;

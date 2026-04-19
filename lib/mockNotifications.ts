@@ -3,6 +3,26 @@ export type { AppNotification } from "./types";
 
 export const mockNotifications: AppNotification[] = [
   {
+    id: "notif-postmeet-1",
+    type: "post_meet_review",
+    title: "How was Saturday Stromovka off-leash?",
+    body: "Mark who you met and turn some familiar faces into connections",
+    avatarUrl: "/images/generated/post-stromovka-saturday.jpeg",
+    href: "/meets/meet-9/connect",
+    createdAt: "2026-04-13T19:00:00Z",
+    read: false,
+  },
+  {
+    id: "notif-postmeet-2",
+    type: "post_meet_review",
+    title: "Thursday walk — review attendees",
+    body: "Tereza, Marek, Lucie and Jana were there — want to mark anyone as familiar?",
+    avatarUrl: "/images/generated/tereza-profile.jpeg",
+    href: "/meets/meet-7/connect",
+    createdAt: "2026-04-10T10:30:00Z",
+    read: true,
+  },
+  {
     id: "notif-1",
     type: "meet_invite",
     title: "Jana invited you to a meet",
@@ -30,7 +50,7 @@ export const mockNotifications: AppNotification[] = [
     title: "Booking confirmed",
     body: "Klára accepted your booking for Tue 8 Apr, 14:00 — Solo walk",
     avatarUrl:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/klara-profile.jpeg",
     href: "/bookings/booking-klara",
     createdAt: "2026-04-04T18:00:00Z",
     read: false,
@@ -41,7 +61,7 @@ export const mockNotifications: AppNotification[] = [
     title: "New post in Vinohrady Morning Crew",
     body: "Tereza shared a photo from this morning's walk",
     avatarUrl:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/tereza-profile.jpeg",
     href: "/communities/group-1",
     createdAt: "2026-04-04T11:30:00Z",
     read: true,
@@ -95,7 +115,7 @@ export const mockNotifications: AppNotification[] = [
     title: "Tomáš joined Vinohrady Morning Crew",
     body: "Your group now has 3 members",
     avatarUrl:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/tomas-profile.jpeg",
     href: "/communities/group-1",
     createdAt: "2026-04-01T09:00:00Z",
     read: true,
@@ -106,7 +126,7 @@ export const mockNotifications: AppNotification[] = [
     title: "Walk completed",
     body: "Klára completed Spot's solo walk. Leave a review?",
     avatarUrl:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/klara-profile.jpeg",
     href: "/bookings/booking-klara",
     createdAt: "2026-03-31T17:00:00Z",
     read: true,
@@ -117,7 +137,7 @@ export const mockNotifications: AppNotification[] = [
     title: "Petra is going to your meet",
     body: "Morning walk — Riegrovy sady, Wed 18 Mar",
     avatarUrl:
-      "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/zuzana-profile.jpeg",
     href: "/meets/meet-1",
     createdAt: "2026-03-30T14:00:00Z",
     read: true,
@@ -128,7 +148,7 @@ export const mockNotifications: AppNotification[] = [
     title: "Tomáš is going to your meet",
     body: "Morning walk — Riegrovy sady, Wed 18 Mar",
     avatarUrl:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/tomas-profile.jpeg",
     href: "/meets/meet-1",
     createdAt: "2026-03-30T13:30:00Z",
     read: true,
@@ -150,7 +170,7 @@ export const mockNotifications: AppNotification[] = [
     title: "New message from Olga",
     body: "Re: Walks & Check-ins — \"See you Monday at 8!\"",
     avatarUrl:
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/adela-profile.jpeg",
     href: "/profile/olga-m?tab=chat",
     createdAt: "2026-03-29T19:00:00Z",
     read: true,
@@ -172,7 +192,7 @@ export const mockNotifications: AppNotification[] = [
     title: "Petra wants to connect",
     body: "You met at Reactive Dog Support",
     avatarUrl:
-      "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/zuzana-profile.jpeg",
     href: "/profile/petra",
     createdAt: "2026-03-27T11:00:00Z",
     read: true,
@@ -183,7 +203,7 @@ export const mockNotifications: AppNotification[] = [
     title: "Klára posted in Calm Dog Sessions",
     body: "Next session is Thursday 10am at Letná",
     avatarUrl:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/klara-profile.jpeg",
     href: "/communities/group-klara-training",
     createdAt: "2026-03-26T09:00:00Z",
     read: true,
@@ -225,7 +245,7 @@ export const mockNotifications: AppNotification[] = [
     title: "Klára sent a booking proposal",
     body: "Solo walk — 600 Kč per session, starting Tue 8 Apr",
     avatarUrl:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+      "/images/generated/klara-profile.jpeg",
     href: "/profile/klara?tab=chat",
     createdAt: "2026-03-22T11:00:00Z",
     read: true,

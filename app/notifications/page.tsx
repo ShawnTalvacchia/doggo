@@ -79,6 +79,7 @@ function groupNotifications(notifications: AppNotification[]): NotificationGroup
 const TYPE_ICONS: Record<NotificationType, typeof Bell> = {
   meet_invite: CalendarBlank,
   meet_reminder: CalendarBlank,
+  post_meet_review: Handshake,
   connection_request: Handshake,
   connection_accepted: HandsClapping,
   group_activity: UsersThree,
@@ -95,6 +96,7 @@ const TYPE_ICONS: Record<NotificationType, typeof Bell> = {
 const TYPE_LABELS: Record<NotificationType, string> = {
   meet_invite: "Meet",
   meet_reminder: "Meet",
+  post_meet_review: "Meet",
   connection_request: "Connection",
   connection_accepted: "Connection",
   group_activity: "Group",

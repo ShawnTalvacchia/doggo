@@ -134,7 +134,10 @@
       "Bash(echo \"exit=$?\")",
       "Bash(awk '/id: \"meet-/{meet=$0} /attendees/{if\\(meet\\) print meet, NR}' /Users/shawntalvacchia/Desktop/Doggo/lib/mockMeets.ts)",
       "Bash(awk '/id: \"meet-/{id=$0} /coverPhotoUrl:/{print id; cover=$0; if\\(cover ~ /undefined/\\) print \"  NO COVER\"} /^\\\\s*\\\\}/ && id{id=\"\"}' /Users/shawntalvacchia/Desktop/Doggo/lib/mockMeets.ts)",
-      "Bash(awk ':*)"
+      "Bash(awk ':*)",
+      "Bash(grep -rhoE \"photo-[0-9]+[a-z0-9-]+\" /Users/shawntalvacchia/Desktop/Doggo/lib/mock*.ts)",
+      "Bash(perl -i -pe ':*)",
+      "Bash(grep -n \"function DetailsTab\\\\|const DetailsTab\" /Users/shawntalvacchia/Desktop/Doggo/app/meets/[id]/page.tsx)"
     ]
   }
 }
