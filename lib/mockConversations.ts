@@ -11,7 +11,7 @@ const SHAWN_AVATAR =
   "/images/generated/shawn-profile.jpg";
 
 const MARIE_AVATAR =
-  "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=120&q=80";
+  "/images/generated/marie-profile.jpeg";
 
 // ── Conversation — Olga, walk/check-in, dog Mochi ────────────────────────────
 
@@ -402,7 +402,7 @@ export const mockConversations: Conversation[] = [
     conversationType: "direct",
     providerId: "tereza",
     providerName: "Tereza Nováková",
-    providerAvatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80",
+    providerAvatarUrl: "/images/generated/tereza-profile.jpeg",
     ownerId: SHAWN_ID,
     ownerName: SHAWN_NAME,
     ownerAvatarUrl: SHAWN_AVATAR,
@@ -418,7 +418,7 @@ export const mockConversations: Conversation[] = [
     conversationType: "booking",
     providerId: "klara",
     providerName: "Klára Horáčková",
-    providerAvatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    providerAvatarUrl: "/images/generated/klara-profile.jpeg",
     ownerId: SHAWN_ID,
     ownerName: SHAWN_NAME,
     ownerAvatarUrl: SHAWN_AVATAR,

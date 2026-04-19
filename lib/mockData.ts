@@ -79,7 +79,7 @@ export const providers: ProviderCard[] = [
     priceUnit: "per_walk",
     blurb: "Clean, fun & safe home for your pup",
     avatarUrl:
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=200&q=80",
+      "/images/generated/lucie-profile.jpeg",
     services: ["walk_checkin", "inhome_sitting"],
     availableTimes: ["6-11", "11-15"],
     distanceKm: 0.8,
@@ -160,7 +160,7 @@ export const providers: ProviderCard[] = [
     priceUnit: "per_walk",
     blurb: "Premium full-service care in the heart of Prague",
     avatarUrl:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80",
+      "/images/generated/tereza-profile.jpeg",
     services: ["walk_checkin", "inhome_sitting", "boarding"],
     availableTimes: ["11-15"],
     distanceKm: 3.2,
@@ -180,7 +180,7 @@ export const providers: ProviderCard[] = [
     priceUnit: "per_walk",
     blurb: "Family home, sociable dogs very welcome",
     avatarUrl:
-      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80",
+      "/images/generated/daniel-profile.jpeg",
     services: ["walk_checkin", "boarding"],
     availableTimes: ["6-11", "11-15"],
     distanceKm: 4.1,
@@ -260,7 +260,7 @@ export const providers: ProviderCard[] = [
     priceUnit: "per_night",
     blurb: "Home away from home — sitting and boarding only",
     avatarUrl:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+      "/images/generated/tomas-profile.jpeg",
     services: ["inhome_sitting", "boarding"],
     availableTimes: ["6-11", "11-15", "15-22"],
     distanceKm: 5.2,

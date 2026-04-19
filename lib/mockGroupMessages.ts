@@ -61,7 +61,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "tomas",
       senderName: "Tomáš",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/tomas-profile.jpeg",
       text: "Count me in. Should we try the lower path this time? Hugo loved it last time.",
       sentAt: "2026-03-17T10:00:00Z",
     },
@@ -139,7 +139,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "daniel",
       senderName: "Daniel",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/daniel-profile.jpeg",
       text: "Bára had a big breakthrough today — we passed a German Shepherd on the other side of the street and she just watched, no lunging. Three months ago that would've been impossible. Klára's threshold work really pays off.",
       sentAt: "2026-03-25T16:00:00Z",
     },
@@ -159,7 +159,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "daniel",
       senderName: "Daniel",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/daniel-profile.jpeg",
       text: "Probably 8-10 metres? The key was that I saw the dog first and could redirect Bára's attention with a treat scatter. Klára calls it 'proactive management' — you set the dog up to succeed before they even notice.",
       sentAt: "2026-03-25T16:40:00Z",
     },
@@ -169,7 +169,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "klara",
       senderName: "Klára",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/klara-profile.jpeg",
       text: "So proud of you both! 🎉 Daniel you've been so consistent with the protocol. Hana — Runa's 'watch from distance' IS the breakthrough. She's choosing to observe instead of react. That's huge. Give it time.",
       sentAt: "2026-03-25T17:05:00Z",
     },
@@ -189,7 +189,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "klara",
       senderName: "Klára",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/klara-profile.jpeg",
       text: "Great question Shawn. Doorbell reactivity is super common. Start by desensitising the bell sound at low volume — play it on your phone while Spot is relaxed and eating. Build up gradually. I can share a handout with the full protocol if you want?",
       sentAt: "2026-03-25T17:55:00Z",
     },
@@ -224,7 +224,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "tomas",
       senderName: "Tomáš",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/tomas-profile.jpeg",
       text: "Hey neighbours — bit of an emergency. I just got called to the hospital to see my mum. Is anyone able to take Hugo for a few hours this afternoon? He's friendly, walks well on leash, just needs company.",
       sentAt: "2026-03-17T11:00:00Z",
     },
@@ -244,7 +244,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "tomas",
       senderName: "Tomáš",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/tomas-profile.jpeg",
       text: "Petra you're a lifesaver! I'll be there in 15 min with his leash and some treats. He hasn't been fed yet — his food is in the bag I'll bring.",
       sentAt: "2026-03-17T11:18:00Z",
     },
@@ -254,7 +254,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "ondrej",
       senderName: "Ondřej",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/ondrej-profile.jpeg",
       text: "Hope your mum is okay Tomáš. If you need someone tomorrow too, I can help. Rocky and Hugo got along great at the riverside walk last week.",
       sentAt: "2026-03-17T11:25:00Z",
     },
@@ -264,7 +264,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "tomas",
       senderName: "Tomáš",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/tomas-profile.jpeg",
       text: "Thanks Ondřej, I really appreciate it. Mum's stable but I might need help again this week. This group is honestly the best thing about living here.",
       sentAt: "2026-03-17T16:45:00Z",
     },
@@ -299,7 +299,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "klara",
       senderName: "Klára",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/klara-profile.jpeg",
       text: "Great session today everyone! Quick recap for those who were there:\n\n• Bára (Daniel) — amazing progress with parallel walking. She held focus for the whole circuit.\n• Toby (Filip) — recall is getting much better. Keep using the long line for now.\n• Spot (Shawn) — first session and he did well! Focus on the 'watch me' game before our next one.\n\nNext group session is Wednesday 2nd April, same time and place. Homework: 5 minutes of engagement games daily.",
       sentAt: "2026-03-26T14:00:00Z",
     },
@@ -309,7 +309,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "daniel",
       senderName: "Daniel",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/daniel-profile.jpeg",
       text: "Thanks Klára! Really noticed the difference with Bára today. The parallel walking was much smoother than last time. She even glanced at Toby without stiffening up. 💪",
       sentAt: "2026-03-26T14:20:00Z",
     },
@@ -319,7 +319,7 @@ export const mockGroupMessages: Record<string, GroupMessage[]> = {
       senderId: "filip",
       senderName: "Filip",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/filip-profile.jpeg",
       text: "Toby was exhausted after that — best nap he's had in weeks 😄 Will keep up the long line work. See everyone next Wednesday!",
       sentAt: "2026-03-26T15:00:00Z",
     },

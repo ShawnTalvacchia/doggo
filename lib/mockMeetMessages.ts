@@ -39,7 +39,7 @@ export const mockMeetMessages: Record<string, MeetMessage[]> = {
       senderId: "tomas",
       senderName: "Tomáš",
       senderAvatarUrl:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+        "/images/generated/tomas-profile.jpeg",
       text: "Bella and I are in. Might be 5 min late — dropping kid at school first.",
       sentAt: "2026-03-16T19:30:00Z",
     },
