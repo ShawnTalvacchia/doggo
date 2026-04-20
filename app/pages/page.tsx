@@ -967,23 +967,20 @@ function ResearchTab() {
       </section>
 
       <section className="hub-section">
-        <h2 className="hub-section-title">Go deeper</h2>
+        <h2 className="hub-section-title">Competitive Research</h2>
         <p className="hub-section-lede">
-          These docs expand on everything above with the full reasoning and
-          source links.
+          Full write-ups of the three studies — context, features worth
+          studying, strategic takeaways, and action items per company.
         </p>
         <div className="hub-front-door-links">
-          <Link className="hub-link-card" href="#">
-            Status report — full briefing (docs/status-2026-04-20.md)
+          <Link className="hub-link-card" href="/pages/research/fluv">
+            Fluv →
           </Link>
-          <Link className="hub-link-card" href="#">
-            Competitive Research — Fluv
+          <Link className="hub-link-card" href="/pages/research/time-to-pet">
+            Time To Pet →
           </Link>
-          <Link className="hub-link-card" href="#">
-            Competitive Research — Time To Pet
-          </Link>
-          <Link className="hub-link-card" href="#">
-            Competitive Research — Prague Dog Care Scene
+          <Link className="hub-link-card" href="/pages/research/prague">
+            Prague Dog Care Scene →
           </Link>
         </div>
       </section>
