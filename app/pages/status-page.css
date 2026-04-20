@@ -19,6 +19,16 @@
     padding-left: var(--space-6);
     padding-right: var(--space-6);
   }
+
+  /* On mobile the parent (.logged-shell-main) clips with overflow:hidden
+     and uses flex-direction: column. Make the page itself the scroll
+     container so sitemap content is reachable. */
+  .status-page {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* ── Hero ──────────────────────────────────────────────────────── */

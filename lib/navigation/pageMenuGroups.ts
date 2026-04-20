@@ -8,6 +8,7 @@ export const PAGE_MENU_GROUPS: PageMenuGroup[] = [
     title: "System",
     items: [
       { label: "Landing", value: "/" },
+      { label: "Sign In", value: "/signin" },
       { label: "Styleguide", value: "/styleguide" },
     ],
   },
@@ -24,28 +25,47 @@ export const PAGE_MENU_GROUPS: PageMenuGroup[] = [
   {
     title: "Community",
     items: [
-      { label: "Community (All)", value: "/home" },
-      { label: "Community (Parks)", value: "/home?tab=parks" },
-      { label: "Community (Neighbors)", value: "/home?tab=neighbors" },
-      { label: "Community (Interest)", value: "/home?tab=interest" },
-      { label: "Community (Care)", value: "/home?tab=care" },
-      { label: "Meets", value: "/meets" },
-      { label: "Create Meet", value: "/meets/create" },
+      { label: "Community Feed", value: "/home" },
+      { label: "Group Detail", value: "/communities/group-1" },
+      { label: "Create Group", value: "/communities/create" },
       { label: "Meet Detail", value: "/meets/meet-1" },
-      { label: "Post-Meet Connect", value: "/meets/meet-6/connect" },
-      { label: "Group Detail", value: "/groups/vinohrady-dogs" },
-      { label: "Schedule", value: "/schedule" },
+      { label: "Post-Meet Review", value: "/meets/meet-9/connect" },
+      { label: "Create Meet", value: "/meets/create" },
     ],
   },
   {
-    title: "Care & Profile",
+    title: "Discover & Care",
     items: [
-      { label: "Discover (Care)", value: "/discover?tab=care" },
-      { label: "Provider Profile", value: "/profile/olga-m" },
+      { label: "Discover Hub", value: "/discover" },
+      { label: "Discover Meets", value: "/discover/meets" },
+      { label: "Discover Groups", value: "/discover/groups" },
+      { label: "Discover Care", value: "/discover/care" },
+    ],
+  },
+  {
+    title: "Schedule & Bookings",
+    items: [
+      { label: "My Schedule", value: "/schedule" },
+      { label: "Bookings", value: "/bookings" },
+      { label: "Booking Detail", value: "/bookings/booking-klara-daniel" },
+      { label: "Checkout", value: "/bookings/booking-olga-walks/checkout" },
+    ],
+  },
+  {
+    title: "Messaging",
+    items: [
       { label: "Inbox", value: "/inbox" },
-      { label: "My Care", value: "/bookings?tab=care" },
-      { label: "My Services", value: "/bookings?tab=services" },
+      { label: "Thread", value: "/inbox/olga-conv" },
+      { label: "Notifications", value: "/notifications" },
+    ],
+  },
+  {
+    title: "Profile",
+    items: [
       { label: "My Profile", value: "/profile" },
+      { label: "User Profile — Tereza", value: "/profile/tereza" },
+      { label: "User Profile — Klára (provider)", value: "/profile/klara" },
+      { label: "Share Link", value: "/connect/shawn-demo" },
     ],
   },
 ];

@@ -28,116 +28,179 @@ const siteMap = [
   },
   {
     area: "Signup Flow",
-    label: "5 steps, progress bar",
+    label: "multi-step",
     pages: [
       { name: "Start", route: "/signup/start", desc: "SSO options + email form + T&C checkboxes" },
-      { name: "Profile", route: "/signup/profile", desc: "Photo upload, bio, location, visibility toggle" },
+      { name: "Profile", route: "/signup/profile", desc: "Photo upload, bio, location, neighbourhood" },
       { name: "Pet", route: "/signup/pet", desc: "Pet card: photo, breed, size, temperament, health notes" },
-      { name: "Visibility", route: "/signup/visibility", desc: "Control who sees your profile" },
+      { name: "Visibility", route: "/signup/visibility", desc: "Locked vs. Open default (per-person Familiar/Connect happens later)" },
       { name: "Success", route: "/signup/success", desc: "Confirmation + CTAs + profile preview" },
     ],
   },
   {
-    area: "Community — Meets",
-    label: "strategic centrepiece",
+    area: "Community — Home Hub",
+    label: "default tab after login",
     pages: [
-      { name: "Activity", route: "/activity", desc: "Discover/My Schedule/Bookings tabs — meet browse, personal schedule, care arrangements" },
-      { name: "Create Meet", route: "/meets/create", desc: "Form: type selection, title, location, date/time, duration, max attendees, recurring, leash & size rules" },
-      { name: "Meet Detail", route: "/meets/meet-1", desc: "Type badge, details grid, join/leave, organiser, attendee list with connection badges, group chat" },
-      { name: "Post-Meet Connect", route: "/meets/meet-6/connect", desc: "Recap with photos, attendee cards with Familiar/Connect actions, bulk connect, share modal" },
-    ],
-  },
-  {
-    area: "Home",
-    label: "tabbed hub",
-    pages: [
-      { name: "Feed", route: "/home", desc: "Personalised greeting, upcoming strip, social feed with mixed card types" },
-      { name: "Groups", route: "/home?tab=groups", desc: "Browse and manage groups — your groups, discover, private, with filter pills" },
-    ],
-  },
-  {
-    area: "Groups (detail pages)",
-    pages: [
+      { name: "Community Feed", route: "/home", desc: "Neighbourhood-scoped feed with posts, meets strip, group activity. Category sub-tabs: All / Parks / Neighbors / Interest / Care" },
+      { name: "Group Detail", route: "/communities/group-1", desc: "Group hub with Feed, Members, Meets tabs. Type-specific content (park, neighbor, interest, care)" },
       { name: "Create Group", route: "/communities/create", desc: "Form: name, description, visibility (open/approval/private), photo" },
-      { name: "Group Detail", route: "/communities/group-1", desc: "Members, meets, chat, gallery" },
     ],
   },
   {
-    area: "Schedule",
+    area: "Community — Meets",
+    label: "the trust-building mechanic",
     pages: [
-      { name: "My Schedule", route: "/schedule", desc: "Upcoming/History toggle with unified meets + bookings timeline" },
+      { name: "Meet Detail", route: "/meets/meet-1", desc: "Cover hero, info strip, attendees with dogs, people-you-know social proof, rules, organiser card, sticky RSVP" },
+      { name: "Post-Meet Review", route: "/meets/meet-9/connect", desc: "The Familiar trigger — attendee card stack with Mark Familiar / Connect / Skip, share-photos entry" },
+      { name: "Create Meet", route: "/meets/create", desc: "Type picker (walk / park / playdate / training), details, visibility, recurring" },
     ],
   },
   {
-    area: "Care & Explore",
-    label: "accessed via Find Care CTA",
+    area: "Discover",
+    label: "hub with three doors",
     pages: [
-      { name: "Results", route: "/discover?tab=care", desc: "Provider cards with filters (service, price, availability), interactive Leaflet map" },
-      { name: "Provider Profile", route: "/profile/olga-m", desc: "Unified profile with About / Posts / Services tabs" },
+      { name: "Discover Hub", route: "/discover", desc: "Three entry points: Meets, Groups, Dog Care. All results use FilterPillRow + floating Filters button" },
+      { name: "Discover Meets", route: "/discover/meets", desc: "Meet search results with filter pills (type, time, distance, size)" },
+      { name: "Discover Groups", route: "/discover/groups", desc: "Group search results with filter pills (type, neighbourhood, activity)" },
+      { name: "Discover Care", route: "/discover/care", desc: "Provider search — filter pills for service type, price, distance" },
     ],
   },
   {
-    area: "Messaging",
+    area: "Schedule & Bookings",
+    label: "operational backbone",
     pages: [
-      { name: "Inbox", route: "/inbox", desc: "Conversation list with avatars, unread dots, service chips" },
-      { name: "Thread", route: "/inbox/conv-olga", desc: "Message bubbles, inquiry card, booking proposal cards" },
+      { name: "My Schedule", route: "/schedule", desc: "Upcoming / Care / Interested tabs. 'Review recent meets' section drives post-meet Familiar trigger" },
+      { name: "Bookings", route: "/bookings", desc: "All active and past bookings. Owner and provider bookings in one list" },
+      { name: "Booking Detail", route: "/bookings/booking-klara-daniel", desc: "Info / Sessions / Chat tabs. Provider sees start/complete actions; owner sees aggregate stats. Rolling weekly billing" },
+      { name: "Checkout", route: "/bookings/booking-olga-walks/checkout", desc: "Payment mock for initial booking" },
     ],
   },
   {
-    area: "Bookings",
-    label: "care management hub",
+    area: "Messaging & Notifications",
     pages: [
-      { name: "My Care", route: "/bookings?tab=care", desc: "Owner bookings — active, upcoming, past care arrangements" },
-      { name: "My Services", route: "/bookings?tab=services", desc: "Provider dashboard — visibility, stats, service cards, incoming requests, active clients" },
-      { name: "Booking Detail", route: "/bookings?tab=care", desc: "Select a booking to see session management, price breakdown, review — all in the detail panel" },
+      { name: "Inbox", route: "/inbox", desc: "Connection list + search. Links to profile-based chat threads" },
+      { name: "Thread", route: "/inbox/olga-conv", desc: "Message bubbles, inquiry card, booking proposal cards" },
+      { name: "Notifications", route: "/notifications", desc: "Grouped by time. Supports meet invites/reminders, RSVPs, post-meet review prompts, connection updates, bookings" },
     ],
   },
   {
-    area: "Profile & System",
+    area: "Profile",
+    label: "relationship hub",
     pages: [
-      { name: "My Profile", route: "/profile", desc: "About tab (bio, pet cards, trust badges, connections) + Offering tab (services, pricing, availability)" },
-      { name: "User Profile", route: "/profile/user-leo", desc: "Public view of another user's profile" },
+      { name: "My Profile", route: "/profile", desc: "About / Posts / Services tabs. Connection list, trust badges, share profile link" },
+      { name: "User Profile — Tereza", route: "/profile/tereza", desc: "Other user's profile (owner archetype). About / Posts / Services / Chat tabs. Connection-gated CTAs" },
+      { name: "User Profile — Klára (provider)", route: "/profile/klara", desc: "Provider archetype — Services tab populated with offerings, availability, pricing" },
+      { name: "Share Profile Link", route: "/connect/shawn-demo", desc: "Landing for someone opening your shared profile code" },
+    ],
+  },
+  {
+    area: "System",
+    pages: [
+      { name: "Sitemap", route: "/pages", desc: "This page — the sitemap" },
       { name: "Styleguide", route: "/styleguide", desc: "Design system reference — Colors, Typography, Tokens, Components" },
     ],
   },
 ];
 
-const phases = [
-  { num: 1, name: "Foundation", status: "done" as const, summary: "Design tokens, base styles, landing page, signup flow, explore, provider profiles" },
-  { num: 2, name: "App Shell", status: "done" as const, summary: "Nav restructure, app layout, page shells for Home/Schedule/Inbox/Bookings/Profile" },
-  { num: 3, name: "Community Core", status: "done" as const, summary: "Meets (browse, create, detail, group chat), connections (trust ladder), home feed, schedule" },
-  { num: 4, name: "Polish & UX", status: "done" as const, summary: "Navbar simplified, modal pattern formalised, shadow softened, forms flattened, prototype overview consolidated" },
-  { num: 5, name: "Care & Profile", status: "done" as const, summary: "Booking detail, profile edit mode, provider trust signals, explore map, messaging, enhanced pet profiles" },
-  { num: 6, name: "Audit & Alignment", status: "done" as const, summary: "Home page overhaul, landing page rewrite, signup flow review, Offer Care nav link, visual consistency pass" },
-  { num: 7, name: "Community-Native Care", status: "done" as const, summary: "Provider onboarding via profile, community-first care discovery, relationship context in bookings, payment mock" },
-  { num: 8, name: "Community Feel", status: "done" as const, summary: "Neighbourhood identity, social proof stats, activity indicators, welcome state, post-meet recap with photos, trust badges" },
-  { num: 9, name: "Groups & Belonging", status: "done" as const, summary: "Groups browse/detail/create, meet-group cross-links, shared MessageBubble, Your Groups on Home" },
-  { num: 10, name: "Home Feed & Social Posts", status: "done" as const, summary: "Social feed, user-authored photo posts, mixed card types, profile Posts tab, contextual CTAs, reactions" },
-  { num: 11, name: "Booking & Care Polish", status: "done" as const, summary: "Connection gating, payment mock checkout, provider setup consolidation, owner booking actions" },
-  { num: 12, name: "Demo Ready", status: "done" as const, summary: "Carer inquiry response, component extraction, dead CSS audit, EmptyState + ButtonAction adoption" },
-  { num: 13, name: "Meet Type Enrichment", status: "done" as const, summary: "Type-specific fields (walk/park/playdate/training), conditional form sections, summary pills, detail sections" },
-  { num: 14, name: "Community & Activity Restructure", status: "done" as const, summary: "Activity page with Discover/My Schedule/Bookings tabs, join-gated chat, system messages, event card strip" },
-  { num: 15, name: "Trust & Connections", status: "done" as const, summary: "Share profile links, tiered participant lists, Going/Interested RSVP, post-meet reveal, AI-generated images" },
-  { num: 16, name: "Layout Redesign", status: "done" as const, summary: "Desktop sidebar nav, LoggedInShell (640px content), Groups/Activities rename, CalendarDots icon" },
-  { num: 17, name: "Activities Tab Redesign", status: "next" as const, summary: "My Schedule Upcoming/Completed toggle, role badges, hosting distinction, Bookings card consistency" },
+type PhaseStatus = "done" | "active" | "paused" | "upcoming";
+
+const phases: { name: string; status: PhaseStatus; summary: string }[] = [
+  {
+    name: "Phases 1–18 — Foundation",
+    status: "done",
+    summary: "Design tokens, app shell, nav, landing, signup, meets, groups, home, schedule, inbox, bookings, provider onboarding, trust signals, layout redesign. Full skeleton built.",
+  },
+  {
+    name: "Phase 19–25 — UI Rebuild & Polish",
+    status: "done",
+    summary: "Panel architecture across Home/Discover/Bookings/Schedule, Discover hub with FilterPillRow, group detail tabs, schedule card rebuild, component consolidation.",
+  },
+  {
+    name: "Content Completion",
+    status: "done",
+    summary: "Feed comments, Discover filters wired, photo height caps, unified tabs, empty states filled with real content.",
+  },
+  {
+    name: "Bookings & Care Provider Flow",
+    status: "done",
+    summary: "Tabbed booking detail (Info / Sessions / Chat), rolling weekly billing, provider session actions (Start → Complete → Note).",
+  },
+  {
+    name: "Profiles & Dogs",
+    status: "done",
+    summary: "Unified profile pages (PageColumn + TabBar), connection-gated CTAs, PetCard expand/collapse.",
+  },
+  {
+    name: "Inbox & Notifications",
+    status: "done",
+    summary: "Chat-on-profile architecture, inbox search, notification panel, grouped view.",
+  },
+  {
+    name: "Profiles Deep Pass",
+    status: "paused",
+    summary: "Trust signals (mutual connections, shared groups), post composer rebuilt as ModalSheet, post header attribution. Remaining content enrichment folded into Mock World Building.",
+  },
+  {
+    name: "Meets Deep Pass",
+    status: "active",
+    summary: "Make meets feel compelling — cover photo hero, attendee social proof, type-specific details, post-meet review flow (the Familiar trigger). In progress.",
+  },
+  {
+    name: "Community & Groups",
+    status: "upcoming",
+    summary: "Groups and feeds feel alive. Type-specific group behaviour for Park / Neighbor / Interest / Care.",
+  },
+  {
+    name: "Discover & Care",
+    status: "upcoming",
+    summary: "Care discovery feels like community, not marketplace. Trust badge system, pet-based matching, intro sessions.",
+  },
+  {
+    name: "Schedule & Bookings Deep Pass",
+    status: "upcoming",
+    summary: "Visit report cards, real-time session updates, provider in-session UI.",
+  },
+  {
+    name: "Mock World Building",
+    status: "upcoming",
+    summary: "Coherent four-persona world (Tereza, Daniel, Klára, Tomáš) with rich cross-connections, images, and content.",
+  },
+  {
+    name: "Cross-Cutting Flow Testing",
+    status: "upcoming",
+    summary: "Every persona journey works end-to-end. Trust signals accumulate. No dead ends.",
+  },
+  {
+    name: "Demo Presentation",
+    status: "upcoming",
+    summary: "Landing page, persona selection, guided tours. Free exploration also rewarding.",
+  },
 ];
 
 const considerations = [
   {
-    title: "Authentication strategy",
-    body: "Supabase Auth is the assumed path. Decisions pending: email-only vs. SSO (Google, Apple), magic link vs. password, whether to gate features behind login.",
+    title: "Hybrid trust model",
+    body: "Research into Fluv (Asia pet-care marketplace) and Prague platform sitters (Hlídačky.cz) shows users want at least some confidence before committing to a stranger. Open question: does Doggo add lightweight top-down signals (Verified ID, 'Used by X of your connections', credential badges) on top of community-built trust, or stay pure community? A three-tier badge system (community-earned + self-declared credentials + platform-verified) is scoped for Discover & Care.",
   },
   {
-    title: "Chat infrastructure",
-    body: "Group and meet threads exist as mock UI. For real-time: Supabase Realtime vs. Stream/SendBird. SharedMessageBubble component is ready for either path.",
+    title: "Intro session / pre-booking meet-and-greet",
+    body: "Fluv offers a free in-home meet-and-greet before the first booking. This is what Doggo's meets do organically for users attending events. For the direct-discovery path (Daniel finds Klára in Discover without prior meets), an 'Intro Session' booking type — free or reduced — could bridge the trust gap. Scoped for Bookings Deep Pass.",
   },
   {
-    title: "Recurring meet mechanics",
-    body: "Users can mark a meet as recurring, but join mechanics are undefined: \"join all Tuesdays\" vs. single occurrence RSVP. Impacts calendar and notification design.",
+    title: "Session experience — visit report cards & real-time updates",
+    body: "Time To Pet research (B2B pet care SaaS) and Prague professionals (Pawz, Dogitory) show that daily photos/notes/GPS updates during and after sessions are table stakes, not delight. Currently Doggo's 'Complete session' is a text note. A Visit Report Card (photos + notes + timestamps + optional GPS summary) and mid-session photo updates would land in Schedule & Bookings Deep Pass.",
   },
   {
-    title: "Community visibility model",
-    body: "Groups support open/approval/private tiers. How does this interact with the personal connection model (familiar/connected)? Needs alignment before production.",
+    title: "Pet-profile-based provider matching",
+    body: "Fluv matches owners to sitters using pet data (breed, size, temperament, special needs). Doggo's Discover currently filters by service type + location only. A 'Recommended for [dog name]' layer using existing pet profile data would differentiate Discover & Care. Lower priority than trust badges.",
+  },
+  {
+    title: "Cold-start seeding strategy",
+    body: "Seed 3–5 Prague providers in Vinohrady / Letná / Vršovice who use meets as a client-acquisition channel. Every meet they host generates real trust badges. Owners get value before they need care; providers get a pipeline. This is the thesis the prototype sells — demo needs to make the loop legible. Post-demo execution.",
+  },
+  {
+    title: "Post-meet review flow — timing & aha moment",
+    body: "The post-meet review (card stack of attendees with Mark Familiar / Connect / Skip) is the primary Familiar trigger in the Trust & Connection Model. Just shipped. Open: should the prompt fire immediately after the meet ends, or next-morning push? And what's the 'aha moment' — the first action that makes a user come back?",
   },
 ];
 
@@ -182,7 +245,7 @@ export default function PrototypeOverviewPage() {
           <p className="status-subtitle">
             Community-first dog care — Prague
           </p>
-          <p className="status-date">March 30, 2026</p>
+          <p className="status-date">April 19, 2026</p>
 
           <div className="status-stats">
             <div className="status-stat">
@@ -190,7 +253,7 @@ export default function PrototypeOverviewPage() {
               <span className="status-stat-label">Pages</span>
             </div>
             <div className="status-stat">
-              <span className="status-stat-num">50+</span>
+              <span className="status-stat-num">80+</span>
               <span className="status-stat-label">Components</span>
             </div>
             <div className="status-stat">
@@ -216,13 +279,30 @@ export default function PrototypeOverviewPage() {
         {/* ── Phase Progress ─────────────────────────────────── */}
         <section className="status-section">
           <h2 className="status-section-title">Phase Progress</h2>
+          <p className="status-section-intro">30+ phases shipped. Currently working through named &quot;Deep Passes&quot; — whole-surface quality rebuilds, one major area at a time.</p>
           <div className="status-considerations">
             {phases.map((p) => (
-              <div key={p.num} className="status-consideration">
+              <div key={p.name} className="status-consideration">
                 <h3>
-                  Phase {p.num}: {p.name}{" "}
-                  <Chip variant={p.status === "done" ? "brand" : p.status === "next" ? "default" : "muted"}>
-                    {p.status === "done" ? "Complete" : p.status === "next" ? "Up Next" : "Future"}
+                  {p.name}{" "}
+                  <Chip
+                    variant={
+                      p.status === "done"
+                        ? "brand"
+                        : p.status === "active"
+                        ? "default"
+                        : p.status === "paused"
+                        ? "muted"
+                        : "muted"
+                    }
+                  >
+                    {p.status === "done"
+                      ? "Complete"
+                      : p.status === "active"
+                      ? "In Progress"
+                      : p.status === "paused"
+                      ? "Paused"
+                      : "Upcoming"}
                   </Chip>
                 </h3>
                 <p>{p.summary}</p>
@@ -265,11 +345,11 @@ export default function PrototypeOverviewPage() {
           <div className="status-data-cards">
             <div className="status-data-card">
               <h3 className="status-data-card-title">Supabase <Chip variant="brand">read-only</Chip></h3>
-              <p>Provider profiles, service offerings, and rates are seeded in the database and fetched server-side on Explore and Provider Profile pages. This data is real and will carry forward.</p>
+              <p>Provider profiles, service offerings, and rates are seeded in the database and fetched server-side on Discover and provider profile pages. This data is real and will carry forward.</p>
             </div>
             <div className="status-data-card">
               <h3 className="status-data-card-title">Mock Data <Chip variant="muted">client-side</Chip></h3>
-              <p>Meets, connections, conversations, bookings, notifications, and the logged-in user are loaded from static mock files. State updates in the session but resets on refresh.</p>
+              <p>Users, meets, groups, connections, conversations, bookings, notifications, and the logged-in user are loaded from static mock files. State updates in the session but resets on refresh.</p>
             </div>
           </div>
 
@@ -281,7 +361,7 @@ export default function PrototypeOverviewPage() {
         {/* ── Considerations ───────────────────────────────────── */}
         <section className="status-section">
           <h2 className="status-section-title">Open Considerations</h2>
-          <p className="status-section-intro">Decisions worth discussing before the next build phase.</p>
+          <p className="status-section-intro">Strategic questions informed by recent research (Fluv, Time To Pet, Prague dog care scene). Worth discussing before the next Deep Passes.</p>
 
           <div className="status-considerations">
             {considerations.map((c) => (
@@ -295,7 +375,7 @@ export default function PrototypeOverviewPage() {
 
         {/* ── Footer ───────────────────────────────────────────── */}
         <footer className="status-footer">
-          <p>Last updated March 30, 2026</p>
+          <p>Last updated April 19, 2026</p>
         </footer>
       </div>
     </main>
