@@ -12,6 +12,18 @@ export default function SignupSuccessPage() {
   const nearbyMeets = getUpcomingMeets().slice(0, 2);
   const stats = getNeighbourhoodStats();
 
+  // Signup completion grants the demo gate cookie so navigation into the
+  // logged-in app doesn't bounce the user to /unlock. See
+  // app/api/unlock/from-signup/route.ts for rationale.
+  const goTo = async (path: string) => {
+    try {
+      await fetch("/api/unlock/from-signup", { method: "POST" });
+    } catch {
+      // If the grant fails, middleware will catch it and redirect to /unlock
+    }
+    router.push(path);
+  };
+
   return (
     <main className="success-shell">
       <div className="success-content">
@@ -25,7 +37,7 @@ export default function SignupSuccessPage() {
               variant="primary"
               size="lg"
               cta
-              onClick={() => router.push("/home")}
+              onClick={() => goTo("/home")}
             >
               Go to Home
             </ButtonAction>
@@ -33,7 +45,7 @@ export default function SignupSuccessPage() {
               variant="secondary"
               size="lg"
               cta
-              onClick={() => router.push("/activity")}
+              onClick={() => goTo("/activity")}
             >
               Browse Meets
             </ButtonAction>
@@ -68,7 +80,7 @@ export default function SignupSuccessPage() {
             <ButtonAction
               variant="secondary"
               size="md"
-              onClick={() => router.push("/profile?tab=services")}
+              onClick={() => goTo("/profile?tab=services")}
             >
               Set up care services
             </ButtonAction>

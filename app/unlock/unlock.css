@@ -1,0 +1,119 @@
+/* ═══════════════════════════════════════════════════════════════════
+   UNLOCK PAGE — /unlock
+   Standalone page; no AppNav/Sidebar/BottomNav.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.unlock-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: var(--surface-base);
+}
+
+.unlock-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface-top);
+  border: 1px solid var(--border-regular);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.unlock-brand {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  color: var(--brand-main);
+  text-align: center;
+  margin-bottom: var(--space-2);
+}
+
+.unlock-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  text-align: center;
+}
+
+.unlock-subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-2);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.unlock-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.unlock-label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+}
+
+.unlock-field input {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-regular);
+  border-radius: var(--radius-form);
+  background: var(--surface-base);
+  color: var(--text-primary);
+}
+
+.unlock-field input:focus {
+  outline: 2px solid var(--brand-main);
+  outline-offset: -2px;
+  border-color: var(--brand-main);
+}
+
+.unlock-error {
+  font-size: var(--text-sm);
+  color: var(--error-500, #c13);
+  margin: 0;
+  text-align: center;
+}
+
+.unlock-submit {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  padding: var(--space-3) var(--space-6);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--brand-main);
+  color: var(--text-white);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.unlock-submit:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.unlock-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.unlock-footnote {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin: var(--space-4) 0 0;
+  text-align: center;
+  line-height: 1.5;
+}
