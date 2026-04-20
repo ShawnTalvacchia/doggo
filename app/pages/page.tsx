@@ -1018,7 +1018,7 @@ function HubInner() {
 
   return (
     <main className="hub">
-      {/* Sticky top strip — brand + private-preview indicator */}
+      {/* Top strip — brand + meta chips (private preview, last updated) */}
       <header className="hub-top-strip">
         <div className="hub-wrap hub-top-strip-inner">
           <Link href="/pages" className="hub-brand">
@@ -1029,14 +1029,18 @@ function HubInner() {
               <span className="hub-header-meta-dot" />
               Private preview
             </span>
+            <span className="hub-header-meta-date">Updated Apr 20</span>
           </div>
         </div>
       </header>
 
-      {/* Content panel — TabBar + body contained in a single rounded card */}
-      <div className="hub-wrap">
+      {/* Content panel — fills remaining height, body scrolls internally */}
+      <div className="hub-panel-wrap">
         <section className="hub-panel">
-          <nav className="hub-panel-tabs" aria-label="Hub sections">
+          <nav
+            className="hub-panel-tabs detail-tabs--fill"
+            aria-label="Hub sections"
+          >
             <TabBar
               tabs={TABS as unknown as { key: string; label: string }[]}
               activeKey={activeTab}
@@ -1051,10 +1055,6 @@ function HubInner() {
           </div>
         </section>
       </div>
-
-      <footer className="hub-footer">
-        <div className="hub-wrap">Last updated April 20, 2026</div>
-      </footer>
     </main>
   );
 }

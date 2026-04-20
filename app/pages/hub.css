@@ -5,8 +5,9 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 .hub {
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   background: var(--surface-base);
   display: flex;
   flex-direction: column;
@@ -20,15 +21,14 @@
   box-sizing: border-box;
 }
 
-/* ── Top strip — sticky, page-level (brand + private-preview chip) ── */
+/* ── Top strip — fixed at top; brand + meta chips ─────────────── */
 
 .hub-top-strip {
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  flex-shrink: 0;
   background: var(--surface-base);
   border-bottom: 1px solid var(--border-subtle);
   padding: var(--space-4) 0;
+  z-index: 10;
 }
 
 .hub-top-strip-inner {
@@ -74,28 +74,50 @@
   background: var(--brand-main);
 }
 
-/* ── Panel — contains TabBar + tab content (matches app surfaces) ── */
+.hub-header-meta-date {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+/* ── Panel wrap — fills remaining viewport height ─────────────── */
+
+.hub-panel-wrap {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-6) var(--space-6);
+  box-sizing: border-box;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Panel — TabBar on top (fixed), body scrolls internally ─── */
 
 .hub-panel {
   background: var(--surface-top);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-sm);
-  margin-top: var(--space-6);
-  margin-bottom: var(--space-10);
-  overflow: hidden; /* keep rounded corners clean over inner backgrounds */
+  overflow: hidden; /* rounded corners */
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .hub-panel-tabs {
+  flex-shrink: 0;
+  display: flex;
   padding: var(--space-4) var(--space-5) var(--space-3);
   border-bottom: 1px solid var(--border-subtle);
 }
 
-.hub-panel-tabs .tab-bar-container {
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
 .hub-panel-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: var(--space-6) var(--space-5) var(--space-8);
 }
 
@@ -108,8 +130,11 @@
     padding: 0 var(--space-4);
   }
 
+  .hub-panel-wrap {
+    padding: var(--space-4) var(--space-4) var(--space-4);
+  }
+
   .hub-panel {
-    margin-top: var(--space-4);
     border-radius: var(--radius-sm);
   }
 
@@ -775,13 +800,3 @@ details[open] .hub-sitemap-summary::after {
   color: var(--text-primary);
 }
 
-/* ── Footer ───────────────────────────────────────────────────── */
-
-.hub-footer {
-  margin-top: var(--space-12);
-  padding: var(--space-6) 0;
-  border-top: 1px solid var(--border-subtle);
-  text-align: center;
-  font-size: var(--text-xs);
-  color: var(--text-tertiary);
-}
