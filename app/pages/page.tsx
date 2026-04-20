@@ -12,7 +12,7 @@ const TABS = [
   { key: "overview", label: "Overview" },
   { key: "demo", label: "Demo" },
   { key: "work", label: "Work" },
-  { key: "research", label: "Research & Considerations" },
+  { key: "research", label: "Research" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -1018,9 +1018,9 @@ function HubInner() {
 
   return (
     <main className="hub">
-      {/* Sticky header */}
-      <header className="hub-header">
-        <div className="hub-wrap hub-header-inner">
+      {/* Sticky top strip — brand + private-preview indicator */}
+      <header className="hub-top-strip">
+        <div className="hub-wrap hub-top-strip-inner">
           <Link href="/pages" className="hub-brand">
             DOGGO
           </Link>
@@ -1033,21 +1033,23 @@ function HubInner() {
         </div>
       </header>
 
-      {/* Sticky tab bar */}
-      <nav className="hub-tabs" aria-label="Hub sections">
-        <TabBar
-          tabs={TABS as unknown as { key: string; label: string }[]}
-          activeKey={activeTab}
-          onChange={setTab}
-        />
-      </nav>
-
-      {/* Body */}
-      <div className="hub-wrap hub-body">
-        {activeTab === "overview" && <OverviewTab />}
-        {activeTab === "demo" && <DemoTab />}
-        {activeTab === "work" && <WorkTab />}
-        {activeTab === "research" && <ResearchTab />}
+      {/* Content panel — TabBar + body contained in a single rounded card */}
+      <div className="hub-wrap">
+        <section className="hub-panel">
+          <nav className="hub-panel-tabs" aria-label="Hub sections">
+            <TabBar
+              tabs={TABS as unknown as { key: string; label: string }[]}
+              activeKey={activeTab}
+              onChange={setTab}
+            />
+          </nav>
+          <div className="hub-panel-body">
+            {activeTab === "overview" && <OverviewTab />}
+            {activeTab === "demo" && <DemoTab />}
+            {activeTab === "work" && <WorkTab />}
+            {activeTab === "research" && <ResearchTab />}
+          </div>
+        </section>
       </div>
 
       <footer className="hub-footer">

@@ -14,15 +14,15 @@
 
 .hub-wrap {
   width: 100%;
-  max-width: 960px;
+  max-width: 720px;
   margin: 0 auto;
   padding: 0 var(--space-6);
   box-sizing: border-box;
 }
 
-/* ── Header bar ───────────────────────────────────────────────── */
+/* ── Top strip — sticky, page-level (brand + private-preview chip) ── */
 
-.hub-header {
+.hub-top-strip {
   position: sticky;
   top: 0;
   z-index: 10;
@@ -31,7 +31,7 @@
   padding: var(--space-4) 0;
 }
 
-.hub-header-inner {
+.hub-top-strip-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -74,34 +74,50 @@
   background: var(--brand-main);
 }
 
-/* ── Tab bar ──────────────────────────────────────────────────── */
+/* ── Panel — contains TabBar + tab content (matches app surfaces) ── */
 
-.hub-tabs {
-  position: sticky;
-  top: 64px; /* header height */
-  z-index: 9;
-  background: var(--surface-base);
-  border-bottom: 1px solid var(--border-subtle);
-  padding: var(--space-2) 0;
+.hub-panel {
+  background: var(--surface-top);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-sm);
+  margin-top: var(--space-6);
+  margin-bottom: var(--space-10);
+  overflow: hidden; /* keep rounded corners clean over inner backgrounds */
 }
 
-.hub-tabs .tab-bar-container {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 0 var(--space-6);
-  box-sizing: border-box;
+.hub-panel-tabs {
+  padding: var(--space-4) var(--space-5) var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.hub-panel-tabs .tab-bar-container {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* ── Body ─────────────────────────────────────────────────────── */
-
-.hub-body {
-  padding: var(--space-8) 0 var(--space-16);
+.hub-panel-body {
+  padding: var(--space-6) var(--space-5) var(--space-8);
 }
 
 .hub-section + .hub-section {
-  margin-top: var(--space-10);
+  margin-top: var(--space-8);
+}
+
+@media (max-width: 640px) {
+  .hub-wrap {
+    padding: 0 var(--space-4);
+  }
+
+  .hub-panel {
+    margin-top: var(--space-4);
+    border-radius: var(--radius-sm);
+  }
+
+  .hub-panel-tabs,
+  .hub-panel-body {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
 }
 
 .hub-section-title {
@@ -122,7 +138,7 @@
 /* ── Hero (Overview tab) ──────────────────────────────────────── */
 
 .hub-hero {
-  padding: var(--space-8) 0 var(--space-4);
+  padding: 0 0 var(--space-4);
 }
 
 .hub-hero-eyebrow {
