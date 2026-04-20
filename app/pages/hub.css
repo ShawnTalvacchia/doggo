@@ -85,7 +85,7 @@
   width: 100%;
   max-width: 720px;
   margin: 0 auto;
-  padding: var(--space-6) var(--space-6) var(--space-6);
+  padding: var(--space-6) var(--space-6) 0;
   box-sizing: border-box;
   flex: 1;
   min-height: 0;
@@ -97,7 +97,7 @@
 
 .hub-panel {
   background: var(--surface-top);
-  border-radius: var(--radius-panel);
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
   box-shadow: var(--shadow-sm);
   overflow: hidden; /* rounded corners */
   flex: 1;
@@ -109,7 +109,9 @@
 .hub-panel-tabs {
   flex-shrink: 0;
   display: flex;
-  padding: var(--space-4) var(--space-5) var(--space-3);
+  align-items: center;
+  height: 56px;
+  padding: 0 var(--space-5);
   border-bottom: 1px solid var(--border-subtle);
 }
 
@@ -130,12 +132,13 @@
     padding: 0 var(--space-4);
   }
 
+  /* Panel fills the viewport edge-to-edge on mobile. */
   .hub-panel-wrap {
-    padding: var(--space-4) var(--space-4) var(--space-4);
+    padding: 0;
   }
 
   .hub-panel {
-    border-radius: var(--radius-sm);
+    border-radius: 0;
   }
 
   .hub-panel-tabs,
