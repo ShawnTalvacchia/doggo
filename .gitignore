@@ -9,3 +9,8 @@ pnpm-debug.log*
 .env.local
 .env.*
 !.env.example
+
+# Per-user / local state
+.claude/settings.local.json
+docs/.obsidian/workspace.json
+*.tsbuildinfo
