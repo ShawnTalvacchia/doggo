@@ -2,6 +2,15 @@
 
 Read this before every session. These rules override defaults.
 
+## Phase Rituals — Important
+
+**Do not use the global `/phase-open` or `/phase-close` skills in this project.** They were written for a different project (Webflow portfolio) and reference docs, folder paths, and tooling that don't exist in Doggo.
+
+Instead:
+- **Opening a phase:** Follow the Opening Checklist in `docs/CONTRIBUTING.md` → "Opening a Phase," plus the Opening Checklist on the specific phase board in `docs/phases/`.
+- **Closing a phase:** Follow the Closing Checklist in `docs/CONTRIBUTING.md` → "Closing a Phase" (9 steps including the structural audit), plus the Closing Checklist on the phase board.
+- **Before closing:** Show the user the checklist you're about to work through so they can catch anything missed. Phase close is a high-leverage moment — confirm before editing docs.
+
 ## Stack
 
 - **Framework:** Next.js (App Router), TypeScript

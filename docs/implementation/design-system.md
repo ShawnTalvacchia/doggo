@@ -122,8 +122,6 @@ Active list of things to merge, simplify, or remove. Work these down over time.
 | `ListPanel` / `DetailPanel` | Legacy components still in codebase, CLAUDE.md says don't use | Remove files, update any remaining imports to use `PanelBody` + raw divs |
 | `MasterDetailShell` / `DiscoverShell` | Deleted — replaced by PageColumn | Remove any lingering CSS or references |
 | Provider ID mismatch | `mockData.ts` uses `olga-m`, `nikola-r`; `mockUsers.ts` uses `jana`, `nikola` | Unify to one naming scheme before backend work |
-| `frontend-style.md` | Retired — content merged into CONTRIBUTING.md and this doc | Delete file after confirming no remaining references |
-| `component-inventory.md` | Retired — replaced by this doc | Archive to `archive/implementation/` |
 | Duplicate CSS for single-panel pages | Community and Schedule shells follow the same pattern but have separate CSS | Consider a shared `.single-panel-shell` base class |
 | `.feed-card-body--simple` variant | Only used for authorless cards; may be removable | Audit usage, consider removing if unused |
 | `discover-type-pill` CSS | Consolidated into `.filter-pill-row` | Remove old class if no remaining references |

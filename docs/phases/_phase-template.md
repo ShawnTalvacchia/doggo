@@ -50,5 +50,10 @@ Complete before marking this phase done. Mark each item done.
 - [ ] Update Open Questions log — close resolved, add new
 - [ ] Update ROADMAP.md — mark phase complete with summary
 - [ ] Review CLAUDE.md — update current phase, key decisions, any structural changes
-- [ ] Archive this phase board (copy to `archive/phases/`, mark status: archived)
+- [ ] Archive this phase board (copy to `archive/phases/`, mark status: archived, then delete original from `phases/`)
+- [ ] **Structural audit** — run before marking the phase done:
+    - Any files in `docs/phases/` with `status: archived` or `status: complete`? Delete them (archive copy should already exist).
+    - Any filename duplicated between `docs/phases/` and `docs/archive/phases/`? Delete the live copy.
+    - Any docs in `strategy/`, `features/`, `implementation/` with `last-reviewed` older than 21 days? Review or bump.
+    - Any dead references in `README.md`, `CLAUDE.md`, `ROADMAP.md`, `CONTRIBUTING.md` to files that no longer exist? Fix.
 - [ ] Check next phase scope for conflicts with what was just built

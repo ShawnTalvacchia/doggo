@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-03-17
+last-reviewed: 2026-04-23
 tags: [users, personas, trust, funnels]
 review-trigger: "when designing user-facing flows or onboarding"
 ---
@@ -58,6 +58,16 @@ The key insight: **the dial can be turned back down at any time**. Someone who l
 The product should make each position on the dial feel equally valid. The person who walks one extra dog on Saturdays and the person who runs a full dog-walking business both use the same tools — just different amounts of them.
 
 Most users never touch the dial. Some barely turn it. Few go all in. All of these are success.
+
+### Bridge to the tier model
+
+The provider dial maps onto three discrete tiers defined in `Groups & Care Model.md`:
+
+- **Owner** (dial at zero)
+- **Helper** (dial turned slightly — services visible to Connected network only)
+- **Provider** (dial turned more or high — services visible to everyone, appears in Discover > Dog Care)
+
+The archetypes below describe *behavioural patterns*; the tiers describe *what the system does* at each dial position. The Casual Helper archetype lives in the Helper tier; the Aspiring and Professional Provider archetypes are gradations within the Provider tier.
 
 ---
 

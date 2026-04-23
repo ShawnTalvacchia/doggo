@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-08
+last-reviewed: 2026-04-23
 tags: [groups, community, providers, care, navigation, demo]
 review-trigger: "when touching group features, Community tab, provider groups, care model, or demo planning"
 ---
@@ -9,6 +9,8 @@ review-trigger: "when touching group features, Community tab, provider groups, c
 # Groups & Care Model
 
 Groups are the connective tissue of Doggo. They're where strangers become regulars, where trust is built through showing up, and where care arrangements emerge from real relationships.
+
+Doggo promotes more community for our pets — getting them cared for more, and more social. In building that out, we create a network that's more trustworthy than credentials alone. Care on Doggo is a byproduct of that community, not a marketplace layered on top. Providers and Care groups succeed because they're rooted in the community, not despite it.
 
 Depends on: [[Trust & Connection Model]], [[Content Visibility Model]], [[User Archetypes]], [[Product Vision]], [[profiles]]
 
@@ -139,6 +141,75 @@ Care groups get a set of configuration toggles. Platform suggests defaults based
 
 ---
 
+## Provider Tiers on Profiles
+
+The "provider dial" lives on profiles, not on groups. Every user starts as an Owner and can progress as their comfort with offering care grows. Progression is always visible, never transactional — copy never frames care as "earning income" or "becoming a provider."
+
+### Three tiers
+
+| Tier | Services visible to | Appears in Discover > Dog Care? | Commits to |
+|---|---|---|---|
+| **Owner** (default) | Nobody | No | Nothing. Full community participation. |
+| **Helper** | Connected users only | No | Lightweight — a rate, basic availability. Informal, between friends. |
+| **Provider** | Everyone | Yes | Published prices, response-time expectation, cancellation policy, intro-session option. |
+
+### Individual Providers and Care groups are both first-class
+
+Neither requires the other.
+
+- **Individual Provider.** Services live on the profile. Appears in Dog Care search on their own merit. No group required. (Tereza's journey: sits for neighbours at a modest rate, no group.)
+- **Care group.** A team or small-service-business container. Group appears in Dog Care search and in Groups. Individual member-providers are surfaced through the group — see Care Group Admin Model below. (Pawz: team of trainers. Klára could run her solo practice as a Care group if she wants a community-wrapped channel — but she doesn't have to.)
+
+A Provider can be both — services on their profile *and* membership/admin of a Care group. The two surfaces reinforce each other.
+
+### Copy rules
+
+- **Never:** "Become a Provider." "Start earning." "List your services."
+- **Instead:** "Offer to walk for friends?" "Ready to open this to your neighbourhood?"
+- The progression is always framed as opening the circle wider — from nobody, to network, to neighbourhood. Commitment scales with reach.
+- **Narrative and copy are a living discipline, not a one-time exercise.** Every phase includes a pass on the language of its surfaces. We move toward copy that sounds natural, specific, and un-transactional — and revisit existing copy as the model sharpens.
+
+---
+
+## Care Group Admin Model
+
+A Care group is a community-wrapped container for a team or small service business. The admin curates the group's context; they do not run members' individual practices.
+
+**Admins can:**
+- Brand the group (logo, name, methodology statement)
+- Define the group's context (location, neighbourhood, service focus, methodology)
+- Add and remove carer-members
+- Define the group's service catalog (taxonomy, not pricing)
+- Host meets and events under the group banner
+- Broadcast announcements to group followers
+
+**Admins cannot:**
+- Set rates for member-providers (rates live on individual profiles)
+- Override member services (services live on individual profiles)
+- Redirect payment (payment flows to the individual provider, always)
+
+### Service intersection rule
+
+Services displayed in a Care group are the intersection of:
+
+- Services offered by member-providers (on their individual profiles)
+- Services matching the group's context (location, service type, methodology)
+
+A provider in multiple Care groups only has the contextually-relevant subset of their services surfaced in each group.
+
+**Example:** Klára offers Private Training at Stromovka and at Riegrovy Sady. She is a member of two Care groups: "Stromovka Collective" (anchored at Stromovka) and "Vinohrady Training" (anchored in Vinohrady). Stromovka Collective surfaces her Stromovka offering. Vinohrady Training surfaces her Riegrovy Sady offering. Her profile shows both.
+
+### Admin onboarding
+
+The admin-creator of a Care group is guided through context-setting, member-adding, and how services will be surfaced. Onboarding teaches the admin that they curate context, not pricing or service delivery. Exact UX is a design question for the phase that builds it.
+
+### Future considerations (post-MVP)
+
+- **Group revenue share.** Can admins take a small percentage of member bookings as a cooperative fee? Park until monetization work.
+- **Pricing drift.** If a member prices oddly relative to the group's brand, admins can remove them. No system-level fix needed.
+
+---
+
 ## Community Tab Structure
 
 The Community tab uses MasterDetailShell: left panel (group list filtered by category tabs) + right panel (feed or group detail).
@@ -249,6 +320,8 @@ New to Prague → joins park groups near apartment → attends meets → gets in
 | Interest group | Community / topic name | Interest |
 | Care group | Provider/business name | Care |
 
+**Business representation.** Care groups are how teams and small service businesses are represented on Doggo. Pet product retailers (toy shops, food, retail) and other non-service adjacent businesses are not Doggo members; a future advertising line may serve them externally. See the Open Questions & Assumptions Log, Monetization section.
+
 **To providers creating a Care group:** "Build your client community. A group gives your clients a place to see your work, follow your schedule, and book when they're ready."
 
 **To new users:** "Your dog's community starts here. Groups are where you meet people, find walks, and build trust."
@@ -257,19 +330,7 @@ New to Prague → joins park groups near apartment → attends meets → gets in
 
 ## Open Questions
 
-1. **Can community groups have optional service CTAs?** If a Casual Helper in a neighborhood group starts offering sitting, can they attach a service CTA to a meet? Risk: blurring community/commercial line. Benefit: natural progression for the Tereza journey.
-
-2. **Group-to-group crossover meets.** A trainer co-hosting a workshop between their care group and the reactive dog support group — how does this work? Dual-listed? Shared event?
-
-3. **Park group scaling.** What happens when a park group has 500 members? Sub-groups? Or does the meet system handle it naturally?
-
-4. **Neighborhood group seeding.** Can they be auto-suggested based on user density? ("3 others live nearby — start a neighborhood group?")
-
-5. **Care group discovery path.** Care groups appear in the Care tab if you're a member — but how do new users find them? Discover > Groups > Care? Provider profiles? Both?
-
-6. **Cross-category groups.** A trainer running sessions at a specific park — Care or Parks? Care (provider-hosted), but should it surface in Parks search too?
-
-7. **Provider group creation gate.** Should creating a Care group require having services listed first?
+Open questions for this domain live in the canonical log — see `Open Questions & Assumptions Log.md` → section 3 (Groups & Meets) and section 4 (Provider Model).
 
 ---
 

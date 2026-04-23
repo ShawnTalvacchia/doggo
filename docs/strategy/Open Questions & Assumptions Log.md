@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-14
+last-reviewed: 2026-04-23
 tags: [questions, risks, assumptions]
 review-trigger: "before starting a new phase, after any strategic discussion"
 ---
@@ -50,8 +50,8 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 - Should meet discovery include a map view?
 - Park group scaling — what happens when a park group hits 500 members?
 - Can neighborhood groups be auto-suggested based on user density?
-- Cross-category groups — a trainer at a specific park: Care or Parks?
-- Can community groups (neighbor/interest) have optional service CTAs for casual helpers?
+- **Cross-category groups (partially resolved).** A trainer running sessions at a specific park is a Care group with the park as its context. Recurring park meets surface in Parks too via the service-intersection rule (see `Groups & Care Model.md` → Care Group Admin Model). Open: exact rules for when a Care group's meets appear in Parks search vs only in Dog Care search.
+- **Group-to-group crossover meets.** A trainer co-hosting a workshop between their Care group and the reactive dog support group — how does this work? Dual-listed? Shared event?
 
 ---
 
@@ -69,6 +69,7 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 - What does the session completion flow look like for providers? (Visit report card: photos, notes, GPS summary, timestamps — see `docs/strategy/Competitive Research - Time To Pet.md`)
 - Should owners receive real-time updates during active care sessions (live GPS, mid-session photos)?
 - What pet info should surface in the provider's "in-session" view? (medication, vet contact, behavioural notes, emergency info)
+- **Lock vs. Tier reconciliation.** Profile Lock (privacy) and Provider Tier (Helper/Provider service visibility) currently overlap in how they describe service visibility. `features/profiles.md` describes Lock as the gate for service visibility ("only Familiar/Connected can see services when Locked"); `Groups & Care Model.md` says Helper tier = Connected-only service visibility. Needs a product decision: are these coexisting mechanisms (Lock = general profile privacy, Tier = service-specific visibility) or does one supersede the other? Feature doc alignment follows the decision. Best resolved during Community & Groups Deep Pass or Discover & Care Deep Pass.
 
 ---
 
@@ -83,12 +84,14 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 ## 6. Monetization
 
-**Assumption:** Trust must exist before monetization. Community features stay free.
+**Assumption:** Trust must exist before monetization. Community features stay free. Pet service businesses (training, walking, grooming, boarding, rehab, venue, vet) are represented on Doggo as Care groups. Pet product retailers and other non-service adjacent businesses are not Doggo members.
 
 **Open:**
 - What user behaviour indicates readiness for paid transactions?
 - Platform-mediated payment from the start, or peer-to-peer first?
 - Do Prague pet businesses see value in a community-embedded directory?
+- **Adjacent-business advertising (post-MVP).** Can localized promotional placements for adjacent businesses (salons that don't want a Care group, toy shops, pet food retailers) be a post-MVP revenue line that points to external sites? What's the right gate — max one promo per session, per surface, user-toggleable? Does advertising threaten the community trust thesis if not carefully framed?
+- **Group revenue share (post-MVP).** Can Care group admins take a small cooperative-fee percentage of member bookings? See Groups & Care Model: Care Group Admin Model.
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-12
+last-reviewed: 2026-04-23
 tags: [discover, care, booking, providers, map, payment, trust-gating]
 review-trigger: "when modifying Discover Care tab, provider profiles, booking flows, payment, or map"
 ---
@@ -64,6 +64,8 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 2. **Connection state gates actions, not just appearance** — (Phase 11) Non-connected users see disabled CTAs with contextual explanations. The TrustGateBanner component explains why and suggests next steps (attend a meet, send a connect request).
 
 3. **One profile type** — providers use the same profile layout as any user, with additional sections. See [[profiles]].
+
+   **Individual Providers and Care groups are both first-class** in Dog Care search results. Individual services live on profiles; team services live in Care groups that curate context (location, service focus) and surface their member-providers' matching services via an intersection rule. See `strategy/Groups & Care Model.md` → Provider Tiers on Profiles + Care Group Admin Model.
 
 4. **Interactive map with price markers** — Leaflet map with Carto Positron tiles. Provider pins show price. Desktop 3-column; mobile list with map toggle.
 

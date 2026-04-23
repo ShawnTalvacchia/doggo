@@ -134,5 +134,6 @@ Complete before marking this phase done. Mark each item done.
 - [ ] Update ROADMAP.md — mark phase complete with summary
 - [ ] Review CLAUDE.md — update current phase, key decisions, any structural changes
 - [ ] Review Punch List changes since phase open
-- [ ] Archive this phase board (copy to `archive/phases/`, mark status: archived)
+- [ ] Archive this phase board (copy to `archive/phases/`, mark status: archived, then delete original from `phases/`)
+- [ ] **Structural audit** — archived-status docs in live folders, duplicated filenames between `phases/` and `archive/phases/`, docs with `last-reviewed` > 21 days, dead refs in README/CLAUDE/ROADMAP/CONTRIBUTING
 - [ ] Check next phase scope (Community & Groups Deep Pass) for conflicts

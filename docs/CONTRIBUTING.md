@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-04-15
+last-reviewed: 2026-04-23
 tags: [rules, workflow, css, conventions]
 review-trigger: "always — read before any working session"
 ---
@@ -37,7 +37,7 @@ Before writing any code for a new phase, complete the **Opening Checklist** on t
 - Work only on tasks from the **current phase board**.
 - When you finish a task, update the phase board status immediately.
 - If you change a feature, update its **feature doc** in `features/`.
-- If you add/change a component, update **component-inventory**.
+- If you add/change a component, update **design-system.md**.
 - If you add/change a CSS variable, update **design-tokens** AND the `@theme` block.
 - If you discover an open question, add it to **Open Questions**.
 - If you make a significant product decision, record it in the relevant feature doc under a "Decisions" section.
@@ -52,8 +52,12 @@ Before marking a phase complete, work through the **Closing Checklist** on the p
 4. **Update ROADMAP.md.** Move the completed phase out of "Current Phase." Do NOT add a completion summary — the archived phase board is the record.
 5. **Review CLAUDE.md.** If the phase changed navigation, key components, or project structure, update the project instructions.
 6. **Review Punch List changes.** Read completed items and change reports in `phases/punch-list.md` since the last phase close. Check if any completed fixes affected feature docs, design-system.md, or design-tokens.md — update anything that was missed.
-7. **Archive the phase board.** Copy to `archive/phases/`, mark status: archived. (If deletion is blocked, mark the original as archived too.)
+7. **Archive the phase board.** Copy to `archive/phases/`, mark status: archived, then delete the original from `phases/`. Do not leave both copies.
 8. **Trim pass.** Skim the Roadmap, CLAUDE.md, and touched docs. Cut anything stale, redundant, or duplicated. See Doc Hygiene Rules.
+8a. **Structural audit.** Run these three checks — any hits get fixed before phase close:
+   - `grep -rl "status: archived\|status: complete" docs/phases/` should return nothing but `_phase-template.md` (never) and legitimately paused phases. Anything else — delete it; the archive copy exists in `docs/archive/phases/`.
+   - Compare filenames in `docs/phases/` vs `docs/archive/phases/`. Any overlap means a phase-close cleanup was skipped — delete the live copy.
+   - Scan docs in `strategy/`, `features/`, `implementation/` with `last-reviewed` older than 21 days. Review or bump.
 9. **Strategic review.** This is the most important step. Stop building and think. Read the Open Questions log, the Roadmap, the relevant strategy and competitive research docs, and the next phase's scope. Then present a brief to the team covering:
    - **What changed.** How does the work just completed shift our understanding of the product? Did building it reveal anything we didn't anticipate?
    - **Open questions worth resolving now.** Which unresolved questions from the log would benefit from research or discussion before the next phase opens? Don't just list them — recommend whether to research, discuss, or defer, and why.

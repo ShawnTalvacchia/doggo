@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-13
+last-reviewed: 2026-04-23
 tags: [profile, pets, provider, edit, posts, tagging]
 review-trigger: "when modifying profile pages, pet cards, posts, or provider sections"
 ---
@@ -15,6 +15,8 @@ Owner profiles, pet profiles, posts, and care provider sections — all part of 
 ## Overview
 
 Every user has one profile. There is no separate "provider account." Users who offer care have additional sections visible on the same profile (services, availability, reviews). The profile page serves double duty: it's how you manage your own identity/pets/settings, and it's how others learn about you and your dogs.
+
+The visibility of a user's services is determined by their **Provider Tier** (Owner / Helper / Provider), defined in `strategy/Groups & Care Model.md` → Provider Tiers on Profiles. This doc describes the profile UI and data model; the tier model defines what surfaces where and to whom.
 
 All profile pages use the **PageColumn + TabBar** pattern — the same layout as every other page in the app. No custom shell, no two-column desktop layout.
 
