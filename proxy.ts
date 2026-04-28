@@ -11,6 +11,10 @@ import { NextRequest, NextResponse } from "next/server";
  * Everything else (the logged-in app + the /pages demo hub) requires the
  * `doggo-demo-auth=unlocked` cookie, set by POST /api/unlock with the
  * correct password.
+ *
+ * Note: this file replaces the old `middleware.ts` per Next.js 16's
+ * middleware → proxy migration. The function is named `proxy` instead
+ * of `middleware`; the `config.matcher` export is unchanged.
  */
 
 const AUTH_COOKIE = "doggo-demo-auth";
@@ -38,7 +42,7 @@ function isPublic(pathname: string): boolean {
   return PUBLIC_PREFIXES.some((p) => pathname === p.slice(0, -1) || pathname.startsWith(p));
 }
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (isPublic(pathname)) return NextResponse.next();
