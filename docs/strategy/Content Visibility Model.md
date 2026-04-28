@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-09
+last-reviewed: 2026-04-27
 tags: [privacy, visibility, content, groups, photos]
 review-trigger: "when touching content sharing, photo features, feed logic, or group visibility"
 ---
@@ -56,16 +56,19 @@ If either gate fails, the content is hidden.
 
 Photos/moments shared to a specific meet.
 
-| Viewer is meet attendee? | Meet belongs to a group? | Viewer is group member? | Visible? | Notes |
-|---|---|---|---|---|
-| Yes | — | — | **Yes** | Attendees always see meet content |
-| No | Yes (open group) | Yes | **Yes** | Group members see meets from their group |
-| No | Yes (open group) | No | **Yes** | Open group content is publicly browsable |
-| No | Yes (private group) | Yes | **Yes** | Private group member, has access |
-| No | Yes (private group) | No | **No** | Cannot see private group content |
-| No | No (standalone meet) | — | **No** | Only attendees see standalone meet content |
+| Viewer is meet attendee? | Meet belongs to a group? | Meet visibility | Viewer is group member? | Visible? | Notes |
+|---|---|---|---|---|---|
+| Yes | — | — | — | **Yes** | Attendees always see meet content |
+| No | Yes (open group) | `public` | — | **Yes (full)** | Public meets in open groups are publicly browsable |
+| No | Yes (open group) | `group_only` | Yes | **Yes (full)** | Group members see all meets from their group |
+| No | Yes (open group) | `group_only` | No | **Tease** | Non-members see 1 hero photo + "Join [Group] to see all" CTA |
+| No | Yes (private/approval group) | (forced `group_only`) | Yes | **Yes (full)** | Private group member, has access |
+| No | Yes (private/approval group) | (forced `group_only`) | No | **No** | Cannot see private group content (no tease either) |
+| No | No (standalone meet) | — | — | **No** | Only attendees see standalone meet content |
 
 **Note:** The relationship gate (connection state) does **not** apply to meet-attached content. If you're in the meet or the group, you see the photos regardless of whether you're connected to the author. Meets are communal spaces — the context is the trust signal.
+
+**On the tease layer.** The 1-photo tease for `open group + group_only meet` exists to convert browsers into members. It earns its keep there because the group itself is publicly discoverable but the meet's content isn't — one hero shot reads as an invitation, not a paywall. Capped at 1 photo intentionally: more than that starts to feel like a content tour and weakens the join incentive. Private and approval-required groups never tease — even one photo would leak group content to non-members and violate the context gate. Implementation: `app/meets/[id]/page.tsx` Photos section.
 
 ---
 

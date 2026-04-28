@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-04-12
+last-reviewed: 2026-04-27
 tags: [design-system, components, patterns, css]
 review-trigger: "when building or refactoring components, adding CSS patterns, or consolidating styles"
 ---
@@ -16,7 +16,7 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 
 ## Principles
 
-1. **Use what exists.** Check `components/ui/` and `components/layout/` before building anything from scratch.
+1. **Use what exists.** Check `components/ui/`, `components/layout/`, and `components/people/` before building anything from scratch.
 2. **Tokens first.** All colors, spacing, radii, and typography via CSS custom properties. Never raw values.
 3. **Tailwind for simple styles.** 1-3 property patterns go in JSX as utilities. CSS classes only for complex patterns (pseudo-elements, animations, multi-state, 9+ properties).
 4. **Consolidate aggressively.** If two patterns do the same thing, merge them. Flag candidates in the Consolidation Queue below.
@@ -27,7 +27,7 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 
 | Component | Purpose | Key props |
 |-----------|---------|-----------|
-| `ButtonAction` | All clickable actions — buttons, links, CTAs | `variant` (primary/secondary/tertiary/outline/destructive/white), `size` (sm/md/lg), `href`, `cta` |
+| `ButtonAction` | All clickable actions — buttons, links, CTAs | `variant` (primary/secondary/tertiary/outline/neutral/brand-subtle/destructive/white), `size` (sm/md/lg), `href`, `cta`. **`neutral`** is filled `--surface-inset` with no border — use for inactive toggle states (RSVP not yet, Join community before joining) and quiet secondary actions (Decline, Skip). **`brand-subtle`** is filled `--brand-subtle` with `--brand-strong` text and no border — use for ACTIVE toggle states (Going, Interested, Joined, Following). The toggle pattern (FB Events "Interested" model): brand color appears ONLY on active state — never on inactive — so the brand presence reads as "your committed state, celebrated." Inactive is quiet (`neutral`) so the active state's brand identity isn't competed with. |
 | `ButtonIcon` | Icon-only buttons (40px square) | `icon`, `badge` (notification dot) |
 | `InputField` | Text inputs with label, helper, error | `label`, `error`, `helper` |
 | `CheckboxRow` | Labeled checkbox | `checked`, `label`, `placement` |
@@ -66,12 +66,19 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 | `ListPanel` | *(Legacy — avoid for new code)* | Wrapper for list panels. Use `PanelBody` inside raw div instead. |
 | `DetailPanel` | *(Legacy — avoid for new code)* | Wrapper for detail panels. Use `PanelBody` inside raw div instead. |
 
+## People (`components/people/`)
+
+| Component | Purpose | Notes |
+|-----------|---------|-------|
+| `PersonRow` | Canonical row for rendering a person — meet attendees, group members, inbox conversations | Variants: `meet-attendee`, `group-member`, `inbox-conversation`, `default`. Action set resolves automatically via `lib/personActions.ts:resolvePersonActions` per the Trust & Visibility action matrix; pass `actions={[...]}` to override. Internal dog-image lookup via `getDogImageByOwnerAndName` so callers pass `pets: { name }[]` only. Connection-state pill suppressed on `none + theyMarkedFamiliar` per the deniability guardrail (see `Trust & Connection Model.md`). |
+
 ## Overlays (`components/overlays/`)
 
 | Component | Purpose |
 |-----------|---------|
 | `ModalSheet` | Desktop centered card / mobile bottom sheet |
-| `BookingModal` | Service picker + date range + message + success flow |
+| `BookingModal` | Open-ended provider booking — service picker + date range + message + success flow |
+| `ServiceBookingSheet` | Lightweight "book this scheduled session" — pre-filled date/time/provider/price, optional message, confirm. Used by paid (care-group) meet detail pages — service info card Book CTA on one-off, per-row Book on recurring. |
 
 ---
 
@@ -95,6 +102,8 @@ Shared CSS classes in `globals.css` that are used across multiple components. Us
 | `.booking-card` | Redesigned booking/care card | Full accent border for provider/host cards, action verb labels |
 | `.filter-accordion` | Inline collapsible filter sections | Used in FilterBody |
 | `.md-shell` / `.list-panel` / `.detail-panel` | *(Deleted)* MasterDetailShell panels | Replaced by PageColumn |
+| `.person-row` + `.person-row--*` variants | Shared person-row chrome | Used by `PersonRow`. Variant modifiers: `--meet-attendee`, `--group-member`, `--inbox-conversation`, `--default`. Inbox variant is denser + transparent (sits inside flush conversation list); others are panel-bordered cards. |
+| `.person-row-pill` + `.person-row-pill--connected` / `--familiar` / `--pending` / `--admin` | Connection-state and admin pills inside `PersonRow` | Connected uses `brand-subtle`; familiar/pending/admin use `surface-inset`. Replaces the previous bespoke pill markup in `app/communities/[id]/page.tsx` Members tab and the inline pill in `ParticipantCard`. |
 
 ---
 

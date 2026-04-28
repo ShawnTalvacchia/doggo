@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-04-15
+last-reviewed: 2026-04-27
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
@@ -42,6 +42,14 @@ Meets are the core trust-building mechanic. They need to feel compelling — lik
 
 **Phase board:** `phases/meets-deep-pass.md`
 
+**Recurrence model landed (2026-04-27):** the recurring-meet RSVP model is now per-occurrence. Going / Skip per date + a series-level Interested toggle replaces the legacy "RSVP to the whole series" pattern. See `archive/phases/meet-recurrence-model.md` for the record.
+
+### Trust & Visibility Pass — Parallel
+
+Opened 2026-04-27, runs **in parallel** with Meets Deep Pass. Standardizes how the app renders people and gates access to their content. Builds a shared `PersonRow` component used across meet detail People tab, group Members tab, inbox conversation list, and post-meet review. Enforces a Meta-style action matrix (locked-to-locked = silent; mark Familiar to invite contact). Absorbs punch-list items P19 (Familiar copy + tier-logic audit) and P25 (content visibility audit on meet detail).
+
+**Phase board:** `phases/trust-visibility-pass.md`
+
 ### Profiles Deep Pass — Paused
 
 Paused 2026-04-14. Trust signals, post composer, and post attribution shipped. Remaining content enrichment folded into Mock World Building.
@@ -58,10 +66,10 @@ Each phase takes a major surface and makes it the best it can be — rethink con
 |-------|------|----------|
 | **Community & Groups** | Groups and feeds feel alive. Daniel lurks, Tomáš posts emergencies. | `features/meets.md`, `Groups & Care Model.md` |
 | **Discover & Care** | Care discovery feels like community, not marketplace. Trust badges, matching, intro sessions. | `features/explore-and-care.md`, `Competitive Research - Prague Dog Care Scene.md`, `Competitive Research - Fluv.md` |
-| **Schedule & Bookings** | Operational backbone. Visit report cards, session updates, provider in-session UI. | `features/schedule.md`, `features/explore-and-care.md`, `Competitive Research - Time To Pet.md` |
-| **Mock World Building** | Coherent world for four personas with rich cross-connections, images, and content. | `mock-data-plan.md`, `User Archetypes.md` |
+| **Schedule & Bookings** | Operational backbone. Visit report cards, session updates, provider in-session UI. Care review sheets + provider close-out flow. IA scaffolding + review-recent pattern landed early during Meets Deep Pass — see `phases/schedule-bookings-deep-pass.md` for pre-loaded deferred scope. | `phases/schedule-bookings-deep-pass.md`, `features/schedule.md`, `features/explore-and-care.md`, `Competitive Research - Time To Pet.md` |
+| **Mock World Building** | Coherent world for the four journey personas with rich cross-connections, images, and content. **Unblocked by Persona & Demo Mode Wiring (closed 2026-04-26)** — switcher infrastructure lets curated per-persona data show through. Specific gaps to backfill: per-persona `mockConnections`, conversations seeded for non-Shawn personas, broader post authorship, `shareCode` per persona, plus the unresolved provider-userId pattern (punch-list P4). | `mock-data-plan.md`, `User Archetypes.md`, `features/demo-mode.md` |
 | **Cross-Cutting Flow Testing** | Every persona journey works end-to-end. Trust signals accumulate. No dead ends. | `User Journeys.pptx`, `Trust & Connection Model.md` |
-| **Demo Presentation** | Landing page, persona selection, guided tours. Free exploration also rewarding. | `Product Vision.md`, `User Archetypes.md` |
+| **Demo Presentation** | Landing page redesign, persona selection presentation, guided tours. Free exploration also rewarding. The `/demo` route from Persona Wiring is the technical foundation; presentation framing is the open work. | `Product Vision.md`, `User Archetypes.md`, `features/demo-mode.md` |
 
 Phase boards are created when a phase opens — that's where detailed tasks live. The research docs referenced above contain specific action items and open questions that feed into each phase's board.
 

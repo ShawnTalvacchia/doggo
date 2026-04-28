@@ -74,6 +74,7 @@ See `docs/CONTRIBUTING.md` for full details, including the phase open/close life
 | `docs/implementation/design-system.md` | Components, patterns, CSS classes, consolidation targets |
 | `docs/implementation/design-tokens.md` | Token reference and Figma→CSS mapping |
 | `docs/implementation/mock-data-plan.md` | Mock data strategy and user journey planning |
+| `docs/features/demo-mode.md` | Persona switcher (name dropdown + `/demo` + `?as=` URL param), persona registry, current limitations |
 
 ## Current Phase: Meets Deep Pass
 
@@ -99,12 +100,14 @@ Deep page-by-page passes to make every surface the best it can be. See `docs/ROA
 
 Key decisions:
 - **Connection model:** None (default) → Familiar (one-sided, silent) → Pending → Connected (mutual). Post-meet review flow is the primary Familiar trigger. See `docs/strategy/Trust & Connection Model.md`.
-- **Everyone starts as an owner.** No separate provider signup. Offering care is a dial, not a switch.
+- **Everyone starts the same way.** No separate provider signup — and no separate owner signup either. Add a dog if you have one, offer care if you want to, or just participate. The provider role is a dial you turn up from your profile, not a separate identity.
 - **Chat on profiles.** Profiles are the relationship hub — About, Posts, Services, Chat tabs. Inbox is a connections list linking to `/profile/[userId]?tab=chat`.
 - **Rolling weekly billing.** Recurring bookings use `billingCycle: "weekly"` with one upcoming session at a time.
+- **Meet recurrence is per-occurrence.** Recurring meets carry a `cadence` field (`one_off | weekly | biweekly | monthly`). For non–one-off meets, RSVP is always to a specific date (`Meet.attendeesByDate`), never to the series itself. Each upcoming date has its own Going + Skip controls. A series-level "Interested" toggle (data: `Meet.followers`) is the soft-commitment affordance for following without RSVPing. Read paths are centralised in `lib/meetUtils.ts` (`getMeetOccurrences`, `getOccurrenceAttendees`, `nextOccurrenceDates`). See `docs/features/meets.md` → Recurrence model.
 - **Booking detail tabs.** Info / Sessions / Chat. Provider sees session check-in actions, owner sees aggregate stats.
 - **Nav:** Community | Discover | My Schedule | Bookings | Profile (mobile bottom, 5 tabs). Desktop sidebar adds Inbox + Notifications (7 items). Mobile header: create + notifications + inbox.
 - **Discover as hub.** Three doors: Meets, Groups, Dog Care → results with FilterPillRow + floating Filters button.
 - **Groups:** Four types: Park / Neighbor / Interest / Care. See `docs/strategy/Groups & Care Model.md`.
 - **Unified profiles.** All profiles use PageColumn + TabBar. Connection-gated CTAs. Provider profile route redirects to `/profile/[userId]`.
 - **Content visibility.** Two-gate model: context gate + relationship gate. See `docs/strategy/Content Visibility Model.md`.
+- **Persona switching for demo/testing.** Profile-page name doubles as a dropdown (demo-only affordance — wouldn't ship in real product). Tap → switch between Shawn / Tereza / Daniel / Klára / Tomáš / New User. Or visit `/demo` for the canonical picker. Or paste `?as=<personaId>` onto any URL to preview that page as another persona without persisting. Product code reads `useCurrentUser()` from `@/hooks/useCurrentUser` — never hardcoded user lookups. See `docs/features/demo-mode.md`.

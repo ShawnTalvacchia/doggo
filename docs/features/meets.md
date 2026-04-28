@@ -1,7 +1,7 @@
 ---
 category: feature
 status: active
-last-reviewed: 2026-04-12
+last-reviewed: 2026-04-27
 tags: [meets, groups, community, social]
 review-trigger: "when modifying meets, groups, group detail tabs, or meet discovery"
 ---
@@ -50,11 +50,11 @@ Tabs vary by group type. No Chat tab on any group — async discussion lives in 
 
 **Feed tab:** Posts with photos, captions, tags, paw reactions, and flat comments. Who can post varies by type: any member for Park/Neighbor/Interest, provider/admin only for Care groups (members comment and react).
 
-**Meets/Events tab:** Upcoming meets rendered via CardMeet with "Create meet" CTA. Care groups label this "Events" (same data, different framing).
+**Meets/Events tab:** Upcoming meets rendered via CardMeet with "Create meet" CTA. Care groups label this "Events" (same data, different framing). Visibility is gated by `careConfig.eventsEnabled` for care groups: event-driven categories (training, walking, boarding, venue) show it; appointment-driven categories (grooming, rehab, vet) hide it.
 
 **Members tab:** Member list with avatars, dog names, roles (admin badge), and connection state indicators.
 
-**Services tab (Care only):** Provider's service menu with titles, descriptions, pricing, and "Book" CTAs.
+**Services tab (Care, conditional):** Provider's service menu — titles, descriptions, pricing, "Book" CTAs. Visibility is gated by `careConfig.serviceListingsVisible`. Event-driven categories (training, walking, venue) hide the tab — each meet IS the service offering, with price + spots + booking flow already on the meet card; a separate Services tab would duplicate the same content. Appointment-driven categories (grooming, rehab, vet) show the tab — no events, so this is the only booking surface. Boarding shows both. The `serviceListings` data field stays populated regardless: used by `CardGroup` for Discover-card pricing snippets and reserved for future on-demand 1-on-1 booking surfaces on the provider profile.
 
 **Gallery tab (Care only):** Three display modes — standard (grid), portfolio (before/after pairs), updates (date-grouped chronological). Mode is set per care group based on provider category.
 
@@ -85,9 +85,9 @@ Meet detail uses a tabbed layout:
 
 | Tab | Content |
 |-----|---------|
-| **Details** | Type badge, date/time, location, duration, description. Type-specific info (pace, terrain, age range, etc.). RSVP actions. Link to parent group. |
-| **People** | Attendee list tiered by connection state (Connected → Familiar/Open → hidden count). Post-meet reveal for completed meets. |
-| **Photos** | `MeetPhotoGallery` — photo grid wired to mock data for completed meets. For completed meets with no photos, a share prompt (CameraPlusFill icon + "Share your photos from this meet") encourages attendees to add photos. For upcoming meets, tab shows a placeholder. |
+| **Details** | Type badge, date/time, location, duration, description. Type-specific info (pace, terrain, age range, etc.). RSVP actions. Link to parent group. Includes a "Who's coming" summary card with tier-sorted avatar stack, tier-aware count line ("3 of 8 going / 2 people you know"), and dog-first social proof when no known people are going ("Rex, Luna + 4 more dogs"). Terminology: "people you know" spans both Connected and Familiar; "connections" is reserved for Connected only. |
+| **People** | Full attendee list rendered via `PersonRow` (variant `meet-attendee`). Tiered by connection state (Tier 1 Connected → Tier 2 Familiar (either direction)/Pending/Open → Tier 3 hidden count). Tier rules per `Trust & Connection Model.md`; `getAttendeeTier()` in `lib/meetUtils.ts` is the canonical implementation — bumps to Tier 2 on inbound `theyMarkedFamiliar` per the Trust & Visibility Pass D2 decision. The deniability guardrail (no UI may explain WHY a row was promoted) lives in `PersonRow` (pill suppression) and `ConnectionIcon` (single rendering across directions). Post-meet reveal for completed meets. |
+| **Photos** | `MeetPhotoGallery` — photo grid wired to mock data for completed meets. For completed meets with no photos, a share prompt (CameraPlusFill icon + "Share your photos from this meet") encourages attendees to add photos. For upcoming meets, tab shows a placeholder. **Visibility gating** (`Content Visibility Model.md` §1): attendees and group members see the full gallery; non-members of an open group with a `group_only` meet see a 1-photo tease + "Join [Group] to see all"; private/approval groups gate fully (no tease). |
 | **Chat** | Event-scoped coordination thread. Requires RSVP to participate. Time-bound — "running late", "great walk today!" |
 
 ### Meet types
@@ -110,15 +110,92 @@ All types share enhancement fields: energy level, what to bring, accessibility n
 
 RSVP is fully interactive: tapping cycles through Going → Interested → Leave with local state updates. The button label and style change per state. Creates lower commitment bar and more social proof ("12 going, 5 interested"). Mock data dates updated to April 2026.
 
+### Recurrence model
+
+A meet's `cadence` field (`"one_off" | "weekly" | "biweekly" | "monthly"`) decides whether it's a single event or a *series* anchored at `(date, time)`. RSVP semantics differ:
+
+- **One-off meets:** Going / Interested attach to the meet directly (the legacy model). Stored on `Meet.attendees`.
+- **Recurring meets:** Per-occurrence Going + Skip on each upcoming date. Going commits to that specific date; Skip explicitly marks "not this one" without changing the user's relationship to the series (Skipped rows render muted in place with an inline Undo). Per-date attendees live on `Meet.attendeesByDate` (sparse, keyed by ISO YYYY-MM-DD). Skip persistence: `useDismissedReviews` hook with `kind: "meet-skip"`.
+- **Series-level Interested:** A separate, lighter affordance on recurring meets — soft commitment to the series without committing to specific dates. Surfaces the series in Discover and opts into upcoming-date notifications. Stored on `Meet.followers` (the underlying field name is historical; UI labels it "Interested").
+
+The split applies only when `cadence !== "one_off"`. Per-occurrence Interested was considered and dropped — "maybe to a specific Wednesday" added noise without much value. Skip is the sharper second affordance per row.
+
+**Read paths.** `lib/meetUtils.ts` provides:
+- `isRecurring(meet)`, `recurrenceLabel(meet)` — convenience.
+- `nextOccurrenceDates(meet, count, from?)` — derive upcoming dates from `(date, cadence)`. Honors `seriesEndDate`.
+- `getOccurrenceAttendees(meet, date)` — single primitive for "the right attendee list for this date." One-off → `meet.attendees`; recurring → `attendeesByDate[date] ?? []`.
+- `getMeetOccurrences(meet, count, from?)` — `[{ meet, date, attendees }]` for "what's coming up."
+- `getDisplayDate(meet)` — single date a card-style summary should show. For recurring, the next upcoming occurrence (prefixed "Next:" in card UI).
+- `getMeetRole(meet, userId, date?)` — instance-aware role when `date` is provided; series-level fallback otherwise.
+
+`lib/mockMeets.ts` adds `getUserMeetInstances(userId)` (per-occurrence) and `getFollowedSeries(userId)`.
+
+**Meet detail UI for recurring meets.** The detail page renders an "Upcoming dates" section listing the next ~3 occurrences with per-row Going + Skip. The series-level "Interested" toggle in the top action row replaces the single RSVP control. "Who's coming" defaults to the next occurrence's roster.
+
+**Carrying both fields.** On recurring meets, `meet.attendees` stays populated as a *representative* list (typically next-occurrence) so legacy callsites — cards, summaries, post-meet review — continue to render without per-call migration. The authoritative per-date data is on `attendeesByDate`. Surfaces that need to be instance-aware (Schedule cards, meet-detail RSVP rows, Who's coming) read via `getOccurrenceAttendees`. This is a deliberate prototype tradeoff documented in `Meet.attendees` and the `meet-recurrence-model` phase board.
+
+**Out of scope (future):** per-occurrence editing (different time/location/cover on a single instance), per-occurrence cancellation ("skip this Wednesday only"), end-of-series UI semantics, full notification delivery for Following.
+
+### Care-group meets (paid sessions)
+
+Meets hosted inside care groups can carry a `serviceCTA` field — `{ label, price, spotsLeft, href }` — marking them as paid sessions. When present, the meet renders differently from a peer meet:
+
+- A "Paid session" pill appears in the badge row next to the type pill (Storefront icon, info colour).
+- A **service info card** renders near the top of the content area (above Upcoming dates / Hosted by / Who's coming). Provider avatar + "From [care group] →" link + service label + price + spots-left. Heading reads "Book this session" for one-off, "About this service" for recurring.
+- **Booking is the only commitment path.** The standard RSVP dropdown is suppressed for one-off paid meets — the Book CTA on the service info card carries the action. For recurring paid meets, per-occurrence Book buttons replace the per-row Join button on each Upcoming dates row.
+- The series-level "Interested" toggle still renders on recurring paid meets (subscription without committing to specific dates).
+
+**`ServiceBookingSheet`** — lightweight booking sheet at `components/meets/ServiceBookingSheet.tsx`. Different from `BookingModal` (open-ended provider booking with date-range and service picker). The sheet pre-fills date / time / provider / price from the meet + tapped occurrence; the user adds an optional message and confirms. Success state shows a brief confirmation. On confirm, the per-occurrence row flips to a Booked state (secondary variant, Check icon, disabled — cancellation lives elsewhere).
+
+Triggers:
+- One-off paid meet: the Book CTA on the service info card → opens sheet pre-filled with `meet.date`.
+- Recurring paid meet: each Upcoming dates row's Book button → opens sheet pre-filled with that occurrence date.
+
+Row meta line on recurring paid meets carries the price too: "10:00 · 350 Kč · 1/6 booked".
+
+### Meet-card anatomy (shared spec)
+
+Meet cards appear across Discover, Schedule, Group detail, Community feed, and a compact variant used in chat-context strips. They share the same content stack so the card-to-detail transition feels continuous. Full reference implementation: `components/meets/CardMeet.tsx`.
+
+**Every card carries, in this order:**
+
+1. **Type pill** — icon + label. Canonical icons: walk → `PersonSimpleWalk`, park hangout → `Tree`, playdate → `PawPrint`, training → `Target` (all 16px, weight `"light"` when inline in the pill row).
+2. **Title** — heading font, 16px, 600 weight.
+3. **Date + time** — `formatMeetDateTime(date, time)`. Calendar icon 16px light.
+4. **Location** — `MapPin` icon + text.
+5. **Group chip** *(when relevant)* — `UsersThree` + group name, info color, clickable to the group.
+6. **Count line** — "N/max going · M dogs" (or "M dogs" when in-group).
+7. **Dog-forward avatar stack** — dog photos primary. See "Dog-forward avatars" below.
+8. **Surface-specific signals** — activity text, spots-left warning, role chip, service CTA.
+
+**No cover photo on cards.** Cards don't expect a cover image. Cover photos are optional on creation; forcing them into the card visual would punish meets without one and make routine walks look like curated events. Continuity with the detail page is carried by anatomy consistency (same type pill, same title typography, same date format, same group chip, same dog-first attendee rendering), not by echoing an image.
+
+**Dog-forward avatars.** Cards lead with dogs, not owners. The stack shows up to 5 dog photos (28px, -8px overlap); overflow renders as "+N". The count line says "3 people · 4 dogs" (not "4 dogs" under "3 people" avatars). Dog photos are resolved via `getDogImageByOwnerAndName(userId, dogName)` in `lib/dogLookup.ts` — if a dog's photo can't be resolved, that attendee falls back to their owner avatar in the same slot, and the count line still reports the real total. Rationale: dog photos are the recognition hook; owner identity lives on the detail page.
+
+**Per-surface variants:**
+
+| Surface | Component | Notes |
+|---|---|---|
+| Discover — Meets | `CardMeet variant="discover"` | Full spec. Spots-left warning when ≤ 5 spots left. |
+| Schedule — upcoming/history | `CardMeet variant="schedule"` | Adds role chip (Hosting/Joining/Interested). RSVP count signal for hosts. |
+| Group detail — Meets tab | `CardMeet variant="group"` | Group chip is redundant here — hide it. Show dog count inline instead. |
+| Community feed — upcoming | `FeedUpcomingMeet` | Feed-card shell (left avatar column). Same stack minus spots-left + role. |
+| Community feed — completed meet | `FeedMeetRecap` | Photo row replaces the dog-avatar stack (photos carry the social proof); type pill + date still required. |
+| Group detail — chat context strip | `MeetCardCompact` | 200px wide, horizontal scroll. Keep type pill, title, date/time, location, small dog-name row (no avatars — no room). |
+
+When adding a new meet-card surface, start from `CardMeet` and diverge only where the surface genuinely requires it.
+
 ### Visibility (per meet)
 
-Meets have their own visibility, independent of the group:
+Every meet belongs to a group (required field `Meet.groupId`). Within that group, the meet carries its own `visibility: MeetVisibility` — `"public"` or `"group_only"`:
 
-| Group visibility | Meet setting | Who can see & RSVP |
+| Group visibility | Meet `visibility` | Who can see & RSVP |
 |-----------------|-------------|-------------------|
-| Open group | Public meet | Anyone |
-| Open group | Private meet | Group members only |
-| Private group | Private meet (default) | Group members only |
+| Open group | `"public"` | Anyone |
+| Open group | `"group_only"` | Group members only |
+| Private / approval group | `"group_only"` (forced) | Group members only |
+
+The creation form enforces this: private and approval groups disable the public option. Only open groups offer both choices.
 
 ### Post-meet connection
 
@@ -134,7 +211,7 @@ This remains the highest-intent moment for building relationships — connecting
 2. **Public meets remain the default entry point** — low barrier for new users.
 3. **Post-meet connect prompts** are the primary connection trigger, now within group context.
 4. **Location flexibility** — meet creators set their own meeting point.
-5. **Recurring meets** — weekly on the same day/time. Each occurrence has its own attendee list.
+5. **Recurring meets** — weekly / biweekly / monthly on the same day/time. RSVP is always per-occurrence: each upcoming date has its own Going + Skip controls. Series-level subscription is a separate "Interested" toggle in the top action row.
 6. **Care groups use "Events" label** for meets — same data model, different framing.
 
 ---
@@ -146,7 +223,7 @@ This remains the highest-intent moment for building relationships — connecting
 | `/discover/meets` | Meet browse with filters |
 | `/discover/groups` | Group browse with filters |
 | `/meets/[meetId]` | Meet detail (Details · People · Chat tabs) |
-| `/meets/create` | Meet creation form |
+| `/meets/create` | Legacy route — redirects to `/activity` and opens the `MeetComposer` ModalSheet. New creation flow is an overlay; entry points call `useMeetComposer().openComposer({ groupId })` directly. |
 | `/communities/[id]` | Group detail (tabs vary by type) |
 | `/home` | Community tab with category sub-tabs (All/Parks/Neighbors/Interest/Care) |
 | `/schedule` | My Schedule (top-level, shows meets + care bookings) |

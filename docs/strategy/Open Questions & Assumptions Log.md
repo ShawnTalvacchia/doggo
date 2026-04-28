@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-23
+last-reviewed: 2026-04-27
 tags: [questions, risks, assumptions]
 review-trigger: "before starting a new phase, after any strategic discussion"
 ---
@@ -44,6 +44,8 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 **Resolved:** Four group types (park/neighbor/interest/care). Park groups auto-generated. Group detail tabs vary by type. No Chat tab on groups — Feed with flat comments for async (built), meet-level chat for real-time coordination (built). Going/Interested RSVP states with interactive cycle (Going/Interested/Leave). Meet detail tabs (Details · People · Chat) — built with photo gallery. Schedule tabs: Upcoming / Care / Interested. Care tab has sub-filter pills (All / Getting Care / Providing). Interested tab auto-populates from joined groups. Discover flow refactored: hub → results with FilterPillRow + floating Filters button (no more type picker pages). Care group discovery path resolved: Discover > Dog Care with filter pills for service type.
 
+**Resolved (2026-04-27):** Recurring-meet RSVP model. `Meet.cadence` (`one_off | weekly | biweekly | monthly`) is the discriminator. For recurring series, RSVP is always per-occurrence: `Meet.attendeesByDate` keyed by ISO date holds the authoritative roster, with each upcoming row offering Going + Skip (Skip persists via `useDismissedReviews`, mutes-in-place with inline Undo). Series-level subscription is a separate "Interested" toggle (data on `Meet.followers`). Per-occurrence Interested was considered and dropped — "maybe to a specific Wednesday" added noise without much value. Schedule renders one card per (meet, occurrence-date). Cards across the app show "Next: [date]" for recurring meets. Out of scope: per-occurrence editing/cancellation, end-of-series UI, full notification delivery for Following. See `archive/phases/meet-recurrence-model.md`.
+
 **Open:**
 - Can the platform suggest meets based on patterns? ("3 regulars walk near Letná on Tuesdays")
 - What's the right max group size for different meet types?
@@ -52,6 +54,8 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 - Can neighborhood groups be auto-suggested based on user density?
 - **Cross-category groups (partially resolved).** A trainer running sessions at a specific park is a Care group with the park as its context. Recurring park meets surface in Parks too via the service-intersection rule (see `Groups & Care Model.md` → Care Group Admin Model). Open: exact rules for when a Care group's meets appear in Parks search vs only in Dog Care search.
 - **Group-to-group crossover meets.** A trainer co-hosting a workshop between their Care group and the reactive dog support group — how does this work? Dual-listed? Shared event?
+- **Series subscription notifications.** Following a recurring series should produce notifications when new dates are added to a series with an irregular cadence and possibly 24h-before reminders for upcoming occurrences. The `meet_series_update` notification type is wired (stubbed entry on meet-7), but real triggering, batching, and opt-out behaviour are deferred. Belongs with the broader notifications work — not Mock World Building.
+- **Series ending semantics.** Recurring meets carry an optional `seriesEndDate`, but UI for end-of-series (last occurrence past, no further dates) is unbuilt. Treat as inactive series for now; design when a real series in mock data hits its end date.
 
 ---
 
@@ -129,22 +133,25 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 ## 9. Navigation & UX
 
-**Resolved:** Mobile bottom nav: Community | Discover | My Schedule | Bookings | Profile (5 tabs). Desktop sidebar: Community, Discover, My Schedule, Bookings, Inbox, Notifications, Profile (7 items). Mobile header: create + notifications + inbox. Home renamed to Community with category sub-tabs. All pages unified to PageColumn single-column layout (640px centered). Sidebar tightened to 180px. MasterDetailShell and DiscoverShell deleted. Sidebar active state: neutral (transparent-dark-4 + text-primary). Header action buttons: CTA pill variant (brand for primary, outline for secondary). DetailHeader and PageColumn headers aligned (40px, 16px padding). Scroll-to-hide nav restored via page-column-panel-body class.
+**Resolved:** Mobile bottom nav: Community | Discover | My Schedule | Bookings | Profile (5 tabs). Desktop sidebar: Community, Discover, My Schedule, Bookings, Inbox, Notifications, Profile (7 items). Mobile header: create + notifications + inbox. Home renamed to Community with category sub-tabs. All pages unified to PageColumn single-column layout (640px centered). Sidebar tightened to 180px. MasterDetailShell and DiscoverShell deleted. Sidebar active state: neutral (transparent-dark-4 + text-primary). Header action buttons: CTA pill variant (brand for primary, outline for secondary). DetailHeader and PageColumn headers aligned (40px, 16px padding). Scroll-to-hide nav restored via page-column-panel-body class. Bottom-nav visibility regex updated to keep nav on hub-route sub-tabs (`/schedule?view=meets`, `/profile?tab=posts`, `/bookings?tab=services`) — fixed during Persona Wiring.
+
+**Resolved:** New-user feed populated by `getNewUserFeed()` — picks public/nearby content, completed-meet recaps from open groups, "find your park" prompts. Switcher persona `new-user` previews this state across every surface (`useIsNewUser()`). Closed by Persona & Demo Mode Wiring (2026-04-26).
 
 **Open:**
-- What populates the Community feed for a brand-new user with zero activity?
+- (none currently — all nav/UX questions resolved or deferred to surface-specific phases)
 
 ---
 
 ## 10. Demo & Presentation
 
-**Partially resolved:** Three personas chosen — Tereza (routine owner/neighbourhood anchor), Klára (professional trainer), Daniel (anxious new owner). Mock data layer built with 20 users, 24 meets, 35 posts, 13 reviews, 10 bookings, 8 conversations, 20 group message threads. Image generation prompts prepared (40 prompts across 7 tiers).
+**Resolved:** Four journey personas (Tereza, Daniel, Klára, Tomáš) plus Shawn (default) and a synthetic "New User" persona for empty-state previews. Mock data layer built with 20 users, 24 meets, 35 posts, 13 reviews, 10 bookings, 8 conversations, 20 group message threads. Image generation prompts prepared (40 prompts across 7 tiers).
+
+**Resolved:** Persona switching works via React context (`CurrentUserContext`) backed by `localStorage`, with a SSR fallback to Shawn. Three switcher surfaces — profile-page name dropdown (primary), `/demo` route (canonical entry, shareable URL), `?as=<personaId>` URL param (non-persistent preview). "New user" is a regular persona option in the picker rather than a separate boolean toggle. Full spec in `docs/features/demo-mode.md`. Closed by Persona & Demo Mode Wiring (2026-04-26).
 
 **Open:**
-- Should the demo entry page present scenarios ("See what it's like as a...") or user profiles?
-- Should the demo include a guided tour or let users explore freely?
-- How does persona switching work technically — context provider with user state, or URL-based routing?
-- What does each persona's "highlight reel" look like — which 3-4 pages tell their story best?
+- Should the demo entry page present scenarios ("See what it's like as a...") or user profiles? — Defer to Demo Presentation phase. The infrastructure supports either; the framing is a marketing/storytelling decision, not a technical one.
+- Should the demo include a guided tour or let users explore freely? — Defer to Demo Presentation phase.
+- What does each persona's "highlight reel" look like — which 3-4 pages tell their story best? — Surface during Mock World Building. The persona switcher is the foundation; the highlight reels need rich per-persona content first.
 
 ---
 
@@ -156,5 +163,5 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 - Notification strategy — what triggers push vs. quiet delivery?
 - Supabase data model for production — design before building backend.
 - Image storage/hosting for galleries and meet photos.
-- Provider ID dualism — **partially resolved**: `userId` bridge field added to ProviderCard, `nikola-r` maps to `nikola`. All profile links now use `/profile/[userId]` pattern. Remaining providers (`olga-m`, `jana-k`) still need `userId` mapping — not blocking demo but needed before real backend.
-- Feed algorithm for multi-user — currently hardcoded to "Vinohrady" neighbourhood. Needs to be user-context-aware for persona switching.
+- Provider ID dualism — **partially resolved**: `userId` bridge field added to ProviderCard, `nikola-r` maps to `nikola`. All profile links now use `/profile/[userId]` pattern. Remaining providers (`olga-m`, `jana-k`) still need `userId` mapping — not blocking demo but needed before real backend. Refined further during Persona Wiring (see punch-list P4): the real shape is providers exist as a directory-only surface in `mockData.ts` with no `UserProfile` counterparts in `mockUsers.ts`. Either backfill profiles for every provider (Mock World Building) or formalise the bridge pattern.
+- Connection state is Shawn-only — `getConnectionState(userId, viewerId)` returns `undefined` for non-Shawn viewers. Mock World Building needs to seed per-persona connection rosters so attendee tier rendering works for Daniel / Klára / Tomáš views. Surfaced during Persona Wiring C4.

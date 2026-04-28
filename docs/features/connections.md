@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-08
+last-reviewed: 2026-04-27
 tags: [connections, trust, visibility, privacy]
 review-trigger: "when modifying connection states, visibility settings, or trust signals"
 ---
@@ -25,9 +25,12 @@ See [[Trust & Connection Model]] for the full strategic rationale and trust prin
 ## Current State
 
 - **Pages:** Connection management is on the Profile page (connection list, visibility toggle)
-- **Components:** Post-meet connect prompts, connection badges on profiles and provider cards, relationship-aware CTAs on provider profiles
+- **Components:** Post-meet connect prompts (`PostMeetReviewSheet`), connection badges on profiles and provider cards, relationship-aware CTAs on profile pages, canonical person rows (`components/people/PersonRow.tsx`)
+- **Action matrix:** `lib/personActions.ts:resolvePersonActions` is the single source of truth for "what actions does the viewer see for this subject?" Used by `PersonRow` (auto mode), profile page primary CTAs, and `PostMeetReviewSheet`. Matrix coverage cases in `lib/personActions.cases.ts`.
+- **Tiered meet attendees:** `lib/meetUtils.ts:getAttendeeTier` — Tier 1 Connected, Tier 2 Familiar (either direction)/Pending/Open, Tier 3 Locked + None. Tier 3 collapses into "+ N other attendees" footer.
+- **Deniability guardrail:** No UI surface explains WHY a row was promoted to Tier 2. The `theyMarkedFamiliar` flag bumps the tier silently; consumer surfaces (PersonRow pill suppression, ConnectionIcon single-rendering) preserve cause-deniability. See `Trust & Connection Model.md` and the Trust & Visibility Pass D2 decision.
 - **Data:** `lib/mockConnections.ts` — mock connection states for demo users
-- **Status:** Built — four states implemented, post-meet prompts, trust signals on profiles, relationship-aware CTAs
+- **Status:** Built — four states, post-meet prompts, trust signals, action matrix, deniability-correct rendering
 
 ---
 
@@ -76,32 +79,15 @@ Profile → Settings → Visibility: Locked / Open
 
 ---
 
-## Planned (Phase 15)
+## Built (formerly "Planned")
 
-### Share profile link
-Users can generate a sharable link (`/connect/[shortcode]`) from their profile. Visiting the link shows basic profile info + "Connect" CTA. Solves the IRL friends problem — no need to find each other through groups or meets.
+The original phase-15 list is now built and folded into the canonical infrastructure:
 
-### Tiered meet participant list
-Meet attendee lists sorted by relationship proximity:
-1. **Connected** — full card with relationship context, mutual connections
-2. **Familiar / Open** — full card with context signal + Connect action
-3. **None + Locked** — hidden individually, shown as "N other attendees" count
-
-Post-meet, hidden attendees are revealed with Familiar/Connect/Skip actions.
-
-### Connection state icons
-Icon-based indicators (Phosphor, weight "light") replace text pills:
-- Connected → link/handshake icon
-- Familiar (they→you) → eye icon
-- Familiar (you→them) → check icon
-- Open → globe icon
-- None → no icon
-
-### Relationship context signals
-Contextual text on participant cards and profiles: "Connected since January", "3rd meet together", "4 mutual connections", "Also in Vinohrady Dog Owners".
-
-### Going / Interested RSVP
-Third RSVP state: Interested (social signal, not counted toward capacity). "12 going, 5 interested."
+- **Tiered meet participant list** — `getAttendeeTier` in `lib/meetUtils.ts` + `ParticipantList` rendering via `PersonRow`. Tier-3 collapse to "+ N other attendees" footer.
+- **Post-meet connection** — `PostMeetReviewSheet` walks attendees with Familiar / Connect / Skip per-card; bulk "Mark all Familiar" honors the matrix.
+- **Connection state icons** — `ConnectionIcon` in `components/ui/`. Connected (Handshake), Familiar/Pending (Check, single rendering across directions), Open (Globe). The previously-planned "Familiar (they→you) → eye icon" was retired during Trust & Visibility Pass D3 — per-direction visual variation revealed cause and broke the deniability principle.
+- **Relationship context signals** — `lib/relationshipContext.ts:getRelationshipSignals`. "Connected since [month]", "Nth meet together", mutual connections, shared groups. The "Wants to connect" signal was removed (cause-revealing — violated the silent-grant deniability frame).
+- **Going / Interested RSVP** — built. Recurring meets carry a separate series-level Interested toggle (see `meets.md` recurrence model).
 
 ## Future
 

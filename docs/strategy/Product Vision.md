@@ -1,14 +1,14 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-13
+last-reviewed: 2026-04-24
 tags: [vision, principles, strategy, monetization]
 review-trigger: "before any major feature decision or strategic discussion"
 ---
 
 # Doggo — Product Vision
 
-Doggo is a community-first platform for dog owners in Prague. It connects people through their dogs — building neighbourhood familiarity through shared activities, then enabling trusted care arrangements between people who already know each other.
+Doggo is a community-first platform in Prague for people whose lives revolve around dogs — owners, people offering care, and anyone drawn to the dog community. Dogs are the shared context: walks, meetups, and everyday routines bring people together, and the community that forms makes giving and getting care feel approachable, trustworthy, and fun.
 
 ---
 
@@ -40,11 +40,11 @@ All three doors lead to the same place: a network of people who know each other 
 
 ## Dog-First Positioning
 
-Every feature leads with the dog — their socialisation, their health, their care. Human social connections are a natural byproduct, not the pitch.
+Dogs are the gateway, not the destination. Most features start from a dog — how they socialise, what care they need, who they play with. But the real payoff is the network of people and relationships that forms around that shared care: neighbourhood friendships, reliable carers, trusted service providers, and the informal economy of "watch my dog while I'm away" that makes city living with a pet actually workable.
 
-This is deliberate. People wary of "social apps" will happily join a dog app. Users who join "for their dog" and end up making friends are the highest-retention users — the social reward lands harder because it wasn't sold to them.
+This is deliberate. People wary of "social apps" will happily join something organised around their dog. Users who join "for their dog" and end up making friends, finding a reliable walker, or starting to offer care themselves are the highest-retention users — the social and professional rewards land harder because they weren't sold to them.
 
-This framing also makes the care transition feel natural. You're not "becoming a gig worker" — you're helping with dogs, which you already love doing.
+This framing welcomes non-owners too. Some users join because they love dogs and want to help, not because they have one. Dog-lovers looking for gig work, hobbyists, small service providers — they enter through the community, earn trust the same way anyone does, and offer their services as part of the same fabric. The platform is a community for dog people. Dog ownership is one way in, not the only one.
 
 ---
 
@@ -56,9 +56,9 @@ These guide judgment, prevent drift, and align everyone around the same intent.
 
 Doggo is designed for Prague's specific context — cultural expectations, neighbourhood density, how locals use shared spaces. Global patterns are a reference, not a requirement.
 
-### 2. Everyone Starts as an Owner
+### 2. Everyone Starts the Same Way
 
-There is no separate "provider signup" or "provider account." Every user starts as a dog owner. Offering care is a dial you turn up from your existing profile — toggle visibility, add services, set constraints. The platform blurs the line between "community member who helps" and "service provider" intentionally.
+There is no separate "provider signup" or "provider account" — and no separate "owner signup" either. Everyone goes through the same onboarding. Add a dog if you have one, offer care if you want to, or just participate in the community. Offering care is a dial you turn up from your existing profile — toggle visibility, add services, set constraints. Owners, non-owner carers, and full-time service providers all exist in the same social fabric; the platform blurs the line between "community member who helps" and "service provider" intentionally.
 
 ### 3. Real-World Proximity Beats Abstract Matching
 

@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: draft
-last-reviewed: 2026-04-05
+last-reviewed: 2026-04-26
 tags: [mock-data, demo, prototype, data-model]
 review-trigger: "before creating or modifying mock data files"
 ---
@@ -501,7 +501,7 @@ This would make the composer feel context-aware: finish a walk with Vinohrady Mo
 
 ## Open Questions
 
-1. **Shawn's role in the demo.** Is Shawn always the logged-in user? Or should we support switching perspective to see the app as Tereza, Daniel, or Klára? (Affects how many "my bookings / my groups / my feed" views we need to populate.)
+1. ~~**Shawn's role in the demo.** Is Shawn always the logged-in user? Or should we support switching perspective?~~ **Resolved (2026-04-26):** Persona switching shipped. Five personas (Shawn / Tereza / Daniel / Klára / Tomáš) plus a synthetic "New User" empty-state persona. Switcher surfaces: profile-page name dropdown, `/demo` route, `?as=<personaId>` URL param. See `docs/features/demo-mode.md`. **What this means for Mock World Building:** every persona needs a populated "my world" — bookings, groups, feed, connections, conversations — not just Shawn. Use the `useCurrentUser()` hook everywhere; backfill `mockConnections.ts`, `mockConversations.ts`, and `mockPosts.ts` to include per-persona content.
 
 2. **Photo assets.** Mock data references image paths (`/images/generated/...`). Do we need actual placeholder images, or is the data structure enough for now? If we want the demo to feel alive, we'll need dog photos and user avatars.
 

@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-13
+last-reviewed: 2026-04-27
 tags: [trust, connections, privacy, safety]
 review-trigger: "when touching connection states, visibility, or trust signals"
 ---
@@ -85,8 +85,10 @@ This prevents dead-end cards (locked profile with no action available) while mai
 
 After a meet ends, attendees are prompted to review the people they met. This is the primary moment where Familiar relationships are created.
 
+For recurring meets (`cadence !== "one_off"`), "post-meet" means **post-occurrence** — each attended date triggers its own review prompt against that occurrence's attendee roster (`Meet.attendeesByDate[date]`). One-off meets are unchanged. See [[meets]] → Recurrence model.
+
 **The flow:**
-1. Meet ends (time passes, or organiser marks it complete)
+1. Meet (or recurring meet's individual occurrence) ends (time passes, or organiser marks it complete)
 2. Each attendee sees a prompt: "How was the meet? Review who you met"
 3. A card stack or list shows each attendee with: avatar, name, dog name, and action buttons
 4. **Actions per person:**
@@ -101,6 +103,17 @@ After a meet ends, attendees are prompted to review the people they met. This is
 - Open profile users don't need to mark Familiar (their profile is already visible) — they go straight to Connect
 - The review flow is optional — users can dismiss it and mark people individually later from their profiles
 - Attendees who didn't actually show up (RSVP'd but weren't confirmed/checked in) are excluded from the review
+
+### Deniability about the cause
+
+Silent doesn't just mean "no notification." It means **the receiver should never be able to pinpoint *who* performed a Familiar grant or *when* it happened**. When a row gets promoted to a higher tier (or a profile becomes more visible to the viewer), multiple actions could explain it: a bulk Familiar mark, a profile-visibility toggle, the marker opening their profile generally. The viewer cannot infer "they specifically thought about me." This deniability is what makes the silent grant actually private.
+
+This principle constrains UI design in the consuming surfaces, not the underlying state model:
+- **No cause-revealing copy.** No tooltip, sub-label, helper text, or notification text may say "they marked you Familiar" or describe the inbound grant directly.
+- **No per-row visual variation by direction.** The same icon and treatment apply whether Familiar is outbound, inbound, or mutual — distinguishing them visually leaks the cause.
+- **Pill suppression on inbound.** When a row is bumped to Tier 2 because the subject marked the viewer Familiar (state still `none` from viewer's side), the connection-state pill is suppressed. The actionable card itself is the signal.
+
+Implementation references: `lib/meetUtils.ts:getAttendeeTier` (bumps on either direction), `components/people/PersonRow.tsx` (pill suppression), `components/ui/ConnectionIcon.tsx` (single rendering across directions), `lib/personActions.ts:resolvePersonActions` (matrix of action affordances). See `Trust & Visibility Pass D2` for the original decision rationale.
 
 ---
 
