@@ -42,9 +42,11 @@ import { getGroupMeets } from "@/lib/mockGroups";
 import { getMessagesForGroup } from "@/lib/mockGroupMessages";
 import { getPostsByGroup } from "@/lib/mockPosts";
 import { getConnectionState } from "@/lib/mockConnections";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
 import { TagPillRow } from "@/components/posts/TagPill";
 import { usePostComposer } from "@/contexts/PostComposerContext";
+import { useMeetComposer } from "@/contexts/MeetComposerContext";
 import { PawReaction } from "@/components/posts/PawReaction";
 import { CommentThread } from "@/components/feed/CommentThread";
 
@@ -98,14 +100,15 @@ interface GroupDetailPanelProps {
 
 export function GroupDetailPanel({ group, compact = false }: GroupDetailPanelProps) {
   const router = useRouter();
+  const currentUserId = useCurrentUserId();
   const [activeTab, setActiveTab] = useState("feed");
   const [joinRequested, setJoinRequested] = useState(false);
 
   const groupMeets = getGroupMeets(group.id);
   const groupPosts = getPostsByGroup(group.id);
   const messages = getMessagesForGroup(group.id);
-  const isMember = group.members.some((m) => m.userId === "shawn");
-  const isAdmin = group.members.some((m) => m.userId === "shawn" && m.role === "admin");
+  const isMember = group.members.some((m) => m.userId === currentUserId);
+  const isAdmin = group.members.some((m) => m.userId === currentUserId && m.role === "admin");
   const totalDogs = group.members.reduce((sum, m) => sum + m.dogNames.length, 0);
   const isCare = group.groupType === "care";
   const tabs = getTabsForGroupType(group.groupType);
@@ -132,11 +135,11 @@ export function GroupDetailPanel({ group, compact = false }: GroupDetailPanelPro
               style={{ width: 40, height: 40 }}
             />
           )}
-          <h1 className="font-heading text-3xl font-medium text-fg-primary m-0">
+          <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">
             {group.name}
           </h1>
           {group.visibility !== "open" && (
-            <span className="flex items-center gap-xs rounded-pill px-sm py-xs text-xs font-medium bg-surface-gray text-fg-secondary">
+            <span className="flex items-center gap-xs rounded-pill px-sm py-xs text-xs font-medium bg-surface-base text-fg-secondary">
               {group.visibility === "private" ? (
                 <><Lock size={10} weight="fill" /> Private</>
               ) : (
@@ -248,7 +251,7 @@ export function GroupDetailPanel({ group, compact = false }: GroupDetailPanelPro
           <FeedTab groupPosts={groupPosts} group={group} isMember={isMember} />
         )}
         {(activeTab === "meets" || activeTab === "events") && (
-          <MeetsTab groupMeets={groupMeets} isCare={isCare} />
+          <MeetsTab groupId={group.id} groupMeets={groupMeets} isCare={isCare} />
         )}
         {activeTab === "services" && isCare && (
           <ServicesTab group={group} />
@@ -329,15 +332,17 @@ function FeedTab({ groupPosts, group, isMember }: { groupPosts: ReturnType<typeo
 
 /* ── Meets / Events tab ───────────────────────────────────────── */
 
-function MeetsTab({ groupMeets, isCare }: { groupMeets: Meet[]; isCare: boolean }) {
+function MeetsTab({ groupId, groupMeets, isCare }: { groupId: string; groupMeets: Meet[]; isCare: boolean }) {
   const noun = isCare ? "events" : "meets";
   const nounSingular = isCare ? "event" : "meet";
+  const { openComposer: openMeetComposer } = useMeetComposer();
+  const handleCreate = () => openMeetComposer({ groupId });
   return (
     <div className="flex flex-col">
       <LayoutSection>
         <div className="flex items-center justify-between">
           <h3 className="font-heading text-xs font-medium text-fg-secondary m-0">Upcoming {noun}</h3>
-          <ButtonAction variant="tertiary" size="sm" href="/meets/create" leftIcon={<Plus size={14} weight="bold" />}>
+          <ButtonAction variant="tertiary" size="sm" onClick={handleCreate} leftIcon={<Plus size={14} weight="bold" />}>
             Create {nounSingular}
           </ButtonAction>
         </div>
@@ -354,7 +359,7 @@ function MeetsTab({ groupMeets, isCare }: { groupMeets: Meet[]; isCare: boolean 
             icon={<CalendarBlank size={48} weight="light" />}
             title={`No upcoming ${noun}`}
             subtitle="Create one for the community!"
-            action={<ButtonAction variant="primary" size="sm" href="/meets/create">Create {nounSingular}</ButtonAction>}
+            action={<ButtonAction variant="primary" size="sm" onClick={handleCreate}>Create {nounSingular}</ButtonAction>}
           />
         </LayoutSection>
       )}
@@ -365,14 +370,15 @@ function MeetsTab({ groupMeets, isCare }: { groupMeets: Meet[]; isCare: boolean 
 /* ── Members tab ───────────────────────────────────────────────── */
 
 function MembersTab({ group }: { group: Group }) {
+  const currentUserId = useCurrentUserId();
   return (
     <LayoutSection>
       <div className="flex flex-col gap-md">
         <h3 className="font-heading text-xs font-medium text-fg-secondary m-0">Members ({group.members.length})</h3>
         <div className="flex flex-col gap-sm">
           {group.members.map((member) => {
-            const conn = getConnectionState(member.userId);
-            const isYou = member.userId === "shawn";
+            const conn = getConnectionState(member.userId, currentUserId);
+            const isYou = member.userId === currentUserId;
             return (
               <div key={member.userId} className="flex items-center gap-md rounded-panel bg-surface-top p-md shadow-xs">
                 <img src={member.avatarUrl} alt={member.userName} className="rounded-full shrink-0 w-10 h-10 object-cover" />
@@ -510,10 +516,22 @@ function GalleryTab({ group }: { group: Group }) {
 
 /* ── Chat tab ──────────────────────────────────────────────────── */
 
-function ChatTab({ group, messages, groupMeets, isMember, joinRequested, onJoinRequest }: {
-  group: Group; messages: GroupMessage[]; groupMeets: Meet[];
-  isMember: boolean; joinRequested: boolean; onJoinRequest: () => void;
+function ChatTab({
+  group,
+  messages,
+  groupMeets,
+  isMember,
+  joinRequested,
+  onJoinRequest,
+}: {
+  group: Group;
+  messages: GroupMessage[];
+  groupMeets: Meet[];
+  isMember: boolean;
+  joinRequested: boolean;
+  onJoinRequest: () => void;
 }) {
+  const currentUserId = useCurrentUserId();
   if (!isMember) {
     return (
       <LayoutSection>
@@ -548,7 +566,7 @@ function ChatTab({ group, messages, groupMeets, isMember, joinRequested, onJoinR
             msg.type === "system" ? (
               <SystemMessage key={msg.id} text={msg.text} activityType={msg.activityType} />
             ) : (
-              <MessageBubble key={msg.id} message={msg} isOwn={msg.senderId === "shawn"} />
+              <MessageBubble key={msg.id} message={msg} isOwn={msg.senderId === currentUserId} />
             )
           )}
         </div>

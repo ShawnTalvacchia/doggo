@@ -18,11 +18,9 @@ import { ButtonAction } from "@/components/ui/ButtonAction";
 import { BookingListCard } from "@/components/bookings/BookingListCard";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useConversations } from "@/contexts/ConversationsContext";
-import { mockUser } from "@/lib/mockUser";
+import { useCurrentUser, useCurrentUserId } from "@/hooks/useCurrentUser";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import type { CarerServiceConfig, CarerVisibility } from "@/lib/types";
-
-const CURRENT_USER = "shawn";
 
 const VISIBILITY_LABELS: Record<CarerVisibility, string> = {
   open: "Open to everyone",
@@ -197,8 +195,10 @@ function StatsStrip({
 export function ServicesTab() {
   const { bookings } = useBookings();
   const { conversations } = useConversations();
+  const currentUser = useCurrentUser();
+  const CURRENT_USER = useCurrentUserId();
 
-  const carerProfile = mockUser.carerProfile;
+  const carerProfile = currentUser.carerProfile;
   const hasServices = (carerProfile?.services?.length ?? 0) > 0;
 
   const [accepting, setAccepting] = useState(

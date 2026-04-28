@@ -2,9 +2,9 @@
 
 import { useState, useRef } from "react";
 import { PawPrint, User, UsersThree, MapPin, Handshake, X } from "@phosphor-icons/react";
-import type { PostTag, PostTagType } from "@/lib/types";
-import { mockUser } from "@/lib/mockUser";
-import { mockConnections } from "@/lib/mockConnections";
+import type { PostTag, PostTagType, UserProfile } from "@/lib/types";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { getConnectionsForViewer } from "@/lib/mockConnections";
 import { mockGroups, getUserGroups } from "@/lib/mockGroups";
 import { getUserMeets } from "@/lib/mockMeets";
 import { PLACES } from "@/lib/constants/places";
@@ -26,26 +26,29 @@ const TYPE_LABELS: Record<PostTagType, string> = {
   meet: "Meets",
 };
 
-function getAllSearchableEntities(): { type: PostTagType; id: string; label: string }[] {
+function getAllSearchableEntities(
+  currentUser: UserProfile,
+): { type: PostTagType; id: string; label: string }[] {
   const entities: { type: PostTagType; id: string; label: string }[] = [];
+  const myConnections = getConnectionsForViewer(currentUser.id);
 
   // Dogs — from current user's pets and connections' dogs
-  for (const pet of mockUser.pets) {
+  for (const pet of currentUser.pets) {
     entities.push({ type: "dog", id: pet.id, label: pet.name });
   }
-  for (const conn of mockConnections) {
+  for (const conn of myConnections) {
     for (const dogName of conn.dogNames) {
       entities.push({ type: "dog", id: dogName.toLowerCase(), label: dogName });
     }
   }
 
   // People — from connections
-  for (const conn of mockConnections) {
+  for (const conn of myConnections) {
     entities.push({ type: "person", id: conn.userId, label: conn.userName });
   }
 
   // Communities — user's groups
-  for (const group of getUserGroups("shawn")) {
+  for (const group of getUserGroups(currentUser.id)) {
     entities.push({ type: "community", id: group.id, label: group.name });
   }
 
@@ -55,7 +58,7 @@ function getAllSearchableEntities(): { type: PostTagType; id: string; label: str
   }
 
   // Meets
-  for (const meet of getUserMeets("shawn")) {
+  for (const meet of getUserMeets(currentUser.id)) {
     entities.push({ type: "meet", id: meet.id, label: meet.title });
   }
 
@@ -69,11 +72,12 @@ interface TagAutocompleteProps {
 }
 
 export function TagAutocomplete({ selectedTags, onAddTag, onRemoveTag }: TagAutocompleteProps) {
+  const currentUser = useCurrentUser();
   const [query, setQuery] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const allEntities = getAllSearchableEntities();
+  const allEntities = getAllSearchableEntities(currentUser);
   const selectedKeys = new Set(selectedTags.map((t) => `${t.type}-${t.id}`));
 
   const filtered = query.trim()

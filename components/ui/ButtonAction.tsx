@@ -6,6 +6,8 @@ export type ButtonVariant =
   | "secondary"
   | "tertiary"
   | "outline"
+  | "neutral"
+  | "brand-subtle"
   | "destructive"
   | "white"
   | "outline-white";
@@ -16,6 +18,8 @@ export type CTAButtonVariant =
   | "secondary"
   | "tertiary"
   | "outline"
+  | "neutral"
+  | "brand-subtle"
   | "white"
   | "outline-white";
 
@@ -61,6 +65,8 @@ export function ButtonAction({
     normalizedVariant === "secondary" ? "btn-secondary" : "",
     normalizedVariant === "tertiary" ? "btn-tertiary" : "",
     normalizedVariant === "outline" ? "btn-outline" : "",
+    normalizedVariant === "neutral" ? "btn-neutral" : "",
+    normalizedVariant === "brand-subtle" ? "btn-brand-subtle" : "",
     normalizedVariant === "destructive" ? "btn-destructive" : "",
     normalizedVariant === "white" ? "btn-white" : "",
     normalizedVariant === "outline-white" ? "btn-outline-white" : "",

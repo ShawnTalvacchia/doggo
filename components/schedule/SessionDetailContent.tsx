@@ -17,9 +17,8 @@ import { LayoutList } from "@/components/layout/LayoutList";
 import { LayoutSection } from "@/components/layout/LayoutSection";
 import { formatMeetDate } from "@/lib/dateUtils";
 import { SERVICE_LABELS } from "@/lib/constants/services";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { Booking, BookingSession } from "@/lib/types";
-
-const CURRENT_USER = "shawn";
 
 export function SessionDetailContent({
   booking,
@@ -32,6 +31,7 @@ export function SessionDetailContent({
 }) {
   const [noteText, setNoteText] = useState(session.note ?? "");
   const [showNoteInput, setShowNoteInput] = useState(false);
+  const CURRENT_USER = useCurrentUserId();
   const isOwner = booking.ownerId === CURRENT_USER;
   const other = isOwner
     ? { name: booking.carerName, avatarUrl: booking.carerAvatarUrl, id: booking.carerId }

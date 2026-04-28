@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { Handshake, MapPin, Star, Users } from "@phosphor-icons/react";
 import { ProviderCard, ServiceType } from "@/lib/types";
 import { getConnectionState } from "@/lib/mockConnections";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 
 type CardExploreResultProps = {
   provider: ProviderCard;
@@ -27,7 +30,8 @@ export function CardExploreResult({
   activeService,
   returnQuery,
 }: CardExploreResultProps) {
-  const conn = getConnectionState(provider.id);
+  const currentUserId = useCurrentUserId();
+  const conn = getConnectionState(provider.id, currentUserId);
   const connBadge = conn?.state === "connected" ? "Connected" : conn?.state === "familiar" ? "Familiar" : null;
 
   // Carry the full filter state into the profile URL so back navigation can restore it.

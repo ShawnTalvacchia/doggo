@@ -14,13 +14,16 @@ import {
   Briefcase,
   Clock,
   CalendarDots,
-  Handshake,
+  CaretRight,
+  X,
 } from "@phosphor-icons/react";
 import type { Meet, MeetType, Booking, BookingSession } from "@/lib/types";
 import { MEET_TYPE_LABELS } from "@/lib/mockMeets";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import { getUserById } from "@/lib/mockUsers";
 import { formatShortDate } from "@/lib/dateUtils";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { recurrenceLabel } from "@/lib/meetUtils";
 import type { MeetRole } from "@/components/meets/CardMeet";
 
 /* ── Icons ─────────────────────────────────────────────────────── */
@@ -44,7 +47,11 @@ const ROLE_LABELS: Record<MeetRole, string> = {
   interested: "Interested",
 };
 
-const CURRENT_USER = "shawn";
+const PAST_ROLE_LABELS: Record<MeetRole, string> = {
+  hosting: "Hosted",
+  joining: "Attended",
+  interested: "Was interested",
+};
 
 /* ── Helpers ───────────────────────────────────────────────────── */
 
@@ -132,11 +139,20 @@ export function ScheduleMeetCard({
   meet,
   role,
   isRecent = false,
+  isPast = false,
+  onDismiss,
 }: {
   meet: Meet;
   role: MeetRole;
-  /** Recent completed meet — links to connect page, shows Review CTA */
+  /** Recent completed meet — links to connect page, shows brand-fill Review CTA. */
   isRecent?: boolean;
+  /** Past meet not eligible for review (older than 14 days, or already dismissed/reviewed).
+   *  Same card shape as the standard upcoming meet, but role labels flip to past tense
+   *  ("Joining" → "Attended"), and the card links to the meet detail page only. */
+  isPast?: boolean;
+  /** When set on a recent card, renders a × button that calls this instead of
+   *  navigating. The handler prevents the wrapping link from firing. */
+  onDismiss?: () => void;
 }) {
   const goingCount = meet.attendees.filter(
     (a) => (a.rsvpStatus ?? "going") === "going"
@@ -145,60 +161,140 @@ export function ScheduleMeetCard({
 
   const href = isRecent ? `/meets/${meet.id}/connect` : `/meets/${meet.id}`;
 
+  // Recent (review) cards diverge from upcoming-meet cards — different job,
+  // different content priorities. Identification work happens via the brand
+  // left stripe (inherited from `.sched-card--meet`); the body stays
+  // surface-top so it doesn't shout. Urgency communication is owned by the
+  // History tab's notification badge, so the card itself can stay calm.
+  // Two rows: title + meta (in body), then a footer action bar with Skip
+  // + Review. The wrapping <Link> is the click target — the action
+  // buttons stop propagation so they don't double-fire navigation.
+  if (isRecent) {
+    return (
+      <Link
+        href={href}
+        className="sched-card sched-card--meet sched-card--recent"
+        style={{ textDecoration: "none" }}
+      >
+        {/* Body: title + meta. Padding lives here so the footer's tinted
+            background can clip cleanly to the card's rounded corners. */}
+        <div className="sched-card-recent-body">
+          <h3 className="sched-card-title">{meet.title}</h3>
+
+          <div className="sched-card-meta sched-card-meta--review">
+            <span className="inline-flex items-center gap-xs shrink-0">
+              {MEET_ICONS[meet.type]}
+              {MEET_TYPE_LABELS[meet.type]}
+            </span>
+            <span className="sched-card-dot">·</span>
+            <span className="shrink-0">{formatTime(meet.time)}</span>
+            <span className="sched-card-dot">·</span>
+            <MapPin size={14} weight="light" className="shrink-0" />
+            <span className="truncate">{meet.location}</span>
+            <span className="sched-card-dot">·</span>
+            <span className="shrink-0">{goingCount}/{meet.maxAttendees}</span>
+          </div>
+        </div>
+
+        {/* Footer action bar — Skip (tertiary) + Review (brand). Skip is a
+            real <button> that stops propagation so it doesn't fire the
+            wrapping <Link>; Review is a styled <span> since the link IS
+            the navigation. */}
+        <div className="sched-card-recent-footer">
+          {onDismiss ? (
+            <button
+              type="button"
+              className="sched-card-recent-action"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onDismiss();
+              }}
+            >
+              <X size={12} weight="bold" />
+              Skip
+            </button>
+          ) : (
+            <span className="sched-card-recent-action" aria-hidden />
+          )}
+          <span className="sched-card-recent-action sched-card-recent-action--primary">
+            Review
+            <CaretRight size={14} weight="bold" />
+          </span>
+        </div>
+      </Link>
+    );
+  }
+
+  const roleLabels = isPast ? PAST_ROLE_LABELS : ROLE_LABELS;
+  // Cancelled treatment — strikethrough title + "Cancelled" pill replaces
+  // role pill + muted card. Card stays tappable so the user can land on
+  // the meet detail and see the cancellation reason.
+  const isCancelled = meet.status === "cancelled";
+
   return (
     <Link
       href={href}
-      className={`sched-card sched-card--meet${isHosting ? " sched-card--providing" : ""}${isRecent ? " sched-card--recent" : ""}`}
+      className={`sched-card sched-card--meet${isHosting ? " sched-card--providing" : ""}${isPast ? " sched-card--past" : ""}${isCancelled ? " sched-card--cancelled" : ""}`}
       style={{ textDecoration: "none" }}
     >
-      {/* Row 1: Time (left) · recurring · pill (right) */}
+      {/* Row 1: Time + recurring + role (left, your-perspective metadata) ·
+          type pill (right, meet's identity).
+          Role moved here from row 3 on 2026-04-27 — having it bottom-right
+          competed visually with the top-right type pill (two badges, eye
+          ricocheted between corners). Grouping time + cadence + role at
+          the top reads as one "your stake in this" cluster; the type pill
+          stands alone on the right as the meet's identity. Bottom row is
+          left as quieter location + count info.
+          For cancelled meets, the role pill flips to a "Cancelled" label
+          using error-toned styling — that becomes the most important
+          state to communicate, more than whether the user was Going. */}
       <div className="sched-card-top">
         <span className="sched-card-time">
           <Clock size={14} weight="light" />
           {formatTime(meet.time)}
         </span>
-        {meet.recurring && !isRecent && (
+        {recurrenceLabel(meet) && (
           <span className="sched-card-recurring">
             <ArrowsClockwise size={12} weight="light" />
-            Weekly
+            {recurrenceLabel(meet)}
           </span>
         )}
-        {isRecent && (
-          <span className="sched-card-recurring">
-            <Check size={12} weight="bold" />
-            Completed
-          </span>
-        )}
-        <span className="flex-1" />
-        <span className={`sched-card-tag ${isHosting ? "sched-card-tag--hosting" : "sched-card-tag--meet"}`}>
-          {MEET_ICONS[meet.type]}
-          {MEET_TYPE_LABELS[meet.type]}
-        </span>
-      </div>
-
-      {/* Row 2: Title */}
-      <h3 className="sched-card-title">{meet.title}</h3>
-
-      {/* Row 3: Location + going + role / review CTA */}
-      <div className="sched-card-meta">
-        <MapPin size={14} weight="light" className="shrink-0" />
-        <span className="truncate">{meet.location}</span>
-        <span className="sched-card-dot">·</span>
-        <span>{goingCount}/{meet.maxAttendees}</span>
-        <span className="flex-1" />
-        {isRecent ? (
-          <span className="sched-card-role sched-card-role--review">
-            <Handshake size={11} weight="fill" />
-            Review
+        {isCancelled ? (
+          <span className="sched-card-role sched-card-role--cancelled">
+            <X size={11} weight="bold" />
+            Cancelled
           </span>
         ) : (
           <span
             className={`sched-card-role${isHosting ? " sched-card-role--hosting" : ""}`}
           >
             {isHosting ? <Flag size={11} weight="fill" /> : ROLE_ICONS[role]}
-            {isHosting ? "Hosting" : ROLE_LABELS[role]}
+            {roleLabels[role]}
           </span>
         )}
+        <span className="flex-1" />
+        {/* Type badge stays consistent regardless of role — the brand left
+            border + the brand-colored role chip in the top row carry the
+            "this is yours" signal. Mixing badge treatments by role
+            conflates type (categorical) with ownership (relational) on
+            the same visual. */}
+        <span className="sched-card-tag sched-card-tag--meet">
+          {MEET_ICONS[meet.type]}
+          {MEET_TYPE_LABELS[meet.type]}
+        </span>
+      </div>
+
+      {/* Row 2: Title — strike-through when cancelled. */}
+      <h3 className={`sched-card-title${isCancelled ? " line-through" : ""}`}>{meet.title}</h3>
+
+      {/* Row 3: Location + going count. Role used to live here in the
+          right slot — moved to row 1 (see top-row comment). */}
+      <div className="sched-card-meta">
+        <MapPin size={14} weight="light" className="shrink-0" />
+        <span className="truncate">{meet.location}</span>
+        <span className="sched-card-dot">·</span>
+        <span>{goingCount}/{meet.maxAttendees}</span>
       </div>
     </Link>
   );
@@ -213,6 +309,7 @@ export function ScheduleCareCard({
   booking: Booking;
   session: BookingSession;
 }) {
+  const CURRENT_USER = useCurrentUserId();
   const isOwner = booking.ownerId === CURRENT_USER;
   const isProviding = !isOwner;
   const other = isOwner
@@ -261,7 +358,7 @@ export function ScheduleCareCard({
           </span>
         )}
         <span className="flex-1" />
-        <span className={`sched-card-tag ${isProviding ? "sched-card-tag--providing" : "sched-card-tag--care"}`}>
+        <span className="sched-card-tag sched-card-tag--care">
           <Briefcase size={13} weight="light" />
           {isProviding ? "Providing" : "Care"}
         </span>
@@ -354,7 +451,7 @@ export function ScheduleBookingCard({
           </span>
         )}
         <span className="flex-1" />
-        <span className={`sched-card-tag ${isProviding ? "sched-card-tag--providing" : "sched-card-tag--care"}`}>
+        <span className="sched-card-tag sched-card-tag--care">
           <Briefcase size={13} weight="light" />
           {isProviding ? "Providing" : "Care"}
         </span>

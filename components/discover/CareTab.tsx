@@ -22,6 +22,7 @@ import { buildQueryFromFilters, parseFiltersFromQuery } from "@/lib/query";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import { ExploreFilters, ProviderCard, ServiceType } from "@/lib/types";
 import { getCommunityCarers } from "@/lib/mockConnections";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import Link from "next/link";
 
 const serviceNavLabels: Record<ServiceType, string> = {
@@ -126,7 +127,8 @@ function withMergedFilters(current: URLSearchParams): ExploreFilters {
 }
 
 function CommunityCarersSection({ service }: { service: ServiceType | null }) {
-  const carers = getCommunityCarers().filter(
+  const currentUserId = useCurrentUserId();
+  const carers = getCommunityCarers(currentUserId).filter(
     (c) => c.state === "connected" && (!service || c.services.includes(service))
   );
   if (carers.length === 0) return null;

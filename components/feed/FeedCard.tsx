@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Heart, ChatCircle, PaperPlaneTilt, HandHeart } from "@phosphor-icons/react";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { PostReaction, PostComment } from "@/lib/types";
 
 interface FeedCardProps {
@@ -58,17 +59,18 @@ export function FeedCard({
   children,
   isCareProvider,
 }: FeedCardProps) {
+  const currentUserId = useCurrentUserId();
   const [localReactions, setLocalReactions] = useState(reactions ?? []);
-  const hasLiked = localReactions.some((r) => r.userId === "shawn");
+  const hasLiked = localReactions.some((r) => r.userId === currentUserId);
   const likeCount = localReactions.length;
   const commentCount = comments?.length ?? 0;
   const showActions = reactions !== undefined;
 
   function toggleLike() {
     if (hasLiked) {
-      setLocalReactions(localReactions.filter((r) => r.userId !== "shawn"));
+      setLocalReactions(localReactions.filter((r) => r.userId !== currentUserId));
     } else {
-      setLocalReactions([...localReactions, { userId: "shawn", userName: "You" }]);
+      setLocalReactions([...localReactions, { userId: currentUserId, userName: "You" }]);
     }
   }
 

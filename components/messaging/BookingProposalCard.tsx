@@ -86,11 +86,15 @@ export function BookingProposalCard({
       <div className="inbox-proposal-footer">
         {p.status === "pending" && canRespond ? (
           <div className="inbox-proposal-actions">
-            <ButtonAction variant="primary" size="md" onClick={() => onAccept(msg.id)} className="flex-1">
-              Review & sign
-            </ButtonAction>
-            <ButtonAction variant="outline" size="md" onClick={() => onDecline(msg.id)} className="flex-1">
+            {/* Decline (left, neutral pill) + Review & sign (right, brand pill).
+                Auto-width to text content — Decline is naturally narrower than
+                "Review & sign", which gives the encouraged action proportional
+                emphasis without forcing a flex-grow asymmetry. */}
+            <ButtonAction variant="neutral" size="md" cta onClick={() => onDecline(msg.id)}>
               Decline
+            </ButtonAction>
+            <ButtonAction variant="primary" size="md" cta onClick={() => onAccept(msg.id)}>
+              Review & sign
             </ButtonAction>
           </div>
         ) : (

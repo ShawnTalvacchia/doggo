@@ -60,7 +60,7 @@ const STEPS: Record<TabId, { n: string; title: string; body: string }[]> = {
 };
 
 const CTAS: Record<TabId, { label: string; href: string }> = {
-  community: { label: "Browse meets →", href: "/activity" },
+  community: { label: "Browse meets →", href: "/discover/meets" },
   care: { label: "Find care →", href: "/discover?tab=care" },
   provide: { label: "Learn more →", href: "/signup/start" },
 };

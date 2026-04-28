@@ -4,9 +4,8 @@ import { Briefcase } from "@phosphor-icons/react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatMeetDate } from "@/lib/dateUtils";
 import { SERVICE_LABELS } from "@/lib/constants/services";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { Booking, BookingSession } from "@/lib/types";
-
-const CURRENT_USER = "shawn";
 
 export function SessionRow({
   booking,
@@ -22,6 +21,7 @@ export function SessionRow({
   /** When true, suppresses the StatusBadge (e.g. in Upcoming tab where status is implied). */
   hideStatus?: boolean;
 }) {
+  const CURRENT_USER = useCurrentUserId();
   const isOwner = booking.ownerId === CURRENT_USER;
   const other = isOwner
     ? { name: booking.carerName, avatarUrl: booking.carerAvatarUrl }

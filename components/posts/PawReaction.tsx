@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { Heart } from "@phosphor-icons/react";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { PostReaction } from "@/lib/types";
 
 interface PawReactionProps {
   reactions: PostReaction[];
+  /** Override the active persona (rarely needed). Defaults to CurrentUserContext. */
   currentUserId?: string;
 }
 
@@ -13,16 +15,18 @@ interface PawReactionProps {
  * Like split-pill button: [Heart Like | count]
  * Active state: brand bg, white text, "Liked"
  */
-export function PawReaction({ reactions, currentUserId = "shawn" }: PawReactionProps) {
+export function PawReaction({ reactions, currentUserId }: PawReactionProps) {
+  const hookUserId = useCurrentUserId();
+  const viewerId = currentUserId ?? hookUserId;
   const [localReactions, setLocalReactions] = useState(reactions);
-  const hasReacted = localReactions.some((r) => r.userId === currentUserId);
+  const hasReacted = localReactions.some((r) => r.userId === viewerId);
   const count = localReactions.length;
 
   function toggleReaction() {
     if (hasReacted) {
-      setLocalReactions(localReactions.filter((r) => r.userId !== currentUserId));
+      setLocalReactions(localReactions.filter((r) => r.userId !== viewerId));
     } else {
-      setLocalReactions([...localReactions, { userId: currentUserId, userName: "You" }]);
+      setLocalReactions([...localReactions, { userId: viewerId, userName: "You" }]);
     }
   }
 

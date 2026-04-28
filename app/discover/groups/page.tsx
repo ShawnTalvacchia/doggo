@@ -18,6 +18,7 @@ import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { Slider } from "@/components/ui/Slider";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { getAllPublicGroups, getUserGroups } from "@/lib/mockGroups";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { Group, GroupType } from "@/lib/types";
 
 /* ── Constants ── */
@@ -169,8 +170,9 @@ function DiscoverGroupsInner() {
   const [activeType, setActiveType] = useState("all");
   const [filters, setFilters] = useState<GroupFilters>(DEFAULT_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
+  const currentUserId = useCurrentUserId();
 
-  const userGroupIds = useMemo(() => new Set(getUserGroups("shawn").map((g) => g.id)), []);
+  const userGroupIds = useMemo(() => new Set(getUserGroups(currentUserId).map((g) => g.id)), [currentUserId]);
   const allGroups = useMemo(() => getAllPublicGroups().filter((g) => !userGroupIds.has(g.id)), [userGroupIds]);
   const results = useMemo(() => applyFilters(allGroups, activeType, filters), [allGroups, activeType, filters]);
 

@@ -20,20 +20,23 @@ const tabs = [
 ] as const;
 
 /**
- * Bottom nav shows ONLY on main hub routes (the 5 tab destinations + top-level sub-sections).
- * All detail/subpages hide it — users navigate back via the header back button
- * or native browser swipe-back gesture.
+ * Bottom nav shows ONLY on main hub routes (the 5 tab destinations + top-level
+ * sub-sections). All detail/subpages hide it — users navigate back via the
+ * header back button or native browser swipe-back gesture.
+ *
+ * Each route's `(\?.*)?` allows query params so tab state inside a hub page
+ * (e.g. `/schedule?view=meets`, `/profile?tab=posts`, `/bookings?tab=services`)
+ * still counts as a hub route. Without this, picking a sub-tab inside a hub
+ * page hides the bottom nav — which is wrong, the page is still first-layer.
  */
 const hubRoutes = [
-  /^\/home$/,
-  /^\/home\?/,               // home with query params (view=groups etc.)
-  /^\/discover$/,
-  /^\/discover\?/,           // discover with query params
-  /^\/schedule$/,
-  /^\/bookings$/,
-  /^\/profile$/,
-  /^\/inbox$/,
-  /^\/notifications$/,
+  /^\/home(\?.*)?$/,
+  /^\/discover(\?.*)?$/,
+  /^\/schedule(\?.*)?$/,
+  /^\/bookings(\?.*)?$/,
+  /^\/profile(\?.*)?$/,
+  /^\/inbox(\?.*)?$/,
+  /^\/notifications(\?.*)?$/,
 ];
 
 function BottomNavInner() {

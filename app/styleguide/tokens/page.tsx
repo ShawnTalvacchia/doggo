@@ -99,7 +99,7 @@ const radiusTokens: RadiusToken[] = [
 ];
 
 const radiusAliases = [
-  { alias: "--radius-panel", maps: "--radius-sm" },
+  { alias: "--radius-panel", maps: "--radius-md" },
   { alias: "--radius-form", maps: "--radius-xl" },
   { alias: "--radius-pill", maps: "--radius-circle" },
   { alias: "--radius-full", maps: "--radius-circle" },

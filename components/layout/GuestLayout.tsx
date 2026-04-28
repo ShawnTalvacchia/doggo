@@ -12,9 +12,11 @@ export function GuestLayout({ children }: { children: React.ReactNode }) {
   const isSignupRoute = pathname.startsWith("/signup");
 
   // Standalone routes render without AppNav, Sidebar, or BottomNav —
-  // they're their own little world (unlock gate + demo hub).
+  // they're their own little world (unlock gate + demo hub + persona picker).
   const isStandaloneRoute =
-    pathname === "/unlock" || pathname.startsWith("/pages");
+    pathname === "/unlock" ||
+    pathname === "/demo" ||
+    pathname.startsWith("/pages");
 
   useEffect(() => {
     document.body.classList.toggle("guest-route", isGuestRoute);

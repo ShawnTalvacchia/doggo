@@ -1,5 +1,8 @@
+"use client";
+
 import { ShieldCheck } from "@phosphor-icons/react";
 import { getConnectionState, getCommunityCarers } from "@/lib/mockConnections";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 
 export function RelationshipBanner({
   otherUserId,
@@ -8,13 +11,18 @@ export function RelationshipBanner({
   otherUserId: string;
   otherName: string;
 }) {
-  const conn = getConnectionState(otherUserId);
-  const communityCarer = getCommunityCarers().find((c) => c.userId === otherUserId);
+  const currentUserId = useCurrentUserId();
+  const conn = getConnectionState(otherUserId, currentUserId);
+  const communityCarer = getCommunityCarers(currentUserId).find((c) => c.userId === otherUserId);
   if (!conn || conn.state === "none") return null;
 
   const signals: string[] = [];
   if (conn.state === "connected") signals.push(`You and ${otherName} are Connected`);
-  if (conn.state === "familiar") signals.push(`${otherName} is marked as Familiar`);
+  // `state === "familiar"` is outbound (the viewer marked the other person).
+  // Phrase it from the viewer's own action — describing one's own action is
+  // fine and clearer; the deniability guardrail (Trust & Visibility D2) only
+  // applies to revealing OTHER people's actions to the viewer.
+  if (conn.state === "familiar") signals.push(`You've marked ${otherName} as Familiar`);
   if (communityCarer && communityCarer.meetsShared > 0) {
     signals.push(`${communityCarer.meetsShared} meets together`);
   }

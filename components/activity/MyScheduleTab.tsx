@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useMeetComposer } from "@/contexts/MeetComposerContext";
+import { usePostMeetReview } from "@/contexts/PostMeetReviewContext";
 import {
   CalendarDots,
   PawPrint,
@@ -15,6 +17,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { CardMeet, type MeetRole } from "@/components/meets/CardMeet";
 import { getUserMeets } from "@/lib/mockMeets";
 import { useBookings } from "@/contexts/BookingsContext";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import type { Meet, Booking } from "@/lib/types";
 import { formatMeetDate } from "@/lib/dateUtils";
@@ -28,8 +31,6 @@ const TYPE_FILTERS = [
   { label: "Playdates", value: "playdate" },
   { label: "Training", value: "training" },
 ];
-
-const CURRENT_USER = "shawn";
 
 /* ── Helpers ────────────────────────────────────────────────────── */
 
@@ -113,8 +114,11 @@ function BookingBlock({
 /* ── Main component ─────────────────────────────────────────────── */
 
 export function MyScheduleTab() {
+  const { openComposer: openMeetComposer } = useMeetComposer();
+  const { openReview } = usePostMeetReview();
   const [view, setView] = useState<"upcoming" | "history">("upcoming");
   const [typeFilter, setTypeFilter] = useState("all");
+  const CURRENT_USER = useCurrentUserId();
 
   const myMeets = getUserMeets(CURRENT_USER);
   const { bookings } = useBookings();
@@ -218,9 +222,10 @@ export function MyScheduleTab() {
             <MagnifyingGlass size={16} weight="light" />
             Find Care
           </Link>
-          <Link
-            href="/meets/create"
-            className="flex items-center justify-center gap-xs flex-1 h-[32px] rounded-xs text-base font-semibold"
+          <button
+            type="button"
+            onClick={() => openMeetComposer()}
+            className="flex items-center justify-center gap-xs flex-1 h-[32px] rounded-xs text-base font-semibold cursor-pointer"
             style={{
               background: "var(--surface-base-inverse)",
               color: "var(--text-inverse)",
@@ -230,7 +235,7 @@ export function MyScheduleTab() {
           >
             <Plus size={16} weight="bold" />
             Create
-          </Link>
+          </button>
         </div>
 
         {/* Controls row: toggle + create button */}
@@ -252,10 +257,14 @@ export function MyScheduleTab() {
             </button>
           </div>
           <div className="flex-1" />
-          <Link href="/meets/create" className="activity-create-desktop">
+          <button
+            type="button"
+            onClick={() => openMeetComposer()}
+            className="activity-create-desktop"
+          >
             <Plus size={16} weight="bold" />
             Create
-          </Link>
+          </button>
         </div>
 
         {/* Type filter pills */}
@@ -290,14 +299,26 @@ export function MyScheduleTab() {
         <div className="flex flex-col">
           {activeItems.map((item) => {
             if (item.kind === "meet") {
+              const isRecentCompleted =
+                view === "history" && item.meet.status === "completed";
               return (
-                <CardMeet
-                  key={item.meet.id}
-                  meet={item.meet}
-                  variant="schedule"
-                  role={item.role}
-                  isHistory={view === "history"}
-                />
+                <div key={item.meet.id} className="flex flex-col">
+                  <CardMeet
+                    meet={item.meet}
+                    variant="schedule"
+                    role={item.role}
+                    isHistory={view === "history"}
+                  />
+                  {isRecentCompleted && (
+                    <button
+                      type="button"
+                      onClick={() => openReview({ meetId: item.meet.id })}
+                      className="self-start ml-md mt-xs mb-sm text-sm font-semibold text-brand-main cursor-pointer"
+                    >
+                      Review this meet →
+                    </button>
+                  )}
+                </div>
               );
             }
             return (
@@ -331,7 +352,7 @@ export function MyScheduleTab() {
             }
             action={
               view === "upcoming" ? (
-                <ButtonAction variant="secondary" size="sm" href="/meets/create">
+                <ButtonAction variant="secondary" size="sm" onClick={() => openMeetComposer()}>
                   Create a Meet
                 </ButtonAction>
               ) : undefined

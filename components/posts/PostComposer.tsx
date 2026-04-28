@@ -18,12 +18,12 @@ import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { usePostComposer } from "@/contexts/PostComposerContext";
-import { mockUser } from "@/lib/mockUser";
-import { mockConnections } from "@/lib/mockConnections";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { getConnectionsForViewer } from "@/lib/mockConnections";
 import { getUserGroups } from "@/lib/mockGroups";
 import { getUserMeets } from "@/lib/mockMeets";
 import { PLACES } from "@/lib/constants/places";
-import type { PostTag, PostTagType } from "@/lib/types";
+import type { PostTag, PostTagType, UserProfile } from "@/lib/types";
 
 /* ── Mock data ── */
 
@@ -69,27 +69,28 @@ const TAG_ROWS: { type: PostTagType; label: string }[] = [
   { type: "meet", label: "Tag a meet" },
 ];
 
-function getEntitiesForType(type: PostTagType): TagOption[] {
+function getEntitiesForType(type: PostTagType, currentUser: UserProfile): TagOption[] {
+  const myConnections = getConnectionsForViewer(currentUser.id);
   switch (type) {
     case "place":
       return PLACES.map((p) => ({ type: "place", id: p.id, label: p.name }));
     case "dog":
       return [
-        ...mockUser.pets.map((p) => ({ type: "dog" as const, id: p.id, label: p.name, imageUrl: p.imageUrl })),
-        ...mockConnections.flatMap((c) =>
+        ...currentUser.pets.map((p) => ({ type: "dog" as const, id: p.id, label: p.name, imageUrl: p.imageUrl })),
+        ...myConnections.flatMap((c) =>
           c.dogNames.map((name) => ({ type: "dog" as const, id: name.toLowerCase(), label: name }))
         ),
       ];
     case "person":
-      return mockConnections.map((c) => ({
+      return myConnections.map((c) => ({
         type: "person" as const, id: c.userId, label: c.userName, imageUrl: c.avatarUrl,
       }));
     case "community":
-      return getUserGroups("shawn").map((g) => ({
+      return getUserGroups(currentUser.id).map((g) => ({
         type: "community" as const, id: g.id, label: g.name, imageUrl: g.coverPhotoUrl,
       }));
     case "meet":
-      return getUserMeets("shawn").map((m) => ({
+      return getUserMeets(currentUser.id).map((m) => ({
         type: "meet" as const, id: m.id, label: m.title,
       }));
     default:
@@ -97,19 +98,23 @@ function getEntitiesForType(type: PostTagType): TagOption[] {
   }
 }
 
-function getSuggestions(type: PostTagType, selectedKeys: Set<string>): TagOption[] {
+function getSuggestions(
+  type: PostTagType,
+  selectedKeys: Set<string>,
+  currentUser: UserProfile,
+): TagOption[] {
   if (NO_SUGGESTIONS.has(type)) return [];
 
   // Dogs: only suggest owner's pets (max 3), not connections' dogs
   if (type === "dog") {
-    return mockUser.pets
+    return currentUser.pets
       .slice(0, 3)
       .map((p) => ({ type: "dog" as const, id: p.id, label: p.name, imageUrl: p.imageUrl }))
       .filter((e) => !selectedKeys.has(`${e.type}-${e.id}`));
   }
 
   // Single-select types: suggest 1
-  return getEntitiesForType(type)
+  return getEntitiesForType(type, currentUser)
     .filter((e) => !selectedKeys.has(`${e.type}-${e.id}`))
     .slice(0, 1);
 }
@@ -205,6 +210,7 @@ function AccordionRow({
   selectedKeys,
   pickerQuery,
   onPickerQueryChange,
+  currentUser,
 }: {
   type: PostTagType;
   label: string;
@@ -216,13 +222,14 @@ function AccordionRow({
   selectedKeys: Set<string>;
   pickerQuery: string;
   onPickerQueryChange: (q: string) => void;
+  currentUser: UserProfile;
 }) {
   const Icon = TAG_TYPE_ICON[type];
   const typeTags = tags.filter((t) => t.type === type);
-  const suggestions = getSuggestions(type, selectedKeys);
+  const suggestions = getSuggestions(type, selectedKeys, currentUser);
   const isSingleSelect = SINGLE_SELECT_TYPES.has(type);
 
-  const pickerOptions = getEntitiesForType(type).filter(
+  const pickerOptions = getEntitiesForType(type, currentUser).filter(
     (e) => !pickerQuery.trim() || e.label.toLowerCase().includes(pickerQuery.toLowerCase())
   );
 
@@ -329,6 +336,7 @@ function AccordionRow({
 
 export function PostComposer() {
   const { isOpen, preselectedGroupId, closeComposer } = usePostComposer();
+  const currentUser = useCurrentUser();
   const [photos, setPhotos] = useState<string[]>([]);
   const [caption, setCaption] = useState("");
   const [tags, setTags] = useState<PostTag[]>([]);
@@ -337,7 +345,7 @@ export function PostComposer() {
 
   const hasSetPreselected = useRef(false);
   if (isOpen && preselectedGroupId && !hasSetPreselected.current) {
-    const group = getUserGroups("shawn").find((g) => g.id === preselectedGroupId);
+    const group = getUserGroups(currentUser.id).find((g) => g.id === preselectedGroupId);
     if (group && !tags.some((t) => t.type === "community" && t.id === group.id)) {
       setTags((prev) => [...prev, { type: "community", id: group.id, label: group.name }]);
     }
@@ -449,6 +457,7 @@ export function PostComposer() {
                   selectedKeys={selectedKeys}
                   pickerQuery={activePicker === type ? pickerQuery : ""}
                   onPickerQueryChange={setPickerQuery}
+                  currentUser={currentUser}
                 />
               ))}
             </div>

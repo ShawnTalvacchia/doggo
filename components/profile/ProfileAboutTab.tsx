@@ -10,15 +10,16 @@ import { ButtonAction } from "@/components/ui/ButtonAction";
 import { PetCard } from "./PetCard";
 import { PetEditCard } from "./PetEditCard";
 import { TagApprovalSetting } from "./TagApprovalSetting";
-import { mockConnections, CONNECTION_STATE_LABELS } from "@/lib/mockConnections";
+import { getConnectionsForViewer, CONNECTION_STATE_LABELS } from "@/lib/mockConnections";
 import type { PetProfile, UserProfile, TagApproval } from "@/lib/types";
 
 // ── Connections list (internal) ──────────────────────────────────────────────
 
-function ConnectionsList() {
-  const connected = mockConnections.filter((c) => c.state === "connected");
-  const familiar = mockConnections.filter((c) => c.state === "familiar");
-  const pending = mockConnections.filter((c) => c.state === "pending");
+function ConnectionsList({ viewerId }: { viewerId: string }) {
+  const myConnections = getConnectionsForViewer(viewerId);
+  const connected = myConnections.filter((c) => c.state === "connected");
+  const familiar = myConnections.filter((c) => c.state === "familiar");
+  const pending = myConnections.filter((c) => c.state === "pending");
 
   if (connected.length === 0 && familiar.length === 0 && pending.length === 0) {
     return (
@@ -26,7 +27,7 @@ function ConnectionsList() {
         <p className="text-sm text-fg-secondary">
           No connections yet. Attend a meet to start building your community.
         </p>
-        <ButtonAction variant="primary" size="sm" cta href="/activity">
+        <ButtonAction variant="primary" size="sm" cta href="/discover/meets">
           Browse Meets
         </ButtonAction>
       </div>
@@ -196,7 +197,7 @@ export function ProfileAboutTab({
       {/* Connections */}
       <section className="profile-info-card">
         <h3 className="profile-card-subtitle">Connections</h3>
-        <ConnectionsList />
+        <ConnectionsList viewerId={user.id} />
       </section>
 
       {/* Tagging preferences */}

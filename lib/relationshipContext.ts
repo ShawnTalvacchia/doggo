@@ -36,10 +36,10 @@ export function getRelationshipSignals(connection: Connection): string[] {
     signals.push(`Also in ${connection.sharedGroups[0]}`);
   }
 
-  // "Wants to connect" (they marked us as familiar)
-  if (connection.theyMarkedFamiliar && connection.state !== "connected") {
-    signals.push("Wants to connect");
-  }
+  // No signal for `theyMarkedFamiliar` here — see Trust & Visibility Pass D2
+  // deniability guardrail. The receiver should not be able to pinpoint that
+  // a specific person performed a specific Familiar grant; the row's elevated
+  // tier (and the actions PersonRow surfaces) is the signal.
 
   return signals;
 }

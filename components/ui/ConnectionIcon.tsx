@@ -2,7 +2,6 @@
 
 import {
   Handshake,
-  Eye,
   Check,
   GlobeSimple,
 } from "@phosphor-icons/react";
@@ -11,8 +10,6 @@ import type { ConnectionState } from "@/lib/types";
 interface ConnectionIconProps {
   /** Connection state from the viewer's perspective */
   state: ConnectionState;
-  /** Whether this person has marked us as Familiar (shows eye icon instead of check) */
-  theyMarkedFamiliar?: boolean;
   /** Whether this user's profile is Open (shows globe when state is "none") */
   profileOpen?: boolean;
   /** Icon size in pixels (default: 16) */
@@ -21,6 +18,16 @@ interface ConnectionIconProps {
   showLabel?: boolean;
 }
 
+/**
+ * NOTE — Trust & Visibility Pass D3 (deniability guardrail):
+ * the icon previously varied per-direction (Eye for inbound `theyMarkedFamiliar`,
+ * Check for outbound `familiar`). That visual variation revealed *why* a row was
+ * elevated and broke the silent-grant principle (the receiver could pinpoint
+ * "they marked me Familiar"). Inbound Familiar is now folded into the same
+ * "Familiar" rendering as outbound — fewer states, cleaner rule. Inbound is also
+ * not signaled with a pill in `PersonRow` (suppressed on `state === "none" +
+ * theyMarkedFamiliar`); the actionable card itself is the signal.
+ */
 const STATE_CONFIG: Record<
   string,
   { icon: typeof Handshake; label: string; color: string; bg: string }
@@ -31,17 +38,11 @@ const STATE_CONFIG: Record<
     color: "var(--brand-strong)",
     bg: "var(--brand-subtle)",
   },
-  familiar_them: {
-    icon: Eye,
-    label: "Wants to connect",
-    color: "var(--text-secondary)",
-    bg: "var(--surface-gray)",
-  },
-  familiar_you: {
+  familiar: {
     icon: Check,
     label: "Familiar",
     color: "var(--text-secondary)",
-    bg: "var(--surface-gray)",
+    bg: "var(--surface-inset)",
   },
   open: {
     icon: GlobeSimple,
@@ -53,7 +54,6 @@ const STATE_CONFIG: Record<
 
 export function ConnectionIcon({
   state,
-  theyMarkedFamiliar,
   profileOpen,
   size = 16,
   showLabel = false,
@@ -62,10 +62,9 @@ export function ConnectionIcon({
 
   if (state === "connected") {
     configKey = "connected";
-  } else if (state === "familiar") {
-    configKey = theyMarkedFamiliar ? "familiar_them" : "familiar_you";
-  } else if (state === "pending") {
-    configKey = "familiar_you"; // reuse check icon for pending
+  } else if (state === "familiar" || state === "pending") {
+    // Pending reuses the Familiar icon (Check) — it's still "you initiated something"
+    configKey = "familiar";
   } else if (state === "none" && profileOpen) {
     configKey = "open";
   }
