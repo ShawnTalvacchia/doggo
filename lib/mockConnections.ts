@@ -8,230 +8,869 @@ export const CONNECTION_STATE_LABELS: Record<string, string> = {
 };
 
 /**
- * All connections from Shawn's perspective.
+ * Per-viewer connection rosters.
  *
- * Target density (from mock-data-plan):
- *   Connected: 4-5 | Familiar: 3-4 | Pending: 1-2 | None (visible): a few
- *   Total: 8-12
+ * Each top-level key is a viewer's user ID; the value is the list of
+ * connections from that viewer's perspective. Restructured during Mock
+ * World Building (2026-04-26) — was previously a flat `Connection[]` from
+ * Shawn's perspective only.
+ *
+ * Authoring conventions:
+ * - One entry per (viewer, otherUser) relationship.
+ * - `state` is what the *viewer* sees — "I know X as connected/familiar/pending/none".
+ * - `theyMarkedFamiliar` flips meaning per viewer: from Shawn's side it means
+ *   "they marked Shawn as Familiar"; from Tereza's side it means "they marked
+ *   Tereza as Familiar."
+ * - `mutualConnections` is the viewer's other connections that intersect the
+ *   target user's network. Shorthand by name (display string).
+ * - `meetsShared` counts events where both attended; same number from either
+ *   side of a real symmetric relationship.
+ *
+ * **Symmetry policy** (Mock World Building A7):
+ *
+ *  - **Connected** is mutual by definition — both rosters MUST show `state:
+ *    "connected"`. Per-viewer `meetsShared`, `firstMetDate`, `lastMetDate`,
+ *    `metAt` should also match for the shared events.
+ *  - **Familiar** can be asymmetric. If A marked B as Familiar, A's view
+ *    shows `state: "familiar"` (their own action). B's view of A shows
+ *    `theyMarkedFamiliar: true` to signal "this person opened up to you" —
+ *    B can choose to mark A back, in which case both views show `familiar`
+ *    + `theyMarkedFamiliar: true` (mutual silent familiarity).
+ *  - **Pending** appears on both sides as `state: "pending"`. The data model
+ *    doesn't currently distinguish "I sent" vs "they sent" at the entry level.
+ *    UI can disambiguate from context (e.g. profile origin).
+ *  - **None** is the default — typically no entry exists. Visible-but-None
+ *    entries are explicit "I've seen this person around but no relationship
+ *    yet" markers.
+ *  - `mutualConnections` is per-viewer — depends on the viewer's own network,
+ *    not symmetric.
+ *
+ * When seeding a new persona's roster, mirror the existing Shawn-side
+ * entries that involve them (so e.g. Tereza's view of Shawn lines up with
+ * Shawn's view of Tereza on shared metadata).
  */
-export const mockConnections: Connection[] = [
-  /* ═══ CONNECTED ═══════════════════════════════════════════════════════ */
-  {
-    id: "conn-jana",
-    userId: "jana",
-    userName: "Jana",
-    avatarUrl: "/images/generated/jana-profile.jpeg",
-    dogNames: ["Rex"],
-    location: "Prague 2",
-    state: "connected",
-    metAt: "meet-1",
-    updatedAt: "2026-03-16T10:00:00Z",
-    meetsShared: 5,
-    firstMetDate: "2025-11-10",
-    lastMetDate: "2026-03-16",
-    mutualConnections: ["Eva", "Tereza"],
-    sharedGroups: ["Vinohrady Morning Crew", "Riegrovy Sady Dog Walks"],
-    dogBreed: "Labrador Retriever",
-    neighbourhood: "Vinohrady",
-    profileOpen: true,
-  },
-  {
-    id: "conn-klara",
-    userId: "klara",
-    userName: "Klára",
-    avatarUrl: "/images/generated/klara-profile.jpeg",
-    dogNames: ["Eda"],
-    location: "Prague 7",
-    state: "connected",
-    metAt: "meet-11",
-    updatedAt: "2026-03-01T09:00:00Z",
-    meetsShared: 3,
-    firstMetDate: "2026-02-15",
-    lastMetDate: "2026-03-01",
-    mutualConnections: ["Jana", "Eva"],
-    sharedGroups: ["Klára's Calm Dog Sessions", "Stromovka Off-Leash Club"],
-    dogBreed: "Border Collie",
-    neighbourhood: "Holešovice",
-    profileOpen: true,
-  },
-  {
-    id: "conn-marek",
-    userId: "marek",
-    userName: "Marek",
-    avatarUrl: "/images/generated/marek-profile.jpeg",
-    dogNames: ["Benny"],
-    location: "Prague 2",
-    state: "connected",
-    metAt: "meet-7",
-    updatedAt: "2026-02-20T08:30:00Z",
-    meetsShared: 4,
-    firstMetDate: "2026-01-22",
-    lastMetDate: "2026-03-01",
-    mutualConnections: ["Tereza", "Jana", "Lucie"],
-    sharedGroups: ["Vinohrady Morning Crew", "Riegrovy Sady Dog Walks", "Vinohrady Evening Walkers"],
-    dogBreed: "Cocker Spaniel",
-    neighbourhood: "Vinohrady",
-    profileOpen: true,
-  },
-  {
-    id: "conn-nikola",
-    userId: "nikola",
-    userName: "Nikola",
-    avatarUrl: "/images/generated/nikola-profile.jpeg",
-    dogNames: [],
-    location: "Prague 7",
-    state: "connected",
-    updatedAt: "2026-01-15T10:00:00Z",
-    mutualConnections: ["Jana"],
-    sharedGroups: [],
-    neighbourhood: "Letná",
-    profileOpen: true,
-  },
+export const mockConnectionsByViewer: Record<string, Connection[]> = {
+  /* ═══════════════════════════════════════════════════════════════════════
+     SHAWN — the original roster (19 entries, last seeded pre-2026-04-26)
+     ═══════════════════════════════════════════════════════════════════════ */
+  shawn: [
+    /* ─── CONNECTED ──────────────────────────────────────────────── */
+    {
+      id: "conn-shawn-jana",
+      userId: "jana",
+      userName: "Jana",
+      avatarUrl: "/images/generated/jana-profile.jpeg",
+      dogNames: ["Rex"],
+      location: "Prague 2",
+      state: "connected",
+      metAt: "meet-1",
+      updatedAt: "2026-03-16T10:00:00Z",
+      meetsShared: 5,
+      firstMetDate: "2025-11-10",
+      lastMetDate: "2026-03-16",
+      mutualConnections: ["Eva", "Tereza"],
+      sharedGroups: ["Vinohrady Morning Crew", "Riegrovy Sady Dog Walks"],
+      dogBreed: "Labrador Retriever",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+    {
+      id: "conn-shawn-klara",
+      userId: "klara",
+      userName: "Klára",
+      avatarUrl: "/images/generated/klara-profile.jpeg",
+      dogNames: ["Eda"],
+      location: "Prague 7",
+      state: "connected",
+      metAt: "meet-11",
+      updatedAt: "2026-03-01T09:00:00Z",
+      meetsShared: 3,
+      firstMetDate: "2026-02-15",
+      lastMetDate: "2026-03-01",
+      mutualConnections: ["Jana", "Eva"],
+      sharedGroups: ["Klára's Calm Dog Sessions", "Stromovka Off-Leash Club"],
+      dogBreed: "Border Collie",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+    {
+      id: "conn-shawn-marek",
+      userId: "marek",
+      userName: "Marek",
+      avatarUrl: "/images/generated/marek-profile.jpeg",
+      dogNames: ["Benny"],
+      location: "Prague 2",
+      state: "connected",
+      metAt: "meet-7",
+      updatedAt: "2026-02-20T08:30:00Z",
+      meetsShared: 4,
+      firstMetDate: "2026-01-22",
+      lastMetDate: "2026-03-01",
+      mutualConnections: ["Tereza", "Jana", "Lucie"],
+      sharedGroups: ["Vinohrady Morning Crew", "Riegrovy Sady Dog Walks", "Vinohrady Evening Walkers"],
+      dogBreed: "Cocker Spaniel",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+    {
+      id: "conn-shawn-nikola",
+      userId: "nikola",
+      userName: "Nikola",
+      avatarUrl: "/images/generated/nikola-profile.jpeg",
+      dogNames: [],
+      location: "Prague 7",
+      state: "connected",
+      updatedAt: "2026-01-15T10:00:00Z",
+      mutualConnections: ["Jana"],
+      sharedGroups: [],
+      neighbourhood: "Letná",
+      profileOpen: true,
+    },
 
-  /* ═══ FAMILIAR ════════════════════════════════════════════════════════ */
-  {
-    id: "conn-tereza",
-    userId: "tereza",
-    userName: "Tereza",
-    avatarUrl: "/images/generated/tereza-profile.jpeg",
-    dogNames: ["Franta"],
-    location: "Prague 2",
-    state: "familiar",
-    metAt: "meet-7",
-    updatedAt: "2026-02-10T18:00:00Z",
-    meetsShared: 4,
-    firstMetDate: "2026-01-22",
-    lastMetDate: "2026-03-01",
-    mutualConnections: ["Jana", "Marek"],
-    sharedGroups: ["Vinohrady Morning Crew", "Riegrovy Sady Dog Walks", "Vinohrady Evening Walkers"],
-    theyMarkedFamiliar: true,
-    dogBreed: "Beagle",
-    neighbourhood: "Vinohrady",
-    profileOpen: true,
-  },
-  {
-    id: "conn-eva",
-    userId: "eva",
-    userName: "Eva",
-    avatarUrl: "/images/generated/eva-profile.jpeg",
-    dogNames: ["Luna", "Max"],
-    location: "Prague 7",
-    state: "familiar",
-    metAt: "meet-9",
-    updatedAt: "2026-03-16T10:00:00Z",
-    meetsShared: 3,
-    firstMetDate: "2026-01-15",
-    lastMetDate: "2026-03-16",
-    mutualConnections: ["Jana", "Klára"],
-    sharedGroups: ["Stromovka Off-Leash Club", "Prague Reactive Dog Support"],
-    theyMarkedFamiliar: true,
-    dogBreed: "Border Collie mix",
-    neighbourhood: "Holešovice",
-    profileOpen: true,
-  },
-  {
-    id: "conn-lucie",
-    userId: "lucie",
-    userName: "Lucie",
-    avatarUrl: "/images/generated/lucie-profile.jpeg",
-    dogNames: ["Pepík"],
-    location: "Prague 2",
-    state: "familiar",
-    metAt: "meet-7",
-    updatedAt: "2026-02-05T08:30:00Z",
-    meetsShared: 3,
-    firstMetDate: "2026-01-22",
-    lastMetDate: "2026-03-01",
-    mutualConnections: ["Tereza", "Marek"],
-    sharedGroups: ["Vinohrady Morning Crew", "Riegrovy Sady Dog Walks"],
-    dogBreed: "Dachshund",
-    neighbourhood: "Vinohrady",
-    profileOpen: true,
-  },
-  {
-    id: "conn-martin",
-    userId: "martin",
-    userName: "Martin",
-    avatarUrl: "/images/generated/martin-profile.jpeg",
-    dogNames: ["Charlie"],
-    location: "Prague 7",
-    state: "familiar",
-    updatedAt: "2026-03-14T09:00:00Z",
-    meetsShared: 1,
-    sharedGroups: ["Žižkov Dog Parents"],
-    dogBreed: "French Bulldog",
-    neighbourhood: "Holešovice",
-    profileOpen: true,
-  },
+    /* ─── FAMILIAR ───────────────────────────────────────────────── */
+    {
+      id: "conn-shawn-tereza",
+      userId: "tereza",
+      userName: "Tereza",
+      avatarUrl: "/images/generated/tereza-profile.jpeg",
+      dogNames: ["Franta"],
+      location: "Prague 2",
+      state: "familiar",
+      metAt: "meet-7",
+      updatedAt: "2026-02-10T18:00:00Z",
+      meetsShared: 4,
+      firstMetDate: "2026-01-22",
+      lastMetDate: "2026-03-01",
+      mutualConnections: ["Jana", "Marek"],
+      sharedGroups: ["Vinohrady Morning Crew", "Riegrovy Sady Dog Walks", "Vinohrady Evening Walkers"],
+      theyMarkedFamiliar: true,
+      dogBreed: "Beagle",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+    {
+      id: "conn-shawn-eva",
+      userId: "eva",
+      userName: "Eva",
+      avatarUrl: "/images/generated/eva-profile.jpeg",
+      dogNames: ["Luna", "Max"],
+      location: "Prague 7",
+      state: "familiar",
+      metAt: "meet-9",
+      updatedAt: "2026-03-16T10:00:00Z",
+      meetsShared: 3,
+      firstMetDate: "2026-01-15",
+      lastMetDate: "2026-03-16",
+      mutualConnections: ["Jana", "Klára"],
+      sharedGroups: ["Stromovka Off-Leash Club", "Prague Reactive Dog Support"],
+      theyMarkedFamiliar: true,
+      dogBreed: "Border Collie mix",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+    {
+      id: "conn-shawn-lucie",
+      userId: "lucie",
+      userName: "Lucie",
+      avatarUrl: "/images/generated/lucie-profile.jpeg",
+      dogNames: ["Pepík"],
+      location: "Prague 2",
+      state: "familiar",
+      metAt: "meet-7",
+      updatedAt: "2026-02-05T08:30:00Z",
+      meetsShared: 3,
+      firstMetDate: "2026-01-22",
+      lastMetDate: "2026-03-01",
+      mutualConnections: ["Tereza", "Marek"],
+      sharedGroups: ["Vinohrady Morning Crew", "Riegrovy Sady Dog Walks"],
+      dogBreed: "Dachshund",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+    {
+      id: "conn-shawn-martin",
+      userId: "martin",
+      userName: "Martin",
+      avatarUrl: "/images/generated/martin-profile.jpeg",
+      dogNames: ["Charlie"],
+      location: "Prague 7",
+      state: "familiar",
+      updatedAt: "2026-03-14T09:00:00Z",
+      meetsShared: 1,
+      sharedGroups: ["Žižkov Dog Parents"],
+      dogBreed: "French Bulldog",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
 
-  /* ═══ PENDING ═════════════════════════════════════════════════════════ */
-  {
-    id: "conn-tomas",
-    userId: "tomas",
-    userName: "Tomáš",
-    avatarUrl: "/images/generated/tomas-profile.jpeg",
-    dogNames: ["Hugo"],
-    location: "Prague 8",
-    state: "pending",
-    metAt: "meet-1",
-    updatedAt: "2026-03-15T14:00:00Z",
-    meetsShared: 2,
-    firstMetDate: "2026-02-20",
-    lastMetDate: "2026-03-18",
-    sharedGroups: ["Vinohrady Morning Crew"],
-    dogBreed: "Labrador Retriever",
-    neighbourhood: "Karlín",
-    profileOpen: false,
-  },
-  {
-    id: "conn-zuzana",
-    userId: "zuzana",
-    userName: "Zuzana",
-    avatarUrl: "/images/generated/zuzana-profile.jpeg",
-    dogNames: ["Mia"],
-    location: "Prague 2",
-    state: "pending",
-    updatedAt: "2026-03-20T15:00:00Z",
-    meetsShared: 0,
-    sharedGroups: ["Vinohrady Evening Walkers"],
-    dogBreed: "Miniature Poodle",
-    neighbourhood: "Vinohrady",
-    profileOpen: false,
-  },
+    /* ─── PENDING ────────────────────────────────────────────────── */
+    {
+      id: "conn-shawn-tomas",
+      userId: "tomas",
+      userName: "Tomáš",
+      avatarUrl: "/images/generated/tomas-profile.jpeg",
+      dogNames: ["Hugo"],
+      location: "Prague 8",
+      state: "pending",
+      metAt: "meet-1",
+      updatedAt: "2026-03-15T14:00:00Z",
+      meetsShared: 2,
+      firstMetDate: "2026-02-20",
+      lastMetDate: "2026-03-18",
+      sharedGroups: ["Vinohrady Morning Crew"],
+      dogBreed: "Labrador Retriever",
+      neighbourhood: "Karlín",
+      profileOpen: false,
+    },
+    {
+      id: "conn-shawn-zuzana",
+      userId: "zuzana",
+      userName: "Zuzana",
+      avatarUrl: "/images/generated/zuzana-profile.jpeg",
+      dogNames: ["Mia"],
+      location: "Prague 2",
+      state: "pending",
+      updatedAt: "2026-03-20T15:00:00Z",
+      meetsShared: 0,
+      sharedGroups: ["Vinohrady Evening Walkers"],
+      dogBreed: "Miniature Poodle",
+      neighbourhood: "Vinohrady",
+      profileOpen: false,
+    },
 
-  /* ═══ NONE (visible in explore/meet context) ═════════════════════════ */
-  {
-    id: "conn-daniel",
-    userId: "daniel",
-    userName: "Daniel",
-    avatarUrl: "/images/generated/daniel-profile.jpeg",
-    dogNames: ["Bára"],
-    location: "Prague 5",
-    state: "none",
-    updatedAt: "2026-03-14T09:00:00Z",
-    meetsShared: 1,
-    sharedGroups: ["Prague Reactive Dog Support", "Klára's Calm Dog Sessions"],
-    dogBreed: "Mixed breed rescue",
-    neighbourhood: "Smíchov",
-    profileOpen: false,
-  },
-  {
-    id: "conn-filip",
-    userId: "filip",
-    userName: "Filip",
-    avatarUrl: "/images/generated/filip-profile.jpeg",
-    dogNames: ["Toby"],
-    location: "Prague 7",
-    state: "none",
-    updatedAt: "2026-03-14T09:00:00Z",
-    sharedGroups: ["Klára's Calm Dog Sessions"],
-    dogBreed: "Jack Russell Terrier",
-    neighbourhood: "Holešovice",
-    profileOpen: false,
-  },
-];
+    /* ─── NONE (visible in explore/meet context) ────────────────── */
+    {
+      id: "conn-shawn-daniel",
+      userId: "daniel",
+      userName: "Daniel",
+      avatarUrl: "/images/generated/daniel-profile.jpeg",
+      dogNames: ["Bára"],
+      location: "Prague 5",
+      state: "none",
+      updatedAt: "2026-03-14T09:00:00Z",
+      meetsShared: 1,
+      sharedGroups: ["Prague Reactive Dog Support", "Klára's Calm Dog Sessions"],
+      dogBreed: "Mixed breed rescue",
+      neighbourhood: "Smíchov",
+      profileOpen: false,
+    },
+    {
+      id: "conn-shawn-filip",
+      userId: "filip",
+      userName: "Filip",
+      avatarUrl: "/images/generated/filip-profile.jpeg",
+      dogNames: ["Toby"],
+      location: "Prague 7",
+      state: "none",
+      updatedAt: "2026-03-14T09:00:00Z",
+      sharedGroups: ["Klára's Calm Dog Sessions"],
+      dogBreed: "Jack Russell Terrier",
+      neighbourhood: "Holešovice",
+      profileOpen: false,
+    },
+  ],
 
-/** Community carers — connections who offer care services */
+  /* ═══════════════════════════════════════════════════════════════════════
+     TEREZA — Routine Owner / Connector. Built her network at Riegrovy sady;
+     created the Vinohrady Evening Walkers group. Open profile, so she
+     attracts Familiar marks easily — her own roster reflects an organiser's
+     deep, mostly-warm network.
+     ═══════════════════════════════════════════════════════════════════════ */
+  tereza: [
+    /* ─── CONNECTED ──────────────────────────────────────────────── */
+    {
+      id: "conn-tereza-marek",
+      userId: "marek",
+      userName: "Marek",
+      avatarUrl: "/images/generated/marek-profile.jpeg",
+      dogNames: ["Benny"],
+      location: "Prague 2",
+      state: "connected",
+      metAt: "meet-7",
+      updatedAt: "2026-03-14T08:00:00Z",
+      meetsShared: 8,
+      firstMetDate: "2025-09-12",
+      lastMetDate: "2026-03-14",
+      mutualConnections: ["Lucie", "Jana", "Shawn"],
+      sharedGroups: ["Riegrovy Sady Dog Walks", "Vinohrady Evening Walkers"],
+      dogBreed: "Cocker Spaniel",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+    {
+      id: "conn-tereza-lucie",
+      userId: "lucie",
+      userName: "Lucie",
+      avatarUrl: "/images/generated/lucie-profile.jpeg",
+      dogNames: ["Pepík"],
+      location: "Prague 2",
+      state: "connected",
+      metAt: "meet-7",
+      updatedAt: "2026-03-12T08:30:00Z",
+      meetsShared: 6,
+      firstMetDate: "2025-10-18",
+      lastMetDate: "2026-03-12",
+      mutualConnections: ["Marek", "Jana"],
+      sharedGroups: ["Riegrovy Sady Dog Walks", "Vinohrady Evening Walkers"],
+      dogBreed: "Dachshund",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+    {
+      id: "conn-tereza-jana",
+      userId: "jana",
+      userName: "Jana",
+      avatarUrl: "/images/generated/jana-profile.jpeg",
+      dogNames: ["Rex"],
+      location: "Prague 2",
+      state: "connected",
+      metAt: "meet-1",
+      updatedAt: "2026-03-16T10:00:00Z",
+      meetsShared: 7,
+      firstMetDate: "2025-09-30",
+      lastMetDate: "2026-03-16",
+      mutualConnections: ["Marek", "Lucie", "Eva", "Shawn"],
+      sharedGroups: ["Vinohrady Morning Crew", "Riegrovy Sady Dog Walks"],
+      dogBreed: "Labrador Retriever",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+    /* ─── FAMILIAR ───────────────────────────────────────────────── */
+    {
+      id: "conn-tereza-klara",
+      userId: "klara",
+      userName: "Klára",
+      avatarUrl: "/images/generated/klara-profile.jpeg",
+      dogNames: ["Eda"],
+      location: "Prague 7",
+      state: "familiar",
+      updatedAt: "2026-03-08T09:00:00Z",
+      meetsShared: 2,
+      firstMetDate: "2026-01-10",
+      lastMetDate: "2026-03-08",
+      mutualConnections: ["Jana"],
+      sharedGroups: ["Klára's Calm Dog Sessions"],
+      theyMarkedFamiliar: true,
+      dogBreed: "Border Collie",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+    {
+      id: "conn-tereza-shawn",
+      userId: "shawn",
+      userName: "Shawn",
+      avatarUrl: "/images/generated/shawn-profile.jpg",
+      dogNames: ["Spot", "Goldie"],
+      location: "Prague 2",
+      state: "familiar",
+      metAt: "meet-7",
+      updatedAt: "2026-02-10T18:00:00Z",
+      meetsShared: 4,
+      firstMetDate: "2026-01-22",
+      lastMetDate: "2026-03-01",
+      mutualConnections: ["Jana", "Marek"],
+      sharedGroups: ["Vinohrady Morning Crew", "Riegrovy Sady Dog Walks"],
+      theyMarkedFamiliar: true,
+      dogBreed: "Dalmatian Mix",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+    {
+      id: "conn-tereza-eva",
+      userId: "eva",
+      userName: "Eva",
+      avatarUrl: "/images/generated/eva-profile.jpeg",
+      dogNames: ["Luna", "Max"],
+      location: "Prague 7",
+      state: "familiar",
+      updatedAt: "2026-02-22T10:00:00Z",
+      meetsShared: 2,
+      firstMetDate: "2026-01-15",
+      lastMetDate: "2026-02-22",
+      mutualConnections: ["Jana", "Klára"],
+      sharedGroups: ["Stromovka Off-Leash Club"],
+      dogBreed: "Border Collie mix",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+    {
+      id: "conn-tereza-zuzana",
+      userId: "zuzana",
+      userName: "Zuzana",
+      avatarUrl: "/images/generated/zuzana-profile.jpeg",
+      dogNames: ["Mia"],
+      location: "Prague 2",
+      state: "familiar",
+      updatedAt: "2026-03-20T15:00:00Z",
+      meetsShared: 1,
+      firstMetDate: "2026-03-05",
+      lastMetDate: "2026-03-18",
+      sharedGroups: ["Vinohrady Evening Walkers"],
+      theyMarkedFamiliar: true,
+      dogBreed: "Miniature Poodle",
+      neighbourhood: "Vinohrady",
+      profileOpen: false,
+    },
+
+    /* ─── PENDING ────────────────────────────────────────────────── */
+    {
+      id: "conn-tereza-jakub",
+      userId: "jakub",
+      userName: "Jakub",
+      avatarUrl: "/images/generated/jakub-profile.jpeg",
+      dogNames: ["Aron"],
+      location: "Prague 2",
+      state: "pending",
+      updatedAt: "2026-03-22T07:00:00Z",
+      meetsShared: 1,
+      sharedGroups: ["Riegrovy Sady Dog Walks"],
+      dogBreed: "German Shepherd",
+      neighbourhood: "Vinohrady",
+      profileOpen: false,
+    },
+  ],
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     DANIEL — Anxious New Owner. Locked profile. Built trust slowly through
+     the reactive dog support group; Klára-the-trainer was his payoff (his
+     first Connected outside the group). Roster is small + recent — a
+     deliberately thin network that demonstrates the cautious-user path.
+     ═══════════════════════════════════════════════════════════════════════ */
+  daniel: [
+    /* ─── CONNECTED ──────────────────────────────────────────────── */
+    {
+      id: "conn-daniel-klara",
+      userId: "klara",
+      userName: "Klára",
+      avatarUrl: "/images/generated/klara-profile.jpeg",
+      dogNames: ["Eda"],
+      location: "Prague 7",
+      state: "connected",
+      metAt: "meet-care-1",
+      updatedAt: "2026-03-15T11:00:00Z",
+      meetsShared: 4,
+      firstMetDate: "2026-02-12",
+      lastMetDate: "2026-03-15",
+      mutualConnections: ["Hana"],
+      sharedGroups: ["Klára's Calm Dog Sessions", "Prague Reactive Dog Support"],
+      dogBreed: "Border Collie",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+    {
+      id: "conn-daniel-hana",
+      userId: "hana",
+      userName: "Hana",
+      avatarUrl: "/images/generated/hana-profile.jpeg",
+      dogNames: ["Runa"],
+      location: "Prague 3",
+      state: "connected",
+      metAt: "meet-13",
+      updatedAt: "2026-03-10T19:00:00Z",
+      meetsShared: 5,
+      firstMetDate: "2026-01-25",
+      lastMetDate: "2026-03-10",
+      mutualConnections: ["Klára", "Anežka"],
+      sharedGroups: ["Prague Reactive Dog Support", "Klára's Calm Dog Sessions"],
+      dogBreed: "Husky mix",
+      neighbourhood: "Žižkov",
+      profileOpen: false,
+      theyMarkedFamiliar: true,
+    },
+    {
+      id: "conn-daniel-anezka",
+      userId: "anezka",
+      userName: "Anežka",
+      avatarUrl: "/images/generated/anezka-profile.jpeg",
+      dogNames: ["Nela"],
+      location: "Prague 3",
+      state: "connected",
+      metAt: "meet-13",
+      updatedAt: "2026-03-09T18:00:00Z",
+      meetsShared: 3,
+      firstMetDate: "2026-02-05",
+      lastMetDate: "2026-03-09",
+      mutualConnections: ["Hana"],
+      sharedGroups: ["Prague Reactive Dog Support"],
+      dogBreed: "German Shepherd",
+      neighbourhood: "Žižkov",
+      profileOpen: false,
+      theyMarkedFamiliar: true,
+    },
+
+    /* ─── FAMILIAR ───────────────────────────────────────────────── */
+    {
+      id: "conn-daniel-vitek",
+      userId: "vitek",
+      userName: "Vítek",
+      avatarUrl: "/images/generated/vitek-profile.jpeg",
+      dogNames: ["Sam"],
+      location: "Prague 5",
+      state: "familiar",
+      updatedAt: "2026-03-05T17:00:00Z",
+      meetsShared: 2,
+      firstMetDate: "2026-02-19",
+      lastMetDate: "2026-03-05",
+      mutualConnections: ["Hana"],
+      sharedGroups: ["Prague Reactive Dog Support"],
+      dogBreed: "Mixed breed",
+      neighbourhood: "Smíchov",
+      profileOpen: false,
+      theyMarkedFamiliar: true,
+    },
+    {
+      id: "conn-daniel-eva",
+      userId: "eva",
+      userName: "Eva",
+      avatarUrl: "/images/generated/eva-profile.jpeg",
+      dogNames: ["Luna", "Max"],
+      location: "Prague 7",
+      state: "familiar",
+      updatedAt: "2026-02-28T10:00:00Z",
+      meetsShared: 1,
+      firstMetDate: "2026-02-19",
+      lastMetDate: "2026-02-19",
+      mutualConnections: ["Klára", "Hana"],
+      sharedGroups: ["Prague Reactive Dog Support"],
+      dogBreed: "Border Collie mix",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+  ],
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     KLÁRA — Professional Provider. Open profile. Densest network in the cast,
+     reflecting her cross-cluster role: training clients (Daniel, Filip, Hana),
+     reactive dog group regulars, Stromovka park crew, and a few cross-pollinator
+     connections (Tereza, Shawn) from broader community work.
+     ═══════════════════════════════════════════════════════════════════════ */
+  klara: [
+    /* ─── CONNECTED ──────────────────────────────────────────────── */
+    {
+      id: "conn-klara-daniel",
+      userId: "daniel",
+      userName: "Daniel",
+      avatarUrl: "/images/generated/daniel-profile.jpeg",
+      dogNames: ["Bára"],
+      location: "Prague 5",
+      state: "connected",
+      metAt: "meet-care-1",
+      updatedAt: "2026-03-15T11:00:00Z",
+      meetsShared: 4,
+      firstMetDate: "2026-02-12",
+      lastMetDate: "2026-03-15",
+      mutualConnections: ["Hana"],
+      sharedGroups: ["Klára's Calm Dog Sessions", "Prague Reactive Dog Support"],
+      dogBreed: "Mixed breed rescue",
+      neighbourhood: "Smíchov",
+      profileOpen: false,
+    },
+    {
+      id: "conn-klara-filip",
+      userId: "filip",
+      userName: "Filip",
+      avatarUrl: "/images/generated/filip-profile.jpeg",
+      dogNames: ["Toby"],
+      location: "Prague 7",
+      state: "connected",
+      metAt: "meet-care-2",
+      updatedAt: "2026-03-12T11:00:00Z",
+      meetsShared: 5,
+      firstMetDate: "2025-12-08",
+      lastMetDate: "2026-03-12",
+      mutualConnections: ["Martin"],
+      sharedGroups: ["Klára's Calm Dog Sessions", "Stromovka Off-Leash Club"],
+      dogBreed: "Jack Russell Terrier",
+      neighbourhood: "Holešovice",
+      profileOpen: false,
+    },
+    {
+      id: "conn-klara-hana",
+      userId: "hana",
+      userName: "Hana",
+      avatarUrl: "/images/generated/hana-profile.jpeg",
+      dogNames: ["Runa"],
+      location: "Prague 3",
+      state: "connected",
+      metAt: "meet-care-1",
+      updatedAt: "2026-03-08T11:00:00Z",
+      meetsShared: 6,
+      firstMetDate: "2025-11-20",
+      lastMetDate: "2026-03-08",
+      mutualConnections: ["Daniel", "Anežka"],
+      sharedGroups: ["Klára's Calm Dog Sessions", "Prague Reactive Dog Support"],
+      dogBreed: "Husky mix",
+      neighbourhood: "Žižkov",
+      profileOpen: false,
+    },
+    {
+      id: "conn-klara-eva",
+      userId: "eva",
+      userName: "Eva",
+      avatarUrl: "/images/generated/eva-profile.jpeg",
+      dogNames: ["Luna", "Max"],
+      location: "Prague 7",
+      state: "connected",
+      metAt: "meet-9",
+      updatedAt: "2026-03-16T10:00:00Z",
+      meetsShared: 5,
+      firstMetDate: "2025-10-15",
+      lastMetDate: "2026-03-16",
+      mutualConnections: ["Martin", "Hana"],
+      sharedGroups: ["Stromovka Off-Leash Club", "Prague Reactive Dog Support"],
+      dogBreed: "Border Collie mix",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+    {
+      id: "conn-klara-martin",
+      userId: "martin",
+      userName: "Martin",
+      avatarUrl: "/images/generated/martin-profile.jpeg",
+      dogNames: ["Charlie"],
+      location: "Prague 7",
+      state: "connected",
+      metAt: "meet-9",
+      updatedAt: "2026-03-14T09:00:00Z",
+      meetsShared: 4,
+      firstMetDate: "2025-12-02",
+      lastMetDate: "2026-03-14",
+      mutualConnections: ["Eva", "Filip"],
+      sharedGroups: ["Stromovka Off-Leash Club"],
+      dogBreed: "French Bulldog",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+    {
+      id: "conn-klara-shawn",
+      userId: "shawn",
+      userName: "Shawn",
+      avatarUrl: "/images/generated/shawn-profile.jpg",
+      dogNames: ["Spot", "Goldie"],
+      location: "Prague 2",
+      state: "connected",
+      metAt: "meet-11",
+      updatedAt: "2026-03-01T09:00:00Z",
+      meetsShared: 3,
+      firstMetDate: "2026-02-15",
+      lastMetDate: "2026-03-01",
+      mutualConnections: ["Jana", "Eva"],
+      sharedGroups: ["Klára's Calm Dog Sessions", "Stromovka Off-Leash Club"],
+      dogBreed: "Dalmatian Mix",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+
+    /* ─── FAMILIAR ───────────────────────────────────────────────── */
+    {
+      id: "conn-klara-tereza",
+      userId: "tereza",
+      userName: "Tereza",
+      avatarUrl: "/images/generated/tereza-profile.jpeg",
+      dogNames: ["Franta"],
+      location: "Prague 2",
+      state: "familiar",
+      updatedAt: "2026-03-08T09:00:00Z",
+      meetsShared: 2,
+      firstMetDate: "2026-01-10",
+      lastMetDate: "2026-03-08",
+      mutualConnections: ["Jana"],
+      sharedGroups: ["Klára's Calm Dog Sessions"],
+      theyMarkedFamiliar: true,
+      dogBreed: "Beagle",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+    {
+      id: "conn-klara-anezka",
+      userId: "anezka",
+      userName: "Anežka",
+      avatarUrl: "/images/generated/anezka-profile.jpeg",
+      dogNames: ["Nela"],
+      location: "Prague 3",
+      state: "familiar",
+      updatedAt: "2026-03-05T18:00:00Z",
+      meetsShared: 2,
+      firstMetDate: "2026-02-05",
+      lastMetDate: "2026-03-05",
+      mutualConnections: ["Hana", "Daniel"],
+      sharedGroups: ["Prague Reactive Dog Support"],
+      dogBreed: "German Shepherd",
+      neighbourhood: "Žižkov",
+      profileOpen: false,
+      theyMarkedFamiliar: true,
+    },
+    {
+      id: "conn-klara-vitek",
+      userId: "vitek",
+      userName: "Vítek",
+      avatarUrl: "/images/generated/vitek-profile.jpeg",
+      dogNames: ["Sam"],
+      location: "Prague 5",
+      state: "familiar",
+      updatedAt: "2026-02-28T17:00:00Z",
+      meetsShared: 1,
+      firstMetDate: "2026-02-19",
+      lastMetDate: "2026-02-19",
+      mutualConnections: ["Daniel", "Hana"],
+      sharedGroups: ["Prague Reactive Dog Support"],
+      dogBreed: "Mixed breed",
+      neighbourhood: "Smíchov",
+      profileOpen: false,
+      theyMarkedFamiliar: true,
+    },
+
+    /* ─── PENDING ────────────────────────────────────────────────── */
+    {
+      id: "conn-klara-jana",
+      userId: "jana",
+      userName: "Jana",
+      avatarUrl: "/images/generated/jana-profile.jpeg",
+      dogNames: ["Rex"],
+      location: "Prague 2",
+      state: "pending",
+      updatedAt: "2026-03-19T08:00:00Z",
+      meetsShared: 1,
+      sharedGroups: [],
+      dogBreed: "Labrador Retriever",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+  ],
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     TOMÁŠ — Busy Professional, Karlín. Locked profile. Smaller network than
+     Tereza or Klára but warm where it matters: Petra is his go-to sitter
+     (booking history exists), and a couple of Karlín regulars he sees on
+     morning walks. Pending request from Shawn (mirrors Shawn-side data).
+     ═══════════════════════════════════════════════════════════════════════ */
+  tomas: [
+    /* ─── CONNECTED ──────────────────────────────────────────────── */
+    {
+      id: "conn-tomas-petra",
+      userId: "petra",
+      userName: "Petra",
+      avatarUrl: "/images/generated/petra-profile.jpeg",
+      dogNames: ["Daisy"],
+      location: "Prague 8",
+      state: "connected",
+      metAt: "meet-15",
+      updatedAt: "2026-03-18T12:00:00Z",
+      meetsShared: 6,
+      firstMetDate: "2025-11-08",
+      lastMetDate: "2026-03-18",
+      mutualConnections: ["Ondřej", "Adéla"],
+      sharedGroups: ["Karlín Walks", "Karlín Dog Neighbors"],
+      dogBreed: "Cavalier King Charles",
+      neighbourhood: "Karlín",
+      profileOpen: true,
+    },
+    {
+      id: "conn-tomas-ondrej",
+      userId: "ondrej",
+      userName: "Ondřej",
+      avatarUrl: "/images/generated/ondrej-profile.jpeg",
+      dogNames: ["Rocky"],
+      location: "Prague 8",
+      state: "connected",
+      metAt: "meet-15",
+      updatedAt: "2026-03-15T07:30:00Z",
+      meetsShared: 5,
+      firstMetDate: "2025-12-14",
+      lastMetDate: "2026-03-15",
+      mutualConnections: ["Petra", "Adéla"],
+      sharedGroups: ["Karlín Walks", "Karlín Dog Neighbors"],
+      dogBreed: "Staffie mix",
+      neighbourhood: "Karlín",
+      profileOpen: true,
+    },
+    {
+      id: "conn-tomas-adela",
+      userId: "adela",
+      userName: "Adéla",
+      avatarUrl: "/images/generated/adela-profile.jpeg",
+      dogNames: ["Číča"],
+      location: "Prague 8",
+      state: "connected",
+      metAt: "meet-15",
+      updatedAt: "2026-03-12T08:00:00Z",
+      meetsShared: 3,
+      firstMetDate: "2026-01-18",
+      lastMetDate: "2026-03-12",
+      mutualConnections: ["Petra", "Ondřej"],
+      sharedGroups: ["Vítkov Park Dogs", "Karlín Dog Neighbors"],
+      dogBreed: "Shiba Inu",
+      neighbourhood: "Karlín",
+      profileOpen: false,
+      theyMarkedFamiliar: true,
+    },
+
+    /* ─── FAMILIAR ───────────────────────────────────────────────── */
+    {
+      id: "conn-tomas-jakub",
+      userId: "jakub",
+      userName: "Jakub",
+      avatarUrl: "/images/generated/jakub-profile.jpeg",
+      dogNames: ["Aron"],
+      location: "Prague 2",
+      state: "familiar",
+      updatedAt: "2026-02-28T08:00:00Z",
+      meetsShared: 1,
+      firstMetDate: "2026-02-20",
+      lastMetDate: "2026-02-20",
+      sharedGroups: ["Vinohrady Morning Crew"],
+      dogBreed: "German Shepherd",
+      neighbourhood: "Vinohrady",
+      profileOpen: false,
+    },
+    {
+      id: "conn-tomas-marek",
+      userId: "marek",
+      userName: "Marek",
+      avatarUrl: "/images/generated/marek-profile.jpeg",
+      dogNames: ["Benny"],
+      location: "Prague 2",
+      state: "familiar",
+      updatedAt: "2026-02-20T08:00:00Z",
+      meetsShared: 1,
+      firstMetDate: "2026-02-20",
+      lastMetDate: "2026-02-20",
+      sharedGroups: ["Vinohrady Morning Crew"],
+      dogBreed: "Cocker Spaniel",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+      theyMarkedFamiliar: true,
+    },
+
+    /* ─── PENDING ────────────────────────────────────────────────── */
+    {
+      id: "conn-tomas-shawn",
+      userId: "shawn",
+      userName: "Shawn",
+      avatarUrl: "/images/generated/shawn-profile.jpg",
+      dogNames: ["Spot", "Goldie"],
+      location: "Prague 2",
+      state: "pending",
+      metAt: "meet-1",
+      updatedAt: "2026-03-15T14:00:00Z",
+      meetsShared: 2,
+      firstMetDate: "2026-02-20",
+      lastMetDate: "2026-03-18",
+      sharedGroups: ["Vinohrady Morning Crew"],
+      dogBreed: "Dalmatian Mix",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+  ],
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     NEW USER — empty by design. Every "Connect" / "Familiar" surface should
+     render its empty state gracefully when this is the active viewer.
+     ═══════════════════════════════════════════════════════════════════════ */
+  "new-user": [],
+};
+
+/** Community carers — providers offering care. Directory, not viewer-relative. */
 export interface CommunityCarer {
   userId: string;
   services: ServiceType[];
@@ -278,21 +917,52 @@ export const communityCarers: CommunityCarer[] = [
   },
 ];
 
-/** Get connection state for a specific user */
-export function getConnectionState(userId: string): Connection | undefined {
-  return mockConnections.find((c) => c.userId === userId);
+/* ─── Helpers ─────────────────────────────────────────────────────────── */
+
+/** All connections from a viewer's perspective. Empty array if none seeded. */
+export function getConnectionsForViewer(viewerId: string): Connection[] {
+  return mockConnectionsByViewer[viewerId] ?? [];
 }
 
-/** Get all connections by state */
-export function getConnectionsByState(state: string): Connection[] {
-  return mockConnections.filter((c) => c.state === state);
+/**
+ * Get connection state for a specific user, from a viewer's perspective.
+ *
+ * `viewerId` defaults to Shawn so pre-Persona-Wiring callsites that haven't
+ * been migrated still work. New code should always pass the active persona
+ * explicitly (`useCurrentUserId()`).
+ *
+ * Returns `undefined` when no relationship is recorded — downstream code
+ * should treat that as `state: "none"`.
+ */
+export function getConnectionState(
+  userId: string,
+  viewerId: string = "shawn",
+): Connection | undefined {
+  return getConnectionsForViewer(viewerId).find((c) => c.userId === userId);
 }
 
-/** Get connections who offer care, enriched with carer data */
-export function getCommunityCarers() {
+/** Get all of a viewer's connections in a given state. */
+export function getConnectionsByState(
+  state: string,
+  viewerId: string = "shawn",
+): Connection[] {
+  return getConnectionsForViewer(viewerId).filter((c) => c.state === state);
+}
+
+/**
+ * Get the connections of a viewer who also offer care services. Used by
+ * "people you know who can help" surfaces — the Inbox People section, the
+ * Discover Care "from your network" tile, etc.
+ *
+ * Returns empty when the viewer has no connections (e.g. New User, or any
+ * persona whose roster hasn't been seeded yet).
+ */
+export function getCommunityCarers(
+  viewerId: string = "shawn",
+): (Connection & CommunityCarer)[] {
   return communityCarers
     .map((cc) => {
-      const conn = mockConnections.find((c) => c.userId === cc.userId);
+      const conn = getConnectionState(cc.userId, viewerId);
       if (!conn) return null;
       return { ...conn, ...cc };
     })

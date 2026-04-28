@@ -23,6 +23,8 @@ import { PetCard } from "@/components/profile/PetCard";
 import { PostsTab } from "@/components/profile/PostsTab";
 import { ProfileChatTab } from "@/components/profile/ProfileChatTab";
 import { getConnectionState, getCommunityCarers } from "@/lib/mockConnections";
+import { useCurrentUser, useCurrentUserId } from "@/hooks/useCurrentUser";
+import { resolvePersonActions } from "@/lib/personActions";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { providers } from "@/lib/mockData";
@@ -45,11 +47,15 @@ function UserProfileInner() {
     }
   }, [router, userId]);
 
+  const currentUserId = useCurrentUserId();
+  const currentUser = useCurrentUser();
+  const isSelf = userId === currentUserId;
+
   // Resolve user data from multiple sources
-  const connection = getConnectionState(userId);
+  const connection = getConnectionState(userId, currentUserId);
   const userProfile = getUserById(userId);
   const provider = providers.find((p) => p.id === userId || p.userId === userId);
-  const communityCarer = getCommunityCarers().find((c) => c.userId === userId);
+  const communityCarer = getCommunityCarers(currentUserId).find((c) => c.userId === userId);
 
   const name = userProfile
     ? `${userProfile.firstName} ${userProfile.lastName}`
@@ -113,7 +119,7 @@ function UserProfileInner() {
             ) : (
               <DefaultAvatar name={name} size={96} />
             )}
-            <h1 className="font-heading text-3xl font-medium text-fg-primary m-0">{name}</h1>
+            <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">{name}</h1>
 
             <div className="flex flex-col items-center gap-sm rounded-panel p-lg bg-surface-inset w-full" style={{ maxWidth: 360 }}>
               <LockSimple size={28} weight="light" className="text-fg-tertiary" />
@@ -147,7 +153,7 @@ function UserProfileInner() {
                 <DefaultAvatar name={name} size={96} />
               )}
               <div className="flex flex-col items-center gap-xs text-center">
-                <h1 className="font-heading text-3xl font-medium text-fg-primary m-0">{name}</h1>
+                <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">{name}</h1>
                 {location && (
                   <span className="flex items-center gap-xs text-sm text-fg-secondary">
                     <MapPin size={13} weight="fill" className="shrink-0" /> {location}
@@ -162,58 +168,160 @@ function UserProfileInner() {
                 )}
               </div>
 
-              {/* Connection state */}
-              <div className="flex items-center gap-sm flex-wrap justify-center">
-                <ConnectionIcon
-                  state={connState}
-                  theyMarkedFamiliar={connection?.theyMarkedFamiliar}
-                  profileOpen={isProfileOpen}
-                  size={16}
-                  showLabel
-                />
-                {communityCarer && communityCarer.meetsShared > 0 && (
-                  <span className="text-xs text-fg-tertiary">
-                    {communityCarer.meetsShared} meets together
-                  </span>
-                )}
-                {provider?.mutualConnections && provider.mutualConnections > 0 && (
-                  <span className="text-xs text-fg-tertiary">
-                    {provider.mutualConnections} mutual connections
-                  </span>
-                )}
-              </div>
+              {/* Connection state — Familiar lives here as a tappable pill so
+               * the primary CTA row can stay focused on Connect/Message. Same
+               * pill pattern as `PersonRow` (Trust & Visibility A2 spec). */}
+              {!isSelf && (() => {
+                const matrix = resolvePersonActions(
+                  { userId: currentUserId, profileOpen: currentUser.profileVisibility === "open" },
+                  {
+                    userId,
+                    connectionState: connState,
+                    theyMarkedFamiliar: connection?.theyMarkedFamiliar,
+                    profileOpen: isProfileOpen,
+                  },
+                );
+                const familiarAction = matrix.find((a) => a.kind === "familiar");
+                const showFamiliarOn = connState === "familiar";
+                const showFamiliarOff =
+                  connState === "none" &&
+                  familiarAction?.kind === "familiar" &&
+                  familiarAction.state === "off";
+                // Connected gets no pill — the Message CTA carries the signal
+                // unambiguously. Mirrors the PersonRow rule.
+                const showConnectionIcon =
+                  !showFamiliarOn &&
+                  !showFamiliarOff &&
+                  connState !== "connected";
+                return (
+                  <div className="flex items-center gap-sm flex-wrap justify-center">
+                    {/* Pending / Open profile only — ConnectionIcon. */}
+                    {showConnectionIcon && (
+                      <ConnectionIcon
+                        state={connState}
+                        profileOpen={isProfileOpen}
+                        size={16}
+                        showLabel
+                      />
+                    )}
+                    {/* Familiar — outbound (toggle off on tap). */}
+                    {showFamiliarOn && (
+                      <button
+                        type="button"
+                        className="person-row-pill person-row-pill--familiar person-row-pill--toggle"
+                        aria-pressed
+                        aria-label={`Remove Familiar from ${firstName}`}
+                      >
+                        {"Familiar ✓"}
+                      </button>
+                    )}
+                    {/* Familiar — not yet marked (toggle on on tap). */}
+                    {showFamiliarOff && (
+                      <button
+                        type="button"
+                        className="person-row-pill person-row-pill--familiar-off person-row-pill--toggle"
+                        aria-label={`Mark ${firstName} as Familiar`}
+                      >
+                        {"+ Familiar"}
+                      </button>
+                    )}
+                    {communityCarer && communityCarer.meetsShared > 0 && (
+                      <span className="text-xs text-fg-tertiary">
+                        {communityCarer.meetsShared} meets together
+                      </span>
+                    )}
+                    {provider?.mutualConnections && provider.mutualConnections > 0 && (
+                      <span className="text-xs text-fg-tertiary">
+                        {provider.mutualConnections} mutual connections
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
+              {isSelf && (
+                <div className="flex items-center gap-sm flex-wrap justify-center">
+                  <ConnectionIcon state={connState} profileOpen={isProfileOpen} size={16} showLabel />
+                </div>
+              )}
 
               {connection && <TrustSignalBadges connection={connection} />}
 
-              {/* CTA buttons */}
-              <div className="flex gap-sm w-full" style={{ maxWidth: 400 }}>
-                {connState === "connected" && (
-                  <>
-                    <ButtonAction variant="primary" size="md" cta className="flex-1"
-                      leftIcon={<ChatCircleDots size={16} weight="fill" />}
-                      onClick={() => handleTabChange("chat")}>
-                      Message
-                    </ButtonAction>
-                    {hasCare && (
-                      <ButtonAction variant="outline" size="md" cta className="flex-1"
+              {/* CTA buttons — driven by the action matrix. Familiar lives in
+                * the connection-state pill above, not in the CTA row, so this
+                * area stays focused on Connect / Message / Book care. */}
+              {!isSelf && (() => {
+                const matrixActions = resolvePersonActions(
+                  { userId: currentUserId, profileOpen: currentUser.profileVisibility === "open" },
+                  {
+                    userId,
+                    connectionState: connState,
+                    theyMarkedFamiliar: connection?.theyMarkedFamiliar,
+                    profileOpen: isProfileOpen,
+                  },
+                );
+                if (connState === "pending") {
+                  return (
+                    <div className="flex gap-sm w-full" style={{ maxWidth: 400 }}>
+                      <ButtonAction variant="outline" size="md" cta className="flex-1" disabled>
+                        Request sent
+                      </ButtonAction>
+                    </div>
+                  );
+                }
+                const ctaActions = matrixActions.filter(
+                  (a) => a.kind === "connect" || a.kind === "message",
+                );
+                if (ctaActions.length === 0 && !(connState === "connected" && hasCare)) {
+                  return null;
+                }
+                return (
+                  <div className="flex gap-sm w-full" style={{ maxWidth: 400 }}>
+                    {ctaActions.map((action, i) => {
+                      if (action.kind === "message") {
+                        return (
+                          <ButtonAction
+                            key={`message-${i}`}
+                            variant="primary"
+                            size="md"
+                            cta
+                            className="flex-1"
+                            leftIcon={<ChatCircleDots size={16} weight="fill" />}
+                            onClick={() => handleTabChange("chat")}
+                          >
+                            Message
+                          </ButtonAction>
+                        );
+                      }
+                      if (action.kind === "connect") {
+                        return (
+                          <ButtonAction
+                            key={`connect-${i}`}
+                            variant="primary"
+                            size="md"
+                            cta
+                            className="flex-1"
+                          >
+                            Connect with {firstName}
+                          </ButtonAction>
+                        );
+                      }
+                      return null;
+                    })}
+                    {connState === "connected" && hasCare && (
+                      <ButtonAction
+                        variant="outline"
+                        size="md"
+                        cta
+                        className="flex-1"
                         leftIcon={<CalendarDots size={16} weight="light" />}
-                        onClick={() => handleTabChange("chat")}>
+                        onClick={() => handleTabChange("chat")}
+                      >
                         Book care
                       </ButtonAction>
                     )}
-                  </>
-                )}
-                {connState === "familiar" && (
-                  <ButtonAction variant="primary" size="md" cta className="flex-1">
-                    Connect with {firstName}
-                  </ButtonAction>
-                )}
-                {connState === "pending" && (
-                  <ButtonAction variant="outline" size="md" cta className="flex-1" disabled>
-                    Request sent
-                  </ButtonAction>
-                )}
-              </div>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* About section */}

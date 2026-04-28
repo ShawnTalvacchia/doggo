@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useCallback } from "react";
 import { mockConversations } from "@/lib/mockConversations";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import type {
   Conversation,
   ChatMessage,
@@ -53,6 +54,11 @@ const ConversationsContext = createContext<ConversationsContextValue | undefined
 
 export function ConversationsProvider({ children }: { children: React.ReactNode }) {
   const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
+  const currentUser = useCurrentUser();
+  const currentUserFullName = `${currentUser.firstName} ${currentUser.lastName}`;
+  // The mock conversation seed data is currently Shawn-relative (Mock World
+  // Building will populate per-persona threads). Non-Shawn personas will see
+  // an empty inbox until that lands — that's expected.
 
   const getConversation = useCallback(
     (id: string) => conversations.find((c) => c.id === id),
@@ -66,15 +72,16 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
 
   const getConversationForUser = useCallback(
     (userId: string) => {
-      // The signed-in user is always "shawn", so the other party is either
-      // providerId (when Shawn is the owner) or ownerId (when Shawn is the provider).
+      // Find the conversation where the current persona and the target user are
+      // the two parties (in either owner/provider role).
+      const me = currentUser.id;
       return conversations.find(
         (c) =>
-          (c.ownerId === "shawn" && c.providerId === userId) ||
-          (c.providerId === "shawn" && c.ownerId === userId)
+          (c.ownerId === me && c.providerId === userId) ||
+          (c.providerId === me && c.ownerId === userId)
       );
     },
-    [conversations]
+    [conversations, currentUser.id]
   );
 
   const getOrCreateConversation = useCallback(
@@ -93,16 +100,15 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
         providerId: provider.id,
         providerName: provider.name,
         providerAvatarUrl: provider.avatarUrl,
-        ownerId: "shawn",
-        ownerName: "Shawn Talvacchia",
-        ownerAvatarUrl:
-          "/images/generated/shawn-profile.jpg",
+        ownerId: currentUser.id,
+        ownerName: currentUserFullName,
+        ownerAvatarUrl: currentUser.avatarUrl,
         status: "active",
         inquiry: {
           bookingType: "one_off",
           serviceType: service ?? "walk_checkin",
           subService: null,
-          pets: ["Spot", "Goldie"],
+          pets: currentUser.pets.map((p) => p.name),
           startDate: null,
           endDate: null,
           dogName: "",
@@ -116,7 +122,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
       setConversations((prev) => [newConv, ...prev]);
       return newId;
     },
-    [conversations]
+    [conversations, currentUser.id, currentUser.avatarUrl, currentUser.pets, currentUserFullName]
   );
 
   const getOrCreateDirectConversation = useCallback(
@@ -135,10 +141,9 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
         providerId: target.id,
         providerName: target.name,
         providerAvatarUrl: target.avatarUrl,
-        ownerId: "shawn",
-        ownerName: "Shawn Talvacchia",
-        ownerAvatarUrl:
-          "/images/generated/shawn-profile.jpg",
+        ownerId: currentUser.id,
+        ownerName: currentUserFullName,
+        ownerAvatarUrl: currentUser.avatarUrl,
         status: "active",
         inquiry: {
           bookingType: "one_off",
@@ -158,7 +163,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
       setConversations((prev) => [newConv, ...prev]);
       return newId;
     },
-    [conversations]
+    [conversations, currentUser.id, currentUser.avatarUrl, currentUserFullName]
   );
 
   const addMessage = useCallback((convId: string, message: ChatMessage) => {

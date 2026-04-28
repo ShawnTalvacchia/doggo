@@ -7,6 +7,7 @@ import {
   Briefcase,
 } from "@phosphor-icons/react";
 import { useBookings } from "@/contexts/BookingsContext";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { Booking } from "@/lib/types";
 import { BookingRow } from "@/components/ui/BookingRow";
 import { TabBar } from "@/components/ui/TabBar";
@@ -15,9 +16,8 @@ import { ButtonAction } from "@/components/ui/ButtonAction";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutList } from "@/components/layout/LayoutList";
+import { LayoutSection } from "@/components/layout/LayoutSection";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-
-const CURRENT_USER = "shawn";
 
 const TABS = [
   { key: "care", label: "My Care" },
@@ -48,6 +48,7 @@ function BookingSection({
 
 function MyCareContent() {
   const { bookings } = useBookings();
+  const CURRENT_USER = useCurrentUserId();
   const ownerBookings = bookings.filter((b) => b.ownerId === CURRENT_USER);
 
   const active = ownerBookings.filter((b) => b.status === "active");
@@ -58,16 +59,18 @@ function MyCareContent() {
 
   if (ownerBookings.length === 0) {
     return (
-      <EmptyState
-        icon={<CalendarDots size={48} weight="light" />}
-        title="No care bookings yet."
-        subtitle="Find a trusted carer in your community."
-        action={
-          <ButtonAction variant="primary" size="sm" href="/discover/care">
-            Find Care
-          </ButtonAction>
-        }
-      />
+      <LayoutSection>
+        <EmptyState
+          icon={<CalendarDots size={48} weight="light" />}
+          title="No care bookings yet."
+          subtitle="Find a trusted carer in your community."
+          action={
+            <ButtonAction variant="primary" size="sm" href="/discover/care">
+              Find Care
+            </ButtonAction>
+          }
+        />
+      </LayoutSection>
     );
   }
 
@@ -84,6 +87,7 @@ function MyCareContent() {
 
 function MyServicesContent() {
   const { bookings } = useBookings();
+  const CURRENT_USER = useCurrentUserId();
   const carerBookings = bookings.filter((b) => b.carerId === CURRENT_USER);
 
   const active = carerBookings.filter((b) => b.status === "active");
@@ -94,16 +98,18 @@ function MyServicesContent() {
 
   if (carerBookings.length === 0) {
     return (
-      <EmptyState
-        icon={<Briefcase size={48} weight="light" />}
-        title="No service bookings yet."
-        subtitle="Set up your services in your profile to start receiving bookings."
-        action={
-          <ButtonAction variant="primary" size="sm" href="/profile?tab=services">
-            Set up services
-          </ButtonAction>
-        }
-      />
+      <LayoutSection>
+        <EmptyState
+          icon={<Briefcase size={48} weight="light" />}
+          title="No service bookings yet."
+          subtitle="Set up your services in your profile to start receiving bookings."
+          action={
+            <ButtonAction variant="primary" size="sm" href="/profile?tab=services">
+              Set up services
+            </ButtonAction>
+          }
+        />
+      </LayoutSection>
     );
   }
 

@@ -24,8 +24,7 @@ import { InquiryResponseCard } from "@/components/messaging/InquiryResponseCard"
 import { ProposalForm } from "@/components/messaging/ProposalForm";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { useBookings } from "@/contexts/BookingsContext";
-
-const MY_USER_ID = "shawn";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -90,6 +89,7 @@ export function ThreadClient({
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Perspective: am I the carer (provider) or the owner in this conversation?
+  const MY_USER_ID = useCurrentUserId();
   const isCarerPerspective = conv.providerId === MY_USER_ID;
   const myRole: MessageSender = isCarerPerspective ? "provider" : "owner";
 

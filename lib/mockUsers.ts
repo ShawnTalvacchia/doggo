@@ -57,6 +57,7 @@ export const tereza: UserProfile = {
   profileVisibility: "open",
   tagApproval: "auto",
   openToHelping: true,
+  shareCode: "tereza-r4m2",
   pets: [
     {
       id: "franta",
@@ -107,6 +108,7 @@ export const daniel: UserProfile = {
   profileVisibility: "locked",
   tagApproval: "approve",
   openToHelping: false,
+  shareCode: "daniel-w9k7",
   pets: [
     {
       id: "bara",
@@ -136,6 +138,7 @@ export const klara: UserProfile = {
   profileVisibility: "open",
   tagApproval: "auto",
   openToHelping: true,
+  shareCode: "klara-p3n8",
   pets: [
     {
       id: "eda",
@@ -198,6 +201,7 @@ export const tomas: UserProfile = {
   profileVisibility: "locked",
   tagApproval: "auto",
   openToHelping: false,
+  shareCode: "tomas-x6q4",
   pets: [
     {
       id: "hugo",
@@ -712,10 +716,118 @@ export const marie: UserProfile = {
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   FORMER DEFAULT — Shawn (now a regular community member)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * Shawn — formerly the default persona, removed from the persona switcher
+ * 2026-04-26. The actual developer's name shouldn't double as a demo
+ * character (confusing for testers), and Tereza better represents the
+ * routine-owner happy path. Mock data references to "shawn" are intact —
+ * he's still a Vinohrady regular in the world (organises walks, owns Spot
+ * & Goldie, offers neighbourhood walks). Just no longer a "view as" option.
+ */
+export const shawn: UserProfile = {
+  id: "shawn",
+  firstName: "Shawn",
+  lastName: "Talvacchia",
+  email: "stalvacchia@gmail.com",
+  avatarUrl: AV.shawn,
+  bio: "Dog dad and remote worker based in Prague 2. I love exploring Vinohrady and Žižkov parks with my dogs and am always looking for reliable, caring people to help out when I'm busy or travelling.",
+  location: "Prague 2, Czech Republic",
+  neighbourhood: "Vinohrady",
+  memberSince: "2025-01",
+  pets: [
+    {
+      id: "spot",
+      name: "Spot",
+      breed: "Dalmatian Mix",
+      weightLabel: "18 kg",
+      ageLabel: "4 years",
+      imageUrl: "/images/generated/spot-portrait.jpeg",
+      notes: "Friendly but can be nervous with new dogs. Loves fetch and long walks.",
+      energyLevel: "high",
+      playStyles: ["fetch", "chase", "sniffing"],
+      socialisationNotes:
+        "Great with people and kids. Can be nervous meeting new dogs — needs slow intros. Once comfortable, plays well in small groups. Does best with calm, confident dogs.",
+      vetInfo: {
+        clinicName: "VetClinic Praha 2",
+        vetPhone: "+420 222 333 444",
+        lastCheckup: "2026-01-15",
+        vaccinationsUpToDate: true,
+        spayedNeutered: true,
+        medications: "",
+        conditions: "Mild skin allergies (seasonal). Managed with diet.",
+      },
+      photoGallery: [
+        "/images/generated/spot-park-walk.jpeg",
+        "/images/generated/spot-resting.jpeg",
+        "/images/generated/spot-portrait.jpeg",
+      ],
+    },
+    {
+      id: "goldie",
+      name: "Goldie",
+      breed: "Golden Retriever",
+      weightLabel: "28 kg",
+      ageLabel: "2 years",
+      imageUrl: "/images/generated/goldie-portrait.jpeg",
+      notes: "Very social, gets along with everyone. Still learning to walk nicely on leash.",
+      energyLevel: "very_high",
+      playStyles: ["fetch", "tug", "wrestling", "chase"],
+      socialisationNotes:
+        "Loves every dog and person she meets. Can be a bit over-enthusiastic with greetings — working on polite hellos. Excellent with children, very gentle indoors.",
+      vetInfo: {
+        clinicName: "VetClinic Praha 2",
+        vetPhone: "+420 222 333 444",
+        lastCheckup: "2026-02-20",
+        vaccinationsUpToDate: true,
+        spayedNeutered: false,
+        medications: "",
+        conditions: "",
+      },
+      photoGallery: [
+        "/images/generated/goldie-playing.jpeg",
+        "/images/generated/goldie-leash.jpeg",
+      ],
+    },
+  ],
+  tagApproval: "auto",
+  profileVisibility: "open",
+  shareCode: "shawn-x7k9",
+  openToHelping: true,
+  carerProfile: {
+    bio: "I offer daily dog walks in the Vinohrady and Žižkov area. I have experience with dogs of all sizes and genuinely enjoy spending time with them.",
+    location: "Prague 2 – Vinohrady",
+    availability: [
+      { day: "Mon", slots: ["morning", "afternoon"] },
+      { day: "Tue", slots: ["morning"] },
+      { day: "Wed", slots: ["morning", "afternoon"] },
+      { day: "Thu", slots: ["morning"] },
+      { day: "Fri", slots: ["morning", "afternoon"] },
+      { day: "Sat", slots: ["morning", "afternoon", "evening"] },
+      { day: "Sun", slots: ["morning"] },
+    ],
+    services: [
+      {
+        serviceType: "walk_checkin",
+        enabled: true,
+        pricePerUnit: 280,
+        priceUnit: "per_visit",
+        subServices: ["Solo walk", "Group walk"],
+        notes: "45–60 min walks around Riegrovy sady and Vítkov park. Max 3 dogs.",
+      },
+    ],
+    publicProfile: true,
+    visibility: "connected_only",
+    acceptingBookings: true,
+  },
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════
    REGISTRY & HELPERS
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/** All non-Shawn users. Shawn lives in mockUser.ts and is imported separately. */
 export const allUsers: UserProfile[] = [
   tereza, daniel, klara, tomas,
   marek, lucie, jakub, zuzana,
@@ -723,25 +835,38 @@ export const allUsers: UserProfile[] = [
   martin, eva, filip,
   hana, vitek, anezka,
   jana, nikola, marie,
+  shawn,
 ];
 
 /** Quick lookup by user ID. */
 const userMap = new Map<string, UserProfile>(allUsers.map((u) => [u.id, u]));
 
+/**
+ * Look up a full UserProfile by ID.
+ *
+ * Returns `undefined` for IDs that don't have a `UserProfile` in this
+ * registry — most commonly providers from `mockData.ts` (`olga-m`, `jana-k`,
+ * `petra-v`, etc.) that exist as `ProviderCard` directory entries without a
+ * full user profile. See `getUserOrProvider()` for the lookup that bridges
+ * both registries (Mock World Building D4, 2026-04-26).
+ *
+ * Callers that only display a name + avatar should use the snapshot fields
+ * already on the surrounding object (e.g. `Booking.carerName` /
+ * `Booking.carerAvatarUrl`) rather than re-resolving the user — those
+ * snapshots survive directory-only providers.
+ */
 export function getUserById(id: string): UserProfile | undefined {
   return userMap.get(id);
 }
 
 /** Get display name for any user ID (falls back to ID if unknown). */
 export function getUserName(id: string): string {
-  if (id === "shawn") return "Shawn";
   const u = userMap.get(id);
   return u ? u.firstName : id;
 }
 
 /** Get avatar URL for any user ID. */
 export function getUserAvatar(id: string): string {
-  if (id === "shawn") return AV.shawn;
   const u = userMap.get(id);
   return u?.avatarUrl ?? "";
 }
@@ -758,4 +883,58 @@ export function getDogById(dogId: string) {
     if (dog) return { ...dog, ownerId: u.id, ownerName: u.firstName };
   }
   return undefined;
+}
+
+/* ─── Provider bridge (Mock World Building D4) ───────────────────────────────
+ * Some `ProviderCard` entries in `lib/mockData.ts` (`olga-m`, `jana-k`,
+ * `petra-v`, `marketa-h`, etc.) don't have full `UserProfile` entries here —
+ * they're directory-only. `getUserOrProvider()` bridges the two registries
+ * for callers that want a unified lookup.
+ *
+ * Resolution order:
+ *   1. Match the ID in this `mockUsers` registry.
+ *   2. Match a provider's `id` in `providers`, **or** a provider's `userId`
+ *      bridge field if set (e.g. `nikola-r` bridges to user `nikola`).
+ *   3. Synthesize a minimal `UserProfile` from the `ProviderCard` so the
+ *      caller still gets a `firstName`/`avatarUrl`/`location` to render.
+ *      Synthesized profiles have `pets: []`, no `bio`, no `carerProfile`.
+ *
+ * Returns `undefined` only when no match in either registry.
+ */
+import { providers as providerCards } from "./mockData";
+
+export function getUserOrProvider(id: string): UserProfile | undefined {
+  const direct = userMap.get(id);
+  if (direct) return direct;
+
+  // Match either the provider's own ID or its `userId` bridge field.
+  const providerCard = providerCards.find(
+    (p) => p.id === id || p.userId === id,
+  );
+  if (!providerCard) return undefined;
+
+  // If the provider bridges to a real user, prefer that.
+  if (providerCard.userId) {
+    const bridged = userMap.get(providerCard.userId);
+    if (bridged) return bridged;
+  }
+
+  // Synthesize a minimal UserProfile from ProviderCard data so callers can
+  // render avatar/name/location without crashing.
+  const [firstName, ...rest] = providerCard.name.split(" ");
+  return {
+    id: providerCard.id,
+    firstName: firstName ?? providerCard.name,
+    lastName: rest.join(" "),
+    email: "",
+    avatarUrl: providerCard.avatarUrl,
+    bio: providerCard.blurb ?? "",
+    location: providerCard.district,
+    neighbourhood: providerCard.neighborhood,
+    memberSince: "",
+    pets: [],
+    profileVisibility: "open",
+    tagApproval: "auto",
+    openToHelping: true,
+  };
 }

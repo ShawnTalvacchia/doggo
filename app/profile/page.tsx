@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useCallback } from "react";
+import { Suspense, useState, useCallback, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   MapPin,
@@ -18,6 +18,7 @@ import { Spacer } from "@/components/layout/Spacer";
 import { ProfileAboutTab } from "@/components/profile/ProfileAboutTab";
 import { ProfileServicesTab } from "@/components/profile/ProfileServicesTab";
 import { PostsTab } from "@/components/profile/PostsTab";
+import { ProfileNameDropdown } from "@/components/profile/ProfileNameDropdown";
 import type {
   PetProfile,
   CarerServiceConfig,
@@ -25,7 +26,7 @@ import type {
   CarerAvailabilitySlot,
   TagApproval,
 } from "@/lib/types";
-import { mockUser } from "@/lib/mockUser";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const TABS = [
   { key: "about", label: "About" },
@@ -42,6 +43,9 @@ function formatMemberSince(ym: string): string {
 }
 
 function ShareProfileButton({ shareCode }: { shareCode: string }) {
+  // Every persona gets a shareable link; if the persona profile doesn't define
+  // an explicit shareCode, fall back to the user ID as the slug. Mock World
+  // Building can swap in nicer codes per persona later (`tereza-r4m2` etc.).
   const [copied, setCopied] = useState(false);
   const url = `${typeof window !== "undefined" ? window.location.origin : ""}/connect/${shareCode}`;
 
@@ -80,9 +84,10 @@ function ProfileInner() {
   }, [router]);
 
   const [editing, setEditing] = useState(false);
+  const currentUser = useCurrentUser();
 
   // Editable state (local, resets on refresh — prototype only)
-  const [user, setUser] = useState<UserProfile>(mockUser);
+  const [user, setUser] = useState<UserProfile>(currentUser);
   const [editBio, setEditBio] = useState(user.bio);
   const [editPets, setEditPets] = useState<PetProfile[]>(user.pets);
   const [editVisibility, setEditVisibility] = useState(
@@ -103,6 +108,22 @@ function ProfileInner() {
   const [tagApproval, setTagApproval] = useState<TagApproval>(
     user.tagApproval ?? "auto"
   );
+
+  // When the active persona changes (via the name dropdown or /demo), reset
+  // the local editable state to the new user. Edits don't persist across
+  // persona swaps in the prototype.
+  useEffect(() => {
+    setUser(currentUser);
+    setEditBio(currentUser.bio);
+    setEditPets(currentUser.pets);
+    setEditVisibility(currentUser.carerProfile?.publicProfile ?? false);
+    setEditOpenToHelping(currentUser.openToHelping ?? false);
+    setEditServices(currentUser.carerProfile?.services ?? []);
+    setEditAvailability(currentUser.carerProfile?.availability ?? []);
+    setEditCarerBio(currentUser.carerProfile?.bio ?? "");
+    setTagApproval(currentUser.tagApproval ?? "auto");
+    setEditing(false);
+  }, [currentUser.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function startEditing() {
     setEditBio(user.bio);
@@ -160,7 +181,9 @@ function ProfileInner() {
                 style={{ width: 96, height: 96 }}
               />
               <div className="flex flex-col items-center gap-xs text-center">
-                <h1 className="font-heading text-3xl font-medium text-fg-primary m-0">{fullName}</h1>
+                {/* Demo-only persona switcher: tap the name to swap perspectives.
+                    Wouldn't ship in the real product. */}
+                <ProfileNameDropdown name={fullName} />
                 <span className="flex items-center gap-xs text-sm text-fg-secondary">
                   <MapPin size={13} weight="fill" className="shrink-0" />
                   {user.location}
@@ -193,7 +216,7 @@ function ProfileInner() {
                       onClick={startEditing}>
                       Edit Profile
                     </ButtonAction>
-                    {user.shareCode && <ShareProfileButton shareCode={user.shareCode} />}
+                    <ShareProfileButton shareCode={user.shareCode ?? user.id} />
                   </>
                 )}
               </div>
@@ -215,7 +238,7 @@ function ProfileInner() {
         )}
 
         {activeTab === "posts" && (
-          <PostsTab userId="shawn" isOwnProfile />
+          <PostsTab userId={currentUser.id} isOwnProfile />
         )}
 
         {activeTab === "services" && (

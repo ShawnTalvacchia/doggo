@@ -45,7 +45,7 @@ export default function SignupSuccessPage() {
               variant="secondary"
               size="lg"
               cta
-              onClick={() => goTo("/activity")}
+              onClick={() => goTo("/discover/meets")}
             >
               Browse Meets
             </ButtonAction>

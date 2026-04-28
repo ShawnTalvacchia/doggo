@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   Bell,
   CalendarBlank,
+  CalendarPlus,
   ChatCircle,
   Handshake,
   HandsClapping,
@@ -79,6 +80,7 @@ function groupNotifications(notifications: AppNotification[]): NotificationGroup
 const TYPE_ICONS: Record<NotificationType, typeof Bell> = {
   meet_invite: CalendarBlank,
   meet_reminder: CalendarBlank,
+  meet_series_update: CalendarPlus,
   post_meet_review: Handshake,
   connection_request: Handshake,
   connection_accepted: HandsClapping,
@@ -96,6 +98,7 @@ const TYPE_ICONS: Record<NotificationType, typeof Bell> = {
 const TYPE_LABELS: Record<NotificationType, string> = {
   meet_invite: "Meet",
   meet_reminder: "Meet",
+  meet_series_update: "Series",
   post_meet_review: "Meet",
   connection_request: "Connection",
   connection_accepted: "Connection",

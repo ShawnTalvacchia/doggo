@@ -3,8 +3,7 @@
 import { use, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useConversations } from "@/contexts/ConversationsContext";
-
-const MY_USER_ID = "shawn";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 
 interface Props {
   params: Promise<{ conversationId: string }>;
@@ -18,6 +17,7 @@ export default function ThreadRedirectPage({ params }: Props) {
   const { conversationId } = use(params);
   const router = useRouter();
   const { getConversation } = useConversations();
+  const currentUserId = useCurrentUserId();
   const conversation = getConversation(conversationId);
 
   useEffect(() => {
@@ -27,11 +27,11 @@ export default function ThreadRedirectPage({ params }: Props) {
     }
     // Determine the other party's userId
     const otherUserId =
-      conversation.ownerId === MY_USER_ID
+      conversation.ownerId === currentUserId
         ? conversation.providerId
         : conversation.ownerId;
     router.replace(`/profile/${otherUserId}?tab=chat`);
-  }, [conversation, router]);
+  }, [conversation, router, currentUserId]);
 
   return null;
 }

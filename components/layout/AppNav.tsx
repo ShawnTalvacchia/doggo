@@ -13,9 +13,11 @@ import {
   Bell,
   ChatCircleDots,
   DotsThree,
+  CalendarPlus,
 } from "@phosphor-icons/react";
 import { AddPostIcon } from "@/components/icons/AddPostIcon";
 import { usePostComposer } from "@/contexts/PostComposerContext";
+import { useMeetComposer } from "@/contexts/MeetComposerContext";
 
 function GuestNavLinks() {
   return (
@@ -44,22 +46,36 @@ function SignupNavLinks() {
 }
 
 function LoggedNavLinks({ hideCreate = false }: { hideCreate?: boolean }) {
+  const pathname = usePathname();
   const { unreadCount } = useNotifications();
   const { conversations } = useConversations();
   const { openComposer } = usePostComposer();
+  const { openComposer: openMeetComposer } = useMeetComposer();
   const [notifOpen, setNotifOpen] = useState(false);
   const notifWrapRef = useRef<HTMLDivElement>(null);
 
   // Count unread conversations for inbox badge
   const unreadInbox = conversations.filter((c) => c.unreadCount > 0).length;
 
+  // Context-aware Create action: on /schedule the primary create is a meet,
+  // everywhere else it's a post. Icon flips to match.
+  const isScheduleRoute = pathname.startsWith("/schedule");
+  const createLabel = isScheduleRoute ? "Create meet" : "Create post";
+  const createIcon = isScheduleRoute
+    ? <CalendarPlus size={28} weight="light" />
+    : <AddPostIcon size={28} />;
+  const handleCreate = () => {
+    if (isScheduleRoute) openMeetComposer();
+    else openComposer();
+  };
+
   return (
     <div className="app-nav-logged" aria-label="Logged-in navigation">
       {/* Right icon row: Create, Notifications, Inbox */}
       <div className="app-nav-icon-row">
         {!hideCreate && (
-          <ButtonIcon label="Create" onClick={() => openComposer()}>
-            <AddPostIcon size={28} />
+          <ButtonIcon label={createLabel} onClick={handleCreate}>
+            {createIcon}
           </ButtonIcon>
         )}
         <div className="app-nav-notif-wrap" ref={notifWrapRef}>
@@ -151,7 +167,7 @@ export function AppNav() {
             <GuestNavLinks />
           )
         ) : (
-          <LoggedNavLinks hideCreate={isDiscoverRoute || pathname.startsWith("/schedule") || pathname.startsWith("/bookings") || pathname.startsWith("/inbox") || pathname.startsWith("/notifications")} />
+          <LoggedNavLinks hideCreate={isDiscoverRoute || pathname.startsWith("/bookings") || pathname.startsWith("/inbox") || pathname.startsWith("/notifications")} />
         )}
       </div>
     </>

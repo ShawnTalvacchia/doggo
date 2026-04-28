@@ -7,8 +7,7 @@ import { Plus } from "@phosphor-icons/react";
 import { CameraPlusFill } from "@/components/icons/CameraPlusFill";
 import { usePostComposer } from "@/contexts/PostComposerContext";
 import { getFeedForUser, getNewUserFeed } from "@/lib/mockFeed";
-import { DEMO_NEW_USER } from "@/lib/mockUserState";
-import { HomeWelcome } from "@/components/home/HomeWelcome";
+import { useCurrentUserId, useIsNewUser } from "@/hooks/useCurrentUser";
 import { DogsNearYou } from "@/components/home/DogsNearYou";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { FeedMeetRecap } from "@/components/feed/FeedMeetRecap";
@@ -103,8 +102,11 @@ function HomePageInner() {
   // Category filter — single select
   const [activeCategory, setActiveCategory] = useState<GroupType | "all">("all");
 
-  const userGroups = getUserGroups("shawn");
-  const allFeedItems = getFeedForUser("shawn");
+  const newUserMode = useIsNewUser();
+  const currentUserId = useCurrentUserId();
+
+  const userGroups = getUserGroups(currentUserId);
+  const allFeedItems = getFeedForUser(currentUserId);
 
   // Filter groups by selected category
   const filteredGroups = useMemo(() => {
@@ -204,9 +206,8 @@ function HomePageInner() {
           {/* Feed view */}
           {mainTab === "feed" && (
             <>
-              {DEMO_NEW_USER ? (
+              {newUserMode ? (
                 <>
-                  <HomeWelcome />
                   <DogsNearYou />
                   {getNewUserFeed().map((item) => (
                     <FeedItemRenderer key={item.feedId} item={item} />

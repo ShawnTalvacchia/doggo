@@ -34,9 +34,8 @@ import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { getUserById } from "@/lib/mockUsers";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import { formatShortDate, formatDateRange } from "@/lib/dateUtils";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { Booking, BookingSession, ChatMessage } from "@/lib/types";
-
-const CURRENT_USER = "shawn";
 
 const TABS = [
   { key: "info", label: "Info" },
@@ -242,6 +241,7 @@ export default function BookingDetailPage() {
   const { bookings, cancelBooking, updateSession } = useBookings();
   const { getConversation, addMessage } = useConversations();
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
+  const CURRENT_USER = useCurrentUserId();
   const [showCancel, setShowCancel] = useState(false);
   const [draft, setDraft] = useState("");
   const chatBodyRef = useRef<HTMLDivElement>(null);

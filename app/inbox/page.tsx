@@ -1,25 +1,24 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
-import Link from "next/link";
 import {
   ChatCircleDots,
   MagnifyingGlass,
-  PawPrint,
   X,
 } from "@phosphor-icons/react";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
-import { getConnectionsByState } from "@/lib/mockConnections";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { getConnectionsByState, getConnectionState } from "@/lib/mockConnections";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutList } from "@/components/layout/LayoutList";
+import { LayoutSection } from "@/components/layout/LayoutSection";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ButtonIcon } from "@/components/ui/ButtonIcon";
-import type { Conversation, ChatMessage } from "@/lib/types";
+import { PersonRow } from "@/components/people/PersonRow";
+import type { Conversation, ChatMessage, ConnectionState } from "@/lib/types";
 import { formatRelativeTime } from "@/lib/dateUtils";
-
-const MY_USER_ID = "shawn";
 
 // ── Helpers ──────────────────────────────────────────────────────
 
@@ -39,8 +38,8 @@ function getPreview(conv: Conversation): string {
   return "";
 }
 
-function getOtherParty(conv: Conversation) {
-  const isCarerPerspective = conv.providerId === MY_USER_ID;
+function getOtherParty(conv: Conversation, currentUserId: string) {
+  const isCarerPerspective = conv.providerId === currentUserId;
   return isCarerPerspective
     ? { name: conv.ownerName, avatarUrl: conv.ownerAvatarUrl, id: conv.ownerId }
     : { name: conv.providerName, avatarUrl: conv.providerAvatarUrl, id: conv.providerId };
@@ -58,6 +57,9 @@ interface InboxRow {
   sortKey: string;
   hasUnread: boolean;
   hasConversation: boolean;
+  connectionState: ConnectionState;
+  theyMarkedFamiliar?: boolean;
+  profileOpen?: boolean;
 }
 
 // ── Search input for mobile nav header ───────────────────────────
@@ -98,63 +100,12 @@ function NavSearchInput({
   );
 }
 
-// ── Row component ────────────────────────────────────────────────
-
-function InboxUserRow({ row }: { row: InboxRow }) {
-  return (
-    <Link
-      href={`/profile/${row.userId}?tab=chat`}
-      className="flex items-center gap-md px-lg py-md border-b border-edge-regular"
-    >
-      {/* Avatar + unread dot */}
-      <div className="relative shrink-0">
-        <img
-          src={row.avatarUrl}
-          alt={row.name}
-          className="w-12 h-12 rounded-full object-cover"
-        />
-        {row.hasUnread && (
-          <span className="absolute top-0 right-0 w-3 h-3 rounded-full bg-brand-main border-2 border-surface-page" />
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="flex flex-col flex-1 min-w-0 gap-xs">
-        <div className="flex items-center justify-between gap-sm">
-          <span
-            className={`text-md leading-snug truncate ${
-              row.hasUnread ? "text-fg-primary font-semibold" : "text-fg-primary"
-            }`}
-          >
-            {row.name}
-          </span>
-          {row.timeAgo && (
-            <span className="text-xs text-fg-tertiary shrink-0">{row.timeAgo}</span>
-          )}
-        </div>
-        {row.dogNames.length > 0 && (
-          <span className="flex items-center gap-xs text-xs text-fg-tertiary">
-            <PawPrint size={11} weight="light" className="shrink-0" />
-            {row.dogNames.join(", ")}
-          </span>
-        )}
-        <span
-          className={`text-sm leading-snug truncate ${
-            row.hasUnread ? "text-fg-secondary font-medium" : "text-fg-tertiary"
-          }`}
-        >
-          {row.preview}
-        </span>
-      </div>
-    </Link>
-  );
-}
-
 // ── Main page ────────────────────────────────────────────────────
 
 export default function InboxPage() {
   const { conversations } = useConversations();
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
+  const currentUserId = useCurrentUserId();
   const [search, setSearch] = useState("");
   const [isSearching, setIsSearching] = useState(false);
 
@@ -190,11 +141,12 @@ export default function InboxPage() {
 
     // 1. Add users from existing conversations
     for (const conv of conversations) {
-      const other = getOtherParty(conv);
+      const other = getOtherParty(conv, currentUserId);
       if (seen.has(other.id)) continue;
       seen.add(other.id);
 
       const lastMsg = getLastMessage(conv);
+      const conn = getConnectionState(other.id, currentUserId);
       result.push({
         userId: other.id,
         name: other.name,
@@ -205,11 +157,14 @@ export default function InboxPage() {
         sortKey: lastMsg?.sentAt ?? "1970-01-01T00:00:00Z",
         hasUnread: conv.unreadCount > 0,
         hasConversation: true,
+        connectionState: conn?.state ?? "none",
+        theyMarkedFamiliar: conn?.theyMarkedFamiliar,
+        profileOpen: conn?.profileOpen,
       });
     }
 
     // 2. Add connected users who don't have a conversation yet
-    const connectedUsers = getConnectionsByState("connected");
+    const connectedUsers = getConnectionsByState("connected", currentUserId);
     for (const conn of connectedUsers) {
       if (seen.has(conn.userId)) continue;
       seen.add(conn.userId);
@@ -224,6 +179,9 @@ export default function InboxPage() {
         sortKey: conn.updatedAt ?? "1970-01-01T00:00:00Z",
         hasUnread: false,
         hasConversation: false,
+        connectionState: conn.state,
+        theyMarkedFamiliar: conn.theyMarkedFamiliar,
+        profileOpen: conn.profileOpen,
       });
     }
 
@@ -234,7 +192,7 @@ export default function InboxPage() {
     });
 
     return result;
-  }, [conversations]);
+  }, [conversations, currentUserId]);
 
   const filtered = useMemo(() => {
     if (!search.trim()) return rows;
@@ -263,27 +221,44 @@ export default function InboxPage() {
         </div>
 
         {/* List */}
-        <LayoutList>
-          {filtered.length > 0 ? (
-            <div className="flex flex-col">
+        {filtered.length > 0 ? (
+          <LayoutList>
+            <div className="flex flex-col divide-y divide-edge-regular">
               {filtered.map((row) => (
-                <InboxUserRow key={row.userId} row={row} />
+                <PersonRow
+                  key={row.userId}
+                  variant="inbox-conversation"
+                  userId={row.userId}
+                  name={row.name}
+                  avatarUrl={row.avatarUrl}
+                  pets={row.dogNames.map((name) => ({ name }))}
+                  connectionState={row.connectionState}
+                  theyMarkedFamiliar={row.theyMarkedFamiliar}
+                  profileOpen={row.profileOpen}
+                  messagePreview={row.preview}
+                  timeAgo={row.timeAgo}
+                  unreadDot={row.hasUnread}
+                />
               ))}
             </div>
-          ) : search.trim() ? (
+          </LayoutList>
+        ) : search.trim() ? (
+          <LayoutSection>
             <EmptyState
               icon={<MagnifyingGlass size={40} weight="light" />}
               title="No results"
               subtitle={`No people matching "${search}"`}
             />
-          ) : (
+          </LayoutSection>
+        ) : (
+          <LayoutSection>
             <EmptyState
               icon={<ChatCircleDots size={48} weight="light" />}
               title="No conversations yet"
               subtitle="Connect with people at meets and communities to start chatting."
             />
-          )}
-        </LayoutList>
+          </LayoutSection>
+        )}
 
         <Spacer />
       </div>

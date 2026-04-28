@@ -10,7 +10,7 @@ import {
 } from "@phosphor-icons/react";
 import Link from "next/link";
 import { ButtonAction } from "@/components/ui/ButtonAction";
-import { mockUser } from "@/lib/mockUser";
+import { personas } from "@/lib/personas";
 
 /**
  * Share profile link page — `/connect/[code]`
@@ -18,19 +18,22 @@ import { mockUser } from "@/lib/mockUser";
  * Shows a basic profile with a Connect CTA.
  * The link itself is the trust signal — it bypasses discovery gates.
  *
- * For the prototype, we only resolve the current user's share code.
+ * Resolves any persona's share code from the registry — Tereza, Daniel,
+ * Klára, Tomáš each have one as of Mock World Building D3. Doesn't depend
+ * on the active persona; the share code IS the lookup key.
  */
 export default function ShareProfilePage() {
   const { code } = useParams<{ code: string }>();
 
-  // Prototype: only resolve our own user's share code
-  const user = code === mockUser.shareCode ? mockUser : null;
+  // Look up the persona whose `shareCode` matches the URL slug.
+  const persona = personas.find((p) => p.user.shareCode === code);
+  const user = persona?.user ?? null;
 
   if (!user) {
     return (
       <main className="flex flex-col items-center justify-center gap-lg p-xl" style={{ minHeight: "60vh" }}>
         <ShareNetwork size={48} weight="light" className="text-fg-tertiary" />
-        <h1 className="font-heading text-3xl font-medium text-fg-primary">Profile not found</h1>
+        <h1 className="font-heading text-2xl font-medium text-fg-primary">Profile not found</h1>
         <p className="text-sm text-fg-secondary text-center" style={{ maxWidth: 320 }}>
           This link may have expired or doesn&apos;t exist. Ask your friend to share their profile again.
         </p>
@@ -69,7 +72,7 @@ export default function ShareProfilePage() {
 
         {/* Name */}
         <div>
-          <h1 className="font-heading text-3xl font-medium text-fg-primary m-0">
+          <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">
             {user.firstName}
           </h1>
           {user.neighbourhood && (

@@ -1,8 +1,8 @@
 import type { Booking } from "./types";
+import { daysFromNow } from "./mockDate";
 
 // ── Active ongoing — Olga, solo walks Mon/Wed/Fri ──────────────────────────────
-// Rolling weekly. Today is 2026-04-12 (Sun).
-// Shows recent completed sessions + upcoming next week.
+// Rolling weekly. Recent completed sessions + one upcoming next week.
 // Booking started early March — weeks of history.
 
 const olgaBooking: Booking = {
@@ -46,7 +46,7 @@ const olgaBooking: Booking = {
     { id: "s-olga-5", date: "2026-04-08", status: "completed" },
     { id: "s-olga-6", date: "2026-04-10", status: "completed" },
     // Next session only
-    { id: "s-olga-7", date: "2026-04-13", status: "upcoming" },
+    { id: "s-olga-7", date: daysFromNow(2), status: "upcoming" },
   ],
   signedAt: "2026-02-28T14:30:00Z",
   paymentStatus: "paid",
@@ -184,7 +184,7 @@ const shawnCarerActiveBooking: Booking = {
     { id: "skc-3", date: "2026-04-07", status: "completed" },
     { id: "skc-4", date: "2026-04-09", status: "completed", note: "Molly was great with the group today" },
     // Next session only
-    { id: "skc-5", date: "2026-04-14", status: "upcoming" },
+    { id: "skc-5", date: daysFromNow(3), status: "upcoming" },
   ],
   price: {
     lineItems: [{ label: "Group walk", amount: 250, unit: "per session" }],
@@ -201,7 +201,7 @@ const shawnCarerActiveBooking: Booking = {
 
 const klaraTrainingDaniel: Booking = {
   id: "booking-klara-daniel",
-  conversationId: null,
+  conversationId: "daniel-klara-conv",
   ownerId: "daniel",
   ownerName: "Daniel Procházka",
   ownerAvatarUrl: "/images/generated/daniel-profile.jpeg",
@@ -227,7 +227,7 @@ const klaraTrainingDaniel: Booking = {
     { id: "kd-3", date: "2026-03-26", status: "completed" },
     { id: "kd-4", date: "2026-04-02", status: "completed" },
     { id: "kd-5", date: "2026-04-09", status: "completed" },
-    { id: "kd-6", date: "2026-04-16", status: "upcoming" },
+    { id: "kd-6", date: daysFromNow(4), status: "upcoming" },
   ],
   price: {
     lineItems: [{ label: "1-on-1 reactive dog session", amount: 600, unit: "per session" }],
@@ -244,7 +244,7 @@ const klaraTrainingDaniel: Booking = {
 
 const klaraTrainingFilip: Booking = {
   id: "booking-klara-filip",
-  conversationId: null,
+  conversationId: "klara-filip-conv",
   ownerId: "filip",
   ownerName: "Filip Novotný",
   ownerAvatarUrl: "/images/generated/filip-profile.jpeg",
@@ -277,7 +277,7 @@ const klaraTrainingFilip: Booking = {
 
 const petraSittingTomas: Booking = {
   id: "booking-petra-tomas",
-  conversationId: null,
+  conversationId: "tomas-petra-conv",
   ownerId: "tomas",
   ownerName: "Tomáš Kovář",
   ownerAvatarUrl: "/images/generated/tomas-profile.jpeg",
@@ -310,7 +310,7 @@ const petraSittingTomas: Booking = {
 
 const terezaSittingMarek: Booking = {
   id: "booking-tereza-marek",
-  conversationId: null,
+  conversationId: "tereza-marek-conv",
   ownerId: "marek",
   ownerName: "Marek Dvořák",
   ownerAvatarUrl: "/images/generated/marek-profile.jpeg",
@@ -342,7 +342,7 @@ const terezaSittingMarek: Booking = {
 
 const klaraTrainingHana: Booking = {
   id: "booking-klara-hana",
-  conversationId: null,
+  conversationId: "klara-hana-conv",
   ownerId: "hana",
   ownerName: "Hana Pokorná",
   ownerAvatarUrl: "/images/generated/hana-profile.jpeg",
@@ -366,7 +366,7 @@ const klaraTrainingHana: Booking = {
     { id: "kh-2", date: "2026-03-27", status: "completed" },
     { id: "kh-3", date: "2026-04-03", status: "completed" },
     { id: "kh-4", date: "2026-04-10", status: "completed" },
-    { id: "kh-5", date: "2026-04-17", status: "upcoming" },
+    { id: "kh-5", date: daysFromNow(5), status: "upcoming" },
   ],
   price: {
     lineItems: [{ label: "1-on-1 reactive dog session", amount: 600, unit: "per session" }],

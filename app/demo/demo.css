@@ -1,0 +1,184 @@
+/* ═══════════════════════════════════════════════════════════════════
+   DEMO PAGE — /demo
+   Standalone persona picker; no AppNav/Sidebar/BottomNav.
+   Mirrors `unlock.css` structurally for a consistent "system page" feel.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.demo-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-xl);
+  background: var(--surface-base);
+  overflow-y: auto;
+}
+
+.demo-shell {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  padding: var(--space-xl) 0;
+}
+
+.demo-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  text-align: center;
+}
+
+.demo-brand {
+  font-family: var(--font-heading);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--brand-main);
+  text-transform: uppercase;
+}
+
+.demo-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.demo-subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0 auto;
+  max-width: 440px;
+  line-height: 1.55;
+}
+
+/* ── Persona cards ────────────────────────────────────────────────── */
+
+.demo-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.demo-card {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--surface-top);
+  border: 1px solid var(--border-regular);
+  border-radius: var(--radius-panel);
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.06s;
+}
+
+.demo-card:hover {
+  border-color: var(--brand-main);
+  box-shadow: var(--shadow-sm);
+}
+
+.demo-card:active {
+  transform: translateY(1px);
+}
+
+.demo-card--active {
+  border-color: var(--brand-main);
+  box-shadow: 0 0 0 2px var(--brand-main);
+}
+
+.demo-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--surface-base);
+}
+
+.demo-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.demo-card-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.demo-card-name {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+}
+
+.demo-card-archetype {
+  font-size: var(--text-xs);
+  color: var(--brand-main);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.demo-card-tagline {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.demo-card-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: var(--space-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--brand-main);
+  white-space: nowrap;
+  align-self: flex-start;
+}
+
+.demo-card--active .demo-card-action {
+  color: var(--text-tertiary);
+}
+
+/* ── Footer ──────────────────────────────────────────────────────── */
+
+.demo-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-lg);
+  margin-top: var(--space-md);
+}
+
+.demo-back-link,
+.demo-reset-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.demo-back-link:hover,
+.demo-reset-link:hover {
+  color: var(--brand-main);
+}

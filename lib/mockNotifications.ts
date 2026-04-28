@@ -1,7 +1,22 @@
 import type { AppNotification } from "./types";
+import { daysAgoIso, daysFromNowIso } from "./mockDate";
 export type { AppNotification } from "./types";
 
 export const mockNotifications: AppNotification[] = [
+  // Series-update notification — Shawn follows meet-7 (Thursday morning Vinohrady walk).
+  // Stubbed entry to confirm the UI handles the new notification type. Full delivery
+  // pipeline (24h reminders, batched "new dates added" digests) is out of scope —
+  // see meet-recurrence-model phase doc workstream G2.
+  {
+    id: "notif-series-1",
+    type: "meet_series_update",
+    title: "Thursday morning walk — new dates",
+    body: "Three new occurrences scheduled. Next one is Thu 30 Apr at 08:00.",
+    avatarUrl: "/images/generated/post-franta-stick.jpeg",
+    href: "/meets/meet-7",
+    createdAt: daysAgoIso(1, "09:00"),
+    read: false,
+  },
   {
     id: "notif-postmeet-1",
     type: "post_meet_review",
@@ -9,7 +24,7 @@ export const mockNotifications: AppNotification[] = [
     body: "Mark who you met and turn some familiar faces into connections",
     avatarUrl: "/images/generated/post-stromovka-saturday.jpeg",
     href: "/meets/meet-9/connect",
-    createdAt: "2026-04-13T19:00:00Z",
+    createdAt: daysAgoIso(13, "19:00"),
     read: false,
   },
   {
@@ -19,7 +34,7 @@ export const mockNotifications: AppNotification[] = [
     body: "Tereza, Marek, Lucie and Jana were there — want to mark anyone as familiar?",
     avatarUrl: "/images/generated/tereza-profile.jpeg",
     href: "/meets/meet-7/connect",
-    createdAt: "2026-04-10T10:30:00Z",
+    createdAt: daysAgoIso(16, "10:30"),
     read: true,
   },
   {
@@ -30,7 +45,7 @@ export const mockNotifications: AppNotification[] = [
     avatarUrl:
       "/images/generated/jana-profile.jpeg",
     href: "/meets/meet-2",
-    createdAt: "2026-04-05T09:30:00Z",
+    createdAt: daysAgoIso(21, "09:30"),
     read: false,
   },
   {
@@ -41,7 +56,7 @@ export const mockNotifications: AppNotification[] = [
     avatarUrl:
       "/images/generated/martin-profile.jpeg",
     href: "/profile/martin",
-    createdAt: "2026-04-05T08:15:00Z",
+    createdAt: daysAgoIso(21, "08:15"),
     read: false,
   },
   {
@@ -52,7 +67,7 @@ export const mockNotifications: AppNotification[] = [
     avatarUrl:
       "/images/generated/klara-profile.jpeg",
     href: "/bookings/booking-klara",
-    createdAt: "2026-04-04T18:00:00Z",
+    createdAt: daysAgoIso(22, "18:00"),
     read: false,
   },
   {
@@ -63,7 +78,7 @@ export const mockNotifications: AppNotification[] = [
     avatarUrl:
       "/images/generated/tereza-profile.jpeg",
     href: "/communities/group-1",
-    createdAt: "2026-04-04T11:30:00Z",
+    createdAt: daysAgoIso(22, "11:30"),
     read: true,
   },
   {
@@ -73,7 +88,7 @@ export const mockNotifications: AppNotification[] = [
     body: "Morning walk — Riegrovy sady, Tue 18 Mar at 08:00",
     avatarUrl: "/images/generated/park-hangout-riegrovy.jpeg",
     href: "/meets/meet-1",
-    createdAt: "2026-04-04T10:00:00Z",
+    createdAt: daysAgoIso(22, "10:00"),
     read: true,
   },
   {
@@ -84,7 +99,7 @@ export const mockNotifications: AppNotification[] = [
     avatarUrl:
       "/images/generated/eva-profile.jpeg",
     href: "/profile/eva",
-    createdAt: "2026-04-03T16:00:00Z",
+    createdAt: daysAgoIso(23, "16:00"),
     read: true,
   },
   {
@@ -95,7 +110,7 @@ export const mockNotifications: AppNotification[] = [
     avatarUrl:
       "/images/generated/jana-profile.jpeg",
     href: "/profile",
-    createdAt: "2026-04-03T12:00:00Z",
+    createdAt: daysAgoIso(23, "12:00"),
     read: true,
   },
   {
@@ -106,7 +121,7 @@ export const mockNotifications: AppNotification[] = [
     avatarUrl:
       "/images/generated/eva-profile.jpeg",
     href: "/meets/meet-3",
-    createdAt: "2026-04-02T14:00:00Z",
+    createdAt: daysAgoIso(24, "14:00"),
     read: true,
   },
   {
@@ -117,7 +132,7 @@ export const mockNotifications: AppNotification[] = [
     avatarUrl:
       "/images/generated/tomas-profile.jpeg",
     href: "/communities/group-1",
-    createdAt: "2026-04-01T09:00:00Z",
+    createdAt: daysAgoIso(25, "09:00"),
     read: true,
   },
   {

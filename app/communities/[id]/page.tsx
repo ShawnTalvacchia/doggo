@@ -21,11 +21,7 @@ import {
   Camera,
   CameraSlash,
   Prohibit,
-  ChatCircleDots,
-  PaperPlaneRight,
-  Handshake,
   Plus,
-  PawPrint,
   Storefront,
   MapPinLine,
   Images,
@@ -34,36 +30,50 @@ import {
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CardMeet } from "@/components/meets/CardMeet";
-import { MeetCardCompact } from "@/components/meets/MeetCardCompact";
-import { MessageBubble } from "@/components/chat/MessageBubble";
-import { SystemMessage } from "@/components/chat/SystemMessage";
+import { PersonRow } from "@/components/people/PersonRow";
 import { getGroupById, getGroupMeets } from "@/lib/mockGroups";
-import { getMessagesForGroup } from "@/lib/mockGroupMessages";
 import { getPostsByGroup } from "@/lib/mockPosts";
 import { getConnectionState } from "@/lib/mockConnections";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { usePostComposer } from "@/contexts/PostComposerContext";
+import { useMeetComposer } from "@/contexts/MeetComposerContext";
 
 /* ── Tab config per group type ─────────────────────────────────── */
 
-import type { GroupType } from "@/lib/types";
-
-function getTabsForGroupType(groupType: GroupType, hasPhotos: boolean) {
+/**
+ * Build the tab list for a group's detail page.
+ *
+ * Care groups follow `group.careConfig` — Events shows iff `eventsEnabled`,
+ * Services shows iff `serviceListingsVisible`. The defaults (in
+ * `mockGroups.ts → CARE_CONFIG_DEFAULTS`) are split by category so
+ * event-driven providers (training, walking, venue) get Events but no
+ * Services (each meet IS the service offering — would otherwise duplicate
+ * the same content), and appointment-driven providers (grooming, rehab)
+ * get Services but no Events (booking is a 1-on-1 time slot, not a
+ * scheduled group event). Boarding shows both — meet-and-greets + stays.
+ *
+ * Updated 2026-04-27 — care groups previously showed both tabs always,
+ * which created two surfaces selling the same thing for trainers and
+ * walkers. The flags existed in `careConfig` but the UI ignored them.
+ */
+function getTabsForGroup(group: Group, hasPhotos: boolean) {
   const base = (() => {
-    switch (groupType) {
+    switch (group.groupType) {
       case "park":
         return [
           { key: "feed", label: "Feed" },
           { key: "meets", label: "Meets" },
           { key: "members", label: "Members" },
         ];
-      case "care":
-        return [
-          { key: "feed", label: "Feed" },
-          { key: "events", label: "Events" },
-          { key: "services", label: "Services" },
-          { key: "members", label: "Members" },
-        ];
+      case "care": {
+        const cfg = group.careConfig;
+        const tabs = [{ key: "feed", label: "Feed" }];
+        if (cfg?.eventsEnabled !== false) tabs.push({ key: "events", label: "Events" });
+        if (cfg?.serviceListingsVisible !== false) tabs.push({ key: "services", label: "Services" });
+        tabs.push({ key: "members", label: "Members" });
+        return tabs;
+      }
       default: // neighbor, interest
         return [
           { key: "feed", label: "Feed" },
@@ -106,12 +116,33 @@ function GroupDetailInner() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const activeTab = searchParams.get("tab") || "feed";
+  const rawActiveTab = searchParams.get("tab") || "feed";
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
   const { openComposer } = usePostComposer();
+  const { openComposer: openMeetComposer } = useMeetComposer();
+  const currentUserId = useCurrentUserId();
 
   const group = getGroupById(params.id as string);
   const [joinRequested, setJoinRequested] = useState(false);
+  const [leaveMenuOpen, setLeaveMenuOpen] = useState(false);
+
+  // Close leave menu on outside click + Escape (mirrors the meet RSVP menu)
+  useEffect(() => {
+    if (!leaveMenuOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setLeaveMenuOpen(false);
+    }
+    function onClick(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      if (!target.closest(".group-leave-menu-wrap")) setLeaveMenuOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onClick);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onClick);
+    };
+  }, [leaveMenuOpen]);
 
   if (!group) {
     return (
@@ -126,12 +157,18 @@ function GroupDetailInner() {
 
   const groupMeets = getGroupMeets(group.id);
   const groupPosts = getPostsByGroup(group.id);
-  const messages = getMessagesForGroup(group.id);
-  const isMember = group.members.some((m) => m.userId === "shawn");
-  const isAdmin = group.members.some((m) => m.userId === "shawn" && m.role === "admin");
+  const isMember = group.members.some((m) => m.userId === currentUserId);
+  const isAdmin = group.members.some((m) => m.userId === currentUserId && m.role === "admin");
   const totalDogs = group.members.reduce((sum, m) => sum + m.dogNames.length, 0);
   const isCare = group.groupType === "care";
-  const tabs = getTabsForGroupType(group.groupType, group.photos.length > 0);
+  const tabs = getTabsForGroup(group, group.photos.length > 0);
+  // Fall back to the first available tab if the URL points to one that's
+  // hidden by careConfig (e.g., a stale link to ?tab=services on a
+  // training group, where Services is now suppressed). Otherwise the
+  // TabBar would show no highlighted tab and the render switch would
+  // skip every branch — orphan view.
+  const visibleKeys = new Set(tabs.map((t) => t.key));
+  const activeTab = visibleKeys.has(rawActiveTab) ? rawActiveTab : tabs[0]?.key ?? "feed";
 
   // Right action changes per tab
   const headerAction = isMember ? (() => {
@@ -139,7 +176,7 @@ function GroupDetailInner() {
       case "meets":
       case "events":
         return (
-          <ButtonAction variant="primary" size="sm" cta leftIcon={<Plus size={14} weight="bold" />} href="/meets/create">
+          <ButtonAction variant="primary" size="sm" cta leftIcon={<Plus size={14} weight="bold" />} onClick={() => openMeetComposer({ groupId: group.id })}>
             Create
           </ButtonAction>
         );
@@ -195,11 +232,14 @@ function GroupDetailInner() {
             totalDogs={totalDogs}
             joinRequested={joinRequested}
             onJoinRequest={() => setJoinRequested(true)}
+            leaveMenuOpen={leaveMenuOpen}
+            onLeaveMenuToggle={() => setLeaveMenuOpen((v) => !v)}
+            onLeave={() => setLeaveMenuOpen(false)}
           />
         )}
 
         {(activeTab === "meets" || activeTab === "events") && (
-          <MeetsTab groupMeets={groupMeets} isCare={isCare} />
+          <MeetsTab group={group} groupMeets={groupMeets} isCare={isCare} />
         )}
 
         {activeTab === "services" && isCare && (
@@ -214,17 +254,6 @@ function GroupDetailInner() {
           <GalleryTab group={group} />
         )}
 
-        {activeTab === "chat" && (
-          <ChatTab
-            group={group}
-            messages={messages}
-            groupMeets={groupMeets}
-            isMember={isMember}
-            joinRequested={joinRequested}
-            onJoinRequest={() => setJoinRequested(true)}
-          />
-        )}
-
         <Spacer />
       </div>
 
@@ -236,7 +265,6 @@ function GroupDetailInner() {
 /* ── Feed tab ──────────────────────────────────────────────────── */
 
 import type { Group, Meet } from "@/lib/types";
-import type { GroupMessage } from "@/lib/types";
 
 interface FeedTabProps {
   groupPosts: ReturnType<typeof getPostsByGroup>;
@@ -247,9 +275,15 @@ interface FeedTabProps {
   totalDogs: number;
   joinRequested: boolean;
   onJoinRequest: () => void;
+  /** Membership-action menu (Joined → ▾): open state + toggle callback. */
+  leaveMenuOpen: boolean;
+  onLeaveMenuToggle: () => void;
+  /** Stub for now — closes the menu. Real "leave community" mutation lives
+   *  in the future when membership state is mutable. */
+  onLeave: () => void;
 }
 
-function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, joinRequested, onJoinRequest }: FeedTabProps) {
+function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, joinRequested, onJoinRequest, leaveMenuOpen, onLeaveMenuToggle, onLeave }: FeedTabProps) {
   return (
     <>
       {/* ── Banner + info (only in Feed tab) ── */}
@@ -261,11 +295,11 @@ function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, join
       <div className="group-detail-info">
         {/* Group name + badges */}
         <div className="flex items-center gap-sm flex-wrap">
-          <h1 className="font-heading text-3xl font-medium text-fg-primary m-0">
+          <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">
             {group.name}
           </h1>
           {group.visibility !== "open" && (
-            <span className="flex items-center gap-xs rounded-pill px-sm py-xs text-xs font-medium bg-surface-gray text-fg-secondary">
+            <span className="flex items-center gap-xs rounded-pill px-sm py-xs text-xs font-medium bg-surface-base text-fg-secondary">
               {group.visibility === "private" ? (
                 <><Lock size={10} weight="fill" /> Private</>
               ) : (
@@ -333,42 +367,61 @@ function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, join
           </span>
         </div>
 
-        {/* Actions — full-width buttons */}
+        {/* Actions — full-width buttons.
+            Variant matrix mirrors the meet detail page so meet + group
+            actions speak the same visual vocabulary across the app:
+            - committed state (Joined / Admin) → secondary (brand outline)
+            - soft committed (Request sent) → neutral (filled, no border)
+            - inactive entry action (Request to join / Join community) → primary
+            - Invite (constant secondary) → outline (neutral border)
+            See `app/meets/[id]/page.tsx` action row for the parallel. */}
         <div className="group-action-buttons">
           {isMember ? (
-            <button type="button" className="group-action-btn-status">
-              {isAdmin ? (
-                <>
-                  <ShieldCheck size={16} weight="fill" />
-                  Admin
-                  <CaretDown size={12} weight="bold" />
-                </>
-              ) : (
-                <>
-                  <Check size={16} weight="bold" />
-                  Joined
-                  <CaretDown size={12} weight="bold" />
-                </>
+            <div className="group-leave-menu-wrap">
+              <ButtonAction
+                // Active membership state — brand-subtle (FB-style toggle).
+                // Inactive (Join community / Request to join) uses primary
+                // brand-fill below. Admin is also brand-subtle for parity
+                // but disabled (admins can't trivially leave their group).
+                variant="brand-subtle"
+                size="md"
+                cta
+                leftIcon={isAdmin ? <ShieldCheck size={16} weight="fill" /> : <Check size={16} weight="bold" />}
+                rightIcon={isAdmin ? undefined : <CaretDown size={12} weight="bold" />}
+                onClick={isAdmin ? undefined : onLeaveMenuToggle}
+                disabled={isAdmin}
+              >
+                {isAdmin ? "Admin" : "Joined"}
+              </ButtonAction>
+              {leaveMenuOpen && !isAdmin && (
+                <div className="group-leave-menu" role="menu">
+                  <button type="button" className="group-leave-menu-item" onClick={onLeave}>
+                    Leave community
+                  </button>
+                </div>
               )}
-            </button>
+            </div>
           ) : group.visibility === "approval" ? (
-            <button
-              type="button"
-              className="group-action-btn-status"
-              onClick={onJoinRequest}
+            <ButtonAction
+              // Request sent → brand-subtle (active: your committed state,
+              // awaiting acceptance). Request to join → neutral (inactive,
+              // quiet — brand presence is reserved for the active state).
+              variant={joinRequested ? "brand-subtle" : "neutral"}
+              size="md"
+              cta
+              onClick={joinRequested ? undefined : onJoinRequest}
               disabled={joinRequested}
             >
               {joinRequested ? "Request sent" : "Request to join"}
-            </button>
+            </ButtonAction>
           ) : (
-            <button type="button" className="group-action-btn-invite">
+            <ButtonAction variant="neutral" size="md" cta>
               Join community
-            </button>
+            </ButtonAction>
           )}
-          <button type="button" className="group-action-btn-invite">
-            <UserPlus size={16} weight="bold" />
+          <ButtonAction variant="outline" size="md" cta leftIcon={<UserPlus size={16} weight="bold" />}>
             Invite
-          </button>
+          </ButtonAction>
         </div>
       </div>
 
@@ -394,7 +447,8 @@ function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, join
 
 /* ── Meets / Events tab ───────────────────────────────────────── */
 
-function MeetsTab({ groupMeets, isCare }: { groupMeets: Meet[]; isCare: boolean }) {
+function MeetsTab({ group, groupMeets, isCare }: { group: Group; groupMeets: Meet[]; isCare: boolean }) {
+  const { openComposer: openMeetComposer } = useMeetComposer();
   const noun = isCare ? "events" : "meets";
   const nounSingular = isCare ? "event" : "meet";
 
@@ -413,7 +467,7 @@ function MeetsTab({ groupMeets, isCare }: { groupMeets: Meet[]; isCare: boolean 
             title={`No upcoming ${noun}`}
             subtitle={`Create one for the community!`}
             action={
-              <ButtonAction variant="primary" size="sm" href="/meets/create">
+              <ButtonAction variant="primary" size="sm" onClick={() => openMeetComposer({ groupId: group.id })}>
                 Create {nounSingular}
               </ButtonAction>
             }
@@ -427,55 +481,39 @@ function MeetsTab({ groupMeets, isCare }: { groupMeets: Meet[]; isCare: boolean 
 /* ── Members tab ───────────────────────────────────────────────── */
 
 function MembersTab({ group }: { group: Group }) {
+  const currentUserId = useCurrentUserId();
   return (
     <LayoutSection>
       <div className="flex flex-col gap-sm">
-          {group.members.map((member) => {
-            const conn = getConnectionState(member.userId);
-            const isYou = member.userId === "shawn";
+        {group.members.map((member) => {
+          const isYou = member.userId === currentUserId;
+          const conn = getConnectionState(member.userId, currentUserId);
+          const connectionState = conn?.state ?? "none";
+          // Fallback context line for members with no dogs — keeps the row's
+          // vertical proportions consistent with dog-having members. "Joined"
+          // is more useful than nothing at all.
+          const fallbackContext =
+            member.dogNames.length === 0 && member.joinedAt
+              ? `Joined ${new Date(member.joinedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}`
+              : undefined;
 
-            return (
-              <div
-                key={member.userId}
-                className="flex items-center gap-md rounded-panel bg-surface-top p-md shadow-xs"
-              >
-                <img
-                  src={member.avatarUrl}
-                  alt={member.userName}
-                  className="rounded-full shrink-0 w-10 h-10 object-cover"
-                />
-                <div className="flex flex-col flex-1 gap-xs">
-                  <div className="flex items-center gap-xs">
-                    <span className="text-sm font-medium text-fg-primary">
-                      {member.userName}
-                      {isYou && " (you)"}
-                    </span>
-                    {member.role === "admin" && (
-                      <span className="rounded-pill px-sm py-xs text-xs font-medium bg-brand-subtle text-brand-strong">
-                        Admin
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-xs text-fg-tertiary flex items-center gap-xs">
-                    <PawPrint size={10} weight="light" />
-                    {member.dogNames.join(", ")}
-                  </span>
-                </div>
-                {!isYou && conn && conn.state !== "none" && (
-                  <span
-                    className={`flex items-center gap-xs rounded-pill px-sm py-xs text-xs font-medium ${
-                      conn.state === "connected"
-                        ? "bg-brand-subtle text-brand-strong"
-                        : "bg-surface-gray text-fg-secondary"
-                    }`}
-                  >
-                    {conn.state === "connected" && <Handshake size={12} weight="fill" />}
-                    {conn.state === "connected" ? "Connected" : conn.state === "familiar" ? "Familiar" : "Pending"}
-                  </span>
-                )}
-              </div>
-            );
-          })}
+          return (
+            <PersonRow
+              key={member.userId}
+              variant="group-member"
+              userId={member.userId}
+              name={member.userName}
+              avatarUrl={member.avatarUrl}
+              isSelf={isYou}
+              isAdmin={member.role === "admin"}
+              pets={member.dogNames.map((name) => ({ name }))}
+              contextLine={fallbackContext}
+              connectionState={connectionState}
+              theyMarkedFamiliar={conn?.theyMarkedFamiliar}
+              profileOpen={conn?.profileOpen}
+            />
+          );
+        })}
       </div>
     </LayoutSection>
   );
@@ -614,91 +652,3 @@ function GalleryTab({ group }: { group: Group }) {
   );
 }
 
-/* ── Chat tab ──────────────────────────────────────────────────── */
-
-interface ChatTabProps {
-  group: Group;
-  messages: GroupMessage[];
-  groupMeets: Meet[];
-  isMember: boolean;
-  joinRequested: boolean;
-  onJoinRequest: () => void;
-}
-
-function ChatTab({ group, messages, groupMeets, isMember, joinRequested, onJoinRequest }: ChatTabProps) {
-  if (!isMember) {
-    return (
-      <LayoutSection>
-        <EmptyState
-          icon={<ChatCircleDots size={48} weight="light" />}
-          title="Join this community to access the chat"
-          subtitle="Members can chat, share photos, and coordinate meets."
-          action={
-            group.visibility === "approval" ? (
-              <ButtonAction
-                variant="primary"
-                size="sm"
-                disabled={joinRequested}
-                onClick={onJoinRequest}
-              >
-                {joinRequested ? "Request sent" : "Request to join"}
-              </ButtonAction>
-            ) : (
-              <ButtonAction variant="primary" size="sm">
-                Join community
-              </ButtonAction>
-            )
-          }
-        />
-      </LayoutSection>
-    );
-  }
-
-  const upcomingGroupMeets = groupMeets.filter((m) => m.status === "upcoming").slice(0, 5);
-
-  return (
-    <div className="flex flex-col gap-md">
-      {/* Event card strip */}
-      {upcomingGroupMeets.length > 0 && (
-        <div className="flex gap-sm overflow-x-auto pb-sm px-lg pt-md">
-          {upcomingGroupMeets.map((meet) => (
-            <MeetCardCompact key={meet.id} meet={meet} />
-          ))}
-        </div>
-      )}
-
-      {/* Messages */}
-      <LayoutSection>
-        <div className="flex flex-col gap-md">
-          {messages.map((msg) =>
-            msg.type === "system" ? (
-              <SystemMessage
-                key={msg.id}
-                text={msg.text}
-                activityType={msg.activityType}
-              />
-            ) : (
-              <MessageBubble
-                key={msg.id}
-                message={msg}
-                isOwn={msg.senderId === "shawn"}
-              />
-            )
-          )}
-        </div>
-      </LayoutSection>
-
-      {/* Compose */}
-      <div className="flex gap-sm px-lg pb-md">
-        <input
-          type="text"
-          placeholder="Say something..."
-          className="flex-1 rounded-form px-md py-sm text-sm border border-edge-regular bg-surface-top"
-        />
-        <ButtonAction variant="primary" size="sm">
-          <PaperPlaneRight size={16} weight="fill" />
-        </ButtonAction>
-      </div>
-    </div>
-  );
-}

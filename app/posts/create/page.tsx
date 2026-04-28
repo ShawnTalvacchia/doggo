@@ -8,6 +8,7 @@ import { FormFooter } from "@/components/layout/FormFooter";
 import { TagAutocomplete } from "@/components/posts/TagAutocomplete";
 import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
 import { getUserGroups } from "@/lib/mockGroups";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { PostTag } from "@/lib/types";
 
 // Mock photo pool — cycles through these when user "adds" a photo
@@ -26,8 +27,9 @@ export default function CreatePostPage() {
   const [caption, setCaption] = useState("");
   const [tags, setTags] = useState<PostTag[]>([]);
   const [communityId, setCommunityId] = useState("");
+  const currentUserId = useCurrentUserId();
 
-  const userGroups = getUserGroups("shawn");
+  const userGroups = getUserGroups(currentUserId);
   const selectedGroup = userGroups.find((g) => g.id === communityId);
   const photosDisabled = selectedGroup?.photoPolicy === "none";
 

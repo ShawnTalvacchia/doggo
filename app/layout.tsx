@@ -2,16 +2,21 @@ import type { Metadata } from "next";
 import { Open_Sans, Poppins } from "next/font/google";
 import "./globals.css";
 import { SignupProvider } from "@/contexts/SignupContext";
+import { CurrentUserProvider } from "@/contexts/CurrentUserContext";
 import { ConversationsProvider } from "@/contexts/ConversationsContext";
 import { BookingsProvider } from "@/contexts/BookingsContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { ReviewsProvider } from "@/contexts/ReviewsContext";
 import { PageHeaderProvider } from "@/contexts/PageHeaderContext";
 import { PostComposerProvider } from "@/contexts/PostComposerContext";
+import { MeetComposerProvider } from "@/contexts/MeetComposerContext";
+import { PostMeetReviewProvider } from "@/contexts/PostMeetReviewContext";
 import { GuestLayout } from "@/components/layout/GuestLayout";
 import { AppNav } from "@/components/layout/AppNav";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { PostComposer } from "@/components/posts/PostComposer";
+import { MeetComposer } from "@/components/meets/MeetComposer";
+import { PostMeetReviewSheet } from "@/components/meets/PostMeetReviewSheet";
 
 const headingFont = Poppins({
   subsets: ["latin"],
@@ -38,24 +43,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         style={{ fontFamily: "var(--font-body), sans-serif" }}
       >
         <SignupProvider>
-          <NotificationsProvider>
-            <ReviewsProvider>
-              <ConversationsProvider>
-                <BookingsProvider>
-                  <PageHeaderProvider>
-                    <PostComposerProvider>
-                      <GuestLayout>
-                        <AppNav />
-                        {children}
-                        <BottomNav />
-                      </GuestLayout>
-                      <PostComposer />
-                    </PostComposerProvider>
-                  </PageHeaderProvider>
-                </BookingsProvider>
-              </ConversationsProvider>
-            </ReviewsProvider>
-          </NotificationsProvider>
+          <CurrentUserProvider>
+            <NotificationsProvider>
+              <ReviewsProvider>
+                <ConversationsProvider>
+                  <BookingsProvider>
+                    <PageHeaderProvider>
+                      <PostComposerProvider>
+                        <MeetComposerProvider>
+                          <PostMeetReviewProvider>
+                            <GuestLayout>
+                              <AppNav />
+                              {children}
+                              <BottomNav />
+                            </GuestLayout>
+                            <PostComposer />
+                            <MeetComposer />
+                            <PostMeetReviewSheet />
+                          </PostMeetReviewProvider>
+                        </MeetComposerProvider>
+                      </PostComposerProvider>
+                    </PageHeaderProvider>
+                  </BookingsProvider>
+                </ConversationsProvider>
+              </ReviewsProvider>
+            </NotificationsProvider>
+          </CurrentUserProvider>
         </SignupProvider>
       </body>
     </html>

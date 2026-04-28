@@ -1,4 +1,5 @@
 import type { Conversation, ChatMessage } from "./types";
+import { daysAgoIso, daysFromNowIso } from "./mockDate";
 import { providers } from "./mockData";
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -356,6 +357,376 @@ const evaDirectMessages: ChatMessage[] = [
   },
 ];
 
+/* ════════════════════════════════════════════════════════════════════════════
+   CROSS-PERSONA THREADS — added 2026-04-26 (Mock World Building B1–B5)
+   Each thread is visible from BOTH parties' inboxes via the persona switcher.
+   `sender: "owner"` = the party in `ownerId`; `sender: "provider"` = `providerId`.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+// ── Daniel ↔ Klára — recurring training (the trust→care payoff arc) ──────────
+// Booking: booking-klara-daniel (recurring Wed 10am, started 2026-02-10).
+// Conversation arc: late-Jan inquiry, Feb intake, ongoing post-session messages.
+
+const danielKlaraMessages: ChatMessage[] = [
+  {
+    id: "dk-1",
+    conversationId: "daniel-klara-conv",
+    sender: "owner",
+    type: "text",
+    text: "Hi Klára. Hana from the reactive dog group recommended you. My rescue Bára is reactive on-leash — barking, lunging at other dogs. We've been managing but I'd love help with proper training. I should say up front, she's nervous around new people too. Is that something you work with?",
+    sentAt: "2026-01-28T19:42:00Z",
+    read: true,
+  },
+  {
+    id: "dk-2",
+    conversationId: "daniel-klara-conv",
+    sender: "provider",
+    type: "text",
+    text: "Hi Daniel — yes, absolutely. Reactive dogs are the bulk of my 1-on-1 work. Hana mentioned you too 🙂 Before we book a session, can I ask a few things? How long have you had Bára, and roughly how close can other dogs get before she reacts?",
+    sentAt: "2026-01-29T08:15:00Z",
+    read: true,
+  },
+  {
+    id: "dk-3",
+    conversationId: "daniel-klara-conv",
+    sender: "owner",
+    type: "text",
+    text: "We adopted her in October so about 4 months. Threshold is roughly 8-10m on leash, less on the other side of the road. Off-leash she's actually fine if she has space. People — she'll hide behind me but won't react. She just doesn't approach.",
+    sentAt: "2026-01-29T09:30:00Z",
+    read: true,
+  },
+  {
+    id: "dk-4",
+    conversationId: "daniel-klara-conv",
+    sender: "provider",
+    type: "text",
+    text: "That's really helpful. The fact that off-leash she's fine tells me a lot — most of what you're seeing is leash + barrier frustration plus some uncertainty. Workable. I'd like to start with weekly 1-on-1s in a quiet area at Stromovka. I bring Eda (Border Collie, calm, used to reactive dogs). We work on threshold + reorienting. 600 Kč/session, 60 min. Want to book a Wednesday?",
+    sentAt: "2026-01-29T10:05:00Z",
+    read: true,
+  },
+  {
+    id: "dk-5",
+    conversationId: "daniel-klara-conv",
+    sender: "owner",
+    type: "text",
+    text: "Yes please. Wednesday Feb 10 at 10? I can come to Stromovka. One thing — Bára pulls hard if she sees a dog at the entrance, can we meet by the southern path instead?",
+    sentAt: "2026-01-29T11:20:00Z",
+    read: true,
+  },
+  {
+    id: "dk-6",
+    conversationId: "daniel-klara-conv",
+    sender: "provider",
+    type: "text",
+    text: "Southern path works. I'll send a pin closer to the day. See you Wednesday.",
+    sentAt: "2026-01-29T11:45:00Z",
+    read: true,
+  },
+  {
+    id: "dk-7",
+    conversationId: "daniel-klara-conv",
+    sender: "provider",
+    type: "booking_proposal",
+    text: "Sending the booking proposal — recurring weekly so we have continuity, but cancel anytime.",
+    proposal: {
+      bookingType: "ongoing",
+      serviceType: "inhome_sitting",
+      subService: "Reactive dog session",
+      pets: ["Bára"],
+      startDate: "2026-02-10",
+      endDate: null,
+      recurringSchedule: {
+        days: ["Wed"],
+        time: "10:00",
+        timeLabel: "10:00–11:00am",
+      },
+      price: {
+        lineItems: [{ label: "Reactive dog 1-on-1 (60 min)", amount: 600, unit: "per session" }],
+        total: 600,
+        currency: "Kč",
+        billingCycle: "per_session",
+      },
+      status: "accepted",
+    },
+    sentAt: "2026-01-29T11:46:00Z",
+    read: true,
+  },
+  {
+    id: "dk-8",
+    conversationId: "daniel-klara-conv",
+    sender: "provider",
+    type: "text",
+    text: "Bára did so well today. We held threshold at 6m for almost ten minutes — biggest stretch yet. Walking back to the car she only reacted once, and reset within seconds. You should feel proud.",
+    sentAt: "2026-03-26T11:20:00Z",
+    read: true,
+  },
+  {
+    id: "dk-9",
+    conversationId: "daniel-klara-conv",
+    sender: "owner",
+    type: "text",
+    text: "Thank you. Genuinely — I left feeling lighter than I have in months. She slept the whole afternoon. We tried the reorient cue on our walk last night and it actually worked once.",
+    sentAt: "2026-03-26T20:15:00Z",
+    read: true,
+  },
+  {
+    id: "dk-10",
+    conversationId: "daniel-klara-conv",
+    sender: "provider",
+    type: "text",
+    text: "That's a huge win. The first transfer to a real walk is the hardest. Keep using the cue at low pressure — don't try to test it on a tough trigger yet. See you Wednesday.",
+    sentAt: "2026-03-27T07:30:00Z",
+    read: false,
+  },
+];
+
+// ── Tomáš ↔ Petra — emergency 2-day sitting ───────────────────────────────────
+// Booking: booking-petra-tomas (Mar 15-17). Conversation Mar 13-17.
+
+const tomasPetraMessages: ChatMessage[] = [
+  {
+    id: "tp-1",
+    conversationId: "tomas-petra-conv",
+    sender: "owner",
+    type: "text",
+    text: "Petra — short notice, sorry. Got pulled into a 2-day project in Brno tomorrow morning. Any chance you could take Hugo Sat night through Mon morning? I know it's last-minute, totally understand if not.",
+    sentAt: "2026-03-13T22:14:00Z",
+    read: true,
+  },
+  {
+    id: "tp-2",
+    conversationId: "tomas-petra-conv",
+    sender: "provider",
+    type: "text",
+    text: "Tomáš! Yes of course. Hugo and Daisy always have a blast. Drop him by 8am Saturday? Bring his bed and food, I have everything else.",
+    sentAt: "2026-03-13T22:28:00Z",
+    read: true,
+  },
+  {
+    id: "tp-3",
+    conversationId: "tomas-petra-conv",
+    sender: "owner",
+    type: "text",
+    text: "You're saving me. 8am works. He's been a bit clingy this week so might need a few minutes to settle. I'll send his vet card and the emergency contact.",
+    sentAt: "2026-03-13T22:35:00Z",
+    read: true,
+  },
+  {
+    id: "tp-4",
+    conversationId: "tomas-petra-conv",
+    sender: "provider",
+    type: "text",
+    text: "All good. He always settles fast here — Daisy does the heavy lifting. Drive safe tomorrow. I'll send a photo when you're in your meeting.",
+    sentAt: "2026-03-13T22:50:00Z",
+    read: true,
+  },
+  {
+    id: "tp-5",
+    conversationId: "tomas-petra-conv",
+    sender: "provider",
+    type: "text",
+    text: "Update: Hugo is in his element. Just had a full afternoon at Vítkov, currently asleep on top of Daisy. He ate everything. Hope the project is going OK 🐾",
+    sentAt: "2026-03-15T17:42:00Z",
+    read: true,
+  },
+  {
+    id: "tp-6",
+    conversationId: "tomas-petra-conv",
+    sender: "owner",
+    type: "text",
+    text: "This made my day. Thank you Petra. Project is a slog but ending on time. Will see you Mon morning.",
+    sentAt: "2026-03-15T19:08:00Z",
+    read: true,
+  },
+  {
+    id: "tp-7",
+    conversationId: "tomas-petra-conv",
+    sender: "owner",
+    type: "text",
+    text: "On my way back. ETA 10am. How was he today?",
+    sentAt: "2026-03-17T08:30:00Z",
+    read: true,
+  },
+  {
+    id: "tp-8",
+    conversationId: "tomas-petra-conv",
+    sender: "provider",
+    type: "text",
+    text: "Good as gold. Tired out from yesterday. Sending him back clean and full 😄",
+    sentAt: "2026-03-17T08:55:00Z",
+    read: false,
+  },
+];
+
+// ── Tereza ↔ Marek — casual sitting favour ─────────────────────────────────────
+// Booking: booking-tereza-marek (Feb 22-23). Conversation Feb 18-24.
+// Direct conversation (not a paid arrangement); Tereza is "provider" because
+// she did the sitting; Marek is "owner" of Benny.
+
+const terezaMarekMessages: ChatMessage[] = [
+  {
+    id: "tmk-1",
+    conversationId: "tereza-marek-conv",
+    sender: "owner",
+    type: "text",
+    text: "Tereza — visiting my folks in Brno this weekend. Any chance Benny could spend Sat night with you and Franta? He gets so anxious at the kennels and I'd rather not.",
+    sentAt: "2026-02-18T19:00:00Z",
+    read: true,
+  },
+  {
+    id: "tmk-2",
+    conversationId: "tereza-marek-conv",
+    sender: "provider",
+    type: "text",
+    text: "Of course! Bring him over Sat morning whenever works. Franta will be thrilled. We can do the morning Riegrovy walk together if you want, before you head off.",
+    sentAt: "2026-02-18T19:25:00Z",
+    read: true,
+  },
+  {
+    id: "tmk-3",
+    conversationId: "tereza-marek-conv",
+    sender: "owner",
+    type: "text",
+    text: "Walk sounds great. Will bring his food + bed. Around 8?",
+    sentAt: "2026-02-18T19:30:00Z",
+    read: true,
+  },
+  {
+    id: "tmk-4",
+    conversationId: "tereza-marek-conv",
+    sender: "provider",
+    type: "text",
+    text: "8 it is. Drive safe.",
+    sentAt: "2026-02-18T19:35:00Z",
+    read: true,
+  },
+  {
+    id: "tmk-5",
+    conversationId: "tereza-marek-conv",
+    sender: "provider",
+    type: "text",
+    text: "Quick update — Benny's settled in. They had the best afternoon, both flopped on the rug now. No issues at all.",
+    sentAt: "2026-02-22T16:30:00Z",
+    read: true,
+  },
+  {
+    id: "tmk-6",
+    conversationId: "tereza-marek-conv",
+    sender: "owner",
+    type: "text",
+    text: "You're the best. Coming back tomorrow afternoon, will text when I'm close.",
+    sentAt: "2026-02-22T17:00:00Z",
+    read: false,
+  },
+];
+
+// ── Klára ↔ Filip — completed recall training ─────────────────────────────────
+// Booking: booking-klara-filip (Jan 20 - Feb 10, completed). Brief thread.
+
+const klaraFilipMessages: ChatMessage[] = [
+  {
+    id: "kf-msg-1",
+    conversationId: "klara-filip-conv",
+    sender: "owner",
+    type: "text",
+    text: "Hi Klára. Toby's recall is non-existent — he just runs. Need help before I lose him for real one day. Saw you in the Stromovka group, are you taking new clients?",
+    sentAt: "2026-01-15T14:00:00Z",
+    read: true,
+  },
+  {
+    id: "kf-msg-2",
+    conversationId: "klara-filip-conv",
+    sender: "provider",
+    type: "text",
+    text: "Hi Filip. Yes, recall is one of my favourite things to work on — high-prey-drive Jacks especially. I'd suggest a 3-session block to start, 600 Kč each at Stromovka. We build the recall on long-line, no shortcuts. Tuesdays at noon work?",
+    sentAt: "2026-01-15T15:20:00Z",
+    read: true,
+  },
+  {
+    id: "kf-msg-3",
+    conversationId: "klara-filip-conv",
+    sender: "owner",
+    type: "text",
+    text: "Perfect. Booking it.",
+    sentAt: "2026-01-15T15:45:00Z",
+    read: true,
+  },
+  {
+    id: "kf-msg-4",
+    conversationId: "klara-filip-conv",
+    sender: "owner",
+    type: "text",
+    text: "Tested Toby off-leash at Letná this morning. Recalled 7/10 times, 8/10 if I had a treat. Couldn't have imagined this 3 weeks ago. Going to leave you a glowing review.",
+    sentAt: "2026-02-12T10:30:00Z",
+    read: false,
+  },
+];
+
+// ── Klára ↔ Hana — recurring reactive dog training ────────────────────────────
+// Booking: booking-klara-hana (Thursdays 11am, started Jan 15). Brief warm.
+
+const klaraHanaMessages: ChatMessage[] = [
+  {
+    id: "kh-msg-1",
+    conversationId: "klara-hana-conv",
+    sender: "owner",
+    type: "text",
+    text: "Hi Klára — Eva said you're the person to talk to about Runa. She's a husky mix, reactive on-leash, fearful of new environments. We've been stuck for a year. Can we book something?",
+    sentAt: "2026-01-08T11:00:00Z",
+    read: true,
+  },
+  {
+    id: "kh-msg-2",
+    conversationId: "klara-hana-conv",
+    sender: "provider",
+    type: "text",
+    text: "Hi Hana. Yes — recurring weekly is the way for fearful dogs, you need consistency. Thursdays 11 at Stromovka, 600/session. I usually bring Eda. We start where Runa is comfortable and only push when she tells us we can.",
+    sentAt: "2026-01-08T13:30:00Z",
+    read: true,
+  },
+  {
+    id: "kh-msg-3",
+    conversationId: "klara-hana-conv",
+    sender: "owner",
+    type: "text",
+    text: "That's exactly the approach I want. Booking it.",
+    sentAt: "2026-01-08T14:00:00Z",
+    read: true,
+  },
+  {
+    id: "kh-msg-4",
+    conversationId: "klara-hana-conv",
+    sender: "provider",
+    type: "text",
+    text: "Today was a turning point. Runa initiated a parallel walk with Eda — first time I've seen her offer engagement instead of just tolerating. Don't change anything at home, the work is doing its job.",
+    sentAt: daysAgoIso(16, "12:15"),
+    read: false,
+  },
+];
+
+// ── Tereza ↔ Lucie — direct DM (peers in the same group) ──────────────────────
+
+const terezaLucieMessages: ChatMessage[] = [
+  {
+    id: "tl-1",
+    conversationId: "tereza-lucie-conv",
+    sender: "provider",
+    type: "text",
+    text: "Lucie — quick one, are you good with the route changing this Thursday? Park's getting busy with the warmer weather, was thinking we loop around the back instead.",
+    sentAt: daysAgoIso(18, "18:30"),
+    read: true,
+  },
+  {
+    id: "tl-2",
+    conversationId: "tereza-lucie-conv",
+    sender: "owner",
+    type: "text",
+    text: "Sounds great. Pepík hates the crowds anyway. See you 7pm.",
+    sentAt: daysAgoIso(18, "18:45"),
+    read: false,
+  },
+];
+
 // ── Exports ────────────────────────────────────────────────────────────────────
 
 const EMPTY_INQUIRY = {
@@ -528,6 +899,151 @@ export const mockConversations: Conversation[] = [
     },
     messages: marieMessages,
     lastMessageId: "mm-3",
+    unreadCount: 1,
+  },
+
+  /* ══════════════════════════════════════════════════════════════════════════
+     Mock World Building B1–B5 — cross-persona conversations (2026-04-26).
+     Each visible from BOTH parties' inboxes via the persona switcher.
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  // ── Daniel ↔ Klára (booking — recurring training) ──
+  {
+    id: "daniel-klara-conv",
+    conversationType: "booking",
+    providerId: "klara",
+    providerName: "Klára Horáčková",
+    providerAvatarUrl: "/images/generated/klara-profile.jpeg",
+    ownerId: "daniel",
+    ownerName: "Daniel Procházka",
+    ownerAvatarUrl: "/images/generated/daniel-profile.jpeg",
+    status: "active",
+    inquiry: {
+      bookingType: "ongoing",
+      serviceType: "inhome_sitting",
+      subService: "Reactive dog session",
+      pets: ["Bára"],
+      startDate: "2026-02-10",
+      endDate: null,
+      recurringSchedule: { days: ["Wed"], time: "10:00", timeLabel: "10:00–11:00am" },
+      dogName: "Bára",
+      message: danielKlaraMessages[0].text!,
+    },
+    messages: danielKlaraMessages,
+    lastMessageId: "dk-10",
+    unreadCount: 1,
+  },
+
+  // ── Tomáš ↔ Petra (booking — completed emergency sitting) ──
+  {
+    id: "tomas-petra-conv",
+    conversationType: "booking",
+    providerId: "petra",
+    providerName: "Petra Veselá",
+    providerAvatarUrl: "/images/generated/petra-profile.jpeg",
+    ownerId: "tomas",
+    ownerName: "Tomáš Kovář",
+    ownerAvatarUrl: "/images/generated/tomas-profile.jpeg",
+    status: "active",
+    inquiry: {
+      bookingType: "one_off",
+      serviceType: "inhome_sitting",
+      subService: "Emergency sitting",
+      pets: ["Hugo"],
+      startDate: "2026-03-15",
+      endDate: "2026-03-17",
+      dogName: "Hugo",
+      message: tomasPetraMessages[0].text!,
+    },
+    messages: tomasPetraMessages,
+    lastMessageId: "tp-8",
+    unreadCount: 1,
+  },
+
+  // ── Tereza ↔ Marek (direct — casual sitting favour, completed) ──
+  {
+    id: "tereza-marek-conv",
+    conversationType: "direct",
+    providerId: "tereza",
+    providerName: "Tereza Nováková",
+    providerAvatarUrl: "/images/generated/tereza-profile.jpeg",
+    ownerId: "marek",
+    ownerName: "Marek Dvořák",
+    ownerAvatarUrl: "/images/generated/marek-profile.jpeg",
+    status: "active",
+    inquiry: EMPTY_INQUIRY,
+    messages: terezaMarekMessages,
+    lastMessageId: "tmk-6",
+    unreadCount: 1,
+  },
+
+  // ── Klára ↔ Filip (booking — completed recall training) ──
+  {
+    id: "klara-filip-conv",
+    conversationType: "booking",
+    providerId: "klara",
+    providerName: "Klára Horáčková",
+    providerAvatarUrl: "/images/generated/klara-profile.jpeg",
+    ownerId: "filip",
+    ownerName: "Filip Novotný",
+    ownerAvatarUrl: "/images/generated/filip-profile.jpeg",
+    status: "active",
+    inquiry: {
+      bookingType: "one_off",
+      serviceType: "inhome_sitting",
+      subService: "Recall training",
+      pets: ["Toby"],
+      startDate: "2026-01-20",
+      endDate: "2026-02-10",
+      dogName: "Toby",
+      message: klaraFilipMessages[0].text!,
+    },
+    messages: klaraFilipMessages,
+    lastMessageId: "kf-msg-4",
+    unreadCount: 1,
+  },
+
+  // ── Klára ↔ Hana (booking — recurring reactive dog training) ──
+  {
+    id: "klara-hana-conv",
+    conversationType: "booking",
+    providerId: "klara",
+    providerName: "Klára Horáčková",
+    providerAvatarUrl: "/images/generated/klara-profile.jpeg",
+    ownerId: "hana",
+    ownerName: "Hana Pokorná",
+    ownerAvatarUrl: "/images/generated/hana-profile.jpeg",
+    status: "active",
+    inquiry: {
+      bookingType: "ongoing",
+      serviceType: "inhome_sitting",
+      subService: "Reactive dog session",
+      pets: ["Runa"],
+      startDate: "2026-01-15",
+      endDate: null,
+      recurringSchedule: { days: ["Thu"], time: "11:00", timeLabel: "11:00am–12:00pm" },
+      dogName: "Runa",
+      message: klaraHanaMessages[0].text!,
+    },
+    messages: klaraHanaMessages,
+    lastMessageId: "kh-msg-4",
+    unreadCount: 1,
+  },
+
+  // ── Tereza ↔ Lucie (direct — co-regulars in Vinohrady Evening Walkers) ──
+  {
+    id: "tereza-lucie-conv",
+    conversationType: "direct",
+    providerId: "tereza",
+    providerName: "Tereza Nováková",
+    providerAvatarUrl: "/images/generated/tereza-profile.jpeg",
+    ownerId: "lucie",
+    ownerName: "Lucie Černá",
+    ownerAvatarUrl: "/images/generated/lucie-profile.jpeg",
+    status: "active",
+    inquiry: EMPTY_INQUIRY,
+    messages: terezaLucieMessages,
+    lastMessageId: "tl-2",
     unreadCount: 1,
   },
 ];
