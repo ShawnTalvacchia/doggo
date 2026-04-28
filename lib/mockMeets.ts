@@ -762,7 +762,7 @@ export const mockMeets: Meet[] = [
     status: "upcoming",
     energyLevel: "moderate",
     playdate: {
-      ageRange: "all_ages",
+      ageRange: "any",
       playStyle: "gentle",
       fencedArea: true,
       maxDogsPerPerson: 1,
