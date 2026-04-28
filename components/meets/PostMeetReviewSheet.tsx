@@ -757,9 +757,13 @@ function AttendeeActionCard({
   // downgrade back to marked Familiar.
   function renderNotFamiliarPill() {
     if (mark === null) {
+      // Outline variant — neutral until hover. The Familiar action is
+      // available but not the page's primary focus (most users will
+      // batch-tap many; the brand-tinted secondary variant is reserved
+      // for "next step from a marked state" like the Connect pill).
       return (
         <ButtonAction
-          variant="secondary"
+          variant="outline"
           size="sm"
           cta
           leftIcon={<Check size={14} weight="bold" />}

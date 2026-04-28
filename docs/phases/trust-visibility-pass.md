@@ -37,7 +37,7 @@ Every place this phase touches. Confirmed via codebase scan 2026-04-27.
 | Surface | File | Current state | Phase action |
 |---------|------|---------------|--------------|
 | Meet detail — People tab | `app/meets/[id]/page.tsx` (PeopleTab) → `components/meets/ParticipantList.tsx` → `ParticipantCard` | Shared component. Currently shows name, dog, neighbourhood, "connected since" line, single Connect action. **Tier filter IS applied** — line 84 filters `tier <= 2`, lines 157-164 render tier-3 as "+ N other attendees" footer. **But:** tier-classification logic at lines 63-70 reimplements `getAttendeeTier` verbatim — that's a duplication ready to drift. | Rebuild — adopt `PersonRow` + action matrix; replace inline tier logic with `getAttendeeTier` call; add pets; drop "connected since"; fix horizontal padding. |
-| Post-meet review — Make connections step | `components/meets/PostMeetReviewSheet.tsx` (`AttendeeActionCard` inline) | Rolls own dog-forward markup. Familiar/Connect/Skip pills. | Keep dog-forward shape (different context) but **action logic + copy** align to the new matrix. Add explanatory copy (Workstream F). |
+| Post-meet review — Make connections step | `components/meets/PostMeetReviewSheet.tsx` (`AttendeeActionCard` inline) | Rolls own markup. Familiar/Connect/Skip pills (originally). **Shipped (A7): owner-forward** card layout (64+32 avatar combo, `radius-md` dog), state-grouped sections (Not Familiar / Familiar / Connected / Locked), section-aware structure (footer for Not Familiar with evolving inline pill; inline-only for the others), profile-state-aware explainer, no Skip, no Open profile indicator, v3 matrix (Familiar gates Connect). Different shape than `PersonRow` — cascade in P27. | Keep dog-forward shape (different context) but **action logic + copy** align to the new matrix. Add explanatory copy (Workstream F). |
 | Post-meet review — "Also there" section | `components/meets/PostMeetReviewSheet.tsx` (`MakeConnectionsStep` alsoThere list) | Minimal avatar + name pills. | Verify against new tier rules (tier-3 should not be named here). |
 | Group detail — Members tab | `app/communities/[id]/page.tsx` (`MembersTab` inline) | Rolls own inline markup. Name + avatar + admin badge + connection-state pill. No actions. | Refactor to use shared `PersonRow`. Add action matrix. |
 | Inbox conversation list | `app/inbox/page.tsx` (`InboxUserRow` inline) | Rolls own. Avatar + name + dog names + last message + time + unread dot. Click → thread. | **Keep message-preview shape** (it's a chat list, not a person list) but adopt connection-state pills + tier-aware identity rendering. No action buttons added (the row IS the affordance). |
@@ -86,7 +86,7 @@ Build the canonical row component that all four in-scope surfaces use. Variants 
 | A4 | Migrate `ParticipantCard.tsx` to render via `PersonRow` with variant `meet-attendee`. Pets on the card. Drop "connected since" line. Replace the duplicated tier-classification at `ParticipantList.tsx:63-70` with a call to `getAttendeeTier`. Fix horizontal padding bug on the People tab. **Tier visibility is already applied** (filter + "+ N others" footer at lines 84, 157-164) — that part of the work is done. **Done 2026-04-27.** `ParticipantList.tsx` rewritten to use `PersonRow` (variant `meet-attendee`); inline tier logic removed in favor of `getAttendeeTier`. `ParticipantCard.tsx` deleted (zero importers). PeopleTab wrapped in `LayoutSection` for horizontal padding. `isCareProvider` added to `PersonRow` (with matching `.person-row-pill--care`) so the existing Care badge wasn't silently dropped. Pre-existing lint warnings on `app/meets/[id]/page.tsx` (2 hooks errors + 1 unused-var on `ChatTab` `meet` param) untouched — they predate this work. TypeScript clean, my edits ESLint clean. | [[meets]] | done |
 | A5 | Migrate `MembersTab` (`app/communities/[id]/page.tsx`) inline rows to `PersonRow` with variant `group-member`. Adds the action matrix; previously had no actions. **Absorbs three punch-list overlaps in the same file** — close them in the same patch: **P18** (`--surface-gray` on member-list "familiar" pill — the new pill will use `brand-subtle`/connection-state tokens correctly, so the bad token use disappears with the rewrite), **P23** (dead `ChatTab` code at lines 221, 625+ — delete; group has no Chat tab), **P24** (orphan `.group-action-btn-status` / `.group-action-btn-invite` CSS in `globals.css:12104-12146` — verify zero usages and delete). Update `phases/punch-list.md` Done section when this lands. **Done 2026-04-27.** MembersTab now renders via `PersonRow` (variant `group-member`); the inline `--surface-gray` pill is gone (closes the member-list slice of P18 — broader P18 sweep still open). ChatTab + ChatTabProps + render branch + 6 orphan imports (`ChatCircleDots`, `PaperPlaneRight`, `Handshake`, `PawPrint`, `MessageBubble`, `SystemMessage`, `MeetCardCompact`, `getMessagesForGroup`, `GroupMessage` type) deleted along with the orphan `messages` variable (closes P23). `.group-action-btn-status` / `.group-action-btn-invite` deleted from `globals.css` (43 lines, closes P24). TypeScript clean. ESLint clean for my edits — 1 pre-existing hooks-rule error at line 177 (structural early return) remains, same shape as the meet detail file. | — | done |
 | A6 | Migrate `InboxUserRow` (`app/inbox/page.tsx`) to `PersonRow` with variant `inbox-conversation`. Keep message-preview shape. Connection-state pills + tier-aware identity rendering. No action buttons (row click stays the primary affordance). **Done 2026-04-27.** Inline `InboxUserRow` deleted; rows now render via `PersonRow` variant `inbox-conversation`. Each row plumbs `connectionState`/`theyMarkedFamiliar`/`profileOpen` from `getConnectionState`. Three-line layout preserved (name+timeAgo, dogs with paw icon, message preview); unread state drives bold-name + emphasized-preview typography via `unreadDot` prop. Inbox variant in PersonRow refined: timeAgo moved to name row (right-aligned), pets row is text-only with paw icon (not avatars — too much for the chat-list shape). TypeScript clean, ESLint clean. | — | done |
-| A7 | Update `PostMeetReviewSheet.tsx` `AttendeeActionCard` — keep dog-forward shape (it's a different context: "did you meet this person?"), but use `resolvePersonActions` for action set + copy alignment. | [[meets]] | done |
+| A7 | Update `PostMeetReviewSheet.tsx` `AttendeeActionCard` — keep dog-forward shape (it's a different context: "did you meet this person?"), but use `resolvePersonActions` for action set + copy alignment. **Done 2026-04-27 — but redesigned far beyond original scope.** Driven by walkthrough feedback, the card moved away from PersonRow's pattern entirely:  (a) **owner-forward** layout (64px owner avatar + 32px overlapping dog cluster with `radius-md`, white box-shadow ring) replaced the dog-forward shape — the post-meet review is fundamentally about *people*, not dogs; (b) **state-grouped sections** (Not Familiar / Familiar / Connected / Locked) replace the prior actionable/alsoThere split; (c) **section-aware card structure** — Not Familiar cards have an inline pill that EVOLVES (Familiar → Connect → Connect ✓) plus a footer with "✓ Familiar / Undo" when marked; Familiar/Connected get inline single pills (no footer); (d) **profile-state-aware explainer** at the top (locked vs open variants); (e) Skip removed entirely; (f) "Open profile" indicator removed (deniability + mobile fit); (g) explicit dependency on the v3 matrix (Familiar gates Connect app-wide). New CSS: `.pmr-card-*`, `.pmr-avatar-*`. New helpers: `OwnerDogAvatar`, `formatDogNames`. Mock data added: `meet-reactive-spring` (curated attendee mix for Daniel demo). `ActionPill` component dropped (replaced by ButtonAction + footer buttons). **Cascade filed as P27** (owner-forward avatar pattern → PersonRow + every consumer) and **P29** (soft Familiar indicator app-wide). | [[meets]] | done |
 | A8 | Visual + interaction review pass — does the new row pattern look right across all four surfaces? Spot-check on mobile + desktop. | — | todo |
 
 ### A1 Spec — `PersonRow` API
@@ -257,17 +257,24 @@ The trust model is unusual enough that a helper line earns its keep on the surfa
 
 ## Acceptance Criteria
 
-- [ ] All four in-scope surfaces (meet People tab, group Members tab, inbox conversation list, post-meet review) render people via `PersonRow` (or align to its action logic for the dog-forward variant)
-- [ ] The action matrix is enforced consistently: locked-to-locked-no-action shows only Familiar; Familiar ✓ shows after marking until the other person reciprocates; Connect/Familiar pair shows when there's mutual visibility
-- [ ] No surface shows "connected since [date]" — that line is removed
-- [ ] Pets render on every meet-attendee row (dog avatar + name)
-- [ ] Tier visibility rules are applied uniformly — tier 3 attendees are never surfaced by name on any list (the meet detail summary already does this; the People tab now matches)
-- [ ] Photos section on meet detail follows the chosen gating model
-- [ ] Every Familiar reference in the codebase is directionally correct ("grants THEM access to YOU")
-- [ ] Bulk Familiar works in the post-meet review sheet at minimum (E2); other surfaces (E3, E4) are stretch
-- [ ] Explanatory copy lands in the post-meet review sheet
-- [ ] `Trust & Connection Model.md` and `Content Visibility Model.md` updated with the matrix and the photo-gate rules
-- [ ] `design-system.md` updated with the `PersonRow` component entry
+- [x] All four in-scope surfaces render people via the trust action logic. **Caveat:** Meet People tab (A4), Group Members tab (A5), and Inbox (A6) use `PersonRow` per the original spec. Post-meet review (A7) diverged to a custom owner-forward + section-aware + footer-evolution layout (see A7 status). Both patterns share the same matrix (`resolvePersonActions`) and copy vocabulary; visual unification is tracked in **P27** (cascade owner+dog pattern) and **P29** (soft Familiar indicator).
+- [x] The action matrix (v3) is enforced consistently: locked viewers see only Familiar until they've marked it (Familiar gates Connect); Familiar ✓ shows after marking; Connect appears when subject is visible to viewer; open viewers get Connect only.
+- [x] No surface shows "connected since [date]" — line removed during A4.
+- [x] Pets render on meet-attendee rows (dog avatar + name).
+- [x] Tier visibility rules applied uniformly — tier 3 never surfaced by name (meet detail summary, People tab, post-meet review all match).
+- [x] Photos section on meet detail follows the C1-resolved differential gate (1-photo tease for non-members; full for members; no photos when group is private).
+- [x] Every Familiar reference is directionally correct (D1 audit + D3 fixes — `relationshipContext.ts`, `RelationshipBanner`, `ConnectionIcon` collapsed to single render).
+- [x] Bulk Familiar works in the post-meet review (E2). E3/E4 deferred per stretch criteria.
+- [x] Explanatory copy in the post-meet review sheet — profile-state-aware (locked vs open) plus inline action labels.
+- [x] `Trust & Connection Model.md` and `Content Visibility Model.md` updated.
+- [x] `design-system.md` updated with `PersonRow` entry.
+
+**Known divergences / follow-ons** (not blockers — phase ready to close):
+
+- **P27** — cascade the owner+dog avatar pattern (and section-aware layout where it fits) from the post-meet review to PersonRow. Post-meet went owner-forward; PersonRow consumers (meet People tab, group Members, profile pages) still use the original dog-forward / single-row pattern from A2.
+- **P28** — `MeetAttendee.profileOpen` doesn't auto-derive from `UserProfile.profileVisibility` (caught us out on `meet-reactive-spring`). Helper or codified pattern needed for future mock seeding.
+- **P29** — soft Familiar indicator across the app on people the viewer has marked. Pairs naturally with P27.
+- **A8** — visual + interaction review pass on a real device. Best done with eyes-on-running-app.
 
 ---
 
@@ -290,11 +297,6 @@ Complete before marking this phase done. Mark each item done.
 
 ---
 
-## Cross-chat coordination (parallel with Meets Deep Pass)
+## Cross-chat coordination — closed
 
-This phase runs in parallel with the active Meets Deep Pass walkthrough. To avoid stepping on each other:
-
-- **Walkthrough chat continues section-by-section** through the remaining meet detail items (3.A type-specific section, then 3.B onwards), but treats People tab verification as **deferred** until this phase's A4 lands.
-- **This phase chat does NOT touch:** anything outside the Surfaces Inventory above. No drift into RSVP rows, meet card components, schedule timeline, etc.
-- **Change reports:** Any commit that touches `app/meets/[id]/page.tsx` outside the Photos section (Workstream C) or the People tab refactor (A4) gets flagged as a "Notes for the walkthrough chat" entry in `phases/punch-list.md` change reports — same protocol used during the Meet Recurrence Model phase (see `archive/phases/meet-recurrence-model.md`).
-- **TypeScript clean before push.** ESLint sweep before phase close.
+The original parallel chat closed 2026-04-27 after Workstreams A1–A6, B, C, D, E2, F1, F3 landed. Subsequent matrix + post-meet review changes (Familiar gates Connect, owner-forward avatar pattern, section-aware card structure) were made from the Meets Deep Pass walkthrough chat with change reports filed in `phases/punch-list.md`. No active cross-chat coordination needed.

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useCallback } from "react";
 import { mockConversations } from "@/lib/mockConversations";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useDemoState } from "@/contexts/CurrentUserContext";
 import type {
   Conversation,
   ChatMessage,
@@ -54,7 +54,9 @@ const ConversationsContext = createContext<ConversationsContextValue | undefined
 
 export function ConversationsProvider({ children }: { children: React.ReactNode }) {
   const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
-  const currentUser = useCurrentUser();
+  // Keep this provider static-prerender-safe: avoid useCurrentUser() here
+  // because it reads URL search params and requires a Suspense boundary.
+  const { user: currentUser } = useDemoState();
   const currentUserFullName = `${currentUser.firstName} ${currentUser.lastName}`;
   // The mock conversation seed data is currently Shawn-relative (Mock World
   // Building will populate per-persona threads). Non-Shawn personas will see

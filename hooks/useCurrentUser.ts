@@ -17,7 +17,8 @@
  * from `@/contexts/CurrentUserContext` instead.
  */
 
-import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import type { UserProfile } from "@/lib/types";
 import { useDemoState } from "@/contexts/CurrentUserContext";
 import { getPersona, isNewUser } from "@/lib/personas";
@@ -27,8 +28,15 @@ import { getPersona, isNewUser } from "@/lib/personas";
  * Returns `null` when no override is active.
  */
 function useAsParamUser(): UserProfile | null {
-  const params = useSearchParams();
-  const asParam = params?.get("as");
+  const pathname = usePathname();
+  const [asParam, setAsParam] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    setAsParam(params.get("as"));
+  }, [pathname]);
+
   if (!asParam) return null;
   const persona = getPersona(asParam);
   return persona?.user ?? null;

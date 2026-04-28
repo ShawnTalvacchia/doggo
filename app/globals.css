@@ -1822,6 +1822,16 @@ body.guest-route {
   box-shadow: var(--shadow-md);
 }
 
+/* Small secondary pills (inline-row contexts like attendee cards) —
+   step the shadow down from `--shadow-md` to `--shadow-sm`. The full md
+   shadow is too loud at this size and makes the pill "pop" off the row;
+   `none` was too quiet (the bg/border/color shifts alone didn't carry
+   enough hover affordance). Larger sizes (md/lg) keep the heavier
+   shadow since they're typically the visual anchor of their surface. */
+.btn-cta.btn-sm.btn-secondary:hover:not(:disabled) {
+  box-shadow: var(--shadow-sm);
+}
+
 .btn-cta.btn-tertiary {
   background: transparent;
   color: var(--text-secondary);
@@ -13375,7 +13385,10 @@ body:has(.bottom-nav) .inbox-page {
 
 .pmr-card {
   background: var(--surface-top);
-  border: 1px solid var(--border-default);
+  /* `--border-regular` (#ececec, neutral-75) — lighter than the stronger
+     `--border-default` (#d8d8d8). Cards in a list want quiet separation
+     from surrounding surface, not a visible frame around each one. */
+  border: 1px solid var(--border-regular);
   border-radius: var(--radius-panel);
   overflow: hidden;
 }
