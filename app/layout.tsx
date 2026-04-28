@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Open_Sans, Poppins } from "next/font/google";
 import "./globals.css";
 import { SignupProvider } from "@/contexts/SignupContext";
@@ -55,11 +56,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             <GuestLayout>
                               <AppNav />
                               {children}
-                              <BottomNav />
+                              {/* BottomNav reads ?as= via useSearchParams — must be in Suspense
+                                  so the layout can statically prerender (e.g. /_not-found). */}
+                              <Suspense fallback={null}>
+                                <BottomNav />
+                              </Suspense>
                             </GuestLayout>
-                            <PostComposer />
-                            <MeetComposer />
-                            <PostMeetReviewSheet />
+                            {/* These three modals consume useCurrentUser() which reads search params.
+                                Same Suspense rule — without these boundaries the build fails on
+                                /_not-found prerender in Next 16. */}
+                            <Suspense fallback={null}>
+                              <PostComposer />
+                            </Suspense>
+                            <Suspense fallback={null}>
+                              <MeetComposer />
+                            </Suspense>
+                            <Suspense fallback={null}>
+                              <PostMeetReviewSheet />
+                            </Suspense>
                           </PostMeetReviewProvider>
                         </MeetComposerProvider>
                       </PostComposerProvider>
