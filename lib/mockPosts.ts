@@ -1,4 +1,5 @@
 import type { Post } from "./types";
+import { daysAgoIso, daysFromNowIso } from "./mockDate";
 
 export const mockPosts: Post[] = [
   // Provider post in community group — demonstrates care provider badge
@@ -629,7 +630,7 @@ export const mockPosts: Post[] = [
     tags: [
       { type: "community", id: "group-reactive-dogs", label: "Prague Reactive Dog Support" },
     ],
-    createdAt: "2026-04-05T10:30:00Z",
+    createdAt: daysAgoIso(21, "10:30"),
     reactions: [
       { userId: "petra", userName: "Petra" },
       { userId: "eva", userName: "Eva" },
@@ -643,7 +644,7 @@ export const mockPosts: Post[] = [
         authorName: "Petra",
         authorAvatarUrl: "/images/generated/zuzana-profile.jpeg",
         text: "This exactly. Maxi is not trying to be bad — he's just scared. Changed everything when I reframed it.",
-        createdAt: "2026-04-05T10:50:00Z",
+        createdAt: daysAgoIso(21, "10:50"),
       },
     ],
   },
@@ -659,7 +660,7 @@ export const mockPosts: Post[] = [
     tags: [
       { type: "community", id: "group-reactive-dogs", label: "Prague Reactive Dog Support" },
     ],
-    createdAt: "2026-04-02T14:15:00Z",
+    createdAt: daysAgoIso(24, "14:15"),
     reactions: [
       { userId: "eva", userName: "Eva" },
       { userId: "tomas", userName: "Tomáš" },
@@ -672,7 +673,7 @@ export const mockPosts: Post[] = [
         authorName: "Eva",
         authorAvatarUrl: "/images/generated/eva-profile.jpeg",
         text: "BAT has been a game-changer for Luna. Thanks for putting this together.",
-        createdAt: "2026-04-02T14:40:00Z",
+        createdAt: daysAgoIso(24, "14:40"),
       },
     ],
   },
@@ -722,7 +723,7 @@ export const mockPosts: Post[] = [
       { type: "community", id: "park-3", label: "Riegrovy Sady Dog Walks" },
       { type: "place", id: "riegrovy-sady", label: "Riegrovy Sady" },
     ],
-    createdAt: "2026-04-06T10:45:00Z",
+    createdAt: daysAgoIso(20, "10:45"),
     reactions: [
       { userId: "jana", userName: "Jana" },
       { userId: "shawn", userName: "Shawn" },
@@ -735,7 +736,7 @@ export const mockPosts: Post[] = [
         authorName: "Jana",
         authorAvatarUrl: "/images/generated/jana-profile.jpeg",
         text: "We were there! Rex was so happy. What a vibe!",
-        createdAt: "2026-04-06T11:10:00Z",
+        createdAt: daysAgoIso(20, "11:10"),
       },
     ],
   },
@@ -775,7 +776,7 @@ export const mockPosts: Post[] = [
       { type: "community", id: "park-2", label: "Stromovka Morning Crew" },
       { type: "place", id: "stromovka", label: "Stromovka" },
     ],
-    createdAt: "2026-04-08T07:00:00Z",
+    createdAt: daysAgoIso(18, "07:00"),
     reactions: [
       { userId: "tomas", userName: "Tomáš" },
       { userId: "shawn", userName: "Shawn" },
@@ -789,7 +790,7 @@ export const mockPosts: Post[] = [
         authorName: "Tomáš",
         authorAvatarUrl: "/images/generated/tomas-profile.jpeg",
         text: "Bella was flying! She loves Anežka 😊",
-        createdAt: "2026-04-08T07:30:00Z",
+        createdAt: daysAgoIso(18, "07:30"),
       },
     ],
   },
@@ -806,7 +807,7 @@ export const mockPosts: Post[] = [
       { type: "community", id: "park-2", label: "Stromovka Morning Crew" },
       { type: "place", id: "stromovka", label: "Stromovka" },
     ],
-    createdAt: "2026-04-05T08:30:00Z",
+    createdAt: daysAgoIso(21, "08:30"),
     reactions: [
       { userId: "anezka", userName: "Anežka" },
       { userId: "tomas", userName: "Tomáš" },
@@ -819,7 +820,7 @@ export const mockPosts: Post[] = [
         authorName: "Anežka",
         authorAvatarUrl: "/images/generated/anezka-profile.jpeg",
         text: "Always! This is the highlight of my week honestly.",
-        createdAt: "2026-04-05T08:50:00Z",
+        createdAt: daysAgoIso(21, "08:50"),
       },
     ],
   },
@@ -838,7 +839,7 @@ export const mockPosts: Post[] = [
       { type: "community", id: "park-karlin", label: "Karlín Riverside Walks" },
       { type: "place", id: "karlin", label: "Karlín" },
     ],
-    createdAt: "2026-04-07T06:15:00Z",
+    createdAt: daysAgoIso(19, "06:15"),
     reactions: [
       { userId: "adela", userName: "Adéla" },
       { userId: "jana", userName: "Jana" },
@@ -858,7 +859,7 @@ export const mockPosts: Post[] = [
       { type: "community", id: "park-karlin", label: "Karlín Riverside Walks" },
       { type: "place", id: "karlin", label: "Karlín" },
     ],
-    createdAt: "2026-04-04T07:45:00Z",
+    createdAt: daysAgoIso(22, "07:45"),
     reactions: [
       { userId: "filip", userName: "Filip" },
       { userId: "martin", userName: "Martin" },
@@ -870,7 +871,7 @@ export const mockPosts: Post[] = [
         authorName: "Filip",
         authorAvatarUrl: "/images/generated/tomas-profile.jpeg",
         text: "Spring hits different out there. See you tomorrow morning!",
-        createdAt: "2026-04-04T08:10:00Z",
+        createdAt: daysAgoIso(22, "08:10"),
       },
     ],
   },
@@ -889,7 +890,7 @@ export const mockPosts: Post[] = [
       { type: "community", id: "group-karlin-neighbours", label: "Karlín Dog Neighbors" },
       { type: "place", id: "karlin", label: "Karlín" },
     ],
-    createdAt: "2026-04-06T19:30:00Z",
+    createdAt: daysAgoIso(20, "19:30"),
     reactions: [
       { userId: "adela", userName: "Adéla" },
     ],
@@ -900,7 +901,7 @@ export const mockPosts: Post[] = [
         authorName: "Adéla",
         authorAvatarUrl: "/images/generated/adela-profile.jpeg",
         text: "I'm right there! Sunny mornings work best for me. Want to coordinate?",
-        createdAt: "2026-04-06T19:50:00Z",
+        createdAt: daysAgoIso(20, "19:50"),
       },
     ],
   },
@@ -917,7 +918,7 @@ export const mockPosts: Post[] = [
       { type: "community", id: "group-karlin-neighbours", label: "Karlín Dog Neighbors" },
       { type: "place", id: "karlin", label: "Karlín" },
     ],
-    createdAt: "2026-04-01T18:00:00Z",
+    createdAt: daysAgoIso(25, "18:00"),
     reactions: [
       { userId: "filip", userName: "Filip" },
     ],
@@ -928,7 +929,7 @@ export const mockPosts: Post[] = [
         authorName: "Filip",
         authorAvatarUrl: "/images/generated/tomas-profile.jpeg",
         text: "Perfect! Toby and I will be there for sure.",
-        createdAt: "2026-04-01T18:20:00Z",
+        createdAt: daysAgoIso(25, "18:20"),
       },
     ],
   },
@@ -948,7 +949,7 @@ export const mockPosts: Post[] = [
       { type: "community", id: "park-1", label: "Letná Dog Walks" },
       { type: "place", id: "letna", label: "Letná" },
     ],
-    createdAt: "2026-04-06T16:30:00Z",
+    createdAt: daysAgoIso(20, "16:30"),
     reactions: [
       { userId: "jana", userName: "Jana" },
       { userId: "eva", userName: "Eva" },
@@ -972,7 +973,7 @@ export const mockPosts: Post[] = [
       { type: "community", id: "park-5", label: "Vítkov Park Dogs" },
       { type: "place", id: "vitkov", label: "Vítkov" },
     ],
-    createdAt: "2026-04-03T17:00:00Z",
+    createdAt: daysAgoIso(23, "17:00"),
     reactions: [
       { userId: "martin", userName: "Martin" },
       { userId: "jana", userName: "Jana" },
@@ -994,7 +995,7 @@ export const mockPosts: Post[] = [
       { type: "dog", id: "biscuit", label: "Biscuit" },
       { type: "community", id: "group-senior-dogs", label: "Senior Dogs & Slow Walks" },
     ],
-    createdAt: "2026-04-05T14:30:00Z",
+    createdAt: daysAgoIso(21, "14:30"),
     reactions: [
       { userId: "eva", userName: "Eva" },
       { userId: "tomas", userName: "Tomáš" },
@@ -1006,7 +1007,7 @@ export const mockPosts: Post[] = [
         authorName: "Eva",
         authorAvatarUrl: "/images/generated/eva-profile.jpeg",
         text: "Luna and I are cheering for Biscuit. The slow pace hits different at this stage of life.",
-        createdAt: "2026-04-05T14:50:00Z",
+        createdAt: daysAgoIso(21, "14:50"),
       },
     ],
   },
@@ -1022,7 +1023,7 @@ export const mockPosts: Post[] = [
     tags: [
       { type: "dog", id: "franta", label: "Franta" },
     ],
-    createdAt: "2026-04-02T12:00:00Z",
+    createdAt: daysAgoIso(24, "12:00"),
     reactions: [
       { userId: "shawn", userName: "Shawn" },
       { userId: "martin", userName: "Martin" },
@@ -1036,7 +1037,7 @@ export const mockPosts: Post[] = [
         authorName: "Martin",
         authorAvatarUrl: "/images/generated/martin-profile.jpeg",
         text: "What a transformation! Franta's the happiest guy now.",
-        createdAt: "2026-04-02T12:30:00Z",
+        createdAt: daysAgoIso(24, "12:30"),
       },
     ],
   },
@@ -1050,7 +1051,7 @@ export const mockPosts: Post[] = [
     tags: [
       { type: "place", id: "letna", label: "Letná" },
     ],
-    createdAt: "2026-04-07T16:45:00Z",
+    createdAt: daysAgoIso(19, "16:45"),
     reactions: [
       { userId: "shawn", userName: "Shawn" },
       { userId: "daniel", userName: "Daniel" },
@@ -1065,7 +1066,7 @@ export const mockPosts: Post[] = [
         authorName: "Daniel",
         authorAvatarUrl: "/images/generated/daniel-profile.jpeg",
         text: "That's incredible! Which dog? Bára and I want to know who we're celebrating!",
-        createdAt: "2026-04-07T17:15:00Z",
+        createdAt: daysAgoIso(19, "17:15"),
       },
     ],
   },
@@ -1079,7 +1080,7 @@ export const mockPosts: Post[] = [
     tags: [
       { type: "dog", id: "bara", label: "Bára" },
     ],
-    createdAt: "2026-04-08T15:20:00Z",
+    createdAt: daysAgoIso(18, "15:20"),
     reactions: [
       { userId: "klara", userName: "Klára" },
       { userId: "shawn", userName: "Shawn" },
@@ -1092,9 +1093,332 @@ export const mockPosts: Post[] = [
         authorName: "Klára",
         authorAvatarUrl: "/images/generated/klara-profile.jpeg",
         text: "That smile! Bára's living her best life with you.",
-        createdAt: "2026-04-08T15:40:00Z",
+        createdAt: daysAgoIso(18, "15:40"),
       },
     ],
+  },
+
+  /* ════════════════════════════════════════════════════════════════════════
+     Mock World Building C1–C4 — persona post backfill (2026-04-26).
+     Lightweight in-character posts so each persona's home feed has visible
+     content authored by them + posts visible via Gate-2 (their connections).
+     ════════════════════════════════════════════════════════════════════════ */
+
+  // ── DANIEL (3) ──────────────────────────────────────────────────────────────
+  {
+    id: "post-daniel-reactive-1",
+    authorId: "daniel",
+    authorName: "Daniel",
+    authorAvatarUrl: "/images/generated/daniel-profile.jpeg",
+    groupId: "group-reactive-dogs",
+    groupName: "Prague Reactive Dog Support",
+    photos: ["/images/generated/post-reactive-walk.jpeg"],
+    caption:
+      "Bára held it together for an entire 30-minute walk in Smíchov today. Two dogs across the road, one barking at us — she looked, then looked back at me. I almost cried.",
+    tags: [
+      { type: "dog", id: "bara", label: "Bára" },
+      { type: "community", id: "group-reactive-dogs", label: "Prague Reactive Dog Support" },
+    ],
+    createdAt: daysAgoIso(17, "18:20"),
+    reactions: [
+      { userId: "hana", userName: "Hana" },
+      { userId: "anezka", userName: "Anežka" },
+      { userId: "klara", userName: "Klára" },
+      { userId: "vitek", userName: "Vítek" },
+      { userId: "eva", userName: "Eva" },
+    ],
+    comments: [
+      {
+        id: "comment-daniel-r1-a",
+        authorId: "hana",
+        authorName: "Hana",
+        authorAvatarUrl: "/images/generated/hana-profile.jpeg",
+        text: "This is huge. Months of work showing up. So proud of both of you.",
+        createdAt: daysAgoIso(17, "19:15"),
+      },
+      {
+        id: "comment-daniel-r1-b",
+        authorId: "klara",
+        authorName: "Klára",
+        authorAvatarUrl: "/images/generated/klara-profile.jpeg",
+        text: "The look-back is the magic moment. Keep doing what you're doing.",
+        createdAt: daysAgoIso(17, "20:02"),
+      },
+    ],
+  },
+  {
+    id: "post-daniel-reactive-2",
+    authorId: "daniel",
+    authorName: "Daniel",
+    authorAvatarUrl: "/images/generated/daniel-profile.jpeg",
+    groupId: "group-reactive-dogs",
+    groupName: "Prague Reactive Dog Support",
+    photos: [],
+    caption:
+      "Question for the group — Bára's been better with leash reactivity but still freezes when delivery riders come past on bikes. Anyone found something that helps with sudden-fast-movers? Treat-and-retreat works for stationary dogs but not for things that whoosh past us.",
+    tags: [
+      { type: "community", id: "group-reactive-dogs", label: "Prague Reactive Dog Support" },
+    ],
+    createdAt: daysAgoIso(24, "21:10"),
+    reactions: [
+      { userId: "hana", userName: "Hana" },
+      { userId: "vitek", userName: "Vítek" },
+      { userId: "anezka", userName: "Anežka" },
+    ],
+    comments: [
+      {
+        id: "comment-daniel-r2-a",
+        authorId: "anezka",
+        authorName: "Anežka",
+        authorAvatarUrl: "/images/generated/anezka-profile.jpeg",
+        text: "Nela was the same. What helped: predict it before she sees it (ears go up first). The instant her ears swivel, treat scatter on the ground. Trains her to look down before she looks up.",
+        createdAt: daysAgoIso(24, "21:45"),
+      },
+      {
+        id: "comment-daniel-r2-b",
+        authorId: "klara",
+        authorName: "Klára",
+        authorAvatarUrl: "/images/generated/klara-profile.jpeg",
+        text: "What Anežka said. We can drill the scatter cue on Wednesday.",
+        createdAt: daysAgoIso(24, "22:08"),
+      },
+    ],
+  },
+  {
+    id: "post-daniel-klara-session",
+    authorId: "daniel",
+    authorName: "Daniel",
+    authorAvatarUrl: "/images/generated/daniel-profile.jpeg",
+    groupId: "group-klara-training",
+    groupName: "Klára's Calm Dog Sessions",
+    photos: ["/images/generated/bara-portrait.jpeg"],
+    caption: "Tired-Bára after another good Wednesday. Eda is the GOAT.",
+    tags: [
+      { type: "dog", id: "bara", label: "Bára" },
+      { type: "person", id: "klara", label: "Klára" },
+      { type: "community", id: "group-klara-training", label: "Klára's Calm Dog Sessions" },
+    ],
+    createdAt: "2026-03-26T13:40:00Z",
+    reactions: [
+      { userId: "klara", userName: "Klára" },
+      { userId: "hana", userName: "Hana" },
+      { userId: "filip", userName: "Filip" },
+    ],
+    comments: [
+      {
+        id: "comment-daniel-ks-a",
+        authorId: "klara",
+        authorName: "Klára",
+        authorAvatarUrl: "/images/generated/klara-profile.jpeg",
+        text: "She earned that nap.",
+        createdAt: "2026-03-26T14:00:00Z",
+      },
+    ],
+  },
+
+  // ── TEREZA (3) ──────────────────────────────────────────────────────────────
+  {
+    id: "post-tereza-evening-walkers",
+    authorId: "tereza",
+    authorName: "Tereza",
+    authorAvatarUrl: "/images/generated/tereza-profile.jpeg",
+    groupId: "group-tereza-neighbourhood",
+    groupName: "Vinohrady Evening Walkers",
+    photos: ["/images/generated/evening-walk-group.jpeg"],
+    caption:
+      "Beautiful walk tonight, eight of us out + dogs. Lucie's idea to loop around the back of the park was much better — way fewer crowds. Same time next Thursday, all welcome.",
+    tags: [
+      { type: "place", id: "riegrovy-sady", label: "Riegrovy sady" },
+      { type: "person", id: "lucie", label: "Lucie" },
+      { type: "community", id: "group-tereza-neighbourhood", label: "Vinohrady Evening Walkers" },
+    ],
+    createdAt: daysAgoIso(16, "20:30"),
+    reactions: [
+      { userId: "marek", userName: "Marek" },
+      { userId: "lucie", userName: "Lucie" },
+      { userId: "shawn", userName: "Shawn" },
+      { userId: "jana", userName: "Jana" },
+      { userId: "zuzana", userName: "Zuzana" },
+    ],
+    comments: [
+      {
+        id: "comment-tereza-ew-a",
+        authorId: "marek",
+        authorName: "Marek",
+        authorAvatarUrl: "/images/generated/marek-profile.jpeg",
+        text: "Benny is still passed out. Good walk.",
+        createdAt: daysAgoIso(16, "21:05"),
+      },
+    ],
+  },
+  {
+    id: "post-tereza-riegrovy",
+    authorId: "tereza",
+    authorName: "Tereza",
+    authorAvatarUrl: "/images/generated/tereza-profile.jpeg",
+    groupId: "park-3",
+    groupName: "Riegrovy Sady Dog Walks",
+    photos: ["/images/generated/post-franta-stick.jpeg"],
+    caption: "Franta found the world's largest stick. Tried to bring it home. We are not bringing it home.",
+    tags: [
+      { type: "dog", id: "franta", label: "Franta" },
+      { type: "place", id: "riegrovy-sady", label: "Riegrovy sady" },
+    ],
+    createdAt: daysAgoIso(21, "11:15"),
+    reactions: [
+      { userId: "marek", userName: "Marek" },
+      { userId: "jana", userName: "Jana" },
+      { userId: "lucie", userName: "Lucie" },
+      { userId: "shawn", userName: "Shawn" },
+    ],
+    comments: [
+      {
+        id: "comment-tereza-rs-a",
+        authorId: "lucie",
+        authorName: "Lucie",
+        authorAvatarUrl: "/images/generated/lucie-profile.jpeg",
+        text: "That's not a stick, that's a small tree.",
+        createdAt: daysAgoIso(21, "12:00"),
+      },
+    ],
+  },
+  {
+    id: "post-tereza-personal",
+    authorId: "tereza",
+    authorName: "Tereza",
+    authorAvatarUrl: "/images/generated/tereza-profile.jpeg",
+    photos: ["/images/generated/franta-portrait.jpeg"],
+    caption: "Five years with this nose-led potato today. Best decision I ever made.",
+    tags: [{ type: "dog", id: "franta", label: "Franta" }],
+    createdAt: "2026-03-28T08:00:00Z",
+    reactions: [
+      { userId: "marek", userName: "Marek" },
+      { userId: "lucie", userName: "Lucie" },
+      { userId: "jana", userName: "Jana" },
+      { userId: "klara", userName: "Klára" },
+      { userId: "shawn", userName: "Shawn" },
+      { userId: "eva", userName: "Eva" },
+    ],
+    comments: [
+      {
+        id: "comment-tereza-p-a",
+        authorId: "jana",
+        authorName: "Jana",
+        authorAvatarUrl: "/images/generated/jana-profile.jpeg",
+        text: "Happy adoption day Franta! 🎉",
+        createdAt: "2026-03-28T08:30:00Z",
+      },
+    ],
+  },
+
+  // ── KLÁRA (2) ───────────────────────────────────────────────────────────────
+  {
+    id: "post-klara-session-recap",
+    authorId: "klara",
+    authorName: "Klára",
+    authorAvatarUrl: "/images/generated/klara-profile.jpeg",
+    groupId: "group-klara-training",
+    groupName: "Klára's Calm Dog Sessions",
+    photos: ["/images/generated/post-puppy-class.jpeg"],
+    caption:
+      "Wednesday group session — five dogs, all under threshold for the full 45 minutes. We're seeing real progress. New 6-week block starts in May, two spots open. DM if interested.",
+    tags: [
+      { type: "place", id: "stromovka", label: "Stromovka" },
+      { type: "community", id: "group-klara-training", label: "Klára's Calm Dog Sessions" },
+    ],
+    createdAt: daysAgoIso(17, "15:00"),
+    reactions: [
+      { userId: "daniel", userName: "Daniel" },
+      { userId: "hana", userName: "Hana" },
+      { userId: "filip", userName: "Filip" },
+      { userId: "tereza", userName: "Tereza" },
+      { userId: "shawn", userName: "Shawn" },
+      { userId: "martin", userName: "Martin" },
+    ],
+    comments: [
+      {
+        id: "comment-klara-sr-a",
+        authorId: "hana",
+        authorName: "Hana",
+        authorAvatarUrl: "/images/generated/hana-profile.jpeg",
+        text: "Runa won't shut up about it.",
+        createdAt: daysAgoIso(17, "16:00"),
+      },
+    ],
+  },
+  {
+    id: "post-klara-personal",
+    authorId: "klara",
+    authorName: "Klára",
+    authorAvatarUrl: "/images/generated/klara-profile.jpeg",
+    photos: ["/images/generated/eda-portrait.jpeg"],
+    caption:
+      "People assume Eda is calm because he's a Border Collie. Eda is calm because he is six and has been deeply, professionally bored by every dog in Holešovice.",
+    tags: [{ type: "dog", id: "eda", label: "Eda" }],
+    createdAt: daysAgoIso(22, "19:30"),
+    reactions: [
+      { userId: "daniel", userName: "Daniel" },
+      { userId: "hana", userName: "Hana" },
+      { userId: "tereza", userName: "Tereza" },
+      { userId: "martin", userName: "Martin" },
+      { userId: "shawn", userName: "Shawn" },
+      { userId: "filip", userName: "Filip" },
+      { userId: "eva", userName: "Eva" },
+    ],
+    comments: [],
+  },
+
+  // ── TOMÁŠ (2) ───────────────────────────────────────────────────────────────
+  {
+    id: "post-tomas-karlin-morning",
+    authorId: "tomas",
+    authorName: "Tomáš",
+    authorAvatarUrl: "/images/generated/tomas-profile.jpeg",
+    groupId: "park-karlin",
+    groupName: "Karlín Walks",
+    photos: ["/images/generated/post-karlin-morning.jpeg"],
+    caption: "First properly warm morning. Hugo lasted about ten minutes before becoming a puddle.",
+    tags: [
+      { type: "dog", id: "hugo", label: "Hugo" },
+      { type: "place", id: "karlin-riverfront", label: "Karlín riverfront" },
+    ],
+    createdAt: daysAgoIso(18, "07:45"),
+    reactions: [
+      { userId: "petra", userName: "Petra" },
+      { userId: "ondrej", userName: "Ondřej" },
+      { userId: "adela", userName: "Adéla" },
+    ],
+    comments: [
+      {
+        id: "comment-tomas-km-a",
+        authorId: "petra",
+        authorName: "Petra",
+        authorAvatarUrl: "/images/generated/petra-profile.jpeg",
+        text: "Same energy as Daisy by 9am 😂",
+        createdAt: daysAgoIso(18, "08:30"),
+      },
+    ],
+  },
+  {
+    id: "post-tomas-neighbours",
+    authorId: "tomas",
+    authorName: "Tomáš",
+    authorAvatarUrl: "/images/generated/tomas-profile.jpeg",
+    groupId: "group-karlin-neighbours",
+    groupName: "Karlín Dog Neighbors",
+    photos: ["/images/generated/post-sleepy-dogjpeg.jpeg"],
+    caption: "Hugo, after one (1) Vítkov hill loop with Petra. Worth every Kč.",
+    tags: [
+      { type: "dog", id: "hugo", label: "Hugo" },
+      { type: "person", id: "petra", label: "Petra" },
+    ],
+    createdAt: "2026-03-29T14:20:00Z",
+    reactions: [
+      { userId: "petra", userName: "Petra" },
+      { userId: "ondrej", userName: "Ondřej" },
+      { userId: "adela", userName: "Adéla" },
+    ],
+    comments: [],
   },
 ];
 

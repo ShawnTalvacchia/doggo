@@ -15,11 +15,13 @@ import {
   Check,
   Star,
 } from "@phosphor-icons/react";
-import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import type { Meet, MeetType } from "@/lib/types";
 import { MEET_TYPE_LABELS } from "@/lib/mockMeets";
 import { getGroupById } from "@/lib/mockGroups";
 import { formatMeetDateTime } from "@/lib/dateUtils";
+import { AttendeeAvatarStack } from "@/components/meets/AttendeeAvatarStack";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { recurrenceLabel, getDisplayDate, isRecurring } from "@/lib/meetUtils";
 
 /* ── Constants ─────────────────────────────────────────────────── */
 
@@ -29,13 +31,6 @@ const MEET_ICONS: Record<MeetType, React.ReactNode> = {
   playdate: <PawPrint size={16} weight="light" />,
   training: <Target size={16} weight="light" />,
 };
-
-/* ── Helpers ────────────────────────────────────────────────────── */
-
-function totalDogs(meet: Meet): number {
-  return meet.attendees.reduce((sum, a) => sum + a.dogNames.length, 0);
-}
-
 
 /* ── Types ──────────────────────────────────────────────────────── */
 
@@ -74,6 +69,7 @@ const STATUS_ICONS: Record<MeetRole, React.ReactNode> = {
 /* ── Component ──────────────────────────────────────────────────── */
 
 export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetProps) {
+  const currentUserId = useCurrentUserId();
   const goingAttendees = meet.attendees.filter(
     (a) => (a.rsvpStatus ?? "going") === "going"
   );
@@ -86,7 +82,7 @@ export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetPro
   // Host signal: RSVP count (only for hosting + upcoming)
   const newRsvpCount =
     role === "hosting" && !isHistory
-      ? Math.max(0, goingAttendees.filter((a) => a.userId !== "shawn").length)
+      ? Math.max(0, goingAttendees.filter((a) => a.userId !== currentUserId).length)
       : 0;
 
   return (
@@ -160,17 +156,22 @@ export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetPro
 
       {!isCancelled && (
         <div className="flex flex-col gap-xs">
-          {/* Row 3: Date/time + recurring */}
+          {/* Row 3: Date/time + recurring.
+              For recurring meets the displayed date is the next upcoming
+              occurrence (via `getDisplayDate`), prefixed "Next:" — `meet.date`
+              alone is the series anchor (often deep in the past) and would
+              read as stale. */}
           <div className="flex items-center gap-xs text-sm text-fg-secondary">
             <CalendarDots size={16} weight="light" className="shrink-0" />
             <span style={{ fontWeight: 600, color: isHistory ? undefined : "var(--text-primary)" }}>
-              {formatMeetDateTime(meet.date, meet.time)}
+              {isRecurring(meet) && !isHistory ? "Next: " : ""}
+              {formatMeetDateTime(getDisplayDate(meet), meet.time)}
             </span>
-            {meet.recurring && (
+            {recurrenceLabel(meet) && (
               <>
                 <span style={{ padding: "0 4px", color: "var(--text-tertiary)" }}>·</span>
                 <ArrowsClockwise size={14} weight="light" className="text-fg-tertiary shrink-0" />
-                <span className="text-fg-tertiary">Weekly</span>
+                <span className="text-fg-tertiary">{recurrenceLabel(meet)}</span>
               </>
             )}
           </div>
@@ -181,7 +182,7 @@ export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetPro
             {meet.location}
           </div>
 
-          {/* Row 5: Group context + going/max */}
+          {/* Row 5: Group context + capacity (suppressed when already inside a group page) */}
           {group && variant !== "group" && (
             <div className="flex items-center gap-xs text-sm">
               <UsersThree size={16} weight="light" className="shrink-0" style={{ color: "var(--status-info-600, #4e63b8)" }} />
@@ -194,77 +195,33 @@ export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetPro
               </span>
             </div>
           )}
-
-          {/* If no group, show going count on its own */}
-          {(!group || variant === "group") && (
-            <div className="flex items-center gap-xs text-sm text-fg-tertiary">
-              <UsersThree size={16} weight="light" className="shrink-0" />
-              {goingCount}/{meet.maxAttendees} going · {totalDogs(meet)} {totalDogs(meet) === 1 ? "dog" : "dogs"}
-            </div>
-          )}
         </div>
       )}
 
-      {/* Row 6: Avatars + activity signal (combined) */}
+      {/* Row 6: Dog-forward avatar stack + surface-specific signals */}
       {!isCancelled && (
-        <div className="flex items-center gap-sm">
-          <div className="flex items-center shrink-0">
-            {goingAttendees.slice(0, maxAvatars).map((a, i) =>
-              a.avatarUrl ? (
-                <img
-                  key={a.userId}
-                  src={a.avatarUrl}
-                  alt={a.userName}
-                  className="rounded-full border-2 border-surface-top"
-                  style={{
-                    width: 28,
-                    height: 28,
-                    objectFit: "cover",
-                    marginLeft: i > 0 ? -8 : 0,
-                    opacity: isHistory ? 0.6 : 1,
-                  }}
-                />
-              ) : (
-                <span key={a.userId} style={{ marginLeft: i > 0 ? -8 : 0 }}>
-                  <DefaultAvatar
-                    name={a.userName}
-                    size={28}
-                    className="border-2 border-surface-top"
-                  />
-                </span>
-              )
-            )}
-            {goingAttendees.length > maxAvatars && (
-              <span
-                className="flex items-center justify-center rounded-full text-xs font-medium"
-                style={{
-                  width: 28,
-                  height: 28,
-                  marginLeft: -8,
-                  background: "var(--surface-gray)",
-                  color: "var(--text-secondary)",
-                }}
-              >
-                +{goingAttendees.length - maxAvatars}
-              </span>
-            )}
-          </div>
+        <div className="flex items-center gap-sm flex-wrap">
+          <AttendeeAvatarStack
+            attendees={goingAttendees}
+            maxAvatars={maxAvatars}
+            muted={isHistory}
+          />
 
           {/* Spots left — discover variant */}
           {variant === "discover" && spotsLeft > 0 && spotsLeft <= 5 && (
             <span className="text-xs font-semibold text-brand-main shrink-0">
-              {spotsLeft} {spotsLeft === 1 ? "spot" : "spots"} left
+              · {spotsLeft} {spotsLeft === 1 ? "spot" : "spots"} left
             </span>
           )}
 
           {/* Host signal: RSVPs — schedule variant */}
           {newRsvpCount > 0 && (
             <span className="text-sm font-semibold text-brand-main shrink-0">
-              {newRsvpCount} {newRsvpCount === 1 ? "RSVP" : "RSVPs"}
+              · {newRsvpCount} {newRsvpCount === 1 ? "RSVP" : "RSVPs"}
             </span>
           )}
 
-          {/* Activity signal — inline next to avatars */}
+          {/* Activity signal — inline */}
           {meet.recentJoinText && !isHistory && !newRsvpCount && (
             <div className="flex items-center gap-xs text-xs text-fg-tertiary">
               <Lightning size={12} weight="fill" className="text-brand-main" />

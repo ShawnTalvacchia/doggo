@@ -1,15 +1,15 @@
 "use client";
 
 import { Users } from "@phosphor-icons/react";
-import { ParticipantCard } from "./ParticipantCard";
-import { getConnectionState } from "@/lib/mockConnections";
-import { getRelationshipSignals } from "@/lib/relationshipContext";
-import { getCommunityCarers } from "@/lib/mockConnections";
-import type { MeetAttendee, RsvpStatus } from "@/lib/types";
+import { PersonRow } from "@/components/people/PersonRow";
+import { getConnectionState, getCommunityCarers } from "@/lib/mockConnections";
+import { getAttendeeTier } from "@/lib/meetUtils";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import type { ConnectionState, MeetAttendee } from "@/lib/types";
 
 interface ParticipantListProps {
   attendees: MeetAttendee[];
-  /** Current user ID */
+  /** Current user ID. If omitted, resolved from CurrentUserContext. */
   currentUserId?: string;
   /** Whether this meet is completed (affects display) */
   isCompleted?: boolean;
@@ -17,77 +17,70 @@ interface ParticipantListProps {
 
 interface TieredAttendee extends MeetAttendee {
   tier: 1 | 2 | 3;
-  connectionState: "none" | "familiar" | "pending" | "connected";
+  connectionState: ConnectionState;
   theyMarkedFamiliar?: boolean;
-  signals: string[];
   isCareProvider: boolean;
 }
 
 /**
- * Tiered participant list — sorts attendees by relationship proximity:
+ * Tiered participant list — sorts attendees by relationship proximity and renders
+ * each via the canonical `PersonRow`.
  *
- * Tier 1: Connected users (full cards with context)
- * Tier 2: Familiar / Open profiles (actionable cards)
- * Tier 3: Locked + None (collapsed count)
+ *   Tier 1: Connected (full cards, current user pinned to top)
+ *   Tier 2: Familiar (either direction), Pending, Open profiles (full cards)
+ *   Tier 3: Locked + None (collapsed into "+ N other attendees" footer)
+ *
+ * Tier classification is delegated to `getAttendeeTier` (`lib/meetUtils.ts`) — the
+ * canonical implementation that also drives the meet detail summary card. Don't
+ * reimplement tier rules here.
  */
 export function ParticipantList({
   attendees,
-  currentUserId = "shawn",
+  currentUserId,
   isCompleted = false,
 }: ParticipantListProps) {
-  const communityCarerIds = new Set(getCommunityCarers().map((c) => c.userId));
+  // Fall back to the active persona when caller doesn't pass an explicit ID.
+  const hookUserId = useCurrentUserId();
+  const viewerId = currentUserId ?? hookUserId;
+  const communityCarerIds = new Set(getCommunityCarers(viewerId).map((c) => c.userId));
 
-  // Classify each attendee into tiers
   const tiered: TieredAttendee[] = attendees.map((a) => {
-    if (a.userId === currentUserId) {
+    if (a.userId === viewerId) {
       return {
         ...a,
         tier: 1 as const,
         connectionState: "connected" as const,
-        signals: [],
         isCareProvider: false,
       };
     }
 
-    const conn = getConnectionState(a.userId);
+    const conn = getConnectionState(a.userId, viewerId);
     const state = conn?.state ?? "none";
-    const signals = conn ? getRelationshipSignals(conn) : [];
-    const isCareProvider = communityCarerIds.has(a.userId);
-    const isOpen = a.profileOpen ?? conn?.profileOpen ?? false;
     const theyMarkedFamiliar = conn?.theyMarkedFamiliar;
-
-    let tier: 1 | 2 | 3;
-    if (state === "connected") {
-      tier = 1;
-    } else if (state === "familiar" || state === "pending" || isOpen) {
-      tier = 2;
-    } else {
-      tier = 3;
-    }
+    const isCareProvider = communityCarerIds.has(a.userId);
+    const tier = getAttendeeTier(a, viewerId);
 
     return {
       ...a,
       tier,
       connectionState: state,
       theyMarkedFamiliar,
-      signals,
       isCareProvider,
     };
   });
 
-  // Sort: tier 1 first, then tier 2, current user at top of tier 1
+  // Visible: tier 1 + 2, current user pinned to top of tier 1.
   const visible = tiered
     .filter((a) => a.tier <= 2)
     .sort((a, b) => {
-      if (a.userId === currentUserId) return -1;
-      if (b.userId === currentUserId) return 1;
+      if (a.userId === viewerId) return -1;
+      if (b.userId === viewerId) return 1;
       if (a.tier !== b.tier) return a.tier - b.tier;
       return 0;
     });
 
   const hidden = tiered.filter((a) => a.tier === 3);
 
-  // Split visible into going and interested
   const goingVisible = visible.filter((a) => (a.rsvpStatus ?? "going") === "going");
   const interestedVisible = visible.filter((a) => a.rsvpStatus === "interested");
   const goingHidden = hidden.filter((a) => (a.rsvpStatus ?? "going") === "going");
@@ -99,24 +92,22 @@ export function ParticipantList({
     <section className="flex flex-col gap-md">
       {/* Going section */}
       <h2 className="font-heading text-lg font-semibold text-fg-primary">
-        {isCompleted ? "Who attended" : "Who\u2019s going"} ({goingVisible.length + goingHidden.length})
+        {isCompleted ? "Who attended" : "Who’s going"} ({goingVisible.length + goingHidden.length})
       </h2>
 
       <div className="flex flex-col gap-sm">
         {goingVisible.map((a) => (
-          <ParticipantCard
+          <PersonRow
             key={a.userId}
+            variant="meet-attendee"
             userId={a.userId}
-            userName={a.userName}
+            name={a.userName}
             avatarUrl={a.avatarUrl}
-            dogNames={a.dogNames}
-            dogBreed={a.dogBreed}
-            neighbourhood={a.neighbourhood}
+            isSelf={a.userId === viewerId}
+            pets={(a.dogNames ?? []).map((name) => ({ name, breed: a.dogBreed }))}
             connectionState={a.connectionState}
             theyMarkedFamiliar={a.theyMarkedFamiliar}
             profileOpen={a.profileOpen}
-            signals={a.signals}
-            isYou={a.userId === currentUserId}
             isCareProvider={a.isCareProvider}
           />
         ))}
@@ -130,18 +121,17 @@ export function ParticipantList({
           </h3>
           <div className="flex flex-col gap-sm">
             {interestedVisible.map((a) => (
-              <ParticipantCard
+              <PersonRow
                 key={a.userId}
+                variant="meet-attendee"
                 userId={a.userId}
-                userName={a.userName}
+                name={a.userName}
                 avatarUrl={a.avatarUrl}
-                dogNames={a.dogNames}
-                dogBreed={a.dogBreed}
-                neighbourhood={a.neighbourhood}
+                isSelf={a.userId === viewerId}
+                pets={(a.dogNames ?? []).map((name) => ({ name, breed: a.dogBreed }))}
                 connectionState={a.connectionState}
                 theyMarkedFamiliar={a.theyMarkedFamiliar}
                 profileOpen={a.profileOpen}
-                signals={a.signals}
                 isCareProvider={a.isCareProvider}
               />
             ))}

@@ -7,7 +7,7 @@ import type {
 } from "./types";
 import { mockPosts } from "./mockPosts";
 import { mockMeets } from "./mockMeets";
-import { mockConnections } from "./mockConnections";
+import { getConnectionsForViewer } from "./mockConnections";
 import { mockGroups, getUserGroups } from "./mockGroups";
 
 /**
@@ -45,7 +45,7 @@ export function getFeedForUser(userId: string): FeedItem[] {
 
   // ── Gate 2: Relationship gate — personal posts from connections ──────────
   const connectionUserIds = new Set(
-    mockConnections
+    getConnectionsForViewer(userId)
       .filter((c) => c.state === "connected" || c.state === "familiar")
       .map((c) => c.userId)
   );

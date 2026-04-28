@@ -20,13 +20,16 @@ import { ButtonAction } from "@/components/ui/ButtonAction";
 import {
   mockMeets,
   getUserMeets,
+  getFollowedSeries,
 } from "@/lib/mockMeets";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { Meet, MeetType } from "@/lib/types";
 
 /* ── Constants ── */
 
 const TYPE_TABS: { key: string; label: string }[] = [
   { key: "all", label: "All" },
+  { key: "following", label: "Following" },
   { key: "walk", label: "Walks" },
   { key: "park_hangout", label: "Hangouts" },
   { key: "playdate", label: "Playdates" },
@@ -78,7 +81,11 @@ const DEFAULT_FILTERS: MeetFilters = {
 
 function applyFilters(meets: Meet[], type: string, filters: MeetFilters): Meet[] {
   return meets.filter((meet) => {
-    if (type !== "all" && meet.type !== type) return false;
+    // The "following" pill is a status filter (followed series only) rather
+    // than a meet-type filter, and it overrides the type axis. Filtering by
+    // `followers` happens upstream in the page (it needs the current userId);
+    // here we just skip the meet-type check when "following" is active.
+    if (type !== "all" && type !== "following" && meet.type !== type) return false;
 
     if (filters.selectedDays.length > 0) {
       const meetDay = new Date(meet.date).getDay();
@@ -104,8 +111,9 @@ function applyFilters(meets: Meet[], type: string, filters: MeetFilters): Meet[]
 /* ── Results list ── */
 
 function MeetsResultsList({ results }: { results: Meet[] }) {
+  const currentUserId = useCurrentUserId();
   const userMeetIds = new Set(
-    getUserMeets("shawn")
+    getUserMeets(currentUserId)
       .filter((m) => m.status === "upcoming")
       .map((m) => m.id)
   );
@@ -241,6 +249,7 @@ function DiscoverMeetsInner() {
   const [activeType, setActiveType] = useState("all");
   const [filters, setFilters] = useState<MeetFilters>(DEFAULT_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
+  const currentUserId = useCurrentUserId();
 
   const handleFiltersChange = (update: Partial<MeetFilters>) => {
     setFilters((prev) => ({ ...prev, ...update }));
@@ -253,7 +262,15 @@ function DiscoverMeetsInner() {
     []
   );
 
-  const results = useMemo(() => applyFilters(allUpcoming, activeType, filters), [allUpcoming, activeType, filters]);
+  // When the "Following" pill is active, scope to series the current user
+  // follows. Followed series are inherently recurring (one-offs can't be
+  // followed). All other type pills work over the full upcoming set.
+  const baseSet = useMemo(
+    () => (activeType === "following" ? getFollowedSeries(currentUserId) : allUpcoming),
+    [activeType, currentUserId, allUpcoming],
+  );
+
+  const results = useMemo(() => applyFilters(baseSet, activeType, filters), [baseSet, activeType, filters]);
 
   return (
     <PageColumn hideHeader abovePanel={<DetailHeader backHref="/discover" title="Meets" />}>

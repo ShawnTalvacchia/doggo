@@ -1,17 +1,41 @@
 "use client";
 
-import { CalendarDots, MapPin, CheckCircle, Star } from "@phosphor-icons/react";
-import type { Meet } from "@/lib/types";
+import {
+  CalendarDots,
+  MapPin,
+  PersonSimpleWalk,
+  Tree,
+  PawPrint,
+  Target,
+} from "@phosphor-icons/react";
+import type { Meet, MeetType } from "@/lib/types";
+import { MEET_TYPE_LABELS } from "@/lib/mockMeets";
 import { getGroupById } from "@/lib/mockGroups";
 import { formatMeetDateTime } from "@/lib/dateUtils";
+import { AttendeeAvatarStack } from "@/components/meets/AttendeeAvatarStack";
+import { getDisplayDate, isRecurring } from "@/lib/meetUtils";
+
+/**
+ * FeedUpcomingMeet — the "a meet is happening soon" card that shows in the
+ * community feed. Follows the shared meet-card anatomy (see
+ * `docs/features/meets.md` → Meet-card anatomy) but sits inside the feed-card
+ * article shell so it visually rhymes with moment posts.
+ */
+
+const MEET_ICONS: Record<MeetType, React.ReactNode> = {
+  walk: <PersonSimpleWalk size={14} weight="light" />,
+  park_hangout: <Tree size={14} weight="light" />,
+  playdate: <PawPrint size={14} weight="light" />,
+  training: <Target size={14} weight="light" />,
+};
 
 export function FeedUpcomingMeet({ meet }: { meet: Meet }) {
   const group = meet.groupId ? getGroupById(meet.groupId) : null;
   const avatarUrl = group?.coverPhotoUrl || meet.creatorAvatarUrl;
   const contextName = group?.name || meet.creatorName;
-
-  const goingCount = meet.attendees.filter((a) => a.rsvpStatus !== "interested").length;
-  const interestedCount = meet.attendees.filter((a) => a.rsvpStatus === "interested").length;
+  const goingAttendees = meet.attendees.filter(
+    (a) => (a.rsvpStatus ?? "going") === "going"
+  );
 
   return (
     <article className="feed-card">
@@ -28,6 +52,15 @@ export function FeedUpcomingMeet({ meet }: { meet: Meet }) {
             <span className="feed-card-author-name">{contextName}</span>
           </div>
 
+          {/* Type pill */}
+          <span
+            className="card-schedule-chip card-schedule-chip--primary self-start"
+            style={{ width: "fit-content" }}
+          >
+            {MEET_ICONS[meet.type]}
+            {MEET_TYPE_LABELS[meet.type]}
+          </span>
+
           {/* Meet title — links to detail */}
           <a
             href={`/meets/${meet.id}`}
@@ -41,7 +74,10 @@ export function FeedUpcomingMeet({ meet }: { meet: Meet }) {
           <div className="feed-card-meta">
             <span className="feed-card-meta-item">
               <CalendarDots size={14} weight="light" />
-              {formatMeetDateTime(meet.date, meet.time)}
+              {/* Recurring meets show next upcoming occurrence ("Next: ...");
+                  one-off meets show the meet's own date. See `getDisplayDate`. */}
+              {isRecurring(meet) ? "Next: " : ""}
+              {formatMeetDateTime(getDisplayDate(meet), meet.time)}
             </span>
             <span className="feed-card-meta-item">
               <MapPin size={14} weight="light" />
@@ -49,38 +85,8 @@ export function FeedUpcomingMeet({ meet }: { meet: Meet }) {
             </span>
           </div>
 
-          {/* Avatars + status labels in one row */}
-          <div className="feed-card-meet-status-row">
-            <div className="flex items-center">
-              {meet.attendees.slice(0, 4).map((a, i) => (
-                <img
-                  key={a.userId}
-                  src={a.avatarUrl}
-                  alt={a.userName}
-                  className="rounded-full"
-                  style={{
-                    width: 22,
-                    height: 22,
-                    objectFit: "cover",
-                    border: "2px solid var(--surface-top)",
-                    marginLeft: i > 0 ? -5 : 0,
-                  }}
-                />
-              ))}
-            </div>
-            {goingCount > 0 && (
-              <span className="feed-card-meet-label feed-card-meet-label--going">
-                <CheckCircle size={14} weight="fill" />
-                {goingCount} Going
-              </span>
-            )}
-            {interestedCount > 0 && (
-              <span className="feed-card-meet-label feed-card-meet-label--interested">
-                <Star size={14} weight="fill" />
-                {interestedCount} Interested
-              </span>
-            )}
-          </div>
+          {/* Dog-forward avatar stack + count */}
+          <AttendeeAvatarStack attendees={goingAttendees} size={24} />
         </div>
       </div>
     </article>

@@ -3,8 +3,15 @@ import { mockMeets } from "./mockMeets";
 
 /** Default care group configuration by provider category */
 export const CARE_CONFIG_DEFAULTS: Record<CareCategory, CareGroupConfig> = {
-  training:  { eventsEnabled: true,  bookingCTAsEnabled: true,  discussionEnabled: true,  serviceListingsVisible: true,  locationType: "mobile", capacityEnabled: true,  galleryMode: "standard" },
-  walking:   { eventsEnabled: true,  bookingCTAsEnabled: true,  discussionEnabled: false, serviceListingsVisible: true,  locationType: "mobile", capacityEnabled: true,  galleryMode: "updates" },
+  // Event-driven categories (training, walking, venue): events ARE the
+  // service offerings — each meet carries its own price + booking flow,
+  // so a separate Services tab would duplicate the same content. The
+  // group-detail UI honors `serviceListingsVisible` to hide the tab; the
+  // `serviceListings` data field stays populated (used by `CardGroup`
+  // for the Discover-card pricing snippet, and by the provider profile
+  // for any future on-demand 1-on-1 booking surface).
+  training:  { eventsEnabled: true,  bookingCTAsEnabled: true,  discussionEnabled: true,  serviceListingsVisible: false, locationType: "mobile", capacityEnabled: true,  galleryMode: "standard" },
+  walking:   { eventsEnabled: true,  bookingCTAsEnabled: true,  discussionEnabled: false, serviceListingsVisible: false, locationType: "mobile", capacityEnabled: true,  galleryMode: "updates" },
   grooming:  { eventsEnabled: false, bookingCTAsEnabled: true,  discussionEnabled: false, serviceListingsVisible: true,  locationType: "fixed",  capacityEnabled: false, galleryMode: "portfolio" },
   boarding:  { eventsEnabled: true,  bookingCTAsEnabled: true,  discussionEnabled: true,  serviceListingsVisible: true,  locationType: "fixed",  capacityEnabled: true,  galleryMode: "updates" },
   rehab:     { eventsEnabled: false, bookingCTAsEnabled: true,  discussionEnabled: true,  serviceListingsVisible: true,  locationType: "fixed",  capacityEnabled: false, galleryMode: "standard" },
@@ -929,6 +936,19 @@ export function getUserGroups(userId: string): Group[] {
   return mockGroups.filter((g) => g.members.some((m) => m.userId === userId));
 }
 
+/**
+ * Get groups the user can post meets/events to.
+ * Park / Neighbor / Interest: any member can post. Care: admins (providers) only.
+ */
+export function getGroupsUserCanPostMeetsIn(userId: string): Group[] {
+  return mockGroups.filter((g) => {
+    const membership = g.members.find((m) => m.userId === userId);
+    if (!membership) return false;
+    if (g.groupType === "care" && membership.role !== "admin") return false;
+    return true;
+  });
+}
+
 /** Get a group by ID */
 export function getGroupById(id: string): Group | undefined {
   return mockGroups.find((g) => g.id === id);
@@ -958,8 +978,16 @@ export function getParkGroupsNear(neighbourhood: string): Group[] {
 export function getGroupMeets(groupId: string) {
   const group = getGroupById(groupId);
   if (!group) return [];
+  // Union of both data paths: the group's explicit meetIds list AND any meet
+  // whose own `groupId` field points at this group. The two used to drift
+  // (e.g. group-1 listed only meet-1 in meetIds, but meet-4 carried
+  // `groupId: "group-1"` and never made it into the list). Tolerating both
+  // keeps the relationship working from either side. Mock World Building
+  // should consolidate to one source of truth eventually — see punch list.
   return mockMeets.filter(
-    (m) => group.meetIds.includes(m.id) && m.status === "upcoming"
+    (m) =>
+      (group.meetIds.includes(m.id) || m.groupId === groupId) &&
+      m.status === "upcoming"
   );
 }
 

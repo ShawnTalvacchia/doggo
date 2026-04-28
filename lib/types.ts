@@ -327,6 +327,15 @@ export type NotificationType =
   | "meet_invite"
   | "meet_reminder"
   | "meet_rsvp"
+  /**
+   * Fired when a recurring series the user is *following* publishes new
+   * upcoming dates (or has the next occurrence approaching). Series-level
+   * subscription is `Meet.followers`. Stubbed for the prototype — the full
+   * delivery pipeline (24h-before reminders, batched "new dates added"
+   * digests, opt-out) belongs with the broader notifications work, not this
+   * phase. See `docs/phases/meet-recurrence-model.md` workstream G2.
+   */
+  | "meet_series_update"
   | "post_meet_review"
   | "connection_request"
   | "connection_accepted"
@@ -364,6 +373,24 @@ export interface UserReview {
 export type MeetType = "walk" | "park_hangout" | "playdate" | "training";
 
 export type MeetStatus = "upcoming" | "in_progress" | "completed" | "cancelled";
+
+/**
+ * Recurrence cadence for a meet.
+ * - `"one_off"`: single non-recurring event. Per-instance attendance lives on `Meet.attendees`.
+ * - `"weekly"` / `"biweekly"` / `"monthly"`: recurring series. Per-occurrence attendance
+ *   lives on `Meet.attendeesByDate` (keyed by ISO YYYY-MM-DD); series-level subscription
+ *   lives on `Meet.followers`.
+ *
+ * See `docs/phases/meet-recurrence-model.md` for the full model and rationale.
+ */
+export type MeetCadence = "one_off" | "weekly" | "biweekly" | "monthly";
+
+/**
+ * Per-meet visibility, layered on top of the parent group's visibility.
+ * - "public": anyone can see and RSVP (only allowed when the parent group is open)
+ * - "group_only": only members of the parent group can see and RSVP
+ */
+export type MeetVisibility = "public" | "group_only";
 
 export type LeashRule = "on_leash" | "off_leash" | "mixed";
 
@@ -445,6 +472,21 @@ export interface MeetAttendee {
   profileOpen?: boolean;
 }
 
+/**
+ * A single occurrence of a meet — a one-off event, or one specific date of a
+ * recurring series. The unit that schedule views, RSVP buttons, and
+ * "next-3-occurrences" surfaces operate on. Construct via `getMeetOccurrences`
+ * or `getUserMeetInstances` rather than ad-hoc literals so attendee resolution
+ * stays in one place.
+ */
+export interface MeetOccurrence {
+  meet: Meet;
+  /** ISO YYYY-MM-DD. For one-off meets this equals `meet.date`. */
+  date: string;
+  /** Resolved attendee list for this specific occurrence. */
+  attendees: MeetAttendee[];
+}
+
 export interface Meet {
   id: string;
   type: MeetType;
@@ -459,18 +501,73 @@ export interface Meet {
   date: string;          // ISO YYYY-MM-DD
   time: string;          // e.g. "08:00"
   durationMinutes: number;
-  recurring: boolean;
+  /**
+   * Recurrence cadence. `"one_off"` = single non-recurring event; everything else is a
+   * recurring series anchored at `(date, time)`. Replaces the legacy `recurring: boolean`
+   * field — use the `isRecurring(meet)` helper if you need a boolean.
+   */
+  cadence: MeetCadence;
+  /**
+   * Optional ISO YYYY-MM-DD end date for a recurring series. Occurrences after this
+   * date are not generated. Undefined = ongoing. Only meaningful when cadence !== "one_off".
+   */
+  seriesEndDate?: string;
   maxAttendees: number;
   dogSizeFilter: DogSizeFilter;
   leashRule: LeashRule;
   status: MeetStatus;
+  /**
+   * Reason the meet was cancelled — surfaced in the cancellation banner on
+   * meet detail and on the Schedule cancelled card. Only meaningful when
+   * `status === "cancelled"`. Kept as a separate field rather than rewriting
+   * `description` so the original meet info stays intact (viewers can still
+   * see what it was supposed to be).
+   *
+   * For recurring meets this represents *series-level* cancellation.
+   * Per-occurrence cancellation ("just this Wednesday is rained out") needs
+   * a separate `cancelledDates` shape and is filed for the Schedule &
+   * Bookings Deep Pass.
+   */
+  cancellationReason?: string;
   creatorId: string;
   creatorName: string;
   creatorAvatarUrl: string;
+  /**
+   * Attendees for this meet.
+   *
+   * - For one-off meets (`cadence: "one_off"`): the only attendee list. Authoritative.
+   * - For recurring meets: a *representative* list — typically the next upcoming
+   *   occurrence's attendees. Used by legacy/compact callsites that just want a
+   *   single list to render (avatar stacks, summaries). Authoritative per-date
+   *   attendees live on `attendeesByDate`. Instance-aware UI (Schedule cards,
+   *   meet detail's per-date RSVP rows, post-meet review) should read via
+   *   `getOccurrenceAttendees(meet, date)` instead.
+   *
+   * Carrying both fields on recurring meets is deliberate prototype-stage
+   * tradeoff: data duplication in exchange for migration safety. See
+   * `docs/phases/meet-recurrence-model.md`.
+   */
   attendees: MeetAttendee[];
+  /**
+   * Per-occurrence attendees for recurring meets, keyed by ISO YYYY-MM-DD.
+   * Sparse — only contains keys where someone has actually RSVP'd or where mock
+   * data has seeded an occurrence. Use `getMeetOccurrences(meet, count)` to derive
+   * the next N dates from `(date, cadence)` and merge in any keyed entries.
+   * Undefined / empty for `cadence: "one_off"` meets.
+   */
+  attendeesByDate?: Record<string, MeetAttendee[]>;
+  /**
+   * Series-level subscribers — userIds following this recurring series.
+   * Following surfaces the series in Discover and opts the user in to upcoming-date
+   * notifications; it does NOT imply Going to any specific occurrence (RSVP is always
+   * per-instance). Undefined / empty for `cadence: "one_off"` meets.
+   */
+  followers?: string[];
   createdAt: string;     // ISO timestamp
-  /** Link to a community/group (optional) */
-  groupId?: string;
+  /** The group this meet belongs to. Every meet belongs to a group (park, neighbor, interest, or care). */
+  groupId: string;
+  /** Who can see and RSVP — "public" (anyone, open groups only) or "group_only" (members only). */
+  visibility: MeetVisibility;
   /** Activity indicator text (e.g. "Jana joined 2h ago") */
   recentJoinText?: string;
   /** Flagged as popular (shows badge on card) */
