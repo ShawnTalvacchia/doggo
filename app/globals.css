@@ -739,7 +739,10 @@ a {
 .logged-shell {
   display: flex;
   height: 100vh;
+  height: 100dvh;
   --nav-height: 0px; /* logged-in shell has no top nav */
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 .logged-shell-main {
@@ -6012,12 +6015,13 @@ body.guest-route {
     gap: 0;
     padding-bottom: 0;
     overflow: hidden;
+    overscroll-behavior: none;
     flex-direction: column; /* constrain children vertically */
     align-items: center; /* center page-container horizontally */
   }
   /* Only reserve bottom nav space when the nav is actually rendered */
   body:has(.bottom-nav) .logged-shell-main {
-    padding-bottom: 64px;
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
   }
   .page-container { max-width: 100%; flex: 1; display: flex; flex-direction: column; min-height: 0; width: 100%; }
   .page-side-panel,
@@ -6361,6 +6365,8 @@ body.guest-route {
   /* Shell fills viewport, with padding for fixed nav + bottom nav */
   div.logged-shell {
     height: 100vh;
+    height: 100svh;
+    height: 100dvh;
     padding-top: 56px; /* space for fixed top nav */
     transition: padding-top 0.3s ease;
   }
@@ -6369,7 +6375,7 @@ body.guest-route {
     transition: padding-bottom 0.3s ease;
   }
 
-  /* Auto-hide: slide navs out, reclaim their space */
+  /* Auto-hide: slide navs out without resizing scroll containers */
   body.nav-hidden .app-nav-shell--logged {
     transform: translateY(-100%);
   }
@@ -6378,14 +6384,6 @@ body.guest-route {
 
   body.nav-hidden .bottom-nav {
     transform: translateY(100%);
-  }
-
-  body.nav-hidden div.logged-shell {
-    padding-top: 0;
-  }
-
-  body.nav-hidden .logged-shell-main {
-    padding-bottom: 0;
   }
 
   /* Profile subpage: hide bottom nav so user must back out */
@@ -8800,6 +8798,8 @@ body:has(.bottom-nav) .inbox-page {
 .inbox-thread-outer {
   background: var(--surface-page);
   height: calc(100vh - var(--nav-height));
+  height: calc(100dvh - var(--nav-height));
+  overflow: hidden;
 }
 
 .inbox-thread-shell {
@@ -8808,6 +8808,8 @@ body:has(.bottom-nav) .inbox-page {
   height: 100%;
   max-width: var(--app-page-max-width);
   margin: 0 auto;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* ── Thread embedded mode (inside profile tab) ───────────────── */
@@ -8911,6 +8913,8 @@ body:has(.bottom-nav) .inbox-page {
   flex-direction: column;
   gap: 0;
   background: var(--surface-top);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 /* ── Inquiry card ────────────────────────────────────────────── */
@@ -11848,6 +11852,8 @@ body:has(.bottom-nav) .inbox-page {
 
   .page-column-panel {
     border-radius: var(--radius-panel);
+    isolation: isolate;
+    clip-path: inset(0 round var(--radius-panel));
   }
 
   body.nav-hidden .page-column-panel {
@@ -13310,25 +13316,26 @@ body:has(.bottom-nav) .inbox-page {
    Cap visible dogs at 2 + a "+N" chip when more. Uses flex layout so the
    container's natural width grows with dog count — no absolute positioning.
 
-   Long-term cascade target: the user wants this pattern on every person
-   list (PersonRow, etc.) — currently scoped to post-meet review pending
-   the broader cascade (filed in punch list).
+   Owner-forward avatar primitive used by `OwnerDogAvatar` — extracted from
+   PostMeetReviewSheet during Community & Groups Deep Pass A4 and applied
+   to the People tab and Group Members tab. Inbox stays denser (44px owner,
+   no dog avatars — chat-list shape) and doesn't use these classes.
    ── */
 
-.pmr-avatar-combo {
+.person-avatar-combo {
   display: inline-flex;
   align-items: flex-end;
   flex-shrink: 0;
 }
 
-.pmr-avatar-owner {
+.person-avatar-owner {
   width: 64px;
   height: 64px;
   border-radius: 50%;
   object-fit: cover;
 }
 
-.pmr-avatar-dogs {
+.person-avatar-dogs {
   display: flex;
   align-items: center;
   /* First dog overlaps the right edge of the owner avatar by ~16px. */
@@ -13339,8 +13346,8 @@ body:has(.bottom-nav) .inbox-page {
   z-index: 1;
 }
 
-.pmr-avatar-dog,
-.pmr-avatar-more {
+.person-avatar-dog,
+.person-avatar-more {
   width: 32px;
   height: 32px;
   /* Slightly rounded square, not full circle — Shawn's design call. The
@@ -13356,13 +13363,13 @@ body:has(.bottom-nav) .inbox-page {
   flex-shrink: 0;
 }
 
-.pmr-avatar-dog + .pmr-avatar-dog,
-.pmr-avatar-dog + .pmr-avatar-more {
+.person-avatar-dog + .person-avatar-dog,
+.person-avatar-dog + .person-avatar-more {
   /* Subsequent dogs overlap the previous one by ~10px. */
   margin-left: -10px;
 }
 
-.pmr-avatar-more {
+.person-avatar-more {
   display: inline-flex;
   align-items: center;
   justify-content: center;
