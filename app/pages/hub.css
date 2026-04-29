@@ -546,17 +546,39 @@
   color: var(--brand-main);
 }
 
-.hub-persona-dial {
-  font-size: var(--text-xs);
-  color: var(--text-tertiary);
-  margin-top: var(--space-1);
-}
-
 .hub-persona-tagline {
   font-size: var(--text-sm);
   color: var(--text-secondary);
   margin: var(--space-2) 0 0;
   line-height: 1.5;
+}
+
+.hub-persona-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.hub-persona-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 150ms ease;
+  margin-left: auto;
+}
+
+.hub-persona-toggle:hover {
+  color: var(--text-primary);
 }
 
 .hub-persona-steps {

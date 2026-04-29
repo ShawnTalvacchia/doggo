@@ -12,7 +12,6 @@ import {
   ArrowLeft,
   Bell,
   ChatCircleDots,
-  DotsThree,
   CalendarPlus,
 } from "@phosphor-icons/react";
 import { AddPostIcon } from "@/components/icons/AddPostIcon";
@@ -22,14 +21,16 @@ import { useMeetComposer } from "@/contexts/MeetComposerContext";
 function GuestNavLinks() {
   return (
     <div className="app-nav-right" aria-label="Guest navigation">
-      <Link href="/signin" className="app-nav-link app-nav-link--hide-mobile">
-        Sign In
+      {/* "Sign In" replaced 2026-04-29 with "Enter Demo" — current
+          audience is testers/reviewers, not first-use users. The "..."
+          → /pages dev menu was also removed; /pages stays accessible
+          via direct URL but isn't pinned to the chrome. Sign In can
+          come back when the prototype reaches real users. */}
+      <Link href="/demo" className="app-nav-link app-nav-link--hide-mobile">
+        Enter Demo
       </Link>
       <Link href="/signup/start" className="app-nav-link app-nav-link--primary">
         Sign Up
-      </Link>
-      <Link href="/pages" className="app-nav-dev-trigger" aria-label="Open menu" title="Menu">
-        ···
       </Link>
     </div>
   );
@@ -38,9 +39,8 @@ function GuestNavLinks() {
 function SignupNavLinks() {
   return (
     <div className="app-nav-right" aria-label="Signup navigation">
-      <Link href="/pages" className="app-nav-dev-trigger" aria-label="Open menu" title="Menu">
-        <DotsThree size={24} weight="bold" />
-      </Link>
+      {/* The "..." → /pages dev menu was removed 2026-04-29 from guest
+          + signup nav. /pages remains reachable via direct URL. */}
     </div>
   );
 }

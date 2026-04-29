@@ -1,9 +1,12 @@
 "use client";
 
-import { Suspense, useCallback } from "react";
+import { Suspense, useCallback, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ArrowRight, CaretDown } from "@phosphor-icons/react";
 import { TabBar } from "@/components/ui/TabBar";
+import { ButtonAction } from "@/components/ui/ButtonAction";
+import { useDemoState } from "@/contexts/CurrentUserContext";
 import "./hub.css";
 
 /* ── Tab config ──────────────────────────────────────────────────── */
@@ -53,7 +56,6 @@ type Persona = {
   id: string;
   name: string;
   archetype: string;
-  providerDial: string;
   tagline: string;
   steps: Step[];
   takeaway: string;
@@ -64,7 +66,6 @@ const PERSONAS: Persona[] = [
     id: "tereza",
     name: "Tereza",
     archetype: "Routine Owner → Connector",
-    providerDial: "Zero → barely turned",
     tagline:
       "Routine owner who builds a neighborhood care network through walks.",
     steps: [
@@ -100,7 +101,6 @@ const PERSONAS: Persona[] = [
     id: "daniel",
     name: "Daniel",
     archetype: "Occasional-Need → Regular",
-    providerDial: "Zero (stays there)",
     tagline:
       "New rescue owner who finds support, confidence, and eventually a trainer.",
     steps: [
@@ -136,7 +136,6 @@ const PERSONAS: Persona[] = [
     id: "klara",
     name: "Klára",
     archetype: "Professional Provider",
-    providerDial: "High",
     tagline:
       "Professional trainer who builds a client base through community groups.",
     steps: [
@@ -171,7 +170,6 @@ const PERSONAS: Persona[] = [
     id: "tomas",
     name: "Tomáš",
     archetype: "Social Seeker → Regular",
-    providerDial: "Zero",
     tagline:
       "Newcomer who uses groups purely for coordination and emergency care.",
     steps: [
@@ -781,6 +779,16 @@ function FrontDoor() {
 }
 
 function PersonaBlock({ persona }: { persona: Persona }) {
+  const router = useRouter();
+  const { setUserById } = useDemoState();
+  const [expanded, setExpanded] = useState(false);
+
+  const handleEnter = () => {
+    setUserById(persona.id);
+    // Persist + send to /home so the persona switch is visible immediately.
+    router.push("/home");
+  };
+
   return (
     <div className="hub-persona">
       <div className="hub-persona-head">
@@ -788,30 +796,61 @@ function PersonaBlock({ persona }: { persona: Persona }) {
           <h3 className="hub-persona-name">{persona.name}</h3>
           <span className="hub-persona-archetype">{persona.archetype}</span>
         </div>
-        <p className="hub-persona-dial">Provider dial: {persona.providerDial}</p>
         <p className="hub-persona-tagline">{persona.tagline}</p>
+
+        <div className="hub-persona-actions">
+          <ButtonAction
+            variant="primary"
+            cta
+            size="md"
+            onClick={handleEnter}
+            rightIcon={<ArrowRight size={16} weight="bold" />}
+          >
+            Enter as {persona.name}
+          </ButtonAction>
+          <button
+            type="button"
+            className="hub-persona-toggle"
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+          >
+            {expanded ? "Hide journey" : "Show journey"}
+            <CaretDown
+              size={14}
+              weight="bold"
+              style={{
+                transform: expanded ? "rotate(180deg)" : "rotate(0)",
+                transition: "transform 150ms ease",
+              }}
+            />
+          </button>
+        </div>
       </div>
 
-      <div className="hub-persona-steps">
-        {persona.steps.map((s, i) => (
-          <div key={i} className="hub-step">
-            <div className="hub-step-num">{i + 1}</div>
-            <div className="hub-step-body">
-              <h4 className="hub-step-title">{s.title}</h4>
-              <p className="hub-step-narrative">{s.narrative}</p>
-              {s.cta && (
-                <div className="hub-step-cta">
-                  <Link className="hub-link" href={s.cta.href}>
-                    {s.cta.label} →
-                  </Link>
+      {expanded && (
+        <>
+          <div className="hub-persona-steps">
+            {persona.steps.map((s, i) => (
+              <div key={i} className="hub-step">
+                <div className="hub-step-num">{i + 1}</div>
+                <div className="hub-step-body">
+                  <h4 className="hub-step-title">{s.title}</h4>
+                  <p className="hub-step-narrative">{s.narrative}</p>
+                  {s.cta && (
+                    <div className="hub-step-cta">
+                      <Link className="hub-link" href={s.cta.href}>
+                        {s.cta.label} →
+                      </Link>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      <div className="hub-persona-foot">{persona.takeaway}</div>
+          <div className="hub-persona-foot">{persona.takeaway}</div>
+        </>
+      )}
     </div>
   );
 }

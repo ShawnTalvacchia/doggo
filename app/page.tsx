@@ -114,8 +114,14 @@ export default function LandingPage() {
               Meet dog owners locally. Build real trust through walks, hangouts, and play. When you need care, you already know who to ask.
             </p>
             <div className="landing-hero-ctas">
-              <ButtonAction variant="primary" cta size="lg" href="/discover/meets">
-                Find a meet near you
+              {/* Primary CTA points to the demo persona picker — current
+                  audience is testers/reviewers, not first-use users. When
+                  the prototype reaches real users, swap "Find a meet
+                  near you" back into primary. The "Find a meet" CTA
+                  still lives in the bottom CTA section below for anyone
+                  who scrolls. */}
+              <ButtonAction variant="primary" cta size="lg" href="/demo">
+                Enter Demo
               </ButtonAction>
               <ButtonAction variant="secondary" cta size="lg" href="#how-it-works">
                 See how it works
