@@ -6375,7 +6375,7 @@ body.guest-route {
     transition: padding-bottom 0.3s ease;
   }
 
-  /* Auto-hide: slide navs out without resizing scroll containers */
+  /* Auto-hide: slide navs out and reclaim vertical space */
   body.nav-hidden .app-nav-shell--logged {
     transform: translateY(-100%);
   }
@@ -6384,6 +6384,14 @@ body.guest-route {
 
   body.nav-hidden .bottom-nav {
     transform: translateY(100%);
+  }
+
+  body.nav-hidden div.logged-shell {
+    padding-top: 0;
+  }
+
+  body.nav-hidden .logged-shell-main {
+    padding-bottom: 0;
   }
 
   /* Profile subpage: hide bottom nav so user must back out */
@@ -8819,8 +8827,8 @@ body:has(.bottom-nav) .inbox-page {
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  height: 100%;
   overflow: hidden;
-  margin-top: -48px;
   position: relative;
   z-index: 1;
 }
@@ -8833,7 +8841,7 @@ body:has(.bottom-nav) .inbox-page {
 }
 
 .inbox-thread-embedded .inbox-thread-body {
-  padding-top: 56px; /* 48px tab overlap + 8px breathing room */
+  padding-top: 8px;
 }
 
 .inbox-thread-shell--embedded {

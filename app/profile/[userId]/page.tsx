@@ -87,7 +87,13 @@ function UserProfileInner() {
   // Mobile nav: show name with back button, hide bottom nav
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
   useEffect(() => {
-    setDetailHeader(name, () => router.back());
+    setDetailHeader(name, () => {
+      if (window.history.length > 1) {
+        router.back();
+        return;
+      }
+      router.replace("/home");
+    });
     document.body.classList.add("profile-subpage");
     return () => {
       clearDetailHeader();
