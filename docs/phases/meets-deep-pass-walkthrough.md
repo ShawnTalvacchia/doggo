@@ -285,7 +285,7 @@ Heavily rebuilt 2026-04-27. Owner-first card layout (name peeks above dogs via `
 **Best demo path:** view as Daniel (`?as=daniel`) → Schedule → History → tap the review card for `meet-reactive-spring` (curated to populate all four sections).
 
 - [x] Sheet title flips to "Make connections"; both dots filled
-- [ ] **Profile-state-aware explainer card** at the top:
+- [x] **Profile-state-aware explainer card** at the top:
   - **Locked viewer** (Daniel, Tomáš): 🔒 "Your profile is locked" header, "People who don't know you only see your name and **[Bára]**" line (dog name personalized from `currentUser.pets[0]?.name`), then bold-labeled Familiar / Connect explanation lines.
   - **Open viewer** (Tereza, Klára): 🌐 "Your profile is open" header + Connect-only explanation.
 - [ ] **Bulk button "Mark everyone familiar"** — applies only to the Not Familiar top section. Hidden for open viewers (no Familiar action) and when the section is empty / already-marked.
