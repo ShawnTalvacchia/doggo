@@ -28,16 +28,18 @@ const SCROLL_CONTAINER_CLASSES = [
 ];
 
 export function useScrollHideNav() {
+  const lastY = useRef(0);
   const ticking = useRef(false);
   const cooldown = useRef(false);
   const trackedElements = useRef<Set<HTMLElement>>(new Set());
-  const lastYByElement = useRef(new WeakMap<HTMLElement, number>());
   const observerRef = useRef<MutationObserver | null>(null);
   const activeRef = useRef(false);
 
   useEffect(() => {
     const THRESHOLD = 8;
     const TOP_NAV_H = 56;
+    const BOTTOM_NAV_H = 64;
+    const TOTAL_OFFSET = TOP_NAV_H + BOTTOM_NAV_H;
     const COOLDOWN_MS = 350;
 
     const mql = window.matchMedia("(max-width: 767px)");
@@ -45,12 +47,9 @@ export function useScrollHideNav() {
     function handleScroll(e: Event) {
       const target = e.currentTarget as HTMLElement;
       if (!target) return;
-      const currentY = target.scrollTop;
-      const previousY = lastYByElement.current.get(target) ?? currentY;
-      const delta = currentY - previousY;
-      lastYByElement.current.set(target, currentY);
 
       if (cooldown.current) {
+        lastY.current = target.scrollTop;
         return;
       }
 
@@ -58,6 +57,8 @@ export function useScrollHideNav() {
       ticking.current = true;
 
       requestAnimationFrame(() => {
+        const currentY = target.scrollTop;
+        const delta = currentY - lastY.current;
         const isHidden = document.body.classList.contains("nav-hidden");
 
         // Only hide if content significantly overflows the container
@@ -75,6 +76,7 @@ export function useScrollHideNav() {
           setTimeout(() => { cooldown.current = false; }, COOLDOWN_MS);
         }
 
+        lastY.current = target.scrollTop;
         ticking.current = false;
       });
     }
@@ -86,14 +88,12 @@ export function useScrollHideNav() {
     function attachListener(el: HTMLElement) {
       if (trackedElements.current.has(el)) return;
       trackedElements.current.add(el);
-      lastYByElement.current.set(el, el.scrollTop);
       el.addEventListener("scroll", handleScroll, { passive: true });
     }
 
     function detachListener(el: HTMLElement) {
       if (!trackedElements.current.has(el)) return;
       trackedElements.current.delete(el);
-      lastYByElement.current.delete(el);
       el.removeEventListener("scroll", handleScroll);
     }
 
