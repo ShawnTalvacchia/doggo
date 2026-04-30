@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-23
+last-reviewed: 2026-04-29
 tags: [groups, community, providers, care, navigation, demo]
 review-trigger: "when touching group features, Community tab, provider groups, care model, or demo planning"
 ---
@@ -145,13 +145,22 @@ Care groups get a set of configuration toggles. Platform suggests defaults based
 
 The "provider dial" lives on profiles, not on groups. Every user starts as an Owner and can progress as their comfort with offering care grows. Progression is always visible, never transactional — copy never frames care as "earning income" or "becoming a provider."
 
+### Lock and Tier — orthogonal axes
+
+Provider Tier is the **action** dial — controls who can act on services (book / inquire / transact). It's independent from the **Lock** setting, which is the visibility dial — controls who can see the profile at all. These two compose:
+
+- **Lock = visibility.** Open profile = visible to anyone. Locked = only Familiar/Connected viewers see expanded content. Privacy axis. Lives on the profile globally; not service-specific.
+- **Tier = action.** Owner / Helper / Provider — defines who can act on the user's services. Action axis. Lives on the carer profile.
+
+A Locked + Provider user is unusual but valid — services exist publicly in the model (Provider tier), but the profile they live on is gated (Lock). The platform shows a soft banner advising Open profile for Provider-tier carers since discoverability narrows otherwise. See `features/profiles.md` → Lock and Tier — orthogonal axes for the full composition matrix.
+
 ### Three tiers
 
-| Tier | Services visible to | Appears in Discover > Dog Care? | Commits to |
+| Tier | Who can act on services | Appears in Discover > Dog Care? | Commits to |
 |---|---|---|---|
 | **Owner** (default) | Nobody | No | Nothing. Full community participation. |
 | **Helper** | Connected users only | No | Lightweight — a rate, basic availability. Informal, between friends. |
-| **Provider** | Everyone | Yes | Published prices, response-time expectation, cancellation policy, intro-session option. |
+| **Provider** | Anyone (subject to Lock visibility — Locked + Provider narrows to Familiar/Connected viewers) | Yes (when Open) | Published prices, response-time expectation, cancellation policy, intro-session option. |
 
 ### Individual Providers and Care groups are both first-class
 
@@ -238,6 +247,29 @@ Selecting a group replaces the right panel with that group's detail view.
 **No Chat tab on groups.** Feed posts have flat comments for async discussion. Real-time coordination lives on meet-level chat (see below). Private messaging lives in Inbox. Three clear surfaces, no overlap.
 
 **Who can post:** Parks/Neighbors/Interest — any member. Care groups — provider/admin posts, members comment and react.
+
+### Members tab structure
+
+The Members tab uses the same section-grouped + attendance-gated pattern as the meet People tab. Same `PersonRow` component, same `OwnerDogAvatar` cards, same disclosure model.
+
+**Section grouping (top to bottom):**
+
+1. **ADMINS** — group admins (role-based grouping, regardless of connection state). Admin badge renders on each row.
+2. **MetaDivider** between Admins and the rest if both groups have content.
+3. **CONNECTED** — non-admin Connected members, with the viewer pinned to the top of the subsection.
+4. **FAMILIAR** — non-admin members the viewer has marked Familiar (outbound).
+5. **Other tier-1/2** — non-admin members with Pending state, Open profile, or inbound `theyMarkedFamiliar`. Unlabeled — preserves deniability for inbound Familiar marks.
+6. **LOCKED PROFILES** chip list — non-admin tier-3 members (locked + no relationship + no inbound signal). Names + small avatars only, no card affordance.
+
+**Action availability: group co-membership is the context signal.** The Members tab does NOT gate on past meet attendance. Reasoning: users recognise each other from real-world meetings (outside the platform) or from group context itself; gating on platform attendance is overly strict. Each row's actions resolve from the matrix without a context filter.
+
+**Visual pattern matches the People tab.** Same `PersonRow` rendering — inline Familiar/Pending pill + tier badges on the left, Connect/Message buttons on the right. The only difference between People tab and Members tab is the gating rule (People: attendance-based; Members: always-available); the visual treatment is unified so users learn one pattern across surfaces.
+
+**Trade-off acknowledged:** Members tab IS less restrictive than People tab. The community-first thesis (meets build trust) is preserved at the meet level — meets remain the canonical Familiar trigger via the post-meet review sheet. The Members tab is a secondary path for users who recognise someone from real life or group context.
+
+**Helper / Provider tier badges** propagate from `UserProfile.carerProfile.publicProfile`: Provider tier renders for all viewers; Helper tier only renders when the viewer is Connected to the subject (or is the subject) — privacy rule per `docs/implementation/badges.md`.
+
+Implementation: `MembersTab` in `app/communities/[id]/page.tsx`. Section primitives (SectionHeader, MetaDivider, LockedChipList) shared with `ParticipantList` via `components/people/PersonSections.tsx`.
 
 ### Meet Detail Tabs
 

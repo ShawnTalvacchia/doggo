@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-27
+last-reviewed: 2026-04-29
 tags: [privacy, visibility, content, groups, photos]
 review-trigger: "when touching content sharing, photo features, feed logic, or group visibility"
 ---
@@ -69,6 +69,8 @@ Photos/moments shared to a specific meet.
 **Note:** The relationship gate (connection state) does **not** apply to meet-attached content. If you're in the meet or the group, you see the photos regardless of whether you're connected to the author. Meets are communal spaces — the context is the trust signal.
 
 **On the tease layer.** The 1-photo tease for `open group + group_only meet` exists to convert browsers into members. It earns its keep there because the group itself is publicly discoverable but the meet's content isn't — one hero shot reads as an invitation, not a paywall. Capped at 1 photo intentionally: more than that starts to feel like a content tour and weakens the join incentive. Private and approval-required groups never tease — even one photo would leak group content to non-members and violate the context gate. Implementation: `app/meets/[id]/page.tsx` Photos section.
+
+**On the People tab disclosure model.** The meet attendee list separates **information** (open) from **action** (gated by attendance). Anyone who can see a meet can see who's attending, grouped by relationship state, with locked attendees shown as a chip list at the bottom. Action affordances (Familiar / Connect / Message pills) appear only for viewers who attended the meet on a `completed` meet. This is a People-tab rule, not a content-visibility rule per se — but it shares the underlying principle that meet attendance is the trust-building event that unlocks deepening. The same attendance-based gating helper (`viewerSharedMeetWith`) is used on the Group Members tab. Spec: `Trust & Connection Model.md` → "Meet participant visibility rules" + `features/meets.md` → People tab.
 
 ---
 

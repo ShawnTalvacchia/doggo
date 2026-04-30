@@ -76,17 +76,17 @@ See `docs/CONTRIBUTING.md` for full details, including the phase open/close life
 | `docs/implementation/mock-data-plan.md` | Mock data strategy and user journey planning |
 | `docs/features/demo-mode.md` | Persona switcher (name dropdown + `/demo` + `?as=` URL param), persona registry, current limitations |
 
-## Current Phase: Meets Deep Pass
+## Current Phase: Between phases
 
-Deep page-by-page passes to make every surface the best it can be. See `docs/ROADMAP.md` for the full arc.
-
-**Phase board:** `docs/phases/meets-deep-pass.md`
+Community & Groups Deep Pass closed 2026-04-29. Meets Deep Pass and Trust & Visibility Pass closed earlier on 2026-04-29. See `docs/archive/phases/` for the records.
 
 **Punch List:** `docs/phases/punch-list.md` — running list of UI tweaks and small fixes. Self-contained workflow instructions inside the file. Work from it in any session — read the file and follow its workflow section.
 
 **Profiles Deep Pass:** Paused 2026-04-14. Trust signals, post composer, post attribution shipped. Remaining work folded into Mock World Building.
 
-**Upcoming:** Community & Groups → Discover & Care → Schedule & Bookings → Mock World Building → Cross-Cutting Flow Testing → Demo Presentation. See ROADMAP.md.
+**Next phase recommended:** Mock World Building. Many UI patterns shipped during Community & Groups depend on richer per-persona seeded data to demonstrate well — locked-by-default ratio (P36), inbox data normalization (P35), provider-userId pattern (P4), per-persona connection rosters, deferred Community & Groups E1/E2/E4/E5 content walks. Discover & Care is also valid; choose based on whether data quality or new-surface-design takes priority.
+
+**Upcoming:** Mock World Building → Discover & Care → Inbox & Notifications → Schedule & Bookings → Cross-Cutting Flow Testing → Demo Presentation. See ROADMAP.md.
 
 ## Strategic Context
 
@@ -99,7 +99,11 @@ Deep page-by-page passes to make every surface the best it can be. See `docs/ROA
 **User Journeys deck** (`docs/strategy/User Journeys.pptx`): Four personas — Tereza (routine owner/neighbourhood anchor), Daniel (anxious new owner), Klára (professional trainer), Tomáš (busy professional). Each journey demonstrates the community→trust→care funnel.
 
 Key decisions:
-- **Connection model:** None (default) → Familiar (one-sided, silent) → Pending → Connected (mutual). Post-meet review flow is the primary Familiar trigger. See `docs/strategy/Trust & Connection Model.md`.
+- **Connection model:** None (default) → Familiar (one-sided, silent) → Pending → Connected (mutual). Post-meet review flow is the primary Familiar trigger. **Action matrix v3 (2026-04-27):** Familiar gates Connect app-wide for locked viewers — Connect appears only after marking Familiar. Open viewers skip Familiar entirely (it's redundant). See `lib/personActions.ts` + `docs/strategy/Trust & Connection Model.md`.
+- **People tab disclosure model (2026-04-29):** information is open (anyone visiting the meet sees attendees grouped by relationship state); action is gated by attendance. Same single principle on Group Members tab — group co-membership IS the action context (no past-meet attendance gate). Implementation: `viewerCanAct(meet, viewerId)` for People tab + `viewerSharedMeetWith` for cross-attendee queries. PersonRow's mark-state ladder (`+ Familiar` → `Connect` → `Connect ✓`) mirrors the post-meet review's `AttendeeActionCard` pattern with a session-scoped Undo footer.
+- **Lock vs Tier (2026-04-29):** orthogonal axes. **Lock** = profile visibility (privacy axis — who can see). **Tier** = action availability on services (action axis — who can act). Independent settings that compose. Owner / Helper / Provider tiers; Open / Locked profile visibility. Helper-tier badge gated on Connected viewer (privacy rule). See `docs/features/profiles.md` → "Lock and Tier" + `docs/strategy/Groups & Care Model.md`.
+- **Badges taxonomy (2026-04-29):** three categories — Tier (Helper / Provider, info-blue palette), Role (Admin / Host, contextual to surface), Trust (community-earned / credential / platform — mostly future-state). PersonRow renders ≤2 badges per row; full taxonomy lives on profiles + provider cards. See `docs/implementation/badges.md`.
+- **Deniability principle.** Privacy of Familiar marks is preserved by deniability about the cause, not by absence of effect. UI surfaces never explain WHY a row was promoted (e.g. no "they marked you Familiar" tooltip). Multiple actions converge on the same UI effect — the receiver can't infer specific intent.
 - **Everyone starts the same way.** No separate provider signup — and no separate owner signup either. Add a dog if you have one, offer care if you want to, or just participate. The provider role is a dial you turn up from your profile, not a separate identity.
 - **Chat on profiles.** Profiles are the relationship hub — About, Posts, Services, Chat tabs. Inbox is a connections list linking to `/profile/[userId]?tab=chat`.
 - **Rolling weekly billing.** Recurring bookings use `billingCycle: "weekly"` with one upcoming session at a time.
@@ -110,4 +114,4 @@ Key decisions:
 - **Groups:** Four types: Park / Neighbor / Interest / Care. See `docs/strategy/Groups & Care Model.md`.
 - **Unified profiles.** All profiles use PageColumn + TabBar. Connection-gated CTAs. Provider profile route redirects to `/profile/[userId]`.
 - **Content visibility.** Two-gate model: context gate + relationship gate. See `docs/strategy/Content Visibility Model.md`.
-- **Persona switching for demo/testing.** Profile-page name doubles as a dropdown (demo-only affordance — wouldn't ship in real product). Tap → switch between Shawn / Tereza / Daniel / Klára / Tomáš / New User. Or visit `/demo` for the canonical picker. Or paste `?as=<personaId>` onto any URL to preview that page as another persona without persisting. Product code reads `useCurrentUser()` from `@/hooks/useCurrentUser` — never hardcoded user lookups. See `docs/features/demo-mode.md`.
+- **Persona switching for demo/testing.** Profile-page name doubles as a dropdown (demo-only affordance — wouldn't ship in real product). Tap → switch between Tereza (default) / Daniel / Klára / Tomáš / New User. Or visit `/demo` for the canonical picker. Or paste `?as=<personaId>` onto any URL to preview that page as another persona without persisting. **Shawn is NOT a viewer persona** (removed 2026-04-26 — actual developer's name shouldn't double as a demo character) but still exists in mock-world data as a Vinohrady regular other personas encounter. Product code reads `useCurrentUser()` from `@/hooks/useCurrentUser` — never hardcoded user lookups. Source of truth for the picker list: `lib/personas.ts`. See `docs/features/demo-mode.md`.

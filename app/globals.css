@@ -11780,7 +11780,12 @@ body:has(.bottom-nav) .inbox-page {
   align-items: center;
   justify-content: space-between;
   height: 40px;
-  margin-bottom: var(--space-md);
+  /* Harmonized with `.page-detail-header` 2026-04-29 — both header
+     primitives use the same below-margin so the page→panel rhythm is
+     consistent whether you're on a top-level PageColumn page (Schedule,
+     Profile, Community, Bookings, Inbox) or a nested detail page (meet,
+     group). Was `--space-md`; now matches detail at `--space-sm`. */
+  margin-bottom: var(--space-sm);
   padding: 0 16px;
   flex-shrink: 0;
 }
@@ -13331,9 +13336,18 @@ body:has(.bottom-nav) .inbox-page {
    ── */
 
 .person-avatar-combo {
+  /* Inline-flex combo: dogs are flex siblings of the owner. The combo takes
+     its natural width (owner + dogs cluster, with overlapping margin tricks).
+     The identity column sits AFTER the entire combo with the row's `gap-md`
+     measured from the dogs' rightmost edge.
+     Explicit height: 64px prevents inline-flex baseline weirdness — without
+     it, the inline display model can add a few pixels below the cluster
+     (descender space). The dogs are bottom-aligned via align-items: flex-end
+     and 32px tall, so they fit inside the 64px owner height naturally. */
   display: inline-flex;
   align-items: flex-end;
   flex-shrink: 0;
+  height: 64px;
 }
 
 .person-avatar-owner {
@@ -13346,10 +13360,15 @@ body:has(.bottom-nav) .inbox-page {
 .person-avatar-dogs {
   display: flex;
   align-items: center;
-  /* First dog overlaps the right edge of the owner avatar by ~16px. */
+  justify-content: flex-end;
+  /* Fixed-width slot anchored to the owner's right edge. The cluster
+     right-aligns inside this 44px zone — with 1 dog (36px), it sits
+     toward the right of the slot; with 2 dogs (32px each + overlap),
+     the cluster overflows left into the owner avatar for tighter
+     visual coupling. The `margin-left: -16px` shifts the slot's left
+     edge to overlap the owner's right edge. */
+  width: 44px;
   margin-left: -16px;
-  /* Margin-bottom dropped 2026-04-27 — dogs now bottom-align cleanly
-     with the owner avatar instead of extending below it. */
   position: relative;
   z-index: 1;
 }
@@ -13793,13 +13812,62 @@ body:has(.bottom-nav) .inbox-page {
  */
 
 .person-row {
+  /* Flex-column wrapper so body row + optional footer can stack. The
+     panel chrome (border, background, radius) sits on the outer row;
+     padding lives on the body and footer respectively so the footer can
+     have its own visual treatment. */
   display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-md);
+  flex-direction: column;
   background: var(--surface-top);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-panel);
+  overflow: hidden;
+}
+
+.person-row-body {
+  display: flex;
+  align-items: center;
+  /* gap-xl (20px) between avatar combo and identity column — helps the
+     offset name + dog cluster read as distinct elements rather than a
+     single block. */
+  gap: var(--space-xl);
+  padding: var(--space-md);
+}
+
+.person-row-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+  background: var(--surface-inset);
+  font-size: var(--text-sub);
+}
+
+.person-row-footer-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--text-secondary);
+  font-weight: var(--weight-semibold);
+}
+
+.person-row-footer-undo {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: var(--text-sub);
+  font-weight: var(--weight-semibold);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.person-row-footer-undo:hover {
+  color: var(--text-primary);
 }
 
 .person-row.is-selected {
@@ -13809,11 +13877,17 @@ body:has(.bottom-nav) .inbox-page {
 
 /* Inbox conversation rows are denser and edge-to-edge (no panel border) — they
  * stack flush with .feed-list-style separation in the inbox surface itself. */
+/* Inbox conversation rows are denser and edge-to-edge (no panel border) —
+   they stack flush with `.feed-list-style` separation in the inbox surface
+   itself. Padding lives on the body since `.person-row` is now a flex-col
+   wrapper without its own padding. */
 .person-row--inbox-conversation {
-  align-items: center;
   background: transparent;
   border: 0;
   border-radius: 0;
+}
+
+.person-row--inbox-conversation .person-row-body {
   padding: var(--space-sm) var(--space-md);
 }
 
@@ -13878,9 +13952,34 @@ body:has(.bottom-nav) .inbox-page {
   color: var(--text-secondary);
 }
 
+/* Provider tier — public, professional. Info-blue fill so care signals
+   read consistently with the schedule's care cards (blue = care across
+   the app). Strong fill + white text for the public/confident reading.
+   See `docs/implementation/badges.md` for the tier taxonomy. */
+.person-row-pill--provider {
+  background: var(--status-info-main);
+  color: var(--surface-top);
+  font-size: 10px;
+  padding: 0 6px;
+}
+
+/* Helper tier — Connected-only privacy. Same info-blue palette as
+   Provider but lighter fill + dark blue text — quieter, "informal,
+   between friends" rather than the public Provider signal. Visibility
+   gated by the consumer (only render when viewer is Connected to
+   subject) per the privacy rule in Groups & Care Model.md. */
+.person-row-pill--helper {
+  background: var(--status-info-light);
+  color: var(--status-info-strong);
+  font-size: 10px;
+  padding: 0 6px;
+}
+
+/* Legacy alias — keep until any remaining `.person-row-pill--care`
+   references are migrated. Prefer `--provider` for new code. */
 .person-row-pill--care {
-  background: var(--brand-subtle);
-  color: var(--brand-strong);
+  background: var(--status-info-main);
+  color: var(--surface-top);
   font-size: 10px;
   padding: 0 6px;
 }

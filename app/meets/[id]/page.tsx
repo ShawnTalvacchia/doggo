@@ -50,6 +50,8 @@ import { ServiceBookingSheet } from "@/components/meets/ServiceBookingSheet";
 import { ParticipantList } from "@/components/meets/ParticipantList";
 import { MeetPhotoGallery } from "@/components/meets/MeetPhotoGallery";
 import { LayoutSection } from "@/components/layout/LayoutSection";
+import { FilterPillRow } from "@/components/ui/FilterPillRow";
+import { formatMeetDate } from "@/lib/dateUtils";
 import { useDismissedReviews, makeDismissId } from "@/lib/dismissedReviews";
 import { getConnectionState as getConnState } from "@/lib/mockConnections";
 import {
@@ -59,6 +61,8 @@ import {
   isRecurring,
   getMeetOccurrences,
   getOccurrenceAttendees,
+  getSeriesAttendees,
+  nextOccurrenceDates,
 } from "@/lib/meetUtils";
 import { useCurrentUser, useCurrentUserId } from "@/hooks/useCurrentUser";
 import { getDogImageByOwnerAndName } from "@/lib/dogLookup";
@@ -67,6 +71,7 @@ import { getGroupById } from "@/lib/mockGroups";
 import {
   mockMeets,
   setMeetRsvp,
+  getSeriesFollowers,
   MEET_TYPE_LABELS,
   LEASH_LABELS,
   ENERGY_LABELS,
@@ -361,7 +366,7 @@ function MeetDetailInner() {
           )}
 
           {activeTab === "people" && (
-            <PeopleTab meet={meet} attendees={focusAttendees} />
+            <PeopleTab meet={meet} />
           )}
 
           {activeTab === "chat" && (
@@ -1426,13 +1431,80 @@ function RecurringUpcomingDates({
    People tab
    ═══════════════════════════════════════════════════════════════ */
 
-function PeopleTab({ meet, attendees }: { meet: Meet; attendees: Meet["attendees"] }) {
+function PeopleTab({ meet }: { meet: Meet }) {
+  const recurring = isRecurring(meet);
+
+  // For recurring meets, the People tab has lenses: "All" (series community —
+  // union of past + upcoming attendees + series followers) plus a pill per
+  // upcoming date for per-occurrence rosters. Default lens = first upcoming
+  // date pill (most actionable: "who's coming next"). Past-only series with no
+  // upcoming dates fall through to "all" as default.
+  //
+  // Per-date past drill-down is intentionally NOT provided — frequency / regular
+  // treatment within the All view is filed as P34 (badges for frequent
+  // attendees). The All lens already aggregates the regulars; "Past" as a
+  // separate pill would be redundant.
+  const upcomingDates = recurring ? nextOccurrenceDates(meet, 3) : [];
+  const defaultLens: "all" | string = upcomingDates[0] ?? "all";
+  const [lens, setLens] = useState<"all" | string>(defaultLens);
+
+  // One-off meets: skip the pill row, render the single roster as today.
+  if (!recurring) {
+    return (
+      <div className="meet-detail-content">
+        <LayoutSection>
+          <ParticipantList
+            meet={meet}
+            attendees={meet.attendees}
+            isCompleted={meet.status === "completed"}
+          />
+        </LayoutSection>
+      </div>
+    );
+  }
+
+  // Recurring: resolve roster + followers based on selected lens.
+  const isAllLens = lens === "all";
+  const lensRoster = isAllLens
+    ? getSeriesAttendees(meet)
+    : getOccurrenceAttendees(meet, lens);
+  const lensFollowers = isAllLens ? getSeriesFollowers(meet) : [];
+
+  // Date-specific lens: treat as completed if the date is in the past
+  // (drives "Who attended" vs "Who's going" heading). All lens uses a
+  // series-aware heading.
+  const isDateInPast = !isAllLens && new Date(lens) < new Date(new Date().toDateString());
+  const heading = isAllLens ? "Series community" : undefined;
+
+  const pills = [
+    { key: "all", label: "All" },
+    ...upcomingDates.map((date) => ({ key: date, label: formatMeetDate(date) })),
+  ];
+
+  // FilterPillRow sits OUTSIDE meet-detail-content so it's a direct sibling
+  // of the tab wrapper — same structure as Schedule's sub-pill row under the
+  // Meets/Care tabs. meet-detail-content's `padding-top: space-md` would
+  // otherwise add 8px above the pill row that the Schedule pattern doesn't
+  // have. The pill row has its own internal padding + bottom border.
   return (
-    <div className="meet-detail-content">
-      <LayoutSection>
-        <ParticipantList attendees={attendees} isCompleted={meet.status === "completed"} />
-      </LayoutSection>
-    </div>
+    <>
+      <FilterPillRow
+        pills={pills}
+        activeKey={lens}
+        onChange={(key) => setLens(key)}
+      />
+      <div className="meet-detail-content">
+        <LayoutSection>
+          <ParticipantList
+            meet={meet}
+            attendees={lensRoster}
+            followers={lensFollowers}
+            isCompleted={isDateInPast}
+            headingOverride={heading}
+          />
+        </LayoutSection>
+      </div>
+    </>
   );
 }
 

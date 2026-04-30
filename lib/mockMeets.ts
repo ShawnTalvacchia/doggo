@@ -16,6 +16,7 @@ import type {
 } from "./types";
 import { daysAgo, daysFromNow } from "./mockDate";
 import { getOccurrenceAttendees, nextOccurrenceDates } from "./meetUtils";
+import { getUserById } from "./mockUsers";
 
 export const MEET_TYPE_LABELS: Record<string, string> = {
   walk: "Walk",
@@ -139,12 +140,15 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl:
       "/images/generated/shawn-profile.jpg",
     attendees: [
+      // Shawn fostering "Skip" on this walk — third dog seeded so the
+      // OwnerDogAvatar's "+N" chip rendering can be visually verified
+      // (closes punch-list P31). Most other meets keep him at 2 dogs.
       {
         userId: "shawn",
         userName: "Shawn",
         avatarUrl:
           "/images/generated/shawn-profile.jpg",
-        dogNames: ["Spot", "Goldie"],
+        dogNames: ["Spot", "Goldie", "Skip"],
         neighbourhood: "Vinohrady",
         dogBreed: "Dalmatian Mix",
         profileOpen: true,
@@ -2296,6 +2300,68 @@ export function getUserMeets(userId: string): Meet[] {
 }
 
 /**
+ * True iff `viewerId` and `subjectId` have ever both been Going on the same
+ * past meet (or the same past occurrence of a recurring meet). Drives the
+ * attendance-based action gating on the People tab and Group Members tab —
+ * the single rule applied app-wide per the Community & Groups Deep Pass
+ * decision (`Trust & Connection Model.md` → Meet participant visibility
+ * rules).
+ *
+ * Used by surfaces that need to decide whether to render action affordances
+ * on a person row — pass `viewerSharedMeetWith(viewer, subject) ? "auto" : []`
+ * as PersonRow's `actions` prop.
+ *
+ * For one-off meets, "past" means `meet.status === "completed"`. For
+ * recurring meets, "past" means the occurrence date is < today (local).
+ * Mirror semantics with `meetUtils.viewerCanAct` — if either user `can act`
+ * via attendance, we still need a *shared* attendance to gate the other
+ * direction.
+ *
+ * Returns false when viewer === subject — a user can't share an attendance
+ * with themselves in a way that unlocks anything.
+ */
+export function viewerSharedMeetWith(viewerId: string, subjectId: string): boolean {
+  if (viewerId === subjectId) return false;
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayMs = todayStart.getTime();
+
+  for (const meet of mockMeets) {
+    if (meet.cadence === "one_off") {
+      if (meet.status !== "completed") continue;
+      const list = meet.attendees;
+      const viewerWent = list.some(
+        (a) => a.userId === viewerId && (a.rsvpStatus ?? "going") === "going",
+      );
+      if (!viewerWent) continue;
+      const subjectWent = list.some(
+        (a) => a.userId === subjectId && (a.rsvpStatus ?? "going") === "going",
+      );
+      if (subjectWent) return true;
+      continue;
+    }
+
+    const byDate = meet.attendeesByDate ?? {};
+    for (const [date, list] of Object.entries(byDate)) {
+      // Parse YYYY-MM-DD as local-midnight to avoid the UTC-shift pitfall.
+      const [y, m, d] = date.split("-").map(Number);
+      const occMs = new Date(y, m - 1, d).getTime();
+      if (occMs >= todayMs) continue;
+      const viewerWent = list.some(
+        (a) => a.userId === viewerId && (a.rsvpStatus ?? "going") === "going",
+      );
+      if (!viewerWent) continue;
+      const subjectWent = list.some(
+        (a) => a.userId === subjectId && (a.rsvpStatus ?? "going") === "going",
+      );
+      if (subjectWent) return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Helper: every (meet, occurrenceDate) instance the user has an RSVP on.
  *
  * Drives the per-instance Schedule views (Upcoming, Meets → Going, Meets →
@@ -2407,6 +2473,43 @@ export function getFollowedSeries(userId: string): Meet[] {
   return mockMeets.filter(
     (m) => m.cadence !== "one_off" && (m.followers ?? []).includes(userId),
   );
+}
+
+/**
+ * Resolve the series-level Interested followers as `MeetAttendee`-shaped
+ * objects so they render through the same `PersonRow` / `OwnerDogAvatar`
+ * pipeline as actual attendees.
+ *
+ * For one-off meets, returns `[]` — the followers concept is series-only
+ * (no "Interested" subscription on a single event; one-off meets have a
+ * regular RSVP-Interested instead, which lives on `meet.attendees`).
+ *
+ * Skips followers whose UserProfile can't be resolved (directory-only
+ * providers, pruned mock data) — they get silently dropped rather than
+ * rendering as half-empty cards. Logs nothing; this is mock-data hygiene,
+ * not a runtime error path.
+ */
+export function getSeriesFollowers(meet: Meet): MeetAttendee[] {
+  if (meet.cadence === "one_off") return [];
+  const followerIds = meet.followers ?? [];
+  const out: MeetAttendee[] = [];
+  for (const userId of followerIds) {
+    const user = getUserById(userId);
+    if (!user) continue;
+    out.push({
+      userId: user.id,
+      userName: user.firstName,
+      avatarUrl: user.avatarUrl,
+      dogNames: user.pets.map((p) => p.name),
+      // Followers don't carry an RSVP — they've subscribed to the series,
+      // not committed to any specific date. Surface as `interested` so
+      // downstream filters (e.g. "going only" counts) don't include them.
+      rsvpStatus: "interested",
+      neighbourhood: user.neighbourhood,
+      profileOpen: user.profileVisibility === "open",
+    });
+  }
+  return out;
 }
 
 /** Helper: get upcoming meets sorted by date */

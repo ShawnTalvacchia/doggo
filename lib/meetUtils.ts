@@ -205,6 +205,85 @@ export function getMeetRole(meet: Meet, userId: string, date?: string): MeetRole
 }
 
 /**
+ * Series-level "All" roster: union of every Going attendee across every
+ * occurrence of a recurring meet (past + upcoming), deduped by userId. For
+ * one-off meets, returns `meet.attendees` as-is.
+ *
+ * Drives the People tab "All" lens for recurring meets — the community view
+ * that answers "who is this group of people" rather than "who's coming
+ * Wednesday." Per-date rosters live behind the date pills via
+ * `getOccurrenceAttendees`.
+ *
+ * Dedup strategy: keep the most recent occurrence's entry per userId. Later
+ * occurrences may carry updated avatar/dog data; "most recent" is the
+ * freshest snapshot. `rsvpStatus === "interested"` entries are excluded —
+ * Interested is a per-occurrence soft signal, not series membership. Series-
+ * level Interested followers come from `meet.followers` and are surfaced
+ * separately via `getSeriesFollowers` in `lib/mockMeets.ts`.
+ *
+ * Pure — no I/O.
+ */
+export function getSeriesAttendees(meet: Meet): MeetAttendee[] {
+  if (meet.cadence === "one_off") return meet.attendees;
+
+  const seen = new Map<string, MeetAttendee>();
+  const byDate = meet.attendeesByDate ?? {};
+
+  // Sort dates ascending so later occurrences override earlier ones in the
+  // dedup map — the freshest snapshot wins.
+  const sortedDates = Object.keys(byDate).sort();
+  for (const date of sortedDates) {
+    const list = byDate[date];
+    for (const attendee of list) {
+      if ((attendee.rsvpStatus ?? "going") === "going") {
+        seen.set(attendee.userId, attendee);
+      }
+    }
+  }
+
+  return Array.from(seen.values());
+}
+
+/**
+ * True iff the viewer has attended this meet (or any past occurrence of it).
+ * Drives the People-tab action gating per the disclosure model — the
+ * "earned reward" for showing up is the deepening, not the visibility
+ * (`Trust & Connection Model.md` → Meet participant visibility rules).
+ *
+ * One-off meets: requires `meet.status === "completed"` AND viewer was Going
+ *   on `meet.attendees`.
+ * Recurring meets: any past occurrence (date < today, local) where viewer
+ *   was Going on `attendeesByDate[date]`. For recurring meets, `meet.status`
+ *   is unreliable (carries the legacy create-time value); occurrence dates
+ *   are the source of truth — see Meets Deep Pass / Meet Recurrence Model
+ *   notes.
+ *
+ * Pure — no I/O. The companion query for "any past meet with this other
+ * person" lives in `lib/mockMeets.ts:viewerSharedMeetWith` (needs access
+ * to the full meets collection).
+ */
+export function viewerCanAct(meet: Meet, viewerId: string): boolean {
+  if (meet.cadence === "one_off") {
+    if (meet.status !== "completed") return false;
+    return meet.attendees.some(
+      (a) => a.userId === viewerId && (a.rsvpStatus ?? "going") === "going",
+    );
+  }
+
+  // Recurring: any past occurrence where viewer was Going.
+  const todayStart = startOfLocalDay(new Date()).getTime();
+  const byDate = meet.attendeesByDate ?? {};
+  for (const [date, list] of Object.entries(byDate)) {
+    const dateTime = startOfLocalDay(parseLocalISODate(date)).getTime();
+    if (dateTime >= todayStart) continue;
+    if (list.some((a) => a.userId === viewerId && (a.rsvpStatus ?? "going") === "going")) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Visibility-tier an attendee per the Trust & Connection Model
  * (`docs/strategy/Trust & Connection Model.md` → Meet participant visibility rules):
  *

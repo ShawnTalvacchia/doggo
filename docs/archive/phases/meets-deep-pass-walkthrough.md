@@ -1,6 +1,6 @@
 ---
-status: active
-last-reviewed: 2026-04-27
+status: archived
+last-reviewed: 2026-04-29
 review-trigger: "walkthrough in progress; archive once ticked through"
 ---
 
@@ -288,34 +288,36 @@ Heavily rebuilt 2026-04-27. Owner-first card layout (name peeks above dogs via `
 - [x] **Profile-state-aware explainer card** at the top:
   - **Locked viewer** (Daniel, Tomáš): 🔒 "Your profile is locked" header, "People who don't know you only see your name and **[Bára]**" line (dog name personalized from `currentUser.pets[0]?.name`), then bold-labeled Familiar / Connect explanation lines.
   - **Open viewer** (Tereza, Klára): 🌐 "Your profile is open" header + Connect-only explanation.
-- [ ] **Bulk button "Mark everyone familiar"** — applies only to the Not Familiar top section. Hidden for open viewers (no Familiar action) and when the section is empty / already-marked.
-- [ ] **State-grouped sections** (empty sections hide entirely):
+- [x] **Bulk button "Mark everyone familiar"** — applies only to the Not Familiar top section. Hidden for open viewers (no Familiar action) and when the section is empty / already-marked.
+- [x] **State-grouped sections** (empty sections hide entirely):
   - **Top (unlabeled)** — Not Familiar. Most cards live here.
   - **Familiar** — previously marked.
   - **Connected** — already mutual.
   - **Locked profiles** — tier 3 attendees, name + small avatar pills only.
-- [ ] **Owner-first card body:** owner avatar 64px primary (left), dog(s) 32px overlapping bottom-right with white `box-shadow` ring (NOT `border` — image stays a true 32×32). Owner name primary, dog list "Bára and Eda" / "Bára, Eda + 2" secondary. **Row uses `items-start`** so the name sits at the row top while the dog cluster anchors at the bottom of the avatar combo.
-- [ ] Multi-dog attendees (e.g., Eva with Luna + Max) show 2 dog avatars; 3+ would show a "+N" chip.
+- [x] **Owner-first card body:** owner avatar 64px primary (left), dog(s) 32px overlapping bottom-right (rounded square via `--radius-md`, NOT circle — differentiates from owner's round avatar), white `box-shadow` ring (NOT `border` — image stays a true 32×32), bottom-aligned to owner (no longer extending below). Owner name primary, dog list "Bára and Eda" / "Bára, Eda + 2" secondary. **Row uses `items-center`** — text centers vertically against the avatar combo; "name peeks above dogs" effect comes from the avatar combo's internal layout (dogs anchored at the bottom of the owner via flex-end).
+- [ ] Multi-dog attendees (e.g., Eva with Luna + Max in `meet-9`) show 2 dog avatars; 3+ would show a "+N" chip. **No 3+ dog attendees in current mock data — punch-list P31** to seed one.
+- [x] **Card sizing + border:** 12px padding (`p-md`), `--border-regular` (#ececec — light, quiet separation, not a hard frame).
 
 **Section-specific card behaviors:**
 
-- [ ] **Not Familiar cards: inline pill always present, label EVOLVES with the mark.**
-  - Unmarked: `Familiar` pill (secondary, outline) — tap to mark
-  - Marked Familiar: pill becomes `Connect` (secondary, outline) — tap to escalate; quiet footer appears below: `✓ Familiar` label + `Undo` link (right-side, uppercase)
-  - Marked Connect: pill becomes `Connect` (primary, brand-fill) — tap to downgrade back to marked Familiar; footer stays
+- [x] **Not Familiar cards: inline pill always present, label EVOLVES with the mark.**
+  - Unmarked: `Familiar` pill (`outline` variant, neutral border + primary text) — tap to mark
+  - Marked Familiar: pill becomes `Connect` (`secondary` variant, brand outline + brand text) — tap to escalate; quiet footer appears below: `✓ Familiar` label + `Undo` link (right-side, uppercase, underlined)
+  - Marked Connect: pill becomes `Connect` (`primary` variant, brand-fill + check icon) — tap to downgrade back to marked Familiar; footer stays
+  - Visual gradient: outline → secondary → primary maps to "available action → next escalation → committed"
   - **Tap Undo** → cascades back to unmarked (clears both Familiar AND Connect since Connect implies Familiar). Card returns to its initial state.
-- [ ] **Familiar section cards** — inline secondary Connect pill on the right (no footer). Tap → primary-fill (selected). To undo the prior Familiar mark, the user goes elsewhere (member detail / profile) — not from this sheet.
-- [ ] **Connected section cards** — inline primary Message pill on the right (no footer). Currently a no-op click; placeholder for inbox routing.
-- [ ] **Skip is gone** — section position carries the "I'm not acting on this" meaning. Cards left untouched stay where they are.
-- [ ] **No "Open profile" indicator** on cards — leaks deniability info (open profile vs they-marked-me-Familiar should be visually indistinguishable) and was breaking mobile layout.
-- [ ] **Card sizing:** 12px padding, 32×32 dog avatars with `radius-md` (slightly rounded square — differentiates from owner's round avatar), white box-shadow ring on dogs, dogs bottom-aligned to owner (no longer extending below).
-- [ ] Footer: Back / Done
+- [x] **Familiar section cards** — inline `secondary` Connect pill on the right (no footer). Tap → `primary` fill (selected). To undo the prior Familiar mark, the user goes elsewhere (member detail / profile) — not from this sheet.
+- [x] **Connected section cards** — inline `primary` Message pill on the right (no footer). Currently a no-op click; placeholder for inbox routing.
+- [x] **Skip is gone** — section position carries the "I'm not acting on this" meaning. Cards left untouched stay where they are.
+- [x] **No "Open profile" indicator** on cards — leaks deniability info (open profile vs they-marked-me-Familiar should be visually indistinguishable) and was breaking mobile layout.
+- [x] **Hover state on small secondary pills** uses `--shadow-sm` (toned down from `--shadow-md`) — was popping off the row at the small size. Inline-row contexts only; larger CTAs keep `--shadow-md`.
+- [x] **Footer buttons use the system-primary pattern** (`primary` variant, NO `cta` modifier) — dark fill, white text, small radius. Continue (step 1) and Done (step 2) match Maybe later / Back's small radius — no pill-vs-square inconsistency. Process-oriented footers aren't CTA/brand-infused; brand CTA stays in the body where the actual decisions happen.
 
 ### Sheet lifecycle
 
-- [ ] Done (step 2) → sheet closes
-- [ ] Close with X or overlay click from any step → all state resets
-- [ ] Re-open → starts at step 1
+- [x] Done (step 2) → sheet closes
+- [x] Close with X or overlay click from any step → all state resets
+- [x] Re-open → starts at step 1
 
 ---
 
@@ -323,26 +325,26 @@ Heavily rebuilt 2026-04-27. Owner-first card layout (name peeks above dogs via `
 
 ### Visibility + tier rendering
 
-- [ ] Meet-2 (has tier-3 attendees) → detail page summary shows dog names as fallback or tier-1/2 copy if Shawn knows someone. Tier-3 faces don't leak into the avatar preview
-- [ ] Post-meet review step 3 for meet-2 → tier-3 attendees are in "Also there", not in the main cards
-- [ ] ParticipantList (People tab on meet detail) → honours the same tier model
+- [x] Meet-2 (has tier-3 attendees) → detail page summary shows dog names as fallback or tier-1/2 copy if Shawn knows someone. Tier-3 faces don't leak into the avatar preview
+- [x] Post-meet review step 3 for meet-2 → tier-3 attendees are in "Also there", not in the main cards
+- [x] ParticipantList (People tab on meet detail) → honours the same tier model
 
 ### Link transitions
 
-- [ ] Tap any attendee avatar or name in ParticipantList → `/profile/[userId]` loads correctly
-- [ ] Group chip on meet detail → community page loads
-- [ ] Service CTA "Book" on care-group meet → booking flow loads
+- **Skipped — depends on punch list:** Tap any attendee avatar or name in ParticipantList → `/profile/[userId]` loads correctly. People tab is mid-rework (P27 avatar pattern cascade + P32 info-vs-action disclosure model). Verify after those land.
+- [x] Group chip on meet detail → community page loads (eyebrow link near the title — small chip with group icon + name)
+- [x] Care-group meet's "Book this session" / per-occurrence Book button → opens `ServiceBookingSheet` (modal), not a route transition. Confirm the sheet renders with provider summary + price + date + Confirm. (Cross-references the care-group meet items in section 3.A — this is a regression-style check that the link still wires up.)
 
 ---
 
 ## 6. Regression — things that shouldn't have broken
 
-- [ ] Tap-through from any meet card → correct meet detail
-- [ ] RSVP cycle (Going → Interested → Leave) still works on meet detail
-- [ ] Meet detail tabs (Details / People / Chat) still switch cleanly
-- [ ] Meet photo gallery (completed meet) still renders
-- [ ] Home feed still shows a reasonable mix of posts + upcoming meets + completed recaps
-- [ ] Community detail — Feed, Meets, Members (+ Events, Services, Gallery for Care groups) all render
+- [x] Tap-through from any meet card → correct meet detail
+- [x] RSVP cycle (Going → Interested → Leave) still works on meet detail
+- [x] Meet detail tabs (Details / People / Chat) still switch cleanly
+- [x] Meet photo gallery (completed meet) still renders
+- [x] Home feed still shows a reasonable mix of posts + upcoming meets + completed recaps
+- [x] Community detail — Feed, Meets, Members (+ Events, Services, Gallery for Care groups) all render
 
 ---
 

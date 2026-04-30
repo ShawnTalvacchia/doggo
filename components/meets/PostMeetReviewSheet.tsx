@@ -47,11 +47,11 @@ import { mockMeets, MEET_TYPE_LABELS } from "@/lib/mockMeets";
 import { getGroupById } from "@/lib/mockGroups";
 import { formatMeetDateTime } from "@/lib/dateUtils";
 import { getAttendeeTier } from "@/lib/meetUtils";
-import { getDogImageByOwnerAndName } from "@/lib/dogLookup";
+import { OwnerDogAvatar } from "@/components/people/OwnerDogAvatar";
 import { getConnectionState } from "@/lib/mockConnections";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { resolvePersonActions } from "@/lib/personActions";
-import type { ConnectionState, Meet, MeetAttendee, MeetType } from "@/lib/types";
+import type { Meet, MeetAttendee, MeetType } from "@/lib/types";
 
 const MEET_ICONS: Record<MeetType, React.ReactNode> = {
   walk: <PersonSimpleWalk size={14} weight="light" />,
@@ -521,9 +521,10 @@ function MakeConnectionsStep({
         )}
       </div>
 
-      {/* Bulk "Mark everyone familiar" — applies only to the unlabeled
-          top section (where Familiar is the active affordance). Hides when
-          there's nothing left to bulk-mark. */}
+      {/* Bulk action area — morphs in place between two states with the
+          same visual envelope (height, padding, surface, border) so the
+          transition feels stable. Hides when there are no familiar-
+          applicable attendees in the not-yet-familiar bucket. */}
       {notFamiliar.length > 0 && hasUnmarked && (
         <button
           type="button"
@@ -536,9 +537,29 @@ function MakeConnectionsStep({
       )}
 
       {notFamiliar.length > 0 && !hasUnmarked && familiarMarkCount > 0 && (
-        <div className="flex items-center justify-center gap-xs text-sm text-fg-secondary">
-          <Check size={14} weight="bold" className="text-brand-main" />
-          {familiarMarkCount} marked Familiar
+        <div className="flex items-center justify-between gap-sm w-full rounded-panel p-sm bg-surface-inset border border-edge-regular">
+          <span className="flex items-center gap-xs text-sm font-medium text-fg-primary">
+            <Check size={16} weight="bold" className="text-brand-main" />
+            {familiarMarkCount} marked Familiar
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              // Undo clears all marks in the notFamiliar bucket — both
+              // Familiar and Connect (Connect implies Familiar, so a
+              // half-undo would be confusing). Predictable "I want to
+              // start over" semantics; the user can re-mark individuals
+              // after.
+              const next: Record<string, AttendeeAction> = { ...marks };
+              for (const a of notFamiliar) {
+                if (next[a.userId]) next[a.userId] = null;
+              }
+              onMarksChange(next);
+            }}
+            className="text-sm font-semibold text-fg-tertiary uppercase tracking-wide underline underline-offset-2 cursor-pointer hover:text-fg-primary transition-colors"
+          >
+            Undo
+          </button>
         </div>
       )}
 
@@ -655,51 +676,6 @@ function SectionHeader({ label }: { label: string }) {
   );
 }
 
-/** Owner-with-dogs avatar combo — owner 64px primary, dog(s) 32px
- *  overlapping. Caps visible dogs at 2 + a "+N" chip when more.
- *  Pattern is post-meet-review-scoped for now; punch-list item filed
- *  to cascade across PersonRow + every other person-listing surface. */
-function OwnerDogAvatar({ attendee }: { attendee: MeetAttendee }) {
-  // Resolve dog images — null entries (lookup miss) get filtered out
-  // and counted toward the +N chip implicitly.
-  const dogImages = attendee.dogNames
-    .map((name) => ({ name, url: getDogImageByOwnerAndName(attendee.userId, name) }))
-    .filter((d): d is { name: string; url: string } => Boolean(d.url));
-  const visibleDogs = dogImages.slice(0, 2);
-  const extraDogCount = Math.max(0, attendee.dogNames.length - visibleDogs.length);
-
-  return (
-    <div className="pmr-avatar-combo">
-      {attendee.avatarUrl ? (
-        <img
-          src={attendee.avatarUrl}
-          alt={attendee.userName}
-          className="pmr-avatar-owner"
-        />
-      ) : (
-        <DefaultAvatar name={attendee.userName} size={64} />
-      )}
-      {(visibleDogs.length > 0 || extraDogCount > 0) && (
-        <div className="pmr-avatar-dogs">
-          {visibleDogs.map((d) => (
-            <img
-              key={d.name}
-              src={d.url}
-              alt={`${d.name} (${attendee.userName}'s dog)`}
-              className="pmr-avatar-dog"
-            />
-          ))}
-          {extraDogCount > 0 && (
-            <span className="pmr-avatar-more" aria-label={`${extraDogCount} more dogs`}>
-              +{extraDogCount}
-            </span>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
 /** Format a dog list for the secondary line.
  *  - 0 dogs: empty string (caller hides the line)
  *  - 1 dog:  "Bára"
@@ -806,7 +782,12 @@ function AttendeeActionCard({
   return (
     <li className="pmr-card">
       <div className="pmr-card-body">
-        <OwnerDogAvatar attendee={attendee} />
+        <OwnerDogAvatar
+          userId={attendee.userId}
+          name={attendee.userName}
+          avatarUrl={attendee.avatarUrl}
+          dogNames={attendee.dogNames}
+        />
 
         <div className="flex flex-col gap-xs flex-1 min-w-0">
           <span className="font-semibold text-base text-fg-primary truncate">
@@ -889,13 +870,20 @@ function StepFooter({
   onNext: () => void;
   onClose: () => void;
 }) {
+  // Footer buttons use the system-primary pattern (`primary` variant,
+  // NO `cta` modifier) — dark fill + white text, small radius, no
+  // pill. Process-oriented footers shouldn't be CTA/brand-infused;
+  // mixing CTA pill shapes (Continue/Done) with non-CTA small-radius
+  // shapes (Maybe later/Back) on the same row read as inconsistent.
+  // Body actions (the brand-colored pills on attendee cards) keep the
+  // CTA/brand treatment because they're the actual decisions.
   if (step === 1) {
     return (
       <div className="flex items-center justify-between w-full gap-sm">
         <ButtonAction variant="tertiary" size="md" onClick={onClose}>
           Maybe later
         </ButtonAction>
-        <ButtonAction variant="primary" size="md" cta onClick={onNext}>
+        <ButtonAction variant="primary" size="md" onClick={onNext}>
           Continue
         </ButtonAction>
       </div>
@@ -906,7 +894,7 @@ function StepFooter({
       <ButtonAction variant="tertiary" size="md" onClick={onBack} leftIcon={<CaretLeft size={14} weight="bold" />}>
         Back
       </ButtonAction>
-      <ButtonAction variant="primary" size="md" cta onClick={onClose}>
+      <ButtonAction variant="primary" size="md" onClick={onClose}>
         Done
       </ButtonAction>
     </div>

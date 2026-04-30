@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-27
+last-reviewed: 2026-04-29
 tags: [trust, connections, privacy, safety]
 review-trigger: "when touching connection states, visibility, or trust signals"
 ---
@@ -73,13 +73,27 @@ Use cases: two friends who are both on the app, someone you meet at the park, a 
 
 ### Meet participant visibility rules
 
-Meet attendee lists are filtered by actionable relationship, not shown as a flat list:
+Meet attendee lists separate **information** (open) from **action** (earned by attendance). The community-first thesis is that showing up is what unlocks deepening — not seeing.
+
+**Information is open.** Anyone who can see a meet can see who's attending, grouped by relationship state:
 
 1. **Visible with full cards:** Connected users, Familiar (either direction), Open profiles
-2. **Hidden individually, shown as count:** Locked users with None relationship → "3 other attendees"
-3. **Post-meet review:** After a meet ends, all attendees are surfaced in a review flow (see below)
+2. **Chip list at the bottom:** Locked users with None relationship — names + small avatars only, no card-level affordance
 
-This prevents dead-end cards (locked profile with no action available) while maintaining the privacy of locked users. The meet itself is the trust-building event — hidden attendees become visible *because* you showed up and met them in person.
+**Action is gated by attendance.** Familiar / Connect / Message pills appear only for viewers who attended the meet (and only on completed meets). Pre-meet viewers, no-shows, and non-attendees see the same content but with no action affordances. The card stack is identical across viewers; the action affordances differ.
+
+The trust gradient is preserved: **the meet itself is the trust-building event.** What changes after attendance is your ability to deepen — Familiar, Connect, Message. What doesn't change is the information itself. Letting any viewer scope the room (who's coming, who you'd recognise, who you might want to meet) drives meet conversion without leaking anything the people in the room wouldn't show off.
+
+**Single principle app-wide.** The same attendance-based gating applies on the Group Members tab. Co-membership in a group is not enough on its own — the action affordance follows the same earned-by-showing-up rule. Two helpers implement the principle in different shapes:
+
+- `viewerCanAct(meet, viewerId)` (`lib/meetUtils.ts`) — single-meet check used by the People tab. True iff viewer was Going on a `completed` one-off meet OR any past occurrence of a recurring meet.
+- `viewerSharedMeetWith(viewerId, subjectId)` (`lib/mockMeets.ts`) — cross-attendee check used by the Group Members tab. True iff the two have ever both been Going on the same past meet/occurrence.
+
+Both are consumed by passing `actions={[]}` to `PersonRow` for the info-only mode (PersonRow suppresses all action affordances; the Pending status pill still renders). Group-type nuance (e.g. neighbor groups where not everyone attends every meet) is a future-state question to surface only if testing flags it.
+
+**Post-meet review (separate surface, different job).** After a meet ends, attendees are prompted to review the people they met (see "Post-meet review flow" below). The review sheet and the People tab inline actions coexist — the sheet is the warm-moment guided pass with the bulk Familiar action and the profile-state-aware explainer; the People tab is the persistent surface where the same actions remain available later.
+
+**Recurring meets and the lens pill row.** Recurring meets ask two questions on the People tab: per-occurrence ("who's coming this Wednesday") and series-level ("who is this community"). The People tab handles both via a pill row — `[All]` plus the next upcoming dates. All aggregates past + upcoming attendees + series-level Interested followers; date pills show a specific occurrence's roster. The disclosure-model rules (info open, action gated) apply identically across every lens — switching to a date pill doesn't change WHAT actions are available, only WHICH people are in view. Action gating is series-level: if the viewer has past attendance on any occurrence, action affordances render across all lenses. See `features/meets.md` → People tab.
 
 ### Post-meet review flow
 

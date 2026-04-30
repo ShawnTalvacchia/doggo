@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-04-27
+last-reviewed: 2026-04-29
 tags: [design-system, components, patterns, css]
 review-trigger: "when building or refactoring components, adding CSS patterns, or consolidating styles"
 ---
@@ -70,7 +70,9 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 
 | Component | Purpose | Notes |
 |-----------|---------|-------|
-| `PersonRow` | Canonical row for rendering a person — meet attendees, group members, inbox conversations | Variants: `meet-attendee`, `group-member`, `inbox-conversation`, `default`. Action set resolves automatically via `lib/personActions.ts:resolvePersonActions` per the Trust & Visibility action matrix; pass `actions={[...]}` to override. Internal dog-image lookup via `getDogImageByOwnerAndName` so callers pass `pets: { name }[]` only. Connection-state pill suppressed on `none + theyMarkedFamiliar` per the deniability guardrail (see `Trust & Connection Model.md`). |
+| `PersonRow` | Canonical row for rendering a person — meet attendees, group members, inbox conversations | Variants: `meet-attendee`, `group-member`, `inbox-conversation`, `default`. Non-inbox variants render with the `OwnerDogAvatar` combo (owner + overlapping dogs) on the left, identity column on the right. Identity column locked to 64px height; name-row is `h-8 -ml-3` (32px tall, pulled 12px LEFT toward the owner — the asymmetric offset that gives consecutive cards visual distinction). Pet text below uses `text-sub` (13px) with `leading-8`. Inbox variant is denser (44px owner circle, paw-icon + text dog line, no overlapping dog avatars). Action set resolves automatically via `lib/personActions.ts:resolvePersonActions` per the Trust & Visibility action matrix; pass `actions={[]}` for info-only mode (suppresses CTAs and Familiar toggle pill — Pending status pill still renders). Connection-state pill suppressed on `none + theyMarkedFamiliar` per the deniability guardrail (see `Trust & Connection Model.md`). Care tier badge resolves from caller's `careTier?: "helper" \| "provider"` prop — Helper-tier visibility is the caller's responsibility to gate on Connected status. |
+| `OwnerDogAvatar` | Owner-forward avatar primitive — owner circle (64px) + dog cluster overlapping bottom-right | Inline-flex combo. Dog cluster lives in a 44px right-aligned slot anchored to the owner via `margin-left: -16px`. Dog size dynamic: 36px when single-slot rendered (lone dog), 32px when two-slot (2 dogs OR 1 dog + chip). Cap at 2 slots max — 3+ dogs collapse to 1 dog avatar + "+N" chip. Owner stays a circle (humans = circles); dogs use `--radius-md` 12px-rounded squares with a `box-shadow` ring on the outside (so the image stays a true 32×32). Used by `PersonRow` non-inbox variants and by `PostMeetReviewSheet`'s AttendeeActionCard. Internal dog-image lookup via `getDogImageByOwnerAndName`. |
+| `PersonSections` | Shared section primitives for person-row surfaces | Exports `SectionHeader` (uppercase tracking-wider label between row groups — CONNECTED, FAMILIAR, ADMINS), `MetaDivider` (hairline rule + `mt-md`, separates higher-level groupings like Going block vs Interested or Admins block vs the rest), `LockedChipList` (chip list for tier-3 rows that don't render as cards). Used by `ParticipantList` (meet People tab) and `MembersTab` (group detail Members tab). |
 
 ## Overlays (`components/overlays/`)
 
@@ -102,8 +104,9 @@ Shared CSS classes in `globals.css` that are used across multiple components. Us
 | `.booking-card` | Redesigned booking/care card | Full accent border for provider/host cards, action verb labels |
 | `.filter-accordion` | Inline collapsible filter sections | Used in FilterBody |
 | `.md-shell` / `.list-panel` / `.detail-panel` | *(Deleted)* MasterDetailShell panels | Replaced by PageColumn |
-| `.person-row` + `.person-row--*` variants | Shared person-row chrome | Used by `PersonRow`. Variant modifiers: `--meet-attendee`, `--group-member`, `--inbox-conversation`, `--default`. Inbox variant is denser + transparent (sits inside flush conversation list); others are panel-bordered cards. |
-| `.person-row-pill` + `.person-row-pill--connected` / `--familiar` / `--pending` / `--admin` | Connection-state and admin pills inside `PersonRow` | Connected uses `brand-subtle`; familiar/pending/admin use `surface-inset`. Replaces the previous bespoke pill markup in `app/communities/[id]/page.tsx` Members tab and the inline pill in `ParticipantCard`. |
+| `.person-row` + `.person-row--*` variants | Shared person-row chrome | Used by `PersonRow`. Variant modifiers: `--meet-attendee`, `--group-member`, `--inbox-conversation`, `--default`. Row uses `gap: var(--space-xl)` (20px) between avatar combo and identity column. Inbox variant is denser + transparent (sits inside flush conversation list); others are panel-bordered cards. |
+| `.person-row-pill` + `.person-row-pill--familiar` / `--pending` / `--admin` / `--provider` / `--helper` | Connection-state, role, and tier pills inside `PersonRow` | Familiar/pending/admin use `surface-inset` neutral. Provider tier uses `brand-subtle` (public, professional). Helper tier uses `surface-inset` (informal, Connected-only privacy gate enforced by caller). Connected status renders no pill (the Message CTA carries the signal). `.person-row-pill--care` retained as legacy alias of `--provider`. |
+| `.person-avatar-*` | OwnerDogAvatar primitive (combo container, owner img, dogs slot, dog avatars, "+N" chip) | `.person-avatar-combo` is inline-flex with `align-items: flex-end`, `height: 64px`. `.person-avatar-dogs` is the 44px right-aligned slot with `margin-left: -16px` anchoring it to the owner. Dog size set inline (36px / 32px) per slot count. |
 
 ---
 

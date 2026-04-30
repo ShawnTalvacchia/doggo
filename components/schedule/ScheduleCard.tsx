@@ -288,13 +288,27 @@ export function ScheduleMeetCard({
       {/* Row 2: Title — strike-through when cancelled. */}
       <h3 className={`sched-card-title${isCancelled ? " line-through" : ""}`}>{meet.title}</h3>
 
-      {/* Row 3: Location + going count. Role used to live here in the
-          right slot — moved to row 1 (see top-row comment). */}
+      {/* Row 3: Location · going count · price (if paid). Role used to
+          live here in the right slot — moved to row 1 (see top-row
+          comment). Price surfaces last on care-group meets so users
+          can tell at a glance which scheduled items are paid — without
+          it, a free meet and a paid one looked identical on Schedule
+          until you tap in. Stronger weight + secondary color makes the
+          price the visual anchor of the line; standard info (location,
+          count) reads as supporting context. */}
       <div className="sched-card-meta">
         <MapPin size={14} weight="light" className="shrink-0" />
         <span className="truncate">{meet.location}</span>
         <span className="sched-card-dot">·</span>
         <span>{goingCount}/{meet.maxAttendees}</span>
+        {meet.serviceCTA?.price && (
+          <>
+            <span className="sched-card-dot">·</span>
+            <span className="font-semibold text-fg-secondary">
+              {meet.serviceCTA.price}
+            </span>
+          </>
+        )}
       </div>
     </Link>
   );

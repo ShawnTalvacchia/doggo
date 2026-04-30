@@ -7,13 +7,20 @@
  * photos primary, falling back to the owner's avatar only when the dog image
  * can't be resolved. The label is the dog's name — "Rex," "Goldie" — not the
  * owner's.
+ *
+ * Locality-aware. The strip shows dogs whose owners live in the viewer's
+ * neighbourhood (filtered via `UserProfile.neighbourhood`). For the new-user
+ * persona (no neighbourhood set), defaults to "Vinohrady" — the demo's anchor
+ * locality. Stats (count + neighbourhood label) come from
+ * `getNeighbourhoodStats(neighbourhood)` which derives the dog count from
+ * `mockUsers` rather than a hardcoded magic value. Closes data side of P10.
  */
 
 import { Dog } from "@phosphor-icons/react";
-import { mockMeets } from "@/lib/mockMeets";
-import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { getNeighbourhoodStats } from "@/lib/mockNeighbourhoodStats";
 import { getDogImageByOwnerAndName } from "@/lib/dogLookup";
+import { allUsers } from "@/lib/mockUsers";
 
 interface NearbyDog {
   userId: string;
@@ -22,34 +29,40 @@ interface NearbyDog {
   dogName: string;
 }
 
-/** Deduplicated list of dogs from all meet attendees (excluding current user). */
-function getNeighbourhoodDogs(currentUserId: string): NearbyDog[] {
-  const seen = new Set<string>();
+/**
+ * Dogs whose owners live in the target neighbourhood. Pulled from
+ * `mockUsers` (the source of truth for user-neighbourhood mapping) rather
+ * than scraping meet attendees regardless of locality.
+ */
+function getNeighbourhoodDogs(
+  neighbourhood: string,
+  currentUserId: string,
+): NearbyDog[] {
   const dogs: NearbyDog[] = [];
-
-  for (const meet of mockMeets) {
-    for (const attendee of meet.attendees) {
-      if (attendee.userId === currentUserId) continue;
-      for (const dogName of attendee.dogNames) {
-        const key = `${attendee.userId}-${dogName}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
-        dogs.push({
-          userId: attendee.userId,
-          userName: attendee.userName,
-          ownerAvatarUrl: attendee.avatarUrl,
-          dogName,
-        });
-      }
+  for (const user of allUsers) {
+    if (user.id === currentUserId) continue;
+    if (user.neighbourhood !== neighbourhood) continue;
+    for (const pet of user.pets) {
+      dogs.push({
+        userId: user.id,
+        userName: user.firstName,
+        ownerAvatarUrl: user.avatarUrl,
+        dogName: pet.name,
+      });
     }
   }
   return dogs;
 }
 
+const FALLBACK_NEIGHBOURHOOD = "Vinohrady";
+
 export function DogsNearYou() {
-  const currentUserId = useCurrentUserId();
-  const dogs = getNeighbourhoodDogs(currentUserId);
-  const stats = getNeighbourhoodStats();
+  const viewer = useCurrentUser();
+  // New-user persona has no `neighbourhood` set — default to the demo's
+  // anchor locality so the strip has something to show.
+  const neighbourhood = viewer.neighbourhood ?? FALLBACK_NEIGHBOURHOOD;
+  const dogs = getNeighbourhoodDogs(neighbourhood, viewer.id);
+  const stats = getNeighbourhoodStats(neighbourhood);
 
   if (dogs.length === 0) return null;
 

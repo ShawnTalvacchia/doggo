@@ -1,7 +1,7 @@
 ---
 category: feature
 status: active
-last-reviewed: 2026-04-27
+last-reviewed: 2026-04-29
 tags: [meets, groups, community, social]
 review-trigger: "when modifying meets, groups, group detail tabs, or meet discovery"
 ---
@@ -86,7 +86,7 @@ Meet detail uses a tabbed layout:
 | Tab | Content |
 |-----|---------|
 | **Details** | Type badge, date/time, location, duration, description. Type-specific info (pace, terrain, age range, etc.). RSVP actions. Link to parent group. Includes a "Who's coming" summary card with tier-sorted avatar stack, tier-aware count line ("3 of 8 going / 2 people you know"), and dog-first social proof when no known people are going ("Rex, Luna + 4 more dogs"). Terminology: "people you know" spans both Connected and Familiar; "connections" is reserved for Connected only. |
-| **People** | Full attendee list rendered via `PersonRow` (variant `meet-attendee`). Tiered by connection state (Tier 1 Connected → Tier 2 Familiar (either direction)/Pending/Open → Tier 3 hidden count). Tier rules per `Trust & Connection Model.md`; `getAttendeeTier()` in `lib/meetUtils.ts` is the canonical implementation — bumps to Tier 2 on inbound `theyMarkedFamiliar` per the Trust & Visibility Pass D2 decision. The deniability guardrail (no UI may explain WHY a row was promoted) lives in `PersonRow` (pill suppression) and `ConnectionIcon` (single rendering across directions). Post-meet reveal for completed meets. |
+| **People** | Attendee list rendered via `PersonRow` (variant `meet-attendee`) with the owner-forward avatar pattern (`OwnerDogAvatar`, extracted from the post-meet review during this phase). **Disclosure model:** information is open — any viewer sees attendees grouped by relationship state. Going section: Connected (top, viewer pinned to first slot) → Familiar (subsection header) → other tier-2 attendees (Pending / Open / inbound `theyMarkedFamiliar` — flat, unlabeled to preserve deniability for inbound Familiar marks). Interested section repeats the same structure if anyone RSVP'd Interested. Locked attendees → chip list at the bottom (names + small avatars, no row affordance). **Recurring meets get a lens pill row** at the top: `[All]` plus the next 3 upcoming dates. **All** = series community — union of past + upcoming attendees + series-level Interested followers, with a "Following this series" subsection between Interested and Locked. **Date pills** = that occurrence's specific roster via `getOccurrenceAttendees`. Default lens is the first upcoming date (most operational: "who's coming next"); past-only series fall through to All. One-off meets skip the pill row. Frequent-attendee / "regular" treatment within the All view is filed as punch-list P34. **Action is gated by attendance:** Familiar / Connect / Message pills appear only for viewers who attended a past occurrence of this meet. Pre-meet, no-show, and non-attendee viewers see the same content with no action affordances. Gating is series-level (any past occurrence counts) regardless of selected lens. The "earned reward" for showing up is the deepening, not the visibility. **Implementation:** `viewerCanAct(meet, viewerId)` in `lib/meetUtils.ts` is the People-tab gate (true iff viewer was Going on a completed one-off meet OR on any past occurrence of a recurring meet); the parallel cross-attendee gate for the Group Members tab is `viewerSharedMeetWith(viewerId, subjectId)` in `lib/mockMeets.ts`. Same principle, two helpers — both consumed by passing `actions={[]}` to `PersonRow` for the info-only mode. Roster helpers: `getSeriesAttendees(meet)` (`meetUtils.ts`) returns the deduped All-lens roster; `getSeriesFollowers(meet)` (`mockMeets.ts`) returns followers as MeetAttendee-shaped objects via `getUserById` lookup. Tier classification via `getAttendeeTier()` in `lib/meetUtils.ts`. Deniability guardrail (no UI may explain WHY a row was promoted) lives in `PersonRow` (pill suppression) and `ConnectionIcon` (single rendering across directions). The post-meet review sheet (`PostMeetReviewSheet`) coexists with People-tab inline actions — different jobs: the sheet is the warm-moment guided pass with the bulk action and explainer; the People tab is the persistent surface where you can act later. |
 | **Photos** | `MeetPhotoGallery` — photo grid wired to mock data for completed meets. For completed meets with no photos, a share prompt (CameraPlusFill icon + "Share your photos from this meet") encourages attendees to add photos. For upcoming meets, tab shows a placeholder. **Visibility gating** (`Content Visibility Model.md` §1): attendees and group members see the full gallery; non-members of an open group with a `group_only` meet see a 1-photo tease + "Join [Group] to see all"; private/approval groups gate fully (no tease). |
 | **Chat** | Event-scoped coordination thread. Requires RSVP to participate. Time-bound — "running late", "great walk today!" |
 
@@ -106,9 +106,15 @@ All types share enhancement fields: energy level, what to bring, accessibility n
 ### RSVP states
 
 - **Going** — committed, counted toward capacity
-- **Interested** — social signal, not counted toward capacity
+- **Interested** — social signal, not counted toward capacity (one-off meets only) OR series-level subscription (recurring meets — see Recurrence model below)
 
-RSVP is fully interactive: tapping cycles through Going → Interested → Leave with local state updates. The button label and style change per state. Creates lower commitment bar and more social proof ("12 going, 5 interested"). Mock data dates updated to April 2026.
+**One-off meets:** single Going/Interested dropdown in the top action row. Tap cycles through Going → Interested → Not going.
+
+**Recurring meets:** per-occurrence Going + Skip on each upcoming date row + a separate series-level Interested toggle. Going commits to that specific date; Skip explicitly marks "not this one" without changing series-level subscription.
+
+**Paid (care-group) meets:** RSVP is replaced by Book — opens `ServiceBookingSheet`. One-off paid: Book CTA on the service info card (RSVP dropdown suppressed). Recurring paid: per-row Book button on each Upcoming dates row. Booking propagates to Schedule via `setMeetRsvp` (`lib/mockMeets.ts`) — flips per-occurrence row to a Booked state and surfaces the meet under Schedule → Upcoming + Meets → Going.
+
+RSVPs and bookings made on the meet detail page propagate to mockMeets in-memory (survives navigation, not page reload — reload-safe persistence is Schedule & Bookings Deep Pass scope).
 
 ### Recurrence model
 
@@ -199,9 +205,24 @@ The creation form enforces this: private and approval groups disable the public 
 
 ### Post-meet connection
 
-After a meet ends, attendees who were hidden (Locked, no relationship) get surfaced: "You met N new people at today's walk." Each shown with name, dog, neighbourhood. Actions: Mark as Familiar / Connect / Skip. Bulk: "Mark all as Familiar."
+`PostMeetReviewSheet` (`components/meets/PostMeetReviewSheet.tsx`) — two-step modal sheet triggered from the History tab's review-recent section. Step 1 reflects on the meet (recap card + photo upload + caption). Step 2 ("Make connections") surfaces attendees grouped by relationship state.
 
-This remains the highest-intent moment for building relationships — connecting with people from your group after a shared experience.
+**Make Connections step (state-grouped sections):**
+
+- **Top (unlabeled)**: Not Familiar — most cards live here. Inline pill EVOLVES with the mark: `Familiar` (outline) → `Connect` (secondary outline) → `Connect ✓` (primary brand-fill). When marked, a quieter footer appears below: `✓ Familiar` label + `Undo` link.
+- **Familiar**: previously marked. Inline secondary Connect pill (only escalation available).
+- **Connected**: already mutual. Inline primary Message pill.
+- **Locked profiles**: tier 3 attendees, name + small avatar pills only, no actions.
+
+**Cards use an owner-forward layout** — owner avatar 64px primary + dog(s) 32px overlapping bottom-right (rounded-md, white box-shadow ring). Distinct from `PersonRow`'s pattern; cascade to other surfaces tracked in punch-list P27.
+
+**Profile-state-aware explainer** at the top: locked viewers see lock-icon header + "People who don't know you only see your name and [primary dog]" + bold-labeled Familiar/Connect lines. Open viewers see globe-icon header + Connect-only explanation (Familiar redundant for them).
+
+**Bulk action**: "Mark everyone familiar" — applies only to the Not Familiar bucket where Familiar is matrix-applicable. Morphs in place to `✓ N marked Familiar` + `Undo` link after firing. Bound to `familiarApplicable` set so it doesn't promise actions for Connected/already-Familiar/Pending attendees.
+
+**Footer buttons** use the system-primary pattern (`primary` no `cta`) — dark fill, no pill, small radius. Footer = navigation; body = decisions; visual hierarchy reflects that.
+
+This remains the highest-intent moment for building relationships — connecting with people from your group after a shared experience. Action matrix v3 (Familiar gates Connect for locked viewers) lives in `lib/personActions.ts`; deniability guardrails (no UI explaining cause) preserve the silent-grant principle.
 
 ---
 

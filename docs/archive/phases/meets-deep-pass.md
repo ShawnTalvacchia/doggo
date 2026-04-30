@@ -1,6 +1,6 @@
 ---
-status: active
-last-reviewed: 2026-04-27
+status: archived
+last-reviewed: 2026-04-29
 review-trigger: When any task is completed or blocked
 ---
 
@@ -165,16 +165,16 @@ Audit done 2026-04-25. All four X-tasks were incidentally closed by earlier work
 
 ## Acceptance Criteria
 
-- [ ] Meet detail page makes a tester say "I'd actually go to this"
-- [ ] All four meet types render distinctively and tell the right story
-- [ ] Meet cards across surfaces feel like one family
-- [ ] Meet creation flow exists end-to-end and is pleasant
-- [ ] Post-meet flow drives Familiar marking per Trust & Connection Model
-- [ ] Mock meet data is rich enough that randomly opening any meet feels real
-- [ ] Care-group meets connect cleanly to the booking flow
-- [ ] Visibility rules respected (context gate + relationship gate)
-- [ ] TypeScript compiles clean
-- [ ] Feature docs updated (`docs/features/meets.md`)
+- [x] Meet detail page makes a tester say "I'd actually go to this" — title + description + dog-forward "Who's coming" + organiser trust signals + per-occurrence Going/Skip on recurring + Cancellation banner + photo gate + paid-session framing all land. Walked + verified.
+- [x] All four meet types render distinctively — Walk / Park hangout / Playdate / Training each have their own narrative intro line + stat grid. Verified across multiple meets.
+- [x] Meet cards across surfaces feel like one family — anatomy spec in `docs/features/meets.md` + dog-forward `AttendeeAvatarStack` shared across CardMeet / FeedUpcomingMeet / FeedMeetRecap / MeetCardCompact. Schedule meet card now also surfaces price for paid sessions.
+- [x] Meet creation flow exists end-to-end and is pleasant — MeetComposer modal sheet, group + visibility, type-specific sections, cadence (one_off / weekly / biweekly / monthly), share-success state.
+- [x] Post-meet flow drives Familiar marking per Trust & Connection Model — owner-forward AttendeeActionCard with section-grouped state (Not Familiar / Familiar / Connected / Locked), inline-pill-evolves footer pattern, profile-state-aware explainer, bulk Mark-everyone-familiar.
+- [x] Mock meet data — added `meet-care-workshop-1` (one-off paid), `meet-full-playdate` (full-state), `meet-cancelled-walk` (cancelled-state), `meet-reactive-spring` (post-meet demo target).
+- [x] Care-group meets connect to the booking flow — service info card at top with Book CTA on one-off, per-row Book on recurring, ServiceBookingSheet pre-filled, bookings propagate to Schedule via `setMeetRsvp`. Tab renamed Events → Meets for app-wide consistency.
+- [x] Visibility rules respected — context gate (group visibility) + relationship gate (tier-aware attendee surfacing); Photos section now follows differential gate per `Content Visibility Model.md` Section 1.
+- [x] TypeScript compiles clean.
+- [x] Feature docs updated — `docs/features/meets.md` (recurrence model, care-group meets, ServiceBookingSheet, post-meet review section), `design-system.md` (PersonRow, ServiceBookingSheet, brand-subtle variant, post-meet attendee row CSS), `Trust & Connection Model.md` (deniability subsection, matrix v3), `Content Visibility Model.md` (photo-tease rule).
 
 ---
 

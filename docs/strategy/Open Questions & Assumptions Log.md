@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-27
+last-reviewed: 2026-04-29
 tags: [questions, risks, assumptions]
 review-trigger: "before starting a new phase, after any strategic discussion"
 ---
@@ -27,14 +27,23 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 **Assumption:** The four-state connection model (None → Familiar → Pending → Connected) maps to real trust-building.
 
-**Resolved:** Familiar is one-sided, silent (no notification), Connected is mutual. Post-meet review flow is the primary trigger for Familiar marking — card stack of attendees with Mark Familiar / Connect / Skip actions, plus batch "Mark all" option. Care services gate on Connected status. Connection model is universal (no separate provider relationships). Trust ladder replaced by contextual signals. Only locked-profile users can mark Familiar (Open users skip to Connect). You can only mark someone Familiar if their profile is visible to you (not locked).
+**Resolved:** Familiar is one-sided, silent (no notification). Connected is mutual. Post-meet review flow is the primary trigger for Familiar marking. Care services gate on Connected status. Connection model is universal (no separate provider relationships).
+
+**Resolved (2026-04-27, Trust & Visibility Pass + Meets Deep Pass walkthrough):**
+
+- **Action matrix v3 — Familiar gates Connect app-wide for locked viewers.** Locked viewers see only Familiar in the unmarked state; Connect appears only after marking. The trust gradient (Familiar before Connect) is now enforced in the UI. Open viewers skip Familiar entirely (it's redundant — their profile is already public).
+- **Deniability principle.** Privacy of Familiar marks is preserved by deniability about the cause, not by absence of effect. When a card is bumped to Tier 2 in the receiver's view, multiple actions could explain it (bulk Familiar, profile-visibility toggle, etc.) — the receiver cannot infer specific intent. Implementation guardrails: no UI surface explains WHY a row was promoted; surface contextual signals like "you were both at last week's walk" instead. Lives in `lib/personActions.ts` (matrix), `lib/meetUtils.ts:getAttendeeTier` (tier logic, bumps on inbound `theyMarkedFamiliar`), `components/people/PersonRow.tsx` (pill suppression rules), `components/ui/ConnectionIcon.tsx` (single rendering across directions).
+- **Post-meet review architecture.** Owner-forward `AttendeeActionCard` with state-grouped sections (Not Familiar / Familiar / Connected / Locked profiles), inline-pill-evolves footer pattern (Familiar → Connect → Connect ✓ + ✓Familiar/Undo footer), profile-state-aware explainer. Skip removed (section position carries the "I'm not acting on this" meaning).
 
 **Open:**
 - How many IRL interactions before users feel comfortable going Familiar → Connected?
 - Will Locked users feel excluded or empowered?
 - Should the post-meet review flow trigger immediately after the meet ends, or after a delay (e.g. next morning)?
+- **Pre-meet vs post-meet disclosure model on the People tab (P32).** Should information about meet attendees be openly visible pre-meet (current model) or gated by attendance (community-first thesis)? Direction emerging: **information** stays open (drives conversion + lets users scope events); **action / relationship building** is gated by attendance (Familiar / Connect pills appear only post-meet for attendees, never for no-shows). The "earned reward" for showing up is the deepening, not the visibility. Implementation cascade depends on P27 (avatar pattern) — to ship before first-round testing.
 - **Hybrid trust model:** Should Doggo offer lightweight top-down trust signals (verified ID, community participation score, "X shared connections") alongside community-built trust? Fluv's vetting-first model shows users want some confidence before committing, even if Doggo's community trust is deeper long-term. See `docs/strategy/Competitive Research - Fluv.md`.
 - Should there be an "intro session" (free/reduced first meeting) for owners booking a provider they haven't met at community events?
+- **Soft Familiar indicator across the app (P29).** Showing "you've marked this person Familiar" on profile cards / group members / attendee lists — privacy-safe (your own data), but a real product call about how visible to make the user's own relationship state.
+- **Bulk "Mark everyone Familiar" on group Members tab.** Convenience optimization for routine groups where the user knows everyone. Tension: the Familiar mark's value is its deliberateness — it means "I recognize this person." Bulk-marking everyone in a group dilutes that signal, and applies expanded profile-visibility grants to people the user may have never met. The post-meet review's bulk-mark works because attendance IS the shared trust event; group membership doesn't carry that same per-person signal. Two implementation paths if pursued: (a) dynamic auto-marking — new members who join later are auto-Familiar-ed (privacy concern: granting visibility to future strangers); (b) snapshot — only current members at click time get marked, new members miss the bulk action. Both have drawbacks. Defer until we have more data on how users actually want this to behave; revisit during user testing or after Mock World Building when we can dogfood the manual per-row flow more.
 
 ---
 
@@ -73,7 +82,7 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 - What does the session completion flow look like for providers? (Visit report card: photos, notes, GPS summary, timestamps — see `docs/strategy/Competitive Research - Time To Pet.md`)
 - Should owners receive real-time updates during active care sessions (live GPS, mid-session photos)?
 - What pet info should surface in the provider's "in-session" view? (medication, vet contact, behavioural notes, emergency info)
-- **Lock vs. Tier reconciliation.** Profile Lock (privacy) and Provider Tier (Helper/Provider service visibility) currently overlap in how they describe service visibility. `features/profiles.md` describes Lock as the gate for service visibility ("only Familiar/Connected can see services when Locked"); `Groups & Care Model.md` says Helper tier = Connected-only service visibility. Needs a product decision: are these coexisting mechanisms (Lock = general profile privacy, Tier = service-specific visibility) or does one supersede the other? Feature doc alignment follows the decision. Best resolved during Community & Groups Deep Pass or Discover & Care Deep Pass.
+- ~~**Lock vs. Tier reconciliation.**~~ **Resolved 2026-04-29 (Community & Groups Deep Pass F1):** Lock = visibility (privacy axis — who can see the profile). Tier = action (action axis — who can act on services). Independent settings that compose. Provider tier on a Locked profile narrows the action audience to Familiar/Connected viewers (intersection of Lock visibility + Tier action gate); platform shows a banner advising Open for Provider-tier carers. Updated `features/profiles.md` and `Groups & Care Model.md` with the framing + composition matrix.
 
 ---
 

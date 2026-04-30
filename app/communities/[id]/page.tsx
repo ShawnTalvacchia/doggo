@@ -31,10 +31,18 @@ import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CardMeet } from "@/components/meets/CardMeet";
 import { PersonRow } from "@/components/people/PersonRow";
+import {
+  SectionHeader,
+  MetaDivider,
+  LockedChipList,
+} from "@/components/people/PersonSections";
 import { getGroupById, getGroupMeets } from "@/lib/mockGroups";
 import { getPostsByGroup } from "@/lib/mockPosts";
 import { getConnectionState } from "@/lib/mockConnections";
+import { getUserById } from "@/lib/mockUsers";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import type { ConnectionState, GroupMember } from "@/lib/types";
+import type { PersonAction } from "@/lib/personActions";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { usePostComposer } from "@/contexts/PostComposerContext";
 import { useMeetComposer } from "@/contexts/MeetComposerContext";
@@ -69,7 +77,7 @@ function getTabsForGroup(group: Group, hasPhotos: boolean) {
       case "care": {
         const cfg = group.careConfig;
         const tabs = [{ key: "feed", label: "Feed" }];
-        if (cfg?.eventsEnabled !== false) tabs.push({ key: "events", label: "Events" });
+        if (cfg?.eventsEnabled !== false) tabs.push({ key: "meets", label: "Meets" });
         if (cfg?.serviceListingsVisible !== false) tabs.push({ key: "services", label: "Services" });
         tabs.push({ key: "members", label: "Members" });
         return tabs;
@@ -174,7 +182,6 @@ function GroupDetailInner() {
   const headerAction = isMember ? (() => {
     switch (activeTab) {
       case "meets":
-      case "events":
         return (
           <ButtonAction variant="primary" size="sm" cta leftIcon={<Plus size={14} weight="bold" />} onClick={() => openMeetComposer({ groupId: group.id })}>
             Create
@@ -238,8 +245,8 @@ function GroupDetailInner() {
           />
         )}
 
-        {(activeTab === "meets" || activeTab === "events") && (
-          <MeetsTab group={group} groupMeets={groupMeets} isCare={isCare} />
+        {activeTab === "meets" && (
+          <MeetsTab group={group} groupMeets={groupMeets} />
         )}
 
         {activeTab === "services" && isCare && (
@@ -445,12 +452,16 @@ function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, join
   );
 }
 
-/* ── Meets / Events tab ───────────────────────────────────────── */
+/* ── Meets tab ───────────────────────────────────────── */
 
-function MeetsTab({ group, groupMeets, isCare }: { group: Group; groupMeets: Meet[]; isCare: boolean }) {
+function MeetsTab({ group, groupMeets }: { group: Group; groupMeets: Meet[] }) {
   const { openComposer: openMeetComposer } = useMeetComposer();
-  const noun = isCare ? "events" : "meets";
-  const nounSingular = isCare ? "event" : "meet";
+  // Unified "meets" terminology app-wide 2026-04-27 — care groups
+  // previously used "events" framing for tab + copy, but the data
+  // model is `Meet` everywhere and the dual naming created drift.
+  // Care providers can still use formal language in their meet titles.
+  const noun = "meets";
+  const nounSingular = "meet";
 
   return (
     <div className="flex flex-col">
@@ -480,41 +491,250 @@ function MeetsTab({ group, groupMeets, isCare }: { group: Group; groupMeets: Mee
 
 /* ── Members tab ───────────────────────────────────────────────── */
 
+/**
+ * Group Members tab — section-grouped by role + relationship state, mirroring
+ * the People tab pattern (`ParticipantList`):
+ *
+ *   ADMINS (all role==="admin", regardless of connection state)
+ *   ── MetaDivider ──
+ *   CONNECTED (non-admin, viewer pinned to top)
+ *   FAMILIAR (non-admin, outbound state)
+ *   [other tier-1/2 non-admin, unlabeled — preserves deniability for inbound
+ *     theyMarkedFamiliar marks]
+ *   LOCKED PROFILES chip list (non-admin tier-3)
+ *
+ * Action availability: Members tab does NOT gate on past meet attendance.
+ * Group co-membership is the context signal — users recognise each other
+ * from real-world meetings or from group context itself. Each row gets
+ * matrix-resolved actions ("auto"); the row's pill renders one inline CTA
+ * adapted to the relationship state (no right-side action buttons —
+ * `PersonRow`'s `group-member` variant suppresses them). The People tab
+ * still gates on attendance (warm-moment context); Members tab is the
+ * softer, persistent action surface. See `Trust & Connection Model.md` →
+ * Meet participant visibility rules for the full split.
+ */
+
+interface TieredMember extends GroupMember {
+  tier: 1 | 2 | 3;
+  connectionState: ConnectionState;
+  theyMarkedFamiliar?: boolean;
+  profileOpen?: boolean;
+  careTier?: "helper" | "provider";
+  rowActions: PersonAction[] | "auto";
+}
+
 function MembersTab({ group }: { group: Group }) {
-  const currentUserId = useCurrentUserId();
+  const viewerId = useCurrentUserId();
+
+  // Local session marks — track per-member Familiar/Connect ladder state.
+  // Mirrors the post-meet review's `AttendeeActionCard` pattern (button
+  // advances + footer Undo). Session-scoped: lost on navigation away from
+  // this group's Members tab. Persistent unmarks happen elsewhere
+  // (profile, connections list) per the demo limitation also acknowledged
+  // by the post-meet review sheet.
+  const [localMarks, setLocalMarks] = useState<Record<string, "familiar" | "connect">>({});
+
+  const handleAdvance = (memberId: string) => {
+    setLocalMarks((prev) => {
+      const current = prev[memberId];
+      const next = current === "familiar" ? "connect" : "familiar";
+      return { ...prev, [memberId]: next };
+    });
+  };
+
+  const handleDowngrade = (memberId: string) => {
+    setLocalMarks((prev) => ({ ...prev, [memberId]: "familiar" }));
+  };
+
+  const handleUndoMark = (memberId: string) => {
+    setLocalMarks((prev) => {
+      const next = { ...prev };
+      delete next[memberId];
+      return next;
+    });
+  };
+
+  // Resolve tier + careTier + action gating per member. Same shape as
+  // ParticipantList's tier() — duplicated rather than extracted because the
+  // member shape differs slightly (Group.members vs Meet.attendees) and the
+  // logic is small.
+  const tier = (m: GroupMember): TieredMember => {
+    const isSelf = m.userId === viewerId;
+    const conn = getConnectionState(m.userId, viewerId);
+    const baseState: ConnectionState = isSelf ? "connected" : (conn?.state ?? "none");
+    // Apply session marks — local Familiar/Connect ladder state overrides
+    // the underlying connection state when present. PersonRow's mark prop
+    // separately drives the body button label + footer; this state is so
+    // the matrix correctly resolves the next-step actions (e.g. Connect
+    // becomes available once Familiar is marked).
+    const localMark = localMarks[m.userId];
+    const state: ConnectionState =
+      localMark && baseState === "none" ? "familiar" : baseState;
+    const theyMarkedFamiliar = conn?.theyMarkedFamiliar;
+    // `profileOpen` falls back to the subject's UserProfile.profileVisibility
+    // when the connection record doesn't carry it. Without this fallback,
+    // viewers with no prior connection record (e.g. Daniel viewing Shawn,
+    // who they've never interacted with) get profileOpen=undefined → matrix
+    // defaults false → Connect path never surfaces even when the subject is
+    // openly discoverable.
+    const subject = getUserById(m.userId);
+    const profileOpen =
+      conn?.profileOpen ?? subject?.profileVisibility === "open";
+
+    // Tier rules: self = tier 1; Connected = tier 1; Familiar (either
+    // direction) / Pending / Open = tier 2; everything else = tier 3.
+    let memberTier: 1 | 2 | 3;
+    if (isSelf || state === "connected") {
+      memberTier = 1;
+    } else if (
+      state === "familiar" ||
+      state === "pending" ||
+      theyMarkedFamiliar ||
+      profileOpen
+    ) {
+      memberTier = 2;
+    } else {
+      memberTier = 3;
+    }
+
+    // Helper/Provider tier badge resolution. Helper has a privacy gate
+    // (Connected viewers only); Provider is public. See
+    // `docs/implementation/badges.md`. Reuses the `subject` lookup from
+    // the profileOpen fallback above.
+    let careTier: "helper" | "provider" | undefined;
+    if (subject?.carerProfile) {
+      if (subject.carerProfile.publicProfile) {
+        careTier = "provider";
+      } else if (isSelf || state === "connected") {
+        careTier = "helper";
+      }
+    }
+
+    // Group co-membership IS the context signal — Members tab doesn't gate
+    // on past meet attendance. Reasoning: users recognise each other from
+    // real-world meetings (outside the platform) or from group context
+    // itself, and gating on platform attendance is overly strict. The
+    // People tab still gates (warm-moment context); Members tab is a
+    // softer, persistent action surface. Self-row always info-only.
+    const rowActions: PersonAction[] | "auto" = isSelf ? [] : "auto";
+
+    return {
+      ...m,
+      tier: memberTier,
+      connectionState: state,
+      theyMarkedFamiliar,
+      profileOpen,
+      careTier,
+      rowActions,
+    };
+  };
+
+  const tiered = group.members.map(tier);
+
+  // Admins go in their own section regardless of connection state — role is
+  // its own grouping axis. Non-admins partition by tier + connection state.
+  const admins = tiered.filter((m) => m.role === "admin");
+  const nonAdmins = tiered.filter((m) => m.role !== "admin");
+
+  const connected = nonAdmins.filter((m) => m.connectionState === "connected");
+  const familiarOutbound = nonAdmins.filter((m) => m.connectionState === "familiar");
+  const otherTier12 = nonAdmins.filter(
+    (m) =>
+      m.tier !== 3 &&
+      m.connectionState !== "connected" &&
+      m.connectionState !== "familiar",
+  );
+  const locked = nonAdmins.filter((m) => m.tier === 3);
+
+  // Pin viewer to top of the connected subsection.
+  connected.sort((a, b) => {
+    if (a.userId === viewerId) return -1;
+    if (b.userId === viewerId) return 1;
+    return 0;
+  });
+
+  const renderRow = (m: TieredMember) => {
+    const fallbackContext =
+      m.dogNames.length === 0 && m.joinedAt
+        ? `Joined ${new Date(m.joinedAt).toLocaleDateString("en-GB", {
+            month: "short",
+            year: "numeric",
+          })}`
+        : undefined;
+    return (
+      <PersonRow
+        key={m.userId}
+        variant="group-member"
+        userId={m.userId}
+        name={m.userName}
+        avatarUrl={m.avatarUrl}
+        isSelf={m.userId === viewerId}
+        // `isAdmin` intentionally omitted — admins always render under the
+        // ADMINS section header in this view, so a per-card pill is
+        // redundant. The PersonRow `isAdmin` prop stays available for
+        // surfaces that don't section-group.
+        pets={m.dogNames.map((name) => ({ name }))}
+        contextLine={fallbackContext}
+        connectionState={m.connectionState}
+        theyMarkedFamiliar={m.theyMarkedFamiliar}
+        profileOpen={m.profileOpen}
+        careTier={m.careTier}
+        actions={m.rowActions}
+        mark={localMarks[m.userId] ?? null}
+        onAdvance={() => handleAdvance(m.userId)}
+        onDowngradeMark={() => handleDowngrade(m.userId)}
+        onUndoMark={() => handleUndoMark(m.userId)}
+      />
+    );
+  };
+
+  const showAdmins = admins.length > 0;
+  const showConnected = connected.length > 0;
+  const showFamiliar = familiarOutbound.length > 0;
+  const showOther = otherTier12.length > 0;
+  const showLocked = locked.length > 0;
+
+  // MetaDivider between Admins and the rest if both groups have content —
+  // signals "different grouping axis" (role vs relationship).
+  const showAdminsDivider =
+    showAdmins && (showConnected || showFamiliar || showOther || showLocked);
+
   return (
     <LayoutSection>
-      <div className="flex flex-col gap-sm">
-        {group.members.map((member) => {
-          const isYou = member.userId === currentUserId;
-          const conn = getConnectionState(member.userId, currentUserId);
-          const connectionState = conn?.state ?? "none";
-          // Fallback context line for members with no dogs — keeps the row's
-          // vertical proportions consistent with dog-having members. "Joined"
-          // is more useful than nothing at all.
-          const fallbackContext =
-            member.dogNames.length === 0 && member.joinedAt
-              ? `Joined ${new Date(member.joinedAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}`
-              : undefined;
+      <section className="flex flex-col gap-md">
+        {showAdmins && <SectionHeader label="Admins" />}
+        {showAdmins && (
+          <div className="flex flex-col gap-sm">{admins.map(renderRow)}</div>
+        )}
 
-          return (
-            <PersonRow
-              key={member.userId}
-              variant="group-member"
-              userId={member.userId}
-              name={member.userName}
-              avatarUrl={member.avatarUrl}
-              isSelf={isYou}
-              isAdmin={member.role === "admin"}
-              pets={member.dogNames.map((name) => ({ name }))}
-              contextLine={fallbackContext}
-              connectionState={connectionState}
-              theyMarkedFamiliar={conn?.theyMarkedFamiliar}
-              profileOpen={conn?.profileOpen}
-            />
-          );
-        })}
-      </div>
+        {showAdminsDivider && <MetaDivider />}
+
+        {showConnected && <SectionHeader label="Connected" />}
+        {showConnected && (
+          <div className="flex flex-col gap-sm">{connected.map(renderRow)}</div>
+        )}
+
+        {showFamiliar && <SectionHeader label="Familiar" />}
+        {showFamiliar && (
+          <div className="flex flex-col gap-sm">
+            {familiarOutbound.map(renderRow)}
+          </div>
+        )}
+
+        {showOther && (
+          <div className="flex flex-col gap-sm">{otherTier12.map(renderRow)}</div>
+        )}
+
+        {showLocked && (
+          <LockedChipList
+            entries={locked.map((m) => ({
+              userId: m.userId,
+              name: m.userName,
+              avatarUrl: m.avatarUrl,
+            }))}
+          />
+        )}
+      </section>
     </LayoutSection>
   );
 }

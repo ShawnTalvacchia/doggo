@@ -12,19 +12,47 @@
  * Action affordances are resolved by `resolvePersonActions` (lib/personActions.ts)
  * unless the caller passes an explicit `actions` array. See the A1 spec on the
  * Trust & Visibility Pass phase board for the full API contract.
+ *
+ * Info-only mode: pass `actions={[]}` to suppress ALL action affordances
+ * (right-side Connect/Message buttons + inline Familiar toggle pill). Pending
+ * pill still renders (status, not action). Used by surfaces that gate action
+ * by context — e.g. People tab when the viewer didn't attend the meet, Group
+ * Members tab when there's no shared meet history. Single gating rule
+ * (`viewerSharedMeetWith`) applied app-wide; see Community & Groups Deep Pass
+ * board + `Trust & Connection Model.md` → "Meet participant visibility rules".
  */
 
 import Link from "next/link";
 import { PawPrint } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
+import { OwnerDogAvatar } from "@/components/people/OwnerDogAvatar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { getDogImageByOwnerAndName } from "@/lib/dogLookup";
 import {
   resolvePersonActions,
   type PersonAction,
 } from "@/lib/personActions";
 import type { ConnectionState } from "@/lib/types";
+
+/**
+ * Format a dog name list for the secondary text line below the owner name.
+ *
+ *   0 dogs → empty (caller hides the line)
+ *   1 dog  → "Bára"
+ *   2 dogs → "Bára and Eda"
+ *   3+     → "Bára, +N more"  (where N = total − 1; matches the Figma mock)
+ *
+ * Differs from `PostMeetReviewSheet`'s formatDogNames (which uses
+ * "Bára, Eda + 2") — the People-tab pattern emphasises the first dog and
+ * collapses the rest into a "+N more" suffix, paired visually with the
+ * "+N" chip in the OwnerDogAvatar's dog cluster.
+ */
+function formatPetsLine(names: string[]): string {
+  if (names.length === 0) return "";
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} and ${names[1]}`;
+  return `${names[0]}, +${names.length - 1} more`;
+}
 
 export type PersonRowVariant =
   | "meet-attendee"
@@ -53,17 +81,50 @@ export interface PersonRowProps {
   // Variant extras
   contextLine?: string;          // e.g. "Joining Saturday's walk"
   isAdmin?: boolean;             // group-member only
-  isCareProvider?: boolean;      // meet-attendee + group-member: small "Care" badge
+  /**
+   * Care tier badge — derived from `UserProfile.carerProfile.publicProfile`
+   * by the consumer. Helper-tier visibility is the consumer's job to gate:
+   * pass `"helper"` only when the viewer is Connected to the subject (or
+   * is the subject themselves), otherwise pass `undefined`. Provider tier
+   * has no privacy gate. See `docs/implementation/badges.md`.
+   */
+  careTier?: "helper" | "provider";
   messagePreview?: string;       // inbox-conversation only
   timeAgo?: string;              // inbox-conversation only
   unreadDot?: boolean;           // inbox-conversation only
 
   // Actions
-  /** Default `"auto"` resolves via the matrix. Pass an array to override. */
+  /**
+   * Default `"auto"` resolves via `resolvePersonActions` (the matrix).
+   * Pass an array to override. Pass `[]` (empty array) for info-only mode
+   * — suppresses the action button. The Pending status pill still renders.
+   */
   actions?: PersonAction[] | "auto";
+
+  /**
+   * Session mark — when set, indicates the viewer has just marked the
+   * subject in this session. Drives the body button's ladder progression
+   * AND the footer rendering. Mirrors the post-meet review's `AttendeeActionCard`
+   * pattern. State managed by the consumer (e.g. `MembersTab` keeps a
+   * `Record<userId, "familiar" | "connect">`); session-scoped — lost on
+   * navigation away. Cross-surface persistence is Mock World Building scope.
+   *
+   * Ladder semantics (matches post-meet review):
+   *   - `null` (no mark) + matrix permits familiar(off) → button shows "+ Familiar"
+   *   - `"familiar"` + matrix permits connect → button shows "Connect" (escalation)
+   *   - `"familiar"` + no connect available → button hidden (footer carries state)
+   *   - `"connect"` → button shows "Connect ✓" (committed; tap downgrades to familiar)
+   * Footer renders when mark !== null with "✓ Familiar | Undo".
+   */
+  mark?: "familiar" | "connect" | null;
+  /** Advance the mark one step up the ladder. */
+  onAdvance?: () => void;
+  /** Clear the mark entirely (back to null) — wired to footer Undo. */
+  onUndoMark?: () => void;
+  /** Downgrade from connect → familiar (tap on "Connect ✓" button). */
+  onDowngradeMark?: () => void;
+
   onConnect?: () => void;
-  onMarkFamiliar?: () => void;
-  onUnmarkFamiliar?: () => void;
   onMessage?: () => void;
 
   // Selection mode (Workstream E3/E4)
@@ -77,25 +138,25 @@ export interface PersonRowProps {
 }
 
 /**
- * Pill rendering rule (Trust & Visibility deniability + de-emphasis pass):
+ * Pill rendering rule (post-meet-review-aligned, single inline action):
  *
- * - `connected`             → no pill. The Message CTA exclusively appears for
- *                             Connected users, so a "Connected" pill would just
- *                             duplicate what the CTA already signals.
- * - `pending`               → display-only pill (no other affordance signals
- *                             the in-flight state, so the pill earns its keep).
- * - `familiar` (outbound)   → "Familiar ✓" pill that toggles off on tap. The
- *                             pill IS the affordance — no separate button.
- * - `none` + matrix has familiar(off) → "+ Familiar" outlined pill, taps to
- *                             mark Familiar. Quieter than a button by design;
- *                             the action is the on-ramp, not the headline CTA.
- *                             Renders identically whether or not the subject
- *                             marked the viewer Familiar (deniability — no
- *                             per-row variation by direction).
+ * - `connected`             → no pill. The Message button on the right side
+ *                             carries the signal.
+ * - `pending`               → display-only pill in the name area. Status,
+ *                             not action — renders regardless of whether
+ *                             actions are suppressed.
+ * - All other states (Familiar / None / etc.) → no name-area pill. The
+ *                             single right-side action button carries
+ *                             everything (Familiar toggle, "+ Familiar"
+ *                             on-ramp, Connect, Message). Aligns with the
+ *                             post-meet review's `AttendeeActionCard`
+ *                             pattern — one inline action affordance per
+ *                             row, adapts to relationship state.
  *
- * Net effect: non-Connected rows draw attention (via their pill); Connected
- * rows are visually quiet (just identity + CTA). The right-side action area
- * only ever holds Connect or Message — primary CTA always far-right.
+ * Info-only mode: pass `actions={[]}` (an empty array) to suppress the
+ * right-side action button. Pending status pill still renders (it's
+ * status, not action). Used by surfaces that gate action by context —
+ * e.g. the People tab when the viewer didn't attend the meet.
  */
 const DISPLAY_PILL: Partial<Record<ConnectionState, { label: string; className: string }>> = {
   pending: {
@@ -117,14 +178,16 @@ export function PersonRow(props: PersonRowProps) {
     profileOpen = false,
     contextLine,
     isAdmin = false,
-    isCareProvider = false,
+    careTier,
+    mark = null,
+    onAdvance,
+    onUndoMark,
+    onDowngradeMark,
     messagePreview,
     timeAgo,
     unreadDot = false,
     actions = "auto",
     onConnect,
-    onMarkFamiliar,
-    onUnmarkFamiliar,
     onMessage,
     selectMode = false,
     selected = false,
@@ -153,61 +216,78 @@ export function PersonRow(props: PersonRowProps) {
       : `/profile/${userId}`;
   const targetHref = href ?? (isSelf ? "/profile" : defaultHref);
 
-  // Resolve dog avatars internally
-  const petsWithImage = (pets ?? []).map((p) => ({
-    ...p,
-    imageUrl: getDogImageByOwnerAndName(userId, p.name),
-  }));
-  const petsLine = petsWithImage.map((p) => p.name).join(", ");
-
   const isInbox = variant === "inbox-conversation";
-  // Inbox stays denser (44px owner) — chat-list shape. Other surfaces use 64px
-  // owner / 38px dog. Owner stays a circle (humans = circles); dogs use
-  // rounded-md (12px) for visual differentiation between the two roles.
-  const ownerAvatarSize = isInbox ? 44 : 64;
-  const dogAvatarSize = 38;
+  // Inbox stays denser (44px owner, no dog avatars) — chat-list shape.
+  // Non-inbox variants use OwnerDogAvatar (64px owner + 32px dogs overlapping
+  // the bottom-right) — dogs are siblings of the owner inside the combo, so
+  // the identity column sits AFTER the entire avatar cluster. The owner
+  // name is naturally offset to the right of the dog cluster; that's
+  // the intended layout per the Figma reference.
+  const inboxOwnerSize = 44;
 
-  // Pill rendering — see DISPLAY_PILL doc-comment above for the full rule.
-  // The Familiar pill is the toggle; the right-side action area only carries
-  // Connect / Message.
-  const familiarMatrixAction = resolvedActions.find((a) => a.kind === "familiar");
-  type PillRender =
-    | { kind: "display"; label: string; className: string }
-    | { kind: "toggle-on"; label: string; className: string; onClick: () => void }
-    | { kind: "toggle-off"; label: string; className: string; onClick: () => void };
+  // Build the secondary text line (used in the identity column under the
+  // name). Non-inbox variants render dog images via `OwnerDogAvatar` in the
+  // avatar slot and use this text line as the dog name caption ("Bára and
+  // Eda" / "Bára, +N more"). Inbox compresses to a concatenated text line
+  // with a paw icon (chat-list shape, no per-dog avatars).
+  const dogNames = (pets ?? []).map((p) => p.name);
+  const petsLine = isInbox ? dogNames.join(", ") : formatPetsLine(dogNames);
 
-  const pillRender: PillRender | null = (() => {
-    if (isSelf) return null;
-    const display = DISPLAY_PILL[connectionState];
-    if (display) return { kind: "display", ...display };
-    if (connectionState === "familiar") {
-      return {
-        kind: "toggle-on",
-        label: "Familiar ✓",
-        className: "person-row-pill person-row-pill--familiar",
-        onClick: onUnmarkFamiliar ?? (() => {}),
-      };
+  // Status pill (display-only) — only renders for Pending state. Familiar
+  // and None states render no name-area pill; the single right-side action
+  // button carries those affordances.
+  const pillRender = DISPLAY_PILL[connectionState] ?? null;
+
+  // Single inline action — adapts to the relationship state AND the
+  // session mark (set by the consumer). Ladder progression:
+  //
+  //   mark === null:
+  //     - matrix has familiar(off) → "+ Familiar" (advance to mark="familiar")
+  //     - matrix has connect (open viewer) → "Connect" (advance to mark="connect")
+  //     - state === "connected" → "Message"
+  //   mark === "familiar":
+  //     - matrix has connect → "Connect" (advance to mark="connect")
+  //     - else → no body button (footer carries the mark state)
+  //   mark === "connect":
+  //     - "Connect ✓" committed (tap downgrades to mark="familiar")
+  //
+  // Inbox suppresses entirely (whole-row click is the affordance).
+  const familiarOff = resolvedActions.find(
+    (a): a is { kind: "familiar"; state: "off" } =>
+      a.kind === "familiar" && a.state === "off",
+  );
+  const messageAction = resolvedActions.find((a) => a.kind === "message");
+  const connectAction = resolvedActions.find((a) => a.kind === "connect");
+
+  type SingleAction =
+    | { kind: "familiar-off"; onClick: () => void }
+    | { kind: "connect"; onClick: () => void }
+    | { kind: "connect-committed"; onClick: () => void }
+    | { kind: "message"; onClick?: () => void };
+
+  const singleAction: SingleAction | null = (() => {
+    if (isSelf || isInbox || selectMode) return null;
+    if (mark === "connect") {
+      return { kind: "connect-committed", onClick: onDowngradeMark ?? (() => {}) };
     }
-    if (
-      connectionState === "none" &&
-      familiarMatrixAction?.kind === "familiar" &&
-      familiarMatrixAction.state === "off"
-    ) {
-      return {
-        kind: "toggle-off",
-        label: "+ Familiar",
-        className: "person-row-pill person-row-pill--familiar-off",
-        onClick: onMarkFamiliar ?? (() => {}),
-      };
+    if (mark === "familiar") {
+      // After marking Familiar — body button offers escalation when matrix permits.
+      // If no connect available (e.g., locked-locked viewer-subject), body is empty;
+      // footer carries the mark state.
+      if (connectAction) return { kind: "connect", onClick: onAdvance ?? (() => {}) };
+      return null;
     }
+    // mark === null — drive from matrix
+    if (messageAction) return { kind: "message", onClick: onMessage };
+    if (familiarOff) return { kind: "familiar-off", onClick: onAdvance ?? (() => {}) };
+    if (connectAction) return { kind: "connect", onClick: onAdvance ?? (() => {}) };
     return null;
   })();
 
-  // Right-side action area: only Connect / Message (Familiar lives in the pill).
-  const rightActions = resolvedActions.filter(
-    (a) => a.kind === "connect" || a.kind === "message",
-  );
-  const showActions = !selectMode && rightActions.length > 0;
+  // Footer renders when mark !== null OR singleAction is present (the row's
+  // card chrome wraps both). Body row always shows; footer is conditional.
+  const showActions = singleAction !== null;
+  const showFooter = !isInbox && !selectMode && mark !== null;
 
   // Inbox-conversation wraps the whole row in a Link (no action buttons compete).
   // Other variants keep the row as a div with avatar+name as inner Links.
@@ -233,7 +313,10 @@ export function PersonRow(props: PersonRowProps) {
         </button>
       )}
 
-      {/* Avatar — owner stays a circle (humans = circles convention) */}
+      {/* Avatar — inbox uses 44px circle (chat-list shape); other variants
+          use OwnerDogAvatar (64px owner + 32px dogs overlapping bottom-right).
+          Dogs are siblings of the owner inside the combo, so the identity
+          column starts AFTER the full cluster. */}
       {isInbox ? (
         <span className="person-row-avatar relative shrink-0">
           {avatarUrl ? (
@@ -241,10 +324,10 @@ export function PersonRow(props: PersonRowProps) {
               src={avatarUrl}
               alt=""
               className="rounded-full object-cover"
-              style={{ width: ownerAvatarSize, height: ownerAvatarSize }}
+              style={{ width: inboxOwnerSize, height: inboxOwnerSize }}
             />
           ) : (
-            <DefaultAvatar name={name} size={ownerAvatarSize} />
+            <DefaultAvatar name={name} size={inboxOwnerSize} />
           )}
           {unreadDot && (
             <span
@@ -255,23 +338,43 @@ export function PersonRow(props: PersonRowProps) {
           )}
         </span>
       ) : (
-        <Link href={targetHref} className="person-row-avatar shrink-0" aria-label={name}>
-          {avatarUrl ? (
-            <img
-              src={avatarUrl}
-              alt=""
-              className="rounded-full object-cover"
-              style={{ width: ownerAvatarSize, height: ownerAvatarSize }}
-            />
-          ) : (
-            <DefaultAvatar name={name} size={ownerAvatarSize} />
-          )}
+        <Link
+          href={targetHref}
+          className="person-row-avatar shrink-0 block h-16"
+          aria-label={name}
+        >
+          <OwnerDogAvatar
+            userId={userId}
+            name={name}
+            avatarUrl={avatarUrl}
+            dogNames={dogNames}
+          />
         </Link>
       )}
 
-      {/* Identity column */}
-      <div className="person-row-identity flex flex-col gap-xs flex-1 min-w-0">
-        <div className="person-row-name-row flex items-center gap-xs min-w-0">
+      {/* Identity column. For non-inbox variants:
+          - Parent column locked to 64px so it matches the avatar height
+            for clean flex-centering by the row container.
+          - name-row is 32px tall with `marginLeft: -16px` — pulled LEFT
+            into the empty space above the dog cluster (dogs sit at the
+            bottom-right of the owner avatar, so the upper-right area is
+            free for the name to extend into).
+          - Pet text uses `leading-8` (32px line-height) and stays in
+            its natural position. The horizontal offset on the name
+            creates visual asymmetry — name juts leftward toward the
+            owner, pet text holds the standard column position. That
+            asymmetry gives consecutive cards distinction instead of
+            blurring into a uniform two-row rhythm. */}
+      <div
+        className={`person-row-identity flex flex-col flex-1 min-w-0 ${
+          isInbox ? "gap-xs" : "h-16"
+        }`}
+      >
+        <div
+          className={`person-row-name-row flex items-center gap-xs min-w-0 ${
+            isInbox ? "" : "h-8 -ml-3"
+          }`}
+        >
           {isInbox ? (
             <span
               className={`person-row-name text-sm text-fg-primary truncate flex-1 ${
@@ -284,36 +387,23 @@ export function PersonRow(props: PersonRowProps) {
           ) : (
             <Link
               href={targetHref}
-              className="person-row-name text-sm font-medium text-fg-primary no-underline hover:underline truncate"
+              className="person-row-name text-sm font-semibold text-fg-primary no-underline hover:underline truncate leading-8"
             >
               {name}
-              {isSelf && <span className="text-fg-tertiary"> (you)</span>}
+              {isSelf && <span className="font-normal text-fg-tertiary"> (you)</span>}
             </Link>
           )}
           {pillRender && (
-            pillRender.kind === "display" ? (
-              <span className={pillRender.className}>{pillRender.label}</span>
-            ) : (
-              <button
-                type="button"
-                className={`${pillRender.className} person-row-pill--toggle`}
-                onClick={pillRender.onClick}
-                aria-pressed={pillRender.kind === "toggle-on"}
-                aria-label={
-                  pillRender.kind === "toggle-on"
-                    ? `Remove Familiar from ${name}`
-                    : `Mark ${name} as Familiar`
-                }
-              >
-                {pillRender.label}
-              </button>
-            )
+            <span className={pillRender.className}>{pillRender.label}</span>
           )}
           {isAdmin && variant === "group-member" && (
             <span className="person-row-pill person-row-pill--admin">Admin</span>
           )}
-          {isCareProvider && (variant === "meet-attendee" || variant === "group-member") && (
-            <span className="person-row-pill person-row-pill--care">Care</span>
+          {careTier === "provider" && (variant === "meet-attendee" || variant === "group-member") && (
+            <span className="person-row-pill person-row-pill--provider">Provider</span>
+          )}
+          {careTier === "helper" && (variant === "meet-attendee" || variant === "group-member") && (
+            <span className="person-row-pill person-row-pill--helper">Helper</span>
           )}
           {isInbox && timeAgo && (
             <span className="person-row-time text-xs text-fg-tertiary shrink-0 ml-auto">
@@ -322,7 +412,10 @@ export function PersonRow(props: PersonRowProps) {
           )}
         </div>
 
-        {/* Pets row — text-only with paw icon for inbox; with dog avatars for others */}
+        {/* Pets line — single combined text below the owner name. Non-inbox
+            uses `formatPetsLine` ("Bára" / "Bára and Eda" / "Bára, +N more")
+            paired with the dog avatars in OwnerDogAvatar. Inbox uses paw
+            icon + concatenated names (chat-list shape, no per-dog avatars). */}
         {petsLine && (
           isInbox ? (
             <span className="person-row-pets-text-only flex items-center gap-xs text-xs text-fg-tertiary truncate">
@@ -330,20 +423,7 @@ export function PersonRow(props: PersonRowProps) {
               {petsLine}
             </span>
           ) : (
-            <div className="person-row-pets-row flex items-center gap-sm min-w-0">
-              {petsWithImage.map((p, i) =>
-                p.imageUrl ? (
-                  <img
-                    key={`${p.name}-${i}`}
-                    src={p.imageUrl}
-                    alt=""
-                    className="person-row-pet-avatar rounded-md object-cover"
-                    style={{ width: dogAvatarSize, height: dogAvatarSize }}
-                  />
-                ) : null,
-              )}
-              <span className="text-sm text-fg-secondary truncate">{petsLine}</span>
-            </div>
+            <span className="text-sub text-fg-tertiary truncate leading-8">{petsLine}</span>
           )
         )}
 
@@ -365,64 +445,114 @@ export function PersonRow(props: PersonRowProps) {
         )}
       </div>
 
-      {/* Action area — only Connect / Message live here. Familiar is the pill. */}
-      {showActions && (
+      {/* Action area — single inline button per row, adapts to relationship
+          state + session mark. See `singleAction` resolution above for the
+          ladder priority. */}
+      {showActions && singleAction && (
         <div className="person-row-actions flex items-center gap-xs shrink-0">
-          {rightActions.map((action, i) =>
-            renderAction(action, i, { onConnect, onMessage }),
-          )}
+          {renderSingleAction(singleAction, name)}
         </div>
       )}
     </>
   );
 
-  return wrapAsLink ? (
-    <Link href={targetHref} onClick={onClick} className={rowClassName}>
-      {rowChildren}
-    </Link>
-  ) : (
-    <div className={rowClassName}>{rowChildren}</div>
+  // The footer appears below the body row when a session mark exists.
+  // Mirrors the post-meet review's `AttendeeActionCard` footer pattern —
+  // confirms what's just been marked + provides Undo. Session-scoped:
+  // disappears when the consumer clears its mark state (e.g. on nav away).
+  const footer = showFooter ? (
+    <div className="person-row-footer">
+      <span className="person-row-footer-confirm">
+        ✓ Familiar
+      </span>
+      <button
+        type="button"
+        className="person-row-footer-undo"
+        onClick={onUndoMark ?? (() => {})}
+        aria-label={`Undo Familiar mark on ${name}`}
+      >
+        Undo
+      </button>
+    </div>
+  ) : null;
+
+  // Layout: the outer `.person-row` wraps a body row + optional footer.
+  // When there's no footer (most surfaces, most rows), the body row IS
+  // the row. The body class drives the inline flex layout for inbox vs
+  // non-inbox; `.person-row` provides the panel chrome (border, background,
+  // padding, radius) and a flex-col when a footer renders.
+  if (wrapAsLink) {
+    return (
+      <Link href={targetHref} onClick={onClick} className={rowClassName}>
+        <div className="person-row-body">{rowChildren}</div>
+        {footer}
+      </Link>
+    );
+  }
+  return (
+    <div className={rowClassName}>
+      <div className="person-row-body">{rowChildren}</div>
+      {footer}
+    </div>
   );
 }
 
-function renderAction(
-  action: PersonAction,
-  i: number,
-  handlers: {
-    onConnect?: () => void;
-    onMessage?: () => void;
-  },
+/**
+ * Render the single inline action button per the resolved `singleAction`.
+ * Variant rules (Doggo convention):
+ *   - Message (Connected) — primary filled, brand color celebrates the
+ *     committed state.
+ *   - Connect ✓ (committed via session mark, tap downgrades to familiar)
+ *     — primary brand fill with check.
+ *   - Connect — secondary outlined, pre-commitment ask (escalation from
+ *     familiar OR open-viewer matrix path).
+ *   - + Familiar — outline (low-key), the on-ramp for marking.
+ */
+function renderSingleAction(
+  action:
+    | { kind: "familiar-off"; onClick: () => void }
+    | { kind: "connect"; onClick: () => void }
+    | { kind: "connect-committed"; onClick: () => void }
+    | { kind: "message"; onClick?: () => void },
+  name: string,
 ) {
-  // Variant rule (Doggo design-system convention):
-  //   Message = primary filled — brand color celebrates the committed state
-  //             (you're already Connected; this is the steady-state affordance).
-  //   Connect = secondary outlined — pre-commitment; the outline asks for the
-  //             action without claiming the brand-celebrated treatment yet.
-  if (action.kind === "connect") {
-    return (
-      <ButtonAction
-        key={`connect-${i}`}
-        variant="secondary"
-        size="sm"
-        cta
-        onClick={handlers.onConnect}
-      >
-        Connect
-      </ButtonAction>
-    );
-  }
   if (action.kind === "message") {
     return (
-      <ButtonAction
-        key={`message-${i}`}
-        variant="primary"
-        size="sm"
-        cta
-        onClick={handlers.onMessage}
-      >
+      <ButtonAction variant="primary" size="sm" cta onClick={action.onClick}>
         Message
       </ButtonAction>
     );
   }
-  return null;
+  if (action.kind === "connect-committed") {
+    return (
+      <ButtonAction
+        variant="primary"
+        size="sm"
+        cta
+        onClick={action.onClick}
+        aria-label={`Undo Connect for ${name}`}
+      >
+        Connect ✓
+      </ButtonAction>
+    );
+  }
+  if (action.kind === "connect") {
+    return (
+      <ButtonAction variant="secondary" size="sm" cta onClick={action.onClick}>
+        Connect
+      </ButtonAction>
+    );
+  }
+  // familiar-off
+  return (
+    <ButtonAction
+      variant="outline"
+      size="sm"
+      cta
+      onClick={action.onClick}
+      aria-label={`Mark ${name} as Familiar`}
+    >
+      + Familiar
+    </ButtonAction>
+  );
 }

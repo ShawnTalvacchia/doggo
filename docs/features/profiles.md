@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-23
+last-reviewed: 2026-04-29
 tags: [profile, pets, provider, edit, posts, tagging]
 review-trigger: "when modifying profile pages, pet cards, posts, or provider sections"
 ---
@@ -16,7 +16,25 @@ Owner profiles, pet profiles, posts, and care provider sections — all part of 
 
 Every user has one profile. There is no separate "provider account." Users who offer care have additional sections visible on the same profile (services, availability, reviews). The profile page serves double duty: it's how you manage your own identity/pets/settings, and it's how others learn about you and your dogs.
 
-The visibility of a user's services is determined by their **Provider Tier** (Owner / Helper / Provider), defined in `strategy/Groups & Care Model.md` → Provider Tiers on Profiles. This doc describes the profile UI and data model; the tier model defines what surfaces where and to whom.
+### Lock and Tier — orthogonal axes
+
+Two independent settings govern who can see a profile and who can act on its services:
+
+- **Lock (profile visibility):** controls who can **see** the profile and its content. Open = anyone; Locked = only Familiar/Connected viewers see expanded content. Privacy axis.
+- **Provider Tier:** controls who can **act** on services — book, inquire, transact. Owner = no services. Helper = Connected viewers only can act. Provider = anyone can act. Action axis. Defined in `strategy/Groups & Care Model.md` → Provider Tiers on Profiles.
+
+These are independent settings that compose:
+
+| Lock × Tier | Visibility | Service action |
+|---|---|---|
+| Open + Owner | Profile visible to anyone | No services to act on |
+| Open + Helper | Profile visible to anyone | Only Connected can book/inquire |
+| Open + Provider | Profile visible to anyone | Anyone can book/inquire |
+| Locked + Owner | Profile gated to Familiar/Connected | No services to act on |
+| Locked + Helper | Profile gated to Familiar/Connected | Subset of those viewers (Connected only) can book |
+| Locked + Provider | Profile gated to Familiar/Connected | Those viewers can book — note: makes the Provider's discoverability narrow, banner advises Open |
+
+The "Lock = visibility, Tier = action" framing replaces an earlier formulation that conflated the two (where Lock was described as gating service visibility specifically). Lock is the privacy setting; Tier is the service-readiness dial. Both apply.
 
 All profile pages use the **PageColumn + TabBar** pattern — the same layout as every other page in the app. No custom shell, no two-column desktop layout.
 

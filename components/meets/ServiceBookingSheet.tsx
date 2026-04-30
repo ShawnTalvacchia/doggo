@@ -188,7 +188,7 @@ export function ServiceBookingSheet({
               Your booking is confirmed. {meet.creatorName} will send any prep details closer to the day.
             </span>
           </div>
-          <div className="flex flex-col gap-xs items-center text-xs text-fg-tertiary">
+          <div className="flex flex-col gap-xs items-center text-sm text-fg-tertiary">
             <span>{meet.time} · {meet.location}</span>
             <span>{service.price} · paid on the day</span>
           </div>
