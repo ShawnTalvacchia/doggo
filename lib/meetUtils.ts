@@ -314,8 +314,17 @@ export function getAttendeeTier(
   const state = conn?.state ?? "none";
   const theyMarkedFamiliar = conn?.theyMarkedFamiliar ?? false;
   const isOpen = a.profileOpen ?? conn?.profileOpen ?? false;
+
+  // Tier promotion is about VIEWER visibility into SUBJECT, not the viewer's
+  // outbound actions. Outbound state="familiar" (viewer marked subject) is
+  // *the marker opening up to the marked* — it doesn't grant the viewer
+  // visibility into the subject. So we don't promote on outbound Familiar.
+  // Only inbound (`theyMarkedFamiliar`), Open, Pending, and Connected
+  // genuinely expose more of the subject to the viewer. See
+  // `Trust & Connection Model.md` → "What the Familiar mark does (and does
+  // not do)" for the asymmetry.
   if (state === "connected") return 1;
-  if (state === "familiar" || state === "pending" || theyMarkedFamiliar || isOpen) return 2;
+  if (state === "pending" || theyMarkedFamiliar || isOpen) return 2;
   return 3;
 }
 

@@ -12,6 +12,7 @@ import {
   UserCircle,
 } from "@phosphor-icons/react";
 import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const navItems: { label: string; href: string; Icon: PhosphorIcon; match: string[] }[] = [
   { label: "Community", href: "/home", Icon: Users, match: ["/home", "/communities", "/groups"] },
@@ -25,6 +26,7 @@ const navItems: { label: string; href: string; Icon: PhosphorIcon; match: string
 
 export function Sidebar() {
   const pathname = usePathname();
+  const currentUser = useCurrentUser();
 
   function isActive(match: string[]) {
     return match.some((m) => pathname === m || pathname.startsWith(m + "/"));
@@ -42,6 +44,8 @@ export function Sidebar() {
       <nav className="sidebar-nav" aria-label="Main navigation">
         {navItems.map(({ label, href, Icon, match }) => {
           const active = isOtherProfile ? false : isActive(match);
+          const isProfileTab = href === "/profile";
+          const showAvatar = isProfileTab && !!currentUser.avatarUrl;
           return (
             <Link
               key={href}
@@ -49,7 +53,15 @@ export function Sidebar() {
               className={`sidebar-nav-item${active ? " sidebar-nav-item--active" : ""}`}
               aria-current={active ? "page" : undefined}
             >
-              <Icon size={22} weight={active ? "fill" : "light"} />
+              {showAvatar ? (
+                <img
+                  src={currentUser.avatarUrl}
+                  alt=""
+                  className="sidebar-nav-avatar"
+                />
+              ) : (
+                <Icon size={22} weight={active ? "fill" : "light"} />
+              )}
               {label}
             </Link>
           );

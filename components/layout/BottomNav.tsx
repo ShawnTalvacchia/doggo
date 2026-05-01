@@ -10,6 +10,7 @@ import {
   MagnifyingGlass,
   UserCircle,
 } from "@phosphor-icons/react";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 const tabs = [
   { label: "Community", href: "/home", Icon: Users },
@@ -42,6 +43,7 @@ const hubRoutes = [
 function BottomNavInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const currentUser = useCurrentUser();
 
   // Build the full path with search params for matching
   const search = searchParams.toString();
@@ -71,6 +73,8 @@ function BottomNavInner() {
     <nav className="bottom-nav" aria-label="Main navigation">
       {tabs.map(({ label, href, Icon }) => {
         const isActive = activeHref === href;
+        const isProfileTab = href === "/profile";
+        const showAvatar = isProfileTab && !!currentUser.avatarUrl;
         return (
           <Link
             key={href}
@@ -78,7 +82,15 @@ function BottomNavInner() {
             className={`bottom-nav-tab${isActive ? " active" : ""}`}
             aria-current={isActive ? "page" : undefined}
           >
-            <Icon size={24} weight={isActive ? "fill" : "light"} />
+            {showAvatar ? (
+              <img
+                src={currentUser.avatarUrl}
+                alt=""
+                className="bottom-nav-avatar"
+              />
+            ) : (
+              <Icon size={24} weight={isActive ? "fill" : "light"} />
+            )}
             <span className="bottom-nav-label">{label}</span>
           </Link>
         );

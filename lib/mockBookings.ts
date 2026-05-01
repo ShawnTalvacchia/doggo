@@ -95,7 +95,7 @@ const petraBooking: Booking = {
   ownerName: "Shawn Talvacchia",
   ownerAvatarUrl:
     "/images/generated/shawn-profile.jpg",
-  carerId: "petra-v",
+  carerId: "petra",
   carerName: "Petra Veselá",
   carerAvatarUrl: "/images/generated/petra-profile.jpeg",
   type: "one_off",

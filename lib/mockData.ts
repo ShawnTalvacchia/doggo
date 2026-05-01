@@ -67,6 +67,36 @@ export const dogsCareOptions = [
   "High-energy breeds",
 ];
 
+/**
+ * Provider directory.
+ *
+ * **Provider ↔ User bridge contract** (Mock World Building A1, 2026-04-30):
+ *
+ * Most entries here are *directory-only* — they exist as `ProviderCard`
+ * with no `UserProfile` counterpart in `lib/mockUsers.ts`. This is
+ * intentional: providers who never appear as journey personas don't need
+ * full profile data, and back-filling them would be deadweight.
+ *
+ * Rules:
+ * 1. **Bookings, conversations, meet attendees** that reference a
+ *    directory-only provider (e.g. `carerId: "olga-m"`) must always
+ *    snapshot the display fields they need (`carerName`, `carerAvatarUrl`,
+ *    etc.) on the surrounding object. `getUserById(providerId)` returns
+ *    `undefined` for these IDs and that's expected.
+ * 2. **Providers that bridge to a real user** set `userId: "<userId>"`
+ *    here. Currently: `nikola-r` → `nikola`. Use this for providers who
+ *    have a journey-persona presence (full UserProfile in `mockUsers.ts`).
+ * 3. **Profile navigation** (`/profile/[userId]`) should use
+ *    `getUserOrProvider(id)` from `lib/mockUsers.ts`, which:
+ *    - Returns the bridged `UserProfile` if `provider.userId` is set
+ *    - Otherwise synthesizes a minimal `UserProfile` from this card so
+ *      the page renders without crashing.
+ *
+ * Helpers and Casual-tier providers (e.g. Petra) live as full
+ * `UserProfile` entries with a `carerProfile` field — they don't appear
+ * here, since Helper-tier services are visible to Connected only and
+ * don't surface in Discover > Dog Care.
+ */
 export const providers: ProviderCard[] = [
   {
     id: "olga-m",

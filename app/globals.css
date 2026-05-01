@@ -814,6 +814,20 @@ a {
   background: var(--transparent-dark-4);
 }
 
+/* Profile tab — render the user's avatar in place of the UserCircle icon.
+   Sized to match the icon's optical weight (22px). Always-on brand-tinted
+   ring acts as a quiet "this is you" identity signal. Symmetric across
+   personas — not role-based. Mock World Building 2026-04-30. */
+.sidebar-nav-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  outline: 2px solid var(--brand-main);
+  outline-offset: 1px;
+}
+
 /* Page container — centered main column (640px) */
 .page-container {
   width: 100%;
@@ -1271,6 +1285,20 @@ a {
   flex-shrink: 0;
 }
 
+/* Leading avatar between back button and title — used on profile pages */
+.app-nav-detail-avatar {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.app-nav-detail-avatar img,
+.app-nav-detail-avatar > * {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 /* When detail action contains a search input, let it expand */
 .app-nav-detail-action:has(.inbox-nav-search) {
   flex: 1;
@@ -1295,6 +1323,14 @@ a {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* When the detail header is a top-level page (no back button — e.g. Inbox
+   uses setDetailHeader only to attach a search action), render the title
+   at the page-title size to match other top-level pages. */
+.app-nav-detail-header:not(:has(.app-nav-detail-back)) .app-nav-detail-title {
+  font-size: var(--font-size-h4);
+  font-weight: var(--weight-semibold);
 }
 
 .app-nav-right {
@@ -5702,14 +5738,10 @@ body.guest-route {
     width: calc(100% - 24px);
   }
 
-  /* Cards fill full viewport width — keep all card styling, just remove rounded corners */
+  /* Cards fill full viewport width — keep all card styling */
   .profile-content-width {
     width: 100%;
     margin: 0;
-  }
-
-  .profile-info-card {
-    border-radius: 0;
   }
 
   /* About card keeps zero padding so banner image bleeds edge-to-edge */
@@ -5861,6 +5893,22 @@ body.guest-route {
 .bottom-nav-label {
   font-size: var(--font-size-body-xs);
   line-height: 1;
+}
+
+/* Profile tab — render the user's avatar in place of the icon. Sized to
+   match the icon's optical weight (24px). Always-on brand-tinted ring
+   acts as a quiet "this is you" identity signal — distinguishes the
+   user-avatar treatment from the icon treatment of other tabs. Roles
+   (provider/helper) surface as body-of-profile badges, NOT here.
+   Mock World Building 2026-04-30. */
+.bottom-nav-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  outline: 2px solid var(--brand-main);
+  outline-offset: 1px;
 }
 
 /* -------- Mobile service chooser (explore landing, < 804px) -------- */
@@ -8015,6 +8063,20 @@ body:has(.bottom-nav) .bookings-page {
 
 .page-detail-header-back:hover {
   color: var(--text-primary);
+}
+
+/* Leading avatar (between caret and title) — used on profile pages */
+.page-detail-header-avatar {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 4px;
+}
+.page-detail-header-avatar img,
+.page-detail-header-avatar > * {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .page-detail-header-title {
@@ -13907,6 +13969,78 @@ body:has(.bottom-nav) .inbox-page {
 /* `.person-row-pill--connected` retired — Connected rows render no pill;
  * the Message CTA exclusively appears for Connected users and carries the
  * signal unambiguously. */
+
+/* ── PrivateProfileRow ──────────────────────────────────────────────────────
+ * Compact tier-3 row: 32px avatar + single-line identity + small Familiar
+ * pill. Used on context-rich surfaces (People tab when viewer attended,
+ * Members tab when viewer is a member, locked profile page when shared
+ * context exists). Visually distinct from full PersonRow cards — Private
+ * profiles are clearly secondary to Connected/Familiar/Open rows above. */
+.private-profile-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--surface-base);
+  min-height: 48px;
+}
+.private-profile-row-identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex: 1;
+  min-width: 0;
+}
+.private-profile-row-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.private-profile-row-name {
+  font-size: var(--font-size-body-reg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.private-profile-row-dogs {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-body-xs);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.private-profile-row-pill {
+  flex-shrink: 0;
+  background: transparent;
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  font-size: var(--font-size-body-xs);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: all 120ms;
+}
+.private-profile-row-pill:hover {
+  border-color: var(--text-secondary);
+  color: var(--text-secondary);
+}
+.private-profile-row-pill.is-marked {
+  background: var(--surface-popout);
+  color: var(--text-secondary);
+  border-color: var(--border-regular);
+}
+.private-profile-row-pill.is-marked:hover {
+  border-color: var(--text-secondary);
+}
 
 .person-row-pill--familiar,
 .person-row-pill--pending {

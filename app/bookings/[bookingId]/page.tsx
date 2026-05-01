@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   CalendarDots,
@@ -14,7 +15,6 @@ import {
   Prohibit,
   HandHeart,
   Star,
-  PaperPlaneTilt,
   CalendarCheck,
   Footprints,
   CaretDown,
@@ -29,18 +29,16 @@ import { ButtonAction } from "@/components/ui/ButtonAction";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { CancelBookingModal } from "@/components/bookings/CancelBookingModal";
 import { useBookings } from "@/contexts/BookingsContext";
-import { useConversations } from "@/contexts/ConversationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { getUserById } from "@/lib/mockUsers";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import { formatShortDate, formatDateRange } from "@/lib/dateUtils";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
-import type { Booking, BookingSession, ChatMessage } from "@/lib/types";
+import type { Booking, BookingSession } from "@/lib/types";
 
 const TABS = [
   { key: "info", label: "Info" },
   { key: "sessions", label: "Sessions" },
-  { key: "chat", label: "Chat" },
 ];
 
 /* ── Helpers ── */
@@ -88,33 +86,6 @@ function getPetAvatarUrl(ownerId: string, petName: string): string | null {
   if (!user) return null;
   const pet = user.pets.find((p) => p.name.toLowerCase() === petName.toLowerCase());
   return pet?.imageUrl ?? null;
-}
-
-function formatDateLabel(iso: string): string {
-  const date = new Date(iso);
-  const now = new Date();
-  const diffDays = Math.floor((now.getTime() - date.getTime()) / 86400000);
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-}
-
-function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-}
-
-function groupMessagesByDate(messages: ChatMessage[]) {
-  const groups: { label: string; messages: ChatMessage[] }[] = [];
-  let currentLabel = "";
-  for (const msg of messages) {
-    const label = formatDateLabel(msg.sentAt);
-    if (label !== currentLabel) {
-      currentLabel = label;
-      groups.push({ label, messages: [] });
-    }
-    groups[groups.length - 1].messages.push(msg);
-  }
-  return groups;
 }
 
 /* ── Session icon ── */
@@ -239,12 +210,9 @@ export default function BookingDetailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { bookings, cancelBooking, updateSession } = useBookings();
-  const { getConversation, addMessage } = useConversations();
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
   const CURRENT_USER = useCurrentUserId();
   const [showCancel, setShowCancel] = useState(false);
-  const [draft, setDraft] = useState("");
-  const chatBodyRef = useRef<HTMLDivElement>(null);
 
   const activeTab = searchParams.get("tab") ?? "info";
 
@@ -256,11 +224,6 @@ export default function BookingDetailPage() {
   const isOwner = booking?.ownerId === CURRENT_USER;
   const isProvider = booking?.carerId === CURRENT_USER;
 
-  // Get conversation for chat tab
-  const conversation = booking?.conversationId ? getConversation(booking.conversationId) : undefined;
-  const isCarerPerspective = conversation?.providerId === CURRENT_USER;
-  const myRole = isCarerPerspective ? "provider" as const : "owner" as const;
-
   // Feed detail header to mobile AppNav
   useEffect(() => {
     if (!booking) return;
@@ -268,13 +231,6 @@ export default function BookingDetailPage() {
     setDetailHeader(title, () => router.push("/bookings"));
     return () => clearDetailHeader();
   }, [booking?.id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Auto-scroll chat
-  useEffect(() => {
-    if (activeTab === "chat" && chatBodyRef.current) {
-      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
-    }
-  }, [activeTab, conversation?.messages.length]);
 
   if (!booking) {
     return (
@@ -292,8 +248,13 @@ export default function BookingDetailPage() {
   }
 
   const other = isOwner
-    ? { name: booking.carerName, avatarUrl: booking.carerAvatarUrl, role: "Carer" }
-    : { name: booking.ownerName, avatarUrl: booking.ownerAvatarUrl, role: "Owner" };
+    ? { id: booking.carerId, name: booking.carerName, avatarUrl: booking.carerAvatarUrl, role: "Carer" }
+    : { id: booking.ownerId, name: booking.ownerName, avatarUrl: booking.ownerAvatarUrl, role: "Owner" };
+
+  // Profile link for the partner — booking detail keeps Info + Sessions only;
+  // direct messaging lives on the profile chat tab (Mock World Building 2026-04-30).
+  const profileHref = `/profile/${other.id}`;
+  const messageHref = `${profileHref}?tab=chat`;
 
   const petNames = booking.pets.join(" & ");
   const verb = getServiceVerb(booking);
@@ -305,31 +266,6 @@ export default function BookingDetailPage() {
   const completedSessions = sessions.filter((s) => s.status === "completed");
 
   const headerTitle = booking.subService ?? SERVICE_LABELS[booking.serviceType];
-
-  // Chat helpers
-  function handleSend() {
-    const text = draft.trim();
-    const convId = booking?.conversationId;
-    if (!text || !convId) return;
-    const newMsg: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      conversationId: convId,
-      sender: myRole,
-      type: "text",
-      text,
-      sentAt: new Date().toISOString(),
-      read: true,
-    };
-    addMessage(convId, newMsg);
-    setDraft("");
-  }
-
-  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  }
 
   // Next upcoming session for aggregate stats
   const nextSession = [...upcomingSessions].sort((a, b) => a.date.localeCompare(b.date))[0];
@@ -349,40 +285,50 @@ export default function BookingDetailPage() {
           <div className="flex flex-col gap-lg" style={{ padding: "var(--space-lg)" }}>
 
             {/* Hero + actions wrapper with extra vertical breathing room */}
-            <div className="flex flex-col gap-lg" style={{ paddingBottom: "var(--space-md)" }}>
-              {/* Hero section: parties + status */}
+            <div
+              className="flex flex-col gap-lg"
+              style={{ paddingTop: "var(--space-md)", paddingBottom: "var(--space-xl)" }}
+            >
+              {/* Hero section: parties + status. Avatar + name area links
+                  to the partner's profile (universal name/avatar pattern). */}
               <div className="flex items-center gap-md">
-                <div style={{ position: "relative", width: 56, height: 44, flexShrink: 0 }}>
-                  <img
-                    src={other.avatarUrl}
-                    alt={other.name}
-                    className="rounded-full object-cover"
-                    style={{ width: 44, height: 44, position: "absolute", left: 0, top: 0, border: "2px solid var(--surface-popout)", zIndex: 1 }}
-                  />
-                  {firstPetAvatar ? (
+                <Link
+                  href={profileHref}
+                  className="flex items-center gap-md flex-1 min-w-0"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <div style={{ position: "relative", width: 56, height: 44, flexShrink: 0 }}>
                     <img
-                      src={firstPetAvatar}
-                      alt={booking.pets[0]}
+                      src={other.avatarUrl}
+                      alt={other.name}
                       className="rounded-full object-cover"
-                      style={{ width: 28, height: 28, position: "absolute", left: 28, bottom: 0, border: "2px solid var(--surface-popout)", zIndex: 2 }}
+                      style={{ width: 44, height: 44, position: "absolute", left: 0, top: 0, border: "2px solid var(--surface-popout)", zIndex: 1 }}
                     />
-                  ) : (
-                    <span
-                      className="rounded-full flex items-center justify-center"
-                      style={{ width: 28, height: 28, position: "absolute", left: 28, bottom: 0, border: "2px solid var(--surface-popout)", zIndex: 2, background: "var(--surface-inset)" }}
-                    >
-                      <PawPrint size={14} weight="fill" className="text-fg-tertiary" />
+                    {firstPetAvatar ? (
+                      <img
+                        src={firstPetAvatar}
+                        alt={booking.pets[0]}
+                        className="rounded-full object-cover"
+                        style={{ width: 28, height: 28, position: "absolute", left: 28, bottom: 0, border: "2px solid var(--surface-popout)", zIndex: 2 }}
+                      />
+                    ) : (
+                      <span
+                        className="rounded-full flex items-center justify-center"
+                        style={{ width: 28, height: 28, position: "absolute", left: 28, bottom: 0, border: "2px solid var(--surface-popout)", zIndex: 2, background: "var(--surface-inset)" }}
+                      >
+                        <PawPrint size={14} weight="fill" className="text-fg-tertiary" />
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <span className="text-base font-semibold text-fg-primary">{other.name}</span>
+                    <span className="text-sm text-fg-tertiary">
+                      {isOwner
+                        ? `${other.name} ${verb} ${petNames}`
+                        : `${verb.charAt(0).toUpperCase() + verb.slice(1)} ${petNames} for ${other.name}`}
                     </span>
-                  )}
-                </div>
-                <div className="flex flex-col flex-1 min-w-0">
-                  <span className="text-base font-semibold text-fg-primary">{other.name}</span>
-                  <span className="text-sm text-fg-tertiary">
-                    {isOwner
-                      ? `${other.name} ${verb} ${petNames}`
-                      : `${verb.charAt(0).toUpperCase() + verb.slice(1)} ${petNames} for ${other.name}`}
-                  </span>
-                </div>
+                  </div>
+                </Link>
                 <StatusBadge status={booking.status} />
               </div>
 
@@ -394,13 +340,14 @@ export default function BookingDetailPage() {
                 </span>
               )}
 
-              {/* Action buttons — CTA variants like Groups page */}
+              {/* Action buttons — CTA variants like Groups page.
+                  Message routes to the profile chat tab (canonical chat surface). */}
               <div className="flex gap-sm w-full">
                 {booking.status === "completed" ? (
                   <>
                     <ButtonAction variant="primary" size="md" cta className="flex-1"
                       leftIcon={<ChatCircleDots size={16} weight="fill" />}
-                      onClick={() => handleTabChange("chat")}>
+                      onClick={() => router.push(messageHref)}>
                       Message
                     </ButtonAction>
                     <ButtonAction variant="secondary" size="md" cta className="flex-1"
@@ -411,14 +358,14 @@ export default function BookingDetailPage() {
                 ) : booking.status === "cancelled" ? (
                   <ButtonAction variant="primary" size="md" cta className="flex-1"
                     leftIcon={<ChatCircleDots size={16} weight="fill" />}
-                    onClick={() => handleTabChange("chat")}>
+                    onClick={() => router.push(messageHref)}>
                     Message
                   </ButtonAction>
                 ) : (
                   <>
                     <ButtonAction variant="primary" size="md" cta className="flex-1"
                       leftIcon={<ChatCircleDots size={16} weight="fill" />}
-                      onClick={() => handleTabChange("chat")}>
+                      onClick={() => router.push(messageHref)}>
                       Message
                     </ButtonAction>
                     <ButtonAction variant="outline" size="md" cta className="flex-1"
@@ -615,110 +562,7 @@ export default function BookingDetailPage() {
           </div>
         )}
 
-        {activeTab === "chat" && (
-          <div className="flex flex-col" style={{ flex: 1, minHeight: 0 }}>
-            {conversation ? (
-              <>
-                {/* Messages */}
-                <div
-                  ref={chatBodyRef}
-                  className="flex flex-col gap-md overflow-y-auto"
-                  style={{ flex: 1, padding: "var(--space-lg)" }}
-                >
-                  {groupMessagesByDate(conversation.messages).map((group) => (
-                    <div key={group.label} className="flex flex-col gap-sm">
-                      <div className="flex justify-center">
-                        <span className="text-xs text-fg-tertiary px-sm py-xs rounded-pill"
-                          style={{ background: "var(--surface-inset)" }}>
-                          {group.label}
-                        </span>
-                      </div>
-                      {group.messages.map((msg) => {
-                        const isOwn = msg.sender === myRole;
-                        if (msg.type !== "text") return null; // Only show text messages in this view
-                        return (
-                          <div key={msg.id} className={`flex gap-sm ${isOwn ? "flex-row-reverse" : ""}`}>
-                            {!isOwn && (
-                              <img
-                                src={other.avatarUrl}
-                                alt={other.name}
-                                className="rounded-full shrink-0"
-                                style={{ width: 32, height: 32, objectFit: "cover" }}
-                              />
-                            )}
-                            <div
-                              className="flex flex-col gap-xs rounded-lg px-md py-sm"
-                              style={{
-                                maxWidth: "75%",
-                                background: isOwn ? "var(--brand-subtle)" : "var(--surface-top)",
-                                border: isOwn ? "none" : "1px solid var(--border-light)",
-                              }}
-                            >
-                              {!isOwn && (
-                                <span className="text-xs font-medium text-fg-primary">{other.name}</span>
-                              )}
-                              <span className="text-sm text-fg-primary">{msg.text}</span>
-                              <span
-                                className="text-xs text-fg-tertiary"
-                                style={{ textAlign: isOwn ? "right" : "left" }}
-                              >
-                                {formatTime(msg.sentAt)}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ))}
-                </div>
-
-                {/* Compose bar */}
-                <div className="flex items-end gap-sm"
-                  style={{
-                    padding: "var(--space-sm) var(--space-lg)",
-                    borderTop: "1px solid var(--border-subtle)",
-                    background: "var(--surface-popout)",
-                  }}
-                >
-                  <textarea
-                    className="flex-1 text-sm rounded-lg border border-edge-regular px-md py-sm resize-none bg-surface-top text-fg-primary"
-                    placeholder="Message..."
-                    rows={1}
-                    value={draft}
-                    onChange={(e) => setDraft(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    style={{ fontFamily: "var(--font-body)" }}
-                  />
-                  <button
-                    className="flex items-center justify-center shrink-0 rounded-full"
-                    style={{
-                      width: 36,
-                      height: 36,
-                      background: draft.trim() ? "var(--brand-main)" : "var(--surface-inset)",
-                      color: draft.trim() ? "white" : "var(--text-tertiary)",
-                      border: "none",
-                      cursor: draft.trim() ? "pointer" : "default",
-                    }}
-                    onClick={handleSend}
-                    disabled={!draft.trim()}
-                  >
-                    <PaperPlaneTilt size={18} weight="fill" />
-                  </button>
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col items-center gap-md p-xl text-center" style={{ flex: 1, justifyContent: "center" }}>
-                <ChatCircleDots size={32} weight="light" className="text-fg-tertiary" />
-                <p className="text-fg-secondary m-0">No conversation yet.</p>
-                <ButtonAction variant="primary" size="sm">
-                  Start a conversation
-                </ButtonAction>
-              </div>
-            )}
-          </div>
-        )}
-
-        {activeTab !== "chat" && <Spacer />}
+        <Spacer />
       </div>
 
       <CancelBookingModal

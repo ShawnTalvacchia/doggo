@@ -717,8 +717,6 @@ export interface Group {
   creatorId: string;
   creatorName: string;
   members: GroupMember[];
-  /** IDs of meets linked to this group */
-  meetIds: string[];
   photos: string[];
   /** Photo culture setting — controls whether photo posts are allowed/encouraged */
   photoPolicy: PhotoPolicy;

@@ -8,6 +8,28 @@
  * Every other mock file should reference users by ID from this registry.
  * Helper functions at the bottom let you look up avatars/names by ID
  * without importing the full object.
+ *
+ * **Profile-visibility distribution rule** (Mock World Building B1, 2026-04-30
+ * — closes punch list P36):
+ *
+ * Doggo's privacy model defaults to Locked. The mock world should reflect
+ * that — keep ~70% of users Locked, ~30% Open. Open users are:
+ *
+ *   1. **Carer-tier users** (Helper or Provider — anyone with a `carerProfile`
+ *      whose service visibility depends on profile openness): Tereza, Klára,
+ *      Petra, Nikola, Shawn.
+ *   2. **Social anchors** — at most one per neighbourhood, picked because
+ *      their cross-cluster ties or active posting carry the network: Jana
+ *      (Vinohrady cross-cluster connector), Eva (Holešovice + Reactive Dog
+ *      Support multi-group anchor).
+ *
+ * Everyone else stays Locked. When seeding a new user, default to Locked
+ * and only switch to Open if the user is in one of the two categories above.
+ *
+ * **Knock-on effect:** `MeetAttendee.profileOpen` should mirror the user's
+ * visibility — see `buildMeetAttendee()` in `mockMeets.ts` (Mock World
+ * Building A3, P28). Existing inline attendee literals were swept on
+ * 2026-04-30 to match this distribution.
  */
 
 import type { UserProfile } from "./types";
@@ -234,7 +256,7 @@ export const marek: UserProfile = {
   location: "Prague 2, Czech Republic",
   neighbourhood: "Vinohrady",
   memberSince: "2025-09",
-  profileVisibility: "open",
+  profileVisibility: "locked",
   tagApproval: "auto",
   pets: [
     {
@@ -261,7 +283,7 @@ export const lucie: UserProfile = {
   location: "Prague 2, Czech Republic",
   neighbourhood: "Vinohrady",
   memberSince: "2025-10",
-  profileVisibility: "open",
+  profileVisibility: "locked",
   tagApproval: "auto",
   pets: [
     {
@@ -396,7 +418,7 @@ export const ondrej: UserProfile = {
   location: "Prague 8, Czech Republic",
   neighbourhood: "Karlín",
   memberSince: "2025-11",
-  profileVisibility: "open",
+  profileVisibility: "locked",
   tagApproval: "auto",
   pets: [
     {
@@ -452,7 +474,7 @@ export const martin: UserProfile = {
   location: "Prague 7, Czech Republic",
   neighbourhood: "Holešovice",
   memberSince: "2025-09",
-  profileVisibility: "open",
+  profileVisibility: "locked",
   tagApproval: "auto",
   pets: [
     {
@@ -546,7 +568,7 @@ export const hana: UserProfile = {
   location: "Prague 7, Czech Republic",
   neighbourhood: "Holešovice",
   memberSince: "2025-10",
-  profileVisibility: "open",
+  profileVisibility: "locked",
   tagApproval: "auto",
   pets: [
     {
@@ -600,7 +622,7 @@ export const anezka: UserProfile = {
   location: "Prague 3, Czech Republic",
   neighbourhood: "Žižkov",
   memberSince: "2025-11",
-  profileVisibility: "open",
+  profileVisibility: "locked",
   tagApproval: "auto",
   pets: [
     {
@@ -846,9 +868,9 @@ const userMap = new Map<string, UserProfile>(allUsers.map((u) => [u.id, u]));
  *
  * Returns `undefined` for IDs that don't have a `UserProfile` in this
  * registry — most commonly providers from `mockData.ts` (`olga-m`, `jana-k`,
- * `petra-v`, etc.) that exist as `ProviderCard` directory entries without a
- * full user profile. See `getUserOrProvider()` for the lookup that bridges
- * both registries (Mock World Building D4, 2026-04-26).
+ * `marketa-h`, etc.) that exist as `ProviderCard` directory entries without
+ * a full user profile. See `getUserOrProvider()` for the lookup that bridges
+ * both registries (Mock World Building A1, 2026-04-30).
  *
  * Callers that only display a name + avatar should use the snapshot fields
  * already on the surrounding object (e.g. `Booking.carerName` /
@@ -887,9 +909,9 @@ export function getDogById(dogId: string) {
 
 /* ─── Provider bridge (Mock World Building D4) ───────────────────────────────
  * Some `ProviderCard` entries in `lib/mockData.ts` (`olga-m`, `jana-k`,
- * `petra-v`, `marketa-h`, etc.) don't have full `UserProfile` entries here —
- * they're directory-only. `getUserOrProvider()` bridges the two registries
- * for callers that want a unified lookup.
+ * `marketa-h`, etc.) don't have full `UserProfile` entries here — they're
+ * directory-only. `getUserOrProvider()` bridges the two registries for
+ * callers that want a unified lookup.
  *
  * Resolution order:
  *   1. Match the ID in this `mockUsers` registry.

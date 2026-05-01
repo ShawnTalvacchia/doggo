@@ -9,6 +9,7 @@ import { mockPosts } from "./mockPosts";
 import { mockMeets } from "./mockMeets";
 import { getConnectionsForViewer } from "./mockConnections";
 import { mockGroups, getUserGroups } from "./mockGroups";
+import { getUserById } from "./mockUsers";
 
 /**
  * Feed content sourcing per Content Visibility Model (two-gate system):
@@ -65,7 +66,10 @@ export function getFeedForUser(userId: string): FeedItem[] {
   }
 
   // ── Gate 3: Discovery — posts from open groups in user's neighbourhood ──
-  const userNeighbourhood = "Vinohrady"; // mock: derive from user profile
+  // Read the viewer's neighbourhood from their profile (Mock World Building
+  // C4, 2026-04-30 — fixes the previously-hardcoded "Vinohrady" placeholder
+  // that gave every persona Tereza's discovery view).
+  const userNeighbourhood = getUserById(userId)?.neighbourhood ?? "Vinohrady";
   const openNeighbourhoodGroups = mockGroups.filter(
     (g) =>
       g.visibility === "open" &&

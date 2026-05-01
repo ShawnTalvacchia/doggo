@@ -79,7 +79,7 @@ export const personas: PersonaOption[] = [
   {
     user: daniel,
     archetype: "Anxious New Owner",
-    tagline: "Reactive rescue. Locked profile. Few connections.",
+    tagline: "Reactive rescue. Private profile. Few connections.",
   },
   {
     user: klara,

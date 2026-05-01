@@ -13,6 +13,9 @@ interface DetailHeaderProps {
   title?: string;
   /** Optional right-side action element */
   rightAction?: React.ReactNode;
+  /** Optional avatar/icon rendered between the back caret and the title.
+   *  Used on profile pages to show the subject's avatar inline with their name. */
+  leadingAvatar?: React.ReactNode;
 }
 
 export function DetailHeader({
@@ -20,15 +23,19 @@ export function DetailHeader({
   backLabel = "Back",
   title,
   rightAction,
+  leadingAvatar,
 }: DetailHeaderProps) {
   const router = useRouter();
 
   const handleBack = () => router.back();
 
-  // Arrow + label/title are always one click target
+  // Arrow + (optional avatar) + label/title are all one click target
   const backContent = (
     <>
       <CaretLeft size={16} weight="bold" />
+      {leadingAvatar && (
+        <span className="page-detail-header-avatar">{leadingAvatar}</span>
+      )}
       {title ? (
         <span className="page-detail-header-title">{title}</span>
       ) : (

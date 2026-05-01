@@ -431,7 +431,7 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
   ],
 
   /* ═══════════════════════════════════════════════════════════════════════
-     DANIEL — Anxious New Owner. Locked profile. Built trust slowly through
+     DANIEL — Anxious New Owner. Private profile. Built trust slowly through
      the reactive dog support group; Klára-the-trainer was his payoff (his
      first Connected outside the group). Roster is small + recent — a
      deliberately thin network that demonstrates the cautious-user path.
@@ -739,7 +739,7 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
   ],
 
   /* ═══════════════════════════════════════════════════════════════════════
-     TOMÁŠ — Busy Professional, Karlín. Locked profile. Smaller network than
+     TOMÁŠ — Busy Professional, Karlín. Private profile. Smaller network than
      Tereza or Klára but warm where it matters: Petra is his go-to sitter
      (booking history exists), and a couple of Karlín regulars he sees on
      morning walks. Pending request from Shawn (mirrors Shawn-side data).

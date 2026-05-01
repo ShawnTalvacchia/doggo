@@ -1,52 +1,49 @@
 ---
-status: draft
-last-reviewed: 2026-04-26
+status: active
+last-reviewed: 2026-04-30
 review-trigger: "When any task is completed or blocked; re-read at phase open and any time scope shifts"
 ---
 
 # Mock World Building
 
-**Goal:** Make every persona's view of the prototype feel like a real person's account. Tap "Daniel" in the dropdown and his home feed has posts from his support group, his profile shows his connections to Klára and Hana, his inbox has the training-booking thread with Klára. Switch to Klára and the same thread is there, framed from her side. Each persona embodies a feature theme — Tereza (community organising), Daniel (cautious trust-building), Klára (provider workflow), Tomáš (care-finding under pressure), New User (onboarding empty states).
+**Goal:** Make every persona's view of the prototype feel like a real person's account. Tap "Daniel" in the dropdown and his home feed has posts from his support group, his profile shows his connections to Klára and Hana, his inbox has the training-booking thread with Klára. Switch to Klára and the same thread is there, framed from her side.
 
 **Depends on:** Persona & Demo Mode Wiring closed (`docs/archive/phases/persona-wiring.md`). The infrastructure is in place; this phase fills the world.
 
-**Refs:** [[mock-data-plan]], [[User Archetypes]], [[Trust & Connection Model]], [[Groups & Care Model]], `lib/mockUsers.ts`, `lib/mockConnections.ts`, `lib/mockConversations.ts`, `lib/mockMeets.ts`, `lib/mockPosts.ts`, `lib/mockBookings.ts`, `lib/mockReviews.ts`, archived persona-wiring "Follow-ups for Mock World Building".
+**Refs:** [[mock-data-plan]], [[User Archetypes]], [[Trust & Connection Model]], [[Groups & Care Model]], [[demo-mode]], `lib/mockUsers.ts`, `lib/mockConnections.ts`, `lib/mockConversations.ts`, `lib/mockMeets.ts`, `lib/mockPosts.ts`, `lib/mockBookings.ts`, `lib/mockReviews.ts`, `lib/mockGroups.ts`, archive: persona-wiring + community-groups-deep-pass + meets-deep-pass.
 
 ---
 
-## Why now
+## Why now (refreshed 2026-04-30)
 
-Persona Wiring shipped the plumbing. Today, picking Daniel from the dropdown swaps the active user — but the **world he sees is barely his**. Connection rosters are still Shawn-relative (`mockConnections.ts` returns `undefined` for any non-Shawn viewer), conversation threads all have Shawn as one of the two parties, posts are mostly Shawn-authored. The empty state isn't intentional design — it's missing data.
+This phase was originally drafted 2026-04-26 — before Persona Wiring close, the Meets Deep Pass, the Trust & Visibility Pass, and the Community & Groups Deep Pass. A re-audit against the live data files shows that **most of the original Workstreams A–C have already shipped**, mostly during those passes' opportunistic data work. What remains is narrower and more structural than the original board described.
 
-The fix is content, not code. The `useCurrentUser()` hook is everywhere; the helpers (`getConnectionState(userId, viewerId)`, `getUserMeets(userId)`, `getUserGroups(userId)`) already take a user ID. We just need each persona to have a populated "my world" the helpers can return.
+**Audit findings (2026-04-30):**
 
-This phase ends when a tester can drop into any persona and explore freely without hitting "huh, that's empty" surfaces — except where empty is the *narrative point* (Daniel's locked profile, New User's onboarding).
+| Original task | Drafted status | Actual state |
+|---|---|---|
+| A1 — per-viewer connection map | todo | ✓ shipped (file header notes "Restructured during Mock World Building 2026-04-26") |
+| A2–A5 — seed each persona's connections | todo | ✓ shipped (Shawn 12, Tereza 8, Daniel 5, Klára 10, Tomáš 6 — all in 5–10 target) |
+| A6 — New User connection state | todo | ✓ shipped (no entry in per-viewer map → falls through to undefined gracefully) |
+| A7 — symmetry policy | todo | ✓ shipped (encoded in `mockConnections.ts` header comment) |
+| B1–B5 — non-Shawn conversations | todo | ✓ shipped (7 non-Shawn-owned threads: Daniel, Filip, Hana, Lucie, Marek, Marie, Tomáš) |
+| B6 — conversation helper Shawn-isms | todo | ✓ shipped (booking-conversations correctly snapshot Shawn as owner where Shawn IS the booking owner) |
+| C1–C4 — post authorship spread | todo | ✓ shipped (Klára 10, Shawn 9, Jana 9, Eva 8, Tomáš 7, Tereza 6, Daniel 6) |
+| C5 — getFeedForUser sanity | todo | ✓ shipped (`getFeedForUser(userId)` + `getNewUserFeed()` both live) |
+| D1 — bookings | todo | ✓ shipped (Daniel↔Klára recurring active, Tomáš↔Petra completed, Tereza as carer once) |
+| D2 — reviews | todo | ✓ shipped (12 reviews; authors include Daniel, Eva, Filip, Hana, Jana, Marek, Marie, Martin, Tereza, Tomáš + Shawn ×3) |
+| D3 — shareCode on personas | todo | ✓ shipped (all 4 personas + Shawn) |
+| D4 — P4 provider-userId resolution | todo | ✗ open (bookings still mix `klara`/`tereza`/`shawn`/`petra` userIds with `petra-v`/`olga-m`/`nikola-r` directory ids) |
+| P31 (3+ dogs for +N chip) | scoped to D from punch list | ✓ shipped (Shawn fostering "Skip" on meet-1 — comment in `mockMeets.ts` calls out the seed) |
 
----
+**What's actually remaining** is a smaller, sharper set:
 
-## Current state — audit (2026-04-26)
-
-Counts after grep across mock files:
-
-| Persona | Groups | Meets attended | Meets created | Posts | Bookings (owner / carer) | Reviews authored | Conn map | Convos |
-|---|---|---|---|---|---|---|---|---|
-| **Shawn** | 16 | 12 | 2 | 9 | 3 / 2 | 3 | 19 entries | 7 |
-| **Tereza** | 9 | 6 | 5 | 3 | 0 / 1 | 1 | 0 (Shawn-only model) | 0 |
-| **Daniel** | 3 | 4 | 2 | 3 | 1 / 0 | 1 | 0 | 0 |
-| **Klára** | 7 | 7 | 3 | 5 | 0 / 3 | 0 | 0 | 0 |
-| **Tomáš** | 7 | 7 | 2 | 5 | 2 / 0 | 1 | 0 | 0 |
-| **New User** | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 | 0 |
-
-**Shape of the gaps:**
-
-1. **Connections (biggest).** `mockConnections.ts` is a flat array — Shawn's perspective on 19 other users. Non-Shawn viewers see `undefined` for everyone. Fix: restructure as per-viewer maps (`{ shawn: [...], tereza: [...], daniel: [...], ... }`); update `getConnectionState(userId, viewerId)` to look up the viewer's map.
-2. **Conversations.** All 7 booking-conversations have `ownerId: "shawn"`. None of `Daniel↔Klára (training)`, `Tomáš↔Petra (emergency)`, `Tereza↔Marek (sitting)` exist as threads, even though `mock-data-plan.md` describes them and the bookings reference them.
-3. **Posts have decent diversity** — Eva, Tomáš, Klára, Jana have multiple — but the four journey personas (especially Daniel + Tereza) are thin. `mockPosts.ts` distribution: Shawn 9, Eva 8, Tomáš 5, Klára 5, Daniel 3, Tereza 3.
-4. **Meets are well-populated** — 24 meets across the personas; creator distribution looks healthy.
-5. **Bookings sparse.** 9 total. Need at least: Daniel↔Klára (training, active recurring), Tomáš↔Petra (emergency completed), Tereza↔Marek (favour, completed).
-6. **Provider-userId mismatch (P4).** `mockBookings` has `carerId: "olga-m"`, `"nikola-r"`, `"petra-v"`. `mockUsers.ts` has `petra` (no `-v`), `nikola` (no `-r`), no `olga`. Booking objects already snapshot `carerName` + `carerAvatarUrl` so display works, but `getUserById` lookups break. Decision required on backfill vs. bridge formalisation.
-7. **`shareCode` only on Shawn.** Trivial — 4 strings.
-8. **`mockMeetMessages` sparse** (10 messages). Could use Daniel/Klára/Tereza/Tomáš messages on their own meets.
+1. **Data-shape debt** that still bites — P4 (provider-userId), P21 (group↔meet duplication), P28 (`profileOpen` auto-derive). All three can quietly produce wrong renders depending on which path the data takes.
+2. **Profile-visibility distribution** — current ratio is 14 open / 8 locked = ~64% open. Per the community-first thesis (and P36) the demo should be ~70% locked / 30% open. The ratio is currently *inverse* of intent.
+3. **Deferred content walks from C&G close** — E1 (group feed content per persona), E2 (group feed walks per type), E4 (Care group walk), E5 (community feed cross-persona walk).
+4. **Edge-case seeding** for already-shipped UI patterns from the C&G walkthrough — tier-2 unmarked attendees, tier-2 inbound Familiar (deniability path), Pending pills on People tab, Following + non-attendee viewer combos.
+5. **Inbox name+dog format hygiene** (P35).
+6. **Highlight-reel verification** per persona (the original E1/E2 — re-walking each persona's canonical surfaces against the running app).
 
 ---
 
@@ -54,85 +51,97 @@ Counts after grep across mock files:
 
 Complete before writing any task code. Mark each item done.
 
-- [x] Read every workstream + the referenced docs (mock-data-plan §"The Cast", User Archetypes for each persona, Trust & Connection Model)
-- [x] Re-read persona-wiring archive's "Follow-ups for Mock World Building" — confirm coverage
-- [x] Confirm scope cap with Shawn — **decided 2026-04-26: demo-quality (~4–6 sessions)**
-- [x] Decide on P4 (provider-userId pattern) before A1 lands — **decided 2026-04-26: formalise the bridge** (keep providers as `ProviderCard`-only entries; document that `getUserById` may return `undefined`; ensure all UI handles gracefully)
-- [x] Resolve image strategy with Shawn — **decided 2026-04-26: use existing assets only**; new image gen becomes its own later pass
-- [x] Update any referenced docs with `last-reviewed` older than 2 weeks — already done during persona-wiring close (mock-data-plan bumped)
-- [x] Confirm scope — no infrastructure work creeping in (that all belongs back in Persona Wiring or whichever surface phase introduces it)
-- [x] Confirm execution order with Shawn — **decided 2026-04-26: all four personas in parallel, by workstream** (so A1 restructures shape → A2–A5 seed all four personas' connections in one pass → B/C/D similar)
+- [x] Read every workstream + the referenced docs (mock-data-plan, User Archetypes, Trust & Connection Model, Groups & Care Model, demo-mode, Open Questions log)
+- [x] Re-audit board against live data files — refreshed scope reflects actual remaining work (2026-04-30)
+- [x] Review Open Questions log — items 11 (connection state Shawn-only, provider ID dualism) and 10 (highlight reels) feed this phase; nothing new conflicts
+- [x] Confirm scope cap with Shawn — **carried forward from 2026-04-26: demo-quality (~4–6 sessions)**
+- [x] Decide on P4 (provider-userId pattern) — **carried forward from 2026-04-26: formalise the bridge** (providers stay `ProviderCard`-only; document `getUserById` may return `undefined`; ensure UI handles gracefully). Workstream A1 executes this.
+- [x] Resolve image strategy — **carried forward: existing assets only**; new image gen becomes its own later pass
+- [x] Audit referenced docs for stale `last-reviewed` (>14d) — all clean (mock-data-plan 4d, User Archetypes 7d, Trust & Connection 3d, demo-mode 4d, Open Questions 1d, Groups & Care 1d)
+- [x] Scan punch list for overlap — adopted P4 (A1), P21 (A2), P28 (A3), P35 (C5), P36 (B1); P31 already shipped, P10 closed
+- [x] Confirm scope cap holds — no infrastructure work creeping in (still mock data only; no Supabase, no auth, no real-time)
 
 ---
 
-## Workstream A — Per-persona connection rosters (the unblock)
+## Workstream A — Data-shape resolutions
 
-`mockConnections.ts` becomes per-viewer. Every persona has 5–10 connections following their archetype. Shawn's existing 19 entries become his map.
-
-| # | Description | Status |
-|---|-------------|--------|
-| A1 | Restructure `mockConnections.ts` from flat array to per-viewer map. Move existing 19 to `shawn`. Update `getConnectionState(userId, viewerId)` to look up the viewer's map. Keep the `Connection[]` type; just add a wrapping `Record<string, Connection[]>`. | todo |
-| A2 | Seed Tereza's connections — Connected to Marek, Lucie, Jana, Klára (cross-persona); Familiar with Shawn, Zuzana (newest member); Pending out from Zuzana. ~6–8 entries. Mirror data from existing Shawn-side ones (Tereza is `Familiar` from Shawn's side → from Tereza's side that's also Familiar but with the bidirectional flag flipped). | todo |
-| A3 | Seed Daniel's connections — Connected to Klára (his trainer), Hana (recommended Klára), Anezka (active poster in support group); Familiar with Vitek, Eva. ~5 entries. Reflects "anxious new owner who built trust through the reactive dog group." | todo |
-| A4 | Seed Klára's connections — Connected to Daniel, Filip, Hana (clients) + Eva, Martin (Stromovka regulars) + Shawn; Familiar with a couple more. ~8–10 entries. Reflects "professional provider with deep cross-cluster ties." | todo |
-| A5 | Seed Tomáš's connections — Connected to Petra (his go-to sitter), Ondřej, Adéla (Karlín regulars); Familiar with a couple more; Pending out from Shawn (mirrors Shawn-side existing data). ~6 entries. | todo |
-| A6 | Seed New User connections — empty. Verify the empty-state branches across the app render gracefully (already validated during persona-wiring §7b — sanity re-check). | todo |
-| A7 | Backfill connection symmetry. If Shawn shows Tereza as Familiar, Tereza should show Shawn as either Familiar (mutual silent) or None (Shawn marked her, she didn't reciprocate yet). Pick a policy + apply consistently. | todo |
-
-## Workstream B — Per-persona conversation threads
+These are the structural pieces that quietly bite when other work runs against them. Land before content polish so seeding sits on stable shapes.
 
 | # | Description | Status |
 |---|-------------|--------|
-| B1 | Seed `Daniel ↔ Klára` booking-conversation thread. Anchors the training-booking arc the mock-data-plan describes. Real messages: Daniel's first inquiry, Klára's intake questions, Bára's reactivity context, scheduling, post-session follow-up. The active recurring booking object already exists for them — link via `conversationId`. | todo |
-| B2 | Seed `Tomáš ↔ Petra` emergency-care thread. Tomáš asks if Petra can take Hugo for 2 days, Petra responds, logistics, payment. The completed booking already exists — link. | todo |
-| B3 | Seed `Tereza ↔ Marek` casual sitting thread. Direct conversation (not booking) — Tereza asks about Benny, they coordinate a weekend favour. | todo |
-| B4 | Seed `Klára ↔ Filip` training thread. Filip is a Klára client; one completed booking exists. Conversation is short — booking confirmation + recap. | todo |
-| B5 | Seed 2 group-chat-style messages or DMs from supporting cast that visibly bring each persona's inbox to life when viewing as them. E.g., `Hana → Daniel` ("how was last session?"), `Jana → Tereza` ("Thursday on?"), etc. | todo |
-| B6 | Audit `mockConversations.ts` field usage. Does anything assume Shawn? `getOrCreateConversation` defaults to current persona (already fixed during persona-wiring) — verify other helpers. | todo |
+| A1 | **P4 — Provider-userId bridge formalised.** Pick a single ID convention for `mockBookings.carerId`, `mockConversations.providerId`, anywhere a provider is referenced. Document the contract in a top-of-file comment in `mockData.ts`: providers may exist as directory-only entries with no `UserProfile` counterpart; `getUserById(carerId)` may return `undefined`; consumer surfaces must fall back to the snapshotted `carerName` + `carerAvatarUrl` already on the booking. Audit consumers for unsafe `getUserById(...)` calls. Keep `nikola` as the one bridged identity (already done) — don't backfill new UserProfiles for `olga-m` etc. | done 2026-04-30 — bridge contract documented at top of `providers` array in `mockData.ts`; orphan `carerId: "petra-v"` corrected to `petra` (Petra has a real UserProfile, no need for a phantom directory id); `app/profile/[userId]/page.tsx` migrated from manual fallback chain to canonical `getUserOrProvider`. |
+| A2 | **P21 — Drop `Group.meetIds`, `Meet.groupId` is source of truth.** Remove the `meetIds` field from the `Group` type and from every `mockGroups.ts` entry. Update `getGroupMeets` (currently takes the union of both as a patch) to derive purely from `mockMeets.filter(m => m.groupId === groupId)`. Cross-check no other caller reads `Group.meetIds`. | done 2026-04-30 — `meetIds` field removed from `Group` type and 24 mockGroups entries; `getGroupMeets` simplified to `Meet.groupId` only; new `getGroupMeetCount(groupId)` helper introduced; `CardGroup` + `GroupCard` consumers migrated. |
+| A3 | **P28 — `MeetAttendee.profileOpen` auto-derive helper.** Add `buildMeetAttendee(user)` to `lib/mockMeets.ts` that mirrors `user.profileVisibility === "open"` into the attendee record. Refactor existing attendee literals where it's safe; document the helper in the file's top-of-file comment. Don't change `getAttendeeTier`'s runtime fallback (option (b) in P28) — keep tier resolution decoupled from `mockUsers` lookup. | done 2026-04-30 — `buildMeetAttendee(user, overrides)` added near top of `mockMeets.ts` with usage doc-comment; future seeding (D1–D4, content walks) uses it. Existing 177 inline literals not refactored — B1's sweep handled the data-correction angle separately. |
 
-## Workstream C — Per-persona post authorship + feed depth
+## Workstream B — Visibility distribution (the privacy-model demo)
 
-| # | Description | Status |
-|---|-------------|--------|
-| C1 | Add 3–4 Daniel posts in the reactive dog support group + 1 personal (Locked). Tone: vulnerable, grateful, slow-progress wins. ("Bára held it together for the whole walk today.") | todo |
-| C2 | Add 3–4 Tereza posts — 2 in Vinohrady Evening Walkers (her group), 1 in Riegrovy Sady, 1 personal (Open). Tone: organising, warm, "see you Thursday." | todo |
-| C3 | Add 2 more Klára posts — training session recaps with progress photos. Acts as social proof on her care-group page. | todo |
-| C4 | Add 1–2 more Tomáš posts in Karlín groups — light, "Hugo got mud everywhere again" energy. | todo |
-| C5 | Verify `getFeedForUser(personaId)` returns a coherent feed for every persona — at least 5 items, mix of types (post / meet recap / upcoming meet / connection nudge). Adjust feed-assembly logic if any persona's mix is broken. | todo |
-
-## Workstream D — Bookings, reviews, share codes, polish
+The locked-by-default thesis is one of Doggo's strongest differentiators. Currently the ratio undermines the demo — most users are Open, so the trust ramp (None → Familiar → Connected) loses urgency and Locked chip lists rarely render.
 
 | # | Description | Status |
 |---|-------------|--------|
-| D1 | Add 1–2 more bookings to fill the demo arcs: Daniel↔Klára recurring active (already exists, verify), one new Klára recurring with Hana, one Tomáš booking with another Karlín helper. | todo |
-| D2 | Add reviews mostly *of* Klára (she's the most-reviewed by design — 6 target per `mock-data-plan`). Authors: Daniel, Filip, Hana, Shawn (already exists). Plus 1 review of Petra by Tomáš and 1 of Tereza by Marek. | todo |
-| D3 | Add `shareCode` to Tereza, Daniel, Klára, Tomáš. ~4 string assignments in `mockUsers.ts`. | todo |
-| D4 | **P4 resolution** — execute the chosen path (backfill provider UserProfiles, OR formalise the bridge). Affects `mockBookings.ts` carerIds, `mockData.ts` provider entries, `mockConversations.ts` providerIds. | todo |
+| B1 | **P36 — Rebalance `profileVisibility` to ~70% locked / 30% open.** Audit every `UserProfile` in `mockUsers.ts`. Keep providers Open (Klára, Petra, plus Tereza if she's Helper-tier). Keep 1–2 "social anchors" per neighbourhood Open (e.g., the loud Vinohrady regular). Flip the rest to Locked. Document the rule in a top-of-file comment so future seeding follows it. | done 2026-04-30 — final ratio 7 open / 14 locked (33/67%, close to target). Open: 5 carers (Tereza, Klára, Petra, Nikola, Shawn) + 2 social anchors (Jana = Vinohrady cross-cluster connector, Eva = Holešovice + Reactive Dog Support). Flipped to Locked: Marek, Lucie, Martin, Hana, Ondřej, Anežka. Distribution rule documented in top-of-file comment. **Plus a one-time sweep:** 72 attendee-record `profileOpen` mismatches corrected across `mockMeets.ts` (70 open users without `profileOpen: true` + 2 newly-locked users still carrying `profileOpen: true`). |
+| B2 | **Re-walk privacy-sensitive surfaces post-rebalance.** Verify Members tab, People tab, Discover lists render correctly with the new ratio. Specifically: Locked chip-list now populates on at least one canonical demo meet; tier-3 collapse shows; trust ramp reads. If anything regresses, file as a punch-list item or fix in place. | done 2026-04-30 (static data audit only — runtime click-through deferred to E2/E3). Spot-checked tier distribution on 4 canonical meets (meet-1, meet-7, meet-care-1, meet-reactive-spring). meet-reactive-spring now has 7 locked / 2 open attendees — Locked chip list will populate strongly on the canonical Daniel demo meet, exactly where the privacy-ramp story should read. Mock data narrative comment in the meet's attendee block updated to match new visibility. |
 
-## Workstream E — Highlight reels + smoke
+## Workstream C — Deferred content walks + per-persona depth
+
+The five C&G-deferred content walks plus the inbox hygiene item. Each walk = audit the surface for one persona, fix what's missing, move on.
 
 | # | Description | Status |
 |---|-------------|--------|
-| E1 | Identify each persona's "tell their story best" 3–4 surfaces. (E.g., Tereza: home feed + her created group + her profile. Daniel: reactive support group + his profile + his Klára-training-booking detail.) Document in `docs/features/demo-mode.md`. | todo |
-| E2 | Walk each persona through their highlight reel + the rest of the app — flag any surface that's still incoherent. Fix or punt to the punch list. | todo |
-| E3 | Update `docs/features/demo-mode.md` "Known limitations" — most should now be ticked off as resolved. | todo |
-| E4 | Update `docs/implementation/mock-data-plan.md` — promote relevant sections from "Target State" to "Current State" reflecting what shipped. | todo |
-| E5 | Verify every persona's `useCurrentUser()` flow against the running app (echo of persona-wiring E1, but with content this time). | todo |
+| C1 | **Group feed content per persona** (deferred from C&G E1). For each of the 4 personas, walk their primary group's feed (Tereza: Vinohrady Evening Walkers; Daniel: Reactive Dog Support; Klára: Calm Dog Sessions; Tomáš: Karlín Dog Neighbors). Verify ≥4 posts spread across authors, mix of types. Backfill where thin. | done 2026-04-30 — 7 posts added across the 4 canonical groups. Final: Vinohrady Evening Walkers 5 posts (4 authors), Reactive Dog Support 6 (5 authors, Eva now posts in her own group), Klára's Calm Dog Sessions 6 (3 authors, added Hana client voice + 2nd Klára training recap), Karlín Dog Neighbors 5 (5 authors, Petra admin + Ondřej regular added). |
+| C2 | **Group feed walks per type** (deferred from C&G E2). Walk one canonical example of each group type — Park (Riegrovy), Neighbourhood (Vinohrady Evening Walkers), Interest (Reactive Dog Support), Care (Klára's). Verify the type-specific affordances render with real content (e.g., Care groups show booking CTAs; Park groups show meet cadence). | done 2026-04-30 (data-side static audit). All four canonical types meet ≥6 members / ≥3 meets / ≥3 posts: Park (park-3) 7m/9meets/3p, Neighbour (group-tereza-neighbourhood) 6m/3meets/5p, Interest (group-reactive-dogs) 8m/5meets/6p, Care (group-klara-training) 6m/7meets/6p. Runtime click-through deferred to E2/E3. |
+| C3 | **Care group walk** (deferred from C&G E4). Klára's Calm Dog Sessions as the canonical demo. Members tab populated, Meets tab shows upcoming + past with photos, Services visible on her profile, at least 2 active client conversations linked from the group. | done 2026-04-30 — care config category=training, hostedBy=klara, 6 members (mix of personas + clients), 7 meets (2 completed with photos, 4 upcoming, 1 cancelled, cadence variety), Klára's UserProfile carerProfile already populated with services, 4 active client conversations (Shawn, Daniel, Filip, Hana). Exceeds the ≥2 threshold by 2x. |
+| C4 | **Community feed cross-persona walk** (deferred from C&G E5). For each persona, open `/home` and verify the feed reads as theirs — Daniel sees reactive-group activity, Klára sees a mix of training recaps + Stromovka regulars, Tomáš sees Karlín activity, Tereza sees Vinohrady. Adjust feed-assembly logic only if a persona's mix is structurally broken (not for individual content gaps — those go in C1). | done 2026-04-30 — **fixed a real bug**: `mockFeed.ts` line 68 hardcoded `userNeighbourhood = "Vinohrady"` so every persona's discovery gate behaved like Tereza's. Now reads `getUserById(userId)?.neighbourhood`. Static feed audit per persona: Shawn 19+ items, Tereza 12+, Daniel 11+, Klára 12+, Tomáš 10+. Mix dominated by joined groups (Daniel sees reactive activity, Tomáš sees Karlín, etc.). |
+| C5 | **P35 — Inbox name + dog format normalization.** In `mockConversations.ts`, normalize `partnerName` to `firstName + lastInitial` (e.g., "Lucie Č." not "Lucie Černá" and not "Jana K."), and ensure every row whose partner has a dog includes a `dogName` (currently inconsistent; some rows pass blank, some pass concatenated like "Spot & Goldie"). Decide whether `dogName` should remain a string snapshot or move to an array — recommend keeping string for the inbox-row use case but allow comma-separated for multi-dog. | done 2026-04-30 — 16 name normalizations across mockConversations.ts (Tereza Nováková → Tereza N., Klára Horáčková → Klára H., etc.). SHAWN_NAME constant updated. Inbox row source extended in `app/inbox/page.tsx` to fall back to `getUserById(other.id)?.pets` when `inquiry.pets` is empty (direct/social conversations) — covers the case where the booking-pets snapshot doesn't carry the partner's dog. |
+
+## Workstream D — Edge-case seeding for shipped UI
+
+These are the cases the C&G walkthrough flagged as "no current attendee exercises this branch." Each is one or two attendee-record edits.
+
+| # | Description | Status |
+|---|-------------|--------|
+| D1 | **Tier-2 unmarked attendee** on a canonical demo meet per persona. Pick one upcoming meet for each of Tereza/Daniel/Klára/Tomáš; ensure at least one attendee has `profileVisibility: "open"` AND `connectionState === "none"` AND no `theyMarkedFamiliar` from the viewer. Verify they render in the "Not Familiar" section of the People tab. | todo |
+| D2 | **Tier-2 inbound Familiar (deniability path).** On at least one meet per persona, seed an attendee where `theyMarkedFamiliar: true` from the viewer's perspective WITHOUT outbound `state === "familiar"`. Verify: row bumps to tier 2 in the People tab, no pill renders (deniability — `PersonRow` suppresses pill on `none + theyMarkedFamiliar`), action card surfaces Familiar. | todo |
+| D3 | **Pending pill on People tab.** At least one attendee per persona has `state === "pending"` from the viewer's side. Verify the Pending pill renders. (Currently rare in seeded data — most relationships skip Pending and go to Connected.) | todo |
+| D4 | **Following series + non-attendee viewer combo.** For one recurring meet per persona, seed `Meet.followers` to include a viewer who is NOT in `attendeesByDate`. Verify the meet shows up in that viewer's `/schedule?view=interested` even though they haven't RSVP'd to any specific date. Sanity-check the "Following series" affordance on the meet detail page. | todo |
+
+## Workstream E — Highlight reels + walkthroughs + close
+
+Verification mechanics only — no change reports or "what shipped" summaries inside this section per Shawn's walkthrough doc format.
+
+| # | Description | Status |
+|---|-------------|--------|
+| E1 | **Document each persona's highlight reel in `docs/features/demo-mode.md`.** 3–4 surfaces per persona where their story reads strongest. Tereza: home feed + Vinohrady Evening Walkers + her profile + a recurring Riegrovy meet she hosts. Daniel: Reactive Dog Support + his profile (Locked) + the Klára training booking detail + post-meet review on a small calm meet. Klára: her care group + her provider profile + an active booking with sessions + a training-recap post. Tomáš: Karlín Dog Neighbors + his profile (Locked) + the Petra emergency conversation + Hugo's bookings list. | todo |
+| E2 | **Walk each persona's highlight reel against the running app.** Flag any surface that's incoherent. Fix inline if 1–2 minutes; punt to the punch list otherwise. | todo |
+| E3 | **Walk each persona's "rest of the app"** — Discover, Inbox, Schedule, Bookings, Notifications. Same fix-or-punt rule. | todo |
+| E4 | **Update `docs/features/demo-mode.md` "Known limitations" section.** Most of the 6 limitations should now resolve to "fixed" — connections (1), conversations (2), posts (3), share codes (4) all addressed during the work captured in this board. Profile-edit-state (5) and SSR-flash (6) are accepted limitations, not Mock World Building scope. Also remove the "Cleanup pending" section — those files were deleted via P17. | todo |
+| E5 | **Update `docs/implementation/mock-data-plan.md`.** Promote shipped sections from Target → Current. Close mock-data Open Questions where applicable. | todo |
+| E6 | **Update Open Questions log.** Close item 10 (highlight reels) and item 11's connection-state line. P4 may also close depending on A1 resolution. | todo |
+| E7 | **Update ROADMAP.md.** Move phase out of "Current Phase." Note that Cross-Cutting Flow Testing now has rich content to test against. Don't add a completion summary — archived board IS the record. | todo |
+| E8 | **CLAUDE.md review.** Likely just removing Mock World Building from the Next Phase Recommended notes; structure didn't change. | todo |
+| E9 | **Punch-list review.** Read change reports since phase open. Update any feature/design docs that completed punch-list fixes touched. | todo |
+| E10 | **Structural audit (CONTRIBUTING step 8a).** Three checks — `status: archived\|complete` files in phases/, filename overlap with archive/, stale `last-reviewed` >21d. | todo |
+| E11 | **Strategic review.** What did building this teach us about the demo arc? Are we ready to start packaging it? Open Questions worth resolving before Discover & Care opens? Recommendations on next-phase scope. | todo |
+| E12 | **Show user the closing checklist before archiving.** Per memory: phase close is high-leverage; confirm before editing docs. | todo |
+| E13 | **Archive this phase board.** Mark `status: archived`, `git mv docs/phases/mock-world-building.md docs/archive/phases/` (per P33 — single command, no duplicate-file risk). | todo |
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] `getConnectionState(userId, viewerId)` returns a populated `Connection` for any (user, viewer) pair where the relationship was seeded — no more `undefined` from non-Shawn viewers.
-- [ ] Each of the 4 journey personas has at least 5 connections (mix of Connected / Familiar / Pending) reflecting their archetype.
-- [ ] Picking Daniel from the dropdown shows: a non-empty home feed (his support group activity), a non-empty inbox (Klára training thread), connection pills that render on meets where he knows attendees, and a profile that reflects his locked-but-trusted-by-a-few state.
-- [ ] Same for Klára: provider profile fully populated, her care group has visible posts + reviews, her inbox has at least 2 client threads.
-- [ ] Same for Tomáš: Karlín group activity visible, Petra emergency-care conversation in inbox, his Hugo-Petra booking history surfaces in the schedule.
-- [ ] Same for Tereza: Vinohrady Evening Walkers feed populated, her created-meets show up in her schedule, profile shows community-organiser trust signals.
-- [ ] New User persona still renders gracefully — empty states feel intentional, not broken.
-- [ ] Provider-userId pattern (P4) resolved — no `undefined` from `getUserById(carerId)` lookups in live code paths.
+- [ ] `getConnectionState(userId, viewerId)` returns a populated `Connection` for any (user, viewer) pair where the relationship was seeded.
+- [ ] Each of the 4 journey personas has at least 5 connections (mix of Connected / Familiar / Pending) reflecting their archetype. *(Already met — re-verify holds after rebalance.)*
+- [ ] Picking Daniel from the dropdown shows: a non-empty home feed, a non-empty inbox, connection pills on meets, and a Locked profile that reflects his trust state. Same for Klára / Tomáš / Tereza.
+- [ ] New User persona renders gracefully across every surface — empty states feel intentional.
+- [ ] **Profile-visibility ratio is ~70% locked / 30% open.** Locked chip lists populate on at least one canonical demo meet. Privacy ramp reads.
+- [ ] **Provider-userId pattern (P4) resolved.** No unsafe `getUserById(carerId)` calls in live code paths; bridge contract documented in `mockData.ts`.
+- [ ] **Group↔Meet duplication (P21) resolved.** `Group.meetIds` removed from the type and all data; `getGroupMeets` derives from `Meet.groupId` only.
+- [ ] **`MeetAttendee.profileOpen` auto-derive helper (P28)** in place; new attendee seeding goes through it.
+- [ ] All four edge-case seedings (D1–D4) render correctly when walked.
+- [ ] Inbox row format is consistent — `firstName + lastInitial` for every row, dog name present for every partner with a dog.
+- [ ] Each persona's highlight reel walked against the running app; documented in `demo-mode.md`.
 - [ ] TypeScript compiles clean.
-- [ ] No regressions when viewing as Shawn — his existing world stays intact (all 19 connections, 7 conversations, etc.).
+- [ ] No regressions when viewing as Shawn — his existing world stays intact.
 
 ---
 
@@ -141,44 +150,33 @@ Complete before writing any task code. Mark each item done.
 Complete before marking this phase done. Mark each item done.
 
 - [ ] Walk through every acceptance criterion against the running app
-- [ ] Update all affected feature docs in `docs/features/` (especially `demo-mode.md`, `connections.md`, `messaging.md`)
-- [ ] Update `docs/implementation/mock-data-plan.md` — promote shipped items from Target → Current; close mock-data Open Questions
-- [ ] Update Open Questions log — close any per-persona content questions; surface new ones (Cross-Cutting Flow Testing scope?)
-- [ ] Update ROADMAP.md — move phase out; note that Cross-Cutting Flow Testing now has rich content to test against
-- [ ] Review CLAUDE.md — only update if the phase changed structure (likely just the persona-data state)
+- [ ] Update affected feature docs (`demo-mode.md`, `connections.md`, `messaging.md`)
+- [ ] Update `mock-data-plan.md` (promote shipped → Current; close Open Questions)
+- [ ] Update Open Questions log (items 10, 11; P4 if A1 resolved it)
+- [ ] Update ROADMAP.md (move phase out)
+- [ ] Review CLAUDE.md
 - [ ] Review Punch List changes since phase open
-- [ ] Structural audit (per CONTRIBUTING.md step 8a)
-- [ ] Strategic review — what does the demo arc look like now? Are we ready to start packaging it?
+- [ ] Structural audit (CONTRIBUTING step 8a)
+- [ ] Strategic review
 - [ ] Show user the closing checklist before archiving
-- [ ] Archive this phase board
+- [ ] Archive this phase board (`git mv` per P33)
 
 ---
 
-## Not in scope (will be tempting)
+## Not in scope
 
-- **Image generation.** The mock-data-plan references 40 image prompts. Mock World Building uses *existing* assets. New image generation belongs in a dedicated content-asset pass, or earlier in this phase if Shawn wants to fold it in (Open Question below).
-- **Surface design changes.** If a page's design is broken, that's the next surface-deep-pass's job (Community & Groups, Discover & Care, Schedule & Bookings). This phase only fills data.
-- **Authentication, real backend, real-time messaging.** Still all mock.
-- **New product features.** If something is missing because we never built it (e.g., notification rules per persona), file it on the punch list or as an Open Question — don't expand scope here.
-- **Multi-user state mutations.** If Daniel marks Jana as Familiar in this session, Jana's view doesn't reflect it next session. Out of scope (was also out of scope for Persona Wiring).
+- **Image generation.** Mock World Building uses existing assets only. New image gen is its own later pass.
+- **Surface design changes.** If a page's design is broken, it's the next surface-deep-pass's job (Discover & Care, Schedule & Bookings). This phase only fills/fixes data.
+- **Authentication, real backend, real-time messaging.** All still mock.
+- **New product features.** If something is missing because we never built it, file it on the punch list — don't expand scope here.
+- **Multi-user state mutations.** If Daniel marks Jana as Familiar in this session, Jana's view doesn't reflect it next session. Out of scope.
+- **Notifications work.** Inbox & Notifications is its own upcoming phase. This phase doesn't touch notification triggers, badge counts, or the request-vs-thread distinction.
 
 ---
 
-## Decisions made at phase open (2026-04-26)
+## Decisions made at phase open (carried forward from 2026-04-26)
 
-1. **Scope cap: Demo-quality** (~4–6 sessions). Every persona gets a coherent home feed, inbox, profile, and at least one rich cross-persona arc.
-2. **Execution order: All four in parallel, by workstream.** A1 restructures connection shape → A2–A5 seed all four personas' connections in one pass → B/C/D follow the same pattern.
-3. **P4 (provider-userId): Formalise the bridge.** Providers stay as `ProviderCard`-only entries; document `getUserById` may return `undefined`; ensure UI handles gracefully. None of these providers is a switcher persona.
-4. **Images: Existing assets only.** 21 user avatars + dog/scene photos already in `/public/images/generated/`. New image gen is its own later pass.
-
-## Open Questions — to resolve as we go
-
-These are framing/depth decisions where my defaults below are reasonable; flag any that feel off.
-
-5. **Demo-promotion focus.** Defaults:
-   - **Tereza** — community organising (her created group, recurring meet, post-meet review flow as host)
-   - **Daniel** — trust-building from a low base (locked profile, Familiar marks accumulating, the Klára booking arc as the trust→care payoff)
-   - **Klára** — provider workflow (her care group, services on her profile, active booking with session check-ins)
-   - **Tomáš** — community-to-care under pressure (Petra emergency thread + booking + review)
-   - **New User** — onboarding empty states (no groups → join CTA, no connections → meets discovery)
-6. **Cross-persona arcs.** The mock-data-plan calls out three: Daniel→Klára (training), Tomáš→Petra (emergency), Tereza→Marek (favour). Default: build all three richly as part of demo-quality scope.
+1. **Scope cap: Demo-quality** (~4–6 sessions).
+2. **Execution order: Workstream A first** (data-shape debt) → B (visibility ratio) → C (content walks) → D (edge cases) → E (verification + close).
+3. **P4 (provider-userId): Formalise the bridge.** Providers stay `ProviderCard`-only; document `getUserById` may return `undefined`; ensure UI handles gracefully.
+4. **Images: Existing assets only.**

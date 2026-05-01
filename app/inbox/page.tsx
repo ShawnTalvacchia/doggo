@@ -10,6 +10,7 @@ import { useConversations } from "@/contexts/ConversationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { getConnectionsByState, getConnectionState } from "@/lib/mockConnections";
+import { getUserById } from "@/lib/mockUsers";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutList } from "@/components/layout/LayoutList";
@@ -147,11 +148,19 @@ export default function InboxPage() {
 
       const lastMsg = getLastMessage(conv);
       const conn = getConnectionState(other.id, currentUserId);
+      // Inbox row dog names: prefer the booking's pets (relevant when the
+      // conversation is about a specific dog), fall back to the partner's
+      // own dogs from their profile (relevant for direct/social
+      // conversations where pets is empty). P35 — Mock World Building C5.
+      const inquiryPets = conv.inquiry?.pets ?? [];
+      const partnerDogs = inquiryPets.length > 0
+        ? inquiryPets
+        : (getUserById(other.id)?.pets.map((p) => p.name) ?? []);
       result.push({
         userId: other.id,
         name: other.name,
         avatarUrl: other.avatarUrl,
-        dogNames: conv.inquiry?.pets ?? [],
+        dogNames: partnerDogs,
         preview: getPreview(conv),
         timeAgo: lastMsg ? formatRelativeTime(lastMsg.sentAt) : "",
         sortKey: lastMsg?.sentAt ?? "1970-01-01T00:00:00Z",

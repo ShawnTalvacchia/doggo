@@ -1420,6 +1420,230 @@ export const mockPosts: Post[] = [
     ],
     comments: [],
   },
+  // ── C1 backfill (Mock World Building, 2026-04-30) ─────────────────
+  // Per-persona group feed depth — adds authors beyond the persona+1
+  // pattern so each canonical group reads as a real community.
+  // Vinohrady Evening Walkers (Tereza's neighbourhood) +2 posts.
+  {
+    id: "post-lucie-vinohrady-evening",
+    authorId: "lucie",
+    authorName: "Lucie",
+    authorAvatarUrl: "/images/generated/lucie-profile.jpeg",
+    groupId: "group-tereza-neighbourhood",
+    groupName: "Vinohrady Evening Walkers",
+    photos: ["/images/generated/evening-walk-group.jpeg"],
+    caption: "Thursday's loop felt extra calm tonight. Pepík slept the whole way home.",
+    tags: [
+      { type: "dog", id: "pepik", label: "Pepík" },
+      { type: "place", id: "riegrovy-sady", label: "Riegrovy sady" },
+    ],
+    createdAt: daysAgoIso(4, "21:10"),
+    reactions: [
+      { userId: "tereza", userName: "Tereza" },
+      { userId: "marek", userName: "Marek" },
+      { userId: "jana", userName: "Jana" },
+    ],
+    comments: [
+      {
+        id: "comment-lucie-vinohrady-1",
+        authorId: "tereza",
+        authorName: "Tereza",
+        authorAvatarUrl: "/images/generated/tereza-profile.jpeg",
+        text: "Glad you came! Same time next week?",
+        createdAt: daysAgoIso(4, "21:30"),
+      },
+    ],
+  },
+  {
+    id: "post-marek-vinohrady-evening",
+    authorId: "marek",
+    authorName: "Marek",
+    authorAvatarUrl: "/images/generated/marek-profile.jpeg",
+    groupId: "group-tereza-neighbourhood",
+    groupName: "Vinohrady Evening Walkers",
+    photos: [],
+    caption: "Anyone up for a slightly earlier start tomorrow? 6:30pm if the rain stays off. Benny will be insufferable if we skip.",
+    tags: [
+      { type: "community", id: "group-tereza-neighbourhood", label: "Vinohrady Evening Walkers" },
+    ],
+    createdAt: daysAgoIso(2, "13:45"),
+    reactions: [
+      { userId: "tereza", userName: "Tereza" },
+      { userId: "lucie", userName: "Lucie" },
+    ],
+    comments: [
+      {
+        id: "comment-marek-vinohrady-1",
+        authorId: "lucie",
+        authorName: "Lucie",
+        authorAvatarUrl: "/images/generated/lucie-profile.jpeg",
+        text: "Yes please. Pepík will show up rain or shine but I will not.",
+        createdAt: daysAgoIso(2, "14:20"),
+      },
+      {
+        id: "comment-marek-vinohrady-2",
+        authorId: "tereza",
+        authorName: "Tereza",
+        authorAvatarUrl: "/images/generated/tereza-profile.jpeg",
+        text: "6:30 works — I'll be there.",
+        createdAt: daysAgoIso(2, "15:02"),
+      },
+    ],
+  },
+  // Karlín Dog Neighbors (Tomáš's neighbourhood) +2 posts.
+  {
+    id: "post-petra-karlin-admin",
+    authorId: "petra",
+    authorName: "Petra",
+    authorAvatarUrl: "/images/generated/petra-profile.jpeg",
+    groupId: "group-karlin-neighbours",
+    groupName: "Karlín Dog Neighbors",
+    photos: ["/images/generated/post-karlin-morning.jpeg"],
+    caption: "Reminder: Karlín riverside is closed for resurfacing on Saturday morning. Easy detour through Vítkov instead — meet at the usual spot 9am.",
+    tags: [
+      { type: "place", id: "vitkov", label: "Vítkov" },
+      { type: "community", id: "group-karlin-neighbours", label: "Karlín Dog Neighbors" },
+    ],
+    createdAt: daysAgoIso(5, "08:00"),
+    reactions: [
+      { userId: "tomas", userName: "Tomáš" },
+      { userId: "ondrej", userName: "Ondřej" },
+      { userId: "adela", userName: "Adéla" },
+    ],
+    comments: [
+      {
+        id: "comment-petra-karlin-1",
+        authorId: "ondrej",
+        authorName: "Ondřej",
+        authorAvatarUrl: "/images/generated/ondrej-profile.jpeg",
+        text: "See you at 9 — Rocky's been waiting all week.",
+        createdAt: daysAgoIso(5, "08:35"),
+      },
+    ],
+  },
+  {
+    id: "post-ondrej-karlin",
+    authorId: "ondrej",
+    authorName: "Ondřej",
+    authorAvatarUrl: "/images/generated/ondrej-profile.jpeg",
+    groupId: "group-karlin-neighbours",
+    groupName: "Karlín Dog Neighbors",
+    photos: ["/images/generated/rocky-portrait.jpeg"],
+    caption: "Rocky finally figured out the new harness. Five attempts, three treats, one confused dog.",
+    tags: [
+      { type: "dog", id: "rocky", label: "Rocky" },
+    ],
+    createdAt: daysAgoIso(7, "19:15"),
+    reactions: [
+      { userId: "petra", userName: "Petra" },
+      { userId: "tomas", userName: "Tomáš" },
+      { userId: "adela", userName: "Adéla" },
+    ],
+    comments: [],
+  },
+  // Reactive Dog Support — Eva (admin) posts in her own group.
+  {
+    id: "post-eva-reactive-tips",
+    authorId: "eva",
+    authorName: "Eva",
+    authorAvatarUrl: "/images/generated/eva-profile.jpeg",
+    groupId: "group-reactive-dogs",
+    groupName: "Prague Reactive Dog Support",
+    photos: [],
+    caption: "Quick tip from this week's session — if your dog escalates faster on cold mornings, it's not in your head. The cold air carries scent further and the body's primed to startle. Shorter loops, more breaks, less guilt. We'll work on it together.",
+    tags: [
+      { type: "community", id: "group-reactive-dogs", label: "Prague Reactive Dog Support" },
+    ],
+    createdAt: daysAgoIso(3, "10:00"),
+    reactions: [
+      { userId: "daniel", userName: "Daniel" },
+      { userId: "hana", userName: "Hana" },
+      { userId: "vitek", userName: "Vítek" },
+      { userId: "anezka", userName: "Anežka" },
+    ],
+    comments: [
+      {
+        id: "comment-eva-reactive-1",
+        authorId: "daniel",
+        authorName: "Daniel",
+        authorAvatarUrl: "/images/generated/daniel-profile.jpeg",
+        text: "This explains so much. Bára's been worse all week and I thought I'd undone weeks of work.",
+        createdAt: daysAgoIso(3, "10:45"),
+      },
+      {
+        id: "comment-eva-reactive-2",
+        authorId: "hana",
+        authorName: "Hana",
+        authorAvatarUrl: "/images/generated/hana-profile.jpeg",
+        text: "Thank you for naming it. Runa and I are in the same boat.",
+        createdAt: daysAgoIso(3, "11:20"),
+      },
+    ],
+  },
+  // Klára's Calm Dog Sessions — +1 client voice + 1 more Klára recap.
+  {
+    id: "post-hana-klara-training",
+    authorId: "hana",
+    authorName: "Hana",
+    authorAvatarUrl: "/images/generated/hana-profile.jpeg",
+    groupId: "group-klara-training",
+    groupName: "Klára's Calm Dog Sessions",
+    photos: ["/images/generated/runa-portrait.jpeg"],
+    caption: "Six sessions in. Runa walked past a barking Husky on Letenská this morning without losing the plot. I cried a little. Thank you Klára.",
+    tags: [
+      { type: "dog", id: "runa", label: "Runa" },
+      { type: "person", id: "klara", label: "Klára" },
+    ],
+    createdAt: daysAgoIso(6, "12:30"),
+    reactions: [
+      { userId: "klara", userName: "Klára" },
+      { userId: "daniel", userName: "Daniel" },
+      { userId: "filip", userName: "Filip" },
+      { userId: "eva", userName: "Eva" },
+    ],
+    comments: [
+      {
+        id: "comment-hana-klara-1",
+        authorId: "klara",
+        authorName: "Klára",
+        authorAvatarUrl: "/images/generated/klara-profile.jpeg",
+        text: "That's huge. Runa's done all the work — you've just been a steady partner. Onwards.",
+        createdAt: daysAgoIso(6, "13:00"),
+      },
+    ],
+  },
+  {
+    id: "post-klara-training-recap",
+    authorId: "klara",
+    authorName: "Klára",
+    authorAvatarUrl: "/images/generated/klara-profile.jpeg",
+    groupId: "group-klara-training",
+    groupName: "Klára's Calm Dog Sessions",
+    photos: ["/images/generated/post-training-recall.jpeg"],
+    caption: "This week's group at Stromovka — three dogs, three different recall paces, all of them better than where they started. Eda's job today was to be calm and ignore everything, which he did with theatrical patience.",
+    tags: [
+      { type: "dog", id: "eda", label: "Eda" },
+      { type: "place", id: "stromovka", label: "Stromovka" },
+      { type: "community", id: "group-klara-training", label: "Klára's Calm Dog Sessions" },
+    ],
+    createdAt: daysAgoIso(9, "16:45"),
+    reactions: [
+      { userId: "filip", userName: "Filip" },
+      { userId: "daniel", userName: "Daniel" },
+      { userId: "hana", userName: "Hana" },
+      { userId: "shawn", userName: "Shawn" },
+    ],
+    comments: [
+      {
+        id: "comment-klara-training-1",
+        authorId: "filip",
+        authorName: "Filip",
+        authorAvatarUrl: "/images/generated/filip-profile.jpeg",
+        text: "Toby's still bragging.",
+        createdAt: daysAgoIso(9, "17:30"),
+      },
+    ],
+  },
 ];
 
 /** Get posts by a specific user */

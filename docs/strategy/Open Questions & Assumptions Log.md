@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-29
+last-reviewed: 2026-04-30
 tags: [questions, risks, assumptions]
 review-trigger: "before starting a new phase, after any strategic discussion"
 ---
@@ -65,6 +65,7 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 - **Group-to-group crossover meets.** A trainer co-hosting a workshop between their Care group and the reactive dog support group — how does this work? Dual-listed? Shared event?
 - **Series subscription notifications.** Following a recurring series should produce notifications when new dates are added to a series with an irregular cadence and possibly 24h-before reminders for upcoming occurrences. The `meet_series_update` notification type is wired (stubbed entry on meet-7), but real triggering, batching, and opt-out behaviour are deferred. Belongs with the broader notifications work — not Mock World Building.
 - **Series ending semantics.** Recurring meets carry an optional `seriesEndDate`, but UI for end-of-series (last occurrence past, no further dates) is unbuilt. Treat as inactive series for now; design when a real series in mock data hits its end date.
+- **Group admin controls for meet creation.** Today any group member can create a meet in any group they belong to (including private/approval groups). For some groups that's right (Vinohrady Evening Walkers benefits from any regular calling a walk); for others it's a problem (a Care group's meets are part of the provider's offering, not random member events). Open: should each group have an "anyone / admins / approval-required" setting on meet creation? Should there be type-level constraints (e.g. Care groups → admin-only by default; Interest support groups → approval; Park/Neighbour → anyone)? Should admins be able to set per-meet constraints (max size, leash policy, reactive-dog-friendly tags) that all member-created meets in the group inherit? Long-term — not blocking demo. Surfaced 2026-04-30 during meet-create flow walkthrough on Vinohrady Morning Crew.
 
 ---
 
@@ -147,7 +148,10 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 **Resolved:** New-user feed populated by `getNewUserFeed()` — picks public/nearby content, completed-meet recaps from open groups, "find your park" prompts. Switcher persona `new-user` previews this state across every surface (`useIsNewUser()`). Closed by Persona & Demo Mode Wiring (2026-04-26).
 
 **Open:**
-- (none currently — all nav/UX questions resolved or deferred to surface-specific phases)
+- **Terminology consistency sweep.** Some concepts have two names that drift in usage:
+  - **Private vs Locked** — surfaced 2026-04-30. Data model uses `profileVisibility: "open" | "locked"`. UX copy and walkthrough now standardise on **Private** / **Public** (gentler, matches Instagram/Threads conventions, doesn't carry punitive feel of "locked"). Code field rename from `"open" | "locked"` → `"public" | "private"` is deferred (mechanical rename, ~30 callsites, can land any time).
+  - **Groups vs Communities** — `Group` is the data type and `groupType` is the schema field; "Communities" is the bottom-nav tab label and the route prefix (`/communities/[id]`). The two are used interchangeably in conversation. Open: pick one canonical user-facing word and apply consistently. Current preference (informal): keep "Communities" as the navigation/route name (it's the destination — a community of people), keep "Group" as the data noun in code (it's a record). External UI copy should pick one and stop alternating ("post in this community" vs "post in this group").
+  - Pattern: make a sweep at any phase close to catch new drift. Not blocking demo; quality-of-prose issue.
 
 ---
 

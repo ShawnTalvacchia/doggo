@@ -7,7 +7,9 @@ import { providers } from "./mockData";
 const olga = providers.find((p) => p.id === "olga-m")!;
 
 const SHAWN_ID = "shawn";
-const SHAWN_NAME = "Shawn Talvacchia";
+// Display name follows the inbox-row convention (P35, Mock World Building C5):
+// firstName + lastInitial. Compact across cultures, consistent across rows.
+const SHAWN_NAME = "Shawn T.";
 const SHAWN_AVATAR =
   "/images/generated/shawn-profile.jpg";
 
@@ -772,7 +774,7 @@ export const mockConversations: Conversation[] = [
     id: "tereza-conv",
     conversationType: "direct",
     providerId: "tereza",
-    providerName: "Tereza Nováková",
+    providerName: "Tereza N.",
     providerAvatarUrl: "/images/generated/tereza-profile.jpeg",
     ownerId: SHAWN_ID,
     ownerName: SHAWN_NAME,
@@ -788,7 +790,7 @@ export const mockConversations: Conversation[] = [
     id: "klara-conv",
     conversationType: "booking",
     providerId: "klara",
-    providerName: "Klára Horáčková",
+    providerName: "Klára H.",
     providerAvatarUrl: "/images/generated/klara-profile.jpeg",
     ownerId: SHAWN_ID,
     ownerName: SHAWN_NAME,
@@ -864,7 +866,7 @@ export const mockConversations: Conversation[] = [
     id: "eva-conv",
     conversationType: "direct",
     providerId: "eva",
-    providerName: "Eva",
+    providerName: "Eva S.",
     providerAvatarUrl: "/images/generated/eva-profile.jpeg",
     ownerId: SHAWN_ID,
     ownerName: SHAWN_NAME,
@@ -883,7 +885,7 @@ export const mockConversations: Conversation[] = [
     providerName: SHAWN_NAME,
     providerAvatarUrl: SHAWN_AVATAR,
     ownerId: "marie",
-    ownerName: "Marie Nováková",
+    ownerName: "Marie N.",
     ownerAvatarUrl: MARIE_AVATAR,
     status: "active",
     inquiry: {
@@ -912,10 +914,10 @@ export const mockConversations: Conversation[] = [
     id: "daniel-klara-conv",
     conversationType: "booking",
     providerId: "klara",
-    providerName: "Klára Horáčková",
+    providerName: "Klára H.",
     providerAvatarUrl: "/images/generated/klara-profile.jpeg",
     ownerId: "daniel",
-    ownerName: "Daniel Procházka",
+    ownerName: "Daniel P.",
     ownerAvatarUrl: "/images/generated/daniel-profile.jpeg",
     status: "active",
     inquiry: {
@@ -939,10 +941,10 @@ export const mockConversations: Conversation[] = [
     id: "tomas-petra-conv",
     conversationType: "booking",
     providerId: "petra",
-    providerName: "Petra Veselá",
+    providerName: "Petra V.",
     providerAvatarUrl: "/images/generated/petra-profile.jpeg",
     ownerId: "tomas",
-    ownerName: "Tomáš Kovář",
+    ownerName: "Tomáš K.",
     ownerAvatarUrl: "/images/generated/tomas-profile.jpeg",
     status: "active",
     inquiry: {
@@ -965,10 +967,10 @@ export const mockConversations: Conversation[] = [
     id: "tereza-marek-conv",
     conversationType: "direct",
     providerId: "tereza",
-    providerName: "Tereza Nováková",
+    providerName: "Tereza N.",
     providerAvatarUrl: "/images/generated/tereza-profile.jpeg",
     ownerId: "marek",
-    ownerName: "Marek Dvořák",
+    ownerName: "Marek D.",
     ownerAvatarUrl: "/images/generated/marek-profile.jpeg",
     status: "active",
     inquiry: EMPTY_INQUIRY,
@@ -982,10 +984,10 @@ export const mockConversations: Conversation[] = [
     id: "klara-filip-conv",
     conversationType: "booking",
     providerId: "klara",
-    providerName: "Klára Horáčková",
+    providerName: "Klára H.",
     providerAvatarUrl: "/images/generated/klara-profile.jpeg",
     ownerId: "filip",
-    ownerName: "Filip Novotný",
+    ownerName: "Filip N.",
     ownerAvatarUrl: "/images/generated/filip-profile.jpeg",
     status: "active",
     inquiry: {
@@ -1008,10 +1010,10 @@ export const mockConversations: Conversation[] = [
     id: "klara-hana-conv",
     conversationType: "booking",
     providerId: "klara",
-    providerName: "Klára Horáčková",
+    providerName: "Klára H.",
     providerAvatarUrl: "/images/generated/klara-profile.jpeg",
     ownerId: "hana",
-    ownerName: "Hana Pokorná",
+    ownerName: "Hana P.",
     ownerAvatarUrl: "/images/generated/hana-profile.jpeg",
     status: "active",
     inquiry: {
@@ -1035,10 +1037,10 @@ export const mockConversations: Conversation[] = [
     id: "tereza-lucie-conv",
     conversationType: "direct",
     providerId: "tereza",
-    providerName: "Tereza Nováková",
+    providerName: "Tereza N.",
     providerAvatarUrl: "/images/generated/tereza-profile.jpeg",
     ownerId: "lucie",
-    ownerName: "Lucie Černá",
+    ownerName: "Lucie Č.",
     ownerAvatarUrl: "/images/generated/lucie-profile.jpeg",
     status: "active",
     inquiry: EMPTY_INQUIRY,

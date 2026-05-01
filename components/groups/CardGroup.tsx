@@ -16,6 +16,7 @@ import {
 } from "@phosphor-icons/react";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import type { Group, GroupType, CareCategory } from "@/lib/types";
+import { getGroupMeetCount } from "@/lib/mockGroups";
 
 /* ── Constants ─────────────────────────────────────────────────── */
 
@@ -208,7 +209,7 @@ function CardGroupContent({
 
 export function CardGroup({ group, variant = "my-groups", isMember = false }: CardGroupProps) {
   const dogCount = group.members.reduce((sum, m) => sum + m.dogNames.length, 0);
-  const upcomingEvents = group.meetIds.length || 0;
+  const upcomingEvents = getGroupMeetCount(group.id);
   const typeInfo = TYPE_CONFIG[group.groupType];
   const careLabel = group.groupType === "care" && group.careCategory
     ? CARE_LABELS[group.careCategory]

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { MapPin, Users, Lightning, Tree, UsersFour, Wrench, House, PawPrint, Storefront, Dog } from "@phosphor-icons/react";
 import type { Group, GroupType } from "@/lib/types";
+import { getGroupMeetCount } from "@/lib/mockGroups";
 
 const TYPE_CONFIG: Record<GroupType, { label: string; icon: typeof Tree }> = {
   park: { label: "Park", icon: Tree },
@@ -12,7 +13,7 @@ const TYPE_CONFIG: Record<GroupType, { label: string; icon: typeof Tree }> = {
 };
 
 export function GroupCard({ group }: { group: Group }) {
-  const weeklyEvents = group.meetIds.length || 0;
+  const weeklyEvents = getGroupMeetCount(group.id);
   const dogCount = group.members.reduce((sum, m) => sum + m.dogNames.length, 0);
   const typeInfo = TYPE_CONFIG[group.groupType];
 

@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-29
+last-reviewed: 2026-04-30
 tags: [trust, connections, privacy, safety]
 review-trigger: "when touching connection states, visibility, or trust signals"
 ---
@@ -35,9 +35,23 @@ Users have one of four relationship states with each other person. These are the
 
 **None** is the default. Like a private Instagram account — you see the profile pic, name, dog, and neighbourhood. Enough to recognise someone from a meet. Not enough to dig deeper or make contact.
 
-**Familiar** is one-sided and silent. A user can mark specific people as Familiar — granting them expanded visibility and the ability to send a message request or connect request — without exposing themselves broadly. **No notification is sent.** The other person simply sees more of your profile the next time they visit. This is the primary mechanism for cautious users to build their social graph after meeting people IRL.
+**Familiar** is one-sided and silent. A user can mark specific people as Familiar — granting them expanded visibility and shaping how they appear in tier-grouped lists — without exposing themselves broadly. **No notification is sent.** The other person simply sees more of your profile the next time they visit. This is the primary mechanism for cautious users to build their social graph after meeting people IRL.
 
-**Who can mark Familiar:** Only users with locked profiles. Open profiles are already visible to everyone, so the Familiar action doesn't apply — they skip straight to connect requests. A user can only mark someone as Familiar if that person's profile is not locked (i.e., the profile is visible enough to evaluate). You cannot mark a locked stranger as Familiar — you'd need to meet them at an event first (see post-meet review below).
+**Who can mark Familiar:** Locked-profile viewers. Open viewers skip the Familiar step entirely — their profile is already public, so the silent grant has nothing to grant; they go straight to connect requests.
+
+**Who can be marked Familiar:** Anyone the viewer has shared context with. The viewer needs *some* basis for claiming "I recognise this person" — the trust model treats shared context as that basis. Specifically:
+
+- **Open subjects** can be marked from any surface (their profile is publicly visible — no shared context required to recognise them).
+- **Locked subjects** can be marked from surfaces where the viewer and subject share context: a meet the viewer attended, a group the viewer is a member of, or a profile page where the connection record carries shared groups or shared meets. The shared context IS the recognition signal.
+- **Locked subjects in zero-context surfaces** (browsing meets you didn't attend, previewing groups you're not in) cannot be marked. They render as a chip list — visible, named, but not actionable. Privacy holds for genuine strangers.
+
+**What the Familiar mark does (and does not do):** The mark is a one-sided **outbound grant** from the marker to the marked person. It opens **the marker's** profile up — the marked person, on their next visit, sees more of the marker's profile. **It does not unlock the marked person's profile for the marker.** Unlocking the OTHER direction requires the *subject* to open up — by being Open, by marking the viewer back, or by becoming Connected/Pending.
+
+Practically: if Daniel marks Marek Familiar, Marek will see more of Daniel's profile next time. Daniel's view of Marek is unchanged. For Marek's profile to unlock for Daniel, Marek would have to do something — mark Daniel, switch to Open, or accept a Connect request.
+
+The reciprocity model is deliberate: it treats opening up as a personal choice, not something a stranger can force on you. It's also why Connect (the mutual ask) is gated behind one party already having opened up — you can't ask to be Connected with someone who hasn't given you any opening.
+
+**The unlock loop:** participate → share context → mark people you recognise as Familiar (this opens YOU up to them) → those people, when they look at you, see more and may mark you back → over time you see each other's full profiles, leading to Connect. The post-meet review sheet is the warm-moment guided pass for this; the same Familiar action is also surfaced inline on the People tab, the Members tab, and the locked profile page (when shared context exists).
 
 **Pending** is transitional. One person has sent a connect request; the other hasn't responded yet.
 
@@ -77,8 +91,11 @@ Meet attendee lists separate **information** (open) from **action** (earned by a
 
 **Information is open.** Anyone who can see a meet can see who's attending, grouped by relationship state:
 
-1. **Visible with full cards:** Connected users, Familiar (either direction), Open profiles
-2. **Chip list at the bottom:** Locked users with None relationship — names + small avatars only, no card-level affordance
+1. **Connected** (header) — Connected users render as full cards. Viewer pinned to top.
+2. **Familiar** (header) — Outbound Familiar marks render as full cards **when the subject is also visible to the viewer** (Open profile or has marked the viewer back). A subject the viewer marked Familiar but who is still Locked-with-no-reciprocation stays in **Private profiles** below — the mark is a grant from viewer to subject, not a content unlock for the viewer. The "Familiar ✓" pill on the compact row signals the mark took effect.
+3. **Other attendees / Other members** (header) — Tier 2 rows that aren't Connected or outbound-Familiar: Open profiles you haven't marked, and rows where the subject has marked you Familiar (inbound). Same full-card treatment. The header is intentionally neutral — it doesn't reveal *why* anyone is in this group, so inbound-Familiar marks remain deniable.
+4. **Private profiles** (header, context-rich surfaces only) — Locked users still locked-to-the-viewer (None state, or outbound-Familiar without reciprocation) render as compact `PrivateProfileRow`s on surfaces where the viewer has shared context (a meet they attended, a group they're in): 32px avatar, single-line identity, "+ Familiar" / "Familiar ✓" pill on the right. The meet/group itself is the shared context, so the action is available. Connect never appears even after marking — Connect requires the subject to have given an opening signal first.
+5. **Chip list (no-context surfaces only)** — When a viewer encounters Locked-with-None on a surface where they have no shared context (e.g., previewing a meet they didn't attend), the row collapses to chip-only — name + small avatar, no action affordance.
 
 **Action is gated by attendance.** Familiar / Connect / Message pills appear only for viewers who attended the meet (and only on completed meets). Pre-meet viewers, no-shows, and non-attendees see the same content but with no action affordances. The card stack is identical across viewers; the action affordances differ.
 

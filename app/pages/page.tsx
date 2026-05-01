@@ -339,10 +339,10 @@ const FAMILIES: Family[] = [
         desc: "Compact → expanded pet profile with socialisation, play style, vet notes.",
       },
       {
-        name: "Locked profile gate",
+        name: "Private profile gate",
         status: "done",
-        desc: "Locked users show limited info. Gate feels respectful, not preachy.",
-        refs: [{ label: "See locked", href: "/profile/daniel" }],
+        desc: "Private profiles show limited info. Gate feels respectful, not preachy.",
+        refs: [{ label: "See private", href: "/profile/daniel" }],
       },
       {
         name: "Services tab (provider view)",

@@ -53,7 +53,7 @@ export function LockedChipList({ entries }: { entries: LockedChipListEntry[] }) 
     <div className="flex flex-col gap-sm pt-sm">
       <div className="flex items-center gap-xs text-xs font-semibold uppercase tracking-wider text-fg-tertiary">
         <Lock size={12} weight="light" />
-        Locked profiles ({entries.length})
+        Private profiles ({entries.length})
       </div>
       <ul className="flex flex-wrap gap-sm list-none p-0 m-0">
         {entries.map((e) => (

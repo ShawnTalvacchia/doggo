@@ -631,13 +631,13 @@ function MakeConnectionsStep({
         </p>
       )}
 
-      {/* Locked profiles section — quiet bottom list. Tier 3 attendees
+      {/* Private profiles section — quiet bottom list. Tier 3 attendees
           who don't have enough shared context to surface as actionable. */}
       {locked.length > 0 && (
         <div className="flex flex-col gap-sm pt-md border-t border-edge-regular">
           <div className="flex items-center gap-xs text-xs font-semibold uppercase tracking-wider text-fg-tertiary">
             <Lock size={12} weight="light" />
-            Locked profiles
+            Private profiles
           </div>
           <ul className="flex flex-wrap gap-sm list-none p-0 m-0">
             {locked.map((a) => (

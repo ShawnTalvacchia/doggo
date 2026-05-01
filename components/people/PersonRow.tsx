@@ -28,6 +28,7 @@ import { ButtonAction } from "@/components/ui/ButtonAction";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import { OwnerDogAvatar } from "@/components/people/OwnerDogAvatar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useConnections } from "@/contexts/ConnectionsContext";
 import {
   resolvePersonActions,
   type PersonAction,
@@ -197,6 +198,15 @@ export function PersonRow(props: PersonRowProps) {
   } = props;
 
   const viewer = useCurrentUser();
+  // Default Familiar mutation handlers — fall back to ConnectionsContext
+  // when the consumer doesn't pass `onAdvance`/`onUndoMark`. This makes
+  // PersonRow self-sufficient: surfaces like ParticipantList that don't
+  // track their own session marks (no undo footer needed) still get a
+  // working "+ Familiar" / "Familiar ✓" toggle. Consumers that DO pass
+  // explicit handlers (MembersTab, post-meet review) keep their behaviour.
+  const { markFamiliar, unmarkFamiliar } = useConnections();
+  const defaultMark = () => markFamiliar(viewer.id, userId);
+  const defaultUnmark = () => unmarkFamiliar(viewer.id, userId);
 
   // Resolve action set
   const resolvedActions: PersonAction[] =
@@ -259,8 +269,20 @@ export function PersonRow(props: PersonRowProps) {
   const messageAction = resolvedActions.find((a) => a.kind === "message");
   const connectAction = resolvedActions.find((a) => a.kind === "connect");
 
+  // After marking Familiar (state="familiar") on a Locked subject the matrix
+  // returns familiar(on) only — no Connect path available. The row used to
+  // render with no inline action in that case, leaving the user no way to
+  // unmark from the row. Adding "familiar-on" surfaces a "Familiar ✓" toggle
+  // pill that calls unmarkFamiliar (or `onUndoMark` if the consumer wired
+  // their own). Mock World Building 2026-04-30.
+  const familiarOn = resolvedActions.find(
+    (a): a is { kind: "familiar"; state: "on" } =>
+      a.kind === "familiar" && a.state === "on",
+  );
+
   type SingleAction =
     | { kind: "familiar-off"; onClick: () => void }
+    | { kind: "familiar-on"; onClick: () => void }
     | { kind: "connect"; onClick: () => void }
     | { kind: "connect-committed"; onClick: () => void }
     | { kind: "message"; onClick?: () => void };
@@ -274,13 +296,16 @@ export function PersonRow(props: PersonRowProps) {
       // After marking Familiar — body button offers escalation when matrix permits.
       // If no connect available (e.g., locked-locked viewer-subject), body is empty;
       // footer carries the mark state.
-      if (connectAction) return { kind: "connect", onClick: onAdvance ?? (() => {}) };
+      if (connectAction) return { kind: "connect", onClick: onAdvance ?? defaultMark };
       return null;
     }
     // mark === null — drive from matrix
     if (messageAction) return { kind: "message", onClick: onMessage };
-    if (familiarOff) return { kind: "familiar-off", onClick: onAdvance ?? (() => {}) };
-    if (connectAction) return { kind: "connect", onClick: onAdvance ?? (() => {}) };
+    if (familiarOff) return { kind: "familiar-off", onClick: onAdvance ?? defaultMark };
+    if (connectAction) return { kind: "connect", onClick: onAdvance ?? defaultMark };
+    // Locked-locked + state="familiar" lands here — render the toggle so
+    // the user can unmark inline without navigating to the profile page.
+    if (familiarOn) return { kind: "familiar-on", onClick: onUndoMark ?? defaultUnmark };
     return null;
   })();
 
@@ -511,11 +536,25 @@ export function PersonRow(props: PersonRowProps) {
 function renderSingleAction(
   action:
     | { kind: "familiar-off"; onClick: () => void }
+    | { kind: "familiar-on"; onClick: () => void }
     | { kind: "connect"; onClick: () => void }
     | { kind: "connect-committed"; onClick: () => void }
     | { kind: "message"; onClick?: () => void },
   name: string,
 ) {
+  if (action.kind === "familiar-on") {
+    return (
+      <button
+        type="button"
+        onClick={action.onClick}
+        className="person-row-pill person-row-pill--familiar person-row-pill--toggle"
+        aria-pressed
+        aria-label={`Remove Familiar from ${name}`}
+      >
+        Familiar ✓
+      </button>
+    );
+  }
   if (action.kind === "message") {
     return (
       <ButtonAction variant="primary" size="sm" cta onClick={action.onClick}>

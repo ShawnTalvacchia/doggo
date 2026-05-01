@@ -5,6 +5,7 @@ import "./globals.css";
 import { SignupProvider } from "@/contexts/SignupContext";
 import { CurrentUserProvider } from "@/contexts/CurrentUserContext";
 import { ConversationsProvider } from "@/contexts/ConversationsContext";
+import { ConnectionsProvider } from "@/contexts/ConnectionsContext";
 import { BookingsProvider } from "@/contexts/BookingsContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { ReviewsProvider } from "@/contexts/ReviewsContext";
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <NotificationsProvider>
               <ReviewsProvider>
                 <ConversationsProvider>
+                  <ConnectionsProvider>
                   <BookingsProvider>
                     <PageHeaderProvider>
                       <PostComposerProvider>
@@ -79,6 +81,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       </PostComposerProvider>
                     </PageHeaderProvider>
                   </BookingsProvider>
+                  </ConnectionsProvider>
                 </ConversationsProvider>
               </ReviewsProvider>
             </NotificationsProvider>

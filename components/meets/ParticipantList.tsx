@@ -1,10 +1,10 @@
 "use client";
 
 import { PersonRow } from "@/components/people/PersonRow";
+import { PrivateProfileRow } from "@/components/people/PrivateProfileRow";
 import {
   SectionHeader,
   MetaDivider,
-  LockedChipList,
 } from "@/components/people/PersonSections";
 import { getConnectionState } from "@/lib/mockConnections";
 import { getAttendeeTier, viewerCanAct } from "@/lib/meetUtils";
@@ -161,13 +161,17 @@ export function ParticipantList({
   const going = tiered.filter((a) => (a.rsvpStatus ?? "going") === "going");
   const interested = tiered.filter((a) => a.rsvpStatus === "interested");
 
-  // Locked chip list combines locked attendees + locked followers — both are
-  // "you can see they exist but no card affordance." Dedup on userId so a
-  // user who both attended and follows doesn't appear twice.
+  // Private (tier 3) attendees + followers — render as compact PrivateProfileRow
+  // (smaller than tier-1/2 cards but still actionable when the viewer can act).
+  // Dedup on userId so someone who both attended and follows doesn't double up.
+  // Mock World Building 2026-04-30: replaced the chip-list-only treatment with
+  // small actionable rows so Private subjects can be marked Familiar from
+  // surfaces where the viewer has shared context (the meet itself IS context).
   const lockedSet = new Map<string, TieredAttendee>();
   for (const a of tiered) if (a.tier === 3) lockedSet.set(a.userId, a);
   for (const f of tieredFollowers) if (f.tier === 3) lockedSet.set(f.userId, f);
   const locked = Array.from(lockedSet.values());
+  const canActOnRows = rowActions === "auto";
 
   // Followers subsection renders only tier 1/2 — locked followers fall to the
   // chip list above. Dedup against attendees so someone who both follows and
@@ -198,13 +202,19 @@ export function ParticipantList({
       />
 
       {locked.length > 0 && (
-        <LockedChipList
-          entries={locked.map((a) => ({
-            userId: a.userId,
-            name: a.userName,
-            avatarUrl: a.avatarUrl,
-          }))}
-        />
+        <div className="flex flex-col gap-sm">
+          <SectionHeader label="Private profiles" />
+          {locked.map((a) => (
+            <PrivateProfileRow
+              key={a.userId}
+              userId={a.userId}
+              name={a.userName}
+              avatarUrl={a.avatarUrl}
+              dogNames={a.dogNames}
+              canAct={canActOnRows}
+            />
+          ))}
+        </div>
       )}
 
       {showInterested && (
@@ -258,7 +268,14 @@ function PeopleSection({
   // are NOT rendered as cards here — they're surfaced as a chip list at
   // the bottom of the parent (`LockedChipList`).
   const connected = attendees.filter((a) => a.connectionState === "connected");
-  const familiarOutbound = attendees.filter((a) => a.connectionState === "familiar");
+  // FAMILIAR section is for outbound marks where the subject is also visible
+  // to the viewer (tier !== 3). A locked subject the viewer marked Familiar
+  // but who hasn't reciprocated stays in PRIVATE PROFILES (their content is
+  // still locked) — the "Familiar ✓" pill in the compact row is the visual
+  // confirmation that the mark took effect. Mock World Building 2026-04-30.
+  const familiarOutbound = attendees.filter(
+    (a) => a.connectionState === "familiar" && a.tier !== 3,
+  );
   const other = attendees.filter(
     (a) =>
       a.tier !== 3 &&
@@ -334,7 +351,15 @@ function PeopleSection({
       )}
 
       {other.length > 0 && (
+        // Header is neutral — "Other attendees" doesn't reveal *why* anyone
+        // is in this group (open profile vs inbound theyMarkedFamiliar
+        // both land here). Earlier this was unlabeled for "deniability",
+        // but section labels are private to the viewer's render — the
+        // receiver can't see Daniel's view, so labeling here leaks nothing.
+        // Keeping it neutral preserves that property regardless. Mock
+        // World Building 2026-04-30.
         <div className="flex flex-col gap-sm">
+          <SectionHeader label="Other attendees" />
           {other.map((a) => (
             <PersonRow
               key={a.userId}

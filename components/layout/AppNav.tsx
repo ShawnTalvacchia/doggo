@@ -116,7 +116,7 @@ function getPageTitle(pathname: string): string | null {
 
 export function AppNav() {
   const pathname = usePathname();
-  const { detailTitle, onBack, rightAction } = usePageHeader();
+  const { detailTitle, onBack, rightAction, leadingAvatar } = usePageHeader();
   const mode = loggedRoutes.some((r) => pathname.startsWith(r)) ? "logged" : "guest";
   const isSignupRoute = pathname.startsWith("/signup");
   const isStyleguideRoute = pathname.startsWith("/styleguide");
@@ -143,6 +143,7 @@ export function AppNav() {
                 <ArrowLeft size={20} weight="regular" />
               </button>
             )}
+            {leadingAvatar && <div className="app-nav-detail-avatar">{leadingAvatar}</div>}
             <span className="app-nav-detail-title">{detailTitle}</span>
             {rightAction && <div className="app-nav-detail-action">{rightAction}</div>}
           </div>

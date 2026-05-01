@@ -34,11 +34,12 @@ import { PersonRow } from "@/components/people/PersonRow";
 import {
   SectionHeader,
   MetaDivider,
-  LockedChipList,
 } from "@/components/people/PersonSections";
+import { PrivateProfileRow } from "@/components/people/PrivateProfileRow";
 import { getGroupById, getGroupMeets } from "@/lib/mockGroups";
 import { getPostsByGroup } from "@/lib/mockPosts";
 import { getConnectionState } from "@/lib/mockConnections";
+import { useConnections } from "@/contexts/ConnectionsContext";
 import { getUserById } from "@/lib/mockUsers";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { ConnectionState, GroupMember } from "@/lib/types";
@@ -501,7 +502,7 @@ function MeetsTab({ group, groupMeets }: { group: Group; groupMeets: Meet[] }) {
  *   FAMILIAR (non-admin, outbound state)
  *   [other tier-1/2 non-admin, unlabeled — preserves deniability for inbound
  *     theyMarkedFamiliar marks]
- *   LOCKED PROFILES chip list (non-admin tier-3)
+ *   PRIVATE PROFILES chip list (non-admin tier-3)
  *
  * Action availability: Members tab does NOT gate on past meet attendance.
  * Group co-membership is the context signal — users recognise each other
@@ -525,19 +526,27 @@ interface TieredMember extends GroupMember {
 
 function MembersTab({ group }: { group: Group }) {
   const viewerId = useCurrentUserId();
+  const {
+    getConnection: getConnectionFromContext,
+    markFamiliar,
+    unmarkFamiliar,
+  } = useConnections();
 
-  // Local session marks — track per-member Familiar/Connect ladder state.
-  // Mirrors the post-meet review's `AttendeeActionCard` pattern (button
-  // advances + footer Undo). Session-scoped: lost on navigation away from
-  // this group's Members tab. Persistent unmarks happen elsewhere
-  // (profile, connections list) per the demo limitation also acknowledged
-  // by the post-meet review sheet.
+  // Local session marks — drive the per-row "✓ Familiar | Undo" footer for
+  // marks just made on this page visit. Resets on remount (navigation away
+  // and back). The actual relationship persists separately via
+  // ConnectionsContext, so when localMarks resets, the connection state
+  // stays — the row just stops showing the transient "you-just-did-this"
+  // footer. Mock World Building 2026-04-30.
   const [localMarks, setLocalMarks] = useState<Record<string, "familiar" | "connect">>({});
 
   const handleAdvance = (memberId: string) => {
     setLocalMarks((prev) => {
       const current = prev[memberId];
       const next = current === "familiar" ? "connect" : "familiar";
+      // When advancing TO Familiar (no current mark), persist via context.
+      // The Connect step is wired separately when that flow is built.
+      if (!current) markFamiliar(viewerId, memberId);
       return { ...prev, [memberId]: next };
     });
   };
@@ -552,6 +561,8 @@ function MembersTab({ group }: { group: Group }) {
       delete next[memberId];
       return next;
     });
+    // Reverse the persisted mark too — Undo means undo, not just clear the footer.
+    unmarkFamiliar(viewerId, memberId);
   };
 
   // Resolve tier + careTier + action gating per member. Same shape as
@@ -560,7 +571,10 @@ function MembersTab({ group }: { group: Group }) {
   // logic is small.
   const tier = (m: GroupMember): TieredMember => {
     const isSelf = m.userId === viewerId;
-    const conn = getConnectionState(m.userId, viewerId);
+    // Pull connection from the context — overlays session overrides on the
+    // static `mockConnections` lookup so marks made via this tab (or any
+    // other surface that drives ConnectionsContext) reflect immediately.
+    const conn = getConnectionFromContext(m.userId, viewerId);
     const baseState: ConnectionState = isSelf ? "connected" : (conn?.state ?? "none");
     // Apply session marks — local Familiar/Connect ladder state overrides
     // the underlying connection state when present. PersonRow's mark prop
@@ -581,17 +595,20 @@ function MembersTab({ group }: { group: Group }) {
     const profileOpen =
       conn?.profileOpen ?? subject?.profileVisibility === "open";
 
-    // Tier rules: self = tier 1; Connected = tier 1; Familiar (either
-    // direction) / Pending / Open = tier 2; everything else = tier 3.
+    // Tier rules: self = tier 1; Connected = tier 1; Pending / inbound
+    // theyMarkedFamiliar / Open subject = tier 2; everything else = tier 3.
+    //
+    // **Outbound state="familiar" alone does NOT promote.** The viewer
+    // marking a subject Familiar is an outbound grant — the marker opens up
+    // to the marked person, but the viewer's view of the SUBJECT is
+    // unchanged. So a Locked subject the viewer marked Familiar stays
+    // tier 3 (still appears in PRIVATE PROFILES with a "Familiar ✓" pill,
+    // not promoted to a full card). See `Trust & Connection Model.md` →
+    // "What the Familiar mark does (and does not do)".
     let memberTier: 1 | 2 | 3;
     if (isSelf || state === "connected") {
       memberTier = 1;
-    } else if (
-      state === "familiar" ||
-      state === "pending" ||
-      theyMarkedFamiliar ||
-      profileOpen
-    ) {
+    } else if (state === "pending" || theyMarkedFamiliar || profileOpen) {
       memberTier = 2;
     } else {
       memberTier = 3;
@@ -637,7 +654,14 @@ function MembersTab({ group }: { group: Group }) {
   const nonAdmins = tiered.filter((m) => m.role !== "admin");
 
   const connected = nonAdmins.filter((m) => m.connectionState === "connected");
-  const familiarOutbound = nonAdmins.filter((m) => m.connectionState === "familiar");
+  // FAMILIAR section is for outbound marks where the subject is also visible
+  // to the viewer (tier !== 3). A locked member the viewer marked Familiar
+  // but who hasn't reciprocated stays in PRIVATE PROFILES (their content is
+  // still locked) — the "Familiar ✓" pill in the compact row is the visual
+  // confirmation that the mark took effect. Mock World Building 2026-04-30.
+  const familiarOutbound = nonAdmins.filter(
+    (m) => m.connectionState === "familiar" && m.tier !== 3,
+  );
   const otherTier12 = nonAdmins.filter(
     (m) =>
       m.tier !== 3 &&
@@ -722,17 +746,31 @@ function MembersTab({ group }: { group: Group }) {
         )}
 
         {showOther && (
-          <div className="flex flex-col gap-sm">{otherTier12.map(renderRow)}</div>
+          // Header is neutral — "Other members" doesn't reveal *why*
+          // anyone is in this group (open profile vs inbound
+          // theyMarkedFamiliar both land here). Section labels are
+          // private to the viewer's render, so labeling leaks nothing
+          // about marks. Mock World Building 2026-04-30.
+          <div className="flex flex-col gap-sm">
+            <SectionHeader label="Other members" />
+            {otherTier12.map(renderRow)}
+          </div>
         )}
 
         {showLocked && (
-          <LockedChipList
-            entries={locked.map((m) => ({
-              userId: m.userId,
-              name: m.userName,
-              avatarUrl: m.avatarUrl,
-            }))}
-          />
+          <div className="flex flex-col gap-sm">
+            <SectionHeader label="Private profiles" />
+            {locked.map((m) => (
+              <PrivateProfileRow
+                key={m.userId}
+                userId={m.userId}
+                name={m.userName}
+                avatarUrl={m.avatarUrl}
+                dogNames={m.dogNames}
+                canAct={true}
+              />
+            ))}
+          </div>
         )}
       </section>
     </LayoutSection>

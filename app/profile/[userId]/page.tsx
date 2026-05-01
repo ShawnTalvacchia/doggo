@@ -22,13 +22,16 @@ import { TrustSignalBadges } from "@/components/profile/TrustSignalBadges";
 import { PetCard } from "@/components/profile/PetCard";
 import { PostsTab } from "@/components/profile/PostsTab";
 import { ProfileChatTab } from "@/components/profile/ProfileChatTab";
-import { getConnectionState, getCommunityCarers } from "@/lib/mockConnections";
+import { getCommunityCarers } from "@/lib/mockConnections";
+import { viewerSharedMeetWith } from "@/lib/mockMeets";
+import { viewerSharedGroupWith, getSharedGroupNames } from "@/lib/mockGroups";
+import { useConnections } from "@/contexts/ConnectionsContext";
 import { useCurrentUser, useCurrentUserId } from "@/hooks/useCurrentUser";
 import { resolvePersonActions } from "@/lib/personActions";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { providers } from "@/lib/mockData";
-import { getUserById } from "@/lib/mockUsers";
+import { getUserOrProvider } from "@/lib/mockUsers";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 
 /* ── Page ── */
@@ -51,14 +54,21 @@ function UserProfileInner() {
   const currentUser = useCurrentUser();
   const isSelf = userId === currentUserId;
 
-  // Resolve user data from multiple sources
-  const connection = getConnectionState(userId, currentUserId);
-  const userProfile = getUserById(userId);
+  // Resolve user data via the unified bridge — handles directory-only
+  // providers (`olga-m`, `jana-k`, etc.) by synthesizing a minimal profile
+  // from the `ProviderCard`. See `mockUsers.ts` → `getUserOrProvider`.
+  // Connection comes from the session-aware context so Familiar marks
+  // taken on this page (or anywhere else that uses the context) reflect
+  // immediately. Static `mockConnections` is the fallback inside the
+  // context's `getConnection` helper.
+  const { getConnection, markFamiliar, unmarkFamiliar } = useConnections();
+  const connection = getConnection(userId, currentUserId);
+  const userProfile = getUserOrProvider(userId);
   const provider = providers.find((p) => p.id === userId || p.userId === userId);
   const communityCarer = getCommunityCarers(currentUserId).find((c) => c.userId === userId);
 
   const name = userProfile
-    ? `${userProfile.firstName} ${userProfile.lastName}`
+    ? `${userProfile.firstName} ${userProfile.lastName}`.trim()
     : connection?.userName ?? provider?.name ?? userId;
   const firstName = userProfile?.firstName ?? name.split(" ")[0];
   const avatarUrl = userProfile?.avatarUrl ?? connection?.avatarUrl ?? provider?.avatarUrl ?? "";
@@ -66,11 +76,39 @@ function UserProfileInner() {
   const dogs = userProfile?.pets ?? [];
   const dogNames = connection?.dogNames ?? dogs.map((d) => d.name);
   const connState = connection?.state ?? "none";
-  const isProfileOpen = connection?.profileOpen ?? false;
+  // Profile is "open" (public) when EITHER the user's own visibility setting
+  // is "open", OR the viewer's connection record carries an open hint.
+  // Without the userProfile fallback, Public users render as Private to any
+  // viewer who has no connection record with them — which broke the demo for
+  // Public anchors like Jana / Eva when viewed from non-connected personas.
+  const isProfileOpen =
+    userProfile?.profileVisibility === "open" || connection?.profileOpen === true;
   const sharedGroups = connection?.sharedGroups ?? [];
 
   const hasCare = !!userProfile?.carerProfile || !!provider || !!communityCarer;
-  const isLocked = !isProfileOpen && connState === "none";
+  // Locked = subject's profile content is hidden from the viewer.
+  //
+  // **What unlocks the subject's content for the viewer:**
+  //   - Subject is Open (publicly visible to anyone), OR
+  //   - Subject has marked the viewer Familiar (`theyMarkedFamiliar`),
+  //     i.e. the SUBJECT chose to open up to the viewer, OR
+  //   - The two are Connected (mutual) or Pending (one side has asked).
+  //
+  // **What does NOT unlock the subject's content for the viewer:**
+  //   - The viewer marking the subject Familiar (`connState === "familiar"`).
+  //     Familiar is an outbound grant — the marker opens themselves up to
+  //     the marked person, but that's the marker's content opening up,
+  //     not the marked person's content opening up to the marker.
+  //
+  // This caught us out 2026-04-30 — earlier `isLocked` excluded outbound
+  // state="familiar" from "locked," which incorrectly unlocked the
+  // subject's profile when the viewer marked them. The trust model says
+  // unlocking is the SUBJECT's choice, not the marker's.
+  const isLocked =
+    !isProfileOpen &&
+    !connection?.theyMarkedFamiliar &&
+    connState !== "connected" &&
+    connState !== "pending";
 
   // Show Chat tab when connected or when there's an existing conversation
   const { getConversationForUser } = useConversations();
@@ -84,25 +122,38 @@ function UserProfileInner() {
     ...(showChatTab ? [{ key: "chat", label: "Chat" }] : []),
   ];
 
-  // Mobile nav: show name with back button, hide bottom nav
+  // Mobile nav: show name + avatar with back button, hide bottom nav.
+  // Locked profiles only show firstName (privacy — last name is identity
+  // and shouldn't leak before the viewer earns visibility).
+  const headerName = isLocked ? firstName : name;
+  const headerAvatar = avatarUrl ? (
+    <img src={avatarUrl} alt="" />
+  ) : (
+    <DefaultAvatar name={firstName} size={28} />
+  );
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
   useEffect(() => {
-    setDetailHeader(name, () => {
-      if (window.history.length > 1) {
-        router.back();
-        return;
-      }
-      router.replace("/home");
-    });
+    setDetailHeader(
+      headerName,
+      () => {
+        if (window.history.length > 1) {
+          router.back();
+          return;
+        }
+        router.replace("/home");
+      },
+      undefined,
+      headerAvatar,
+    );
     document.body.classList.add("profile-subpage");
     return () => {
       clearDetailHeader();
       document.body.classList.remove("profile-subpage");
     };
-  }, [name]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [headerName, avatarUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <PageColumn hideHeader abovePanel={<DetailHeader title={name} />}>
+    <PageColumn hideHeader abovePanel={<DetailHeader title={headerName} leadingAvatar={headerAvatar} />}>
       <div className={`page-column-panel-body${activeTab === "chat" ? " page-column-panel-body--no-scroll" : ""}`}>
 
         {/* Tabs — hidden for locked profiles */}
@@ -113,34 +164,120 @@ function UserProfileInner() {
         )}
 
         {/* ── Locked profile state ── */}
-        {isLocked && (
-          <div className="flex flex-col items-center gap-lg" style={{ padding: "var(--space-xl) var(--space-lg)" }}>
-            {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt={name}
-                className="rounded-full object-cover"
-                style={{ width: 96, height: 96, filter: "brightness(0.6) blur(1px)" }}
-              />
-            ) : (
-              <DefaultAvatar name={name} size={96} />
-            )}
-            <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">{name}</h1>
+        {/* firstName only (privacy — last name is identity, shouldn't leak
+            before the viewer has earned visibility). Generous gap between
+            avatar / name / lock card so the page doesn't feel cramped.
 
-            <div className="flex flex-col items-center gap-sm rounded-panel p-lg bg-surface-inset w-full" style={{ maxWidth: 360 }}>
-              <LockSimple size={28} weight="light" className="text-fg-tertiary" />
-              <p className="text-sm text-fg-secondary m-0 text-center">
-                {name} has a private profile. Connect with them at a meet or community to see more.
-              </p>
-              {sharedGroups.length > 0 && (
-                <p className="text-xs text-fg-tertiary m-0 flex items-center gap-xs">
-                  <UsersThree size={14} weight="light" />
-                  You&apos;re both in {sharedGroups[0]}
-                </p>
+            When the viewer has shared context with the subject (mutual
+            groups or shared meets recorded on the connection), surface a
+            Familiar pill below the lock card. Connect deliberately stays
+            absent — Connect requires the subject to have given some
+            opening signal (Open profile or theyMarkedFamiliar), which
+            isn't the case here. Mock World Building 2026-04-30. */}
+        {isLocked && (() => {
+          // Shared context = co-membership in any group OR shared past meet
+          // attendance. Computed against the actual mockGroups + mockMeets
+          // data, not just the connection record (which only exists for
+          // explicitly seeded relationships — Daniel and Marek share the
+          // Reactive Dog Support group but have no connection record, so
+          // the connection-record check would falsely return no context).
+          const sharedGroupNames = getSharedGroupNames(currentUserId, userId);
+          const hasSharedContext =
+            sharedGroupNames.length > 0 ||
+            viewerSharedMeetWith(currentUserId, userId) ||
+            viewerSharedGroupWith(currentUserId, userId) ||
+            (connection?.meetsShared ?? 0) > 0;
+          const isMarked = connection?.state === "familiar";
+          return (
+            <div
+              className="flex flex-col items-center"
+              style={{
+                padding: "var(--space-jumbo-1) var(--space-lg) var(--space-xxxl)",
+                gap: "var(--space-xxl)",
+              }}
+            >
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={firstName}
+                  className="rounded-full object-cover"
+                  style={{ width: 96, height: 96, filter: "brightness(0.6) blur(1px)" }}
+                />
+              ) : (
+                <DefaultAvatar name={firstName} size={96} />
               )}
+              <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">{firstName}</h1>
+
+              {/* Familiar action surface — placed ABOVE the lock card so the
+                  call-to-action reads first and the privacy state reads as
+                  context. Pre-tap copy invites recognition; post-tap copy
+                  explains the asymmetric grant ("they can see more of YOU").
+                  Both copy variants are intentionally short and scoped to
+                  the action's effect — the deeper explainer is the
+                  "Learn how privacy works" link below the lock card.
+                  Mock World Building 2026-04-30. */}
+              {hasSharedContext && (
+                <div className="flex flex-col items-center gap-sm">
+                  <p
+                    className="text-sm text-fg-secondary m-0 text-center"
+                    style={{ maxWidth: 360 }}
+                  >
+                    {isMarked
+                      ? `${firstName} can now see your profile and tags from shared contexts.`
+                      : `Have you met ${firstName}? Mark them familiar to let them see your profile.`}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      isMarked
+                        ? unmarkFamiliar(currentUserId, userId)
+                        : markFamiliar(currentUserId, userId)
+                    }
+                    className={`private-profile-row-pill${isMarked ? " is-marked" : ""}`}
+                    aria-pressed={isMarked}
+                    aria-label={
+                      isMarked ? `Remove Familiar from ${firstName}` : `Mark ${firstName} as Familiar`
+                    }
+                  >
+                    {isMarked ? "Familiar ✓" : "+ Familiar"}
+                  </button>
+                </div>
+              )}
+
+              <div
+                className="flex flex-col items-center gap-sm rounded-panel bg-surface-inset w-full"
+                style={{ maxWidth: 360, padding: "var(--space-xl) var(--space-lg)" }}
+              >
+                <LockSimple size={28} weight="light" className="text-fg-tertiary" />
+                <p className="text-sm text-fg-secondary m-0 text-center">
+                  {firstName} keeps their profile private. People typically see more after meeting at a walk or community.
+                </p>
+                {sharedGroupNames.length > 0 && (
+                  <p className="text-xs text-fg-tertiary m-0 flex items-center gap-xs">
+                    <UsersThree size={14} weight="light" />
+                    You&apos;re both in {sharedGroupNames[0]}
+                  </p>
+                )}
+              </div>
+              {/* Privacy explainer link — placeholder href; wire-up tracked
+                  on the punch list (destination page doesn't exist yet).
+                  Inline `text-decoration: underline` overrides the global
+                  `a { text-decoration: none }` rule in globals.css. */}
+              <a
+                href="#"
+                onClick={(e) => e.preventDefault()}
+                className="text-sm font-semibold text-fg-primary hover:text-brand-main"
+                style={{
+                  marginTop: "var(--space-lg)",
+                  textDecoration: "underline",
+                  textUnderlineOffset: "4px",
+                }}
+              >
+                Learn how privacy works
+              </a>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* ── About tab ── */}
         {!isLocked && activeTab === "about" && (
@@ -214,6 +351,7 @@ function UserProfileInner() {
                     {showFamiliarOn && (
                       <button
                         type="button"
+                        onClick={() => unmarkFamiliar(currentUserId, userId)}
                         className="person-row-pill person-row-pill--familiar person-row-pill--toggle"
                         aria-pressed
                         aria-label={`Remove Familiar from ${firstName}`}
@@ -225,22 +363,19 @@ function UserProfileInner() {
                     {showFamiliarOff && (
                       <button
                         type="button"
+                        onClick={() => markFamiliar(currentUserId, userId)}
                         className="person-row-pill person-row-pill--familiar-off person-row-pill--toggle"
                         aria-label={`Mark ${firstName} as Familiar`}
                       >
                         {"+ Familiar"}
                       </button>
                     )}
-                    {communityCarer && communityCarer.meetsShared > 0 && (
-                      <span className="text-xs text-fg-tertiary">
-                        {communityCarer.meetsShared} meets together
-                      </span>
-                    )}
-                    {provider?.mutualConnections && provider.mutualConnections > 0 && (
-                      <span className="text-xs text-fg-tertiary">
-                        {provider.mutualConnections} mutual connections
-                      </span>
-                    )}
+                    {/* Earlier this row also rendered stray "N meets together"
+                        and "N mutual connections" spans pulled from
+                        `communityCarer` / `provider` — those duplicated the
+                        TrustSignalBadges below them and the counts conflicted
+                        because the data sources differ. Cut by Mock World
+                        Building 2026-04-30; trust pills are the single source. */}
                   </div>
                 );
               })()}

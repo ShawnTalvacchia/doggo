@@ -13,10 +13,53 @@ import type {
   TrainingSkill,
   TrainingExperienceLevel,
   TrainerType,
+  UserProfile,
 } from "./types";
 import { daysAgo, daysFromNow } from "./mockDate";
 import { getOccurrenceAttendees, nextOccurrenceDates } from "./meetUtils";
 import { getUserById } from "./mockUsers";
+
+/**
+ * Build a `MeetAttendee` record from a `UserProfile`, auto-deriving the
+ * fields that should mirror the user's source-of-truth data
+ * (Mock World Building A3, 2026-04-30 — closes punch list P28).
+ *
+ * Auto-derived fields: `userId`, `userName`, `avatarUrl`, `dogNames`,
+ * `neighbourhood`, `profileOpen` (mirrors `user.profileVisibility === "open"`).
+ *
+ * Use `overrides` for per-meet variation:
+ * - `dogNames` when the user brings a different subset of their pets
+ *   (e.g. Shawn fostering "Skip" only at `meet-1`)
+ * - `rsvpStatus` ("going" / "interested" — defaults to undefined → going)
+ * - `dogBreed` for participant-card display (rare)
+ *
+ * Falls back gracefully: if the user has no pets, `dogNames` is `[]`.
+ *
+ * **Convention for new attendee seeding:** prefer `buildMeetAttendee` over
+ * inline literals. This keeps `profileOpen` correct even after profile
+ * visibility changes (e.g. the B1 70/30 rebalance) — re-running the seed
+ * picks up the current value automatically. Existing inline literals are
+ * fine where they were authored intentionally; the helper is for D1–D4
+ * edge-case seeding and content-walk fixes during this phase.
+ *
+ * Directory-only providers (e.g. `olga-m`) don't have a `UserProfile`, so
+ * they can't go through this helper — keep their attendee records as inline
+ * literals with a comment noting why.
+ */
+export function buildMeetAttendee(
+  user: UserProfile,
+  overrides: Partial<MeetAttendee> = {},
+): MeetAttendee {
+  return {
+    userId: user.id,
+    userName: user.firstName,
+    avatarUrl: user.avatarUrl,
+    dogNames: user.pets.map((p) => p.name),
+    neighbourhood: user.neighbourhood,
+    profileOpen: user.profileVisibility === "open",
+    ...overrides,
+  };
+}
 
 export const MEET_TYPE_LABELS: Record<string, string> = {
   walk: "Walk",
@@ -161,6 +204,7 @@ export const mockMeets: Meet[] = [
         dogNames: ["Rex"],
         neighbourhood: "Vinohrady",
         dogBreed: "German Shepherd",
+        profileOpen: true,
       },
       {
         userId: "tomas",
@@ -220,6 +264,7 @@ export const mockMeets: Meet[] = [
         dogNames: ["Rex"],
         neighbourhood: "Vinohrady",
         dogBreed: "German Shepherd",
+        profileOpen: true,
       },
       {
         userId: "eva",
@@ -320,6 +365,7 @@ export const mockMeets: Meet[] = [
         avatarUrl:
           "/images/generated/eva-profile.jpeg",
         dogNames: ["Luna"],
+        profileOpen: true,
       },
       {
         userId: "tomas",
@@ -521,6 +567,7 @@ export const mockMeets: Meet[] = [
         avatarUrl:
           "/images/generated/shawn-profile.jpg",
         dogNames: ["Spot", "Goldie"],
+        profileOpen: true,
       },
       {
         userId: "jana",
@@ -528,6 +575,7 @@ export const mockMeets: Meet[] = [
         avatarUrl:
           "/images/generated/jana-profile.jpeg",
         dogNames: ["Rex"],
+        profileOpen: true,
       },
       {
         userId: "eva",
@@ -535,6 +583,7 @@ export const mockMeets: Meet[] = [
         avatarUrl:
           "/images/generated/eva-profile.jpeg",
         dogNames: ["Luna"],
+        profileOpen: true,
       },
     ],
     createdAt: "2026-03-09T08:00:00Z",
@@ -587,7 +636,7 @@ export const mockMeets: Meet[] = [
     creatorName: "Klára",
     creatorAvatarUrl: "/images/generated/klara-profile.jpeg",
     attendees: [
-      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"] },
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
       { userId: "daniel", userName: "Daniel", avatarUrl: "/images/generated/daniel-profile.jpeg", dogNames: ["Bára"] },
       { userId: "tomas", userName: "Tomáš", avatarUrl: "/images/generated/tomas-profile.jpeg", dogNames: ["Hugo"] },
     ],
@@ -631,8 +680,8 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl: "/images/generated/marek-profile.jpeg",
     attendees: [
       { userId: "pawel", userName: "Pawel", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: [] },
-      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"] },
-      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"] },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], profileOpen: true },
+      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], profileOpen: true },
       { userId: "tomas", userName: "Tomáš", avatarUrl: "/images/generated/tomas-profile.jpeg", dogNames: ["Hugo"] },
     ],
     createdAt: "2026-04-01T08:00:00Z",
@@ -670,8 +719,8 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=400&q=80",
     attendees: [
       { userId: "cafe_letka", userName: "Café Letka", avatarUrl: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=400&q=80", dogNames: [] },
-      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"] },
-      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"] },
+      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"], profileOpen: true },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"], profileOpen: true },
     ],
     createdAt: "2026-04-02T10:00:00Z",
   },
@@ -725,7 +774,7 @@ export const mockMeets: Meet[] = [
     // with anxious Bára; the workshop is exactly the kind of paid
     // intervention his archetype would seek out.
     attendees: [
-      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"] },
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
       { userId: "daniel", userName: "Daniel", avatarUrl: "/images/generated/daniel-profile.jpeg", dogNames: ["Bára"] },
     ],
     createdAt: "2026-04-15T10:00:00Z",
@@ -775,8 +824,8 @@ export const mockMeets: Meet[] = [
     creatorName: "Eva",
     creatorAvatarUrl: "/images/generated/eva-profile.jpeg",
     attendees: [
-      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"] },
-      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"] },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"], profileOpen: true },
+      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"], profileOpen: true },
       { userId: "anezka", userName: "Anežka", avatarUrl: "/images/generated/anezka-profile.jpeg", dogNames: ["Nela"] },
       { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"] },
     ],
@@ -830,10 +879,10 @@ export const mockMeets: Meet[] = [
     creatorName: "Tereza",
     creatorAvatarUrl: "/images/generated/tereza-profile.jpeg",
     attendees: [
-      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"] },
+      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], profileOpen: true },
       { userId: "daniel", userName: "Daniel", avatarUrl: "/images/generated/daniel-profile.jpeg", dogNames: ["Bára"] },
       { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"] },
-      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Mila"] },
+      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Mila"], profileOpen: true },
     ],
     createdAt: "2026-04-23T08:00:00Z",
   },
@@ -887,19 +936,21 @@ export const mockMeets: Meet[] = [
       { userId: "daniel", userName: "Daniel", avatarUrl: "/images/generated/daniel-profile.jpeg", dogNames: ["Bára"] },
       // Already Connected — populates the Connected section in Daniel's review.
       { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"] },
-      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"] },
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
       // Already Familiar (Daniel marked Vítek) — populates the Familiar section.
       { userId: "vitek", userName: "Vítek", avatarUrl: "/images/generated/vitek-profile.jpeg", dogNames: ["Sam"] },
       // Open profile + no connection → Not Familiar (top action target).
-      // `profileOpen: true` is required on the attendee record — without
-      // it `getAttendeeTier` falls back to tier 3 (locked) and they'd
-      // land in the wrong section. The MeetAttendee shape doesn't
-      // auto-derive from UserProfile; for ambient (non-persona)
-      // attendees we have to mirror profileVisibility manually.
-      { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"], profileOpen: true },
-      { userId: "lucie", userName: "Lucie", avatarUrl: "/images/generated/lucie-profile.jpeg", dogNames: ["Pepík"], profileOpen: true },
+      // `profileOpen: true` is required on the attendee record (or use
+      // `buildMeetAttendee` to auto-derive from UserProfile.profileVisibility
+      // — see mockMeets top-of-file). After Mock World Building B1
+      // (2026-04-30) most ambient attendees are Locked by default; only
+      // carer-tier users and a couple of social anchors are Open. Petra
+      // qualifies as a Helper-tier carer.
       { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"], profileOpen: true },
       // Locked profile + no connection → Locked section (quiet bottom).
+      // After B1: Marek, Lucie, Jakub, Zuzana are all Locked.
+      { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"] },
+      { userId: "lucie", userName: "Lucie", avatarUrl: "/images/generated/lucie-profile.jpeg", dogNames: ["Pepík"] },
       { userId: "jakub", userName: "Jakub", avatarUrl: "/images/generated/jakub-profile.jpeg", dogNames: ["Aron"] },
       { userId: "zuzana", userName: "Zuzana", avatarUrl: "/images/generated/zuzana-profile.jpeg", dogNames: ["Mia"] },
     ],
@@ -940,11 +991,11 @@ export const mockMeets: Meet[] = [
     creatorName: "Tereza",
     creatorAvatarUrl: "/images/generated/tereza-profile.jpeg",
     attendees: [
-      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"] },
+      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], profileOpen: true },
       { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"] },
-      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"] },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], profileOpen: true },
       { userId: "lucie", userName: "Lucie", avatarUrl: "/images/generated/lucie-profile.jpeg", dogNames: ["Pepík"] },
-      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"] },
+      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"], profileOpen: true },
     ],
     createdAt: "2026-01-15T08:00:00Z",
     photos: [
@@ -986,9 +1037,9 @@ export const mockMeets: Meet[] = [
     creatorName: "Tereza",
     creatorAvatarUrl: "/images/generated/tereza-profile.jpeg",
     attendees: [
-      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"] },
+      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], profileOpen: true },
       { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"] },
-      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"] },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], profileOpen: true },
       { userId: "jakub", userName: "Jakub", avatarUrl: "/images/generated/jakub-profile.jpeg", dogNames: ["Aron"] },
     ],
     createdAt: "2026-01-29T08:00:00Z",
@@ -1025,10 +1076,10 @@ export const mockMeets: Meet[] = [
     creatorName: "Jana",
     creatorAvatarUrl: "/images/generated/jana-profile.jpeg",
     attendees: [
-      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"] },
-      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"] },
+      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"], profileOpen: true },
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
       { userId: "martin", userName: "Martin", avatarUrl: "/images/generated/martin-profile.jpeg", dogNames: ["Charlie"] },
-      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"] },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"], profileOpen: true },
       { userId: "filip", userName: "Filip", avatarUrl: "/images/generated/filip-profile.jpeg", dogNames: ["Toby"] },
     ],
     createdAt: "2026-02-01T09:00:00Z",
@@ -1074,7 +1125,7 @@ export const mockMeets: Meet[] = [
     attendees: [
       { userId: "daniel", userName: "Daniel", avatarUrl: "/images/generated/daniel-profile.jpeg", dogNames: ["Bára"] },
       { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"] },
-      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"] },
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
     ],
     createdAt: "2026-01-21T10:00:00Z",
     photos: [
@@ -1122,10 +1173,10 @@ export const mockMeets: Meet[] = [
     creatorName: "Klára",
     creatorAvatarUrl: "/images/generated/klara-profile.jpeg",
     attendees: [
-      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"] },
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
       { userId: "daniel", userName: "Daniel", avatarUrl: "/images/generated/daniel-profile.jpeg", dogNames: ["Bára"] },
       { userId: "filip", userName: "Filip", avatarUrl: "/images/generated/filip-profile.jpeg", dogNames: ["Toby"] },
-      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"] },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], profileOpen: true },
     ],
     createdAt: "2026-02-08T09:30:00Z",
     photos: [
@@ -1168,7 +1219,7 @@ export const mockMeets: Meet[] = [
     creatorName: "Petra",
     creatorAvatarUrl: "/images/generated/petra-profile.jpeg",
     attendees: [
-      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"] },
+      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"], profileOpen: true },
       { userId: "tomas", userName: "Tomáš", avatarUrl: "/images/generated/tomas-profile.jpeg", dogNames: ["Hugo"] },
       { userId: "ondrej", userName: "Ondřej", avatarUrl: "/images/generated/ondrej-profile.jpeg", dogNames: ["Rocky"] },
     ],
@@ -1211,10 +1262,10 @@ export const mockMeets: Meet[] = [
     creatorName: "Tereza",
     creatorAvatarUrl: "/images/generated/tereza-profile.jpeg",
     attendees: [
-      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"] },
+      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], profileOpen: true },
       { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"] },
       { userId: "lucie", userName: "Lucie", avatarUrl: "/images/generated/lucie-profile.jpeg", dogNames: ["Pepík"] },
-      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"] },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], profileOpen: true },
     ],
     createdAt: "2026-02-22T18:00:00Z",
   },
@@ -1253,7 +1304,7 @@ export const mockMeets: Meet[] = [
     attendees: [
       { userId: "lucie", userName: "Lucie", avatarUrl: "/images/generated/lucie-profile.jpeg", dogNames: ["Pepík"] },
       { userId: "zuzana", userName: "Zuzana", avatarUrl: "/images/generated/zuzana-profile.jpeg", dogNames: ["Mia"] },
-      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"] },
+      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"], profileOpen: true },
     ],
     createdAt: "2026-02-26T15:00:00Z",
   },
@@ -1291,9 +1342,9 @@ export const mockMeets: Meet[] = [
     creatorName: "Tereza",
     creatorAvatarUrl: "/images/generated/tereza-profile.jpeg",
     attendees: [
-      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"] },
+      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], profileOpen: true },
       { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"], rsvpStatus: "going" },
-      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot", "Goldie"], rsvpStatus: "going" },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot", "Goldie"], rsvpStatus: "going", profileOpen: true },
     ],
     recentJoinText: "Marek joined yesterday",
     createdAt: "2026-04-03T08:00:00Z",
@@ -1330,11 +1381,11 @@ export const mockMeets: Meet[] = [
     creatorName: "Jana",
     creatorAvatarUrl: "/images/generated/jana-profile.jpeg",
     attendees: [
-      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"] },
-      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"] },
+      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"], profileOpen: true },
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
       { userId: "martin", userName: "Martin", avatarUrl: "/images/generated/martin-profile.jpeg", dogNames: ["Charlie"] },
-      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], rsvpStatus: "interested" },
-      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"] },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], rsvpStatus: "interested", profileOpen: true },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"], profileOpen: true },
     ],
     recentJoinText: "Eva joined 3h ago",
     createdAt: "2026-04-05T09:00:00Z",
@@ -1416,10 +1467,10 @@ export const mockMeets: Meet[] = [
     creatorName: "Klára",
     creatorAvatarUrl: "/images/generated/klara-profile.jpeg",
     attendees: [
-      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"] },
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
       { userId: "filip", userName: "Filip", avatarUrl: "/images/generated/filip-profile.jpeg", dogNames: ["Toby"] },
       { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"], rsvpStatus: "interested" },
-      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], rsvpStatus: "interested" },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], rsvpStatus: "interested", profileOpen: true },
     ],
     createdAt: "2026-04-09T09:30:00Z",
   },
@@ -1457,7 +1508,7 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl: "/images/generated/tomas-profile.jpeg",
     attendees: [
       { userId: "tomas", userName: "Tomáš", avatarUrl: "/images/generated/tomas-profile.jpeg", dogNames: ["Hugo"] },
-      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"] },
+      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"], profileOpen: true },
       { userId: "ondrej", userName: "Ondřej", avatarUrl: "/images/generated/ondrej-profile.jpeg", dogNames: ["Rocky"] },
       { userId: "adela", userName: "Adéla", avatarUrl: "/images/generated/adela-profile.jpeg", dogNames: ["Číča"] },
     ],
@@ -1495,8 +1546,8 @@ export const mockMeets: Meet[] = [
     creatorName: "Tereza",
     creatorAvatarUrl: "/images/generated/tereza-profile.jpeg",
     attendees: [
-      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"] },
-      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"] },
+      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], profileOpen: true },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], profileOpen: true },
       { userId: "zuzana", userName: "Zuzana", avatarUrl: "/images/generated/zuzana-profile.jpeg", dogNames: ["Mia"] },
       { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"] },
     ],
@@ -1535,9 +1586,9 @@ export const mockMeets: Meet[] = [
     creatorName: "Eva",
     creatorAvatarUrl: "/images/generated/eva-profile.jpeg",
     attendees: [
-      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"] },
-      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"] },
-      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Goldie"] },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"], profileOpen: true },
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Goldie"], profileOpen: true },
     ],
     recentJoinText: "Shawn joined 1h ago",
     createdAt: "2026-04-08T10:00:00Z",
@@ -1584,12 +1635,12 @@ export const mockMeets: Meet[] = [
     creatorName: "Tereza",
     creatorAvatarUrl: "/images/generated/tereza-profile.jpeg",
     attendees: [
-      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"] },
+      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], profileOpen: true },
       { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"] },
       { userId: "lucie", userName: "Lucie", avatarUrl: "/images/generated/lucie-profile.jpeg", dogNames: ["Pepík"] },
-      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"] },
+      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"], profileOpen: true },
       { userId: "zuzana", userName: "Zuzana", avatarUrl: "/images/generated/zuzana-profile.jpeg", dogNames: ["Mia"] },
-      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], rsvpStatus: "interested" },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], rsvpStatus: "interested", profileOpen: true },
     ],
     recentJoinText: "Marek joined yesterday",
     createdAt: "2026-04-10T20:30:00Z",
@@ -1625,10 +1676,10 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl: "/images/generated/marek-profile.jpeg",
     attendees: [
       { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"] },
-      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"] },
+      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], profileOpen: true },
       { userId: "lucie", userName: "Lucie", avatarUrl: "/images/generated/lucie-profile.jpeg", dogNames: ["Pepík"] },
-      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"] },
-      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot", "Goldie"] },
+      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"], profileOpen: true },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot", "Goldie"], profileOpen: true },
     ],
     createdAt: "2026-04-09T09:00:00Z",
   },
@@ -1666,11 +1717,11 @@ export const mockMeets: Meet[] = [
     creatorName: "Eva",
     creatorAvatarUrl: "/images/generated/eva-profile.jpeg",
     attendees: [
-      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"] },
-      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"] },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"], profileOpen: true },
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
       { userId: "martin", userName: "Martin", avatarUrl: "/images/generated/martin-profile.jpeg", dogNames: ["Charlie"] },
       { userId: "filip", userName: "Filip", avatarUrl: "/images/generated/filip-profile.jpeg", dogNames: ["Toby"] },
-      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Goldie"], rsvpStatus: "interested" },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Goldie"], rsvpStatus: "interested", profileOpen: true },
     ],
     createdAt: "2026-04-12T08:00:00Z",
   },
@@ -1704,8 +1755,8 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl: "/images/generated/martin-profile.jpeg",
     attendees: [
       { userId: "martin", userName: "Martin", avatarUrl: "/images/generated/martin-profile.jpeg", dogNames: ["Charlie"] },
-      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"] },
-      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"] },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"], profileOpen: true },
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
     ],
     createdAt: "2026-04-11T11:00:00Z",
   },
@@ -1739,7 +1790,7 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl: "/images/generated/tomas-profile.jpeg",
     attendees: [
       { userId: "tomas", userName: "Tomáš", avatarUrl: "/images/generated/tomas-profile.jpeg", dogNames: ["Hugo"] },
-      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"] },
+      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"], profileOpen: true },
       { userId: "ondrej", userName: "Ondřej", avatarUrl: "/images/generated/ondrej-profile.jpeg", dogNames: ["Rocky"] },
     ],
     createdAt: "2026-04-09T20:00:00Z",
@@ -1778,7 +1829,7 @@ export const mockMeets: Meet[] = [
     creatorName: "Petra",
     creatorAvatarUrl: "/images/generated/petra-profile.jpeg",
     attendees: [
-      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"] },
+      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"], profileOpen: true },
       { userId: "tomas", userName: "Tomáš", avatarUrl: "/images/generated/tomas-profile.jpeg", dogNames: ["Hugo"] },
       { userId: "ondrej", userName: "Ondřej", avatarUrl: "/images/generated/ondrej-profile.jpeg", dogNames: ["Rocky"] },
       { userId: "adela", userName: "Adéla", avatarUrl: "/images/generated/adela-profile.jpeg", dogNames: ["Číča"] },
@@ -1862,7 +1913,7 @@ export const mockMeets: Meet[] = [
     creatorName: "Klára",
     creatorAvatarUrl: "/images/generated/klara-profile.jpeg",
     attendees: [
-      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"] },
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
       { userId: "daniel", userName: "Daniel", avatarUrl: "/images/generated/daniel-profile.jpeg", dogNames: ["Bára"] },
       { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"] },
       { userId: "filip", userName: "Filip", avatarUrl: "/images/generated/filip-profile.jpeg", dogNames: ["Toby"] },
@@ -1907,11 +1958,11 @@ export const mockMeets: Meet[] = [
     creatorName: "Klára",
     creatorAvatarUrl: "/images/generated/klara-profile.jpeg",
     attendees: [
-      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"] },
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
       { userId: "filip", userName: "Filip", avatarUrl: "/images/generated/filip-profile.jpeg", dogNames: ["Toby"] },
-      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"] },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"], profileOpen: true },
       { userId: "daniel", userName: "Daniel", avatarUrl: "/images/generated/daniel-profile.jpeg", dogNames: ["Bára"], rsvpStatus: "interested" },
-      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], rsvpStatus: "interested" },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], rsvpStatus: "interested", profileOpen: true },
     ],
     createdAt: "2026-04-08T09:00:00Z",
   },
@@ -1992,7 +2043,7 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl: "/images/generated/lucie-profile.jpeg",
     attendees: [
       { userId: "lucie", userName: "Lucie", avatarUrl: "/images/generated/lucie-profile.jpeg", dogNames: ["Pepík"] },
-      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"] },
+      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], profileOpen: true },
       { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"] },
     ],
     createdAt: "2026-04-10T07:00:00Z",
@@ -2026,10 +2077,10 @@ export const mockMeets: Meet[] = [
     creatorName: "Tereza",
     creatorAvatarUrl: "/images/generated/tereza-profile.jpeg",
     attendees: [
-      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"] },
+      { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], profileOpen: true },
       { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"] },
       { userId: "lucie", userName: "Lucie", avatarUrl: "/images/generated/lucie-profile.jpeg", dogNames: ["Pepík"] },
-      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], rsvpStatus: "interested" },
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], rsvpStatus: "interested", profileOpen: true },
     ],
     createdAt: "2026-04-12T08:30:00Z",
   },
@@ -2068,7 +2119,7 @@ export const mockMeets: Meet[] = [
     creatorName: "Klára",
     creatorAvatarUrl: "/images/generated/klara-profile.jpeg",
     attendees: [
-      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"] },
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
       { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"] },
     ],
     createdAt: "2026-03-15T10:00:00Z",
@@ -2103,8 +2154,8 @@ export const mockMeets: Meet[] = [
     creatorAvatarUrl: "/images/generated/martin-profile.jpeg",
     attendees: [
       { userId: "martin", userName: "Martin", avatarUrl: "/images/generated/martin-profile.jpeg", dogNames: ["Charlie"] },
-      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"] },
-      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"] },
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"], profileOpen: true },
       { userId: "filip", userName: "Filip", avatarUrl: "/images/generated/filip-profile.jpeg", dogNames: ["Toby"] },
     ],
     createdAt: "2026-04-10T07:00:00Z",
@@ -2144,7 +2195,7 @@ export const mockMeets: Meet[] = [
     attendees: [
       { userId: "ondrej", userName: "Ondřej", avatarUrl: "/images/generated/ondrej-profile.jpeg", dogNames: ["Rocky"] },
       { userId: "tomas", userName: "Tomáš", avatarUrl: "/images/generated/tomas-profile.jpeg", dogNames: ["Hugo"] },
-      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"] },
+      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"], profileOpen: true },
       { userId: "adela", userName: "Adéla", avatarUrl: "/images/generated/adela-profile.jpeg", dogNames: ["Číča"] },
     ],
     createdAt: "2026-04-11T20:00:00Z",

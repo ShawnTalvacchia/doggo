@@ -89,7 +89,6 @@ export const mockGroups: Group[] = [
         joinedAt: "2025-12-01",
       },
     ],
-    meetIds: ["meet-1"],
     photos: [
       "/images/generated/community-cover-vinohrady.jpeg",
       "/images/generated/spot-portrait.jpeg",
@@ -167,7 +166,6 @@ export const mockGroups: Group[] = [
         joinedAt: "2026-01-20",
       },
     ],
-    meetIds: ["meet-2", "meet-9", "meet-16", "meet-21"],
     photos: [
       "/images/generated/group-walk-stromovka.jpeg",
       "/images/generated/evening-walk-group.jpeg",
@@ -235,7 +233,6 @@ export const mockGroups: Group[] = [
         joinedAt: "2026-01-20",
       },
     ],
-    meetIds: [],
     photos: [],
     photoPolicy: "none",
     createdAt: "2026-01-05T12:00:00Z",
@@ -290,7 +287,6 @@ export const mockGroups: Group[] = [
         joinedAt: "2026-02-08",
       },
     ],
-    meetIds: ["meet-3"],
     photos: [
       "/images/generated/goldie-leash.jpeg",
       "/images/generated/training-session.jpeg",
@@ -348,7 +344,6 @@ export const mockGroups: Group[] = [
         joinedAt: "2026-03-01",
       },
     ],
-    meetIds: [],
     photos: [
       "/images/generated/community-cover-zizkov.jpeg",
     ],
@@ -378,7 +373,6 @@ export const mockGroups: Group[] = [
       { userId: "lucie", userName: "Lucie", avatarUrl: "/images/generated/lucie-profile.jpeg", dogNames: ["Pepík"], role: "member", joinedAt: "2026-02-06" },
       { userId: "zuzana", userName: "Zuzana", avatarUrl: "/images/generated/zuzana-profile.jpeg", dogNames: ["Mia"], role: "member", joinedAt: "2026-03-10" },
     ],
-    meetIds: ["meet-13", "meet-20"],
     photos: ["/images/generated/evening-walk-group.jpeg"],
     photoPolicy: "optional",
     createdAt: "2026-02-01T18:00:00Z",
@@ -405,7 +399,6 @@ export const mockGroups: Group[] = [
       { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"], role: "member", joinedAt: "2026-01-18" },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], role: "member", joinedAt: "2026-02-01" },
     ],
-    meetIds: ["meet-10", "meet-17"],
     photos: ["/images/generated/goldie-leash.jpeg", "/images/generated/care-petra-sitting.jpeg"],
     photoPolicy: "optional",
     createdAt: "2026-01-10T10:00:00Z",
@@ -433,7 +426,6 @@ export const mockGroups: Group[] = [
       { id: "svc-klara-2", title: "Puppy Socialisation Class", description: "Structured socialisation for puppies 3–6 months. Safe introductions, confidence building, basic cues.", priceFrom: 400, priceUnit: "per session", bookingHref: "/bookings", active: true },
       { id: "svc-klara-3", title: "1-on-1 Behaviour Consultation", description: "Private session for reactive dogs, anxiety, or specific behaviour challenges. Includes follow-up plan.", priceFrom: 800, priceUnit: "per session", bookingHref: "/bookings", active: true },
     ],
-    meetIds: ["meet-care-1", "meet-11", "meet-18"],
     members: [
       { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], role: "admin", joinedAt: "2026-01-05" },
       { userId: "daniel", userName: "Daniel", avatarUrl: "/images/generated/daniel-profile.jpeg", dogNames: ["Bára"], role: "member", joinedAt: "2026-02-10" },
@@ -473,7 +465,6 @@ export const mockGroups: Group[] = [
       { userId: "ondrej", userName: "Ondřej", avatarUrl: "/images/generated/ondrej-profile.jpeg", dogNames: ["Rocky"], role: "member", joinedAt: "2026-02-22" },
       { userId: "adela", userName: "Adéla", avatarUrl: "/images/generated/adela-profile.jpeg", dogNames: ["Číča"], role: "member", joinedAt: "2026-02-25" },
     ],
-    meetIds: [],
     photos: [],
     photoPolicy: "optional",
     createdAt: "2026-01-20T14:00:00Z",
@@ -497,7 +488,6 @@ export const mockGroups: Group[] = [
       { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"], role: "member", joinedAt: "2026-01-20" },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Goldie"], role: "member", joinedAt: "2026-02-01" },
     ],
-    meetIds: [],
     photos: ["/images/generated/goldie-playing.jpeg"],
     photoPolicy: "encouraged",
     createdAt: "2026-01-15T10:00:00Z",
@@ -522,7 +512,6 @@ export const mockGroups: Group[] = [
       { userId: "marie", userName: "Marie", avatarUrl: "/images/generated/marie-profile.jpeg", dogNames: ["Molly"], role: "member", joinedAt: "2026-03-01" },
       { userId: "anezka", userName: "Anežka", avatarUrl: "/images/generated/anezka-profile.jpeg", dogNames: ["Nela"], role: "member", joinedAt: "2026-03-10" },
     ],
-    meetIds: [],
     photos: ["/images/generated/spot-resting.jpeg", "/images/generated/park-hangout-riegrovy.jpeg"],
     photoPolicy: "encouraged",
     createdAt: "2026-02-10T09:00:00Z",
@@ -558,7 +547,6 @@ export const mockGroups: Group[] = [
       { userId: "tomas", userName: "Tomáš", avatarUrl: "/images/generated/tomas-profile.jpeg", dogNames: ["Hugo"], role: "member", joinedAt: "2026-01-15" },
       { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], role: "member", joinedAt: "2026-02-01" },
     ],
-    meetIds: ["meet-care-2"],
     photos: [
       "/images/generated/group-walk-stromovka.jpeg",
       "/images/generated/evening-walk-group.jpeg",
@@ -603,7 +591,6 @@ export const mockGroups: Group[] = [
       { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"], role: "member", joinedAt: "2026-01-05" },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Goldie"], role: "member", joinedAt: "2026-02-01" },
     ],
-    meetIds: [],
     photos: [
       "/images/generated/goldie-playing.jpeg",
       "/images/generated/spot-portrait.jpeg",
@@ -649,7 +636,6 @@ export const mockGroups: Group[] = [
       { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"], role: "member", joinedAt: "2025-12-01" },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], role: "member", joinedAt: "2026-01-10" },
     ],
-    meetIds: [],
     photos: ["/images/generated/spot-resting.jpeg", "/images/generated/goldie-playing.jpeg", "/images/generated/park-hangout-riegrovy.jpeg"],
     photoPolicy: "encouraged",
     createdAt: "2025-10-01T10:00:00Z",
@@ -683,7 +669,6 @@ export const mockGroups: Group[] = [
       { userId: "martin", userName: "Martin", avatarUrl: "/images/generated/martin-profile.jpeg", dogNames: ["Charlie"], role: "member", joinedAt: "2025-10-15" },
       { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Max"], role: "member", joinedAt: "2025-11-01" },
     ],
-    meetIds: [],
     photos: ["/images/generated/goldie-leash.jpeg"],
     photoPolicy: "optional",
     createdAt: "2025-09-01T10:00:00Z",
@@ -715,7 +700,6 @@ export const mockGroups: Group[] = [
       { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], role: "member", joinedAt: "2025-12-01" },
       { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"], role: "member", joinedAt: "2026-01-10" },
     ],
-    meetIds: ["meet-care-3"],
     photos: ["/images/generated/community-cover-letna.jpeg", "/images/generated/dogs-cafe-terrace.jpeg", "/images/generated/post-karlin-morning.jpeg"],
     photoPolicy: "encouraged",
     createdAt: "2025-10-01T12:00:00Z",
@@ -748,7 +732,6 @@ export const mockGroups: Group[] = [
       { userId: "martin", userName: "Martin", avatarUrl: "/images/generated/martin-profile.jpeg", dogNames: ["Charlie"], role: "member", joinedAt: "2025-11-15" },
       { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"], role: "member", joinedAt: "2025-12-01" },
     ],
-    meetIds: [],
     photos: ["/images/generated/spot-portrait.jpeg"],
     photoPolicy: "optional",
     createdAt: "2025-09-01T08:00:00Z",
@@ -774,7 +757,6 @@ export const mockGroups: Group[] = [
       { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"], role: "member", joinedAt: "2025-11-12" },
       { userId: "nikola", userName: "Nikola", avatarUrl: "/images/generated/nikola-profile.jpeg", dogNames: [], role: "member", joinedAt: "2025-11-15" },
     ],
-    meetIds: ["meet-3"],
     photos: ["/images/generated/training-session.jpeg"],
     photoPolicy: "encouraged",
     createdAt: "2025-10-01T00:00:00Z",
@@ -798,7 +780,6 @@ export const mockGroups: Group[] = [
       { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"], role: "member", joinedAt: "2025-11-05" },
       { userId: "filip", userName: "Filip", avatarUrl: "/images/generated/filip-profile.jpeg", dogNames: ["Toby"], role: "member", joinedAt: "2025-12-01" },
     ],
-    meetIds: [],
     photos: ["/images/generated/group-walk-stromovka.jpeg"],
     photoPolicy: "encouraged",
     createdAt: "2025-10-01T00:00:00Z",
@@ -823,7 +804,6 @@ export const mockGroups: Group[] = [
       { userId: "lucie", userName: "Lucie", avatarUrl: "/images/generated/lucie-profile.jpeg", dogNames: ["Pepík"], role: "member", joinedAt: "2025-10-15" },
       { userId: "jakub", userName: "Jakub", avatarUrl: "/images/generated/jakub-profile.jpeg", dogNames: ["Aron"], role: "member", joinedAt: "2025-12-01" },
     ],
-    meetIds: ["meet-1", "meet-7", "meet-8", "meet-14", "meet-15"],
     photos: ["/images/generated/park-hangout-riegrovy.jpeg", "/images/generated/community-cover-vinohrady.jpeg"],
     photoPolicy: "encouraged",
     createdAt: "2025-10-01T00:00:00Z",
@@ -847,7 +827,6 @@ export const mockGroups: Group[] = [
       { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"], role: "member", joinedAt: "2026-01-05" },
       { userId: "filip", userName: "Filip", avatarUrl: "/images/generated/filip-profile.jpeg", dogNames: ["Toby"], role: "member", joinedAt: "2026-01-20" },
     ],
-    meetIds: [],
     photos: [
       "/images/generated/evening-walk-group.jpeg",
       "/images/generated/group-walk-stromovka.jpeg",
@@ -873,7 +852,6 @@ export const mockGroups: Group[] = [
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], role: "member", joinedAt: "2025-12-10" },
       { userId: "anezka", userName: "Anežka", avatarUrl: "/images/generated/anezka-profile.jpeg", dogNames: ["Nela"], role: "member", joinedAt: "2026-01-05" },
     ],
-    meetIds: [],
     photos: [
       "/images/generated/community-cover-zizkov.jpeg",
       "/images/generated/post-sunset-vitkov.jpeg",
@@ -898,7 +876,6 @@ export const mockGroups: Group[] = [
       { userId: "ondrej", userName: "Ondřej", avatarUrl: "/images/generated/ondrej-profile.jpeg", dogNames: ["Rocky"], role: "member", joinedAt: "2026-02-18" },
       { userId: "adela", userName: "Adéla", avatarUrl: "/images/generated/adela-profile.jpeg", dogNames: ["Číča"], role: "member", joinedAt: "2026-02-20" },
     ],
-    meetIds: ["meet-12", "meet-19"],
     photos: ["/images/generated/evening-walk-group.jpeg"],
     photoPolicy: "encouraged",
     createdAt: "2026-02-01T00:00:00Z",
@@ -921,7 +898,6 @@ export const mockGroups: Group[] = [
       { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"], role: "member", joinedAt: "2026-02-05" },
       { userId: "zuzana", userName: "Zuzana", avatarUrl: "/images/generated/zuzana-profile.jpeg", dogNames: ["Mia"], role: "member", joinedAt: "2026-03-01" },
     ],
-    meetIds: [],
     photos: [
       "/images/generated/park-hangout-riegrovy.jpeg",
       "/images/generated/spot-park-walk.jpeg",
@@ -978,17 +954,20 @@ export function getParkGroupsNear(neighbourhood: string): Group[] {
 export function getGroupMeets(groupId: string) {
   const group = getGroupById(groupId);
   if (!group) return [];
-  // Union of both data paths: the group's explicit meetIds list AND any meet
-  // whose own `groupId` field points at this group. The two used to drift
-  // (e.g. group-1 listed only meet-1 in meetIds, but meet-4 carried
-  // `groupId: "group-1"` and never made it into the list). Tolerating both
-  // keeps the relationship working from either side. Mock World Building
-  // should consolidate to one source of truth eventually — see punch list.
+  // `Meet.groupId` is the single source of truth for the group↔meet
+  // relationship (Mock World Building A2, 2026-04-30). The previous
+  // `Group.meetIds` array was removed because the two paths drifted —
+  // see archived punch list P21.
   return mockMeets.filter(
-    (m) =>
-      (group.meetIds.includes(m.id) || m.groupId === groupId) &&
-      m.status === "upcoming"
+    (m) => m.groupId === groupId && m.status === "upcoming",
   );
+}
+
+/** Count of upcoming meets belonging to this group. Card-friendly. */
+export function getGroupMeetCount(groupId: string): number {
+  return mockMeets.filter(
+    (m) => m.groupId === groupId && m.status === "upcoming",
+  ).length;
 }
 
 /** Get the next upcoming meet for a group (for card display) */
@@ -998,4 +977,36 @@ export function getNextGroupMeet(groupId: string) {
   return meets.sort((a, b) =>
     `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`)
   )[0];
+}
+
+/**
+ * Whether `viewer` and `subject` are co-members of any group. The mirror of
+ * `viewerSharedMeetWith` for group membership.
+ *
+ * Used by surfaces that gate action affordances on shared context — e.g.
+ * the locked profile page surfaces a Familiar pill when this returns true.
+ * Group co-membership counts as shared context regardless of whether the
+ * two have ever attended a meet together.
+ *
+ * Returns false when viewer === subject.
+ */
+export function viewerSharedGroupWith(viewerId: string, subjectId: string): boolean {
+  if (viewerId === subjectId) return false;
+  for (const group of mockGroups) {
+    const memberIds = new Set(group.members.map((m) => m.userId));
+    if (memberIds.has(viewerId) && memberIds.has(subjectId)) return true;
+  }
+  return false;
+}
+
+/** Names of groups both viewer and subject are members of. Used for the
+ *  "You're both in [Group]" line on locked profile pages. */
+export function getSharedGroupNames(viewerId: string, subjectId: string): string[] {
+  if (viewerId === subjectId) return [];
+  const out: string[] = [];
+  for (const group of mockGroups) {
+    const memberIds = new Set(group.members.map((m) => m.userId));
+    if (memberIds.has(viewerId) && memberIds.has(subjectId)) out.push(group.name);
+  }
+  return out;
 }
