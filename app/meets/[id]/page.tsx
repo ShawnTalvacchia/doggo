@@ -768,17 +768,20 @@ function DetailsTab({
               border: "1px solid var(--status-info-200, #ccd6ff)",
             }}
           >
-            {group?.hostedByName && (
+            {group?.providers && group.providers[0] && (
               <div className="flex items-center gap-sm">
-                {group.hostedByAvatarUrl && (
+                {group.providers[0].avatarUrl && (
                   <img
-                    src={group.hostedByAvatarUrl}
-                    alt={group.hostedByName}
+                    src={group.providers[0].avatarUrl}
+                    alt={group.providers[0].name}
                     className="w-8 h-8 rounded-full object-cover shrink-0"
                   />
                 )}
                 <div className="flex flex-col flex-1 min-w-0">
-                  <span className="text-sm font-semibold text-fg-primary">{group.hostedByName}</span>
+                  <span className="text-sm font-semibold text-fg-primary">
+                    {group.providers[0].name}
+                    {group.providers.length > 1 && ` + ${group.providers.length - 1}`}
+                  </span>
                   <Link
                     href={`/communities/${group.id}`}
                     className="text-xs text-fg-tertiary"

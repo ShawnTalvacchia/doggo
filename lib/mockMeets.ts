@@ -603,7 +603,7 @@ export const mockMeets: Meet[] = [
     type: "training",
     groupId: "group-klara-training",
     title: "Calm Dog Group Session — Stromovka",
-    coverPhotoUrl: "/images/generated/spot-park-walk.jpeg",
+    coverPhotoUrl: "/images/generated/care-klara-training.jpeg",
     description:
       "Small-group training focused on calm greetings and loose-leash walking. Max 6 dogs. All levels welcome.",
     location: "Stromovka, Prague 7",
@@ -1909,6 +1909,12 @@ export const mockMeets: Meet[] = [
       trainerName: "Klára Horáčková",
       equipmentNeeded: ["Standard leash", "High-value treats"],
     },
+    serviceCTA: {
+      label: "Book a spot",
+      href: "/bookings",
+      price: "350 Kč",
+      spotsLeft: 2,
+    },
     creatorId: "klara",
     creatorName: "Klára",
     creatorAvatarUrl: "/images/generated/klara-profile.jpeg",
@@ -1953,6 +1959,12 @@ export const mockMeets: Meet[] = [
       ledBy: "professional",
       trainerName: "Klára Horáčková",
       equipmentNeeded: ["Long line", "High-value treats"],
+    },
+    serviceCTA: {
+      label: "Book a spot",
+      href: "/bookings",
+      price: "350 Kč",
+      spotsLeft: 3,
     },
     creatorId: "klara",
     creatorName: "Klára",
@@ -2087,9 +2099,12 @@ export const mockMeets: Meet[] = [
 
   // ── Klára routine — 1-on-1 home session with Hana mid-week ──────────────
   // Demos: provider 1-on-1 session, recurring weekly Thursday at client location.
+  // `participants_only` because this is a contracted package instance — visible
+  // only to Klára (creator) and Hana (booked roster). See P44 / Discover & Care
+  // Workstream A1.
   {
     id: "meet-care-6",
-    visibility: "group_only",
+    visibility: "participants_only",
     type: "training",
     groupId: "group-klara-training",
     title: "1-on-1 — Runa, threshold work",

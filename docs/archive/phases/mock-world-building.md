@@ -1,6 +1,6 @@
 ---
-status: active
-last-reviewed: 2026-04-30
+status: archived
+last-reviewed: 2026-05-02
 review-trigger: "When any task is completed or blocked; re-read at phase open and any time scope shifts"
 ---
 
@@ -96,14 +96,14 @@ The five C&G-deferred content walks plus the inbox hygiene item. Each walk = aud
 
 ## Workstream D — Edge-case seeding for shipped UI
 
-These are the cases the C&G walkthrough flagged as "no current attendee exercises this branch." Each is one or two attendee-record edits.
+**Deferred 2026-05-02 to punch-list P47.** Each item is a 1–2 line attendee-record edit, conceptually one chunk, no design work. Staged for Cross-Cutting Flow Testing or a dedicated mock-data polish pass rather than blocking phase close. See `docs/phases/punch-list.md` → P47 for the full spec.
 
 | # | Description | Status |
 |---|-------------|--------|
-| D1 | **Tier-2 unmarked attendee** on a canonical demo meet per persona. Pick one upcoming meet for each of Tereza/Daniel/Klára/Tomáš; ensure at least one attendee has `profileVisibility: "open"` AND `connectionState === "none"` AND no `theyMarkedFamiliar` from the viewer. Verify they render in the "Not Familiar" section of the People tab. | todo |
-| D2 | **Tier-2 inbound Familiar (deniability path).** On at least one meet per persona, seed an attendee where `theyMarkedFamiliar: true` from the viewer's perspective WITHOUT outbound `state === "familiar"`. Verify: row bumps to tier 2 in the People tab, no pill renders (deniability — `PersonRow` suppresses pill on `none + theyMarkedFamiliar`), action card surfaces Familiar. | todo |
-| D3 | **Pending pill on People tab.** At least one attendee per persona has `state === "pending"` from the viewer's side. Verify the Pending pill renders. (Currently rare in seeded data — most relationships skip Pending and go to Connected.) | todo |
-| D4 | **Following series + non-attendee viewer combo.** For one recurring meet per persona, seed `Meet.followers` to include a viewer who is NOT in `attendeesByDate`. Verify the meet shows up in that viewer's `/schedule?view=interested` even though they haven't RSVP'd to any specific date. Sanity-check the "Following series" affordance on the meet detail page. | todo |
+| D1 | Tier-2 unmarked attendee per persona | deferred → P47 |
+| D2 | Tier-2 inbound Familiar (deniability path) per persona | deferred → P47 |
+| D3 | Pending pill on People tab per persona | deferred → P47 |
+| D4 | Following series + non-attendee viewer combo per persona | deferred → P47 |
 
 ## Workstream E — Highlight reels + walkthroughs + close
 

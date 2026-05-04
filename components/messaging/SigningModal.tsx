@@ -32,14 +32,14 @@ export function SigningModal({
       onClose={onClose}
       title="Review contract"
       footer={
-        <div className="signing-footer-actions">
-          <ButtonAction variant="primary" onClick={() => onSign(msg.id)}>
-            Sign & Book
-          </ButtonAction>
+        <>
           <ButtonAction variant="tertiary" onClick={onClose}>
             Not yet
           </ButtonAction>
-        </div>
+          <ButtonAction variant="primary" onClick={() => onSign(msg.id)}>
+            Sign & Book
+          </ButtonAction>
+        </>
       }
     >
       <div className="signing-body">

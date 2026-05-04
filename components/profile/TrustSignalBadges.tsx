@@ -1,35 +1,26 @@
 "use client";
 
-import { useState } from "react";
 import { Footprints, UsersThree, HandsClapping } from "@phosphor-icons/react";
 import type { Connection } from "@/lib/types";
 
-const VISIBLE_LIMIT = 3;
-
 /**
- * Trust signals on a profile page. Three pills max — kept tight to avoid
- * a wall of overlapping evidence. Earlier versions also showed
- * "Met at <meet>" and "Known since <date>" pills; both got cut as
- * lower-value and (for "Known since") semantically ambiguous —
- * `firstMetDate` is the first shared meet, but the word "Known" reads
- * like "Connected since," which it isn't. Cut by Mock World Building
- * 2026-04-30.
+ * Relationship trust signals — what the viewer and this person have in
+ * common. Renders as a horizontal row of icon+text items that wraps to
+ * additional lines if there isn't space (not pills), so they read as
+ * context the platform is sharing rather than achievement labels on the
+ * provider. Distinct vocabulary from the `TrustBadgeStrip` (which carries
+ * credential / community-earned / platform badges *about* the person, in
+ * pills). Discover & Care 2026-05-04.
  *
- * If we want a richer signal set later (e.g. on a "relationship detail"
- * screen), the truncate-and-expand pattern is still in place — just
- * push more entries into `badges` and they'll wind through the +N more
- * affordance.
+ * Ordered by rhetorical strength: frequency → mutual people → shared community.
  */
 export function TrustSignalBadges({ connection }: { connection: Connection }) {
-  const [expanded, setExpanded] = useState(false);
-
-  // Ordered by rhetorical strength: frequency → mutual people → shared community.
-  const badges: { icon: React.ReactNode; text: string }[] = [];
+  const rows: { icon: React.ReactNode; text: string }[] = [];
 
   if (connection.meetsShared && connection.meetsShared > 0) {
-    badges.push({
-      icon: <Footprints size={12} weight="light" />,
-      text: `Walked together ${connection.meetsShared} times`,
+    rows.push({
+      icon: <Footprints size={14} weight="light" />,
+      text: `You've walked together ${connection.meetsShared} times`,
     });
   }
 
@@ -40,8 +31,8 @@ export function TrustSignalBadges({ connection }: { connection: Connection }) {
       : names.length === 2
       ? `You both know ${names[0]} and ${names[1]}`
       : `${names.length} mutual connections`;
-    badges.push({
-      icon: <UsersThree size={12} weight="light" />,
+    rows.push({
+      icon: <UsersThree size={14} weight="light" />,
       text,
     });
   }
@@ -51,43 +42,22 @@ export function TrustSignalBadges({ connection }: { connection: Connection }) {
     const text = groups.length === 1
       ? `Both in ${groups[0]}`
       : `${groups.length} shared groups`;
-    badges.push({
-      icon: <HandsClapping size={12} weight="light" />,
+    rows.push({
+      icon: <HandsClapping size={14} weight="light" />,
       text,
     });
   }
 
-  if (badges.length === 0) return null;
-
-  // Show all if expanded, OR if hiding only 1 (a "+1 more" pill takes the
-  // same space as the actual pill — it's pointless friction at N=1).
-  const wouldHide = badges.length - VISIBLE_LIMIT;
-  const showAll = expanded || wouldHide <= 1;
-  const visible = showAll ? badges : badges.slice(0, VISIBLE_LIMIT);
-  const hiddenCount = badges.length - visible.length;
+  if (rows.length === 0) return null;
 
   return (
-    <div className="flex items-center gap-xs flex-wrap justify-center">
-      {visible.map((badge, i) => (
-        <span
-          key={i}
-          className="flex items-center gap-xs rounded-pill px-sm py-xs text-xs text-fg-secondary"
-          style={{ background: "var(--surface-base)" }}
-        >
-          {badge.icon}
-          {badge.text}
-        </span>
+    <ul className="flex flex-wrap gap-x-md gap-y-xs items-center justify-center sm:justify-start text-sm list-none m-0 p-0">
+      {rows.map((row, i) => (
+        <li key={i} className="flex items-center gap-xs">
+          <span className="shrink-0 opacity-70">{row.icon}</span>
+          <span>{row.text}</span>
+        </li>
       ))}
-      {hiddenCount > 0 && (
-        <button
-          type="button"
-          onClick={() => setExpanded(true)}
-          className="flex items-center gap-xs rounded-pill px-sm py-xs text-xs text-fg-secondary cursor-pointer hover:text-fg-primary"
-          style={{ background: "var(--surface-base)", border: "none" }}
-        >
-          + {hiddenCount} more
-        </button>
-      )}
-    </div>
+    </ul>
   );
 }

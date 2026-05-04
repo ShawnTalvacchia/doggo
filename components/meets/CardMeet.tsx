@@ -48,12 +48,6 @@ interface CardMeetProps {
 
 /* ── Status chip config ────────────────────────────────────────── */
 
-const STATUS_LABELS: Record<MeetRole, string> = {
-  hosting: "Hosting",
-  joining: "Joining",
-  interested: "Interested",
-};
-
 const HISTORY_LABELS: Record<MeetRole, string> = {
   hosting: "Hosted",
   joining: "Attended",
@@ -63,8 +57,46 @@ const HISTORY_LABELS: Record<MeetRole, string> = {
 const STATUS_ICONS: Record<MeetRole, React.ReactNode> = {
   hosting: <Flag size={13} weight="fill" />,
   joining: <Check size={13} weight="bold" />,
-  interested: <Star size={13} weight="light" />,
+  interested: <Star size={13} weight="fill" />,
 };
+
+/**
+ * Label for the "joining" role depends on context:
+ * - Paid meet (has serviceCTA) → "Booked" (the action that got the viewer here was a paid booking)
+ * - Free meet, schedule variant → "Joining" (legacy schedule-card vocabulary)
+ * - Free meet, group/discover variant → "Going" (matches RSVP state vocabulary)
+ *
+ * Hosting / interested labels are stable across variants.
+ */
+function resolveStatusLabel(
+  role: MeetRole,
+  variant: CardMeetProps["variant"],
+  isPaid: boolean,
+): string {
+  if (role === "hosting") return "Hosting";
+  if (role === "interested") return "Interested";
+  // joining
+  if (isPaid) return "Booked";
+  return variant === "schedule" ? "Joining" : "Going";
+}
+
+/**
+ * Compute viewer's role from meet data when not passed explicitly.
+ * Mirrors `getMeetRole` (`lib/meetUtils.ts`) but stays local to keep CardMeet
+ * a self-contained unit — the schedule variant still passes `role` explicitly.
+ */
+function deriveViewerRole(meet: Meet, viewerId: string | null): MeetRole | undefined {
+  if (!viewerId) return undefined;
+  if (meet.creatorId === viewerId) return "hosting";
+  const attendee = meet.attendees.find((a) => a.userId === viewerId);
+  if (attendee) {
+    const status = attendee.rsvpStatus ?? "going";
+    if (status === "going") return "joining";
+    if (status === "interested") return "interested";
+  }
+  if (meet.followers?.includes(viewerId)) return "interested";
+  return undefined;
+}
 
 /* ── Component ──────────────────────────────────────────────────── */
 
@@ -79,9 +111,14 @@ export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetPro
   const isCancelled = meet.status === "cancelled";
   const maxAvatars = 5;
 
+  // Schedule variant passes `role` explicitly; other variants derive from viewer
+  // so the role chip ("Going" / "Booked" / "Hosting" / "Interested") makes the
+  // absence of a Book CTA self-explanatory.
+  const effectiveRole: MeetRole | undefined = role ?? deriveViewerRole(meet, currentUserId);
+
   // Host signal: RSVP count (only for hosting + upcoming)
   const newRsvpCount =
-    role === "hosting" && !isHistory
+    effectiveRole === "hosting" && !isHistory
       ? Math.max(0, goingAttendees.filter((a) => a.userId !== currentUserId).length)
       : 0;
 
@@ -112,31 +149,8 @@ export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetPro
           </span>
         )}
 
-        {role && (
-          <>
-            <span className="flex-1" />
-            <span
-              className="card-schedule-chip"
-              style={
-                role === "hosting" && !isHistory
-                  ? {
-                      background: "var(--brand-main)",
-                      borderColor: "var(--brand-main)",
-                      color: "white",
-                    }
-                  : {
-                      background: "var(--surface-subtle)",
-                      borderColor: "var(--surface-subtle)",
-                      color: "var(--brand-main)",
-                      opacity: isHistory ? 0.65 : 1,
-                    }
-              }
-            >
-              {STATUS_ICONS[role]}
-              {isHistory ? HISTORY_LABELS[role] : STATUS_LABELS[role]}
-            </span>
-          </>
-        )}
+        {/* Status indicator moved out of this row — see avatar row below.
+            Top-right was visually crowding the previous card's CTA strip. */}
       </div>
 
       {/* Row 2: Title */}
@@ -228,11 +242,39 @@ export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetPro
               {meet.recentJoinText}
             </div>
           )}
+
+          {/* Status indicator (Hosting / Going / Booked / Interested).
+              Right-aligned via ml-auto. Intentionally NOT chip/pill-shaped —
+              the same icon+label vocabulary is used as an interactive RSVP
+              button on the meet detail page; on a card the treatment must
+              read as status, not as a tappable control.
+              Pairs with the avatars row because both are "who's coming +
+              your relationship to that"; also avoids crowding the previous
+              card's CTA strip when it's at the top of this card. */}
+          {effectiveRole && (
+            <span
+              className="ml-auto flex items-center gap-xs text-sm font-semibold shrink-0"
+              style={{
+                color: "var(--brand-main)",
+                opacity: isHistory ? 0.65 : 1,
+              }}
+            >
+              {STATUS_ICONS[effectiveRole]}
+              {isHistory
+                ? HISTORY_LABELS[effectiveRole]
+                : resolveStatusLabel(effectiveRole, variant, !!meet.serviceCTA)}
+            </span>
+          )}
         </div>
       )}
 
-      {/* Service CTA — care group events (hidden when user already booked/committed) */}
-      {!isCancelled && meet.serviceCTA && !(variant === "schedule" && (role === "joining" || role === "hosting")) && (
+      {/* Service CTA — care group events (hidden when user is host or already booked/going).
+          Mirrors meet-detail page: hosts see "Hosting" framing, never their own Book CTA. */}
+      {!isCancelled
+        && meet.serviceCTA
+        && meet.creatorId !== currentUserId
+        && !(variant === "schedule" && (role === "joining" || role === "hosting"))
+        && !goingAttendees.some((a) => a.userId === currentUserId) && (
         <div className="flex items-center justify-between rounded-sm bg-brand-subtle px-md py-sm">
           <div className="flex items-center gap-sm">
             {meet.serviceCTA.price && (

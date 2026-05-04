@@ -91,8 +91,20 @@ export interface PersonRowProps {
    */
   careTier?: "helper" | "provider";
   messagePreview?: string;       // inbox-conversation only
+  /** Type of the previewed message — used to style system messages
+   *  (inquiry / proposal / contract) distinctly from chat text. Defaults
+   *  to "text". Discover & Care G6, 2026-05-02 (closes P46-2 within
+   *  service-thread scope). */
+  messagePreviewKind?: "text" | "inquiry" | "proposal" | "contract" | "payment";
   timeAgo?: string;              // inbox-conversation only
   unreadDot?: boolean;           // inbox-conversation only
+  /**
+   * Booking context label (e.g. "Reactive dog session", "Recall training").
+   * Renders inline next to the dog name on inbox rows. Inbox-conversation
+   * only; ignored on other variants. Undefined for direct/social threads
+   * (no booking attached) — row falls back to dog name only.
+   */
+  serviceLabel?: string;
 
   // Actions
   /**
@@ -185,8 +197,10 @@ export function PersonRow(props: PersonRowProps) {
     onUndoMark,
     onDowngradeMark,
     messagePreview,
+    messagePreviewKind = "text",
     timeAgo,
     unreadDot = false,
+    serviceLabel,
     actions = "auto",
     onConnect,
     onMessage,
@@ -402,7 +416,7 @@ export function PersonRow(props: PersonRowProps) {
         >
           {isInbox ? (
             <span
-              className={`person-row-name text-sm text-fg-primary truncate flex-1 ${
+              className={`person-row-name text-sm text-fg-primary truncate ${
                 unreadDot ? "font-semibold" : "font-medium"
               }`}
             >
@@ -417,6 +431,22 @@ export function PersonRow(props: PersonRowProps) {
               {name}
               {isSelf && <span className="font-normal text-fg-tertiary"> (you)</span>}
             </Link>
+          )}
+          {/* Inbox: dog name(s) + booking-service context inline with owner
+              name (chat-list shape). Owner stays prominent; dog + service
+              drop to muted. Service label only renders for booking
+              conversations (`serviceLabel` undefined for direct/social
+              threads). The whole cluster truncates if too long so the
+              timestamp on the right is never pushed off. */}
+          {isInbox && (petsLine || serviceLabel) && (
+            <span className="person-row-pets-inline flex items-center gap-xs text-xs text-fg-tertiary min-w-0 truncate">
+              <PawPrint size={11} weight="light" className="shrink-0" />
+              <span className="truncate">
+                {petsLine}
+                {petsLine && serviceLabel && " · "}
+                {serviceLabel}
+              </span>
+            </span>
           )}
           {pillRender && (
             <span className={pillRender.className}>{pillRender.label}</span>
@@ -437,25 +467,21 @@ export function PersonRow(props: PersonRowProps) {
           )}
         </div>
 
-        {/* Pets line — single combined text below the owner name. Non-inbox
-            uses `formatPetsLine` ("Bára" / "Bára and Eda" / "Bára, +N more")
-            paired with the dog avatars in OwnerDogAvatar. Inbox uses paw
-            icon + concatenated names (chat-list shape, no per-dog avatars). */}
-        {petsLine && (
-          isInbox ? (
-            <span className="person-row-pets-text-only flex items-center gap-xs text-xs text-fg-tertiary truncate">
-              <PawPrint size={11} weight="light" className="shrink-0" />
-              {petsLine}
-            </span>
-          ) : (
-            <span className="text-sub text-fg-tertiary truncate leading-8">{petsLine}</span>
-          )
+        {/* Pets line — non-inbox variants only. Renders below the name with
+            `formatPetsLine` ("Bára" / "Bára and Eda" / "Bára, +N more")
+            paired with the dog avatars in OwnerDogAvatar. Inbox folds the
+            dog name(s) inline next to the owner name above. */}
+        {!isInbox && petsLine && (
+          <span className="text-sub text-fg-tertiary truncate leading-8">{petsLine}</span>
         )}
 
-        {/* Inbox preview row — third line, takes the row's bold-on-unread cue */}
+        {/* Inbox preview row — third line, takes the row's bold-on-unread cue.
+            System-message previews (inquiry, proposal, contract, payment)
+            render with a leading icon glyph so they don't read as draft text.
+            G6 / closes P46-2 within service-thread scope. */}
         {isInbox && messagePreview && (
           <span
-            className={`person-row-preview text-sm leading-snug truncate ${
+            className={`person-row-preview person-row-preview--${messagePreviewKind} text-sm leading-snug truncate ${
               unreadDot ? "text-fg-secondary font-medium" : "text-fg-tertiary"
             }`}
           >

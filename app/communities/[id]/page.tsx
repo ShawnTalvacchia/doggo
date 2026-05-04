@@ -26,6 +26,7 @@ import {
   MapPinLine,
   Images,
   CalendarBlank,
+  CaretRight,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -111,6 +112,16 @@ const CARE_CATEGORY_LABELS: Record<string, string> = {
   other: "Care Provider",
 };
 
+/** Truncate a bio to its first two sentences. Splits on `. ` so periods
+ *  inside abbreviations don't create false sentence boundaries — close
+ *  enough for prose. Returns the original string if it has ≤2 sentences. */
+function firstTwoSentences(text: string | undefined): string | undefined {
+  if (!text) return undefined;
+  const parts = text.split(/(?<=\.)\s+/);
+  if (parts.length <= 2) return text;
+  return parts.slice(0, 2).join(" ");
+}
+
 /* ── Page (with Suspense boundary for useSearchParams) ─────────── */
 
 export default function GroupDetailPage() {
@@ -164,7 +175,7 @@ function GroupDetailInner() {
     );
   }
 
-  const groupMeets = getGroupMeets(group.id);
+  const groupMeets = getGroupMeets(group.id, currentUserId);
   const groupPosts = getPostsByGroup(group.id);
   const isMember = group.members.some((m) => m.userId === currentUserId);
   const isAdmin = group.members.some((m) => m.userId === currentUserId && m.role === "admin");
@@ -320,31 +331,83 @@ function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, join
         {/* Description */}
         <p className="text-sm text-fg-secondary m-0">{group.description}</p>
 
-        {/* Hosted by — care groups only */}
-        {isCare && group.hostedByName && (
-          <div className="flex items-center gap-md rounded-panel bg-surface-top p-md shadow-xs">
-            <img
-              src={group.hostedByAvatarUrl || group.members.find(m => m.userId === group.hostedBy)?.avatarUrl || ""}
-              alt={group.hostedByName}
-              className="rounded-full shrink-0 w-10 h-10 object-cover"
-            />
-            <div className="flex flex-col gap-xs flex-1">
-              <div className="flex items-center gap-xs">
-                <Storefront size={14} weight="fill" className="text-brand-main" />
-                <span className="text-xs font-medium text-fg-tertiary">Hosted by</span>
+        {/* Provider hero — care groups only. Single-provider: avatar + name +
+            category + tagline. Multi-provider: avatar stack + combined name +
+            category, tagline omitted (one bio doesn't represent the team).
+            Discover & Care B1/B3, 2026-05-02. See [[Groups & Care Model]] →
+            Care Group Admin Model → Group hero anatomy. */}
+        {isCare && group.providers && group.providers.length > 0 && (() => {
+          const primary = group.providers[0];
+          const provider = getUserById(primary.userId);
+          const isMulti = group.providers.length > 1;
+          const tagline = isMulti ? null : firstTwoSentences(provider?.carerProfile?.bio);
+          const categoryLabel = group.careCategory
+            ? CARE_CATEGORY_LABELS[group.careCategory] || group.careCategory
+            : null;
+          const visibleStack = group.providers.slice(0, 3);
+          const overflow = group.providers.length - visibleStack.length;
+          const nameLine = (() => {
+            if (group.providers.length === 1) return primary.name;
+            if (group.providers.length === 2) return `${primary.name}, ${group.providers[1].name}`;
+            return `${primary.name} + ${group.providers.length - 1} others`;
+          })();
+          return (
+            <div className="provider-hero">
+              <div className="provider-hero-body">
+                {isMulti ? (
+                  <div className="flex shrink-0 -space-x-sm">
+                    {visibleStack.map((p) => (
+                      <img
+                        key={p.userId}
+                        src={p.avatarUrl || group.members.find(m => m.userId === p.userId)?.avatarUrl || ""}
+                        alt={p.name}
+                        className="rounded-full w-10 h-10 object-cover border-2 border-surface-base"
+                      />
+                    ))}
+                    {overflow > 0 && (
+                      <div className="rounded-full w-10 h-10 bg-surface-inset border-2 border-surface-base flex items-center justify-center text-xs font-semibold text-fg-secondary">
+                        +{overflow}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <img
+                    src={primary.avatarUrl || group.members.find(m => m.userId === primary.userId)?.avatarUrl || ""}
+                    alt={primary.name}
+                    className="rounded-full shrink-0 w-12 h-12 object-cover"
+                  />
+                )}
+                <div className="flex flex-col gap-xs flex-1 min-w-0">
+                  <div className="flex items-center gap-sm flex-wrap">
+                    <span className="text-sm font-semibold text-fg-primary">
+                      {nameLine}
+                    </span>
+                    {categoryLabel && (
+                      <span className="feed-card-provider-badge">
+                        <Storefront size={11} weight="fill" />
+                        {categoryLabel}
+                      </span>
+                    )}
+                  </div>
+                  {tagline && (
+                    <p className="text-sm text-fg-secondary m-0" style={{ lineHeight: 1.4 }}>
+                      {tagline}
+                    </p>
+                  )}
+                </div>
               </div>
-              <span className="text-sm font-semibold text-fg-primary">{group.hostedByName}</span>
-              {group.careCategory && (
-                <span className="text-xs text-fg-secondary">
-                  {CARE_CATEGORY_LABELS[group.careCategory] || group.careCategory}
-                </span>
-              )}
+              <ButtonAction
+                variant="tertiary"
+                size="sm"
+                href={`/profile/${primary.userId}`}
+                rightIcon={<CaretRight size={14} weight="bold" />}
+                className="provider-hero-cta"
+              >
+                View profile
+              </ButtonAction>
             </div>
-            <ButtonAction variant="outline" size="sm" href={`/profile/${group.hostedBy}`}>
-              View profile
-            </ButtonAction>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Fixed location — care groups with address */}
         {isCare && group.locationFixed && (

@@ -1,14 +1,14 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-26
+last-reviewed: 2026-05-02
 tags: [demo, persona-switching, testing, infrastructure]
 review-trigger: "when adding a new persona, when changing persona-switching surfaces, when wiring per-persona mock data"
 ---
 
 # Demo Mode — Persona Switching
 
-Runtime persona switcher that lets reviewers and testers view the prototype as any of six personas without rebuilding or editing source. **Demo-only infrastructure** — none of these surfaces would ship in the real product.
+Runtime persona switcher that lets reviewers and testers view the prototype as any of five personas without rebuilding or editing source. **Demo-only infrastructure** — none of these surfaces would ship in the real product.
 
 Implementation lives behind one rule: **product code reads `useCurrentUser()`**, never `mockUser` directly. The hook resolves to the active persona; switching is a one-click affordance.
 
@@ -33,22 +33,23 @@ What it didn't ship — see "Known limitations" below.
 
 **File:** `lib/personas.ts`
 
-Six personas, ordered for the picker:
+Five personas, ordered for the picker:
 
 | ID | Name | Archetype | Source |
 |----|------|-----------|--------|
-| `shawn` | Shawn Talvacchia | Default | `lib/mockUser.ts` |
-| `tereza` | Tereza Nováková | Routine Owner / Connector | `lib/mockUsers.ts` |
+| `tereza` | Tereza Nováková | Routine Owner / Connector (default) | `lib/mockUsers.ts` |
 | `daniel` | Daniel Procházka | Anxious New Owner | `lib/mockUsers.ts` |
 | `klara` | Klára Horáčková | Professional Provider | `lib/mockUsers.ts` |
 | `tomas` | Tomáš Kovář | Busy Professional | `lib/mockUsers.ts` |
 | `new-user` | New User | Just signed up | `lib/personas.ts` (synthetic) |
 
+Shawn was removed from the picker 2026-04-26 — the actual developer's name shouldn't double as a demo character. He still exists in mock-world data as a Vinohrady regular other personas encounter; he's just no longer a "view as" option.
+
 Each entry pairs a `UserProfile` with `archetype` + `tagline` framing copy. The `new-user` persona is defined inline in `personas.ts` — empty `pets[]`, blank bio, no `carerProfile`, generic SVG avatar, locked profile visibility, `tagApproval: "approve"`.
 
 **Helpers:**
 - `getPersona(userId): PersonaOption | undefined` — registry lookup by ID
-- `defaultPersona` — Shawn (the canonical signed-in user)
+- `defaultPersona` — Tereza (the canonical default)
 - `isNewUser(userId): boolean` — predicate for empty-state gating
 - `NEW_USER_ID = "new-user"` — exported for code paths that need to compare directly
 
@@ -68,7 +69,7 @@ const onboarding = useIsNewUser();      // → true iff currentUser.id === "new-
 
 Use these in any component that needs persona-aware data. Don't import `mockUser` directly — that pattern is reserved for the persona registry itself.
 
-**SSR fallback:** server-render and first paint resolve to Shawn. The provider's `useEffect` hydrates from `localStorage` on mount. There's a brief flash of Shawn-content during hydration when a non-default persona is active — accepted limitation.
+**SSR fallback:** server-render and first paint resolve to Tereza (the default persona). The provider's `useEffect` hydrates from `localStorage` on mount. There's a brief flash of Tereza-content during hydration when a non-default persona is active — accepted limitation.
 
 **For switcher / picker code** (writes the active persona), use `useDemoState()` from `@/contexts/CurrentUserContext`:
 
@@ -110,6 +111,57 @@ Use cases:
 - "What does this group page look like to a non-member?" → `/communities/svc-klara-training?as=daniel`
 
 The override applies per-render and per-URL only — no global state mutation.
+
+---
+
+## Highlight reels
+
+Per-persona "where their story reads strongest." When showing the prototype to a reviewer, drop into these surfaces in order — each one is curated to demonstrate the persona's archetype against the trust → care funnel. Use the `?as=<id>` URL param to swap personas without committing the switch to localStorage.
+
+### Tereza — Routine Owner / Connector
+
+The community-anchor archetype. Vinohrady regular who runs the evening walking group, knows everyone, occasionally sits for neighbours.
+
+1. **Home feed** — `/home?as=tereza` — Vinohrady Evening Walkers + Vinohrady Morning Crew + Riegrovy posts dominate. Reads as "someone embedded in a neighbourhood."
+2. **Vinohrady Evening Walkers** — `/communities/group-tereza-neighbourhood?as=tereza` — admin role, recurring evening loop, members tab shows neighbour cluster. Description in admin's voice (first-person).
+3. **Profile** — `/profile?as=tereza` — Open profile, Helper-tier carer (sitting at modest rate), Open visibility, Vinohrady neighbourhood, Franta the dog.
+4. **Riegrovy morning recurring meet** — `/meets/meet-1?as=tereza` — weekly Riegrovy walk she's part of (group-1 Vinohrady Morning Crew). People tab shows her connection cluster; Photos tab from completed sessions.
+
+### Daniel — Anxious New Owner
+
+The trust-ramp archetype. Reactive rescue, Locked profile, few connections, found his footing through one support group + one professional booking.
+
+1. **Reactive Dog Support** — `/communities/group-reactive-dogs?as=daniel` — Eva's admin posts, Hana's gratitude post, his own posts. Members tab leans heavily Locked (intentional for support context).
+2. **Profile** — `/profile?as=daniel` — Locked, sparse but coherent. Bára (rescue, reactive). Smíchov.
+3. **Klára training booking** — `/bookings/booking-klara-daniel?as=daniel` — recurring Wed 10am, sessions list, the "trust → care payoff" arc.
+4. **Post-meet review on a small calm meet** — `/schedule?as=daniel` History tab → tap a completed reactive-group meet (e.g. `meet-reactive-spring`) → review prompt. Demonstrates the Familiar marking flow on a privacy-sensitive meet.
+
+### Klára — Professional Provider
+
+The provider-deeply-embedded-in-community archetype. Trainer with her own care group, also joins park groups as regular owner.
+
+1. **Klára's Calm Dog Sessions** — `/communities/group-klara-training?as=klara` — Care config (training category), her client community, Members tab shows mix of personas + clients, Meets tab with paid sessions (Hosting suppressed CTAs).
+2. **Provider profile** — `/profile?as=klara` — Services tab with care offerings + (forthcoming) meet-type entries, Posts tab with training recaps, trust signals.
+3. **Active recurring booking with sessions** — `/bookings/booking-klara-daniel?as=klara` — same booking as Daniel's view but from the provider side: session check-ins, owner-side aggregate suppressed.
+4. **Training-recap post in her group** — drill into her recent group-feed post with photo (`/communities/group-klara-training?as=klara` → Feed tab). Demonstrates provider posts as social proof.
+
+### Tomáš — Busy Professional
+
+The utility-user archetype. Karlín commuter, Hugo the labrador, leans on care help when work runs late.
+
+1. **Karlín Dog Neighbors** — `/communities/group-karlin-neighbours?as=tomas` — Petra's admin announcement, Filip's posts, Adéla's posts, his own light contribution.
+2. **Profile** — `/profile?as=tomas` — Locked, Hugo, Karlín. Reads as low-key user who hasn't dialed up the provider switch.
+3. **Petra emergency conversation** — `/inbox?as=tomas` → tap the Petra thread (`tomas-petra-conv`) — the "neighbour I trusted in a pinch" arc. Booking context (emergency sitting) shows on the row.
+4. **Hugo's bookings list** — `/bookings?as=tomas` — completed Petra emergency booking + any others. Reads as trail of "care arrangements that worked."
+
+### New User
+
+Empty-state preview. Use to verify graceful empty states across surfaces.
+
+- `/home?as=new-user` — `getNewUserFeed()` welcome state (no connections, no completed meets).
+- `/profile?as=new-user` — empty pets, blank bio, locked.
+- `/inbox?as=new-user` — empty (no conversations seeded for `new-user`).
+- `/discover/groups?as=new-user` — discoverability surface for someone who hasn't joined anything yet.
 
 ---
 
@@ -155,42 +207,30 @@ Data-gap surfaces (e.g., Inbox is empty as new-user because mock conversations a
 
 ## Connection state — viewer-aware
 
-`getConnectionState(userId, viewerId = "shawn")` in `lib/mockConnections.ts` now takes a viewer parameter. For `viewerId !== "shawn"`, returns `undefined`.
+`getConnectionState(userId, viewerId = "shawn")` in `lib/mockConnections.ts` takes a viewer parameter. The underlying `mockConnectionsByViewer` map is keyed per-persona, so each persona has their own connection roster.
 
-**Why:** `mockConnections.ts` is currently populated only from Shawn's perspective. Until **Mock World Building** seeds per-persona connection rosters, non-Shawn personas see no connection pills (everyone is tier-3 / "no connection"). That keeps the persona-switched view *safe* (no fabricated relationships) but means the empty-state will be common in non-Shawn views.
+**Current rosters** (seeded during Mock World Building):
 
-The `viewerId = "shawn"` default is intentional — pre-existing callers who don't yet pass through a `viewerId` keep working. New code should always pass the active persona's ID explicitly.
+| Persona | Connections |
+|---------|-------------|
+| Shawn | 12 |
+| Tereza | 8 |
+| Daniel | 5 |
+| Klára | 10 |
+| Tomáš | 6 |
+| New User | 0 (intentional empty state) |
 
----
-
-## Known limitations (will fill during Mock World Building)
-
-These are expected — not bugs. Surface them in a closing-summary so the next phase knows what to backfill.
-
-1. **Connections are Shawn-only.** `mockConnections.ts` has Shawn's view of each user; non-Shawn personas see no connection pills, no Familiar/Connected badges, no shared-groups counts. Feed surfaces that lean on connection state (e.g., "Tereza is joining" social proof) fall back to dog-first copy or render empty.
-
-2. **Conversations are Shawn-only.** `mockConversations.ts` threads have Shawn as one of the two parties. Non-Shawn personas see an empty inbox until per-persona threads are seeded.
-
-3. **Posts are mostly Shawn-authored.** The home feed, community feeds, and profile Posts tab feel sparse for non-Shawn personas. Mock World Building will broaden authorship.
-
-4. **Share codes only on Shawn.** The Share Profile button now renders for every persona (it falls back to `user.id` as the slug if no `shareCode` is set), but real codes — `tereza-r4m2`, `klara-p3n8`, etc. — would feel more authentic.
-
-5. **Profile-page edit state doesn't persist across persona swaps.** Local state in `app/profile/page.tsx` resets on persona change (via `useEffect` watching `currentUser.id`). Real product would persist edits per-user; the prototype just resets.
-
-6. **SSR briefly flashes Shawn content.** First paint always renders as Shawn; localStorage hydrates on mount. ~50ms flicker when the active persona is non-default. Accepted.
+The `viewerId = "shawn"` default is intentional — pre-existing callers that don't yet pass through a `viewerId` keep working. New code should always pass the active persona's ID explicitly.
 
 ---
 
-## Cleanup pending
+## Known limitations
 
-These files are stubs flagged for manual deletion (sandbox `rm` blocked, interactive permission tool unavailable in agent mode). See `docs/phases/punch-list.md` P17:
+Two accepted limitations remain. The pre-Mock-World-Building list of six was resolved during that phase — connections, conversations, posts, and share codes are all per-persona now. See the highlight reels above for verification surfaces.
 
-- `lib/mockUserState.ts` — superseded by `useIsNewUser()`
-- `components/layout/PersonaBanner.tsx` — superseded by `ProfileNameDropdown` + `?as=` URL param
-- `components/profile/ChangeUserMenu.tsx` — superseded by `ProfileNameDropdown`
-- `A2-A3-HANDOFF.md` (repo root) — fully merged 2026-04-24 handoff note
+1. **Profile-page edit state doesn't persist across persona swaps.** Local state in `app/profile/page.tsx` resets on persona change (via `useEffect` watching `currentUser.id`). Real product would persist edits per-user; the prototype just resets. Accepted.
 
-All four are reduced to `export {};` with deprecation comments pointing at the replacement, so leaving them in place doesn't cause runtime issues.
+2. **SSR briefly flashes Tereza content.** First paint always renders as Tereza (the default persona); localStorage hydrates on mount. ~50ms flicker when the active persona is non-default. Accepted.
 
 ---
 

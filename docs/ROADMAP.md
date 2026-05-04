@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-04-29
+last-reviewed: 2026-05-04
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
@@ -36,13 +36,11 @@ The full product skeleton exists. Every page renders with real content and worki
 
 ## Current Phase
 
-### Between phases
-
-Community & Groups Deep Pass closed 2026-04-29. Next phase opens with **Mock World Building** (recommended) — many UI patterns shipped this pass benefit from richer per-persona seeded data before the next UX-heavy phase. See `archive/phases/community-groups-deep-pass.md` for the record.
+**None active.** Discover & Care closed 2026-05-04. Next phase to open: **Pricing & Proposals** — see Upcoming Phases below.
 
 ### Profiles Deep Pass — Paused
 
-Paused 2026-04-14. Trust signals, post composer, and post attribution shipped. Remaining content enrichment folded into Mock World Building.
+Paused 2026-04-14. Trust signals, post composer, and post attribution shipped. Remaining content enrichment folded into Mock World Building (now closed).
 
 **Phase board:** `phases/profiles-deep-pass.md`
 
@@ -50,15 +48,16 @@ Paused 2026-04-14. Trust signals, post composer, and post attribution shipped. R
 
 ## Upcoming Phases
 
-Each phase takes a major surface and makes it the best it can be — rethink content, fix visual issues, add depth to mock data.
+Reorganized 2026-05-04 around the principle that **services are the core functionality** — the actual transactional loop (provider pricing → inquiry → proposal → contract → sessions → payment) needs to sing before community surrounds get more polish. Inbox & Notifications and Onboarding shrink in scope because most of the service-flow comms and pricing-setup teaching now belong inside the service phases that come first.
 
 | Phase | Goal | Key refs |
 |-------|------|----------|
-| **Mock World Building** | Coherent world for the four journey personas with rich cross-connections, images, and content. **Reordered to next-up 2026-04-29 after Community & Groups Deep Pass closed** — that phase shipped enough UI (section grouping, Helper/Provider visibility, mark-state ladder, DogsNearYou neighborhood-aware, locked chip list) that data variety is now the bigger demo-quality bottleneck. **Unblocked by Persona & Demo Mode Wiring** (closed 2026-04-26). Specific gaps to backfill: per-persona `mockConnections`, conversations seeded for non-Shawn personas, broader post authorship, `shareCode` per persona, the unresolved provider-userId pattern (P4), profile-visibility distribution rebalance to ~70% locked / 30% open (P36), inbox name/dog format normalization (P35), 3+ dogs across multiple attendees (beyond just Shawn at meet-1, P31 follow-up), per-persona connection rosters, and **the deferred E1/E2/E4/E5 walks from Community & Groups** (group feed content per persona, group feed walks per type, Care group walk, community feed cross-persona walk). | `mock-data-plan.md`, `User Archetypes.md`, `features/demo-mode.md` |
-| **Discover & Care** | Care discovery feels like community, not marketplace. Trust badges, matching, intro sessions. Inherits the soft-Familiar-indicator question for non-grouped surfaces (P29). Benefits from Mock World Building's data work landing first — provider profiles, care badges, and discovery cards depend on richer variety. | `features/explore-and-care.md`, `Competitive Research - Prague Dog Care Scene.md`, `Competitive Research - Fluv.md` |
-| **Inbox & Notifications** | Inbox conversation list visual polish, notification card patterns, badge counts, request-vs-thread distinction, possibly threading model + read state. Surfaced during Community & Groups walkthrough — inbox needs a focused pass rather than piecemeal patches. | `features/messaging.md` (likely), `app/inbox/`, `app/notifications/`, `components/messaging/` |
-| **Schedule & Bookings** | Operational backbone. Visit report cards, session updates, provider in-session UI. Care review sheets + provider close-out flow. IA scaffolding + review-recent pattern landed early during Meets Deep Pass — see `phases/schedule-bookings-deep-pass.md` for pre-loaded deferred scope. | `phases/schedule-bookings-deep-pass.md`, `features/schedule.md`, `features/explore-and-care.md`, `Competitive Research - Time To Pet.md` |
-| **Cross-Cutting Flow Testing** | Every persona journey works end-to-end. Trust signals accumulate. No dead ends. | `User Journeys.pptx`, `Trust & Connection Model.md` |
+| **Pricing & Proposals** *(NEW — next phase)* | Structurally enforce the no-bargaining principle. Provider pricing config (base rate + modifiers — holiday surcharge, multi-pet, longer-walk, last-minute, off-hours). Auto-pricing engine takes (config × inquiry data) → quote. Refactor `ProposalForm` from "compose price" to "review system quote and confirm" with optional override flagged as a deviation. Extend inquiry form to capture all dimensions needed for auto-quote (date for holiday detection, pet count for multi-pet pricing, etc.). Provider onboarding UI for pricing setup. Tighten visual polish on inquiry → proposal → contract artifact rendering inherited from Discover & Care. | `Open Questions §9`, `lib/types.ts:CarerCareServiceConfig`, `components/messaging/ProposalForm.tsx`, `lib/pricing.ts`, `Competitive Research - Prague Dog Care Scene.md` (Rover/Hlídačky modifier patterns) |
+| **Sessions & Service Execution** *(replaces "Schedule & Bookings")* | The other half of "services real" — what happens after a contract is signed. Visit report cards, real-time session updates, provider in-session UI, owner session view, aggregate stats (owner) vs per-session views (provider). Care review sheets + provider close-out flow. IA scaffolding + review-recent pattern landed early during Meets Deep Pass — see phase board for pre-loaded deferred scope. | `phases/schedule-bookings-deep-pass.md`, `features/schedule.md`, `features/explore-and-care.md`, `Competitive Research - Time To Pet.md` |
+| **Inbox & Notifications** | Inbox visual polish, notification card patterns, badge counts, request-vs-thread distinction, possibly threading model + read state. **Compressed** because most service-flow notifications (inquiry sent, proposal received, accepted, etc.) get covered upstream. Also covers the inquiry-driven trust transitions logged in Open Questions §2 (mutual Familiar on inquiry send, mutual Connected on contract accept, edge cases). | `phases/inbox-and-notifications-deep-pass.md`, `features/messaging.md`, `app/inbox/`, `app/notifications/`, `Open Questions §2` |
+| **Cross-Cutting Flow Testing** | Every persona journey works end-to-end with the now-solid services core. Trust signals accumulate. No dead ends. Pre-loaded with mock-world edge-case seeding + People-tab disclosure model + mock-data hygiene items. | `phases/cross-cutting-flow-testing.md`, `User Journeys.pptx`, `Trust & Connection Model.md` |
+| **Onboarding & In-Product Communication** | Trust model + tier system + privacy mechanics + provider pricing setup tutorials. Multiple touchpoints (locked profile lock card, Familiar asymmetry, Helper/Provider tier, privacy explainer, share-link bypass, group visibility chip, pricing setup walkthrough) share the same root: users need to understand mechanics without being lectured. | `phases/onboarding-and-communication.md`, `Trust & Connection Model.md`, `Open Questions §2 + §3 + §4` |
+| **Design System Cleanup** | Resolve accumulated design-system inconsistencies — chip vs button visual collision, ButtonAction variant overlap, ModalSheet footer pattern drift, owner+dog avatar pattern cascade, optional-field label conventions (P51). Audits existing components into a coherent vocabulary; doesn't add new ones. Can run any time; best opened after a content phase. | `phases/design-system-cleanup.md`, `implementation/design-system.md`, Punch List P51 |
 | **Demo Presentation** | Landing page redesign, persona selection presentation, guided tours. Free exploration also rewarding. The `/demo` route from Persona Wiring is the technical foundation; presentation framing is the open work. | `Product Vision.md`, `User Archetypes.md`, `features/demo-mode.md` |
 
 Phase boards are created when a phase opens — that's where detailed tasks live. The research docs referenced above contain specific action items and open questions that feed into each phase's board.

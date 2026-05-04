@@ -536,6 +536,29 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       neighbourhood: "Holešovice",
       profileOpen: true,
     },
+    // Care-side Familiar mark — Daniel cautiously dipping into the carer
+    // network. Nikola is a Letná boarder (no dog of her own); Daniel met her
+    // at a community walk in Stromovka. Narratively in-character for an
+    // anxious new owner: a low-stakes acknowledgement, not a Connection.
+    // Also gives `/discover/care` a visible positive case for the soft
+    // Familiar avatar ring (E2). Discover & Care 2026-05-04.
+    {
+      id: "conn-daniel-nikola",
+      userId: "nikola",
+      userName: "Nikola",
+      avatarUrl: "/images/generated/nikola-profile.jpeg",
+      dogNames: [],
+      location: "Prague 7",
+      state: "familiar",
+      updatedAt: "2026-04-18T15:00:00Z",
+      meetsShared: 1,
+      firstMetDate: "2026-04-12",
+      lastMetDate: "2026-04-12",
+      mutualConnections: ["Klára"],
+      sharedGroups: [],
+      neighbourhood: "Letná",
+      profileOpen: true,
+    },
   ],
 
   /* ═══════════════════════════════════════════════════════════════════════
@@ -718,6 +741,27 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       neighbourhood: "Smíchov",
       profileOpen: false,
       theyMarkedFamiliar: true,
+    },
+    // Care-side Familiar mark — Pavel D. is a Karlín family-home boarder Klára
+    // has crossed paths with at Stromovka community walks. `userId: "pavel-d"`
+    // matches the directory ProviderCard ID directly (no UserProfile bridge —
+    // Pavel is directory-only). Gives `/discover/care` a visible positive case
+    // for Klára's soft Familiar avatar ring (E4). Discover & Care 2026-05-04.
+    {
+      id: "conn-klara-pavel",
+      userId: "pavel-d",
+      userName: "Pavel D.",
+      avatarUrl: "/images/generated/daniel-profile.jpeg",
+      dogNames: [],
+      location: "Prague 8",
+      state: "familiar",
+      updatedAt: "2026-03-22T12:00:00Z",
+      meetsShared: 1,
+      firstMetDate: "2026-03-08",
+      lastMetDate: "2026-03-08",
+      mutualConnections: [],
+      sharedGroups: [],
+      neighbourhood: "Karlín",
     },
 
     /* ─── PENDING ────────────────────────────────────────────────── */

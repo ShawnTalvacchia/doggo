@@ -1416,8 +1416,10 @@ a {
   transition: background-color 140ms ease;
 }
 
-.button-icon:hover {
-  background: var(--on-hover-darken);
+@media (hover: hover) {
+  .button-icon:hover {
+    background: var(--on-hover-darken);
+  }
 }
 
 .button-icon:focus-visible {
@@ -3896,6 +3898,7 @@ body.guest-route {
 .modal-sheet-footer {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--space-lg);
   padding: var(--space-lg);
   border-top: 1px solid var(--border-regular);
@@ -4731,9 +4734,17 @@ body.guest-route {
 
 .result-head {
   display: grid;
-  grid-template-columns: 48px 1fr auto;
+  grid-template-columns: 64px 1fr auto;
   gap: 12px;
   align-items: flex-start;
+  margin-bottom: 6px;
+}
+
+@media (min-width: 640px) {
+  .result-head {
+    grid-template-columns: 72px 1fr auto;
+    gap: 16px;
+  }
 }
 
 .result-main {
@@ -4743,6 +4754,11 @@ body.guest-route {
 
 .result-name {
   font-weight: var(--weight-bold);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 6px;
+  row-gap: 4px;
 }
 
 .result-location {
@@ -4791,9 +4807,16 @@ body.guest-route {
 }
 
 .result-skeleton-avatar {
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  height: 64px;
   flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .result-skeleton-avatar {
+    width: 72px;
+    height: 72px;
+  }
 }
 
 .result-skeleton-main {
@@ -4856,6 +4879,19 @@ body.guest-route {
 
 /* ── Trust row ──────────────────────────────────────── */
 .trust-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+
+/* Wraps the credential-badge strip + connection-signals row into a single
+   flex-wrap container. On wider viewports they sit side-by-side; on narrow
+   they stack. Reduces vertical "bands" on the card. Discover & Care
+   2026-05-04. */
+.result-trust-stack {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 16px;
+  row-gap: 6px;
+}
+.result-trust-stack .trust-row { margin-top: 0; }
 .trust-item { display: inline-flex; align-items: center; gap: 3px; font-size: var(--font-size-body-sm); color: var(--text-secondary); }
 .trust-item--match { color: var(--brand-main); font-weight: var(--weight-medium); }
 
@@ -4925,10 +4961,32 @@ body.guest-route {
 /* .result-trust / .profile-trust → consolidated into .trust-row (shared utilities) */
 
 .avatar {
-  width: 48px;
-  height: 48px;
+  width: 64px;
+  height: 64px;
   border-radius: var(--radius-circle);
   object-fit: cover;
+}
+
+@media (min-width: 640px) {
+  .avatar {
+    width: 72px;
+    height: 72px;
+  }
+}
+
+/* Connection-state avatar rings — Discover-only affordance. Pair of variants
+   that read as siblings at different intensities so Connected feels stronger
+   than Familiar (without Familiar disappearing entirely). Applied on non-
+   grouped surfaces where rows aren't already section-grouped by relationship
+   state (Discover lists). Privacy-safe — own data, no deniability concern.
+   Discover & Care 2026-05-04 (P29). */
+.avatar-familiar {
+  outline: 2px solid var(--neutral-400);
+  outline-offset: 1px;
+}
+.avatar-connected {
+  outline: 2px solid var(--brand-main);
+  outline-offset: 1px;
 }
 
 
@@ -5009,6 +5067,20 @@ body.guest-route {
   padding: 20px;
 }
 
+/* Profile-tab content stack — sections sit on the page surface with thin
+   dividers between them. Replaces the card-in-card pattern that previously
+   wrapped each section. Discover & Care, 2026-05-02. */
+.profile-tab-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-tab-stack > * + * {
+  border-top: 1px solid var(--border-regular);
+  margin-top: var(--space-xxl);
+  padding-top: var(--space-xxl);
+}
+
 .profile-about-card {
   padding: 0;
   overflow: hidden;
@@ -5041,7 +5113,7 @@ body.guest-route {
 }
 
 .profile-card-subtitle {
-  margin: 0 0 8px;
+  margin: 0 0 12px;
   font-size: var(--font-size-body-md);
   font-weight: var(--weight-bold);
   line-height: 1.35;
@@ -7756,6 +7828,56 @@ body:has(.bottom-nav) .bookings-page {
   background: var(--status-warning-light);
 }
 
+.booking-status-badge--proposed {
+  color: var(--brand-strong);
+  background: var(--brand-subtle);
+}
+
+/* Inbox preview — system-message variants. Plain `text` kind has no
+   modifier; system messages get an inline glyph + italic-feel framing so
+   they don't read as draft text. Discover & Care G6, 2026-05-02. */
+.person-row-preview--inquiry::before,
+.person-row-preview--proposal::before,
+.person-row-preview--contract::before,
+.person-row-preview--payment::before {
+  display: inline-block;
+  margin-right: 6px;
+  font-size: 11px;
+  font-style: normal;
+}
+
+.person-row-preview--inquiry {
+  color: var(--brand-strong);
+}
+.person-row-preview--inquiry::before {
+  content: "✦";
+  color: var(--brand-main);
+}
+
+.person-row-preview--proposal {
+  color: var(--brand-strong);
+}
+.person-row-preview--proposal::before {
+  content: "✦";
+  color: var(--brand-main);
+}
+
+.person-row-preview--contract {
+  color: var(--status-success-strong);
+}
+.person-row-preview--contract::before {
+  content: "✓";
+  color: var(--status-success-main);
+}
+
+.person-row-preview--payment {
+  color: var(--status-success-strong);
+}
+.person-row-preview--payment::before {
+  content: "✓";
+  color: var(--status-success-main);
+}
+
 /* ── Chips (reused on both list and detail) ──────────────── */
 /* booking-chip consolidated into .tag + .tag--brand (shared utilities) */
 
@@ -8908,6 +9030,10 @@ body:has(.bottom-nav) .inbox-page {
 
 .inbox-thread-shell--embedded {
   max-width: none;
+  /* margin auto on the cross axis would otherwise shrink the shell to
+     content width and center it inside the panel, leaving grey gutters
+     on either side. Overriding to 0 lets the shell stretch to fill. */
+  margin: 0;
   flex: 1;
   min-height: 0;
 }
@@ -8987,22 +9113,236 @@ body:has(.bottom-nav) .inbox-page {
   overscroll-behavior: contain;
 }
 
-/* ── Inquiry card ────────────────────────────────────────────── */
-
-.inbox-inquiry-card {
+/* Structured InquiryCard — first-class artifact owners send when tapping
+   "Book a session" on a service card. Replaces the templated text format.
+   Discover & Care G2, 2026-05-02. */
+.inquiry-card {
+  background: var(--surface-popout);
+  border: 1px solid var(--border-regular);
+  border-radius: var(--radius-panel);
+  padding: 16px;
   display: flex;
-  justify-content: center;
-  padding: 8px 0 20px;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
 }
 
-.inbox-inquiry-chips {
+.inquiry-card-header {
   display: flex;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.inquiry-card-eyebrow {
+  font-size: var(--font-size-fine);
+  font-weight: var(--weight-semibold);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.inquiry-card-status {
+  font-size: var(--font-size-fine);
+  font-weight: var(--weight-semibold);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+}
+
+.inquiry-card-status--pending {
+  background: var(--brand-subtle);
+  color: var(--brand-strong);
+}
+
+.inquiry-card-status--responded {
+  background: var(--surface-base);
+  color: var(--text-secondary);
+}
+
+.inquiry-card-status--withdrawn {
+  background: var(--surface-base);
+  color: var(--text-tertiary);
+}
+
+.inquiry-card-title {
+  margin: 0;
+  font-size: var(--font-size-body-md);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.inquiry-card-sub {
+  font-weight: var(--weight-regular);
+  color: var(--text-secondary);
+}
+
+.inquiry-card-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
   gap: 6px;
-  justify-content: center;
 }
 
-/* .inbox-inquiry-chip → consolidated into .chip (shared utilities) */
+.inquiry-card-rows li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-body-reg);
+  color: var(--text-secondary);
+}
+
+.inquiry-card-rows li svg {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.inquiry-card-notes {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: var(--font-size-body-reg);
+  color: var(--text-secondary);
+  background: var(--surface-base);
+  border-radius: var(--radius-sm);
+  border-left: 2px solid var(--border-stronger);
+}
+
+.inquiry-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+
+/* ── Proposal form — provider's "review & send" sheet body ────────────────────
+   Renders inside ModalSheet. Was un-styled until 2026-05-04 — the JSX shipped
+   referencing class names that didn't exist in the stylesheet, so the form
+   rendered as plain stacked text. Discover & Care G3 close-up. */
+
+.proposal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxl);
+  padding: var(--space-xl);
+}
+
+.proposal-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.proposal-form-eyebrow {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+.proposal-form-summary {
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: var(--leading-tight);
+}
+
+.proposal-form-schedule {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.proposal-form-notes {
+  font-size: var(--text-sm);
+  font-style: italic;
+  color: var(--text-secondary);
+  background: var(--surface-inset);
+  padding: var(--space-sm) var(--space-md);
+  border-left: 3px solid var(--border-strongest);
+  border-radius: var(--radius-xs);
+  margin: var(--space-xs) 0 0 0;
+}
+
+.proposal-form-price-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.proposal-form-price-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-md);
+  align-items: center;
+}
+
+.proposal-form-price-label,
+.proposal-form-price-amount input {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border-stronger);
+  border-radius: var(--radius-sm);
+  background: var(--surface-top);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-family: var(--font-body), sans-serif;
+}
+
+.proposal-form-price-label:focus,
+.proposal-form-price-amount input:focus {
+  outline: none;
+  border-color: var(--brand-main);
+}
+
+.proposal-form-price-amount {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.proposal-form-price-amount input {
+  width: 90px;
+  text-align: right;
+}
+
+.proposal-form-price-unit {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  font-weight: var(--weight-semibold);
+}
+
+.proposal-form-price-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-light);
+  margin-top: var(--space-sm);
+}
+
+.proposal-form-price-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-md);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.proposal-form-price-line--muted {
+  color: var(--text-tertiary);
+  font-size: var(--text-xs);
+}
+
+.proposal-form-price-line--total {
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  padding-top: var(--space-xs);
+}
 
 /* ── Date separator ─────────────────────────────────────────── */
 
@@ -9170,6 +9510,16 @@ body:has(.bottom-nav) .inbox-page {
 .inbox-proposal-actions {
   display: flex;
   gap: 8px;
+  align-items: center;
+}
+
+/* Push the response cluster (Suggest changes + Review & sign, OR just
+   Review & sign if Suggest changes isn't rendered) to the right, leaving
+   Not now alone on the left as the lowest-emphasis dismissal. The
+   :nth-child(2) selector handles both cases — whichever button sits
+   immediately after Not now gets the auto margin. */
+.inbox-proposal-actions > :nth-child(2) {
+  margin-left: auto;
 }
 
 
@@ -9285,16 +9635,75 @@ body:has(.bottom-nav) .inbox-page {
 
 /* ── Inquiry form (new conversation, shown in thread body) ───── */
 
-/* Inquiry form wrapper — reuses .filter-field / .label / .filter-pet-row etc. */
+/* Inquiry form wrapper — reuses .filter-field / .label / .filter-pet-row etc.
+   No card chrome: the form fills the panel surface naturally and reads as
+   the panel's content, not as a card floating in it. Discover & Care G2,
+   2026-05-02. */
 .inbox-inquiry-form {
   display: flex;
   flex-direction: column;
   gap: 20px;
   padding: 20px;
-  background: var(--surface-page);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  margin: 12px 0 8px;
+}
+
+.inbox-inquiry-form-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 4px;
+}
+
+.inbox-inquiry-form-eyebrow {
+  font-size: var(--font-size-fine);
+  font-weight: var(--weight-semibold);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.inbox-inquiry-form-title {
+  font-size: var(--font-size-body-md);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  line-height: 1.3;
+  margin: 0;
+}
+
+.inbox-inquiry-form-hint {
+  font-size: var(--font-size-body-reg);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Success state shown briefly inside InquiryFormModal after submit, before
+   the modal auto-closes. Modal-as-toast pattern. */
+.inquiry-form-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 24px;
+  text-align: center;
+}
+
+.inquiry-form-success-icon {
+  color: var(--brand-main);
+}
+
+.inquiry-form-success-title {
+  margin: 0;
+  font-size: var(--font-size-body-md);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.inquiry-form-success-sub {
+  margin: 0;
+  font-size: var(--font-size-body-reg);
+  color: var(--text-secondary);
+  line-height: 1.4;
+  max-width: 360px;
 }
 
 /* Service type selector row (3 equal cards) */
@@ -9363,79 +9772,25 @@ body:has(.bottom-nav) .inbox-page {
    PHASE 2 — Contract flow
    ───────────────────────────────────────────────────────────────────────────── */
 
-/* ── Inquiry form — Frequency toggle ────────────────────────────────────────── */
-
-.inq-type-row {
-  display: flex;
-  gap: 8px;
-}
-
-.inq-type-card {
-  flex: 1;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.inq-type-sub {
-  font-size: var(--font-size-body-sm);
-  font-weight: var(--weight-regular);
-  color: var(--text-tertiary);
-  display: block;
-}
+/* Inquiry form Frequency toggle now uses shared `.filter-visit-row` +
+   `.filter-option-card` (Discover & Care 2026-05-04). The previous
+   `.inq-type-row` / `.inq-type-card` / `.inq-type-sub` overrides were
+   removed so the Modal and Discover affordances render identically. */
 
 /* .inbox-inquiry-chip--ongoing → consolidated into .chip--ongoing (shared utilities) */
 
 /* ── Recurring Schedule Picker ───────────────────────────────────────────────── */
 
+/* RecurringSchedulePicker — paired day + time picker. Days now use the
+   shared `MultiSelectSegmentBar` (same component as Discover's "For which
+   days?" filter) — bespoke `.rsp-day-chip` rules removed 2026-05-04. Time
+   uses the standard stacked `.filter-field` label pattern; the
+   `.rsp-time-row` horizontal layout was dropped. Only `.rsp-root` and the
+   styled `.rsp-time-select` remain. */
 .rsp-root {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-
-.rsp-days {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.rsp-day-chip {
-  padding: 6px 12px;
-  border-radius: var(--radius-circle);
-  border: 1.5px solid var(--border-stronger);
-  background: var(--surface-top);
-  color: var(--text-secondary);
-  font-size: var(--font-size-sub);
-  font-weight: var(--weight-semibold);
-  font-family: var(--font-body), sans-serif;
-  cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
-}
-
-.rsp-day-chip.active {
-  border-color: var(--brand-400);
-  background: var(--brand-400);
-  color: var(--text-white);
-}
-
-.rsp-day-chip:hover:not(.active) {
-  border-color: var(--brand-400);
-  background: var(--interaction-hover-darken);
-}
-
-.rsp-time-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.rsp-time-label {
-  font-size: var(--font-size-sub);
-  color: var(--text-secondary);
-  font-weight: var(--weight-semibold);
-  white-space: nowrap;
+  gap: var(--space-xxl);
 }
 
 .rsp-time-select {
@@ -9563,6 +9918,7 @@ body:has(.bottom-nav) .inbox-page {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  padding: var(--space-xl);
 }
 
 .signing-carer-row {
@@ -9684,11 +10040,10 @@ body:has(.bottom-nav) .inbox-page {
 }
 
 /* Signing modal footer */
-.signing-footer-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+/* `.signing-footer-actions` removed 2026-05-04 — its column-stack layout
+   conflicted with the new modal-sheet-footer flex-end alignment. SigningModal
+   now puts buttons directly in the footer slot (Not yet · Sign & Book), same
+   pattern as other modals. */
 
 /* ─────────────────────────────────────────────────────────────────────────────
    PHASE 3 — Profile page
@@ -9990,7 +10345,7 @@ body:has(.bottom-nav) .inbox-page {
 .profile-avail-grid {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .profile-avail-row {
@@ -10000,10 +10355,10 @@ body:has(.bottom-nav) .inbox-page {
 }
 
 .profile-avail-day {
-  font-size: var(--font-size-sub);
+  font-size: var(--font-size-body-reg);
   font-weight: var(--weight-semibold);
-  color: var(--text-tertiary);
-  width: 32px;
+  color: var(--text-secondary);
+  width: 40px;
   flex-shrink: 0;
 }
 
@@ -11575,6 +11930,69 @@ body:has(.bottom-nav) .inbox-page {
   line-height: 1.6;
 }
 
+/* Admin badge — sits on row 2 of the post header, next to the timestamp.
+   Reads as post-context metadata ("admin of this group, posted just now"),
+   not as identity (which is the Carer badge's role on row 1). Quieter
+   palette and slightly smaller than row 1 badges so it sits naturally
+   in the secondary tier. Mock World Building 2026-04-30. */
+.feed-card-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 6px;
+  font-size: var(--font-size-body-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  background: var(--surface-inset);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.5;
+}
+
+/* Provider hero — care-group surface that introduces the group's
+   provider(s). Defined border so the card reads as a deliberate unit
+   distinct from the surrounding chrome. Stacks vertically on mobile so
+   the View profile button doesn't get cramped against the bio.
+   Mock World Building 2026-04-30. */
+.provider-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-panel);
+  background: var(--surface-top);
+  border: 1px solid var(--border-stronger);
+}
+.provider-hero-body {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  flex: 1;
+  min-width: 0;
+}
+.provider-hero-cta {
+  flex-shrink: 0;
+}
+@media (max-width: 620px) {
+  .provider-hero {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .provider-hero-cta {
+    align-self: flex-start;
+  }
+}
+
+/* Meta row — admin badge + timestamp on row 2 of the post header.
+   Tight gap, secondary text tone via children. */
+.feed-card-meta-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
 .feed-card-context-text {
   color: var(--text-tertiary);
   font-weight: var(--weight-regular);
@@ -11718,6 +12136,16 @@ body:has(.bottom-nav) .inbox-page {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
+}
+
+/* Inline comment thread — sits below the actions row inside the same
+   content column. Top margin separates it from the actions; left padding
+   pulls it toward the avatar's gutter so it visually nests under the
+   post body. Mock World Building 2026-04-30. */
+.feed-card-comments {
+  margin-top: var(--space-md);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-light);
 }
 
 /* ── Legacy feed-greeting (used by FeedCTA) ── */
@@ -11876,12 +12304,18 @@ body:has(.bottom-nav) .inbox-page {
   overflow: hidden;
 }
 
-/* Scrollable body inside the panel — used directly by page content */
+/* Scrollable body inside the panel — used directly by page content.
+   Inherits the panel's border-radius so the body's own background paint
+   respects the rounded top corners. Without this, the body's `overflow-y: auto`
+   creates its own scroll context that paints over the parent's rounded clip
+   (a well-known CSS quirk — `overflow: hidden` on the parent doesn't clip
+   nested scroll contexts the way you'd expect). */
 .page-column-panel-body {
   flex: 1;
   overflow-y: auto;
   min-height: 0;
   background: var(--surface-popout);
+  border-radius: inherit;
 }
 
 .page-column-panel-body--no-scroll {
@@ -13435,6 +13869,15 @@ body:has(.bottom-nav) .inbox-page {
   z-index: 1;
 }
 
+@media (max-width: 620px) {
+  /* Mobile member-list rows pull the dog cluster further left into the
+     owner avatar — saves horizontal space when the row also has a name +
+     badge + action button competing for the line. */
+  .person-avatar-dogs {
+    margin-left: -24px;
+  }
+}
+
 .person-avatar-dog,
 .person-avatar-more {
   width: 32px;
@@ -13454,8 +13897,10 @@ body:has(.bottom-nav) .inbox-page {
 
 .person-avatar-dog + .person-avatar-dog,
 .person-avatar-dog + .person-avatar-more {
-  /* Subsequent dogs overlap the previous one by ~10px. */
-  margin-left: -10px;
+  /* Subsequent dogs overlap the previous one by ~16px — keeps the
+     2-dog cluster narrow so the leftmost dog covers less of the
+     owner's right edge. Mock World Building 2026-04-30. */
+  margin-left: -16px;
 }
 
 .person-avatar-more {
@@ -13891,9 +14336,19 @@ body:has(.bottom-nav) .inbox-page {
   align-items: center;
   /* gap-xl (20px) between avatar combo and identity column — helps the
      offset name + dog cluster read as distinct elements rather than a
-     single block. */
+     single block. The gap before the right-side action button is
+     overridden below to be tighter — that line of the row is competing
+     for space and the avatar-text breathing isn't needed there. */
   gap: var(--space-xl);
   padding: var(--space-md);
+}
+
+/* Tighten the gap immediately before the right-side action button so the
+   identity column has more horizontal room before truncating. Negative
+   margin subtracts from the parent's `gap-xl`, leaving an effective
+   `gap-md` (12px) between text and button. Mock World Building 2026-04-30. */
+.person-row-body > :last-child:not(:first-child) {
+  margin-left: calc(var(--space-md) - var(--space-xl));
 }
 
 .person-row-footer {

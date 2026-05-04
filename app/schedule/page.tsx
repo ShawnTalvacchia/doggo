@@ -16,7 +16,7 @@ import { LayoutSection } from "@/components/layout/LayoutSection";
 import { FilterPillRow } from "@/components/ui/FilterPillRow";
 import { getUserMeetInstances, getFollowedSeries, mockMeets } from "@/lib/mockMeets";
 import { getUserGroups } from "@/lib/mockGroups";
-import { getMeetRole, getMeetOccurrences } from "@/lib/meetUtils";
+import { getMeetRole, getMeetOccurrences, isMeetVisibleTo } from "@/lib/meetUtils";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { useDismissedReviews, makeDismissId } from "@/lib/dismissedReviews";
@@ -288,7 +288,8 @@ function ScheduleInner() {
             m.status === "upcoming" &&
             m.groupId &&
             myGroupIds.has(m.groupId) &&
-            !myMeetIds.has(m.id),
+            !myMeetIds.has(m.id) &&
+            isMeetVisibleTo(m, CURRENT_USER),
           )
           .map((m) => {
             // For recurring meets, surface the next upcoming date; for one-off,

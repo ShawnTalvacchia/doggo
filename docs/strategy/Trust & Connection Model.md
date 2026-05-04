@@ -146,6 +146,20 @@ This principle constrains UI design in the consuming surfaces, not the underlyin
 
 Implementation references: `lib/meetUtils.ts:getAttendeeTier` (bumps on either direction), `components/people/PersonRow.tsx` (pill suppression), `components/ui/ConnectionIcon.tsx` (single rendering across directions), `lib/personActions.ts:resolvePersonActions` (matrix of action affordances). See `Trust & Visibility Pass D2` for the original decision rationale.
 
+### Inquiry-driven transitions (open question — proposed model)
+
+**Status:** stub — full model lives in [[Open Questions & Assumptions Log]] §2 → "Inquiry-driven trust transitions". Stop-gap shipped 2026-05-04: `InquiryFormModal` auto-marks mutual Familiar on send so the proposal flow isn't blocked by locked-profile views.
+
+The community-first thesis assumes Familiar is *earned* through community interaction (meets, shared groups, post-meet review). The Discover→Inquiry path bypasses this — a stranger can send a structured booking inquiry to a provider they've never met, then neither side can see the other's profile to act on it.
+
+Proposed resolution (to be ratified next phase):
+- **Inquiry send → mutual Familiar.** Two-sided because the inquiry itself is explicit and known to both parties; the deniability principle for stranger-encounter Familiar doesn't apply to a transactional handshake.
+- **Contract acceptance → mutual Connected.** Strongest possible "we're working together" milestone.
+- **First service-context message → same mutual Familiar trigger.** Covers the Appointment-type "Ask about this" path which doesn't go through the structured inquiry form.
+- **Withdrawn / declined doesn't roll back.** Awareness, once created, persists.
+
+Open implementation questions: hook locations (InquiryFormModal — done; ProposalForm accept handler — pending; first-message detection in chat thread — pending); edge cases for re-inquiring after a decline; interaction with the existing manual Familiar/Connect controls. Inbox & Notifications phase.
+
 ---
 
 ## Trust Principles

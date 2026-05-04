@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useCallback, useEffect } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import {
   PawPrint,
   MapPin,
@@ -10,6 +10,8 @@ import {
   ChatCircleDots,
   LockSimple,
   UsersThree,
+  Plus,
+  Check,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { DetailHeader } from "@/components/layout/DetailHeader";
@@ -19,9 +21,13 @@ import { Spacer } from "@/components/layout/Spacer";
 import { ConnectionIcon } from "@/components/ui/ConnectionIcon";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import { TrustSignalBadges } from "@/components/profile/TrustSignalBadges";
+import { TrustBadgeStrip } from "@/components/badges/TrustBadgeStrip";
+import { getTrustBadges, userProfileToTrustSubject } from "@/lib/trustBadges";
 import { PetCard } from "@/components/profile/PetCard";
 import { PostsTab } from "@/components/profile/PostsTab";
 import { ProfileChatTab } from "@/components/profile/ProfileChatTab";
+import { InquiryFormModal } from "@/components/messaging/InquiryFormModal";
+import type { ServiceType } from "@/lib/types";
 import { getCommunityCarers } from "@/lib/mockConnections";
 import { viewerSharedMeetWith } from "@/lib/mockMeets";
 import { viewerSharedGroupWith, getSharedGroupNames } from "@/lib/mockGroups";
@@ -41,6 +47,11 @@ function UserProfileInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab") ?? "about";
+  // Appointment-context entry — when the user lands here from an
+  // "Ask about this" CTA on an appointment-type service card, pre-fill
+  // the chat input with a templated opener so they don't have to start
+  // from scratch. Discover & Care 2026-05-04.
+  const appointmentParam = searchParams.get("appointment");
 
   const handleTabChange = useCallback((key: string) => {
     if (key === "about") {
@@ -110,10 +121,25 @@ function UserProfileInner() {
     connState !== "connected" &&
     connState !== "pending";
 
-  // Show Chat tab when connected or when there's an existing conversation
+  // Chat tab visibility — three reasons it shows:
+  //   1. Connected viewer (social chat is allowed by the trust model)
+  //   2. Existing thread (continue an in-progress conversation)
+  //   3. Provider-tier carer (anyone can inquire on a publicly-bookable
+  //      service per [[Groups & Care Model]] → Provider Tiers — and the
+  //      "Book a session" CTA needs a destination on stranger profiles).
+  // Helper-tier services stay gated on Connection — non-connected viewers
+  // see neither the CTA nor the Chat tab. Discover & Care G1, 2026-05-02.
   const { getConversationForUser } = useConversations();
   const existingConv = getConversationForUser(userId);
-  const showChatTab = connState === "connected" || !!existingConv;
+  const isProviderTier = userProfile?.carerProfile?.publicProfile === true;
+  const showChatTab = connState === "connected" || !!existingConv || isProviderTier;
+
+  // Inquiry modal — opened from a service card "Book a session" CTA.
+  // Stays on Services tab; modal posts the InquiryCard message to the
+  // (owner, provider) thread on submit. Discover & Care 2026-05-03 refactor.
+  const [inquiryTarget, setInquiryTarget] = useState<
+    { service: ServiceType; subService: string | null } | null
+  >(null);
 
   const tabs = [
     { key: "about", label: "About" },
@@ -281,115 +307,132 @@ function UserProfileInner() {
 
         {/* ── About tab ── */}
         {!isLocked && activeTab === "about" && (
-          <div className="flex flex-col gap-lg" style={{ padding: "var(--space-lg)" }}>
+          <div className="profile-tab-stack" style={{ padding: "var(--space-lg)" }}>
 
-            {/* Hero section */}
-            <div className="flex flex-col items-center gap-md" style={{ paddingBottom: "var(--space-md)" }}>
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt={name}
-                  className="rounded-full object-cover"
-                  style={{ width: 96, height: 96 }}
-                />
-              ) : (
-                <DefaultAvatar name={name} size={96} />
-              )}
-              <div className="flex flex-col items-center gap-xs text-center">
-                <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">{name}</h1>
-                {location && (
-                  <span className="flex items-center gap-xs text-sm text-fg-secondary">
-                    <MapPin size={13} weight="fill" className="shrink-0" /> {location}
-                  </span>
-                )}
-                {dogNames.length > 0 && (
-                  <span className="flex items-center gap-xs text-sm text-fg-tertiary">
-                    <PawPrint size={13} weight="light" className="shrink-0" />
-                    {dogNames.join(", ")}
-                    {connection?.dogBreed && ` · ${connection.dogBreed}`}
-                  </span>
-                )}
+            {/* Hero — compact horizontal layout. Identity row pairs avatar
+                left + name/location/dog right; trust badges below; CTAs span
+                the panel width; relationship signals wrap below the CTAs.
+                Discover & Care 2026-05-04 visual refactor. */}
+            <div className="flex flex-col gap-md" style={{ paddingBottom: "var(--space-md)" }}>
+              {/* Identity row — avatar + name/location/dog + relationship
+                  signals stacked in the right column. Stacks vertically on
+                  narrow viewports (avatar centered above text, content
+                  centered); flips to horizontal layout at sm breakpoint
+                  and above. Signals get a small top margin and slightly
+                  muted color to set them apart from the dog row above
+                  without needing a divider line. */}
+              <div className="flex flex-col sm:flex-row gap-lg sm:items-center">
+                {/* Avatar wrapper — 12px padding gives the photo breathing
+                    room inside its own bounding box, soft frame effect. */}
+                <div className="self-center sm:self-auto shrink-0" style={{ padding: 12 }}>
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={name}
+                      className="rounded-full object-cover"
+                      style={{ width: 200, height: 200 }}
+                    />
+                  ) : (
+                    <DefaultAvatar name={name} size={200} />
+                  )}
+                </div>
+                <div className="w-full sm:flex-1 flex flex-col gap-xs min-w-0 items-center sm:items-start text-center sm:text-left">
+                  <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">{name}</h1>
+                  {location && (
+                    <span className="flex items-center gap-xs text-sm text-fg-secondary">
+                      <MapPin size={13} weight="fill" className="shrink-0" /> {location}
+                    </span>
+                  )}
+                  {dogNames.length > 0 && (
+                    <span className="flex items-center gap-xs text-sm text-fg-secondary">
+                      <PawPrint size={13} weight="light" className="shrink-0" />
+                      {dogNames.join(", ")}
+                      {connection?.dogBreed && ` · ${connection.dogBreed}`}
+                    </span>
+                  )}
+                  {connection && (
+                    <div className="text-fg-tertiary" style={{ marginTop: "var(--space-xs)" }}>
+                      <TrustSignalBadges connection={connection} />
+                    </div>
+                  )}
+
+                  {/* Familiar / connection-state action — lives at the bottom
+                      of the right column so it sits adjacent to the avatar
+                      rather than below it. Outline button style + breathing
+                      room reads as a deliberate affordance, not a label.
+                      Discover & Care 2026-05-04 visual refactor. */}
+                  {!isSelf && (() => {
+                    const matrix = resolvePersonActions(
+                      { userId: currentUserId, profileOpen: currentUser.profileVisibility === "open" },
+                      {
+                        userId,
+                        connectionState: connState,
+                        theyMarkedFamiliar: connection?.theyMarkedFamiliar,
+                        profileOpen: isProfileOpen,
+                      },
+                    );
+                    const familiarAction = matrix.find((a) => a.kind === "familiar");
+                    const showFamiliarOn = connState === "familiar";
+                    const showFamiliarOff =
+                      connState === "none" &&
+                      familiarAction?.kind === "familiar" &&
+                      familiarAction.state === "off";
+                    // Connected gets no pill — the Message CTA carries the signal
+                    // unambiguously. Mirrors the PersonRow rule.
+                    const showConnectionIcon =
+                      !showFamiliarOn &&
+                      !showFamiliarOff &&
+                      connState !== "connected";
+                    if (!showFamiliarOn && !showFamiliarOff && !showConnectionIcon) return null;
+                    return (
+                      <div className="flex items-center gap-sm flex-wrap" style={{ marginTop: "var(--space-md)" }}>
+                        {showConnectionIcon && (
+                          <ConnectionIcon
+                            state={connState}
+                            profileOpen={isProfileOpen}
+                            size={16}
+                            showLabel
+                          />
+                        )}
+                        {showFamiliarOn && (
+                          <ButtonAction
+                            variant="outline"
+                            size="sm"
+                            cta
+                            leftIcon={<Check size={14} weight="bold" />}
+                            onClick={() => unmarkFamiliar(currentUserId, userId)}
+                            aria-pressed
+                            aria-label={`Remove Familiar from ${firstName}`}
+                          >
+                            Familiar
+                          </ButtonAction>
+                        )}
+                        {showFamiliarOff && (
+                          <ButtonAction
+                            variant="outline"
+                            size="sm"
+                            cta
+                            leftIcon={<Plus size={14} weight="bold" />}
+                            onClick={() => markFamiliar(currentUserId, userId)}
+                            aria-label={`Mark ${firstName} as Familiar`}
+                          >
+                            Mark Familiar
+                          </ButtonAction>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
-
-              {/* Connection state — Familiar lives here as a tappable pill so
-               * the primary CTA row can stay focused on Connect/Message. Same
-               * pill pattern as `PersonRow` (Trust & Visibility A2 spec). */}
-              {!isSelf && (() => {
-                const matrix = resolvePersonActions(
-                  { userId: currentUserId, profileOpen: currentUser.profileVisibility === "open" },
-                  {
-                    userId,
-                    connectionState: connState,
-                    theyMarkedFamiliar: connection?.theyMarkedFamiliar,
-                    profileOpen: isProfileOpen,
-                  },
-                );
-                const familiarAction = matrix.find((a) => a.kind === "familiar");
-                const showFamiliarOn = connState === "familiar";
-                const showFamiliarOff =
-                  connState === "none" &&
-                  familiarAction?.kind === "familiar" &&
-                  familiarAction.state === "off";
-                // Connected gets no pill — the Message CTA carries the signal
-                // unambiguously. Mirrors the PersonRow rule.
-                const showConnectionIcon =
-                  !showFamiliarOn &&
-                  !showFamiliarOff &&
-                  connState !== "connected";
-                return (
-                  <div className="flex items-center gap-sm flex-wrap justify-center">
-                    {/* Pending / Open profile only — ConnectionIcon. */}
-                    {showConnectionIcon && (
-                      <ConnectionIcon
-                        state={connState}
-                        profileOpen={isProfileOpen}
-                        size={16}
-                        showLabel
-                      />
-                    )}
-                    {/* Familiar — outbound (toggle off on tap). */}
-                    {showFamiliarOn && (
-                      <button
-                        type="button"
-                        onClick={() => unmarkFamiliar(currentUserId, userId)}
-                        className="person-row-pill person-row-pill--familiar person-row-pill--toggle"
-                        aria-pressed
-                        aria-label={`Remove Familiar from ${firstName}`}
-                      >
-                        {"Familiar ✓"}
-                      </button>
-                    )}
-                    {/* Familiar — not yet marked (toggle on on tap). */}
-                    {showFamiliarOff && (
-                      <button
-                        type="button"
-                        onClick={() => markFamiliar(currentUserId, userId)}
-                        className="person-row-pill person-row-pill--familiar-off person-row-pill--toggle"
-                        aria-label={`Mark ${firstName} as Familiar`}
-                      >
-                        {"+ Familiar"}
-                      </button>
-                    )}
-                    {/* Earlier this row also rendered stray "N meets together"
-                        and "N mutual connections" spans pulled from
-                        `communityCarer` / `provider` — those duplicated the
-                        TrustSignalBadges below them and the counts conflicted
-                        because the data sources differ. Cut by Mock World
-                        Building 2026-04-30; trust pills are the single source. */}
-                  </div>
-                );
-              })()}
               {isSelf && (
-                <div className="flex items-center gap-sm flex-wrap justify-center">
+                <div className="flex items-center gap-sm flex-wrap">
                   <ConnectionIcon state={connState} profileOpen={isProfileOpen} size={16} showLabel />
                 </div>
               )}
 
-              {connection && <TrustSignalBadges connection={connection} />}
-
-              {/* CTA buttons — driven by the action matrix. Familiar lives in
-                * the connection-state pill above, not in the CTA row, so this
-                * area stays focused on Connect / Message / Book care. */}
+              {/* CTA buttons — driven by the action matrix. Span the full
+                * panel width; Familiar lives in the connection-state pill
+                * above. */}
               {!isSelf && (() => {
                 const matrixActions = resolvePersonActions(
                   { userId: currentUserId, profileOpen: currentUser.profileVisibility === "open" },
@@ -402,7 +445,7 @@ function UserProfileInner() {
                 );
                 if (connState === "pending") {
                   return (
-                    <div className="flex gap-sm w-full" style={{ maxWidth: 400 }}>
+                    <div className="flex gap-sm w-full">
                       <ButtonAction variant="outline" size="md" cta className="flex-1" disabled>
                         Request sent
                       </ButtonAction>
@@ -416,7 +459,7 @@ function UserProfileInner() {
                   return null;
                 }
                 return (
-                  <div className="flex gap-sm w-full" style={{ maxWidth: 400 }}>
+                  <div className="flex gap-sm w-full">
                     {ctaActions.map((action, i) => {
                       if (action.kind === "message") {
                         return (
@@ -463,14 +506,27 @@ function UserProfileInner() {
                   </div>
                 );
               })()}
+
             </div>
 
-            {/* About section */}
-            <section className="profile-info-card">
+            {/* About section. Trust badges (credentials / community-earned /
+                platform) live here as supporting context for the bio — moved
+                out of the hero in the 2026-05-04 visual refactor so the hero
+                stays focused on identity + action. */}
+            <section>
               <h3 className="profile-card-subtitle">About</h3>
               <p className="profile-card-copy">
                 {userProfile?.bio ?? provider?.blurb ?? `${name} is a dog owner in ${location}.`}
               </p>
+              {userProfile?.carerProfile && (() => {
+                const badges = getTrustBadges(userProfileToTrustSubject(userProfile), currentUserId);
+                if (badges.length === 0) return null;
+                return (
+                  <div style={{ marginTop: "var(--space-md)" }}>
+                    <TrustBadgeStrip badges={badges} />
+                  </div>
+                );
+              })()}
               {userProfile?.memberSince && (
                 <p className="flex items-center gap-xs text-xs text-fg-tertiary m-0" style={{ marginTop: "var(--space-sm)" }}>
                   <Calendar size={12} weight="light" />
@@ -493,7 +549,7 @@ function UserProfileInner() {
 
             {/* Carer bio — shown when user has carerProfile but isn't in provider catalog */}
             {!provider && userProfile?.carerProfile?.bio && (
-              <section className="profile-info-card">
+              <section>
                 <h3 className="profile-card-subtitle">About their care services</h3>
                 <p className="profile-card-copy">{userProfile.carerProfile.bio}</p>
               </section>
@@ -502,7 +558,7 @@ function UserProfileInner() {
             {/* Dogs — PetCards with collapsed default for other users */}
             {dogs.length > 0 && (
               <section className="flex flex-col gap-md">
-                <h3 className="profile-card-subtitle" style={{ padding: "0 var(--space-lg)" }}>
+                <h3 className="profile-card-subtitle" style={{ marginBottom: 0 }}>
                   {firstName}&apos;s Dogs
                 </h3>
                 {dogs.map((pet) => (
@@ -519,22 +575,45 @@ function UserProfileInner() {
         )}
 
         {/* ── Services tab ── */}
-        {!isLocked && activeTab === "services" && (
-          <div className="flex flex-col gap-lg" style={{ padding: "var(--space-lg)" }}>
-            {/* Open to helping badge */}
-            <section className="profile-info-card">
-              <span className="flex items-center gap-xs rounded-pill px-md py-xs text-sm font-medium"
-                style={{ background: "var(--brand-subtle)", color: "var(--brand-strong)", display: "inline-flex" }}>
-                <PawPrint size={16} weight="fill" /> Open to helping
-              </span>
-            </section>
+        {!isLocked && activeTab === "services" && (() => {
+          // "Open to helping" is the casual-helper signal. Hide it for users
+          // who already have listed services — the carerProfile IS the answer
+          // to "are you open to helping?" Showing both reads as redundant
+          // (and confusing on a professional provider's surface, which Klára
+          // is). Mock World Building 2026-04-30.
+          const hasListedServices =
+            (userProfile?.carerProfile?.services ?? []).some((s) => s.enabled);
+          const showHelpingBadge =
+            (userProfile?.openToHelping ?? false) && !hasListedServices;
+          return (
+            <div className="profile-tab-stack" style={{ padding: "var(--space-lg)" }}>
+              {/* Open to helping — inline badge, no wrapping card. Only shown
+                  for users who don't have listed services (i.e., the casual
+                  helper signal where it actually adds info). */}
+              {showHelpingBadge && (
+                <span
+                  className="flex items-center gap-xs rounded-pill px-md py-xs text-sm font-medium self-start"
+                  style={{ background: "var(--brand-subtle)", color: "var(--brand-strong)" }}
+                >
+                  <PawPrint size={16} weight="fill" /> Open to helping
+                </span>
+              )}
 
-            {/* Service cards — prefer carerProfile (richer), fallback to provider catalog */}
-            <section className="profile-info-card">
+              {/* Service cards — single comprehensive catalogue.
+                  Care-type cards render first (drop-off services), then Meet-type
+                  cards (sessions the owner signs up for). Tap routing differs
+                  by kind: Care → request-booking flow (chat); Meet → upcoming
+                  sessions on the linked series. See [[Groups & Care Model]]
+                  → Services as Catalog. */}
+            <section>
               <h3 className="profile-card-subtitle">Services</h3>
               <div className="profile-services-list">
                 {userProfile?.carerProfile?.services
-                  ? userProfile.carerProfile.services.filter(s => s.enabled).map((svc) => (
+                  ? <>
+                    {/* Care-type — drop-off (Walking, Sitting, Boarding) */}
+                    {userProfile.carerProfile.services
+                      .filter((s): s is import("@/lib/types").CarerCareServiceConfig => s.kind === "care" && s.enabled)
+                      .map((svc) => (
                     <div key={svc.serviceType} className="profile-service-card">
                       <div className="profile-service-top">
                         <span className="profile-service-name">{SERVICE_LABELS[svc.serviceType]}</span>
@@ -550,15 +629,134 @@ function UserProfileInner() {
                       {svc.subServices.length > 0 && (
                         <div className="profile-service-subs">
                           {svc.subServices.map((sub) => (
-                            <span key={sub} className="rounded-pill px-sm py-xs text-xs bg-surface-inset text-fg-secondary">{sub}</span>
+                            <span
+                              key={sub}
+                              className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary"
+                            >
+                              {sub}
+                            </span>
                           ))}
                         </div>
                       )}
                       {svc.notes && (
                         <p className="profile-service-notes">{svc.notes}</p>
                       )}
+                      {!isSelf && (
+                        <ButtonAction
+                          variant="secondary"
+                          size="sm"
+                          cta
+                          className="self-start"
+                          onClick={() => setInquiryTarget({
+                            service: svc.serviceType,
+                            subService: svc.subServices[0] ?? null,
+                          })}
+                        >
+                          Book a session
+                        </ButtonAction>
+                      )}
                     </div>
-                  ))
+                  ))}
+                    {/* Meet-type — sessions the owner signs up for. Tap routes
+                        to the linked series so the viewer can pick a date. */}
+                    {userProfile.carerProfile.services
+                      .filter((s): s is import("@/lib/types").CarerMeetServiceConfig => s.kind === "meet" && s.enabled)
+                      .map((svc) => {
+                        const formatLabel: Record<string, string> = {
+                          one_on_one: "1-on-1",
+                          small_group: "Small group",
+                          workshop: "Workshop",
+                        };
+                        const cadenceLabel: Record<string, string> = {
+                          weekly: "Weekly",
+                          biweekly: "Every 2 weeks",
+                          monthly: "Monthly",
+                          ad_hoc: "By arrangement",
+                        };
+                        const ctaHref = svc.seriesMeetId
+                          ? `/meets/${svc.seriesMeetId}`
+                          : `/profile/${userId}?tab=chat`;
+                        const ctaLabel = svc.seriesMeetId ? "See upcoming sessions" : "Ask about this";
+                        return (
+                          <div key={svc.id} className="profile-service-card">
+                            <div className="profile-service-top">
+                              <span className="profile-service-name">{svc.title}</span>
+                              <div className="profile-service-price-wrap">
+                                <span className="profile-service-price">
+                                  {svc.pricePerSession.toLocaleString()} Kč
+                                  <span className="profile-service-unit">{" "}/ session</span>
+                                </span>
+                              </div>
+                            </div>
+                            <div className="profile-service-subs">
+                              <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
+                                {formatLabel[svc.format] ?? svc.format}
+                              </span>
+                              <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
+                                {cadenceLabel[svc.cadence] ?? svc.cadence}
+                              </span>
+                              <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
+                                {svc.durationMinutes} min
+                              </span>
+                            </div>
+                            {svc.notes && (
+                              <p className="profile-service-notes">{svc.notes}</p>
+                            )}
+                            {!isSelf && (
+                              <ButtonAction
+                                variant="secondary"
+                                size="sm"
+                                cta
+                                className="self-start"
+                                href={ctaHref}
+                              >
+                                {ctaLabel}
+                              </ButtonAction>
+                            )}
+                          </div>
+                        );
+                      })}
+                    {/* Appointment-type — vet / grooming. Specific time slot,
+                        no roster. Tap routes to chat with service context so
+                        the inquiry form pre-fills with the appointment kind. */}
+                    {userProfile.carerProfile.services
+                      .filter((s): s is import("@/lib/types").CarerAppointmentServiceConfig => s.kind === "appointment" && s.enabled)
+                      .map((svc) => (
+                        <div key={svc.id} className="profile-service-card">
+                          <div className="profile-service-top">
+                            <span className="profile-service-name">{svc.title}</span>
+                            <div className="profile-service-price-wrap">
+                              <span className="profile-service-price">
+                                {svc.pricePerAppointment.toLocaleString()} Kč
+                                <span className="profile-service-unit">{" "}/ appointment</span>
+                              </span>
+                            </div>
+                          </div>
+                          <div className="profile-service-subs">
+                            <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
+                              {svc.appointmentCategory === "vet" ? "Vet" : "Grooming"}
+                            </span>
+                            <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
+                              {svc.durationMinutes} min
+                            </span>
+                          </div>
+                          {svc.notes && (
+                            <p className="profile-service-notes">{svc.notes}</p>
+                          )}
+                          {!isSelf && (
+                            <ButtonAction
+                              variant="secondary"
+                              size="sm"
+                              cta
+                              className="self-start"
+                              href={`/profile/${userId}?tab=chat&appointment=${svc.id}`}
+                            >
+                              Ask about this
+                            </ButtonAction>
+                          )}
+                        </div>
+                      ))}
+                  </>
                   : (provider?.services ?? communityCarer?.services ?? []).map((svcType) => (
                     <div key={svcType} className="profile-service-card">
                       <div className="profile-service-top">
@@ -580,30 +778,65 @@ function UserProfileInner() {
               </div>
             </section>
 
-            {/* Availability */}
-            {userProfile?.carerProfile?.availability && userProfile.carerProfile.availability.length > 0 && (
-              <section className="profile-info-card">
-                <h3 className="profile-card-subtitle">Availability</h3>
-                <div className="profile-avail-grid">
-                  {userProfile.carerProfile.availability.map((slot) => (
-                    <div key={slot.day} className="profile-avail-row">
-                      <span className="profile-avail-day">{slot.day.charAt(0).toUpperCase() + slot.day.slice(1, 3)}</span>
-                      <div className="profile-avail-slots">
-                        {slot.slots.map((s) => (
-                          <span key={s} className="rounded-pill px-sm py-xs text-xs bg-brand-subtle text-brand-strong">{s}</span>
-                        ))}
+              {/* Availability — neutral pills since we only render days/slots
+                  the user is available (not active-vs-inactive selection).
+                  Brand-tinted treatment was overkill here. */}
+              {userProfile?.carerProfile?.availability && userProfile.carerProfile.availability.length > 0 && (
+                <section>
+                  <h3 className="profile-card-subtitle">Availability</h3>
+                  <div className="profile-avail-grid">
+                    {userProfile.carerProfile.availability.map((slot) => (
+                      <div key={slot.day} className="profile-avail-row">
+                        <span className="profile-avail-day">{slot.day.charAt(0).toUpperCase() + slot.day.slice(1, 3)}</span>
+                        <div className="profile-avail-slots">
+                          {slot.slots.map((s) => (
+                            <span key={s} className="rounded-pill px-md py-xs text-sm bg-surface-inset text-fg-secondary">{s}</span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
-        )}
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
+          );
+        })()}
 
         {/* ── Chat tab ── */}
-        {!isLocked && activeTab === "chat" && showChatTab && (
-          <ProfileChatTab userId={userId} userName={name} avatarUrl={avatarUrl} />
+        {!isLocked && activeTab === "chat" && showChatTab && (() => {
+          // If we arrived via an appointment-card CTA, look up the title
+          // and pre-fill the chat input with a templated opener. Skips the
+          // "Say hello" empty state — the owner has clear intent already.
+          const appointmentService = appointmentParam
+            ? userProfile?.carerProfile?.services.find(
+                (s) => s.kind === "appointment" && s.id === appointmentParam,
+              )
+            : undefined;
+          const initialDraft =
+            appointmentService?.kind === "appointment"
+              ? `Hi ${firstName}, I'd like to book the ${appointmentService.title}. When works for you?`
+              : undefined;
+          return (
+            <ProfileChatTab
+              userId={userId}
+              userName={name}
+              avatarUrl={avatarUrl}
+              initialDraft={initialDraft}
+            />
+          );
+        })()}
+
+        {/* InquiryFormModal — opens from a service card "Book a session"
+            CTA on the Services tab. Renders here so it sits above the
+            page content and is mountable from any tab. */}
+        {inquiryTarget && (
+          <InquiryFormModal
+            open={!!inquiryTarget}
+            onClose={() => setInquiryTarget(null)}
+            provider={{ id: userId, name, avatarUrl }}
+            service={inquiryTarget.service}
+            subService={inquiryTarget.subService}
+          />
         )}
 
         {activeTab !== "chat" && <Spacer />}

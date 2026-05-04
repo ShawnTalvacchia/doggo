@@ -24,19 +24,56 @@ import { formatRelativeTime } from "@/lib/dateUtils";
 // ── Helpers ──────────────────────────────────────────────────────
 
 function getLastMessage(conv: Conversation): ChatMessage | null {
-  if (!conv.lastMessageId) return null;
-  return conv.messages.find((m) => m.id === conv.lastMessageId) ?? conv.messages.at(-1) ?? null;
+  if (conv.messages.length === 0) return null;
+  // Prefer the explicit pointer when set, but always fall back to the last
+  // message in the array. The previous early-return on empty `lastMessageId`
+  // hid messages whose conv had been created without the pointer being
+  // updated yet — making new inquiries sort to the bottom of the inbox.
+  // G3 fix 2026-05-04.
+  if (conv.lastMessageId) {
+    const found = conv.messages.find((m) => m.id === conv.lastMessageId);
+    if (found) return found;
+  }
+  return conv.messages.at(-1) ?? null;
 }
 
-function getPreview(conv: Conversation): string {
+type PreviewKind = "text" | "inquiry" | "proposal" | "contract" | "payment";
+
+function getPreview(conv: Conversation): { text: string; kind: PreviewKind } {
   const lastMsg = getLastMessage(conv);
-  if (!lastMsg) return "Start a conversation";
-  if (lastMsg.type === "booking_proposal") return "Booking proposal";
-  if (lastMsg.type === "contract") return "Contract signed";
-  if (lastMsg.text) {
-    return lastMsg.text.length > 72 ? lastMsg.text.slice(0, 72) + "\u2026" : lastMsg.text;
+  if (!lastMsg) return { text: "Start a conversation", kind: "text" };
+  if (lastMsg.type === "inquiry") {
+    const status = lastMsg.inquiry?.status;
+    return {
+      text: status === "responded" ? "Inquiry \u2014 responded" : "New inquiry",
+      kind: "inquiry",
+    };
   }
-  return "";
+  if (lastMsg.type === "booking_proposal") {
+    const status = lastMsg.proposal?.status;
+    return {
+      text:
+        status === "accepted"
+          ? "Proposal accepted"
+          : status === "declined"
+            ? "Proposal declined"
+            : status === "countered"
+              ? "Proposal countered"
+              : "New proposal",
+      kind: "proposal",
+    };
+  }
+  if (lastMsg.type === "contract") return { text: "Booking confirmed", kind: "contract" };
+  if (lastMsg.type === "payment_summary" || lastMsg.type === "payment_confirmed") {
+    return { text: "Payment", kind: "payment" };
+  }
+  if (lastMsg.text) {
+    return {
+      text: lastMsg.text.length > 72 ? lastMsg.text.slice(0, 72) + "\u2026" : lastMsg.text,
+      kind: "text",
+    };
+  }
+  return { text: "", kind: "text" };
 }
 
 function getOtherParty(conv: Conversation, currentUserId: string) {
@@ -53,7 +90,11 @@ interface InboxRow {
   name: string;
   avatarUrl: string;
   dogNames: string[];
+  /** Booking context — service name from `conv.inquiry.subService`. Undefined
+      for direct/social conversations (no booking attached). */
+  serviceLabel?: string;
   preview: string;
+  previewKind: PreviewKind;
   timeAgo: string;
   sortKey: string;
   hasUnread: boolean;
@@ -140,8 +181,16 @@ export default function InboxPage() {
     const result: InboxRow[] = [];
     const seen = new Set<string>();
 
-    // 1. Add users from existing conversations
+    // 1. Add users from existing conversations.
+    //    Filter to threads the current persona is actually in (provider OR
+    //    owner). Without this, every persona sees the full conversation table
+    //    — Klára would see Shawn↔X threads she's not part of, etc. This is the
+    //    inbox's primary visibility gate.
     for (const conv of conversations) {
+      const isParticipant =
+        conv.providerId === currentUserId || conv.ownerId === currentUserId;
+      if (!isParticipant) continue;
+
       const other = getOtherParty(conv, currentUserId);
       if (seen.has(other.id)) continue;
       seen.add(other.id);
@@ -156,15 +205,28 @@ export default function InboxPage() {
       const partnerDogs = inquiryPets.length > 0
         ? inquiryPets
         : (getUserById(other.id)?.pets.map((p) => p.name) ?? []);
+      const { text: previewText, kind: previewKind } = getPreview(conv);
+      // hasUnread is viewer-aware: "did the counterparty send the last
+      // message?" The Conversation.unreadCount field is owner-centric
+      // (addMessage only increments it for `sender === "provider"`), so
+      // using it directly mis-flagged provider-side views — Klára seeing
+      // owner-stale unread counts on old threads, while a fresh
+      // owner-sent inquiry registered as no-unread. G3 fix 2026-05-04.
+      const lastFromOther = lastMsg
+        ? (currentUserId === conv.ownerId && lastMsg.sender === "provider") ||
+          (currentUserId === conv.providerId && lastMsg.sender === "owner")
+        : false;
       result.push({
         userId: other.id,
         name: other.name,
         avatarUrl: other.avatarUrl,
         dogNames: partnerDogs,
-        preview: getPreview(conv),
+        serviceLabel: conv.inquiry?.subService ?? undefined,
+        preview: previewText,
+        previewKind,
         timeAgo: lastMsg ? formatRelativeTime(lastMsg.sentAt) : "",
         sortKey: lastMsg?.sentAt ?? "1970-01-01T00:00:00Z",
-        hasUnread: conv.unreadCount > 0,
+        hasUnread: lastFromOther,
         hasConversation: true,
         connectionState: conn?.state ?? "none",
         theyMarkedFamiliar: conn?.theyMarkedFamiliar,
@@ -184,6 +246,7 @@ export default function InboxPage() {
         avatarUrl: conn.avatarUrl,
         dogNames: conn.dogNames ?? [],
         preview: "Start chatting",
+        previewKind: "text",
         timeAgo: "",
         sortKey: conn.updatedAt ?? "1970-01-01T00:00:00Z",
         hasUnread: false,
@@ -241,10 +304,12 @@ export default function InboxPage() {
                   name={row.name}
                   avatarUrl={row.avatarUrl}
                   pets={row.dogNames.map((name) => ({ name }))}
+                  serviceLabel={row.serviceLabel}
                   connectionState={row.connectionState}
                   theyMarkedFamiliar={row.theyMarkedFamiliar}
                   profileOpen={row.profileOpen}
                   messagePreview={row.preview}
+                  messagePreviewKind={row.previewKind}
                   timeAgo={row.timeAgo}
                   unreadDot={row.hasUnread}
                 />

@@ -20,7 +20,7 @@ import { useBookings } from "@/contexts/BookingsContext";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { useCurrentUser, useCurrentUserId } from "@/hooks/useCurrentUser";
 import { SERVICE_LABELS } from "@/lib/constants/services";
-import type { CarerServiceConfig, CarerVisibility } from "@/lib/types";
+import type { CarerCareServiceConfig, CarerVisibility } from "@/lib/types";
 
 const VISIBILITY_LABELS: Record<CarerVisibility, string> = {
   open: "Open to everyone",
@@ -100,7 +100,7 @@ function ProviderStatusBar({
 
 /* ── Service card ────────────────────────────────────────────────── */
 
-function ServiceCard({ service }: { service: CarerServiceConfig }) {
+function ServiceCard({ service }: { service: CarerCareServiceConfig }) {
   return (
     <div className="services-service-card">
       <div className="services-service-card-header">
@@ -293,9 +293,11 @@ export function ServicesTab() {
             </Link>
           </div>
           <div className="flex flex-col gap-sm">
-            {carerProfile!.services.map((s) => (
-              <ServiceCard key={s.serviceType} service={s} />
-            ))}
+            {carerProfile!.services
+              .filter((s): s is CarerCareServiceConfig => s.kind === "care")
+              .map((s) => (
+                <ServiceCard key={s.serviceType} service={s} />
+              ))}
           </div>
         </section>
 

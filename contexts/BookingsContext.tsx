@@ -1,8 +1,9 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useCallback } from "react";
 import { mockBookings } from "@/lib/mockBookings";
 import type { Booking, ContractStatus, BookingSession } from "@/lib/types";
+import { usePersistedState } from "@/lib/usePersistedState";
 
 // ── Context value ───────────────────────────────────────────────────────────────
 
@@ -15,6 +16,15 @@ interface BookingsContextValue {
   updateSession: (bookingId: string, sessionId: string, update: Partial<BookingSession>) => void;
   /** Creates a new booking and returns its generated id */
   createBooking: (data: Omit<Booking, "id" | "signedAt">) => string;
+  /**
+   * Upsert a `proposed`-status booking for a conversation. If a booking
+   * already exists for that conversation, its proposal-derived fields
+   * (dates, price, schedule, status) are refreshed in place — used by the
+   * counter flow so multiple proposals don't spawn multiple booking
+   * records. Returns the booking id (existing or newly created).
+   * Discover & Care G5, 2026-05-02.
+   */
+  upsertProposedBooking: (data: Omit<Booking, "id" | "signedAt">) => string;
   cancelBooking: (bookingId: string, reason?: string) => void;
   updatePaymentStatus: (bookingId: string, status: "unpaid" | "paid") => void;
 }
@@ -26,7 +36,12 @@ const BookingsContext = createContext<BookingsContextValue | undefined>(undefine
 // ── Provider ────────────────────────────────────────────────────────────────────
 
 export function BookingsProvider({ children }: { children: React.ReactNode }) {
-  const [bookings, setBookings] = useState<Booking[]>(mockBookings);
+  // Persisted across reloads so signed contracts, proposed bookings, and
+  // session updates survive navigation. See `lib/usePersistedState.ts`.
+  const [bookings, setBookings] = usePersistedState<Booking[]>(
+    "doggo-bookings",
+    mockBookings,
+  );
 
   const getBooking = useCallback(
     (id: string) => bookings.find((b) => b.id === id),
@@ -65,6 +80,48 @@ export function BookingsProvider({ children }: { children: React.ReactNode }) {
     setBookings((prev) => [...prev, newBooking]);
     return id;
   }, []);
+
+  const upsertProposedBooking = useCallback(
+    (data: Omit<Booking, "id" | "signedAt">): string => {
+      let resolvedId = "";
+      setBookings((prev) => {
+        const existing = data.conversationId
+          ? prev.find((b) => b.conversationId === data.conversationId)
+          : undefined;
+        if (existing) {
+          resolvedId = existing.id;
+          return prev.map((b) =>
+            b.id === existing.id
+              ? {
+                  ...b,
+                  // Refresh proposal-derived fields; preserve booking-side
+                  // metadata (id, signedAt, sessions, notes) where present.
+                  type: data.type,
+                  serviceType: data.serviceType,
+                  subService: data.subService,
+                  pets: data.pets,
+                  startDate: data.startDate,
+                  endDate: data.endDate,
+                  recurringSchedule: data.recurringSchedule,
+                  price: data.price,
+                  status: data.status,
+                }
+              : b,
+          );
+        }
+        const id = `booking-${Date.now()}`;
+        resolvedId = id;
+        const next: Booking = {
+          ...data,
+          id,
+          signedAt: new Date().toISOString(),
+        };
+        return [...prev, next];
+      });
+      return resolvedId;
+    },
+    [],
+  );
 
   const cancelBooking = useCallback((bookingId: string, reason?: string) => {
     setBookings((prev) =>
@@ -109,6 +166,7 @@ export function BookingsProvider({ children }: { children: React.ReactNode }) {
         addSession,
         updateSession,
         createBooking,
+        upsertProposedBooking,
         cancelBooking,
         updatePaymentStatus,
       }}

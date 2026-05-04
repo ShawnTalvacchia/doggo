@@ -1,83 +1,134 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type {
   Conversation,
-  ServiceType,
-  BookingType,
-  RecurringSchedule,
   BookingPrice,
   BookingProposal,
+  InquiryDetails,
 } from "@/lib/types";
-import { SERVICE_LABELS, SUB_SERVICES } from "@/lib/constants/services";
+import { SERVICE_LABELS } from "@/lib/constants/services";
 import { ButtonAction } from "@/components/ui/ButtonAction";
-import { InputField } from "@/components/ui/InputField";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { formatShortDate } from "@/lib/dateUtils";
+import { buildProposalPrice } from "@/lib/pricing";
+import { getUserById } from "@/lib/mockUsers";
+
+const PLATFORM_FEE_PERCENT = 12;
 
 /**
- * Simplified proposal builder for carers.
- * Pre-fills from the inquiry data; carer can adjust price and confirm.
+ * Provider-side proposal builder. Pre-fills from the conversation's inquiry
+ * (or an explicit `inquiry` prop, used by counter flow), auto-calculates the
+ * price using the provider's actual `pricePerUnit` from their carer profile,
+ * and shows the platform fee transparently. Provider can edit line items
+ * before sending.
+ *
+ * Discover & Care G3, 2026-05-02. Counter flow (G4) reuses this form
+ * pre-filled with the existing proposal's values via `initialPrice`.
  */
 export function ProposalForm({
   conv,
   open,
   onClose,
   onSubmit,
+  inquiry,
+  initialPrice,
 }: {
   conv: Conversation;
   open: boolean;
   onClose: () => void;
   onSubmit: (proposal: BookingProposal) => void;
+  /** Override the inquiry source — used when responding to a specific
+   *  InquiryCard message (G3) or composing a counter (G4). Defaults to
+   *  `conv.inquiry`. */
+  inquiry?: InquiryDetails;
+  /** Pre-fill the price (counter flow). Otherwise auto-calculates from
+   *  provider rate. */
+  initialPrice?: BookingPrice;
 }) {
-  const inq = conv.inquiry;
+  // Derive the source inquiry. When the caller passes an InquiryCard's data
+  // explicitly, we prefer that; otherwise fall back to the conv-level shape
+  // for backward compat with the legacy templated-text path.
+  const sourceInquiry: InquiryDetails = useMemo(() => {
+    if (inquiry) return inquiry;
+    return {
+      bookingType: conv.inquiry.bookingType,
+      serviceType: conv.inquiry.serviceType,
+      subService: conv.inquiry.subService,
+      pets: conv.inquiry.pets,
+      startDate: conv.inquiry.startDate,
+      endDate: conv.inquiry.endDate,
+      recurringSchedule: conv.inquiry.recurringSchedule,
+      notes: conv.inquiry.message?.trim() || undefined,
+      status: "pending",
+    };
+  }, [inquiry, conv.inquiry]);
+
   const ownerFirst = conv.ownerName.split(" ")[0];
 
-  const [serviceType] = useState<ServiceType>(inq.serviceType);
-  const [subService, setSubService] = useState<string | null>(inq.subService);
-  const [bookingType] = useState<BookingType>(inq.bookingType);
-  const [priceAmount, setPriceAmount] = useState<string>(getDefaultPrice(inq.serviceType));
-  const [startDate] = useState(inq.startDate || "2026-09-01");
-  const [endDate] = useState(inq.endDate);
-  const [recurringSchedule] = useState<RecurringSchedule | undefined>(inq.recurringSchedule);
+  // Look up the provider's actual rate for the inquired service.
+  const provider = getUserById(conv.providerId);
+  const careService = provider?.carerProfile?.services?.find(
+    (s) => s.kind === "care" && s.serviceType === sourceInquiry.serviceType,
+  );
+  const baseRate = careService?.kind === "care" ? careService.pricePerUnit : 0;
+  const priceUnit = careService?.kind === "care" ? careService.priceUnit : "per_visit";
 
-  const priceNum = parseInt(priceAmount, 10);
-  const canSubmit = priceNum > 0;
+  const [price, setPrice] = useState<BookingPrice>(
+    initialPrice ??
+      buildProposalPrice(
+        sourceInquiry,
+        baseRate,
+        priceUnit,
+        SERVICE_LABELS[sourceInquiry.serviceType],
+      ),
+  );
 
-  const priceUnit = serviceType === "walk_checkin" ? "per session"
-    : serviceType === "inhome_sitting" ? "per night"
-    : "per night";
+  const platformFee = Math.round((price.total * PLATFORM_FEE_PERCENT) / 100);
+  const ownerTotal = price.total + platformFee;
+  const isWeekly = price.billingCycle === "weekly";
+  const cycleLabel = isWeekly ? " / week" : "";
+  const canSubmit = price.total > 0;
 
-  const billingCycle = serviceType === "walk_checkin" ? "per_session" as const
-    : "per_night" as const;
+  function updateLineItem(idx: number, patch: Partial<BookingPrice["lineItems"][number]>) {
+    const next = price.lineItems.map((li, i) => (i === idx ? { ...li, ...patch } : li));
+    setPrice({ ...price, lineItems: next, total: next.reduce((s, li) => s + li.amount, 0) });
+  }
 
   function handleSubmit() {
     if (!canSubmit) return;
-
-    const label = subService || SERVICE_LABELS[serviceType];
-    const price: BookingPrice = {
-      lineItems: [{ label, amount: priceNum, unit: priceUnit }],
-      total: priceNum,
-      currency: "Kč",
-      billingCycle,
-    };
-
     const proposal: BookingProposal = {
-      bookingType,
-      serviceType,
-      subService,
-      pets: inq.pets.length > 0 ? inq.pets : [inq.dogName || "Pet"],
-      startDate,
-      endDate,
-      recurringSchedule,
+      bookingType: sourceInquiry.bookingType,
+      serviceType: sourceInquiry.serviceType,
+      subService: sourceInquiry.subService,
+      pets: sourceInquiry.pets.length > 0 ? sourceInquiry.pets : ["Pet"],
+      startDate: sourceInquiry.startDate ?? new Date().toISOString().slice(0, 10),
+      endDate: sourceInquiry.bookingType === "one_off" ? sourceInquiry.endDate : null,
+      recurringSchedule:
+        sourceInquiry.bookingType === "ongoing" ? sourceInquiry.recurringSchedule : undefined,
       price,
       status: "pending",
     };
-
     onSubmit(proposal);
   }
 
-  const subOptions = SUB_SERVICES[serviceType];
+  // Render a one-line summary of the inquiry — what they asked for.
+  const summaryLine = [
+    SERVICE_LABELS[sourceInquiry.serviceType],
+    sourceInquiry.subService,
+    sourceInquiry.pets.length > 0 ? sourceInquiry.pets.join(" & ") : null,
+    sourceInquiry.bookingType === "ongoing" ? "Ongoing" : "One-off",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  const scheduleLine = sourceInquiry.recurringSchedule
+    ? `Every ${sourceInquiry.recurringSchedule.days.join(", ")} · ${sourceInquiry.recurringSchedule.timeLabel}`
+    : sourceInquiry.startDate && sourceInquiry.endDate
+      ? `${formatShortDate(sourceInquiry.startDate)} – ${formatShortDate(sourceInquiry.endDate)}`
+      : sourceInquiry.startDate
+        ? `From ${formatShortDate(sourceInquiry.startDate)}`
+        : null;
 
   return (
     <ModalSheet
@@ -85,98 +136,68 @@ export function ProposalForm({
       onClose={onClose}
       title={`Proposal for ${ownerFirst}`}
       footer={
-        <div className="flex gap-sm">
-          <ButtonAction variant="primary" onClick={handleSubmit} disabled={!canSubmit}>
-            Send proposal
-          </ButtonAction>
-          <ButtonAction variant="tertiary" onClick={onClose}>
+        <div className="flex gap-sm justify-end">
+          <ButtonAction variant="outline" size="md" onClick={onClose}>
             Cancel
+          </ButtonAction>
+          <ButtonAction variant="primary" size="md" onClick={handleSubmit} disabled={!canSubmit}>
+            Send proposal
           </ButtonAction>
         </div>
       }
     >
-      <div className="flex flex-col gap-md">
-        {/* Service (read-only from inquiry) */}
-        <div>
-          <p className="text-xs font-semibold text-fg-secondary mb-xs">Service</p>
-          <p className="text-sm text-fg-primary">{SERVICE_LABELS[serviceType]}</p>
-        </div>
+      <div className="proposal-form">
+        {/* Inquiry summary */}
+        <section className="proposal-form-section">
+          <h4 className="proposal-form-eyebrow">{ownerFirst}&apos;s inquiry</h4>
+          <p className="proposal-form-summary">{summaryLine}</p>
+          {scheduleLine && <p className="proposal-form-schedule">{scheduleLine}</p>}
+          {sourceInquiry.notes && (
+            <p className="proposal-form-notes">&ldquo;{sourceInquiry.notes}&rdquo;</p>
+          )}
+        </section>
 
-        {/* Sub-service */}
-        <div>
-          <p className="text-xs font-semibold text-fg-secondary mb-xs">What specifically?</p>
-          <div className="flex flex-wrap gap-xs">
-            {subOptions.map((opt) => (
-              <button
-                key={opt}
-                type="button"
-                className={`pill${subService === opt ? " active" : ""}`}
-                onClick={() => setSubService((prev) => (prev === opt ? null : opt))}
-              >
-                {opt}
-              </button>
+        {/* Price — auto-calculated from provider rate, editable */}
+        <section className="proposal-form-section">
+          <h4 className="proposal-form-eyebrow">Price</h4>
+          <div className="proposal-form-price-list">
+            {price.lineItems.map((item, idx) => (
+              <div key={idx} className="proposal-form-price-row">
+                <input
+                  className="proposal-form-price-label"
+                  value={item.label}
+                  onChange={(e) => updateLineItem(idx, { label: e.target.value })}
+                  aria-label="Line item label"
+                />
+                <div className="proposal-form-price-amount">
+                  <input
+                    type="number"
+                    value={item.amount}
+                    onChange={(e) => updateLineItem(idx, { amount: Number(e.target.value) || 0 })}
+                    aria-label="Line item amount"
+                  />
+                  <span className="proposal-form-price-unit">Kč</span>
+                </div>
+              </div>
             ))}
           </div>
-        </div>
-
-        {/* Pets (read-only from inquiry) */}
-        <div>
-          <p className="text-xs font-semibold text-fg-secondary mb-xs">Pets</p>
-          <p className="text-sm text-fg-primary">
-            {inq.pets.length > 0 ? inq.pets.join(", ") : inq.dogName || "—"}
-          </p>
-        </div>
-
-        {/* Schedule / dates (read-only from inquiry) */}
-        <div>
-          <p className="text-xs font-semibold text-fg-secondary mb-xs">
-            {bookingType === "ongoing" ? "Schedule" : "Dates"}
-          </p>
-          <p className="text-sm text-fg-primary">
-            {recurringSchedule
-              ? `Every ${recurringSchedule.days.join(", ")} · ${recurringSchedule.timeLabel}`
-              : endDate
-              ? `${formatShortDate(startDate)} – ${formatShortDate(endDate)}`
-              : `From ${formatShortDate(startDate)}`}
-          </p>
-        </div>
-
-        {/* Price — editable */}
-        <InputField
-          id="proposal-price"
-          label={`Your rate (Kč ${priceUnit})`}
-          type="number"
-          value={priceAmount}
-          onChange={(val) => setPriceAmount(val)}
-          required
-          helper={`Market range: ${getMarketRange(serviceType)}`}
-        />
-
-        {/* Frequency badge */}
-        <div>
-          <p className="text-xs font-semibold text-fg-secondary mb-xs">Booking type</p>
-          <span className="pill active">
-            {bookingType === "ongoing" ? "Ongoing" : "One time"}
-          </span>
-        </div>
+          <div className="proposal-form-price-summary">
+            <div className="proposal-form-price-line">
+              <span>Subtotal</span>
+              <span>{price.total.toLocaleString()} Kč{cycleLabel}</span>
+            </div>
+            <div className="proposal-form-price-line proposal-form-price-line--muted">
+              <span>Platform fee ({PLATFORM_FEE_PERCENT}%) — added at checkout</span>
+              <span>+ {platformFee.toLocaleString()} Kč</span>
+            </div>
+            <div className="proposal-form-price-line proposal-form-price-line--total">
+              <span>Owner pays</span>
+              <span>{ownerTotal.toLocaleString()} Kč{cycleLabel}</span>
+            </div>
+          </div>
+        </section>
       </div>
     </ModalSheet>
   );
-}
-
-function getDefaultPrice(service: ServiceType): string {
-  switch (service) {
-    case "walk_checkin": return "280";
-    case "inhome_sitting": return "550";
-    case "boarding": return "600";
-  }
-}
-
-function getMarketRange(service: ServiceType): string {
-  switch (service) {
-    case "walk_checkin": return "150–500 Kč per walk";
-    case "inhome_sitting": return "500–1,200 Kč per night";
-    case "boarding": return "450–1,000 Kč per night";
-  }
 }
 

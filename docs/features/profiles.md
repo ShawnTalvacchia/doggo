@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-29
+last-reviewed: 2026-05-02
 tags: [profile, pets, provider, edit, posts, tagging]
 review-trigger: "when modifying profile pages, pet cards, posts, or provider sections"
 ---
@@ -77,7 +77,7 @@ The Chat tab embeds the full messaging thread directly on the profile page using
 - Care CTAs: Find Care + Offer Care / Manage Services
 - Connection list with state badges
 - **Posts tab:** photo grid of user's posts with "New post" CTA
-- **Services tab:** editable services, availability, visibility toggle
+- **Services tab:** editable services, availability, visibility toggle. **Comprehensive catalogue** — both Care-type offerings (Walking, Sitting, Boarding) and Meet-type offerings (Training sessions, Workshops, paid Group meets) live here in one list. See [[Groups & Care Model]] → Services as Catalog for the split.
 
 ### Other user profiles (`/profile/[userId]`)
 
@@ -86,7 +86,9 @@ The Chat tab embeds the full messaging thread directly on the profile page using
 - Provider stats (rating, reviews) shown in hero when user has provider data
 - PetCards shown collapsed (defaultExpanded=false)
 - Posts tab shows their posts visible to you
-- Services tab only appears if user has carerProfile or matching provider card
+- **Services tab** only appears if user has carerProfile, matching provider card, OR runs publishable Meet-type offerings (training sessions, workshops). Acts as the comprehensive catalogue of paid offerings — see [[Groups & Care Model]] → Services as Catalog. Tap routing differs by offering type:
+  - **Care offering** (Walking / Sitting / Boarding) → request-booking flow → produces a Booking
+  - **Meet offering** (Training / Workshop / paid Group session) → "see upcoming sessions" → produces a Meet attendance
 - Relationship-aware CTAs (pill-shaped, full-width):
   - **Connected:** "Message [name]" + "Book care"
   - **Familiar:** "Connect with [name]"

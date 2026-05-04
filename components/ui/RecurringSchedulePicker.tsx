@@ -1,10 +1,14 @@
 "use client";
 
 import type { DayOfWeek, RecurringSchedule } from "@/lib/types";
+import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-const DAYS: DayOfWeek[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+// Sun-first ordering matches the Discover filter convention so the day-of-
+// week affordance reads identically across surfaces. Labels are sliced to
+// 2 letters at render time ("Sun" → "Su", etc.).
+const DAYS: DayOfWeek[] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const TIME_OPTIONS: { value: string; label: string }[] = [
   { value: "07:00", label: "7:00–8:00am" },
@@ -28,6 +32,16 @@ interface Props {
   onChange: (schedule: RecurringSchedule) => void;
 }
 
+/**
+ * RecurringSchedulePicker — paired day + time picker for ongoing booking
+ * inquiries. Days use the shared `MultiSelectSegmentBar` (same component
+ * Discover's "For which days?" filter uses) so the affordance is identical
+ * across surfaces. Time is a stacked label-above-select.
+ *
+ * G3 alignment 2026-05-04 — replaced bespoke `.rsp-day-chip` markup with
+ * the shared segment bar, dropped horizontal Time row in favour of the
+ * standard stacked label pattern.
+ */
 export function RecurringSchedulePicker({ value, onChange }: Props) {
   function toggleDay(day: DayOfWeek) {
     const next = value.days.includes(day)
@@ -44,23 +58,21 @@ export function RecurringSchedulePicker({ value, onChange }: Props) {
 
   return (
     <div className="rsp-root">
-      {/* Day chips */}
-      <div className="rsp-days">
-        {DAYS.map((day) => (
-          <button
-            key={day}
-            type="button"
-            className={`rsp-day-chip${value.days.includes(day) ? " active" : ""}`}
-            onClick={() => toggleDay(day)}
-          >
-            {day}
-          </button>
-        ))}
+      {/* Days — same MultiSelectSegmentBar pattern as Discover. */}
+      <div className="filter-field">
+        <div className="label">For which days?</div>
+        <MultiSelectSegmentBar
+          ariaLabel="Repeat weekly days"
+          options={DAYS.map((day) => ({ value: day, label: day.slice(0, 2) }))}
+          selectedValues={value.days}
+          onToggle={toggleDay}
+          variant="filter"
+        />
       </div>
 
-      {/* Time selector */}
-      <div className="rsp-time-row">
-        <span className="rsp-time-label">Time</span>
+      {/* Time — stacked label-above-select, matches the rest of the form. */}
+      <div className="filter-field">
+        <div className="label">Time</div>
         <select
           className="rsp-time-select"
           value={value.time}

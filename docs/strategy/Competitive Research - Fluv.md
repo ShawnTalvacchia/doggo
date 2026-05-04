@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-15
+last-reviewed: 2026-05-02
 tags: [research, competitive, trust, vetting, marketplace, matching]
 review-trigger: "when designing trust flows, provider onboarding, care matching, or marketplace mechanics"
 ---

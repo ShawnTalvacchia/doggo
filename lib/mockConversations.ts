@@ -21,7 +21,7 @@ const MARIE_AVATAR =
 const olgaMessages: ChatMessage[] = [
   {
     id: "om-1",
-    conversationId: "olga-conv",
+    conversationId: "shawn-olga-conv",
     sender: "owner",
     type: "text",
     text: "Hi Olga! I'm looking for someone to walk Mochi (my Shiba Inu) a few times a week around Smíchov. She's friendly but can be a bit nervous meeting new dogs. Would you be up for a meet & greet first?",
@@ -30,7 +30,7 @@ const olgaMessages: ChatMessage[] = [
   },
   {
     id: "om-2",
-    conversationId: "olga-conv",
+    conversationId: "shawn-olga-conv",
     sender: "provider",
     type: "text",
     text: "Hi! Mochi sounds lovely — Shibas are one of my favourites. A meet & greet is a great idea, I always recommend it. I'm free most mornings this week. Would Tuesday at 9am near Nusle steps work for you?",
@@ -39,7 +39,7 @@ const olgaMessages: ChatMessage[] = [
   },
   {
     id: "om-3",
-    conversationId: "olga-conv",
+    conversationId: "shawn-olga-conv",
     sender: "owner",
     type: "text",
     text: "Tuesday at 9am works perfectly! I'll bring Mochi and some treats so she can warm up to you. 🐕",
@@ -48,7 +48,7 @@ const olgaMessages: ChatMessage[] = [
   },
   {
     id: "om-4",
-    conversationId: "olga-conv",
+    conversationId: "shawn-olga-conv",
     sender: "provider",
     type: "text",
     text: "Perfect, see you Tuesday! I'll send you my number closer to the day in case anything changes. Looking forward to meeting Mochi 🐾",
@@ -62,7 +62,7 @@ const olgaMessages: ChatMessage[] = [
 const nikolaMessages: ChatMessage[] = [
   {
     id: "nm-1",
-    conversationId: "nikola-conv",
+    conversationId: "shawn-nikola-conv",
     sender: "owner",
     type: "text",
     text: "Hi Nikola, we're going away August 12–18 and need boarding for our Golden, Pepper. She's 3 years old, very social, loves other dogs. Do you have space those dates?",
@@ -71,7 +71,7 @@ const nikolaMessages: ChatMessage[] = [
   },
   {
     id: "nm-2",
-    conversationId: "nikola-conv",
+    conversationId: "shawn-nikola-conv",
     sender: "provider",
     type: "text",
     text: "Hi! August 12–18 looks good for me. Pepper sounds like she'd get on great with my dog Bora. I usually do a short walk together before confirming — are you based in Prague 2?",
@@ -80,7 +80,7 @@ const nikolaMessages: ChatMessage[] = [
   },
   {
     id: "nm-3",
-    conversationId: "nikola-conv",
+    conversationId: "shawn-nikola-conv",
     sender: "owner",
     type: "text",
     text: "Yes, we're in Vinohrady. A walk sounds great actually — she needs to know she's going somewhere safe. What park do you usually use?",
@@ -89,7 +89,7 @@ const nikolaMessages: ChatMessage[] = [
   },
   {
     id: "nm-4",
-    conversationId: "nikola-conv",
+    conversationId: "shawn-nikola-conv",
     sender: "provider",
     type: "text",
     text: "I usually take dogs to Riegrovy sady — lots of space and a fenced section. Would a weekend morning work for you? I'm free Saturday or Sunday this week.",
@@ -105,7 +105,7 @@ const janaMessages: ChatMessage[] = [
   // Booking discussion (earlier)
   {
     id: "jm-1",
-    conversationId: "jana-conv",
+    conversationId: "shawn-jana-conv",
     sender: "owner",
     type: "text",
     text: "Hi Jana, I'm looking for Monday–Friday morning walks for Bruno starting in September. He's a 2-year-old Labrador, very energetic and good with other dogs. Would you have regular availability?",
@@ -114,7 +114,7 @@ const janaMessages: ChatMessage[] = [
   },
   {
     id: "jm-2",
-    conversationId: "jana-conv",
+    conversationId: "shawn-jana-conv",
     sender: "provider",
     type: "text",
     text: "Hi! Mon–Fri mornings are my main slot so that works great. Bruno sounds like a fun one — Labs are always full of energy. My standard walk is 45–60 min. Would you want drop-in check-ins on any days, or just walks?",
@@ -123,7 +123,7 @@ const janaMessages: ChatMessage[] = [
   },
   {
     id: "jm-3",
-    conversationId: "jana-conv",
+    conversationId: "shawn-jana-conv",
     sender: "owner",
     type: "text",
     text: "Just walks for now. If he settles in well I might add a lunchtime check-in later. Can you do around 8–9am?",
@@ -132,7 +132,7 @@ const janaMessages: ChatMessage[] = [
   },
   {
     id: "jm-4",
-    conversationId: "jana-conv",
+    conversationId: "shawn-jana-conv",
     sender: "provider",
     type: "text",
     text: "8–9am works perfectly for me. I've put together a booking proposal for the regular slot — let me know what you think!",
@@ -141,7 +141,7 @@ const janaMessages: ChatMessage[] = [
   },
   {
     id: "jm-5",
-    conversationId: "jana-conv",
+    conversationId: "shawn-jana-conv",
     sender: "provider",
     type: "booking_proposal",
     proposal: {
@@ -170,7 +170,7 @@ const janaMessages: ChatMessage[] = [
   // Social chat (later — after meeting at a park hangout)
   {
     id: "jd-1",
-    conversationId: "jana-conv",
+    conversationId: "shawn-jana-conv",
     sender: "owner",
     type: "text",
     text: "Hey Jana! Great meeting you and your pup at the park hangout yesterday. Spot really enjoyed playing with Rex!",
@@ -179,7 +179,7 @@ const janaMessages: ChatMessage[] = [
   },
   {
     id: "jd-2",
-    conversationId: "jana-conv",
+    conversationId: "shawn-jana-conv",
     sender: "provider",
     type: "text",
     text: "Hi Shawn! It was lovely meeting you too! Rex was so tired after playing with Spot — he slept the whole evening 😄 We should do that again sometime!",
@@ -188,7 +188,7 @@ const janaMessages: ChatMessage[] = [
   },
   {
     id: "jd-3",
-    conversationId: "jana-conv",
+    conversationId: "shawn-jana-conv",
     sender: "owner",
     type: "text",
     text: "Absolutely! Are you going to the Vinohrady walk this Saturday? I was thinking of taking both Spot and Goldie this time.",
@@ -197,7 +197,7 @@ const janaMessages: ChatMessage[] = [
   },
   {
     id: "jd-4",
-    conversationId: "jana-conv",
+    conversationId: "shawn-jana-conv",
     sender: "provider",
     type: "text",
     text: "Yes, I'll be there! Looking forward to meeting Goldie. See you Saturday morning 🐾",
@@ -211,7 +211,7 @@ const janaMessages: ChatMessage[] = [
 const marieMessages: ChatMessage[] = [
   {
     id: "mm-1",
-    conversationId: "marie-conv",
+    conversationId: "shawn-marie-conv",
     sender: "owner",
     type: "text",
     text: "Hi Shawn! I found your profile on Doggo and I'm looking for regular walks for my Labrador, Molly. She's 3 years old, very friendly and loves other dogs. I'd need Mon, Wed, Fri mornings around Vinohrady — would that work for you?",
@@ -220,7 +220,7 @@ const marieMessages: ChatMessage[] = [
   },
   {
     id: "mm-2",
-    conversationId: "marie-conv",
+    conversationId: "shawn-marie-conv",
     sender: "provider",
     type: "text",
     text: "Hi Marie! Molly sounds great — Mon/Wed/Fri mornings work perfectly for me. I do 45–60 min walks starting around 8am, usually through Riegrovy sady and back. Happy to do a quick meet & greet with Molly first if you'd like. My rate is 280 Kč per walk.",
@@ -229,7 +229,7 @@ const marieMessages: ChatMessage[] = [
   },
   {
     id: "mm-3",
-    conversationId: "marie-conv",
+    conversationId: "shawn-marie-conv",
     sender: "owner",
     type: "text",
     text: "That sounds perfect! Riegrovy sady is great, Molly loves it there. A meet & greet would be lovely. When are you free this week?",
@@ -243,7 +243,7 @@ const marieMessages: ChatMessage[] = [
 const terezaDirectMessages: ChatMessage[] = [
   {
     id: "td-1",
-    conversationId: "tereza-conv",
+    conversationId: "shawn-tereza-conv",
     sender: "provider",
     type: "text",
     text: "Hey Shawn! Thanks for coming to the evening walk last week. Franta and Spot really got on well. Are you planning to come again this Thursday?",
@@ -252,7 +252,7 @@ const terezaDirectMessages: ChatMessage[] = [
   },
   {
     id: "td-2",
-    conversationId: "tereza-conv",
+    conversationId: "shawn-tereza-conv",
     sender: "owner",
     type: "text",
     text: "Hey! Yes, Thursday works — I'll bring Spot. Should I bring Goldie too or is the group getting big?",
@@ -261,7 +261,7 @@ const terezaDirectMessages: ChatMessage[] = [
   },
   {
     id: "td-3",
-    conversationId: "tereza-conv",
+    conversationId: "shawn-tereza-conv",
     sender: "provider",
     type: "text",
     text: "Bring both! It's still a small group — just me, Marek, and Lucie confirmed so far. The more the merrier 🐕",
@@ -275,7 +275,7 @@ const terezaDirectMessages: ChatMessage[] = [
 const klaraBookingMessages: ChatMessage[] = [
   {
     id: "kb-1",
-    conversationId: "klara-conv",
+    conversationId: "shawn-klara-conv",
     sender: "owner",
     type: "text",
     text: "Hi Klára! I'd love to book a socialisation session for Spot. He's nervous around new dogs and I've heard amazing things about your work with Daniel's dog Bára. Do you have any openings?",
@@ -284,7 +284,7 @@ const klaraBookingMessages: ChatMessage[] = [
   },
   {
     id: "kb-2",
-    conversationId: "klara-conv",
+    conversationId: "shawn-klara-conv",
     sender: "provider",
     type: "text",
     text: "Hi Shawn! Thanks for reaching out — Daniel's been great to work with. I have a spot in my Wednesday group session at Stromovka, or I can do a 1-on-1 if you'd prefer to start with something calmer. What works better for Spot?",
@@ -293,7 +293,7 @@ const klaraBookingMessages: ChatMessage[] = [
   },
   {
     id: "kb-3",
-    conversationId: "klara-conv",
+    conversationId: "shawn-klara-conv",
     sender: "owner",
     type: "text",
     text: "I think 1-on-1 first would be best. He can be unpredictable with new dogs. How much is that?",
@@ -302,7 +302,7 @@ const klaraBookingMessages: ChatMessage[] = [
   },
   {
     id: "kb-4",
-    conversationId: "klara-conv",
+    conversationId: "shawn-klara-conv",
     sender: "provider",
     type: "text",
     text: "600 Kč for a 60-minute session. We'd do it at Stromovka — quiet area near the pond. I'll bring Eda as the calm dog for controlled introductions. He's a Border Collie, super gentle. Want to try next Wednesday at 10?",
@@ -311,7 +311,7 @@ const klaraBookingMessages: ChatMessage[] = [
   },
   {
     id: "kb-5",
-    conversationId: "klara-conv",
+    conversationId: "shawn-klara-conv",
     sender: "owner",
     type: "text",
     text: "That sounds perfect. Wednesday at 10 it is! Looking forward to it.",
@@ -320,7 +320,7 @@ const klaraBookingMessages: ChatMessage[] = [
   },
   {
     id: "kb-6",
-    conversationId: "klara-conv",
+    conversationId: "shawn-klara-conv",
     sender: "provider",
     type: "booking_proposal",
     text: "I've sent you a booking proposal for the session.",
@@ -350,7 +350,7 @@ const klaraBookingMessages: ChatMessage[] = [
 const evaDirectMessages: ChatMessage[] = [
   {
     id: "ed-1",
-    conversationId: "eva-conv",
+    conversationId: "shawn-eva-conv",
     sender: "owner",
     type: "text",
     text: "Hi Eva! We met briefly at the Letná Park hangout last week. Luna and Spot seemed to get along really well — would love to set up a playdate sometime if you're up for it!",
@@ -745,7 +745,7 @@ const EMPTY_INQUIRY = {
 export const mockConversations: Conversation[] = [
   // ── Jana (merged: social + booking) ──
   {
-    id: "jana-conv",
+    id: "shawn-jana-conv",
     conversationType: "booking",
     providerId: "jana",
     providerName: "Jana K.",
@@ -771,7 +771,7 @@ export const mockConversations: Conversation[] = [
   },
   // ── Tereza (direct) ──
   {
-    id: "tereza-conv",
+    id: "shawn-tereza-conv",
     conversationType: "direct",
     providerId: "tereza",
     providerName: "Tereza N.",
@@ -787,7 +787,7 @@ export const mockConversations: Conversation[] = [
   },
   // ── Klára (booking) ──
   {
-    id: "klara-conv",
+    id: "shawn-klara-conv",
     conversationType: "booking",
     providerId: "klara",
     providerName: "Klára H.",
@@ -812,7 +812,7 @@ export const mockConversations: Conversation[] = [
   },
   // ── Olga (booking — no user profile yet, uses provider ID) ──
   {
-    id: "olga-conv",
+    id: "shawn-olga-conv",
     conversationType: "booking",
     providerId: "olga-m",
     providerName: olga.name,
@@ -838,7 +838,7 @@ export const mockConversations: Conversation[] = [
   },
   // ── Nikola (booking) ──
   {
-    id: "nikola-conv",
+    id: "shawn-nikola-conv",
     conversationType: "booking",
     providerId: "nikola",
     providerName: "Nikola R.",
@@ -863,7 +863,7 @@ export const mockConversations: Conversation[] = [
   },
   // ── Eva (direct — familiar, met at park) ──
   {
-    id: "eva-conv",
+    id: "shawn-eva-conv",
     conversationType: "direct",
     providerId: "eva",
     providerName: "Eva S.",
@@ -879,7 +879,7 @@ export const mockConversations: Conversation[] = [
   },
   // ── Marie (Shawn is provider) ──
   {
-    id: "marie-conv",
+    id: "shawn-marie-conv",
     conversationType: "booking",
     providerId: SHAWN_ID,
     providerName: SHAWN_NAME,

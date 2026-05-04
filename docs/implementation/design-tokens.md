@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-04-10
+last-reviewed: 2026-05-04
 tags: [tokens, css, figma, design-system]
 review-trigger: "when adding or changing CSS variables"
 ---

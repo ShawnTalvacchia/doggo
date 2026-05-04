@@ -1,6 +1,6 @@
 ---
-status: active
-last-reviewed: 2026-04-30
+status: archived
+last-reviewed: 2026-05-02
 review-trigger: "Update as items are walked, edit as scope adjusts"
 ---
 # Mock World Building — Walkthrough
@@ -45,25 +45,25 @@ Living doc for visual walkthroughs of Mock World Building Workstreams A + B + C.
 
 ## Workstream C — Content density + inbox hygiene
 
-- [ ] **C1. Tereza → `/communities/group-tereza-neighbourhood`** (Vinohrady Evening Walkers) → **Feed tab.** Verify: ≥5 posts, mix of authors (Tereza ×2, plus Shawn-as-mock-resident, Lucie, Marek). Marek's earlier-start coordination post has a small comment thread (Lucie + Tereza replying).
-- [ ] **C2. Daniel → `/communities/group-reactive-dogs`** (Prague Reactive Dog Support) → **Feed tab.** Verify: ≥6 posts. **Eva's cold-weather tip post** ("Quick tip from this week's session…") is visible with comments from Daniel and Hana — Eva is the admin and previously had zero posts in her own group.
-- [ ] **C3. Klára → `/communities/group-klara-training`** (Calm Dog Sessions) → **Feed tab.** Verify: ≥6 posts. **Hana's gratitude post** ("Six sessions in. Runa walked past a barking Husky…") visible with Klára's reply. Klára's recent training-recap post renders with a photo.
-- [ ] **C4. Tomáš → `/communities/group-karlin-neighbours`** (Karlín Dog Neighbors) → **Feed tab.** Verify: ≥5 posts, mix of authors (Tomáš, Filip, Adéla, Petra, Ondřej). **Petra's admin announcement** ("Karlín riverside is closed for resurfacing…") is visible.
-- [ ] **C5. Tereza → `/communities/park-3`** (Riegrovy Sady Dog Walks). Verify: open visibility (no approval gate), drop-in feel — meet cadence chip on cards. ≥3 posts, ≥9 meets in the group. Park-type affordances render.
-- [ ] **C6. Tereza → `/communities/group-tereza-neighbourhood`.** Verify: Neighbour-type — private visibility (admin-managed), recurring meet pattern, Tereza shows as admin in Members tab.
-- [ ] **C7. Daniel → `/communities/group-reactive-dogs`.** Verify: Interest-type — approval-required visibility, Eva shows as admin. Members tab leans heavily Private (intentional for support-context privacy character).
-- [ ] **C8. Daniel → `/communities/group-klara-training`.** Verify: Care-type — care category = training, Klára shows as host. Meets carry booking CTAs (price, "Book session" affordance). NO Services tab on the group itself (training category routes services to Klára's profile instead).
-- [ ] **C9. Daniel → `/profile/klara`** → **Services tab.** Verify: tab visible. Lists training-walk service (300 Kč) and 1-on-1 training (600 Kč). Booking CTA present.
-- [ ] **C10. Klára → `/communities/group-klara-training`** → **Meets tab.** Verify: 5+ meets total. Past/completed meets show cover photos. Upcoming meets show booking CTA + capacity.
-- [ ] **C11. Klára → `/inbox`.** Verify: ≥4 client threads visible — Daniel P., Filip N., Hana P., plus Shawn T.'s training-booking thread. Each row carries booking context (the dog, the service).
-- [ ] **C12. Daniel → `/home`.** Verify: feed dominated by Reactive Dog Support activity (Eva's tip, Daniel's own posts, Hana's gratitude post in Klára's group via the group-context gate). Should NOT see heavy Vinohrady content. Tone reads as "anxious owner finding support."
-- [ ] **C13. Klára → `/home`.** Verify: mix of training recaps (her own + client posts in her care group) + Stromovka regulars' posts. Reads as "professional provider deeply embedded in two scenes."
-- [ ] **C14. Tomáš → `/home`.** Verify: Karlín-heavy — Petra's admin post, Ondřej's harness post, Adéla's posts, Tomáš's own. Light on personal-posts-from-connections (his Karlín ring posts in groups, not personally). Reads as "Karlín local, low-key user."
-- [ ] **C15. Tereza → `/home`.** Verify: Vinohrady Evening Walkers content (her own + Lucie + Marek) + Vinohrady Morning Crew + Riegrovy park posts. Reads as "Vinohrady connector running her own group."
-- [ ] **C16. Daniel → `/home`.** Discovery-gate spot-check: NO accidental Vinohrady-flavored discovery items in his feed. The previously-hardcoded `userNeighbourhood = "Vinohrady"` was the bug; Daniel's feed should resolve to Smíchov (which has no open groups, so Gate 3 returns nothing for him — correct).
-- [ ] **C17. Klára → `/inbox`.** Verify: every conversation row shows the partner as `FirstName L.` (e.g., "Daniel P.", "Filip N.", "Hana P.", "Shawn T."). No full last names, no first-name-only.
-- [ ] **C18. Tereza → `/inbox`.** Verify: every row whose partner has a dog shows the dog name under the paw icon. Direct/social conversations — `tereza-lucie-conv` and the Shawn-direct thread — should still show the partner's dog via the new fallback (no booking-pets snapshot, falls back to the partner's profile pets).
-- [ ] **C19. Daniel → `/inbox`.** Verify: only thread is the Klára training booking. Partner reads as "Klára H." with Bára as the dog name. `FirstName L.` format applied.
+- [x] **C1. Tereza → `/communities/group-tereza-neighbourhood`** (Vinohrady Evening Walkers) → **Feed tab.** Verify: ≥5 posts, mix of authors (Tereza ×2, plus Shawn-as-mock-resident, Lucie, Marek). Marek's earlier-start coordination post has a small comment thread (Lucie + Tereza replying).
+- [x] **C2. Daniel → `/communities/group-reactive-dogs`** (Prague Reactive Dog Support) → **Feed tab.** Verify: ≥6 posts. **Eva's cold-weather tip post** ("Quick tip from this week's session…") is visible with comments from Daniel and Hana — Eva is the admin and previously had zero posts in her own group.
+- [x] **C3. Klára → `/communities/group-klara-training`** (Calm Dog Sessions) → **Feed tab.** Verify: ≥6 posts. **Hana's gratitude post** ("Six sessions in. Runa walked past a barking Husky…") visible with Klára's reply. Klára's recent training-recap post renders with a photo.
+- [x] **C4. Tomáš → `/communities/group-karlin-neighbours`** (Karlín Dog Neighbors) → **Feed tab.** Verify: ≥5 posts, mix of authors (Tomáš, Filip, Adéla, Petra, Ondřej). **Petra's admin announcement** ("Karlín riverside is closed for resurfacing…") is visible.
+- [x] **C5. Daniel → `/communities/park-3`** (Riegrovy Sady Dog Walks — Daniel is NOT a member; this tests the **non-member view** of an open-visibility group). Verify: open visibility (no Private/Approval-required pill near the group name), no approval gate. Daniel can see the group's content and a Join CTA without restriction. Drop-in feel — meet cadence chip on cards. ≥3 posts, ≥9 meets in the group. Park-type affordances render.
+- [x] **C6. Tereza → `/communities/group-tereza-neighbourhood`.** Verify: private visibility chip near group name, recurring meet pattern (the Vinohrady evening loop on a weekly cadence), Tereza shows as admin in Members tab, description reads in admin's voice (first-person, not third-person about Tereza). *Note: Neighbour-type doesn't have UI affordances meaningfully distinct from Interest-type — both are private/approval scoped groups. The real test here is "an admin-created private group looks coherent from the admin's view." If you want richer type-specific verification, the Park (C5) and Care (C8) tests carry more distinct surface affordances.*
+- [x] **C7. Daniel → `/communities/group-reactive-dogs`.** Verify: Interest-type — approval-required visibility, Eva shows as admin. Members tab leans heavily Private (intentional for support-context privacy character).
+- [x] **C8. Daniel → `/communities/group-klara-training`.** Verify: Care-type — care category = training, Klára shows as host. Meets carry booking CTAs (price, "Book session" affordance). NO Services tab on the group itself (training category routes services to Klára's profile instead).
+- [x] **C9. Daniel → `/profile/klara`** → **Services tab.** Verify: tab visible. Lists training-walk service (300 Kč) and 1-on-1 training (600 Kč). Booking CTA present.
+- [x] **C10. Daniel → `/communities/group-klara-training`** → **Meets tab.** Verify: meets in ascending date order, each bookable card shows Book CTA + price + spots-left (one 1-on-1 client session may show no CTA). Switch to **Klára** on the same page — Book CTAs suppressed on her own hosted cards.
+- [x] **C11. Klára → `/inbox`.** Verify: ≥4 client threads visible — Daniel P., Filip N., Hana P., plus Shawn T.'s training-booking thread. Each row carries booking context (the dog, the service).
+- [x] **C12. Daniel → `/home`.** Verify: feed dominated by Reactive Dog Support activity (Eva's tip, Daniel's own posts, Hana's gratitude post in Klára's group via the group-context gate). Should NOT see heavy Vinohrady content. Tone reads as "anxious owner finding support."
+- [x] **C13. Klára → `/home`.** Verify: mix of training recaps (her own + client posts in her care group) + Stromovka regulars' posts. Reads as "professional provider deeply embedded in two scenes."
+- [x] **C14. Tomáš → `/home`.** Verify: Karlín-heavy — Petra's admin post, Ondřej's harness post, Adéla's posts, Tomáš's own. Light on personal-posts-from-connections (his Karlín ring posts in groups, not personally). Reads as "Karlín local, low-key user."
+- [x] **C15. Tereza → `/home`.** Verify: Vinohrady Evening Walkers content (her own + Lucie + Marek) + Vinohrady Morning Crew + Riegrovy park posts. Reads as "Vinohrady connector running her own group."
+- [x] **C16. Daniel → `/home`.** Discovery-gate spot-check: NO accidental Vinohrady-flavored discovery items in his feed. The previously-hardcoded `userNeighbourhood = "Vinohrady"` was the bug; Daniel's feed should resolve to Smíchov (which has no open groups, so Gate 3 returns nothing for him — correct).
+- [x] **C17. Klára → `/inbox`.** Verify: every conversation row shows the partner as `FirstName L.` (e.g., "Daniel P.", "Filip N.", "Hana P.", "Shawn T."). No full last names, no first-name-only.
+- [x] **C18. Tereza → `/inbox`.** Verify: every row shows the partner's dog inline next to the name (🐾 + dog name). All three threads (Shawn, Marek, Lucie) are direct/social — no service label appears.
+- [x] **C19. Daniel → `/inbox`.** Verify: only thread is the Klára training booking. Partner reads as "Klára H." with Bára as the dog name. `FirstName L.` format applied.
 
 ---
 

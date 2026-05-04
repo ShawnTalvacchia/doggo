@@ -7,7 +7,7 @@ import { daysFromNow } from "./mockDate";
 
 const olgaBooking: Booking = {
   id: "booking-olga-walks",
-  conversationId: "olga-conv",
+  conversationId: "shawn-olga-conv",
   ownerId: "shawn",
   ownerName: "Shawn Talvacchia",
   ownerAvatarUrl:
@@ -56,7 +56,7 @@ const olgaBooking: Booking = {
 
 const nikolaBooking: Booking = {
   id: "booking-nikola-boarding",
-  conversationId: "nikola-conv",
+  conversationId: "shawn-nikola-conv",
   ownerId: "shawn",
   ownerName: "Shawn Talvacchia",
   ownerAvatarUrl:

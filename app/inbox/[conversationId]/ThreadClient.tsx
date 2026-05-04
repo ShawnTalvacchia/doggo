@@ -14,9 +14,8 @@ import type {
   ServiceType,
   BookingProposal,
 } from "@/lib/types";
-import { InquiryForm, type InquirySubmitData } from "@/components/messaging/InquiryForm";
 import { BookingProposalCard } from "@/components/messaging/BookingProposalCard";
-import { InquiryChips } from "@/components/messaging/InquiryChips";
+import { InquiryCard } from "@/components/messaging/InquiryCard";
 import { PaymentCard } from "@/components/messaging/PaymentCard";
 import { ContractCard } from "@/components/messaging/ContractCard";
 import { SigningModal } from "@/components/messaging/SigningModal";
@@ -66,24 +65,34 @@ function groupByDate(messages: ChatMessage[]) {
 
 export function ThreadClient({
   conv,
-  initialService = null,
-  initialStart = null,
-  initialEnd = null,
   embedded = false,
+  initialDraft,
 }: {
   conv: Conversation;
-  initialService?: ServiceType | null;
-  initialStart?: string | null;
-  initialEnd?: string | null;
   /** When true, hides the header and uses flex layout (for embedding in profile tabs) */
   embedded?: boolean;
+  /** Optional initial textarea content — used when the user arrives with
+   *  context that suggests a templated opener (e.g. appointment-card CTA).
+   *  Editable by the user before sending. */
+  initialDraft?: string;
 }) {
-  const { addMessage, updateInquiry, updateProposalStatus } = useConversations();
-  const { createBooking } = useBookings();
+  const { addMessage, updateInquiry, updateProposalStatus, updateInquiryStatus } =
+    useConversations();
+  const { createBooking, upsertProposedBooking, updateStatus, getBookingByConversation } =
+    useBookings();
   const [localMessages, setLocalMessages] = useState<ChatMessage[]>(conv.messages);
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState(initialDraft ?? "");
   const [signingMsgId, setSigningMsgId] = useState<string | null>(null);
   const [proposalFormOpen, setProposalFormOpen] = useState(false);
+  /** When provider taps "Send proposal" on a specific InquiryCard, capture
+   *  which inquiry message they're responding to so the form sources from
+   *  it (not from the conv-level inquiry, which may be stale across multiple
+   *  inquiries in one thread). Discover & Care G3, 2026-05-02. */
+  const [respondingToInquiryId, setRespondingToInquiryId] = useState<string | null>(null);
+  /** When either side taps "Suggest changes" on a BookingProposalCard, capture
+   *  the source proposal id so the new ProposalForm pre-fills with its values
+   *  and on submit the source proposal flips to `"countered"`. G4. */
+  const [counteringProposalId, setCounteringProposalId] = useState<string | null>(null);
   const [inquiryDeclined, setInquiryDeclined] = useState(false);
   const bodyRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -115,32 +124,6 @@ export function ThreadClient({
     }
   }, [localMessages, isNew]);
 
-  function handleInquirySubmit(data: InquirySubmitData) {
-    updateInquiry(conv.id, {
-      bookingType: data.bookingType,
-      serviceType: data.service,
-      subService: data.subService,
-      pets: data.pets,
-      dogName: data.pets.join(" & "),
-      startDate: data.bookingType === "one_off" ? data.dateRange.start : null,
-      endDate: data.bookingType === "one_off" ? data.dateRange.end : null,
-      recurringSchedule: data.recurringSchedule ?? undefined,
-      message: data.message,
-    });
-
-    const firstMsg: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      conversationId: conv.id,
-      sender: myRole,
-      type: "text",
-      text: data.message,
-      sentAt: new Date().toISOString(),
-      read: true,
-    };
-    addMessage(conv.id, firstMsg);
-    setLocalMessages([firstMsg]);
-  }
-
   function handleSend() {
     const text = draft.trim();
     if (!text) return;
@@ -168,12 +151,22 @@ export function ThreadClient({
 
   // ── Carer actions ──────────────────────────────────────────────────────────
 
-  // Carer sends a booking proposal from the ProposalForm modal
-  function handleCarerSendProposal(proposal: BookingProposal) {
+  /**
+   * Send a booking proposal — used by both the initial provider response
+   * (G3, sender: provider, sourced from an InquiryCard) and the counter
+   * flow (G4, sender: either side, sourced from an existing ProposalCard).
+   * Side effects:
+   *  - Posts a new `booking_proposal` ChatMessage.
+   *  - If responding to an InquiryCard: flips that inquiry's status to
+   *    `"responded"`.
+   *  - If countering a previous proposal: flips that proposal's status to
+   *    `"countered"`.
+   */
+  function handleSendProposal(proposal: BookingProposal) {
     const proposalMsg: ChatMessage = {
       id: `msg-${Date.now()}`,
       conversationId: conv.id,
-      sender: "provider",
+      sender: myRole,
       type: "booking_proposal",
       proposal,
       sentAt: new Date().toISOString(),
@@ -181,7 +174,54 @@ export function ThreadClient({
     };
     addMessage(conv.id, proposalMsg);
     setLocalMessages((prev) => [...prev, proposalMsg]);
+
+    if (respondingToInquiryId) {
+      updateInquiryStatus(conv.id, respondingToInquiryId, "responded");
+      setLocalMessages((prev) =>
+        prev.map((m) =>
+          m.id === respondingToInquiryId && m.inquiry
+            ? { ...m, inquiry: { ...m.inquiry, status: "responded" } }
+            : m,
+        ),
+      );
+    }
+
+    if (counteringProposalId) {
+      updateProposalStatus(conv.id, counteringProposalId, "countered");
+      setLocalMessages((prev) =>
+        prev.map((m) =>
+          m.id === counteringProposalId && m.proposal
+            ? { ...m, proposal: { ...m.proposal, status: "countered" } }
+            : m,
+        ),
+      );
+    }
+
+    // Mirror proposal state to the Bookings tab — pipeline view of in-flight
+    // arrangements. Counter updates the same Booking; first proposal creates
+    // it. Discover & Care G5, 2026-05-02.
+    upsertProposedBooking({
+      conversationId: conv.id,
+      ownerId: conv.ownerId,
+      ownerName: conv.ownerName,
+      ownerAvatarUrl: conv.ownerAvatarUrl,
+      carerId: conv.providerId,
+      carerName: conv.providerName,
+      carerAvatarUrl: conv.providerAvatarUrl,
+      type: proposal.bookingType,
+      serviceType: proposal.serviceType,
+      subService: proposal.subService,
+      pets: proposal.pets,
+      startDate: proposal.startDate,
+      endDate: proposal.endDate,
+      recurringSchedule: proposal.recurringSchedule,
+      price: proposal.price,
+      status: "proposed",
+    });
+
     setProposalFormOpen(false);
+    setRespondingToInquiryId(null);
+    setCounteringProposalId(null);
   }
 
   // Carer declines the inquiry
@@ -210,14 +250,23 @@ export function ThreadClient({
     setTimeout(() => inputRef.current?.focus(), 0);
   }
 
-  // ── Owner actions ────────────────────────────────────────────────────────
+  // ── Proposal-response actions (either side, depending on who sent) ──────
 
-  // Accept opens signing modal (only for owner perspective)
+  // Accept opens signing modal (only for the receiving side)
   function handleProposalAccept(msgId: string) {
     setSigningMsgId(msgId);
   }
 
-  // Decline immediately (only for owner perspective)
+  // Suggest changes — open ProposalForm pre-filled with the source proposal's
+  // values. On submit, post a NEW proposal and flip the old one to
+  // "countered". Either side can trigger. G4, 2026-05-02.
+  function handleProposalCounter(msgId: string) {
+    setCounteringProposalId(msgId);
+    setProposalFormOpen(true);
+  }
+
+  // Decline a proposal — flips proposal status, posts a soft auto-reply,
+  // and cancels the mirrored Booking record (G5).
   function handleProposalDecline(msgId: string) {
     updateProposalStatus(conv.id, msgId, "declined");
     setLocalMessages((prev) =>
@@ -232,12 +281,18 @@ export function ThreadClient({
       conversationId: conv.id,
       sender: myRole,
       type: "text",
-      text: "I've declined the booking proposal. Let me know if you'd like to discuss different dates or pricing.",
+      text: "Not for me right now — happy to chat about different dates or pricing if you'd like.",
       sentAt: new Date().toISOString(),
       read: true,
     };
     addMessage(conv.id, declineMsg);
     setLocalMessages((prev) => [...prev, declineMsg]);
+
+    // Cancel the mirrored Booking record. G5, 2026-05-02.
+    const booking = getBookingByConversation(conv.id);
+    if (booking && booking.status === "proposed") {
+      updateStatus(booking.id, "cancelled");
+    }
   }
 
   // Sign & Book — creates Booking, appends ContractCard
@@ -246,25 +301,36 @@ export function ThreadClient({
     if (!proposalMsg?.proposal) return;
     const p = proposalMsg.proposal;
 
-    const bookingId = createBooking({
-      conversationId: conv.id,
-      ownerId: conv.ownerId,
-      ownerName: conv.ownerName,
-      ownerAvatarUrl: conv.ownerAvatarUrl,
-      carerId: conv.providerId,
-      carerName: conv.providerName,
-      carerAvatarUrl: conv.providerAvatarUrl,
-      type: p.bookingType,
-      serviceType: p.serviceType,
-      subService: p.subService,
-      pets: p.pets,
-      startDate: p.startDate,
-      endDate: p.endDate,
-      recurringSchedule: p.recurringSchedule,
-      price: p.price,
-      status: "upcoming",
-      sessions: p.bookingType === "ongoing" ? [] : undefined,
-    });
+    // Booking record may already exist (mirrored at proposal-send time per
+    // G5). If it does, flip its status to "upcoming"; otherwise create one
+    // (handles the legacy templated-text path where no proposed booking
+    // was pre-created).
+    const existing = getBookingByConversation(conv.id);
+    let bookingId: string;
+    if (existing) {
+      updateStatus(existing.id, "upcoming");
+      bookingId = existing.id;
+    } else {
+      bookingId = createBooking({
+        conversationId: conv.id,
+        ownerId: conv.ownerId,
+        ownerName: conv.ownerName,
+        ownerAvatarUrl: conv.ownerAvatarUrl,
+        carerId: conv.providerId,
+        carerName: conv.providerName,
+        carerAvatarUrl: conv.providerAvatarUrl,
+        type: p.bookingType,
+        serviceType: p.serviceType,
+        subService: p.subService,
+        pets: p.pets,
+        startDate: p.startDate,
+        endDate: p.endDate,
+        recurringSchedule: p.recurringSchedule,
+        price: p.price,
+        status: "upcoming",
+        sessions: p.bookingType === "ongoing" ? [] : undefined,
+      });
+    }
 
     updateProposalStatus(conv.id, msgId, "accepted");
     setLocalMessages((prev) =>
@@ -302,14 +368,25 @@ export function ThreadClient({
     ? localMessages.find((m) => m.id === signingMsgId) ?? null
     : null;
 
-  // Owner can respond to proposals sent by provider; carer cannot respond to their own
-  const canRespondToProposal = !isCarerPerspective;
+  // A proposal can be responded to by whichever side didn't send it. Counter
+  // flow (G4) means owners send proposals too — gate on `msg.sender !== myRole`
+  // at the call site, not on perspective.
 
   // Carer: has a proposal already been sent in this thread?
   const hasProposal = localMessages.some((m) => m.type === "booking_proposal");
-  // Show InquiryResponseCard when: carer perspective, booking conv, has messages, no proposal sent yet, not declined
+  // Has a structured InquiryCard message been sent? When yes, the CTA lives
+  // ON the card and the legacy floating InquiryResponseCard is redundant.
+  // Discover & Care G3, 2026-05-02.
+  const hasStructuredInquiry = localMessages.some((m) => m.type === "inquiry");
+  // Show InquiryResponseCard for the legacy templated-text inquiry path only
+  // (pre-G2 mock data). New inquiries get their CTA on the InquiryCard itself.
   const showInquiryResponse =
-    isCarerPerspective && !isDirect && !isNew && !hasProposal && !inquiryDeclined;
+    isCarerPerspective &&
+    !isDirect &&
+    !isNew &&
+    !hasProposal &&
+    !inquiryDeclined &&
+    !hasStructuredInquiry;
 
   return (
     <div className={embedded ? "inbox-thread-embedded" : "inbox-thread-outer"}>
@@ -350,24 +427,20 @@ export function ThreadClient({
       </div>
       )}
 
-      {/* Body */}
+      {/* Body. The chat is purely a thread now — InquiryForm composing
+          happens in `InquiryFormModal` (entered from a service card),
+          and the InquiryCard message it produces lands in this thread
+          like any other message. Discover & Care 2026-05-03 refactor. */}
       <div className="inbox-thread-body" ref={bodyRef}>
-        {isNew && !isDirect && !isCarerPerspective ? (
-          <InquiryForm
-            conv={conv}
-            initialService={initialService}
-            initialStart={initialStart}
-            initialEnd={initialEnd}
-            onSubmit={handleInquirySubmit}
-          />
-        ) : (
+        {(
           <>
-            {!isDirect && <InquiryChips conv={conv} />}
-            {isNew && isDirect && (
+            {isNew && (
               <div className="inbox-direct-empty">
                 <Handshake size={32} weight="light" className="text-fg-tertiary" />
                 <p className="text-fg-secondary text-base m-0">
-                  You&apos;re connected with {otherParty.name}. Say hello!
+                  {isDirect
+                    ? `You're connected with ${otherParty.name}. Say hello!`
+                    : `Start a conversation with ${otherParty.name}.`}
                 </p>
               </div>
             )}
@@ -377,6 +450,31 @@ export function ThreadClient({
                   <span className="inbox-date-sep-label">{group.label}</span>
                 </div>
                 {group.messages.map((msg) => {
+                  if (msg.type === "inquiry" && msg.inquiry) {
+                    const isProviderViewer = isCarerPerspective;
+                    return (
+                      <div
+                        key={msg.id}
+                        className="inbox-message-wrap inbox-message-wrap--full"
+                      >
+                        <InquiryCard
+                          inquiry={msg.inquiry}
+                          ownerName={conv.ownerName}
+                          notes={msg.inquiry.notes}
+                          variant={isProviderViewer ? "provider" : "owner"}
+                          onSendProposal={
+                            isProviderViewer && msg.inquiry.status === "pending"
+                              ? () => {
+                                  setRespondingToInquiryId(msg.id);
+                                  setProposalFormOpen(true);
+                                }
+                              : undefined
+                          }
+                        />
+                        <span className="inbox-message-time">{formatTime(msg.sentAt)}</span>
+                      </div>
+                    );
+                  }
                   if (msg.type === "booking_proposal") {
                     return (
                       <div
@@ -385,9 +483,10 @@ export function ThreadClient({
                       >
                         <BookingProposalCard
                           msg={msg}
-                          canRespond={canRespondToProposal && msg.sender !== myRole}
+                          canRespond={msg.sender !== myRole}
                           onAccept={handleProposalAccept}
                           onDecline={handleProposalDecline}
+                          onCounter={handleProposalCounter}
                         />
                         <span className="inbox-message-time">{formatTime(msg.sentAt)}</span>
                       </div>
@@ -477,12 +576,51 @@ export function ThreadClient({
         onSign={handleSign}
       />
 
-      {/* Proposal form modal (carer) */}
+      {/* Proposal form modal. Three entry points:
+          1. Provider taps "Send proposal" on an InquiryCard (G3) — sources
+             from that inquiry, auto-calculates price.
+          2. Either side taps "Suggest changes" on a ProposalCard (G4) —
+             pre-fills with the source proposal's values; on submit the source
+             flips to "countered".
+          3. Legacy InquiryResponseCard (pre-G2 templated text) — falls back
+             to conv.inquiry. */}
       <ProposalForm
         conv={conv}
         open={proposalFormOpen}
-        onClose={() => setProposalFormOpen(false)}
-        onSubmit={handleCarerSendProposal}
+        onClose={() => {
+          setProposalFormOpen(false);
+          setRespondingToInquiryId(null);
+          setCounteringProposalId(null);
+        }}
+        onSubmit={handleSendProposal}
+        inquiry={(() => {
+          if (counteringProposalId) {
+            // Counter flow: derive an InquiryDetails-shaped object from the
+            // proposal so the form's summary line reads correctly.
+            const sourceMsg = localMessages.find((m) => m.id === counteringProposalId);
+            const p = sourceMsg?.proposal;
+            if (!p) return undefined;
+            return {
+              bookingType: p.bookingType,
+              serviceType: p.serviceType,
+              subService: p.subService,
+              pets: p.pets,
+              startDate: p.startDate,
+              endDate: p.endDate,
+              recurringSchedule: p.recurringSchedule,
+              status: "pending" as const,
+            };
+          }
+          if (respondingToInquiryId) {
+            return localMessages.find((m) => m.id === respondingToInquiryId)?.inquiry;
+          }
+          return undefined;
+        })()}
+        initialPrice={
+          counteringProposalId
+            ? localMessages.find((m) => m.id === counteringProposalId)?.proposal?.price
+            : undefined
+        }
       />
     </div>
     </div>

@@ -32,12 +32,12 @@ import {
   useCallback,
   useContext,
   useMemo,
-  useState,
   type ReactNode,
 } from "react";
 import type { Connection, ConnectionState } from "@/lib/types";
 import { getConnectionState as getStaticConnectionState } from "@/lib/mockConnections";
 import { getUserById } from "@/lib/mockUsers";
+import { usePersistedState } from "@/lib/usePersistedState";
 
 interface ConnectionsContextValue {
   /**
@@ -99,22 +99,59 @@ function synthesizeConnection(
 }
 
 export function ConnectionsProvider({ children }: { children: ReactNode }) {
-  const [overrides, setOverrides] = useState<Record<string, ConnectionOverride>>({});
+  // Persisted across reloads. The override map is small (<<1KB typically)
+  // and survives so Familiar/Connected marks made in one session carry
+  // forward — important for the Discover & Care inquiry flow which
+  // auto-marks Familiar on send. See `lib/usePersistedState.ts`.
+  const [overrides, setOverrides] = usePersistedState<Record<string, ConnectionOverride>>(
+    "doggo-connection-overrides",
+    {},
+  );
 
   const getConnection = useCallback(
     (targetUserId: string, viewerUserId: string): Connection | undefined => {
-      const override = overrides[key(viewerUserId, targetUserId)];
+      // Two override directions matter independently:
+      //   - outbound: (viewer → target) — viewer marked target Familiar.
+      //     Drives `connection.state` from the viewer's perspective.
+      //   - inbound:  (target → viewer) — target marked viewer Familiar.
+      //     Drives `connection.theyMarkedFamiliar` — and that field is what
+      //     the profile-page lock logic actually reads to decide whether a
+      //     locked subject's content is visible to the viewer (per the
+      //     trust model, unlocking is the *subject's* choice).
+      // Without reading both, the auto-Familiar pair we apply on inquiry
+      // send (Discover & Care G3) only updated state, never
+      // theyMarkedFamiliar, so Klára kept seeing Tomáš's profile as
+      // locked. Discover & Care 2026-05-04.
+      const outbound = overrides[key(viewerUserId, targetUserId)];
+      const inbound = overrides[key(targetUserId, viewerUserId)];
       const base = getStaticConnectionState(targetUserId, viewerUserId);
 
-      if (!override) return base;
+      // No overrides at all — pass static through.
+      if (!outbound && !inbound) return base;
 
-      // Merge: override.state wins. Other fields come from base if it
-      // exists (preserve mutual connections, shared groups, etc.) or
-      // from a synthesized minimal Connection if not.
+      const inboundFamiliar = inbound?.state === "familiar";
+      const effectiveTheyMarkedFamiliar =
+        inboundFamiliar || base?.theyMarkedFamiliar;
+
       if (base) {
-        return { ...base, state: override.state, updatedAt: override.markedAt };
+        return {
+          ...base,
+          // Outbound state wins over base if set; base.state is preserved
+          // when there's no outbound override (e.g. inbound-only case).
+          state: outbound?.state ?? base.state,
+          updatedAt: outbound?.markedAt ?? base.updatedAt,
+          theyMarkedFamiliar: effectiveTheyMarkedFamiliar,
+        };
       }
-      return synthesizeConnection(targetUserId, override.state, override.markedAt);
+
+      // No static base. Synthesize a minimal Connection using whichever
+      // override we have (outbound preferred for state).
+      const synthState = outbound?.state ?? "none";
+      const synthAt = outbound?.markedAt ?? inbound?.markedAt ?? "";
+      return {
+        ...synthesizeConnection(targetUserId, synthState, synthAt),
+        theyMarkedFamiliar: effectiveTheyMarkedFamiliar,
+      };
     },
     [overrides],
   );

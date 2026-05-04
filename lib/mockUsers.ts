@@ -103,6 +103,7 @@ export const tereza: UserProfile = {
     ],
     services: [
       {
+        kind: "care",
         serviceType: "inhome_sitting",
         enabled: true,
         pricePerUnit: 150,
@@ -188,6 +189,7 @@ export const klara: UserProfile = {
     ],
     services: [
       {
+        kind: "care",
         serviceType: "walk_checkin",
         enabled: true,
         pricePerUnit: 300,
@@ -195,18 +197,69 @@ export const klara: UserProfile = {
         subServices: ["Group walk", "Training walk"],
         notes: "Training walks — structured walk with obedience practice. Max 4 dogs per group.",
       },
+      // Meet-type training catalogue (Discover & Care A4, 2026-05-02). The
+      // previous junk-drawer "inhome_sitting" entry held three training
+      // offerings as subServices strings; they're now first-class Meet-type
+      // entries — see [[Groups & Care Model]] → Services as Catalog.
       {
-        serviceType: "inhome_sitting",
-        enabled: false,
-        pricePerUnit: 600,
-        priceUnit: "per_visit",
-        subServices: ["1-on-1 training session", "Reactive dog session", "Puppy basics"],
-        notes: "1-on-1 training at your location or Stromovka. 60-minute sessions. Behaviour assessment included in first session.",
+        kind: "meet",
+        id: "klara-group-training",
+        title: "Group training session",
+        enabled: true,
+        pricePerSession: 350,
+        format: "small_group",
+        cadence: "weekly",
+        durationMinutes: 60,
+        notes: "Open weekly group session — calm focus and recall practice.",
+        seriesMeetId: "meet-care-1",
+      },
+      {
+        kind: "meet",
+        id: "klara-1on1",
+        title: "1-on-1 training session",
+        enabled: true,
+        pricePerSession: 800,
+        format: "one_on_one",
+        cadence: "ad_hoc",
+        durationMinutes: 60,
+        notes: "Private session at your location or Stromovka. Behaviour assessment included on the first session.",
+      },
+      {
+        kind: "meet",
+        id: "klara-reactive",
+        title: "Reactive dog session",
+        enabled: true,
+        pricePerSession: 600,
+        format: "small_group",
+        cadence: "ad_hoc",
+        durationMinutes: 90,
+        notes: "Workshops and small-group sessions for reactive dogs. Threshold work, redirection, owner coaching.",
+        seriesMeetId: "meet-care-workshop-1",
+      },
+      {
+        kind: "meet",
+        id: "klara-puppy-basics",
+        title: "Puppy basics",
+        enabled: true,
+        pricePerSession: 400,
+        format: "small_group",
+        cadence: "ad_hoc",
+        durationMinutes: 45,
+        notes: "Foundations course for puppies under 6 months — handling, recall, socialisation.",
       },
     ],
     publicProfile: true,
     visibility: "open",
     acceptingBookings: true,
+    credentials: {
+      yearsExperience: 8,
+      methodology: "Force-free, positive reinforcement",
+      firstAidTrained: true,
+      certifications: ["Národní kvalifikace — Dog Trainer", "Certified Trainer"],
+      insured: true,
+      identityVerified: true,
+    },
+    repeatClients: 12,
   },
 };
 
@@ -394,6 +447,7 @@ export const petra: UserProfile = {
     ],
     services: [
       {
+        kind: "care",
         serviceType: "inhome_sitting",
         enabled: true,
         pricePerUnit: 120,
@@ -696,6 +750,7 @@ export const nikola: UserProfile = {
     ],
     services: [
       {
+        kind: "care",
         serviceType: "boarding",
         enabled: true,
         pricePerUnit: 480,
@@ -707,6 +762,12 @@ export const nikola: UserProfile = {
     publicProfile: true,
     visibility: "open",
     acceptingBookings: true,
+    credentials: {
+      yearsExperience: 5,
+      firstAidTrained: true,
+      insured: true,
+    },
+    repeatClients: 8,
   },
 };
 
@@ -832,6 +893,7 @@ export const shawn: UserProfile = {
     ],
     services: [
       {
+        kind: "care",
         serviceType: "walk_checkin",
         enabled: true,
         pricePerUnit: 280,
@@ -847,6 +909,74 @@ export const shawn: UserProfile = {
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   APPOINTMENT-TYPE EXEMPLAR
+   Minimal vet profile to prove the Appointment offering shape renders.
+   Added 2026-05-02 (Discover & Care C3). Not in the demo arc; not on the
+   persona switcher. Co-provider on the PremiumVet care group, which seeds
+   multi-provider data for the B3 hero variant.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+export const lenkaVet: UserProfile = {
+  id: "lenka-vet",
+  firstName: "Lenka",
+  lastName: "Nováková",
+  email: "lenka.novakova@premiumvet.cz",
+  avatarUrl: AV.zuzana,
+  bio: "Small-animal vet at PremiumVet Vinohrady. 8 years in practice; special interest in dermatology and gentle handling for anxious pets.",
+  location: "Prague 2, Czech Republic",
+  neighbourhood: "Vinohrady",
+  memberSince: "2025-09",
+  profileVisibility: "open",
+  tagApproval: "approve",
+  pets: [],
+  openToHelping: true,
+  carerProfile: {
+    bio: "Vinohrady-based vet, 8 years in small-animal practice. Same-day appointments for established clients; new clients seen within the week.",
+    location: "Mánesova 67, Prague 2",
+    availability: [
+      { day: "Mon", slots: ["morning", "afternoon"] },
+      { day: "Tue", slots: ["morning", "afternoon"] },
+      { day: "Wed", slots: ["morning"] },
+      { day: "Thu", slots: ["morning", "afternoon"] },
+      { day: "Fri", slots: ["morning"] },
+    ],
+    services: [
+      {
+        kind: "appointment",
+        id: "lenka-vet-checkup",
+        title: "Annual checkup",
+        enabled: true,
+        pricePerAppointment: 1200,
+        durationMinutes: 30,
+        appointmentCategory: "vet",
+        notes: "Physical exam, vaccination review, weight + dental check.",
+      },
+      {
+        kind: "appointment",
+        id: "lenka-vet-skin",
+        title: "Skin & coat consult",
+        enabled: true,
+        pricePerAppointment: 900,
+        durationMinutes: 25,
+        appointmentCategory: "vet",
+        notes: "Dermatology consult — itching, allergies, hot spots. Diagnostics quoted at consult.",
+      },
+    ],
+    publicProfile: true,
+    visibility: "open",
+    acceptingBookings: true,
+    credentials: {
+      yearsExperience: 8,
+      certifications: ["Veterinary degree (UVPS Brno)"],
+      firstAidTrained: true,
+      insured: true,
+      identityVerified: true,
+    },
+    repeatClients: 6,
+  },
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════
    REGISTRY & HELPERS
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -858,6 +988,7 @@ export const allUsers: UserProfile[] = [
   hana, vitek, anezka,
   jana, nikola, marie,
   shawn,
+  lenkaVet,
 ];
 
 /** Quick lookup by user ID. */

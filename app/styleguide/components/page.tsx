@@ -1095,7 +1095,7 @@ export default function ComponentsPage() {
             "SignupProgressBar", "SignupProfilePreview",
             "HowItWorksTabs", "GuestLayout",
             "StatusBadge", "BookingRow 🔶",
-            "InquiryForm 🔶", "InquiryChips 🔶", "BookingProposalCard 🔶",
+            "InquiryForm 🔶", "InquiryCard 🔶", "BookingProposalCard 🔶",
           ].map((name) => (
             <div
               key={name}

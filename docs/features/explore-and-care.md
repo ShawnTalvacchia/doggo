@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-23
+last-reviewed: 2026-05-04
 tags: [discover, care, booking, providers, map, payment, trust-gating]
 review-trigger: "when modifying Discover Care tab, provider profiles, booking flows, payment, or map"
 ---
@@ -47,13 +47,39 @@ Care arrangements sit inside existing trust relationships. Every provider card a
   - **Pending:** "Request sent" (disabled)
   - **None:** "Meet [name] first" (disabled). TrustGateBanner explains: "Attend a meet together first"
 - **Payment mock (Phase 11):** Checkout page at `/bookings/[bookingId]/checkout` with summary, price breakdown (including 12% platform fee), mock payment method, pay button, confirmation state
-- **Booking detail (redesigned):** Tabbed layout (Info / Sessions / Chat). Owner view shows aggregate stats (sessions completed, relationship duration, next session), CTA pill buttons (Message + Cancel). Provider view shows "You're providing" pill, session check-in actions (Start / Complete / Add note). Chat tab embeds conversation thread from ConversationsContext.
+- **Booking detail (redesigned):** Tabbed layout (Info / Sessions). Owner view shows aggregate stats (sessions completed, relationship duration, next session). Provider view shows "You're providing" pill, session check-in actions (Start / Complete / Add note). Header reads `{otherFirstName} · {service}` so the relationship through-line is in the title (Discover & Care 2026-05-04).
 - **Rolling weekly billing:** Recurring bookings use `billingCycle: "weekly"` with rolling session generation (one upcoming session at a time). No fixed session count for ongoing arrangements.
 - **Care instructions:** Owner notes (`ownerNotes`) and provider notes (`carerNotes`) on bookings. Displayed on Info tab as a care instructions section.
 - **Booking list cards:** Avatar combos, Tag icon for price, weekly billing labels, divider removed for cleaner recurring cards.
-- **Booking actions:** Owner can cancel (with reason via CancelBookingModal) or message. Provider can start/complete sessions and add notes. "Leave a review" stub on completed bookings.
+- **Booking actions:** Owner can cancel (with reason via CancelBookingModal) or message. Provider can start/complete sessions and add notes. "Leave a review" stub on completed bookings. **Pending bookings (Discover & Care G5, 2026-05-04):** owner sees Message + **Review & sign** (primary) which opens the SigningModal in-place; provider sees Message-only (they sent the proposal, they wait).
 - **My Services tab:** Provider's active clients and upcoming sessions on `/bookings?tab=services`.
 - **Schedule integration (Phase 11):** Active care bookings appear on the Schedule page alongside meets
+
+### Discover & Care additions (closed 2026-05-04)
+
+- **Services-as-Catalog** (`CarerServiceConfig` discriminated union): three offering shapes — **Care** (drop-off / per-visit / per-night work; produces a Booking), **Meet** (sessions with rosters owners sign up to — training, workshops; produces an RSVP on the linked meet), **Appointment** (vet / grooming — solo, fixed time slot; produces a Booking like Care but tied to a single time). Profile Services tab renders all three first-class with shape-aware tap routing. See [[Groups & Care Model]] → Services as Catalog.
+- **`participants_only` meet visibility:** contracted/private meets (e.g. a 1-on-1 generated from a package booking) are hidden from public Meets tabs — only the creator and roster see them. Shipped via `MeetVisibility` enum + `isMeetVisibleTo` helper + `getGroupMeets` filter. Discover & Care A1.
+- **Care-group multi-provider hero:** `Group.providers: GroupProviderRef[]` replaces the single `hostedBy: string` field. Groups with multiple providers render an avatar stack + "Run by X + N" tail; tagline suppressed in multi-provider mode (one bio doesn't represent the team). Discover & Care B1–B4. See [[Groups & Care Model]] → Care-group hero anatomy.
+- **Trust badges MVP** on Discover cards + provider hero. Six badges across three categories (community-earned: Community Regular, Trusted by Your Network, Repeat Clients; credential: Certified Trainer, X Years Experience; platform: Verified Identity). Priority rule: community-earned > credential > platform. Discover cards trim to top 2; profile hero shows the full earned set. Implementation: `lib/trustBadges.ts` + `components/badges/TrustBadgeStrip.tsx`. See [[implementation/badges]].
+- **Connection signals on Discover cards:** "N in your circle" / "Met at N walks" / "Your neighbourhood" inline-icon row sits ABOVE service tags + blurb (community context before service catalogue). Reads from `ConnectionsContext` + meet history.
+- **Soft Familiar avatar ring (P29) — Discover-only:** brand-tinted ring on Discover provider cards where the viewer has marked the provider Familiar, neutral ring on Discover where Connected (paired hierarchy at different intensities). NOT applied on AttendeeAvatarStack or any meet/group surface — relationship is already signaled there via section grouping + labels + CTAs. Decision logged 2026-05-04.
+- **Structured inquiry → proposal → contract flow** (Discover & Care G):
+  - **InquiryFormModal** opens over the provider's Services tab when the owner taps "Book a session." Captures pets, service, sub-service, frequency (one-off with single-day or multi-day; ongoing with weekly schedule), and free-text notes. Single-day allowed for walks/sitting; boarding requires multi-day (overnight implies ≥1 night).
+  - On send, posts an **InquiryCard** (structured artifact, status pill: pending / responded / withdrawn) into the (owner, provider) conversation thread — replaces the old templated-text format.
+  - Provider opens the inquiry → "Respond with proposal" → **ProposalForm** modal pre-fills with the inquiry context + auto-calculated price (`pricePerUnit × occurrences`). 12% platform fee shown transparently.
+  - Owner sees **BookingProposalCard** with three actions: Not now (tertiary, left), Suggest changes (outline), Review & sign (primary, right). Suggest changes opens ProposalForm pre-filled — counters go both ways.
+  - **SigningModal** confirms terms; on sign, booking flips proposed → upcoming, proposal flips to "accepted", a contract message lands in the thread.
+  - Single Booking record per conversation — counters update fields in place (no duplicate records).
+  - Inbox row preview is status-aware: ✦-glyph + brand-tinted text for system messages ("New inquiry", "Proposal accepted", etc.) — distinct from plain text messages.
+- **Auto-Familiar on inquiry send (stop-gap):** sending an inquiry mutually marks both parties Familiar so the provider can see the owner's locked profile to write a meaningful proposal. Logged in [[Open Questions & Assumptions Log]] §2 — full inquiry-driven trust transitions model (mutual Connected on contract accept, edge cases) belongs to the Inbox & Notifications phase.
+- **State persistence:** `usePersistedState` hook mirrors `ConversationsContext`, `ConnectionsContext`, and `BookingsContext` to localStorage so demo state (new inquiries, Familiar marks, signed contracts) survives page reloads + URL-based persona switches. Reset via `/demo` page or the persona dropdown. Bridges to a future Supabase migration.
+- **Conversation ID format:** new conversations created via `getOrCreateServiceConversation` use `${ownerId}-${providerId}-conv` (collision-safe across personas). Legacy provider-only-prefixed seeded conv IDs renamed to `shawn-${provider}-conv` for consistency.
+- **Inbox sort & unread are viewer-aware:** `hasUnread` is computed from "did the counterparty send the last message?" (replaces the side-specific `unreadCount` field). Providers no longer see stale owner-side unread counts on threads where they're the carer.
+- **Mock-data seeds (Discover & Care 2026-05-04):**
+  - `conn-daniel-nikola` (Familiar) — gives Daniel a positive ring case on `/discover/care`
+  - `conn-klara-pavel` (Familiar) — directory-only ProviderCard match (no UserProfile bridge), tests both ProviderCard shape paths
+  - Klára Horáčková + Dr. Lenka Nováková directory entries with full credentials
+  - Pre-existing directory carers backfilled with `credentials` blocks (Olga, Jana, Tomáš, Markéta, Pavel, Simona, Martin, Lenka S., Petr V.)
 
 ---
 
@@ -123,15 +149,14 @@ Booking detail (Info tab) → "You're providing" pill shown
 
 ## Future
 
-- **Booking proposal card** — accept/counter/decline UI in conversation thread (deferred to Inbox & Notifications phase)
-- **Review form** — full review submission flow after completed bookings (currently stub button only)
-- **Connection indicators on result cards** — show connection state directly in search results, not just on profile
-- **Availability filtering** — search respects provider availability (data exists, filtering not wired)
-- **Walker service tiers** — neighbourhood walk vs. park walk, with different pricing
-- **Business profiles** — groomers, vets, pet shops as separate listing type
-- **Carer-side inbox actions** — accept/decline/counter incoming inquiries from inbox thread (deferred to Inbox & Notifications phase)
-- **Provider dashboard** — earnings view, availability calendar, incoming requests management
-- **Session photos** — `photoUrl` field exists on BookingSession type, UI not yet built
+- **Pricing & Proposals (next phase):** structurally enforce the no-bargaining principle. Provider pricing config (base + modifiers — holiday surcharge, multi-pet, longer-walk, last-minute, off-hours). Auto-pricing engine takes (config × inquiry data) → quote. ProposalForm refactored from "compose price" to "review system quote and confirm." Inquiry form expanded to capture all dimensions needed for the engine. Service-aware filters on Discover (Walks needs pace/leash; Sitting/Boarding need home attributes). Provider onboarding UI for pricing setup. See [[Open Questions & Assumptions Log]] §6 → "Structured pricing model + no-bargaining principle."
+- **Discover Care surface gaps cluster** ([[Open Questions & Assumptions Log]] §4): Appointment filter pill on `/discover/care`, ProviderCard ↔ UserProfile fragmentation, per-service pricing on cards (`pricesByService`), service-aware filters (4–6 hour sub-workstream), unwired filter panel (visual-only no-ops). Cluster targeted at a future Discover refinement pass; some items move with Pricing & Proposals.
+- **Inquiry-driven trust transitions:** the auto-Familiar shipped here is a stop-gap. Full model — mutual Familiar on inquiry send, mutual Connected on contract accept, first-service-message detection, decline rollback rules — logged in [[Open Questions & Assumptions Log]] §2 for Inbox & Notifications.
+- **Review form** — full review submission flow after completed bookings (currently stub button only).
+- **Provider dashboard** — earnings view, availability calendar, incoming requests management.
+- **Session photos** — `photoUrl` field exists on BookingSession type, UI not yet built.
+- **Walker service tiers** — neighbourhood walk vs. park walk with different pricing (folds into Pricing & Proposals).
+- **Availability window filter on Discover** (morning / afternoon / evening) — currently no time filter; sub-note inside the service-aware filter refactor.
 
 ---
 

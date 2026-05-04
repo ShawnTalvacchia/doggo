@@ -87,6 +87,12 @@ export interface ProviderCard {
   lng?: number;
   // Bridge to mockUsers — maps provider catalog ID to user registry ID
   userId?: string;
+  // Trust badge inputs for directory-only providers (no UserProfile bridge).
+  // When userId is set, the badge layer prefers the bridged UserProfile's
+  // carerProfile.credentials. When directory-only, these fields are read
+  // directly. Discover & Care 2026-05-04.
+  credentials?: CarerCredentials;
+  repeatClients?: number;
 }
 
 /** A single rate row inside a service block (e.g. Holiday Rate, Additional Dog Rate) */
@@ -157,9 +163,39 @@ export type ProviderHeaderState = "expanded" | "condensed";
 
 export type MessageSender = "owner" | "provider";
 
-export type MessageType = "text" | "booking_proposal" | "contract" | "payment_summary" | "payment_confirmed";
+export type MessageType = "text" | "inquiry" | "booking_proposal" | "contract" | "payment_summary" | "payment_confirmed";
 
 export type BookingProposalStatus = "pending" | "accepted" | "declined" | "countered";
+
+/**
+ * Inquiry status — the lifecycle of an owner-initiated booking inquiry.
+ * Discover & Care G2, 2026-05-02.
+ *
+ * - `pending`: just sent, awaiting any provider response.
+ * - `responded`: provider has replied (chat or proposal); inquiry remains
+ *   visible but the focal action moves to the proposal / chat.
+ * - `withdrawn`: owner retracted, or provider declined to engage.
+ */
+export type InquiryStatus = "pending" | "responded" | "withdrawn";
+
+/**
+ * Structured inquiry card — the artifact owners send when tapping "Book a
+ * session" on a service card. Captures intent in a form the provider can
+ * read at a glance. Lives as a `ChatMessage` of type `"inquiry"`.
+ */
+export interface InquiryDetails {
+  bookingType: BookingType;
+  serviceType: ServiceType;
+  subService: string | null;
+  pets: string[];
+  startDate: string | null;       // ISO YYYY-MM-DD
+  endDate: string | null;
+  recurringSchedule?: RecurringSchedule;
+  /** Optional free-text from the owner (additional context, not the
+   *  templated stuff that's now structured above). */
+  notes?: string;
+  status: InquiryStatus;
+}
 
 export type ConversationStatus = "active" | "confirmed" | "archived";
 
@@ -190,6 +226,7 @@ export interface ChatMessage {
   sender: MessageSender;
   type: MessageType;
   text?: string;
+  inquiry?: InquiryDetails;
   proposal?: BookingProposal;
   contract?: ContractConfirmation;
   paymentSummary?: PaymentSummary;
@@ -227,6 +264,9 @@ export interface ConversationInquiry {
 export type BookingType = "one_off" | "ongoing";
 
 export type ContractStatus =
+  | "proposed"    // pending owner accept — proposal sent but not yet signed.
+                  //   Mirrored to the Bookings tab as the "pipeline" state.
+                  //   Discover & Care G5, 2026-05-02.
   | "upcoming"    // signed, hasn't started yet
   | "active"      // in progress
   | "completed"   // finished
@@ -389,8 +429,13 @@ export type MeetCadence = "one_off" | "weekly" | "biweekly" | "monthly";
  * Per-meet visibility, layered on top of the parent group's visibility.
  * - "public": anyone can see and RSVP (only allowed when the parent group is open)
  * - "group_only": only members of the parent group can see and RSVP
+ * - "participants_only": only the creator and the booked roster can see the meet.
+ *   System-generated for contracted/package-booked instances (e.g. Hana's 8-session
+ *   1-on-1 with Klára). Never user-selectable in the composer. Filtered out of
+ *   group Meets tabs, Discover, and the schedule's "suggested" lane unless the
+ *   viewer is on the roster. See `Groups & Care Model.md` → Services as Catalog.
  */
-export type MeetVisibility = "public" | "group_only";
+export type MeetVisibility = "public" | "group_only" | "participants_only";
 
 export type LeashRule = "on_leash" | "off_leash" | "mixed";
 
@@ -704,6 +749,21 @@ export interface GroupMember {
   joinedAt: string;
 }
 
+/**
+ * One provider running (or co-running) a Care group. Carries display info
+ * inline because not every Care group provider has a UserProfile — directory-
+ * only providers (e.g. "dognut", "premiumvet") still need a name + avatar.
+ * See [[Groups & Care Model]] → Care Group Admin Model.
+ */
+export interface GroupProviderRef {
+  /** UserProfile id when the provider is a real user; otherwise a
+   *  directory-only provider id (no UserProfile). Resolved via
+   *  `getUserOrProvider` when richer info is needed. */
+  userId: string;
+  name: string;
+  avatarUrl?: string;
+}
+
 export interface Group {
   id: string;
   name: string;
@@ -721,14 +781,13 @@ export interface Group {
   /** Photo culture setting — controls whether photo posts are allowed/encouraged */
   photoPolicy: PhotoPolicy;
   createdAt: string;
-  /** Care groups only: provider user ID */
-  hostedBy?: string;
-  /** Care groups only: provider display name */
-  hostedByName?: string;
+  /** Care groups only: provider(s) running the group. Generalised from
+   *  single `hostedBy` to support multi-provider groups (vet practices,
+   *  boarding facilities, rehab clinics with multiple staff). The first
+   *  entry is the primary attribution for compact surfaces. */
+  providers?: GroupProviderRef[];
   /** Care groups only: service sub-category */
   careCategory?: CareCategory;
-  /** Care groups only: provider avatar URL */
-  hostedByAvatarUrl?: string;
   /** Care groups only: provider service listings */
   serviceListings?: GroupServiceListing[];
   /** Care groups only: gallery display mode (default: "standard") */
@@ -814,7 +873,31 @@ export interface CarerAvailabilitySlot {
   slots: TimeSlot[];
 }
 
-export interface CarerServiceConfig {
+/**
+ * A provider's catalogue entry. Three shapes, distinguished by what booking
+ * produces (see [[Groups & Care Model]] → Services as Catalog):
+ *
+ * - **Care-type** (`kind: "care"`) — Walking, Sitting, Boarding. Drop-off.
+ *   Owner doesn't sign up to a specific time; booking produces a Booking record.
+ * - **Meet-type** (`kind: "meet"`) — Training sessions, workshops, paid group
+ *   walks. Owner signs up to a specific time; booking produces an attendance
+ *   on a specific Meet (with a public/private/participants_only roster).
+ * - **Appointment-type** (`kind: "appointment"`) — Vet visits, grooming.
+ *   Owner books a specific time slot but doesn't attend a session with other
+ *   dogs (no roster). Booking produces a Booking record like Care, but is
+ *   tied to a fixed time like Meet — solo. Specialised category (vet vs.
+ *   grooming) influences card icon and copy.
+ *
+ * The Services tab on a profile renders all three kinds in a single catalogue;
+ * tap routing differs by `kind`.
+ */
+export type CarerServiceConfig =
+  | CarerCareServiceConfig
+  | CarerMeetServiceConfig
+  | CarerAppointmentServiceConfig;
+
+export interface CarerCareServiceConfig {
+  kind: "care";
   serviceType: ServiceType;
   enabled: boolean;
   pricePerUnit: number;
@@ -823,7 +906,72 @@ export interface CarerServiceConfig {
   notes?: string;
 }
 
+/** Format hint for Meet-type catalogue cards. */
+export type MeetServiceFormat = "one_on_one" | "small_group" | "workshop";
+
+/** Cadence for Meet-type offerings. `ad_hoc` = scheduled per-request, no fixed series. */
+export type MeetServiceCadence = "weekly" | "biweekly" | "monthly" | "ad_hoc";
+
+export interface CarerMeetServiceConfig {
+  kind: "meet";
+  /** Stable id within the provider's catalogue (e.g. "klara-1on1-training"). */
+  id: string;
+  /** Display title (e.g. "1-on-1 training session", "Reactive dog session"). */
+  title: string;
+  enabled: boolean;
+  pricePerSession: number;
+  format: MeetServiceFormat;
+  cadence: MeetServiceCadence;
+  durationMinutes: number;
+  notes?: string;
+  /** Optional: when present, ties the catalogue entry to a specific recurring
+   *  meet's series so taps can route to "see my upcoming sessions." */
+  seriesMeetId?: string;
+}
+
+export type AppointmentCategory = "vet" | "grooming";
+
+export interface CarerAppointmentServiceConfig {
+  kind: "appointment";
+  /** Stable id within the provider's catalogue (e.g. "premiumvet-checkup"). */
+  id: string;
+  /** Display title (e.g. "Annual checkup", "Full groom — small breed"). */
+  title: string;
+  enabled: boolean;
+  pricePerAppointment: number;
+  /** Approximate duration — drives slot scheduling and card display. */
+  durationMinutes: number;
+  /** Specialised category — vet vs grooming influences card icon + copy.
+   *  Resolved 2026-05-02 in Discover & Care C1: vet/grooming offerings are
+   *  neither pure Care (drop-off, no specific time) nor pure Meet (specific
+   *  time, social roster) — they're appointment-type. */
+  appointmentCategory: AppointmentCategory;
+  notes?: string;
+}
+
 export type CarerVisibility = "open" | "connected_only" | "familiar_and_above";
+
+/**
+ * Self-declared credentials on a carer's profile. Mirror what Prague
+ * providers already advertise (cynology degree, Národní kvalifikace,
+ * force-free methodology, first aid). Power the credential trust badges
+ * — see [[implementation/badges]] and [[Competitive Research - Prague Dog Care Scene]].
+ *
+ * `verified` is reserved for a future production verification flow.
+ * Today every credential renders as self-declared.
+ */
+export interface CarerCredentials {
+  yearsExperience?: number;
+  /** Methodology statement — e.g. "Force-free, positive reinforcement". */
+  methodology?: string;
+  firstAidTrained?: boolean;
+  /** Free-form certificate names (Národní kvalifikace, Agility Club, etc.). */
+  certifications?: string[];
+  insured?: boolean;
+  /** Future production toggle. Today only used by demo seed data to flag a
+   *  small handful of providers as having completed identity verification. */
+  identityVerified?: boolean;
+}
 
 export interface CarerProfile {
   bio: string;
@@ -833,6 +981,10 @@ export interface CarerProfile {
   publicProfile: boolean;
   visibility?: CarerVisibility;
   acceptingBookings?: boolean;
+  credentials?: CarerCredentials;
+  /** Repeat-booking metric — count of distinct owners who've booked 3+ times.
+   *  Mock data field for demo; production derives from booking history. */
+  repeatClients?: number;
 }
 
 export type TagApproval = "auto" | "approve" | "none";

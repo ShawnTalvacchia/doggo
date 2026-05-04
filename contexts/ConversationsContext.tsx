@@ -1,14 +1,16 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useCallback } from "react";
 import { mockConversations } from "@/lib/mockConversations";
 import { useDemoState } from "@/contexts/CurrentUserContext";
+import { usePersistedState } from "@/lib/usePersistedState";
 import type {
   Conversation,
   ChatMessage,
   BookingProposalStatus,
   ServiceType,
   ConversationInquiry,
+  InquiryStatus,
 } from "@/lib/types";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -35,12 +37,31 @@ interface ConversationsContextValue {
   getOrCreateConversation: (provider: ProviderInfo, service: ServiceType | null) => string;
   /** Returns existing direct message conversation id, or creates a new one and returns its id */
   getOrCreateDirectConversation: (target: DirectMessageTarget) => string;
+  /**
+   * Service-context entry point — used by the "Book a session" / "Ask about this"
+   * CTAs on profile service cards. There's only one thread per (owner, provider)
+   * pair (per the booking-flow design); if an existing conv is "direct" we elevate
+   * it to "booking" and attach the inquiry context, preserving the message history.
+   * Discover & Care G1, 2026-05-02.
+   */
+  getOrCreateServiceConversation: (
+    provider: ProviderInfo,
+    service: ServiceType,
+    sub?: string | null
+  ) => string;
   addMessage: (convId: string, message: ChatMessage) => void;
   updateInquiry: (convId: string, inquiry: Partial<ConversationInquiry>) => void;
   updateProposalStatus: (
     convId: string,
     msgId: string,
     status: BookingProposalStatus
+  ) => void;
+  /** Update the status of a specific inquiry-type message. Used when a
+   *  provider responds (status flips to `responded`) or owner withdraws. */
+  updateInquiryStatus: (
+    convId: string,
+    msgId: string,
+    status: InquiryStatus
   ) => void;
 }
 
@@ -53,7 +74,12 @@ const ConversationsContext = createContext<ConversationsContextValue | undefined
 // ── Provider ───────────────────────────────────────────────────────────────────
 
 export function ConversationsProvider({ children }: { children: React.ReactNode }) {
-  const [conversations, setConversations] = useState<Conversation[]>(mockConversations);
+  // Persisted across reloads so an inquiry sent in one tab survives a
+  // navigation/refresh — see `lib/usePersistedState.ts` for the rationale.
+  const [conversations, setConversations] = usePersistedState<Conversation[]>(
+    "doggo-conversations",
+    mockConversations,
+  );
   // Keep this provider static-prerender-safe: avoid useCurrentUser() here
   // because it reads URL search params and requires a Suspense boundary.
   const { user: currentUser } = useDemoState();
@@ -125,6 +151,93 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
       return newId;
     },
     [conversations, currentUser.id, currentUser.avatarUrl, currentUser.pets, currentUserFullName]
+  );
+
+  const getOrCreateServiceConversation = useCallback(
+    (
+      provider: ProviderInfo,
+      service: ServiceType,
+      sub?: string | null,
+    ): string => {
+      // Single thread per (owner, provider) per the booking-flow design.
+      // All state reads happen inside the functional setConversations
+      // callback so this useCallback doesn't have to depend on the
+      // conversations array — important for callers that invoke this in a
+      // useEffect (avoids infinite render loops). Discover & Care G1.
+      const me = currentUser.id;
+      // Include owner in the ID — `${provider.id}-conv` collided with
+      // legacy seed data that used the provider-only pattern (e.g. Shawn's
+      // pre-seeded `klara-conv`). The owner-prefixed form matches the
+      // newer seeded pattern (`daniel-klara-conv`, etc.) and is collision-
+      // safe across personas. G3 fix 2026-05-04.
+      const newId = `${me}-${provider.id}-conv`;
+      let resolvedId = newId;
+      setConversations((prev) => {
+        const existing = prev.find(
+          (c) =>
+            (c.ownerId === me && c.providerId === provider.id) ||
+            (c.providerId === me && c.ownerId === provider.id),
+        );
+        if (existing) {
+          resolvedId = existing.id;
+          // Idempotency: if the existing inquiry already matches the
+          // requested service, skip the state update so this callback is
+          // safe to call repeatedly.
+          if (
+            existing.conversationType === "booking" &&
+            existing.inquiry.serviceType === service &&
+            existing.inquiry.subService === (sub ?? null)
+          ) {
+            return prev;
+          }
+          return prev.map((c) =>
+            c.id === existing.id
+              ? {
+                  ...c,
+                  conversationType: "booking",
+                  inquiry: {
+                    ...c.inquiry,
+                    serviceType: service,
+                    subService: sub ?? null,
+                  },
+                }
+              : c,
+          );
+        }
+        const newConv: Conversation = {
+          id: newId,
+          conversationType: "booking",
+          providerId: provider.id,
+          providerName: provider.name,
+          providerAvatarUrl: provider.avatarUrl,
+          ownerId: currentUser.id,
+          ownerName: currentUserFullName,
+          ownerAvatarUrl: currentUser.avatarUrl,
+          status: "active",
+          inquiry: {
+            bookingType: "one_off",
+            serviceType: service,
+            subService: sub ?? null,
+            pets: currentUser.pets.map((p) => p.name),
+            startDate: null,
+            endDate: null,
+            dogName: "",
+            message: "",
+          },
+          messages: [],
+          lastMessageId: "",
+          unreadCount: 0,
+        };
+        return [newConv, ...prev];
+      });
+      return resolvedId;
+    },
+    [
+      currentUser.id,
+      currentUser.avatarUrl,
+      currentUser.pets,
+      currentUserFullName,
+    ],
   );
 
   const getOrCreateDirectConversation = useCallback(
@@ -213,6 +326,25 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
     []
   );
 
+  const updateInquiryStatus = useCallback(
+    (convId: string, msgId: string, status: InquiryStatus) => {
+      setConversations((prev) =>
+        prev.map((c) => {
+          if (c.id !== convId) return c;
+          return {
+            ...c,
+            messages: c.messages.map((m) =>
+              m.id === msgId && m.inquiry
+                ? { ...m, inquiry: { ...m.inquiry, status } }
+                : m,
+            ),
+          };
+        }),
+      );
+    },
+    [],
+  );
+
   return (
     <ConversationsContext.Provider
       value={{
@@ -222,9 +354,11 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
         getConversationForUser,
         getOrCreateConversation,
         getOrCreateDirectConversation,
+        getOrCreateServiceConversation,
         addMessage,
         updateInquiry,
         updateProposalStatus,
+        updateInquiryStatus,
       }}
     >
       {children}

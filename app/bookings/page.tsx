@@ -51,6 +51,8 @@ function MyCareContent() {
   const CURRENT_USER = useCurrentUserId();
   const ownerBookings = bookings.filter((b) => b.ownerId === CURRENT_USER);
 
+  // Pipeline view: proposed → upcoming → active → past. Discover & Care G5.
+  const proposed = ownerBookings.filter((b) => b.status === "proposed");
   const active = ownerBookings.filter((b) => b.status === "active");
   const upcoming = ownerBookings.filter((b) => b.status === "upcoming");
   const past = ownerBookings.filter(
@@ -76,6 +78,7 @@ function MyCareContent() {
 
   return (
     <LayoutList>
+      <BookingSection title="Pending" bookings={proposed} />
       <BookingSection title="Active" bookings={active} />
       <BookingSection title="Upcoming" bookings={upcoming} />
       <BookingSection title="Past" bookings={past} />
@@ -90,6 +93,7 @@ function MyServicesContent() {
   const CURRENT_USER = useCurrentUserId();
   const carerBookings = bookings.filter((b) => b.carerId === CURRENT_USER);
 
+  const proposed = carerBookings.filter((b) => b.status === "proposed");
   const active = carerBookings.filter((b) => b.status === "active");
   const upcoming = carerBookings.filter((b) => b.status === "upcoming");
   const past = carerBookings.filter(
@@ -115,6 +119,7 @@ function MyServicesContent() {
 
   return (
     <LayoutList>
+      <BookingSection title="Pending" bookings={proposed} />
       <BookingSection title="Active" bookings={active} />
       <BookingSection title="Upcoming" bookings={upcoming} />
       <BookingSection title="Past" bookings={past} />

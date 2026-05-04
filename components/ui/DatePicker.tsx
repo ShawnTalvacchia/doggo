@@ -12,7 +12,6 @@ export type DateRange = { start: string | null; end: string | null };
 type DayState =
   | "empty"
   | "past"
-  | "today"
   | "open"
   | "selected"
   | "range-start"
@@ -120,8 +119,12 @@ function getDayState(
   pending: string | null,
   range: DateRange,
 ): DayState {
+  // "today" is rendered as a separate class alongside the state — see
+  // Calendar render. Selection state takes precedence for an interactable
+  // today cell. Previously the early `iso === nowIso` return swallowed any
+  // selection styling on today's cell, so users couldn't see they'd
+  // selected today. Discover & Care G3 fix 2026-05-04.
   if (iso < nowIso) return "past";
-  if (iso === nowIso) return "today";
 
   if (mode === "single") {
     return iso === pending ? "selected" : "open";
@@ -195,12 +198,13 @@ function Calendar({ mode, pending, range, onDayClick }: CalendarProps) {
                     }
                     const iso = toIso(date);
                     const state = getDayState(iso, now, mode, pending, range);
+                    const isToday = iso === now;
                     const isInteractable = state !== "past" && state !== "empty";
 
                     return (
                       <div
                         key={di}
-                        className={`cal-day ${state}`}
+                        className={`cal-day ${state}${isToday ? " today" : ""}`}
                         onClick={isInteractable ? () => onDayClick(iso) : undefined}
                         aria-label={formatDateLabel(iso)}
                         role={isInteractable ? "button" : undefined}
@@ -235,6 +239,17 @@ type RangePickerProps = {
   mode: "range";
   value: DateRange;
   onChange: (range: DateRange) => void;
+  /**
+   * Minimum span required for a valid range, in days.
+   * - `1` (default): single-day selection allowed — clicking the same day
+   *   twice locks it in as a single-day range, and Apply works with just a
+   *   start set (end auto-fills to start). Use for walks / sitting where
+   *   a one-day booking is meaningful.
+   * - `2`: multi-day strictly required (end must be > start). Use for
+   *   overnight boarding where a single day doesn't make sense (a stay
+   *   needs at least one night).
+   */
+  minRangeDays?: 1 | 2;
 };
 
 export type DatePickerProps = (SinglePickerProps | RangePickerProps) & {
@@ -269,22 +284,34 @@ export function DatePicker(props: DatePickerProps) {
       );
   };
 
+  const minRangeDays = props.mode === "range" ? props.minRangeDays ?? 1 : 1;
+
   const handleDayClick = (iso: string) => {
     if (props.mode === "single") {
-      setDraftSingle(iso);
+      // Tap same day = deselect. Lets the user clear without changing dates.
+      setDraftSingle((prev) => (prev === iso ? null : iso));
     } else {
       const range = draftRange ?? { start: null, end: null };
       const { start, end } = range;
-      if (!start || (start && end)) {
-        // Start fresh
+      if (!start) {
+        // First tap — set start.
         setDraftRange({ start: iso, end: null });
-      } else {
-        // Set end — must be after start, otherwise restart
-        if (iso > start) {
+      } else if (!end) {
+        // Have start, no end yet.
+        if (iso === start) {
+          // Tap same day = deselect. (Apply already works on start-only
+          // for minRangeDays=1, so no need to "lock as single-day" here.)
+          setDraftRange({ start: null, end: null });
+        } else if (iso > start) {
+          // Extend to a range.
           setDraftRange({ start, end: iso });
         } else {
+          // Earlier day = treat as new start.
           setDraftRange({ start: iso, end: null });
         }
+      } else {
+        // Full range already set — tap anywhere starts fresh.
+        setDraftRange({ start: iso, end: null });
       }
     }
   };
@@ -292,8 +319,15 @@ export function DatePicker(props: DatePickerProps) {
   const handleApply = () => {
     if (props.mode === "single" && draftSingle) {
       props.onChange(draftSingle);
-    } else if (props.mode === "range" && draftRange?.start && draftRange?.end) {
-      props.onChange(draftRange);
+    } else if (props.mode === "range" && draftRange?.start) {
+      // Range mode: commit on start+end normally; for minRangeDays=1,
+      // also accept start-only (single-day, auto-fill end = start) so the
+      // user can pick one day and apply without a second click.
+      if (draftRange.end) {
+        props.onChange(draftRange);
+      } else if (minRangeDays === 1) {
+        props.onChange({ start: draftRange.start, end: draftRange.start });
+      }
     }
     onClose();
   };
@@ -310,10 +344,18 @@ export function DatePicker(props: DatePickerProps) {
     return "Select dates";
   }, [props.mode, draftSingle, draftRange]);
 
+  // Apply button enable rules:
+  // - single mode: any picked date enables
+  // - range mode, minRangeDays=1: start alone enables (Apply commits as
+  //   single-day; tapping a second day extends to a range — both work)
+  // - range mode, minRangeDays=2: both start AND end required (boarding —
+  //   overnight needs ≥1 night)
   const canApply =
     props.mode === "single"
       ? !!draftSingle
-      : !!((draftRange ?? {}).start && (draftRange ?? {}).end);
+      : minRangeDays === 1
+        ? !!(draftRange ?? {}).start
+        : !!((draftRange ?? {}).start && (draftRange ?? {}).end);
 
   return (
     <ModalSheet

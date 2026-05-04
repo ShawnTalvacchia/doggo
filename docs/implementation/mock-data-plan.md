@@ -1,42 +1,38 @@
 ---
 category: implementation
-status: draft
-last-reviewed: 2026-04-26
+status: active
+last-reviewed: 2026-05-02
 tags: [mock-data, demo, prototype, data-model]
 review-trigger: "before creating or modifying mock data files"
 ---
 
-# Mock Data Plan — Demo-Quality Dataset
+# Mock Data — Reference
 
-This document defines the plan for building a rich, Prague-authentic mock data system that brings Doggo's demo to life. The goal: anyone clicking through the prototype should feel the "neighbourhood crew" energy — real people, real dogs, real places, real interactions.
+This document started as the planning artifact for **Mock World Building** (closed 2026-05-02). The plan is shipped; the doc now serves as a reference snapshot of the cast, groups, meets, bookings, and content that populate the prototype. Sections below were originally framed as "Target State" — they are now the actual state.
 
-**Approach:** Mock data only (no Supabase schema changes). Four journey users as the narrative spine, plus a supporting cast that populates their world.
+For the original execution records, see archived phase boards (`docs/archive/phases/persona-wiring.md`, `docs/archive/phases/mock-world-building.md`).
 
-Depends on: [[Groups Strategy]], [[Content Visibility Model]], [[Trust & Connection Model]], [[User Archetypes]]
+**Approach:** Mock data only (no Supabase schema changes). Four journey users (Tereza / Daniel / Klára / Tomáš) as the narrative spine, plus a supporting cast that populates their world. Persona switching shipped during Persona Wiring; per-persona content shipped during Mock World Building.
+
+Depends on: [[Groups & Care Model]], [[Content Visibility Model]], [[Trust & Connection Model]], [[User Archetypes]]
 
 ---
 
-## Current State: What Exists
+## Current State (as of 2026-05-02)
 
-| Entity | Count | Quality | Notes |
-|--------|-------|---------|-------|
-| Primary user (Shawn) | 1 | Good | Full profile, 2 dogs, carer profile, connections |
-| Providers | 10 | Good | Full profiles in Supabase seed + mockData |
-| Connections | 7 | Decent | Mix of states, but small network |
-| Meets | 6 | Good | 4 types, real parks, but few |
-| Groups | 14 | Decent | 5 community, 4 journey stubs, 5 park. Thin membership. |
-| Bookings | 5 | Good | Full lifecycle examples |
-| Conversations | 5 | Good | Natural booking inquiry flow |
-| Posts | 10 | Decent | Personal + community, but limited |
-| Reviews | 1 | Stub | Needs many more |
-| Notifications | 4 | Stub | Needs more variety |
+| Entity | Count | Notes |
+|--------|-------|-------|
+| Users (UserProfile) | 22 | 4 journey personas + Shawn + 17 supporting cast (Vinohrady, Karlín, Holešovice, Reactive support clusters) |
+| Providers (ProviderCard) | 10 | Directory entries in `mockData.ts`; some bridged to UserProfile via `userId` field, others directory-only (see P4 + bridge contract documented in `mockData.ts`) |
+| Connections | per-persona | Shawn 12, Tereza 8, Daniel 5, Klára 10, Tomáš 6, New User 0 (intentional empty state). Indexed via `mockConnectionsByViewer` |
+| Meets | 44 | Mix of completed + upcoming, recurring + one-off, free + paid. All 4 group types represented. |
+| Groups | 24 | Park, Neighbour, Interest, Care types; canonical demo example for each |
+| Bookings | 10 | Active (Daniel↔Klára recurring), completed (Tomáš↔Petra emergency), Tereza-as-carer once, plus Shawn's existing |
+| Posts | 53 | Authorship spread: Klára 10, Shawn 9, Jana 9, Eva 8, Tomáš 7, Tereza 6, Daniel 6, plus supporting cast |
+| Reviews | 13 | Anchored on Klára (training), Petra (sitting), Olga / Nikola (existing providers), Tereza (one warm review from Marek) |
+| Conversations | 13 | Per-persona threads — booking + direct/social mix |
 
-**Key problems:**
-1. Only one "real" user (Shawn). Demo can't show the platform from other perspectives.
-2. Groups have 2-4 members each. Park groups should feel busy.
-3. No meet attendance history — can't show trust signals like "attended 5 meets together."
-4. Journey users (Tereza, Daniel, Klára, Tomáš) exist as group stubs but have no profiles, dogs, or interaction history.
-5. Inconsistencies: Nikola booking marked unpaid but notification says "confirmed." Dogs mentioned in conversations (Mochi, Pepper, Bruno, Molly) have no profiles.
+**Quality bar:** all four journey personas have populated home feeds, inboxes, profiles, schedules, and bookings. Tap any persona and their world reads as a real account. Profile-visibility distribution sits at ~67% locked / 33% open per the community-first thesis (P36 rebalance).
 
 ---
 
@@ -436,47 +432,33 @@ lib/
 
 ---
 
-## Cleanup: Known Issues to Fix
+## Cleanup: Resolved
 
-1. ~~**Nikola booking payment status**~~ — `booking-nikola-boarding` has `paymentStatus: "unpaid"` but notification says "confirmed." Fix: change notification to "booking_upcoming" or change payment status to "deposit_paid."
+All six items from the original cleanup list shipped during Persona Wiring + Mock World Building.
 
-2. **Orphan dogs** — Conversations mention Mochi, Pepper, Bruno, Molly with no profiles. Fix: either add profiles or update conversation text to use dogs from the cast.
+1. ~~Nikola booking payment status~~ — fixed (Persona Wiring).
+2. ~~Orphan dogs in conversations~~ — fixed; conversation text now references cast dogs only.
+3. ~~"Tomáš" name collision~~ — resolved; canonical Tomáš Kovář is the journey persona, supporting cast renamed.
+4. ~~Hardcoded March 2026 dates~~ — `lib/mockDate.ts` provides `MOCK_NOW` + `daysAgo` / `daysFromNow` helpers; all dynamic date fields migrated.
+5. ~~`mockFeed.ts` hardcoded "today"~~ — uses `MOCK_NOW` now. Plus a Mock-World-Building C4 fix removed a hardcoded `userNeighbourhood = "Vinohrady"` that made every persona's discovery gate behave like Tereza's.
+6. ~~Provider / user overlap~~ — bridge contract documented in `mockData.ts`; `userId` field on `ProviderCard` links bridged providers to UserProfile entries; `getUserOrProvider` synthesises minimal profiles for directory-only providers (Olga, Jana, etc.).
 
-3. **Name collision** — Existing mock has a "Tomáš" in connections + meets. The journey user is also "Tomáš Kovář." Fix: existing Tomáš becomes a different character or merge them.
+**Subsequent issues surfaced and fixed during Mock World Building:**
+- P4 (provider-userId bridge contract) — A1 / 2026-04-30
+- P21 (Group↔Meet relationship duplication) — A2 / 2026-04-30
+- P28 (`MeetAttendee.profileOpen` auto-derive helper) — A3 / 2026-04-30
+- P36 (profile-visibility distribution) — B1 / 2026-04-30
+- P35 (inbox name + dog format normalization + dog-fallback) — C5 / 2026-04-30
 
-4. **Hardcoded dates** — Most mock data is pinned to March 2026. Fix: use relative dates ("2 days ago", "next Thursday") or a `MOCK_NOW` constant all files reference.
-
-5. **Feed date context** — `mockFeed.ts` hardcodes "2026-03-07" as today. Fix: use `MOCK_NOW` constant.
-
-6. **Provider/user overlap** — Providers in `mockData.ts` (Olga, Nikola, Jana, etc.) exist separately from mock users. Some should be unified: Klára should appear in both providers list and mockUsers with consistent data.
+**Outstanding** (not blocking demo, deferred to future passes):
+- P44 (Services-as-Catalog code follow-ups — `Meet.visibility = "participants_only"`, `CarerServiceConfig` Meet-type variant, profile Services-tab Meet rendering)
+- P47 (mock-world edge-case seeding — D1–D4 deferred from Mock World Building)
 
 ---
 
-## Implementation Order
+## Implementation Order — completed 2026-05-02
 
-### Phase A: Foundation (do first)
-1. Create `mockUsers.ts` — All 4 journey users + 15 supporting cast with full profiles
-2. Create `mockDogs.ts` — All dogs, referenced by user ID
-3. Clean up `mockGroups.ts` — Consolidate duplicates, add full membership rosters
-4. Fix known inconsistencies (above)
-
-### Phase B: Interactions
-5. Expand `mockMeets.ts` — 20-25 meets with proper attendee lists
-6. Create `mockAttendance.ts` — Historical attendance for trust signal calculation
-7. Expand `mockConnections.ts` — Full relationship web across cast
-8. Expand `mockBookings.ts` — 10-12 bookings showing care network
-
-### Phase C: Content
-9. Expand `mockPosts.ts` — 30-40 posts from various origins/contexts
-10. Expand `mockReviews.ts` — 12-15 reviews
-11. Expand `mockConversations.ts` + `mockGroupMessages.ts` — New threads
-12. Expand `mockNotifications.ts` — More variety
-
-### Phase D: Polish
-13. Update `mockFeed.ts` — Ensure feed logic handles expanded data
-14. Update `mockNeighbourhoodStats.ts` — Reflect actual data counts
-15. Verify all cross-references (user IDs, dog IDs, group IDs) are consistent
-16. Test: click through every page and verify data appears correctly
+All four phases (A: Foundation, B: Interactions, C: Content, D: Polish) shipped during Persona Wiring + Mock World Building. The breakdown above is preserved as historical context. Future mock-data work should hang off the punch-list (P44, P47, plus any new items) rather than re-creating planning phases.
 
 ---
 
@@ -501,13 +483,13 @@ This would make the composer feel context-aware: finish a walk with Vinohrady Mo
 
 ## Open Questions
 
-1. ~~**Shawn's role in the demo.** Is Shawn always the logged-in user? Or should we support switching perspective?~~ **Resolved (2026-04-26):** Persona switching shipped. Five personas (Shawn / Tereza / Daniel / Klára / Tomáš) plus a synthetic "New User" empty-state persona. Switcher surfaces: profile-page name dropdown, `/demo` route, `?as=<personaId>` URL param. See `docs/features/demo-mode.md`. **What this means for Mock World Building:** every persona needs a populated "my world" — bookings, groups, feed, connections, conversations — not just Shawn. Use the `useCurrentUser()` hook everywhere; backfill `mockConnections.ts`, `mockConversations.ts`, and `mockPosts.ts` to include per-persona content.
+1. ~~**Shawn's role in the demo.**~~ **Resolved (2026-04-26):** Persona switching shipped. Five personas in the picker (Tereza / Daniel / Klára / Tomáš / New User); Shawn was removed from the picker but still exists in mock-world data as a Vinohrady regular. Default is Tereza. Switcher surfaces: profile-page name dropdown, `/demo` route, `?as=<personaId>` URL param. See `docs/features/demo-mode.md`.
 
-2. **Photo assets.** Mock data references image paths (`/images/generated/...`). Do we need actual placeholder images, or is the data structure enough for now? If we want the demo to feel alive, we'll need dog photos and user avatars.
+2. ~~**Photo assets.**~~ **Resolved (during Mock World Building):** generated dog and persona photos in place (`/images/generated/`). Per phase scope, no further image generation in this phase; future image work is its own pass.
 
-3. **Provider list alignment.** The 10 providers in `mockData.ts` + Supabase seed are from an earlier phase. Should Klára replace one of them? Should Tereza and Petra appear in the care search results?
+3. ~~**Provider list alignment.**~~ **Resolved (P4 / 2026-04-30):** bridge contract documented at top of `providers` array in `mockData.ts`. Providers may exist as directory-only entries (no UserProfile) or bridged via `userId`. `getUserOrProvider` synthesises minimal profiles for directory-only providers. No backfill required. Tereza and Petra both surface in care search via the bridge.
 
-4. **Date strategy.** Pin everything to a specific "demo date" (e.g., March 20, 2026) or use relative dates that stay fresh? Pinned is simpler; relative requires a helper function.
+4. ~~**Date strategy.**~~ **Resolved:** `lib/mockDate.ts` provides `MOCK_NOW` + relative-date helpers (`daysAgo`, `daysFromNow`, `daysAgoIso`). Most dynamic date fields migrated; deeper-history dates (Jan/Feb/March 2026) left static intentionally as "older" content.
 
 ---
 

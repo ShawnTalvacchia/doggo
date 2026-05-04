@@ -21,7 +21,7 @@ import { PostsTab } from "@/components/profile/PostsTab";
 import { ProfileNameDropdown } from "@/components/profile/ProfileNameDropdown";
 import type {
   PetProfile,
-  CarerServiceConfig,
+  CarerCareServiceConfig,
   UserProfile,
   CarerAvailabilitySlot,
   TagApproval,
@@ -96,8 +96,11 @@ function ProfileInner() {
   const [editOpenToHelping, setEditOpenToHelping] = useState(
     user.openToHelping ?? false
   );
-  const [editServices, setEditServices] = useState<CarerServiceConfig[]>(
-    user.carerProfile?.services ?? []
+  // Edit UI is Care-only; Meet entries pass through unchanged on save.
+  const [editServices, setEditServices] = useState<CarerCareServiceConfig[]>(
+    (user.carerProfile?.services ?? []).filter(
+      (s): s is CarerCareServiceConfig => s.kind === "care",
+    ),
   );
   const [editAvailability, setEditAvailability] = useState<CarerAvailabilitySlot[]>(
     user.carerProfile?.availability ?? []
@@ -118,7 +121,11 @@ function ProfileInner() {
     setEditPets(currentUser.pets);
     setEditVisibility(currentUser.carerProfile?.publicProfile ?? false);
     setEditOpenToHelping(currentUser.openToHelping ?? false);
-    setEditServices(currentUser.carerProfile?.services ?? []);
+    setEditServices(
+      (currentUser.carerProfile?.services ?? []).filter(
+        (s): s is CarerCareServiceConfig => s.kind === "care",
+      ),
+    );
     setEditAvailability(currentUser.carerProfile?.availability ?? []);
     setEditCarerBio(currentUser.carerProfile?.bio ?? "");
     setTagApproval(currentUser.tagApproval ?? "auto");
@@ -130,7 +137,11 @@ function ProfileInner() {
     setEditPets(user.pets.map((p) => ({ ...p })));
     setEditVisibility(user.carerProfile?.publicProfile ?? false);
     setEditOpenToHelping(user.openToHelping ?? false);
-    setEditServices(user.carerProfile?.services.map((s) => ({ ...s })) ?? []);
+    setEditServices(
+      (user.carerProfile?.services ?? [])
+        .filter((s): s is CarerCareServiceConfig => s.kind === "care")
+        .map((s) => ({ ...s })),
+    );
     setEditAvailability(user.carerProfile?.availability.map((a) => ({ ...a, slots: [...a.slots] })) ?? []);
     setEditCarerBio(user.carerProfile?.bio ?? "");
     setEditing(true);
@@ -151,7 +162,14 @@ function ProfileInner() {
             bio: editCarerBio,
             location: prev.carerProfile?.location ?? prev.location,
             availability: editAvailability,
-            services: editServices,
+            // Care entries from the edit UI + any existing Meet entries
+            // (managed elsewhere — see ProfileServicesTab comment).
+            services: [
+              ...editServices,
+              ...(prev.carerProfile?.services ?? []).filter(
+                (s) => s.kind === "meet",
+              ),
+            ],
             publicProfile: editVisibility,
           }
         : prev.carerProfile

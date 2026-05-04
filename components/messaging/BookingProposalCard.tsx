@@ -9,11 +9,15 @@ export function BookingProposalCard({
   canRespond,
   onAccept,
   onDecline,
+  onCounter,
 }: {
   msg: ChatMessage;
   canRespond: boolean;
   onAccept: (msgId: string) => void;
   onDecline: (msgId: string) => void;
+  /** Optional counter handler — opens ProposalForm pre-filled with this
+   *  proposal's values. Discover & Care G4, 2026-05-02. */
+  onCounter?: (msgId: string) => void;
 }) {
   const p = msg.proposal!;
 
@@ -86,14 +90,24 @@ export function BookingProposalCard({
       <div className="inbox-proposal-footer">
         {p.status === "pending" && canRespond ? (
           <div className="inbox-proposal-actions">
-            {/* Decline (left, neutral pill) + Review & sign (right, brand pill).
-                Auto-width to text content — Decline is naturally narrower than
-                "Review & sign", which gives the encouraged action proportional
-                emphasis without forcing a flex-grow asymmetry. */}
-            <ButtonAction variant="neutral" size="md" cta onClick={() => onDecline(msg.id)}>
-              Decline
+            {/* Three-action row, non-CTA variants. CTA pills are reserved
+                for page-level commands; these are contextual actions on a
+                card inside a thread, so the slight-radius non-CTA register
+                matches better. Ordered weakest → strongest:
+                Not now (tertiary — transparent, lowest emphasis) on the
+                left; Suggest changes (outline) + Review & sign (primary)
+                clustered on the right. "Not now" is intentionally softer
+                than "Decline" — community-first framing preserves the
+                relationship for a future booking. */}
+            <ButtonAction variant="tertiary" size="md" onClick={() => onDecline(msg.id)}>
+              Not now
             </ButtonAction>
-            <ButtonAction variant="primary" size="md" cta onClick={() => onAccept(msg.id)}>
+            {onCounter && (
+              <ButtonAction variant="outline" size="md" onClick={() => onCounter(msg.id)}>
+                Suggest changes
+              </ButtonAction>
+            )}
+            <ButtonAction variant="primary" size="md" onClick={() => onAccept(msg.id)}>
               Review & sign
             </ButtonAction>
           </div>

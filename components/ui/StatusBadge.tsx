@@ -3,6 +3,7 @@ import type { ContractStatus } from "@/lib/types";
 export type BadgeStatus = ContractStatus | "in_progress";
 
 const STATUS_LABELS: Record<BadgeStatus, string> = {
+  proposed: "Pending",
   upcoming: "Upcoming",
   active: "Active",
   in_progress: "In progress",
@@ -13,6 +14,7 @@ const STATUS_LABELS: Record<BadgeStatus, string> = {
 
 /** Maps badge status to the CSS modifier class. */
 const STATUS_CSS: Record<BadgeStatus, string> = {
+  proposed: "proposed",
   upcoming: "upcoming",
   active: "active",
   in_progress: "active",

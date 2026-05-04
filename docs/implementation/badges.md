@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-04-29
+last-reviewed: 2026-05-04
 
 tags: [badges, person-row, trust, design-system]
 review-trigger: "when adding a new badge, changing display rules, or modifying tier semantics"
@@ -132,15 +132,31 @@ Today all badges share a pill primitive: `.person-row-pill` for PersonRow consum
 
 ## What's built today
 
-- **Tier:** "Care" (collapses Helper + Provider — splitting in Community & Groups Deep Pass A9).
+- **Tier:** Helper / Provider (split shipped, see Community & Groups Deep Pass A9).
 - **Role:** Admin (PersonRow group-member variant only).
-- **Trust:** Zero. Wholly unbuilt.
+- **Trust (MVP shipped Discover & Care D3, 2026-05-02):**
+  - Community-earned: Community Regular, Trusted by Your Network, Repeat Clients
+  - Credential: Certified Trainer, X Years Experience
+  - Platform: Verified Identity (stub — production verification flow not built)
+
+  Implementation: `lib/trustBadges.ts` (catalogue + earning rules) and `components/badges/TrustBadgeStrip.tsx` (renderer). Two variants: `standard` (profile hero, all earned) and `compact` (Discover cards, top 2 by priority).
+
+  Earning rules (today):
+  - **Community Regular** — `≥3` meets attended in the last 90 days (computed from `Meet.attendees` / `attendeesByDate`).
+  - **Trusted by Your Network** — viewer has ≥1 Connected connection who is also Connected to subject. Computed per-viewer.
+  - **Repeat Clients** — `carerProfile.repeatClients ≥ 3` (mock data field; production derives from booking history).
+  - **Certified Trainer** — `carerProfile.credentials.certifications` contains a string matching `/train/i`.
+  - **X Years Experience** — `carerProfile.credentials.yearsExperience ≥ 1`.
+  - **Verified Identity** — `carerProfile.credentials.identityVerified === true`. Demo-seeded on a small handful of providers (Klára, Lenka).
+
+  Display priority (when trimming to top N): Trusted by Network > Community Regular > Repeat Clients > Certified Trainer > Years Experience > Verified Identity.
+
+  Visual treatment: Community-earned badges use brand-subtle fill + brand-strong text (warm, "your community" colour family). Credential and platform use `--surface-base` + `--text-secondary` with a regular border (quieter, "self-declared/platform-verified" treatment). Pill primitive lives inline in `TrustBadgeStrip`; if a third surface picks them up, extract to `app/globals.css`.
 
 ## What's specced but not built
 
-- Tier: Helper / Provider split (this phase, A9).
+- Trust: Neighbourhood Anchor, Care Veteran (community), First Aid Trained, Vet Background, Force-Free Methods, Insured (credential), Responsive, Consistent (platform). All require either richer per-user mock data or production data.
 - Role: Host on PersonRow meet-attendee (deferred — banner is sufficient for now).
-- Trust: Entire taxonomy. Production-only.
 
 ---
 

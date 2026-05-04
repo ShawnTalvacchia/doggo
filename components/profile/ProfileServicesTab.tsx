@@ -15,6 +15,7 @@ import type {
   UserProfile,
   CarerProfile,
   CarerServiceConfig,
+  CarerCareServiceConfig,
   CarerAvailabilitySlot,
   ServiceType,
   TimeSlot,
@@ -68,8 +69,11 @@ interface ProfileServicesTabProps {
   onToggleVisibility: () => void;
   openToHelping: boolean;
   onToggleOpenToHelping: (v: boolean) => void;
-  editServices: CarerServiceConfig[];
-  onEditServices: (s: CarerServiceConfig[]) => void;
+  // Edit UI is Care-only — Meet-type offerings are added through a separate
+  // flow (see Onboarding & In-Product Communication phase). The save handler
+  // in `app/profile/page.tsx` preserves any existing Meet entries.
+  editServices: CarerCareServiceConfig[];
+  onEditServices: (s: CarerCareServiceConfig[]) => void;
   editAvailability: CarerAvailabilitySlot[];
   onEditAvailability: (a: CarerAvailabilitySlot[]) => void;
   editCarerBio: string;
@@ -96,7 +100,7 @@ export function ProfileServicesTab({
   const showCareContent = editing ? openToHelping : (carer !== undefined && (user.openToHelping ?? false));
 
   // ── Helpers for editing services ──
-  function updateService(idx: number, updates: Partial<CarerServiceConfig>) {
+  function updateService(idx: number, updates: Partial<CarerCareServiceConfig>) {
     const next = editServices.map((s, i) => (i === idx ? { ...s, ...updates } : s));
     onEditServices(next);
   }
@@ -114,6 +118,7 @@ export function ProfileServicesTab({
     onEditServices([
       ...editServices,
       {
+        kind: "care",
         serviceType: available[0],
         enabled: true,
         pricePerUnit: 0,
@@ -365,12 +370,14 @@ export function ProfileServicesTab({
         </section>
       )}
 
-      {/* Services */}
+      {/* Services — comprehensive catalogue (Care + Meet). View mode on the
+          user's OWN profile is informational; tap routing for booking lives
+          on /profile/[userId] where viewers act. */}
       {carer && carer.services.length > 0 && (
         <section className="profile-info-card">
           <h3 className="profile-card-subtitle">Services</h3>
           <div className="profile-services-list">
-            {carer.services.map((svc) => (
+            {carer.services.filter((s): s is CarerCareServiceConfig => s.kind === "care").map((svc) => (
               <div key={svc.serviceType} className="profile-service-card">
                 <div className="profile-service-top">
                   <span className="profile-service-name">
@@ -397,6 +404,38 @@ export function ProfileServicesTab({
                 )}
               </div>
             ))}
+            {carer.services.filter((s) => s.kind === "meet").map((svc) => {
+              const formatLabel: Record<string, string> = {
+                one_on_one: "1-on-1",
+                small_group: "Small group",
+                workshop: "Workshop",
+              };
+              const cadenceLabel: Record<string, string> = {
+                weekly: "Weekly",
+                biweekly: "Every 2 weeks",
+                monthly: "Monthly",
+                ad_hoc: "By arrangement",
+              };
+              return (
+                <div key={svc.id} className="profile-service-card">
+                  <div className="profile-service-top">
+                    <span className="profile-service-name">{svc.title}</span>
+                    <div className="profile-service-price-wrap">
+                      <span className="profile-service-price">
+                        {svc.pricePerSession.toLocaleString()} Kč
+                        <span className="profile-service-unit">{" "}/ session</span>
+                      </span>
+                    </div>
+                  </div>
+                  <div className="profile-service-subs">
+                    <span className="chip">{formatLabel[svc.format] ?? svc.format}</span>
+                    <span className="chip">{cadenceLabel[svc.cadence] ?? svc.cadence}</span>
+                    <span className="chip">{svc.durationMinutes} min</span>
+                  </div>
+                  {svc.notes && <p className="profile-service-notes">{svc.notes}</p>}
+                </div>
+              );
+            })}
           </div>
         </section>
       )}

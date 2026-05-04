@@ -28,13 +28,15 @@ import { TabBar } from "@/components/ui/TabBar";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { CancelBookingModal } from "@/components/bookings/CancelBookingModal";
+import { SigningModal } from "@/components/messaging/SigningModal";
 import { useBookings } from "@/contexts/BookingsContext";
+import { useConversations } from "@/contexts/ConversationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { getUserById } from "@/lib/mockUsers";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import { formatShortDate, formatDateRange } from "@/lib/dateUtils";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
-import type { Booking, BookingSession } from "@/lib/types";
+import type { Booking, BookingSession, ChatMessage } from "@/lib/types";
 
 const TABS = [
   { key: "info", label: "Info" },
@@ -209,10 +211,19 @@ export default function BookingDetailPage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { bookings, cancelBooking, updateSession } = useBookings();
+  const {
+    bookings,
+    cancelBooking,
+    updateSession,
+    updateStatus,
+    createBooking,
+    getBookingByConversation,
+  } = useBookings();
+  const { conversations, updateProposalStatus, addMessage } = useConversations();
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
   const CURRENT_USER = useCurrentUserId();
   const [showCancel, setShowCancel] = useState(false);
+  const [signingOpen, setSigningOpen] = useState(false);
 
   const activeTab = searchParams.get("tab") ?? "info";
 
@@ -224,10 +235,18 @@ export default function BookingDetailPage() {
   const isOwner = booking?.ownerId === CURRENT_USER;
   const isProvider = booking?.carerId === CURRENT_USER;
 
-  // Feed detail header to mobile AppNav
+  // Feed detail header to mobile AppNav. Format as "{otherFirstName} · {service}"
+  // so the header carries the relationship context (the through-line for any
+  // booking — same carer over many sessions) alongside what they're providing.
+  // Just "Solo walk" leaves the back-chevron with no who-is-this-with context.
   useEffect(() => {
     if (!booking) return;
-    const title = booking.subService ?? SERVICE_LABELS[booking.serviceType];
+    const isOwnerView = booking.ownerId === CURRENT_USER;
+    const otherFirstName = isOwnerView
+      ? booking.carerName.split(" ")[0]
+      : booking.ownerName.split(" ")[0];
+    const serviceTitle = booking.subService ?? SERVICE_LABELS[booking.serviceType];
+    const title = `${otherFirstName} · ${serviceTitle}`;
     setDetailHeader(title, () => router.push("/bookings"));
     return () => clearDetailHeader();
   }, [booking?.id]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -256,6 +275,80 @@ export default function BookingDetailPage() {
   const profileHref = `/profile/${other.id}`;
   const messageHref = `${profileHref}?tab=chat`;
 
+  // For proposed bookings, surface the conversation's most recent pending
+  // proposal so the owner can Review & sign without digging through chat.
+  // Mirrors `ThreadClient.handleSign` so the booking moves pending →
+  // upcoming, the proposal flips to "accepted", and a contract message is
+  // appended to the thread. Discover & Care G5 close-up 2026-05-04.
+  const conv = booking.conversationId
+    ? conversations.find((c) => c.id === booking.conversationId)
+    : null;
+  const pendingProposalMsg =
+    booking.status === "proposed" && conv
+      ? [...conv.messages]
+          .reverse()
+          .find((m) => m.type === "booking_proposal" && m.proposal?.status === "pending") ?? null
+      : null;
+
+  function handleSign(msgId: string) {
+    if (!conv) return;
+    const proposalMsg = conv.messages.find((m) => m.id === msgId);
+    if (!proposalMsg?.proposal) return;
+    const p = proposalMsg.proposal;
+
+    // Booking is the existing record (we're on its detail page) — flip
+    // its status. createBooking branch retained for parity with Thread
+    // client in case a legacy proposal lacks a pre-mirrored booking.
+    const existing = getBookingByConversation(conv.id);
+    let bookingId: string;
+    if (existing) {
+      updateStatus(existing.id, "upcoming");
+      bookingId = existing.id;
+    } else {
+      bookingId = createBooking({
+        conversationId: conv.id,
+        ownerId: conv.ownerId,
+        ownerName: conv.ownerName,
+        ownerAvatarUrl: conv.ownerAvatarUrl,
+        carerId: conv.providerId,
+        carerName: conv.providerName,
+        carerAvatarUrl: conv.providerAvatarUrl,
+        type: p.bookingType,
+        serviceType: p.serviceType,
+        subService: p.subService,
+        pets: p.pets,
+        startDate: p.startDate,
+        endDate: p.endDate,
+        recurringSchedule: p.recurringSchedule,
+        price: p.price,
+        status: "upcoming",
+        sessions: p.bookingType === "ongoing" ? [] : undefined,
+      });
+    }
+
+    updateProposalStatus(conv.id, msgId, "accepted");
+
+    const contractMsg: ChatMessage = {
+      id: `msg-${Date.now()}`,
+      conversationId: conv.id,
+      sender: "owner",
+      type: "contract",
+      contract: {
+        bookingId,
+        serviceType: p.serviceType,
+        subService: p.subService,
+        carerName: conv.providerName,
+        pets: p.pets,
+        startDate: p.startDate,
+      },
+      sentAt: new Date().toISOString(),
+      read: true,
+    };
+    addMessage(conv.id, contractMsg);
+
+    setSigningOpen(false);
+  }
+
   const petNames = booking.pets.join(" & ");
   const verb = getServiceVerb(booking);
   const serviceNoun = getServiceNoun(booking);
@@ -265,7 +358,9 @@ export default function BookingDetailPage() {
   const pastSessions = sessions.filter((s) => s.status === "completed" || s.status === "cancelled");
   const completedSessions = sessions.filter((s) => s.status === "completed");
 
-  const headerTitle = booking.subService ?? SERVICE_LABELS[booking.serviceType];
+  // Header title carries relationship + service: "{otherFirstName} · {service}".
+  // Same shape used for the mobile AppNav header above (in setDetailHeader).
+  const headerTitle = `${other.name.split(" ")[0]} · ${booking.subService ?? SERVICE_LABELS[booking.serviceType]}`;
 
   // Next upcoming session for aggregate stats
   const nextSession = [...upcomingSessions].sort((a, b) => a.date.localeCompare(b.date))[0];
@@ -341,7 +436,10 @@ export default function BookingDetailPage() {
               )}
 
               {/* Action buttons — CTA variants like Groups page.
-                  Message routes to the profile chat tab (canonical chat surface). */}
+                  Message routes to the profile chat tab (canonical chat surface).
+                  Proposed state surfaces Review & sign as the dominant action
+                  for the owner — signing here is the canonical accept path
+                  and saves a trip to the chat thread. */}
               <div className="flex gap-sm w-full">
                 {booking.status === "completed" ? (
                   <>
@@ -361,6 +459,29 @@ export default function BookingDetailPage() {
                     onClick={() => router.push(messageHref)}>
                     Message
                   </ButtonAction>
+                ) : booking.status === "proposed" ? (
+                  isOwner ? (
+                    <>
+                      <ButtonAction variant="outline" size="md" cta className="flex-1"
+                        leftIcon={<ChatCircleDots size={16} weight="fill" />}
+                        onClick={() => router.push(messageHref)}>
+                        Message
+                      </ButtonAction>
+                      <ButtonAction variant="primary" size="md" cta className="flex-1"
+                        onClick={() => setSigningOpen(true)}
+                        disabled={!pendingProposalMsg}>
+                        Review & sign
+                      </ButtonAction>
+                    </>
+                  ) : (
+                    // Provider sent the proposal — they wait on owner to sign.
+                    // Single Message action so they can nudge or clarify.
+                    <ButtonAction variant="primary" size="md" cta className="flex-1"
+                      leftIcon={<ChatCircleDots size={16} weight="fill" />}
+                      onClick={() => router.push(messageHref)}>
+                      Message
+                    </ButtonAction>
+                  )
                 ) : (
                   <>
                     <ButtonAction variant="primary" size="md" cta className="flex-1"
@@ -574,6 +695,21 @@ export default function BookingDetailPage() {
         }}
         carerName={isOwner ? booking.carerName : booking.ownerName}
       />
+
+      {/* Signing modal for proposed bookings — owner-side only. Wraps the
+          same SigningModal used in the chat thread (single source of truth
+          for the contract review UI). The conv lookup + handleSign mirror
+          ThreadClient so signing here produces the same downstream effects
+          (proposal flips to accepted, contract message appended). */}
+      {conv && pendingProposalMsg && (
+        <SigningModal
+          msg={pendingProposalMsg}
+          conv={conv}
+          open={signingOpen}
+          onClose={() => setSigningOpen(false)}
+          onSign={handleSign}
+        />
+      )}
     </PageColumn>
   );
 }

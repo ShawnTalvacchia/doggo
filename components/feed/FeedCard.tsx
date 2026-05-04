@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Heart, ChatCircle, PaperPlaneTilt, HandHeart } from "@phosphor-icons/react";
+import { Heart, ChatCircle, PaperPlaneTilt, HandHeart, Star } from "@phosphor-icons/react";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { CommentThread } from "./CommentThread";
 import type { PostReaction, PostComment } from "@/lib/types";
 
 interface FeedCardProps {
@@ -16,6 +17,9 @@ interface FeedCardProps {
   connectionContext?: string;
   /** Show a care provider badge next to the author name */
   isCareProvider?: boolean;
+  /** Show an admin badge — the post author is an admin of the group it
+   *  was posted in. Reads as "this is from the admin." */
+  isGroupAdmin?: boolean;
   /** Caption text */
   caption?: string;
   /** Photo/media content */
@@ -58,9 +62,11 @@ export function FeedCard({
   comments,
   children,
   isCareProvider,
+  isGroupAdmin,
 }: FeedCardProps) {
   const currentUserId = useCurrentUserId();
   const [localReactions, setLocalReactions] = useState(reactions ?? []);
+  const [commentsOpen, setCommentsOpen] = useState(false);
   const hasLiked = localReactions.some((r) => r.userId === currentUserId);
   const likeCount = localReactions.length;
   const commentCount = comments?.length ?? 0;
@@ -110,10 +116,22 @@ export function FeedCard({
                 <span className="feed-card-context-text">{connectionContext}</span>
               )}
             </div>
-            {/* Row 2: Timestamp (secondary) */}
-            {timestamp && (
-              <span className="feed-card-timestamp">{formatRelativeDate(timestamp)}</span>
-            )}
+            {/* Row 2: Admin badge (post-context metadata, not identity) +
+                timestamp. Admin lives here rather than next to the name
+                because being an admin is contextual to THIS group, not
+                a property of the author in general (unlike the Carer
+                badge above). Mock World Building 2026-04-30. */}
+            <div className="feed-card-meta-row">
+              {isGroupAdmin && (
+                <span className="feed-card-admin-badge">
+                  <Star size={11} weight="fill" />
+                  Admin
+                </span>
+              )}
+              {timestamp && (
+                <span className="feed-card-timestamp">{formatRelativeDate(timestamp)}</span>
+              )}
+            </div>
 
             {/* Content: caption, tags, photos, actions */}
             {caption && <p className="feed-card-caption">{caption}</p>}
@@ -129,13 +147,38 @@ export function FeedCard({
                   <Heart size={18} weight={hasLiked ? "fill" : "light"} />
                   {likeCount > 0 && <span>{likeCount}</span>}
                 </button>
-                <button type="button" className="feed-card-action">
-                  <ChatCircle size={18} weight="light" />
+                {/* Comment-count action — toggles the inline thread.
+                    Threads-style: collapsed by default, tap to expand.
+                    Icon flips weight (light → fill) when open, mirroring
+                    the heart toggle. Disabled when no comments. */}
+                <button
+                  type="button"
+                  className={`feed-card-action${commentsOpen ? " feed-card-action--active" : ""}`}
+                  onClick={() => setCommentsOpen(!commentsOpen)}
+                  disabled={commentCount === 0}
+                  aria-expanded={commentsOpen}
+                  aria-label={
+                    commentCount === 0
+                      ? "No comments"
+                      : commentsOpen
+                        ? "Hide comments"
+                        : `Show ${commentCount} comments`
+                  }
+                >
+                  <ChatCircle size={18} weight={commentsOpen ? "fill" : "light"} />
                   {commentCount > 0 && <span>{commentCount}</span>}
                 </button>
                 <button type="button" className="feed-card-action">
                   <PaperPlaneTilt size={18} weight="light" />
                 </button>
+              </div>
+            )}
+            {/* Inline comment thread — renders when the user opens it via
+                the comment-count button. CommentThread handles its own
+                expand/collapse for long threads. Mock World Building 2026-04-30. */}
+            {commentsOpen && comments && comments.length > 0 && (
+              <div className="feed-card-comments">
+                <CommentThread comments={comments} canComment={false} />
               </div>
             )}
             {children && <div className="feed-card-children">{children}</div>}

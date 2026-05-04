@@ -52,7 +52,7 @@ Before marking a phase complete, work through the **Closing Checklist** on the p
 4. **Update ROADMAP.md.** Move the completed phase out of "Current Phase." Do NOT add a completion summary — the archived phase board is the record.
 5. **Review CLAUDE.md.** If the phase changed navigation, key components, or project structure, update the project instructions.
 6. **Review Punch List changes.** Read completed items and change reports in `phases/punch-list.md` since the last phase close. Check if any completed fixes affected feature docs, design-system.md, or design-tokens.md — update anything that was missed.
-7. **Archive the phase board.** Copy to `archive/phases/`, mark status: archived, then delete the original from `phases/`. Do not leave both copies.
+7. **Archive the phase board.** Mark `status: archived` in the frontmatter, then `git mv docs/phases/<name>.md docs/archive/phases/`. Single atomic move — no opportunity for orphan duplicates if a delete step fails.
 8. **Trim pass.** Skim the Roadmap, CLAUDE.md, and touched docs. Cut anything stale, redundant, or duplicated. See Doc Hygiene Rules.
 8a. **Structural audit.** Run these three checks — any hits get fixed before phase close:
    - `grep -rl "status: archived\|status: complete" docs/phases/` should return nothing but `_phase-template.md` (never) and legitimately paused phases. Anything else — delete it; the archive copy exists in `docs/archive/phases/`.

@@ -21,6 +21,23 @@ export function isRecurring(meet: Meet): boolean {
 }
 
 /**
+ * True iff `viewerId` is allowed to see this meet at all. Source-of-truth for
+ * the `participants_only` visibility level — filters contracted/package-booked
+ * instances (e.g. Hana's 8-session 1-on-1 with Klára) from group Meets tabs,
+ * Discover, and Schedule's suggested lane. The creator and the booked roster
+ * always pass through.
+ *
+ * `public` and `group_only` always return true here — those visibilities are
+ * gated by the *parent group*'s membership, not by this helper.
+ */
+export function isMeetVisibleTo(meet: Meet, viewerId: string | null | undefined): boolean {
+  if (meet.visibility !== "participants_only") return true;
+  if (!viewerId) return false;
+  if (meet.creatorId === viewerId) return true;
+  return getSeriesAttendees(meet).some((a) => a.userId === viewerId);
+}
+
+/**
  * Human-readable label for a meet's cadence — used on cards and the meet
  * detail badge row. Returns `null` for one-off meets so the caller can
  * skip rendering the chip entirely.

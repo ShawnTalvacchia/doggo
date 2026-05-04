@@ -7,10 +7,10 @@ import type {
   BookingType,
   RecurringSchedule,
 } from "@/lib/types";
-import { SERVICE_LABELS, SUB_SERVICES } from "@/lib/constants/services";
+import { SUB_SERVICES } from "@/lib/constants/services";
 import { DateTrigger, DatePicker, type DateRange } from "@/components/ui/DatePicker";
 import { RecurringSchedulePicker } from "@/components/ui/RecurringSchedulePicker";
-import { defaultExploreFilters } from "@/lib/mockData";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -20,8 +20,11 @@ const SERVICE_TYPES: { value: ServiceType; label: string }[] = [
   { value: "boarding", label: "Overnight Boarding" },
 ];
 
+// No default days — preselecting Mon/Wed/Fri presumes intent. Owner must
+// pick days deliberately. Time defaults to a common morning slot since some
+// time has to be shown in the picker; user can change it. G3 fix 2026-05-04.
 const DEFAULT_SCHEDULE: RecurringSchedule = {
-  days: ["Mon", "Wed", "Fri"],
+  days: [],
   time: "08:00",
   timeLabel: "8:00–9:00am",
 };
@@ -54,13 +57,25 @@ export function InquiryForm({
   onSubmit: (data: InquirySubmitData) => void;
 }) {
   const firstName = conv.providerName.split(" ")[0];
-  const allPets = defaultExploreFilters.pets; // ["Spot", "Goldie"]
+  // Pet checkboxes reflect the active persona's actual pets — read from
+  // `useCurrentUser()` rather than the legacy `defaultExploreFilters.pets`
+  // constant (which hardcoded ["Spot", "Goldie"] from before persona
+  // switching was wired up). G1 fix, 2026-05-04.
+  const currentUser = useCurrentUser();
+  const allPets = currentUser.pets.map((p) => p.name);
 
   const [service, setService] = useState<ServiceType>(
     initialService ?? conv.inquiry.serviceType
   );
-  const [subService, setSubService] = useState<string | null>(null);
-  const [selectedPets, setSelectedPets] = useState<string[]>(allPets);
+  const [subService, setSubService] = useState<string | null>(
+    conv.inquiry.subService ?? null,
+  );
+  // Default selection: whatever the modal seeded into `conv.inquiry.pets`
+  // (typically all of the user's pets). Falls back to allPets if the conv
+  // didn't seed any.
+  const [selectedPets, setSelectedPets] = useState<string[]>(
+    conv.inquiry.pets.length > 0 ? conv.inquiry.pets : allPets
+  );
   const [bookingType, setBookingType] = useState<BookingType>(
     conv.inquiry.bookingType ?? "one_off"
   );
@@ -73,35 +88,18 @@ export function InquiryForm({
   );
   const [datePickerOpen, setDatePickerOpen] = useState(false);
 
-  function buildMessage(
-    svc: ServiceType,
-    sub: string | null,
-    pets: string[],
-    bType: BookingType
-  ): string {
-    const svcLabel = SERVICE_LABELS[svc].toLowerCase();
-    const petStr = pets.length === 1 ? `my dog ${pets[0]}` : `my dogs ${pets.join(" and ")}`;
-    const subStr = sub ? ` (${sub})` : "";
-    const freqStr = bType === "ongoing" ? " on a regular basis" : "";
-    return `Hi ${firstName}, I'm looking for ${svcLabel}${subStr}${freqStr} for ${petStr}. Are you available?`;
-  }
+  // Free-text "anything else?" notes — optional, empty by default. The
+  // structured fields above carry the templated content; this textarea is
+  // for context the form doesn't capture (special needs, scheduling
+  // preferences, etc.). Discover & Care G2, 2026-05-02.
+  const [message, setMessage] = useState("");
 
-  const [message, setMessage] = useState(() =>
-    buildMessage(service, subService, selectedPets, bookingType)
-  );
-
-  // Reset sub-service and rebuild message on service change
+  // Reset sub-service when the service axis changes — the previous sub no
+  // longer applies.
   useEffect(() => {
     setSubService(null);
-    setMessage(buildMessage(service, null, selectedPets, bookingType));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [service]);
-
-  // Rebuild message when sub-service, pets, or booking type change
-  useEffect(() => {
-    setMessage(buildMessage(service, subService, selectedPets, bookingType));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subService, selectedPets, bookingType]);
 
   function togglePet(pet: string) {
     setSelectedPets((prev) =>
@@ -109,8 +107,26 @@ export function InquiryForm({
     );
   }
 
-  const canSubmit = selectedPets.length > 0 && message.trim().length > 0;
+  // Submit gates on the structured inputs that the inquiry needs to be
+  // actionable. Sub-service is required when the chosen service has options
+  // (Walks → Group walk / Solo walk / Drop-in are differently priced and
+  // structured — the carer can't propose without knowing which). For
+  // ongoing bookings, at least one day must be selected — an "ongoing"
+  // request with zero days is meaningless. For one-off bookings, a start
+  // date is always required, plus an end > start when the service is
+  // boarding (overnight needs ≥ 1 night). The "Anything else?" textarea
+  // is optional and never blocks Send.
   const subOptions = SUB_SERVICES[service];
+  const oneOffDatesValid =
+    bookingType !== "one_off" ||
+    (dateRange.start !== null &&
+      (service !== "boarding" ||
+        (dateRange.end !== null && dateRange.end > dateRange.start)));
+  const canSubmit =
+    selectedPets.length > 0 &&
+    (subOptions.length === 0 || subService !== null) &&
+    (bookingType !== "ongoing" || recurringSchedule.days.length > 0) &&
+    oneOffDatesValid;
 
   return (
     <div className="inbox-inquiry-form">
@@ -168,30 +184,35 @@ export function InquiryForm({
         </div>
       </div>
 
-      {/* One time / Ongoing */}
+      {/* How often? — markup mirrors Discover's filter pattern (filter-visit-row
+          + filter-option-card with strong + span). Same shared CSS, same
+          copy, so users see one consistent affordance across surfaces. G3
+          fix 2026-05-04. */}
       <div className="filter-field">
-        <div className="label">Frequency</div>
-        <div className="inq-type-row">
+        <div className="label">How often?</div>
+        <div className="filter-visit-row">
           <button
             type="button"
-            className={`filter-option-card inq-type-card${bookingType === "one_off" ? " active" : ""}`}
+            className={`filter-option-card${bookingType === "one_off" ? " active" : ""}`}
             onClick={() => setBookingType("one_off")}
           >
-            <strong>One time</strong>
-            <span className="inq-type-sub">Holiday, one-off stay</span>
+            <strong>One Time</strong>
+            <span>Daily visits for a short period</span>
           </button>
           <button
             type="button"
-            className={`filter-option-card inq-type-card${bookingType === "ongoing" ? " active" : ""}`}
+            className={`filter-option-card${bookingType === "ongoing" ? " active" : ""}`}
             onClick={() => setBookingType("ongoing")}
           >
-            <strong>Ongoing</strong>
-            <span className="inq-type-sub">Regular schedule</span>
+            <strong>Repeat Weekly</strong>
+            <span>Ongoing weekly schedule</span>
           </button>
         </div>
       </div>
 
-      {/* Dates (one-off) or Schedule (ongoing) */}
+      {/* Dates (one-off) or Schedule (ongoing). Single-day allowed for walks
+          and sitting; boarding requires a multi-day range (overnight implies
+          ≥1 night). G3 fix 2026-05-04. */}
       {bookingType === "one_off" ? (
         <div className="filter-field">
           <div className="label">Dates</div>
@@ -202,6 +223,7 @@ export function InquiryForm({
           />
           <DatePicker
             mode="range"
+            minRangeDays={service === "boarding" ? 2 : 1}
             open={datePickerOpen}
             onClose={() => setDatePickerOpen(false)}
             value={dateRange}
@@ -213,24 +235,28 @@ export function InquiryForm({
           />
         </div>
       ) : (
-        <div className="filter-field">
-          <div className="label">Schedule</div>
-          <RecurringSchedulePicker
-            value={recurringSchedule}
-            onChange={setRecurringSchedule}
-          />
-        </div>
+        // RecurringSchedulePicker self-labels its two sub-sections ("For
+        // which days?" + "Time"), so no outer wrapper label needed.
+        <RecurringSchedulePicker
+          value={recurringSchedule}
+          onChange={setRecurringSchedule}
+        />
       )}
 
-      {/* Message */}
+      {/* Optional notes — context the form doesn't capture (special needs,
+          scheduling preferences). Renders alongside the InquiryCard on send. */}
       <div className="filter-field">
-        <div className="label">Message</div>
+        <div className="label" style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" }}>
+          <span>Anything else?</span>
+          <span className="text-fg-tertiary text-xs font-normal">Optional</span>
+        </div>
         <textarea
           className="input inq-message"
           rows={3}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          aria-label="Message to provider"
+          aria-label="Optional notes for provider"
+          placeholder={`Tell ${firstName} anything specific about your dog or schedule…`}
         />
       </div>
 

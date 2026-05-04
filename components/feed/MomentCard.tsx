@@ -5,6 +5,7 @@ import { FeedCard } from "./FeedCard";
 import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
 import { TagPillRow } from "@/components/posts/TagPill";
 import { getDogById, getUserById } from "@/lib/mockUsers";
+import { getGroupById } from "@/lib/mockGroups";
 import type { Post, PostTag, PostReaction, PostComment } from "@/lib/types";
 
 interface MomentCardProps {
@@ -115,6 +116,14 @@ export function MomentCard({
   const authorUser = getUserById(authorId);
   const isCareProvider = !!(authorUser?.carerProfile?.publicProfile);
 
+  // Group admin? Look up the post's group and check whether the author
+  // is in the admins list. Renders as a small "Admin" badge next to the
+  // name. Mock World Building 2026-04-30.
+  const group = groupId ? getGroupById(groupId) : undefined;
+  const isGroupAdmin = !!group?.members.some(
+    (m) => m.userId === authorId && m.role === "admin",
+  );
+
   return (
     <FeedCard
       authorName={authorName}
@@ -124,6 +133,7 @@ export function MomentCard({
       headerContext={headerContext}
       connectionContext={connectionContext}
       isCareProvider={isCareProvider}
+      isGroupAdmin={isGroupAdmin}
       caption={caption}
       media={photos.length > 0 ? <PostPhotoGrid photos={photos} /> : undefined}
       tags={remainingTags.length > 0 ? <TagPillRow tags={remainingTags} /> : undefined}

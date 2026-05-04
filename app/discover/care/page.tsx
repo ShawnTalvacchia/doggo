@@ -151,7 +151,13 @@ function CareResultsList({ serviceFilter }: { serviceFilter: string }) {
     return (
       <div className="flex flex-col items-center gap-md p-xl text-center">
         <Heart size={40} weight="light" className="text-fg-tertiary" />
-        <p className="text-sm text-fg-secondary m-0">No carers match your filters.</p>
+        <p className="text-sm text-fg-secondary m-0" style={{ maxWidth: 320 }}>
+          No carers in your circle yet for these filters. Find your park, attend a walk, see who&apos;s around — your community is how you find people you can trust.
+        </p>
+        <div className="flex gap-sm">
+          <ButtonAction variant="secondary" size="sm" href="/discover/groups">Find a park</ButtonAction>
+          <ButtonAction variant="secondary" size="sm" href="/discover/meets">Browse meets</ButtonAction>
+        </div>
       </div>
     );
   }

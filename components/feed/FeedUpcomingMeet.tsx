@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   CalendarDots,
   MapPin,
@@ -7,19 +8,24 @@ import {
   Tree,
   PawPrint,
   Target,
+  UsersThree,
+  ArrowsClockwise,
+  Clock,
 } from "@phosphor-icons/react";
 import type { Meet, MeetType } from "@/lib/types";
 import { MEET_TYPE_LABELS } from "@/lib/mockMeets";
 import { getGroupById } from "@/lib/mockGroups";
 import { formatMeetDateTime } from "@/lib/dateUtils";
 import { AttendeeAvatarStack } from "@/components/meets/AttendeeAvatarStack";
-import { getDisplayDate, isRecurring } from "@/lib/meetUtils";
+import { getDisplayDate, isRecurring, recurrenceLabel } from "@/lib/meetUtils";
 
 /**
  * FeedUpcomingMeet — the "a meet is happening soon" card that shows in the
- * community feed. Follows the shared meet-card anatomy (see
- * `docs/features/meets.md` → Meet-card anatomy) but sits inside the feed-card
- * article shell so it visually rhymes with moment posts.
+ * community feed. Mirrors the shared meet-card anatomy (see
+ * `docs/features/meets.md` → Meet-card anatomy): type pill → title → date row
+ * → location → group context → avatar stack. The contextual reminder is
+ * carried by a small "Coming up" label inline with the date — no separate
+ * banner, no group-avatar header.
  */
 
 const MEET_ICONS: Record<MeetType, React.ReactNode> = {
@@ -31,64 +37,90 @@ const MEET_ICONS: Record<MeetType, React.ReactNode> = {
 
 export function FeedUpcomingMeet({ meet }: { meet: Meet }) {
   const group = meet.groupId ? getGroupById(meet.groupId) : null;
-  const avatarUrl = group?.coverPhotoUrl || meet.creatorAvatarUrl;
-  const contextName = group?.name || meet.creatorName;
   const goingAttendees = meet.attendees.filter(
     (a) => (a.rsvpStatus ?? "going") === "going"
   );
 
   return (
-    <article className="feed-card">
-      <div className="feed-card-body">
-        {/* Left column: group/creator avatar */}
-        <div className="feed-card-col-avatar">
-          <img src={avatarUrl} alt={contextName} className="feed-card-avatar" />
-        </div>
-
-        {/* Right column */}
-        <div className="feed-card-col-content">
-          {/* Context line */}
-          <div className="feed-card-author-row">
-            <span className="feed-card-author-name">{contextName}</span>
-          </div>
-
-          {/* Type pill */}
-          <span
-            className="card-schedule-chip card-schedule-chip--primary self-start"
-            style={{ width: "fit-content" }}
-          >
-            {MEET_ICONS[meet.type]}
-            {MEET_TYPE_LABELS[meet.type]}
-          </span>
-
-          {/* Meet title — links to detail */}
-          <a
-            href={`/meets/${meet.id}`}
-            className="font-heading text-md font-semibold text-fg-primary m-0"
-            style={{ textDecoration: "none" }}
-          >
-            {meet.title}
-          </a>
-
-          {/* Meta */}
-          <div className="feed-card-meta">
-            <span className="feed-card-meta-item">
-              <CalendarDots size={14} weight="light" />
-              {/* Recurring meets show next upcoming occurrence ("Next: ...");
-                  one-off meets show the meet's own date. See `getDisplayDate`. */}
-              {isRecurring(meet) ? "Next: " : ""}
-              {formatMeetDateTime(getDisplayDate(meet), meet.time)}
-            </span>
-            <span className="feed-card-meta-item">
-              <MapPin size={14} weight="light" />
-              {meet.location}
-            </span>
-          </div>
-
-          {/* Dog-forward avatar stack + count */}
-          <AttendeeAvatarStack attendees={goingAttendees} size={24} />
-        </div>
+    <Link
+      href={`/meets/${meet.id}`}
+      className="card-schedule-meet"
+      style={{ textDecoration: "none" }}
+    >
+      {/* Type pill */}
+      <div className="flex flex-wrap items-center gap-xs">
+        <span className="card-schedule-chip card-schedule-chip--primary">
+          {MEET_ICONS[meet.type]}
+          {MEET_TYPE_LABELS[meet.type]}
+        </span>
       </div>
-    </article>
+
+      {/* Title */}
+      <h3
+        className="font-heading"
+        style={{
+          fontSize: 16,
+          fontWeight: 600,
+          lineHeight: "24px",
+          margin: 0,
+          color: "var(--text-primary)",
+        }}
+      >
+        {meet.title}
+      </h3>
+
+      <div className="flex flex-col gap-xs">
+        {/* Date row — "Coming up" leads inline (brand-main), then standard date.
+            Recurring meets show next upcoming occurrence ("Next: ..."). */}
+        <div className="flex items-center gap-xs text-sm text-fg-secondary flex-wrap">
+          <span className="flex items-center gap-xs font-semibold text-brand-main shrink-0">
+            <Clock size={14} weight="fill" />
+            Coming up
+          </span>
+          <span style={{ color: "var(--text-tertiary)" }}>·</span>
+          <CalendarDots size={16} weight="light" className="shrink-0" />
+          <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
+            {isRecurring(meet) ? "Next: " : ""}
+            {formatMeetDateTime(getDisplayDate(meet), meet.time)}
+          </span>
+          {recurrenceLabel(meet) && (
+            <>
+              <span style={{ padding: "0 4px", color: "var(--text-tertiary)" }}>·</span>
+              <ArrowsClockwise size={14} weight="light" className="text-fg-tertiary shrink-0" />
+              <span className="text-fg-tertiary">{recurrenceLabel(meet)}</span>
+            </>
+          )}
+        </div>
+
+        {/* Location */}
+        <div className="flex items-center gap-xs text-sm text-fg-secondary">
+          <MapPin size={16} weight="light" className="shrink-0" />
+          {meet.location}
+        </div>
+
+        {/* Group context */}
+        {group && (
+          <div className="flex items-center gap-xs text-sm">
+            <UsersThree
+              size={16}
+              weight="light"
+              className="shrink-0"
+              style={{ color: "var(--status-info-600, #4e63b8)" }}
+            />
+            <span
+              className="font-semibold"
+              style={{ color: "var(--status-info-600, #4e63b8)" }}
+            >
+              {group.name}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Dog-forward avatar stack */}
+      <div className="flex items-center gap-sm flex-wrap">
+        <AttendeeAvatarStack attendees={goingAttendees} maxAvatars={5} />
+      </div>
+    </Link>
   );
 }

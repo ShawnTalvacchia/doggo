@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-13
+last-reviewed: 2026-05-02
 tags: [messaging, inbox, chat, booking, notifications]
 review-trigger: "when modifying inbox, threads, conversation types, or notifications"
 ---
@@ -64,14 +64,14 @@ The inbox is a **connections list**, not a thread list. It shows all users you c
 
 Each row represents a user, not a conversation:
 - Avatar with unread dot
-- Name, dog names (PawPrint icon)
+- Name, with dog name(s) inline next to it (PawPrint icon + dog name(s)). Booking conversations also append the service name (e.g. `🐾 Bára · Reactive dog session`); direct/social rows show the dog only.
 - Last message preview or "Start chatting" for empty conversations
 - Relative timestamp
 - Tapping navigates to `/profile/[userId]?tab=chat`
 
 ### Row sources
 
-1. Users from existing conversations (via ConversationsContext)
+1. Users from existing conversations (via ConversationsContext) — **filtered to threads where the current persona is provider OR owner**, so each persona only sees their own conversations.
 2. Connected users without conversations yet (via `getConnectionsByState("connected")`)
 
 Sorted: unread first, then by most recent message.

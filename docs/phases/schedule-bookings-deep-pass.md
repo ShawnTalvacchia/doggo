@@ -1,6 +1,6 @@
 ---
 status: planned
-last-reviewed: 2026-04-25
+last-reviewed: 2026-05-03
 review-trigger: When opening this phase, or when adding new deferred items
 ---
 
@@ -81,6 +81,20 @@ Open questions:
 - Reviewed care reviews and provider visit reports — do they appear inline on their card, or is there a separate "view your review" affordance?
 - Filtering — sub-pills under History (e.g. All / Meets / Care)?
 - "Reviewed" state — once tracked, does a reviewed item leave History, stay forever, or have its own filter?
+
+---
+
+## Pre-loaded Scope (deferred from punch list — 2026-05-03)
+
+Two items raised on the punch list belonging to this phase.
+
+### Per-occurrence cancellation for recurring meets (was P26)
+
+Today's `cancellationReason` field handles series-level / one-off cancellation, but recurring series cancel one date at a time ("this Wednesday is rained out") far more often than the whole series ends. Needs: (a) `Meet.cancelledDates?: Record<string, { reason: string; cancelledAt: string }>` shape; (b) host-side cancel-this-occurrence affordance (no UI exists today — meets get cancelled by editing mock data); (c) per-date Schedule filtering + per-date cancelled rendering on the Upcoming Dates section; (d) cancel-vs-skip distinction (cancel = host action, affects everyone; skip = user action, affects only you); (e) notification triggering for affected attendees. Booking flows have the same shape problem and should be designed alongside. Touches `lib/types.ts` (Meet shape), `app/meets/[id]/page.tsx` (RecurringUpcomingDates), `app/schedule/page.tsx` (filter), `lib/meetUtils.ts` (instance helpers). Surfaced 2026-04-27.
+
+### Schedule care cards need header info (was P3)
+
+Care cards on `/schedule` lack the operational header detail an owner expects — drop-off time, address, or other relevant scheduling context. Currently the card body is generic; the visible upcoming-care-session affordance needs to communicate "where am I taking the dog and when" at a glance. Surfaced 2026-04-10.
 
 ---
 

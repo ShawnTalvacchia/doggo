@@ -131,11 +131,14 @@ function CardGroupContent({
           {group.location || group.neighbourhood}
         </div>
 
-        {/* Hosted by — care groups only */}
-        {group.groupType === "care" && group.hostedByName && (
+        {/* Run by — care groups only. For multi-provider groups, the
+            primary attribution + count tail. Full multi-provider treatment
+            renders on the detail hero (Discover & Care B3). */}
+        {group.groupType === "care" && group.providers && group.providers.length > 0 && (
           <div className="flex items-center gap-xs text-sm text-fg-secondary">
             <Storefront size={16} weight="light" className="shrink-0 text-brand-main" />
-            Hosted by {group.hostedByName}
+            Run by {group.providers[0].name}
+            {group.providers.length > 1 && ` + ${group.providers.length - 1}`}
           </div>
         )}
 

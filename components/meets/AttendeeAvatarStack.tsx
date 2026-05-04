@@ -46,6 +46,9 @@ export function AttendeeAvatarStack({
 
   // Resolve the image for each slot. Prefer the attendee's first dog; fall
   // back to the owner avatar so the stack doesn't collapse on missing data.
+  // No Familiar ring here — that's a Discover-surface affordance only
+  // (Discover & Care 2026-05-04). On meet/group surfaces the relationship is
+  // already signaled by sections, labels, and CTAs.
   const slots = attendees.slice(0, maxAvatars).map((a) => {
     const primaryDog = a.dogNames[0];
     const dogImg = primaryDog ? getDogImageByOwnerAndName(a.userId, primaryDog) : undefined;

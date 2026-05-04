@@ -1,5 +1,13 @@
-import type { Group, CareCategory, CareGroupConfig } from "./types";
+import type {
+  Group,
+  GroupProviderRef,
+  CareCategory,
+  CareGroupConfig,
+  CarerServiceConfig,
+} from "./types";
 import { mockMeets } from "./mockMeets";
+import { isMeetVisibleTo } from "./meetUtils";
+import { getUserById } from "./mockUsers";
 
 /** Default care group configuration by provider category */
 export const CARE_CONFIG_DEFAULTS: Record<CareCategory, CareGroupConfig> = {
@@ -357,7 +365,7 @@ export const mockGroups: Group[] = [
     id: "group-tereza-neighbourhood",
     name: "Vinohrady Evening Walkers",
     description:
-      "A small group of neighbours who walk together most evenings around Vinohrady. Casual, consistent, and dog-friendly. Created by Tereza after meeting regulars at Riegrovy Sady.",
+      "A few of us walk together most evenings around Vinohrady — casual pace, friendly dogs, easy chat. Started this after I kept seeing the same crew at Riegrovy Sady and we wanted a way to coordinate. Drop in any night.",
     groupType: "neighbor",
     visibility: "private",
     neighbourhood: "Vinohrady",
@@ -387,16 +395,16 @@ export const mockGroups: Group[] = [
     neighbourhood: "Prague-wide",
     location: "Various quiet parks",
     coverPhotoUrl: "/images/generated/goldie-leash.jpeg",
-    creatorId: "daniel",
-    creatorName: "Daniel",
+    creatorId: "eva",
+    creatorName: "Eva",
     members: [
-      { userId: "daniel", userName: "Daniel", avatarUrl: "/images/generated/daniel-profile.jpeg", dogNames: ["Bára"], role: "admin", joinedAt: "2026-01-10" },
+      { userId: "daniel", userName: "Daniel", avatarUrl: "/images/generated/daniel-profile.jpeg", dogNames: ["Bára"], role: "member", joinedAt: "2026-01-10" },
       { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], role: "member", joinedAt: "2026-01-12" },
       { userId: "martin", userName: "Martin", avatarUrl: "/images/generated/martin-profile.jpeg", dogNames: ["Charlie"], role: "member", joinedAt: "2026-01-15" },
       { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"], role: "member", joinedAt: "2026-01-14" },
       { userId: "anezka", userName: "Anežka", avatarUrl: "/images/generated/anezka-profile.jpeg", dogNames: ["Nela"], role: "member", joinedAt: "2026-01-16" },
       { userId: "vitek", userName: "Vítek", avatarUrl: "/images/generated/vitek-profile.jpeg", dogNames: ["Sam"], role: "member", joinedAt: "2026-01-25" },
-      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"], role: "member", joinedAt: "2026-01-18" },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"], role: "admin", joinedAt: "2026-01-18" },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], role: "member", joinedAt: "2026-02-01" },
     ],
     photos: ["/images/generated/goldie-leash.jpeg", "/images/generated/care-petra-sitting.jpeg"],
@@ -407,13 +415,11 @@ export const mockGroups: Group[] = [
     id: "group-klara-training",
     name: "Klára's Calm Dog Sessions",
     description:
-      "Small-group training sessions focused on calm behaviour, recall, and socialisation. Hosted by Klára, a certified dog trainer. Open to all — check upcoming sessions and book your spot.",
+      "Small-group training sessions focused on calm behaviour, recall, and socialisation. I'm a certified trainer (8 years) — sessions run at Stromovka and 1-on-1 at your location. Check upcoming sessions and book your spot.",
     groupType: "care",
     careCategory: "training",
     visibility: "open",
-    hostedBy: "klara",
-    hostedByName: "Klára",
-    hostedByAvatarUrl: "/images/generated/klara-profile.jpeg",
+    providers: [{ userId: "klara", name: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg" }],
     neighbourhood: "Holešovice",
     location: "Stromovka, Prague 7",
     coverPhotoUrl: "/images/generated/community-cover-training.jpeg",
@@ -526,9 +532,7 @@ export const mockGroups: Group[] = [
     groupType: "care",
     careCategory: "walking",
     visibility: "open",
-    hostedBy: "pawel",
-    hostedByName: "Pawel",
-    hostedByAvatarUrl: "/images/generated/marek-profile.jpeg",
+    providers: [{ userId: "pawel", name: "Pawel", avatarUrl: "/images/generated/marek-profile.jpeg" }],
     neighbourhood: "Vinohrady",
     location: "Various parks, Prague 2–3",
     coverPhotoUrl: "/images/generated/group-walk-stromovka.jpeg",
@@ -568,9 +572,7 @@ export const mockGroups: Group[] = [
     groupType: "care",
     careCategory: "grooming",
     visibility: "open",
-    hostedBy: "dognut",
-    hostedByName: "Dognut Grooming",
-    hostedByAvatarUrl: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=400&q=80",
+    providers: [{ userId: "dognut", name: "Dognut Grooming", avatarUrl: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=400&q=80" }],
     neighbourhood: "Holešovice",
     location: "Holešovice, Prague 7",
     locationFixed: "Komunardů 32, Prague 7",
@@ -613,9 +615,7 @@ export const mockGroups: Group[] = [
     groupType: "care",
     careCategory: "boarding",
     visibility: "approval",
-    hostedBy: "happy_tails",
-    hostedByName: "Markéta",
-    hostedByAvatarUrl: "/images/generated/zuzana-profile.jpeg",
+    providers: [{ userId: "happy_tails", name: "Markéta", avatarUrl: "/images/generated/zuzana-profile.jpeg" }],
     neighbourhood: "Dejvice",
     location: "Dejvice, Prague 6",
     locationFixed: "Na Hutích 12, Prague 6",
@@ -648,9 +648,7 @@ export const mockGroups: Group[] = [
     groupType: "care",
     careCategory: "rehab",
     visibility: "private",
-    hostedBy: "physiodog",
-    hostedByName: "Dr. Novotná",
-    hostedByAvatarUrl: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80",
+    providers: [{ userId: "physiodog", name: "Dr. Novotná", avatarUrl: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80" }],
     neighbourhood: "Smíchov",
     location: "Smíchov, Prague 5",
     locationFixed: "Plzeňská 98, Prague 5",
@@ -681,9 +679,7 @@ export const mockGroups: Group[] = [
     groupType: "care",
     careCategory: "venue",
     visibility: "open",
-    hostedBy: "cafe_letka",
-    hostedByName: "Café Letka",
-    hostedByAvatarUrl: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=400&q=80",
+    providers: [{ userId: "cafe_letka", name: "Café Letka", avatarUrl: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=400&q=80" }],
     neighbourhood: "Letná",
     location: "Letná, Prague 7",
     locationFixed: "Letenské náměstí 3, Prague 7",
@@ -712,9 +708,11 @@ export const mockGroups: Group[] = [
     groupType: "care",
     careCategory: "vet",
     visibility: "open",
-    hostedBy: "premiumvet",
-    hostedByName: "PremiumVet",
-    hostedByAvatarUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80",
+    providers: [
+      { userId: "premiumvet", name: "PremiumVet", avatarUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80" },
+      { userId: "lenka-vet", name: "Dr. Nováková", avatarUrl: "/images/generated/zuzana-profile.jpeg" },
+      { userId: "vet-stepanek", name: "Dr. Štěpánek", avatarUrl: "/images/generated/jakub-profile.jpeg" },
+    ],
     neighbourhood: "Vinohrady",
     location: "Vinohrady, Prague 2",
     locationFixed: "Mánesova 67, Prague 2",
@@ -726,6 +724,8 @@ export const mockGroups: Group[] = [
     serviceListings: [],
     members: [
       { userId: "premiumvet", userName: "PremiumVet", avatarUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80", dogNames: [], role: "admin", joinedAt: "2025-09-01" },
+      { userId: "lenka-vet", userName: "Lenka Nováková", avatarUrl: "/images/generated/zuzana-profile.jpeg", dogNames: [], role: "admin", joinedAt: "2025-09-01" },
+      { userId: "vet-stepanek", userName: "Dr. Štěpánek", avatarUrl: "/images/generated/jakub-profile.jpeg", dogNames: [], role: "admin", joinedAt: "2025-09-01" },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot", "Goldie"], role: "member", joinedAt: "2025-10-01" },
       { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], role: "member", joinedAt: "2025-10-15" },
       { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"], role: "member", joinedAt: "2025-11-01" },
@@ -950,29 +950,43 @@ export function getParkGroupsNear(neighbourhood: string): Group[] {
   return mockGroups.filter((g) => g.groupType === "park" && g.neighbourhood === neighbourhood);
 }
 
-/** Get upcoming meets for a group */
-export function getGroupMeets(groupId: string) {
+/**
+ * Get upcoming meets for a group, filtered to what `viewerId` is allowed to see.
+ *
+ * `Meet.groupId` is the single source of truth for the group↔meet relationship
+ * (Mock World Building A2, 2026-04-30). The previous `Group.meetIds` array was
+ * removed because the two paths drifted — see archived punch list P21.
+ *
+ * Visibility filter: `participants_only` meets (contracted/package-booked
+ * instances) are stripped unless `viewerId` is the creator or on the roster.
+ * See `lib/meetUtils.ts:isMeetVisibleTo`.
+ */
+export function getGroupMeets(groupId: string, viewerId?: string | null) {
   const group = getGroupById(groupId);
   if (!group) return [];
-  // `Meet.groupId` is the single source of truth for the group↔meet
-  // relationship (Mock World Building A2, 2026-04-30). The previous
-  // `Group.meetIds` array was removed because the two paths drifted —
-  // see archived punch list P21.
-  return mockMeets.filter(
-    (m) => m.groupId === groupId && m.status === "upcoming",
-  );
+  return mockMeets
+    .filter((m) => m.groupId === groupId && m.status === "upcoming")
+    .filter((m) => isMeetVisibleTo(m, viewerId))
+    .sort((a, b) =>
+      `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`),
+    );
 }
 
-/** Count of upcoming meets belonging to this group. Card-friendly. */
-export function getGroupMeetCount(groupId: string): number {
+/** Count of upcoming meets belonging to this group. Card-friendly.
+ * Viewer-aware: package/contracted meets are excluded for non-roster viewers
+ * so the count matches what they'll see on the group's Meets tab. */
+export function getGroupMeetCount(groupId: string, viewerId?: string | null): number {
   return mockMeets.filter(
-    (m) => m.groupId === groupId && m.status === "upcoming",
+    (m) =>
+      m.groupId === groupId &&
+      m.status === "upcoming" &&
+      isMeetVisibleTo(m, viewerId),
   ).length;
 }
 
 /** Get the next upcoming meet for a group (for card display) */
-export function getNextGroupMeet(groupId: string) {
-  const meets = getGroupMeets(groupId);
+export function getNextGroupMeet(groupId: string, viewerId?: string | null) {
+  const meets = getGroupMeets(groupId, viewerId);
   if (meets.length === 0) return null;
   return meets.sort((a, b) =>
     `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`)
@@ -1007,6 +1021,43 @@ export function getSharedGroupNames(viewerId: string, subjectId: string): string
   for (const group of mockGroups) {
     const memberIds = new Set(group.members.map((m) => m.userId));
     if (memberIds.has(viewerId) && memberIds.has(subjectId)) out.push(group.name);
+  }
+  return out;
+}
+
+/**
+ * Service-intersection rule for Care groups.
+ *
+ * A Care group surfaces the intersection of (a) services offered by its
+ * provider members on their individual profiles and (b) services matching
+ * the group's context (location / category / methodology). See
+ * [[Groups & Care Model]] → Care Group Admin Model → Service intersection
+ * rule.
+ *
+ * Today this returns *all* enabled services from each provider — services
+ * don't carry location or methodology metadata yet, so there's nothing to
+ * filter on. The function is the canonical entry point for any future
+ * Care-group "Services from our team" rendering surface; when location
+ * metadata lands on `CarerServiceConfig`, the filter below activates.
+ *
+ * Discover & Care B4, 2026-05-02.
+ */
+export function getCareGroupServices(group: Group): {
+  provider: GroupProviderRef;
+  service: CarerServiceConfig;
+}[] {
+  if (group.groupType !== "care" || !group.providers) return [];
+  const out: { provider: GroupProviderRef; service: CarerServiceConfig }[] = [];
+  for (const provider of group.providers) {
+    const user = getUserById(provider.userId);
+    const services = user?.carerProfile?.services ?? [];
+    for (const service of services) {
+      if (!service.enabled) continue;
+      // Future filters (gated on data that doesn't exist yet):
+      //   - service.locationContext intersect group.location/neighbourhood
+      //   - service.methodology intersect group.config.methodology
+      out.push({ provider, service });
+    }
   }
   return out;
 }

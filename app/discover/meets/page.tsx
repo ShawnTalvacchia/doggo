@@ -22,6 +22,7 @@ import {
   getUserMeets,
   getFollowedSeries,
 } from "@/lib/mockMeets";
+import { isMeetVisibleTo } from "@/lib/meetUtils";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { Meet, MeetType } from "@/lib/types";
 
@@ -258,8 +259,9 @@ function DiscoverMeetsInner() {
   const allUpcoming = useMemo(() =>
     mockMeets
       .filter((m) => m.status === "upcoming")
+      .filter((m) => isMeetVisibleTo(m, currentUserId))
       .sort((a, b) => `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`)),
-    []
+    [currentUserId]
   );
 
   // When the "Following" pill is active, scope to series the current user
