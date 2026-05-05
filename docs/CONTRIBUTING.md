@@ -83,7 +83,9 @@ Some work doesn't fit a phase board. It's bigger than a punch-list nit, smaller 
 
 **A side task should:**
 - Have a single, well-defined goal stated in its spawn prompt.
-- Land as a focused commit or PR.
+- **Declare the files it expects to touch** in the spawn prompt (Files: list). Lets the user spot overlap with active phase work before spawning.
+- **Rebase onto current `main` before completing.** When the work is ready, the worktree agent runs `git rebase main`, resolves any conflicts in the worktree (where it has full context for both sides), then signals ready-to-merge. Conflicts are the side-task agent's problem to solve, not the later merger's.
+- **Push to a remote branch and open a PR** rather than only committing locally. The PR is the merge surface. Reviewing and merging on GitHub doesn't require re-entering the chat that produced the work.
 - Update any feature docs whose described behavior changed.
 - Update `last-reviewed` on docs it touched.
 
@@ -91,6 +93,9 @@ Some work doesn't fit a phase board. It's bigger than a punch-list nit, smaller 
 - Modify `CLAUDE.md`, `ROADMAP.md`, phase boards, or the Open Questions log.
 - Unilaterally resume a paused phase. If the work clearly belongs in a paused phase, ASK the user before starting — they decide whether to formally resume the phase (running its Opening Checklist) or to treat the work as a one-off side task. Default is one-off.
 - Sprawl beyond the spawn prompt. If meaningful new scope appears, surface it back to the user — don't expand silently.
+- Land work that's stale relative to `main`. If `main` has moved meaningfully since the worktree branched and the side task hasn't rebased, it's likely missing concurrent work that should be integrated. Rebase first.
+
+**Before spawning a side task, check for file-level overlap with active phase work.** If the side task's declared files overlap with files currently being edited in the active phase, either (a) defer the side task until the phase closes, (b) finish the active phase's edits to those files first so the worktree branches from a settled state, or (c) brief the side-task agent in its spawn prompt about the concurrent changes and what to integrate. Today's worst case (Profile Deep Pass spawned during Pricing & Proposals walkthrough — both touching `ProfileServicesTab.tsx`) is exactly the failure mode this rule prevents.
 
 **Promoting a side task to a phase.** If a side task reveals significant additional scope, stop and propose either (a) resuming a relevant paused phase, (b) opening a new phase, or (c) deferring the rest to the punch list. The user picks.
 
