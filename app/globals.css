@@ -2323,6 +2323,27 @@ body.guest-route {
   display: flex;
 }
 
+/* Input with trailing text/unit (e.g. "Kč / visit") — wider padding than the
+   icon variant, sized via the right inset of the suffix span. */
+.input-with-trailing {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.input-with-trailing .input {
+  padding-right: 96px;
+}
+.input-trailing-text {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  font-size: var(--font-size-body-sm);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
 /* ── SearchInput — reusable pill-shaped search bar ─────────────────────────── */
 
 .search-input {

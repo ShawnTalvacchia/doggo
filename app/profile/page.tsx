@@ -5,9 +5,6 @@ import { useSearchParams, useRouter } from "next/navigation";
 import {
   MapPin,
   CalendarBlank,
-  PencilSimple,
-  Check,
-  X,
   ShareNetwork,
   CopySimple,
 } from "@phosphor-icons/react";
@@ -83,7 +80,11 @@ function ProfileInner() {
     }
   }, [router]);
 
-  const [editing, setEditing] = useState(false);
+  // Edit state is per-tab so Save/Cancel can sit adjacent to the section being
+  // edited (in the tab content) rather than in the hero. About and Services
+  // edit independently — switching tabs does not auto-save.
+  const [aboutEditing, setAboutEditing] = useState(false);
+  const [servicesEditing, setServicesEditing] = useState(false);
   const currentUser = useCurrentUser();
 
   // Editable state (local, resets on refresh — prototype only)
@@ -129,12 +130,30 @@ function ProfileInner() {
     setEditAvailability(currentUser.carerProfile?.availability ?? []);
     setEditCarerBio(currentUser.carerProfile?.bio ?? "");
     setTagApproval(currentUser.tagApproval ?? "auto");
-    setEditing(false);
+    setAboutEditing(false);
+    setServicesEditing(false);
   }, [currentUser.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  function startEditing() {
+  // ── About edit lifecycle ──
+  function startAboutEdit() {
     setEditBio(user.bio);
     setEditPets(user.pets.map((p) => ({ ...p })));
+    setAboutEditing(true);
+  }
+  function cancelAboutEdit() {
+    setAboutEditing(false);
+  }
+  function saveAboutEdit() {
+    setUser((prev) => ({
+      ...prev,
+      bio: editBio,
+      pets: editPets,
+    }));
+    setAboutEditing(false);
+  }
+
+  // ── Services edit lifecycle ──
+  function startServicesEdit() {
     setEditVisibility(user.carerProfile?.publicProfile ?? false);
     setEditOpenToHelping(user.openToHelping ?? false);
     setEditServices(
@@ -142,20 +161,18 @@ function ProfileInner() {
         .filter((s): s is CarerCareServiceConfig => s.kind === "care")
         .map((s) => ({ ...s })),
     );
-    setEditAvailability(user.carerProfile?.availability.map((a) => ({ ...a, slots: [...a.slots] })) ?? []);
+    setEditAvailability(
+      user.carerProfile?.availability.map((a) => ({ ...a, slots: [...a.slots] })) ?? [],
+    );
     setEditCarerBio(user.carerProfile?.bio ?? "");
-    setEditing(true);
+    setServicesEditing(true);
   }
-
-  function cancelEditing() {
-    setEditing(false);
+  function cancelServicesEdit() {
+    setServicesEditing(false);
   }
-
-  function saveEditing() {
+  function saveServicesEdit() {
     setUser((prev) => ({
       ...prev,
-      bio: editBio,
-      pets: editPets,
       openToHelping: editOpenToHelping,
       carerProfile: editOpenToHelping
         ? {
@@ -176,7 +193,7 @@ function ProfileInner() {
           ? { ...prev.carerProfile, publicProfile: editVisibility }
           : undefined,
     }));
-    setEditing(false);
+    setServicesEditing(false);
   }
 
   const fullName = `${user.firstName} ${user.lastName}`;
@@ -190,8 +207,13 @@ function ProfileInner() {
 
         {activeTab === "about" && (
           <>
-            {/* Hero section — avatar, name, location, actions */}
-            <div className="flex flex-col items-center gap-md" style={{ padding: "var(--space-xl) var(--space-lg) var(--space-md)" }}>
+            {/* Hero section — identity only (avatar, name, location, share).
+                Edit / Save / Cancel live inside each tab adjacent to the
+                content being edited. */}
+            <div
+              className="flex flex-col items-center gap-md"
+              style={{ padding: "var(--space-xl) var(--space-lg) var(--space-md)" }}
+            >
               <img
                 src={user.avatarUrl}
                 alt={fullName}
@@ -212,38 +234,16 @@ function ProfileInner() {
                 </span>
               </div>
 
-              {/* Edit / Save / Cancel */}
-              <div className="flex gap-sm">
-                {editing ? (
-                  <>
-                    <ButtonAction variant="outline" size="md"
-                      leftIcon={<X size={14} weight="bold" />}
-                      onClick={cancelEditing}>
-                      Cancel
-                    </ButtonAction>
-                    <ButtonAction variant="primary" size="md"
-                      leftIcon={<Check size={14} weight="bold" />}
-                      onClick={saveEditing}>
-                      Save
-                    </ButtonAction>
-                  </>
-                ) : (
-                  <>
-                    <ButtonAction variant="outline" size="md"
-                      leftIcon={<PencilSimple size={14} weight="bold" />}
-                      onClick={startEditing}>
-                      Edit Profile
-                    </ButtonAction>
-                    <ShareProfileButton shareCode={user.shareCode ?? user.id} />
-                  </>
-                )}
-              </div>
+              <ShareProfileButton shareCode={user.shareCode ?? user.id} />
             </div>
 
             {/* About tab content — bio, pets, connections, tagging */}
             <ProfileAboutTab
               user={user}
-              editing={editing}
+              editing={aboutEditing}
+              onStartEdit={startAboutEdit}
+              onCancel={cancelAboutEdit}
+              onSave={saveAboutEdit}
               editState={{ bio: editBio, pets: editPets }}
               onEditChange={(updates) => {
                 if (updates.bio !== undefined) setEditBio(updates.bio);
@@ -260,30 +260,27 @@ function ProfileInner() {
         )}
 
         {activeTab === "services" && (
-          <>
-            <ProfileServicesTab
-              user={user}
-              editing={editing}
-              visibility={editing ? editVisibility : (user.carerProfile?.publicProfile ?? false)}
-              onToggleVisibility={() => setEditVisibility((v) => !v)}
-              openToHelping={editing ? editOpenToHelping : (user.openToHelping ?? false)}
-              onToggleOpenToHelping={(v) => setEditOpenToHelping(v)}
-              editServices={editServices}
-              onEditServices={setEditServices}
-              editAvailability={editAvailability}
-              onEditAvailability={setEditAvailability}
-              editCarerBio={editCarerBio}
-              onEditCarerBio={setEditCarerBio}
-            />
-            <div className="profile-content-width profile-section-stack" style={{ marginTop: "var(--space-xl)" }}>
-              <section className="profile-info-card">
-                <h3 className="profile-card-subtitle">Reviews</h3>
-                <p className="profile-card-copy text-fg-secondary">
-                  No reviews yet. Reviews will appear here once you complete bookings.
-                </p>
-              </section>
-            </div>
-          </>
+          <ProfileServicesTab
+            user={user}
+            editing={servicesEditing}
+            onStartEdit={startServicesEdit}
+            onCancel={cancelServicesEdit}
+            onSave={saveServicesEdit}
+            visibility={
+              servicesEditing ? editVisibility : (user.carerProfile?.publicProfile ?? false)
+            }
+            onToggleVisibility={() => setEditVisibility((v) => !v)}
+            openToHelping={
+              servicesEditing ? editOpenToHelping : (user.openToHelping ?? false)
+            }
+            onToggleOpenToHelping={(v) => setEditOpenToHelping(v)}
+            editServices={editServices}
+            onEditServices={setEditServices}
+            editAvailability={editAvailability}
+            onEditAvailability={setEditAvailability}
+            editCarerBio={editCarerBio}
+            onEditCarerBio={setEditCarerBio}
+          />
         )}
 
         <Spacer />

@@ -70,15 +70,18 @@ The Chat tab embeds the full messaging thread directly on the profile page using
 
 ### Own profile
 
-- Hero section inline in About tab: avatar (large), name, location, member since, Edit/Save/Cancel buttons, Share Profile
-- Edit mode for bio, location, visibility toggle
+- Hero section inline in About tab: avatar (large), name, location, member since, Share Profile button. Identity-only — no edit chrome.
+- **Per-tab edit state.** About and Services each have their own Edit / Save / Cancel chrome at the top of the tab content (right-aligned). Switching tabs does not auto-save or auto-cancel — each tab's edit state is independent. Posts tab is non-editing (its "New post" CTA opens the composer modal).
+- Tab content uses `.profile-tab-stack` — sections sit on the page surface separated by thin dividers, no card-per-section nesting.
+- Edit mode for bio, pets (About tab); openToHelping, services, availability, carer bio, search visibility (Services tab).
 - Pet management: PetCards with expand/collapse (defaultExpanded=true on own profile)
 - Tag approval setting: auto-approve / review first / don't allow tagging
 - Care CTAs: Find Care + Offer Care / Manage Services
 - Connection list with state badges
 - **Posts tab:** photo grid of user's posts with "New post" CTA
 - **Services tab:** editable services, availability, visibility toggle. **Comprehensive catalogue** — both Care-type offerings (Walking, Sitting, Boarding) and Meet-type offerings (Training sessions, Workshops, paid Group meets) live here in one list. See [[Groups & Care Model]] → Services as Catalog for the split.
-- **Pricing modifiers (Pricing & Proposals 2026-05-05):** per-Care-service `PricingModifiersEditor` accordion below Notes. Default-collapsed; "N on" badge reflects enabled count. All four modifier kinds (Holiday / Weekend / Multi-pet / Last-minute) always render so providers can flip any on. Reasonable defaults so opt-in is one tap. Implementation: `components/profile/ProfileServicesTab.tsx`. View-mode card shows "From {price}" prefix when modifiers are enabled.
+  - Service edit rows use `Select` for service type, `ButtonIcon` for the remove action, and `InputField` with the `trailing` prop for the price unit suffix ("Kč / visit"). All inputs are design-system-aligned (Profile Deep Pass).
+  - **Pricing modifiers (Pricing & Proposals 2026-05-05):** per-Care-service `PricingModifiersEditor` accordion below Notes. Default-collapsed; "N on" badge reflects enabled count. All four modifier kinds (Holiday / Weekend / Multi-pet / Last-minute) always render so providers can flip any on. Reasonable defaults so opt-in is one tap. Implementation: `components/profile/ProfileServicesTab.tsx`. View-mode card shows "From {price}" prefix when modifiers are enabled.
 
 ### Other user profiles (`/profile/[userId]`)
 

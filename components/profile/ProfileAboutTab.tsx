@@ -7,6 +7,9 @@ import {
   Sparkle,
   CaretRight,
   Eye,
+  PencilSimple,
+  Check,
+  X,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { PetCard } from "./PetCard";
@@ -94,11 +97,62 @@ function ConnectionsList({ viewerId }: { viewerId: string }) {
   );
 }
 
+// ── Edit chrome (top of tab) ─────────────────────────────────────────────────
+
+function EditChrome({
+  editing,
+  onStartEdit,
+  onCancel,
+  onSave,
+}: {
+  editing: boolean;
+  onStartEdit: () => void;
+  onCancel: () => void;
+  onSave: () => void;
+}) {
+  return (
+    <div className="flex justify-end gap-sm">
+      {editing ? (
+        <>
+          <ButtonAction
+            variant="outline"
+            size="md"
+            leftIcon={<X size={14} weight="bold" />}
+            onClick={onCancel}
+          >
+            Cancel
+          </ButtonAction>
+          <ButtonAction
+            variant="primary"
+            size="md"
+            leftIcon={<Check size={14} weight="bold" />}
+            onClick={onSave}
+          >
+            Save
+          </ButtonAction>
+        </>
+      ) : (
+        <ButtonAction
+          variant="outline"
+          size="md"
+          leftIcon={<PencilSimple size={14} weight="bold" />}
+          onClick={onStartEdit}
+        >
+          Edit Profile
+        </ButtonAction>
+      )}
+    </div>
+  );
+}
+
 // ── Props ────────────────────────────────────────────────────────────────────
 
 interface ProfileAboutTabProps {
   user: UserProfile;
   editing: boolean;
+  onStartEdit: () => void;
+  onCancel: () => void;
+  onSave: () => void;
   editState: { bio: string; pets: PetProfile[] };
   onEditChange: (updates: Partial<{ bio: string; pets: PetProfile[] }>) => void;
   tagApproval: TagApproval;
@@ -110,15 +164,25 @@ interface ProfileAboutTabProps {
 export function ProfileAboutTab({
   user,
   editing,
+  onStartEdit,
+  onCancel,
+  onSave,
   editState,
   onEditChange,
   tagApproval,
   onTagApprovalChange,
 }: ProfileAboutTabProps) {
   return (
-    <div className="profile-content-width profile-section-stack">
+    <div className="profile-tab-stack" style={{ padding: "var(--space-lg)" }}>
+      <EditChrome
+        editing={editing}
+        onStartEdit={onStartEdit}
+        onCancel={onCancel}
+        onSave={onSave}
+      />
+
       {/* Bio */}
-      <section className="profile-info-card">
+      <section>
         <h3 className="profile-card-subtitle">About me</h3>
         {editing ? (
           <textarea
@@ -134,11 +198,12 @@ export function ProfileAboutTab({
       </section>
 
       {/* Dogs */}
-      <section className="profile-info-card">
-        <div className="flex items-center justify-between" style={{ marginBottom: editing ? 16 : 0 }}>
-          <h3 className="profile-card-subtitle m-0">
-            My dogs
-          </h3>
+      <section>
+        <div
+          className="flex items-center justify-between"
+          style={{ marginBottom: editing ? 16 : 0 }}
+        >
+          <h3 className="profile-card-subtitle m-0">My dogs</h3>
           {editing && (
             <ButtonAction
               variant="outline"
@@ -197,7 +262,7 @@ export function ProfileAboutTab({
       </section>
 
       {/* Connections */}
-      <section className="profile-info-card">
+      <section>
         <h3 className="profile-card-subtitle">Connections</h3>
         <ConnectionsList viewerId={user.id} />
       </section>
@@ -250,16 +315,19 @@ export function ProfileAboutTab({
       </section>
 
       {/* Tagging preferences */}
-      <section className="profile-info-card">
+      <section>
         <h3 className="profile-card-subtitle">Tagging preferences</h3>
-        <p className="text-xs text-fg-tertiary" style={{ marginBottom: "var(--space-sm)" }}>
+        <p
+          className="text-xs text-fg-tertiary"
+          style={{ marginBottom: "var(--space-sm)" }}
+        >
           Control how others can tag you and your dogs in posts
         </p>
         <TagApprovalSetting value={tagApproval} onChange={onTagApprovalChange} />
       </section>
 
       {/* Care CTAs */}
-      <section className="profile-info-card">
+      <section>
         <h3 className="profile-card-subtitle">Care</h3>
         <div className="flex flex-col gap-sm">
           <ButtonAction

@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 type InputFieldProps = {
   id: string;
   label: string;
@@ -10,6 +12,10 @@ type InputFieldProps = {
   secondaryLabel?: string;
   helper?: string;
   error?: string;
+  // Trailing adornment rendered inside the input on the right side. Pass a
+  // string for a unit suffix (e.g. "Kč / visit") or a node for an icon.
+  // Pure visual — pointer-events disabled so it never blocks input focus.
+  trailing?: ReactNode;
 };
 
 export function InputField({
@@ -24,7 +30,22 @@ export function InputField({
   secondaryLabel,
   helper,
   error,
+  trailing,
 }: InputFieldProps) {
+  const inputEl = (
+    <input
+      id={id}
+      className={`input${error ? " input-invalid" : ""}`}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      onBlur={onBlur}
+      placeholder={placeholder}
+      type={type}
+      aria-invalid={error ? "true" : undefined}
+      aria-describedby={error ? `${id}-error` : helper ? `${id}-helper` : undefined}
+    />
+  );
+
   return (
     <div className="input-block">
       <label className="label" htmlFor={id}>
@@ -36,17 +57,16 @@ export function InputField({
         </span>
         {secondaryLabel && <span className="label-secondary">{secondaryLabel}</span>}
       </label>
-      <input
-        id={id}
-        className={`input${error ? " input-invalid" : ""}`}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        onBlur={onBlur}
-        placeholder={placeholder}
-        type={type}
-        aria-invalid={error ? "true" : undefined}
-        aria-describedby={error ? `${id}-error` : helper ? `${id}-helper` : undefined}
-      />
+      {trailing ? (
+        <div className="input-with-trailing">
+          {inputEl}
+          <span className="input-trailing-text" aria-hidden="true">
+            {trailing}
+          </span>
+        </div>
+      ) : (
+        inputEl
+      )}
       {error && (
         <div id={`${id}-error`} className="input-error-msg" role="alert">
           {error}

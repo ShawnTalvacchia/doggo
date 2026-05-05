@@ -7,19 +7,22 @@ import {
   Sparkle,
   PawPrint,
   Info,
+  PencilSimple,
+  Check,
+  X,
   CaretDown,
   CaretUp,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { ButtonIcon } from "@/components/ui/ButtonIcon";
 import { InputField } from "@/components/ui/InputField";
+import { Select } from "@/components/ui/Select";
 import { Toggle } from "@/components/ui/Toggle";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import { defaultModifiers } from "@/lib/pricing";
-import { AvailabilityGrid } from "@/components/profile/AvailabilityGrid";
 import type {
   UserProfile,
   CarerProfile,
-  CarerServiceConfig,
   CarerCareServiceConfig,
   CarerAvailabilitySlot,
   ServiceType,
@@ -36,6 +39,12 @@ const TIME_SLOTS: { key: TimeSlot; label: string }[] = [
   { key: "morning", label: "Morning" },
   { key: "afternoon", label: "Afternoon" },
   { key: "evening", label: "Evening" },
+];
+
+const SERVICE_TYPE_ORDER: ServiceType[] = [
+  "walk_checkin",
+  "inhome_sitting",
+  "boarding",
 ];
 
 const MODIFIER_LABEL: Record<PricingModifier["kind"], string> = {
@@ -72,8 +81,7 @@ function PricingModifiersEditor({
   // always renders all four kinds. A carer who's only configured 2 of the 4
   // (e.g. Tereza with weekend + multi-pet) still sees holiday + last-minute
   // toggles in the off state — they just need to flip them on if they want
-  // them. Without this merge, the editor only shows what's already saved
-  // and the provider can't enable a modifier that wasn't on the seed.
+  // them.
   const merged: PricingModifier[] = defaultModifiers().map((def) => {
     const existing = modifiers.find((m) => m.kind === def.kind);
     return existing ?? def;
@@ -103,7 +111,6 @@ function PricingModifiersEditor({
         </span>
         {open ? <CaretUp size={14} weight="bold" /> : <CaretDown size={14} weight="bold" />}
       </button>
-
       {open && (
         <div className="profile-modifiers-body">
           {merged.map((mod, idx) => (
@@ -121,22 +128,39 @@ function PricingModifiersEditor({
               </div>
               {mod.enabled && (
                 <div className="profile-modifier-params">
-                  {(mod.kind === "holiday" ||
-                    mod.kind === "weekend" ||
-                    mod.kind === "last_minute") && (
+                  {mod.kind === "holiday" && (
                     <label className="profile-modifier-param">
-                      <span>Surcharge</span>
+                      <span className="profile-modifier-param-label">Surcharge</span>
                       <span className="profile-modifier-input-wrap">
                         <input
                           type="number"
+                          min={0}
+                          className="profile-modifier-input"
                           value={mod.pct}
                           onChange={(e) =>
                             updateModifier(idx, {
-                              pct: Math.max(0, parseInt(e.target.value) || 0),
-                            } as Partial<PricingModifier>)
+                              pct: Math.max(0, Number(e.target.value) || 0),
+                            })
                           }
+                        />
+                        <span className="profile-modifier-input-unit">%</span>
+                      </span>
+                    </label>
+                  )}
+                  {mod.kind === "weekend" && (
+                    <label className="profile-modifier-param">
+                      <span className="profile-modifier-param-label">Surcharge</span>
+                      <span className="profile-modifier-input-wrap">
+                        <input
+                          type="number"
                           min={0}
-                          max={100}
+                          className="profile-modifier-input"
+                          value={mod.pct}
+                          onChange={(e) =>
+                            updateModifier(idx, {
+                              pct: Math.max(0, Number(e.target.value) || 0),
+                            })
+                          }
                         />
                         <span className="profile-modifier-input-unit">%</span>
                       </span>
@@ -144,40 +168,60 @@ function PricingModifiersEditor({
                   )}
                   {mod.kind === "multi_pet" && (
                     <label className="profile-modifier-param">
-                      <span>Per extra pet</span>
+                      <span className="profile-modifier-param-label">Per extra pet</span>
                       <span className="profile-modifier-input-wrap">
                         <input
                           type="number"
+                          min={0}
+                          className="profile-modifier-input"
                           value={mod.flatPerExtra}
                           onChange={(e) =>
                             updateModifier(idx, {
-                              flatPerExtra: Math.max(0, parseInt(e.target.value) || 0),
-                            } as Partial<PricingModifier>)
+                              flatPerExtra: Math.max(0, Number(e.target.value) || 0),
+                            })
                           }
-                          min={0}
                         />
                         <span className="profile-modifier-input-unit">Kč</span>
                       </span>
                     </label>
                   )}
                   {mod.kind === "last_minute" && (
-                    <label className="profile-modifier-param">
-                      <span>Within</span>
-                      <span className="profile-modifier-input-wrap">
-                        <input
-                          type="number"
-                          value={mod.thresholdDays}
-                          onChange={(e) =>
-                            updateModifier(idx, {
-                              thresholdDays: Math.max(1, parseInt(e.target.value) || 1),
-                            } as Partial<PricingModifier>)
-                          }
-                          min={1}
-                          max={30}
-                        />
-                        <span className="profile-modifier-input-unit">days</span>
-                      </span>
-                    </label>
+                    <>
+                      <label className="profile-modifier-param">
+                        <span className="profile-modifier-param-label">Surcharge</span>
+                        <span className="profile-modifier-input-wrap">
+                          <input
+                            type="number"
+                            min={0}
+                            className="profile-modifier-input"
+                            value={mod.pct}
+                            onChange={(e) =>
+                              updateModifier(idx, {
+                                pct: Math.max(0, Number(e.target.value) || 0),
+                              })
+                            }
+                          />
+                          <span className="profile-modifier-input-unit">%</span>
+                        </span>
+                      </label>
+                      <label className="profile-modifier-param">
+                        <span className="profile-modifier-param-label">Within</span>
+                        <span className="profile-modifier-input-wrap">
+                          <input
+                            type="number"
+                            min={0}
+                            className="profile-modifier-input"
+                            value={mod.thresholdDays}
+                            onChange={(e) =>
+                              updateModifier(idx, {
+                                thresholdDays: Math.max(0, Number(e.target.value) || 0),
+                              })
+                            }
+                          />
+                          <span className="profile-modifier-input-unit">days</span>
+                        </span>
+                      </label>
+                    </>
                   )}
                 </div>
               )}
@@ -189,16 +233,42 @@ function PricingModifiersEditor({
   );
 }
 
+// ── Availability grid (view mode) ────────────────────────────────────────────
 
-// AvailabilityGrid (view mode) extracted to its own component — shared
-// between own-profile and the public viewer profile. See
-// `components/profile/AvailabilityGrid.tsx`.
+function AvailabilityGrid({ carer }: { carer: CarerProfile }) {
+  return (
+    <div className="profile-avail-grid">
+      {ALL_DAYS.map((day) => {
+        const dayData = carer.availability.find((a) => a.day === day);
+        const activeSlots = dayData?.slots ?? [];
+        return (
+          <div key={day} className="profile-avail-row">
+            <span className="profile-avail-day">{day}</span>
+            <div className="pill-group profile-avail-slots">
+              {TIME_SLOTS.map(({ key, label }) => (
+                <span
+                  key={key}
+                  className={`pill${activeSlots.includes(key) ? " active" : ""}`}
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 // ── Props ────────────────────────────────────────────────────────────────────
 
 interface ProfileServicesTabProps {
   user: UserProfile;
   editing: boolean;
+  onStartEdit: () => void;
+  onCancel: () => void;
+  onSave: () => void;
   visibility: boolean;
   onToggleVisibility: () => void;
   openToHelping: boolean;
@@ -214,11 +284,62 @@ interface ProfileServicesTabProps {
   onEditCarerBio: (b: string) => void;
 }
 
+// ── Edit chrome (top of tab) ─────────────────────────────────────────────────
+
+function EditChrome({
+  editing,
+  onStartEdit,
+  onCancel,
+  onSave,
+}: {
+  editing: boolean;
+  onStartEdit: () => void;
+  onCancel: () => void;
+  onSave: () => void;
+}) {
+  return (
+    <div className="flex justify-end gap-sm">
+      {editing ? (
+        <>
+          <ButtonAction
+            variant="outline"
+            size="md"
+            leftIcon={<X size={14} weight="bold" />}
+            onClick={onCancel}
+          >
+            Cancel
+          </ButtonAction>
+          <ButtonAction
+            variant="primary"
+            size="md"
+            leftIcon={<Check size={14} weight="bold" />}
+            onClick={onSave}
+          >
+            Save
+          </ButtonAction>
+        </>
+      ) : (
+        <ButtonAction
+          variant="outline"
+          size="md"
+          leftIcon={<PencilSimple size={14} weight="bold" />}
+          onClick={onStartEdit}
+        >
+          Edit Services
+        </ButtonAction>
+      )}
+    </div>
+  );
+}
+
 // ── Component ────────────────────────────────────────────────────────────────
 
 export function ProfileServicesTab({
   user,
   editing,
+  onStartEdit,
+  onCancel,
+  onSave,
   visibility,
   onToggleVisibility,
   openToHelping,
@@ -231,7 +352,9 @@ export function ProfileServicesTab({
   onEditCarerBio,
 }: ProfileServicesTabProps) {
   const carer = user.carerProfile;
-  const showCareContent = editing ? openToHelping : (carer !== undefined && (user.openToHelping ?? false));
+  const showCareContent = editing
+    ? openToHelping
+    : carer !== undefined && (user.openToHelping ?? false);
 
   // ── Helpers for editing services ──
   function updateService(idx: number, updates: Partial<CarerCareServiceConfig>) {
@@ -245,8 +368,8 @@ export function ProfileServicesTab({
 
   function addService() {
     const usedTypes = editServices.map((s) => s.serviceType);
-    const available: ServiceType[] = (["walk_checkin", "inhome_sitting", "boarding"] as ServiceType[]).filter(
-      (t) => !usedTypes.includes(t)
+    const available: ServiceType[] = SERVICE_TYPE_ORDER.filter(
+      (t) => !usedTypes.includes(t),
     );
     if (available.length === 0) return;
     onEditServices([
@@ -267,11 +390,17 @@ export function ProfileServicesTab({
     const existing = editAvailability.find((a) => a.day === day);
     if (existing) {
       const hasSlot = existing.slots.includes(slot);
-      const newSlots = hasSlot ? existing.slots.filter((s) => s !== slot) : [...existing.slots, slot];
+      const newSlots = hasSlot
+        ? existing.slots.filter((s) => s !== slot)
+        : [...existing.slots, slot];
       if (newSlots.length === 0) {
         onEditAvailability(editAvailability.filter((a) => a.day !== day));
       } else {
-        onEditAvailability(editAvailability.map((a) => (a.day === day ? { ...a, slots: newSlots } : a)));
+        onEditAvailability(
+          editAvailability.map((a) =>
+            a.day === day ? { ...a, slots: newSlots } : a,
+          ),
+        );
       }
     } else {
       onEditAvailability([...editAvailability, { day, slots: [slot] }]);
@@ -281,20 +410,24 @@ export function ProfileServicesTab({
   // ── Empty state: not offering care and not editing ──
   if (!showCareContent && !editing) {
     return (
-      <div className="profile-content-width profile-section-stack">
-        <section className="profile-info-card">
-          <div className="flex flex-col items-center gap-md p-xl text-center">
-            <Sparkle size={44} weight="light" className="text-fg-tertiary" />
-            <h2 className="font-heading text-lg font-semibold text-fg-primary m-0">
-              Open to helping?
-            </h2>
-            <p className="profile-card-copy text-fg-secondary">
-              Turn on care offerings from your profile to help dogs in your community. Walks, sitting, boarding — you set the terms.
-            </p>
-            <p className="text-sm text-fg-tertiary">
-              Tap &ldquo;Edit&rdquo; to get started.
-            </p>
-          </div>
+      <div className="profile-tab-stack" style={{ padding: "var(--space-lg)" }}>
+        <EditChrome
+          editing={editing}
+          onStartEdit={onStartEdit}
+          onCancel={onCancel}
+          onSave={onSave}
+        />
+        <section className="flex flex-col items-center gap-md p-xl text-center">
+          <Sparkle size={44} weight="light" className="text-fg-tertiary" />
+          <h2 className="font-heading text-lg font-semibold text-fg-primary m-0">
+            Open to helping?
+          </h2>
+          <p className="profile-card-copy text-fg-secondary">
+            Turn on care offerings from your profile to help dogs in your community. Walks, sitting, boarding — you set the terms.
+          </p>
+          <p className="text-sm text-fg-tertiary">
+            Tap &ldquo;Edit Services&rdquo; to get started.
+          </p>
         </section>
       </div>
     );
@@ -303,16 +436,23 @@ export function ProfileServicesTab({
   // ── Edit mode ──
   if (editing) {
     return (
-      <div className="profile-content-width profile-section-stack">
+      <div className="profile-tab-stack" style={{ padding: "var(--space-lg)" }}>
+        <EditChrome
+          editing={editing}
+          onStartEdit={onStartEdit}
+          onCancel={onCancel}
+          onSave={onSave}
+        />
+
         {/* Open to helping toggle */}
-        <section className="profile-info-card">
-          <div className="flex items-center justify-between">
+        <section>
+          <div className="flex items-center justify-between gap-md">
             <div>
               <p className="profile-visibility-label">Open to helping</p>
               <p className="profile-visibility-sub">
                 {openToHelping
                   ? "Your connections can see you offer care."
-                  : "You\u2019re not currently offering care."}
+                  : "You’re not currently offering care."}
               </p>
             </div>
             <Toggle
@@ -326,10 +466,10 @@ export function ProfileServicesTab({
         {openToHelping && (
           <>
             {/* Carer bio */}
-            <section className="profile-info-card">
+            <section>
               <h3 className="profile-card-subtitle">Care bio</h3>
               <textarea
-                className="w-full rounded-form border border-edge-regular bg-surface-base p-sm text-sm text-fg-primary"
+                className="textarea"
                 rows={3}
                 value={editCarerBio}
                 onChange={(e) => onEditCarerBio(e.target.value)}
@@ -338,76 +478,89 @@ export function ProfileServicesTab({
             </section>
 
             {/* Services */}
-            <section className="profile-info-card">
+            <section>
               <h3 className="profile-card-subtitle">Services</h3>
               <div className="flex flex-col gap-md">
-                {editServices.map((svc, idx) => (
-                  <div key={idx} className="rounded-panel border border-edge-regular p-md flex flex-col gap-sm">
-                    <div className="flex items-center justify-between gap-sm">
-                      <select
-                        className="flex-1 rounded-form border border-edge-regular bg-surface-base p-xs text-sm"
-                        value={svc.serviceType}
-                        onChange={(e) => updateService(idx, { serviceType: e.target.value as ServiceType, priceUnit: e.target.value === "walk_checkin" ? "per_visit" : "per_night" })}
+                {editServices.map((svc, idx) => {
+                  // Available service types for this row = already-selected types
+                  // elsewhere are excluded so the same service isn't listed twice.
+                  const otherUsedTypes = editServices
+                    .filter((_, i) => i !== idx)
+                    .map((s) => s.serviceType);
+                  const typeOptions = SERVICE_TYPE_ORDER.filter(
+                    (t) => !otherUsedTypes.includes(t),
+                  ).map((t) => ({ value: t, label: SERVICE_LABELS[t] }));
+
+                  return (
+                    <div
+                      key={idx}
+                      className="rounded-panel border border-edge-regular p-md flex flex-col gap-sm relative"
+                    >
+                      <div
+                        className="absolute"
+                        style={{ top: 8, right: 8 }}
                       >
-                        {(["walk_checkin", "inhome_sitting", "boarding"] as ServiceType[]).map((t) => (
-                          <option key={t} value={t}>{SERVICE_LABELS[t]}</option>
-                        ))}
-                      </select>
-                      <button
-                        onClick={() => removeService(idx)}
-                        className="text-fg-tertiary p-xs"
-                        style={{ background: "none", border: "none", cursor: "pointer" }}
-                        aria-label="Remove service"
-                      >
-                        <Trash size={18} weight="light" />
-                      </button>
-                    </div>
-                    <div className="flex items-center gap-sm">
+                        <ButtonIcon
+                          label="Remove service"
+                          onClick={() => removeService(idx)}
+                        >
+                          <Trash size={18} weight="light" />
+                        </ButtonIcon>
+                      </div>
+                      <div style={{ paddingRight: 40 }}>
+                        <Select
+                          id={`service-type-${idx}`}
+                          label="Service type"
+                          value={svc.serviceType}
+                          onChange={(val) =>
+                            updateService(idx, {
+                              serviceType: val as ServiceType,
+                              priceUnit:
+                                val === "walk_checkin" ? "per_visit" : "per_night",
+                            })
+                          }
+                          options={typeOptions}
+                        />
+                      </div>
                       <InputField
                         id={`price-${idx}`}
                         label="Price"
                         type="number"
                         value={svc.pricePerUnit.toString()}
                         onChange={(val) =>
-                          updateService(idx, {
-                            // Clamp to 0+ — negative base rate makes no
-                            // sense. Pricing & Proposals walkthrough
-                            // 2026-05-05.
-                            pricePerUnit: Math.max(0, parseInt(val) || 0),
-                          })
+                          updateService(idx, { pricePerUnit: parseInt(val) || 0 })
                         }
+                        trailing={`Kč / ${svc.priceUnit === "per_visit" ? "visit" : "night"}`}
                       />
-                      <span className="text-sm text-fg-secondary whitespace-nowrap" style={{ paddingTop: 20 }}>
-                        Kč / {svc.priceUnit === "per_visit" ? "visit" : "night"}
-                      </span>
+                      <InputField
+                        id={`notes-${idx}`}
+                        label="Notes"
+                        value={svc.notes ?? ""}
+                        onChange={(val) => updateService(idx, { notes: val })}
+                        helper="e.g. Max 3 dogs, 45-60 min walks"
+                      />
+                      <PricingModifiersEditor
+                        modifiers={svc.modifiers ?? []}
+                        onChange={(m) => updateService(idx, { modifiers: m })}
+                      />
                     </div>
-                    <InputField
-                      id={`notes-${idx}`}
-                      label="Notes"
-                      value={svc.notes ?? ""}
-                      onChange={(val) => updateService(idx, { notes: val })}
-                      helper="e.g. Max 3 dogs, 45-60 min walks"
-                    />
-                    <PricingModifiersEditor
-                      modifiers={svc.modifiers ?? defaultModifiers()}
-                      onChange={(mods) => updateService(idx, { modifiers: mods })}
-                    />
-                  </div>
-                ))}
+                  );
+                })}
                 {editServices.length < 3 && (
-                  <button
+                  <ButtonAction
+                    variant="tertiary"
+                    size="sm"
+                    leftIcon={<Plus size={14} weight="bold" />}
                     onClick={addService}
-                    className="flex items-center gap-xs text-sm font-medium text-brand-main"
-                    style={{ background: "none", border: "none", cursor: "pointer", padding: "4px 0" }}
                   >
-                    <Plus size={16} weight="bold" /> Add a service
-                  </button>
+                    Add a service
+                  </ButtonAction>
                 )}
               </div>
             </section>
 
             {/* Availability */}
-            <section className="profile-info-card">
+            <section>
               <h3 className="profile-card-subtitle">Availability</h3>
               <div className="profile-avail-grid">
                 {ALL_DAYS.map((day) => {
@@ -435,7 +588,7 @@ export function ProfileServicesTab({
             </section>
 
             {/* Visibility */}
-            <section className="profile-info-card">
+            <section>
               <div className="profile-visibility-row">
                 <div>
                   <p className="profile-visibility-label">Search visibility</p>
@@ -449,8 +602,12 @@ export function ProfileServicesTab({
                   onClick={onToggleVisibility}
                   className="flex items-center gap-xs rounded-pill px-md py-xs text-sm font-medium"
                   style={{
-                    background: visibility ? "var(--brand-subtle)" : "var(--surface-gray)",
-                    color: visibility ? "var(--brand-strong)" : "var(--text-secondary)",
+                    background: visibility
+                      ? "var(--brand-subtle)"
+                      : "var(--surface-gray)",
+                    color: visibility
+                      ? "var(--brand-strong)"
+                      : "var(--text-secondary)",
                     border: `1px solid ${visibility ? "var(--brand-main)" : "var(--border-regular)"}`,
                     cursor: "pointer",
                   }}
@@ -470,7 +627,14 @@ export function ProfileServicesTab({
   const hasServices = carer && carer.services.length > 0;
 
   return (
-    <div className="profile-content-width profile-section-stack">
+    <div className="profile-tab-stack" style={{ padding: "var(--space-lg)" }}>
+      <EditChrome
+        editing={editing}
+        onStartEdit={onStartEdit}
+        onCancel={onCancel}
+        onSave={onSave}
+      />
+
       {/* Locked provider banner */}
       {isProfileLocked && hasServices && (
         <section
@@ -496,10 +660,12 @@ export function ProfileServicesTab({
       )}
 
       {/* Open to helping badge */}
-      <section className="profile-info-card">
+      <section>
         <div className="flex items-center gap-sm">
-          <span className="flex items-center gap-xs rounded-pill px-md py-xs text-sm font-medium"
-            style={{ background: "var(--brand-subtle)", color: "var(--brand-strong)" }}>
+          <span
+            className="flex items-center gap-xs rounded-pill px-md py-xs text-sm font-medium"
+            style={{ background: "var(--brand-subtle)", color: "var(--brand-strong)" }}
+          >
             <PawPrint size={16} weight="fill" /> Open to helping
           </span>
           <span className="text-sm text-fg-tertiary">
@@ -510,7 +676,7 @@ export function ProfileServicesTab({
 
       {/* Carer bio */}
       {carer?.bio && (
-        <section className="profile-info-card">
+        <section>
           <h3 className="profile-card-subtitle">Care bio</h3>
           <p className="profile-card-copy">{carer.bio}</p>
         </section>
@@ -520,85 +686,92 @@ export function ProfileServicesTab({
           user's OWN profile is informational; tap routing for booking lives
           on /profile/[userId] where viewers act. */}
       {carer && carer.services.length > 0 && (
-        <section className="profile-info-card">
+        <section>
           <h3 className="profile-card-subtitle">Services</h3>
           <div className="profile-services-list">
-            {carer.services.filter((s): s is CarerCareServiceConfig => s.kind === "care").map((svc) => (
-              <div key={svc.serviceType} className="profile-service-card">
-                <div className="profile-service-top">
-                  <span className="profile-service-name">
-                    {SERVICE_LABELS[svc.serviceType]}
-                  </span>
-                  <div className="profile-service-price-wrap">
-                    <span className="profile-service-price">
-                      {/* "From" prefix when modifiers may bump the quote.
-                          Modifier specifics surface in the proposal, not on
-                          the catalogue card. Pricing & Proposals, 2026-05-04. */}
-                      {(svc.modifiers ?? []).some((m) => m.enabled) && (
-                        <span className="profile-service-price-from">From </span>
-                      )}
-                      {svc.pricePerUnit.toLocaleString()} Kč
-                      <span className="profile-service-unit">
-                        {" "}/ {svc.priceUnit === "per_visit" ? "visit" : "night"}
-                      </span>
-                    </span>
-                  </div>
-                </div>
-                {svc.subServices.length > 0 && (
-                  <div className="profile-service-subs">
-                    {svc.subServices.map((sub) => (
-                      <span key={sub} className="chip">{sub}</span>
-                    ))}
-                  </div>
-                )}
-                {svc.notes && (
-                  <p className="profile-service-notes">{svc.notes}</p>
-                )}
-              </div>
-            ))}
-            {carer.services.filter((s) => s.kind === "meet").map((svc) => {
-              const formatLabel: Record<string, string> = {
-                one_on_one: "1-on-1",
-                small_group: "Small group",
-                workshop: "Workshop",
-              };
-              const cadenceLabel: Record<string, string> = {
-                weekly: "Weekly",
-                biweekly: "Every 2 weeks",
-                monthly: "Monthly",
-                ad_hoc: "By arrangement",
-              };
-              return (
-                <div key={svc.id} className="profile-service-card">
+            {carer.services
+              .filter((s): s is CarerCareServiceConfig => s.kind === "care")
+              .map((svc) => (
+                <div key={svc.serviceType} className="profile-service-card">
                   <div className="profile-service-top">
-                    <span className="profile-service-name">{svc.title}</span>
+                    <span className="profile-service-name">
+                      {SERVICE_LABELS[svc.serviceType]}
+                    </span>
                     <div className="profile-service-price-wrap">
                       <span className="profile-service-price">
-                        {svc.pricePerSession.toLocaleString()} Kč
-                        <span className="profile-service-unit">{" "}/ session</span>
+                        {svc.pricePerUnit.toLocaleString()} Kč
+                        <span className="profile-service-unit">
+                          {" "}/ {svc.priceUnit === "per_visit" ? "visit" : "night"}
+                        </span>
                       </span>
                     </div>
                   </div>
-                  <div className="profile-service-subs">
-                    <span className="chip">{formatLabel[svc.format] ?? svc.format}</span>
-                    <span className="chip">{cadenceLabel[svc.cadence] ?? svc.cadence}</span>
-                    <span className="chip">{svc.durationMinutes} min</span>
-                  </div>
-                  {svc.notes && <p className="profile-service-notes">{svc.notes}</p>}
+                  {svc.subServices.length > 0 && (
+                    <div className="profile-service-subs">
+                      {svc.subServices.map((sub) => (
+                        <span key={sub} className="chip">{sub}</span>
+                      ))}
+                    </div>
+                  )}
+                  {svc.notes && (
+                    <p className="profile-service-notes">{svc.notes}</p>
+                  )}
                 </div>
-              );
-            })}
+              ))}
+            {carer.services
+              .filter((s) => s.kind === "meet")
+              .map((svc) => {
+                const formatLabel: Record<string, string> = {
+                  one_on_one: "1-on-1",
+                  small_group: "Small group",
+                  workshop: "Workshop",
+                };
+                const cadenceLabel: Record<string, string> = {
+                  weekly: "Weekly",
+                  biweekly: "Every 2 weeks",
+                  monthly: "Monthly",
+                  ad_hoc: "By arrangement",
+                };
+                return (
+                  <div key={svc.id} className="profile-service-card">
+                    <div className="profile-service-top">
+                      <span className="profile-service-name">{svc.title}</span>
+                      <div className="profile-service-price-wrap">
+                        <span className="profile-service-price">
+                          {svc.pricePerSession.toLocaleString()} Kč
+                          <span className="profile-service-unit">{" "}/ session</span>
+                        </span>
+                      </div>
+                    </div>
+                    <div className="profile-service-subs">
+                      <span className="chip">{formatLabel[svc.format] ?? svc.format}</span>
+                      <span className="chip">{cadenceLabel[svc.cadence] ?? svc.cadence}</span>
+                      <span className="chip">{svc.durationMinutes} min</span>
+                    </div>
+                    {svc.notes && <p className="profile-service-notes">{svc.notes}</p>}
+                  </div>
+                );
+              })}
           </div>
         </section>
       )}
 
       {/* Availability */}
       {carer && (
-        <section className="profile-info-card">
+        <section>
           <h3 className="profile-card-subtitle">Availability</h3>
-          <AvailabilityGrid availability={carer.availability} />
+          <AvailabilityGrid carer={carer} />
         </section>
       )}
+
+      {/* Reviews — placeholder until the booking-review loop wires up. Lives
+          inside the Services tab because reviews are about service quality. */}
+      <section>
+        <h3 className="profile-card-subtitle">Reviews</h3>
+        <p className="profile-card-copy text-fg-secondary">
+          No reviews yet. Reviews will appear here once you complete bookings.
+        </p>
+      </section>
     </div>
   );
 }
