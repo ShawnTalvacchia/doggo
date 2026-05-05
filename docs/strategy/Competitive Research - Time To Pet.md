@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-14
+last-reviewed: 2026-05-05
 tags: [research, competitive, care, bookings, sessions]
 review-trigger: "when designing care session flow, visit reports, booking UX, or provider tools"
 ---

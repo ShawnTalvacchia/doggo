@@ -320,13 +320,54 @@ export interface BookingPrice {
   billingCycle: "per_session" | "per_night" | "total" | "monthly_est" | "weekly";
 }
 
+/**
+ * Visit report — the structured artifact a provider sends at session
+ * close-out. Per Time To Pet research, this is what makes pet parents
+ * feel safe: photos, notes, structured care checks, timestamps.
+ *
+ * Photos accumulate during an active session (mid-session updates from
+ * provider) and are sealed when close-out submits. Notes + checks +
+ * walk metrics fill at close-out only.
+ *
+ * Sessions & Service Execution, 2026-05-05.
+ */
+export interface VisitReport {
+  /** Photos sent with the report. May be partially populated during an
+   *  active session (mid-session updates); sealed on close-out. */
+  photos: string[];
+  /** Provider's written notes. Required at close-out (≥1 char). */
+  notes: string;
+  /** Structured care checks. All optional — a 30-min walk wouldn't
+   *  fed/watered, but might walked + pottied; boarding hits all. */
+  checks: {
+    fed?: boolean;
+    watered?: boolean;
+    walked?: boolean;
+    pottied?: boolean;
+    medsGiven?: boolean;
+  };
+  /** Walk metrics — present when service is a walk. */
+  walkDistanceKm?: number;
+  walkDurationMin?: number;
+  /** Auto-set on close-out submit. */
+  completedAt: string;
+}
+
 export interface BookingSession {
   id: string;
   date: string;         // ISO YYYY-MM-DD
   status: "upcoming" | "in_progress" | "completed" | "cancelled";
   checkedInAt?: string; // ISO timestamp — set when status moves to in_progress
+  /** Visit report — populated on close-out via SessionCloseOutSheet.
+   *  When present, supersedes the legacy `note`/`photoUrl` fields below.
+   *  Sessions & Service Execution, 2026-05-05. */
+  report?: VisitReport;
+  /** Legacy single-note field. Pre-VisitReport completed sessions in
+   *  seeded mock data may have `note` without `report`; renderers fall
+   *  back to this when `report` is absent. New close-out writes `report`. */
   note?: string;
-  photoUrl?: string;    // optional session photo from provider
+  /** Legacy single-photo field. Same fallback rules as `note`. */
+  photoUrl?: string;
 }
 
 export interface Booking {

@@ -19,7 +19,13 @@ import {
   Footprints,
   CaretDown,
   Play,
-  NoteBlank,
+  Bone,
+  Drop,
+  PersonSimpleWalk,
+  Tree,
+  Pill,
+  Ruler,
+  Clock,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { DetailHeader } from "@/components/layout/DetailHeader";
@@ -28,6 +34,7 @@ import { TabBar } from "@/components/ui/TabBar";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { CancelBookingModal } from "@/components/bookings/CancelBookingModal";
+import { SessionCloseOutSheet } from "@/components/bookings/SessionCloseOutSheet";
 import { SigningModal } from "@/components/messaging/SigningModal";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useConversations } from "@/contexts/ConversationsContext";

@@ -77,11 +77,11 @@ See `docs/CONTRIBUTING.md` for full details, including the phase open/close life
 | `docs/implementation/mock-data-plan.md` | Mock data strategy and user journey planning |
 | `docs/features/demo-mode.md` | Persona switcher (name dropdown + `/demo` + `?as=` URL param), persona registry, current limitations |
 
-## Current Phase: None active
+## Current Phase: Sessions & Service Execution
+
+**Sessions & Service Execution (opened 2026-05-05).** What happens after a contract signs — visit report cards, real-time session updates, provider in-session UI, owner session view, care review sheet, per-occurrence booking cancellation, V7 pricing-display verification. Phase thesis: *after a contract signs, both sides experience a service that feels alive — provider has a focused execution surface, owner watches care unfold, visit report closes the loop.* Per-session pricing scoped OUT (avoids the §6 ongoing-vs-one-off engine divergence and holiday-line-item-granularity sub-questions). Close-out does NOT trigger billing — rolling-weekly stays independent of session state. Walkthrough verifies thesis on Daniel↔Klára (training) + Tomáš↔neighbour (boarding) flows. Phase board: `docs/phases/sessions-and-service-execution.md`.
 
 **Pricing & Proposals closed 2026-05-05.** Auto-pricing engine (`computeQuote(config, inquiry, today)` in `lib/pricing.ts`) takes carer config × inquiry data → quote with stacked modifier line items. ProposalForm refactored from "compose price freely" to "review system quote, confirm — or override (visibly flagged with optional reason)." Starter modifier set: holiday surcharge, weekend, multi-pet, last-minute. Engine output visible at three surfaces (InquiryForm live estimate, InquiryCard estimate, ProposalForm System quote) — same number throughout the lifecycle. Per-service pricing on Discover cards. Mutual Connected on contract sign (resolves part of Open Q §2). Decline path on inquiries. InquiryCard + BookingProposalCard collapse on response with `View booking →` link footer for accepted proposals. Phase board archived to `docs/archive/phases/pricing-and-proposals.md`.
-
-**Next phase to open:** Sessions & Service Execution.
 
 **Discover & Care closed 2026-05-04.** Services-as-Catalog (Care/Meet/Appointment), multi-provider Care-group hero, trust badges + connection signals on Discover, soft Familiar avatar ring (Discover-only), structured inquiry → proposal → contract flow, auto-Familiar on inquiry send (stop-gap), localStorage persistence on demo state, Bookings detail page Review & sign action. Phase board archived to `docs/archive/phases/discover-and-care.md`.
 
