@@ -49,6 +49,12 @@ interface ConnectionsContextValue {
   markFamiliar: (viewerUserId: string, targetUserId: string) => void;
   /** Reverse a Familiar mark — drops back to "none" (no relationship). */
   unmarkFamiliar: (viewerUserId: string, targetUserId: string) => void;
+  /** Mark `targetUserId` as Connected from `viewerUserId`'s perspective.
+   *  Connected is mutual by definition — callers should invoke this in
+   *  both directions on the contract-sign hook. Pricing & Proposals
+   *  walkthrough 2026-05-05 (resolves Open Q §2 inquiry-driven trust
+   *  transitions for the contract-accept case). */
+  markConnected: (viewerUserId: string, targetUserId: string) => void;
   /** Convenience: read the override map (mostly useful in tests / debugging). */
   overrides: Record<string, ConnectionOverride>;
 }
@@ -63,6 +69,7 @@ const noopContext: ConnectionsContextValue = {
   getConnection: getStaticConnectionState,
   markFamiliar: () => {},
   unmarkFamiliar: () => {},
+  markConnected: () => {},
   overrides: {},
 };
 
@@ -134,11 +141,26 @@ export function ConnectionsProvider({ children }: { children: ReactNode }) {
         inboundFamiliar || base?.theyMarkedFamiliar;
 
       if (base) {
+        // State precedence: connected > pending > familiar > none. Take
+        // the HIGHER state when merging — never let an override downgrade
+        // an existing relationship. Without this rule, the auto-Familiar
+        // mark fired on inquiry send (Discover & Care G3) downgraded
+        // already-Connected pairs back to Familiar. Pricing & Proposals
+        // walkthrough 2026-05-05.
+        const STATE_RANK: Record<ConnectionState, number> = {
+          none: 0,
+          familiar: 1,
+          pending: 2,
+          connected: 3,
+        };
+        const overrideState = outbound?.state;
+        const resolvedState =
+          overrideState && STATE_RANK[overrideState] > STATE_RANK[base.state]
+            ? overrideState
+            : base.state;
         return {
           ...base,
-          // Outbound state wins over base if set; base.state is preserved
-          // when there's no outbound override (e.g. inbound-only case).
-          state: outbound?.state ?? base.state,
+          state: resolvedState,
           updatedAt: outbound?.markedAt ?? base.updatedAt,
           theyMarkedFamiliar: effectiveTheyMarkedFamiliar,
         };
@@ -180,9 +202,20 @@ export function ConnectionsProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const markConnected = useCallback(
+    (viewerUserId: string, targetUserId: string) => {
+      const k = key(viewerUserId, targetUserId);
+      setOverrides((prev) => ({
+        ...prev,
+        [k]: { state: "connected", markedAt: new Date().toISOString() },
+      }));
+    },
+    [],
+  );
+
   const value = useMemo(
-    () => ({ getConnection, markFamiliar, unmarkFamiliar, overrides }),
-    [getConnection, markFamiliar, unmarkFamiliar, overrides],
+    () => ({ getConnection, markFamiliar, unmarkFamiliar, markConnected, overrides }),
+    [getConnection, markFamiliar, unmarkFamiliar, markConnected, overrides],
   );
 
   return <ConnectionsContext.Provider value={value}>{children}</ConnectionsContext.Provider>;

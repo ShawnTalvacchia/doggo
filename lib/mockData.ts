@@ -106,7 +106,7 @@ export const providers: ProviderCard[] = [
     rating: 4.8,
     reviewCount: 12,
     priceFrom: 390,
-    priceUnit: "per_walk",
+    priceUnit: "per_visit",
     blurb: "Clean, fun & safe home for your pup",
     avatarUrl:
       "/images/generated/lucie-profile.jpeg",
@@ -117,8 +117,7 @@ export const providers: ProviderCard[] = [
     mutualConnections: 2,
     lat: 50.0757,
     lng: 14.402,
-    credentials: { yearsExperience: 4, firstAidTrained: true, insured: true },
-    repeatClients: 6,
+    userId: "olga-m",
   },
   {
     id: "klara-h",
@@ -244,7 +243,7 @@ export const providers: ProviderCard[] = [
     rating: 5.0,
     reviewCount: 34,
     priceFrom: 600,
-    priceUnit: "per_walk",
+    priceUnit: "per_visit",
     blurb: "Premium full-service care in the heart of Prague",
     avatarUrl:
       "/images/generated/tereza-profile.jpeg",
@@ -255,13 +254,7 @@ export const providers: ProviderCard[] = [
     mutualConnections: 1,
     lat: 50.088,
     lng: 14.4189,
-    credentials: {
-      yearsExperience: 12,
-      firstAidTrained: true,
-      insured: true,
-      identityVerified: true,
-    },
-    repeatClients: 18,
+    userId: "marketa-h",
   },
   {
     id: "pavel-d",

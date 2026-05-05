@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   PawPrint,
   MapPin,
@@ -7,9 +8,13 @@ import {
   Sneaker,
   UsersThree,
   Megaphone,
+  ArrowRight,
+  Tree,
+  HouseLine,
+  Briefcase,
 } from "@phosphor-icons/react/dist/ssr";
-import { HowItWorksTabs } from "@/components/landing/HowItWorksTabs";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { personas } from "@/lib/personas";
 
 // ── Photo URLs ───────────────────────────────────────────────────────────────
 
@@ -18,27 +23,65 @@ const PHOTOS = {
   care: "/images/generated/care-dog-walking.jpeg",
 };
 
+// ── Tour entry URL (Tereza-only guided walk) ─────────────────────────────────
+const TOUR_ENTRY = "/home?as=tereza&tour=tereza&step=1";
+
 // ── Sub-components ───────────────────────────────────────────────────────────
 
-function MeetTypeCard({
-  imgSrc,
+function DoorCard({
+  icon,
+  label,
   title,
-  description,
+  body,
 }: {
-  imgSrc: string;
+  icon: React.ReactNode;
+  label: string;
   title: string;
-  description: string;
+  body: string;
 }) {
   return (
-    <div className="landing-meet-card">
-      <div className="landing-meet-card-illustration">
-        <img src={imgSrc} alt={title} className="landing-meet-card-img" loading="lazy" />
+    <Link href="/demo" className="landing-door-card">
+      <div className="landing-door-icon">{icon}</div>
+      <span className="landing-door-label">{label}</span>
+      <h3 className="landing-door-title">{title}</h3>
+      <p className="landing-door-body">{body}</p>
+      <span className="landing-door-cta">
+        See it in the demo
+        <ArrowRight size={14} weight="bold" aria-hidden="true" />
+      </span>
+    </Link>
+  );
+}
+
+function PersonaPreviewCard({
+  avatarUrl,
+  firstName,
+  archetype,
+  story,
+  href,
+}: {
+  avatarUrl: string;
+  firstName: string;
+  archetype: string;
+  story: string;
+  href: string;
+}) {
+  // Flat-grid structure (avatar / titles / story / cta) so the mobile
+  // breakpoint can re-grid the avatar inline with the titles while desktop
+  // keeps the avatar in a left column spanning all three content rows.
+  return (
+    <Link href={href} className="landing-persona-card">
+      <img src={avatarUrl} alt="" className="landing-persona-avatar" loading="lazy" />
+      <div className="landing-persona-titles">
+        <span className="landing-persona-archetype">{archetype}</span>
+        <h3 className="landing-persona-name">{firstName}</h3>
       </div>
-      <div className="landing-meet-card-body">
-        <h3 className="landing-service-title">{title}</h3>
-        <p className="landing-service-desc">{description}</p>
-      </div>
-    </div>
+      <p className="landing-persona-story">{story}</p>
+      <span className="landing-persona-cta">
+        Enter as {firstName}
+        <ArrowRight size={14} weight="bold" aria-hidden="true" />
+      </span>
+    </Link>
   );
 }
 
@@ -89,9 +132,43 @@ function TestimonialCard({
   );
 }
 
+// ── Persona-row content (pulled from `lib/personas.ts` so identity stays in sync) ─
+
+const PERSONA_STORIES: Record<string, string> = {
+  tereza:
+    "Vinohrady regular. Anchors a morning walking crew, sits for neighbours on weekends.",
+  daniel:
+    "Anxious rescue owner. Locked profile, slow to trust — found his footing in one support group.",
+  klara:
+    "Trainer running a Care group of regulars. Provider-tier, embedded in the community.",
+  tomas:
+    "Karlín commuter. Leans on a small circle of trusted carers when work runs late.",
+};
+
+function getPersonaCard(personaId: string) {
+  const p = personas.find((p) => p.user.id === personaId);
+  if (!p) return null;
+  return (
+    <PersonaPreviewCard
+      key={p.user.id}
+      avatarUrl={p.user.avatarUrl}
+      firstName={p.user.firstName}
+      archetype={p.archetype}
+      story={PERSONA_STORIES[p.user.id] ?? p.tagline}
+      href={`/home?as=${p.user.id}`}
+    />
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
+  // Pull testimonial avatars + neighbourhoods from the persona registry so
+  // they stay in sync with mock-world content (one source of truth).
+  const tereza = personas.find((p) => p.user.id === "tereza")!.user;
+  const klara = personas.find((p) => p.user.id === "klara")!.user;
+  const tomas = personas.find((p) => p.user.id === "tomas")!.user;
+
   return (
     <main className="landing-page">
       {/* ── Hero ─────────────────────────────────────────────────────── */}
@@ -106,7 +183,7 @@ export default function LandingPage() {
         </div>
         <div className="landing-hero-inner">
           <div className="landing-hero-content">
-            <span className="landing-hero-eyebrow">Available in Prague</span>
+            <span className="landing-hero-eyebrow">Doggo prototype · Prague</span>
             <h1 className="landing-hero-heading">
               Your dog&apos;s <span className="landing-hero-accent">neighbourhood crew.</span>
             </h1>
@@ -114,17 +191,11 @@ export default function LandingPage() {
               Meet dog owners locally. Build real trust through walks, hangouts, and play. When you need care, you already know who to ask.
             </p>
             <div className="landing-hero-ctas">
-              {/* Primary CTA points to the demo persona picker — current
-                  audience is testers/reviewers, not first-use users. When
-                  the prototype reaches real users, swap "Find a meet
-                  near you" back into primary. The "Find a meet" CTA
-                  still lives in the bottom CTA section below for anyone
-                  who scrolls. */}
               <ButtonAction variant="primary" cta size="lg" href="/demo">
-                Enter Demo
+                Choose a persona
               </ButtonAction>
-              <ButtonAction variant="secondary" cta size="lg" href="#how-it-works">
-                See how it works
+              <ButtonAction variant="secondary" cta size="lg" href={TOUR_ENTRY}>
+                Walk me through Tereza&apos;s day
               </ButtonAction>
             </div>
           </div>
@@ -157,42 +228,53 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Meet types (with photos) ────────────────────────────────── */}
+      {/* ── Three Doors ─────────────────────────────────────────────── */}
       <section className="landing-section bg-surface-top">
         <div className="landing-inner">
           <div className="landing-section-header landing-section-header--centered">
-            <h2 className="landing-section-heading">Meets for every dog</h2>
+            <h2 className="landing-section-heading">Three ways in</h2>
             <p className="landing-section-sub">
-              Organised by size, energy, and style — so every dog gets the right kind of social.
+              Every user enters through one of three doors. All three lead to the same place: a network of people who know each other and each other&apos;s dogs.
             </p>
           </div>
-          <div className="landing-meet-cards-grid">
-            <MeetTypeCard
-              imgSrc="/images/Group walks.svg"
-              title="Group walks"
-              description="See the same people every week. Familiar faces, familiar dogs. Matched by size and pace."
+          <div className="landing-doors-grid">
+            <DoorCard
+              icon={<Tree size={28} weight="light" />}
+              label="Find Your Park"
+              title="Open park groups"
+              body="Auto-generated for every major Prague dog park. Drop in, no admin, anyone calls a walk."
             />
-            <MeetTypeCard
-              imgSrc="/images/Park hangouts.svg"
-              title="Park hangouts"
-              description="Drop in, no pressure. Stay five minutes or an hour. Dogs play, owners chat."
+            <DoorCard
+              icon={<HouseLine size={28} weight="light" />}
+              label="Find Your People"
+              title="Neighbourhood + interest"
+              body="Small, trusted circles. Where mutual aid lives — neighbours swap walks, share carers, look out for each other."
             />
-            <MeetTypeCard
-              imgSrc="/images/Playdates-and-training.svg"
-              title="Playdates & training"
-              description="Smaller groups for dogs that need the right pace — puppy socialisation, recall practice, or calm play."
+            <DoorCard
+              icon={<Briefcase size={28} weight="light" />}
+              label="Find Your Help"
+              title="Provider-run care groups"
+              body="Your trainer&apos;s sessions, your walker&apos;s schedule — community-wrapped service. Book inside the group you already know."
             />
           </div>
         </div>
       </section>
 
-      {/* ── How it works (interactive tab switcher) ───────────────────── */}
-      <section id="how-it-works" className="landing-section landing-section--alt">
+      {/* ── Persona preview row ─────────────────────────────────────── */}
+      <section className="landing-section landing-section--alt">
         <div className="landing-inner">
           <div className="landing-section-header landing-section-header--centered">
-            <h2 className="landing-section-heading">How it works</h2>
+            <h2 className="landing-section-heading">Step into the prototype</h2>
+            <p className="landing-section-sub">
+              Four people. Four ways the community-to-care funnel actually plays out. Pick whose perspective to drop into.
+            </p>
           </div>
-          <HowItWorksTabs />
+          <div className="landing-persona-grid">
+            {getPersonaCard("tereza")}
+            {getPersonaCard("daniel")}
+            {getPersonaCard("klara")}
+            {getPersonaCard("tomas")}
+          </div>
         </div>
       </section>
 
@@ -203,10 +285,10 @@ export default function LandingPage() {
             <div className="landing-archetypes-text">
               <h2 className="landing-section-heading">Everyone uses Doggo differently</h2>
               <p className="landing-section-sub">
-                There&apos;s no right way to be part of the community. Show up for walks, build a crew, or turn it into something more — it&apos;s up to you.
+                There&apos;s no right way to be part of the community. Show up for walks, build a crew, or turn it into something more — it&apos;s a dial, not a switch.
               </p>
-              <ButtonAction variant="primary" cta size="lg" href="/signup/start">
-                Get started
+              <ButtonAction variant="primary" cta size="lg" href="/demo">
+                See the spectrum
               </ButtonAction>
             </div>
             <div className="landing-archetypes-cards">
@@ -262,6 +344,11 @@ export default function LandingPage() {
                   </div>
                 </div>
               </div>
+              <div className="landing-care-cta-row">
+                <ButtonAction variant="primary" cta size="lg" href="/demo">
+                  Browse the prototype
+                </ButtonAction>
+              </div>
             </div>
             <div className="landing-care-photo-col">
               <img
@@ -275,30 +362,33 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Social proof ──────────────────────────────────────────────── */}
+      {/* ── Social proof — quotes attributed to real personas ────────── */}
       <section className="landing-section landing-section--alt">
         <div className="landing-inner">
           <div className="landing-section-header landing-section-header--centered">
-            <h2 className="landing-section-heading">What dog owners are saying</h2>
+            <h2 className="landing-section-heading">Voices from the prototype</h2>
+            <p className="landing-section-sub">
+              Three personas, three ways the community-to-care funnel plays out.
+            </p>
           </div>
           <div className="landing-testimonials-grid">
             <TestimonialCard
-              quote="I moved to Prague and didn't know anyone with a dog. Two weeks of Saturday walks later, I had three people I'd trust with Luna."
-              name="Eva"
-              detail="Luna's owner · Prague 7"
-              avatarUrl="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80"
+              quote="I&rsquo;ve been doing the morning loop in Riegrovy for years. Now Franta has six dogs he expects to see every day, and I have six people I&rsquo;d trust with him."
+              name={tereza.firstName}
+              detail={`${tereza.firstName}'s journey · ${tereza.neighbourhood}`}
+              avatarUrl={tereza.avatarUrl}
             />
             <TestimonialCard
-              quote="I met Tomáš at a park walk. Two weeks later he watched Rex while I travelled. It just made sense — we'd already spent hours together."
-              name="Jana"
-              detail="Rex's owner · Prague 2"
-              avatarUrl="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80"
+              quote="My group is mostly clients now. They started by joining a Saturday calm-dog session — by the third week, they were booking weekday training. The community is the funnel."
+              name={klara.firstName}
+              detail={`${klara.firstName}'s journey · trainer`}
+              avatarUrl={klara.avatarUrl}
             />
             <TestimonialCard
-              quote="I started walking a neighbour's dog on Saturdays. Now I help three families. It never felt like a job — it just happened."
-              name="Tomáš"
-              detail="Bruno's owner · Prague 3"
-              avatarUrl="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80"
+              quote="Petra watched Hugo when I was stuck in a 9pm meeting. She wasn&rsquo;t a stranger — we&rsquo;d been at the same Karlín group for a month. That&rsquo;s the difference."
+              name={tomas.firstName}
+              detail={`${tomas.firstName}'s journey · ${tomas.neighbourhood}`}
+              avatarUrl={tomas.avatarUrl}
             />
           </div>
         </div>
@@ -312,11 +402,11 @@ export default function LandingPage() {
             Meet locally. Build trust. Care comes naturally.
           </p>
           <div className="landing-cta-close-btns">
-            <ButtonAction variant="white" cta size="lg" href="/discover/meets">
-              Find a meet near you
+            <ButtonAction variant="white" cta size="lg" href="/demo">
+              Choose a persona
             </ButtonAction>
-            <ButtonAction variant="outline-white" cta size="lg" href="/signup/start">
-              Get started
+            <ButtonAction variant="outline-white" cta size="lg" href={TOUR_ENTRY}>
+              Walk me through Tereza&apos;s day
             </ButtonAction>
           </div>
         </div>

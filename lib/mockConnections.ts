@@ -1,4 +1,5 @@
 import type { Connection, ServiceType } from "./types";
+import { getUserById } from "./mockUsers";
 
 export const CONNECTION_STATE_LABELS: Record<string, string> = {
   none: "Not connected",
@@ -982,7 +983,61 @@ export function getConnectionState(
   userId: string,
   viewerId: string = "shawn",
 ): Connection | undefined {
-  return getConnectionsForViewer(viewerId).find((c) => c.userId === userId);
+  // Direct lookup — viewer has an outbound record for the target.
+  const direct = getConnectionsForViewer(viewerId).find((c) => c.userId === userId);
+  if (direct) return direct;
+
+  // Symmetric fallback — the seeded `mockConnectionsByViewer` only stores
+  // each pair from one perspective (typically the demo personas: Shawn,
+  // Tereza, Daniel, Klára, Tomáš). When a non-picker carer (Petra, Shawn,
+  // Nikola, etc.) views one of those personas, the direct lookup returns
+  // nothing — even when there's an obvious mutual relationship (a seeded
+  // booking, a Connected entry from the other side). Without this
+  // fallback, Petra viewing Tomáš sees him as a stranger, so his profile
+  // shows as Locked even though they have a long-running booking history.
+  //
+  // Connected is mutual by definition, so we propagate it both ways.
+  // Familiar is one-sided — if (viewer, target) is Familiar from the
+  // INVERSE record, that means the inverse-viewer marked us; from our
+  // perspective that's `theyMarkedFamiliar = true` (unlocks their profile
+  // to us per the trust model) but our outbound state stays "none."
+  // Pending is symmetric awareness on both sides.
+  // Pricing & Proposals walkthrough 2026-05-05.
+  const inverse = getConnectionsForViewer(userId).find((c) => c.userId === viewerId);
+  if (!inverse) return undefined;
+
+  // Re-key the inverse record so `userId` (target) and `userName` etc
+  // refer to the *target* of this lookup, not the inverse-viewer.
+  const targetUser = getUserById(userId);
+  const synthesized: Connection = {
+    id: `inv-${viewerId}-${userId}`,
+    userId,
+    userName: targetUser?.firstName ?? inverse.userName.split(" ")[0],
+    avatarUrl: targetUser?.avatarUrl ?? "",
+    dogNames: targetUser?.pets.map((p) => p.name) ?? [],
+    location: targetUser?.location ?? "",
+    state:
+      inverse.state === "connected"
+        ? "connected"
+        : inverse.state === "pending"
+          ? "pending"
+          : "none",
+    updatedAt: inverse.updatedAt,
+    profileOpen: targetUser?.profileVisibility === "open",
+    neighbourhood: targetUser?.neighbourhood,
+    // `theyMarkedFamiliar` reflects whether the target marked the viewer
+    // Familiar. If the inverse record's outbound state IS familiar, that's
+    // the target marking us → set this true. (Inbound Familiar from a
+    // Connected/Pending record is irrelevant; those carry their own state.)
+    theyMarkedFamiliar:
+      inverse.state === "familiar" ? true : inverse.theyMarkedFamiliar,
+    // Bidirectional signals — same value from either perspective.
+    meetsShared: inverse.meetsShared,
+    sharedGroups: inverse.sharedGroups,
+    mutualConnections: inverse.mutualConnections,
+    dogBreed: targetUser?.pets[0]?.breed ?? inverse.dogBreed,
+  };
+  return synthesized;
 }
 
 /** Get all of a viewer's connections in a given state. */

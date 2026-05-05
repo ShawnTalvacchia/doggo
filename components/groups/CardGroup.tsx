@@ -15,6 +15,7 @@ import {
   PawPrint,
 } from "@phosphor-icons/react";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
+import { GroupVisibilityChip } from "@/components/groups/GroupVisibilityChip";
 import type { Group, GroupType, CareCategory } from "@/lib/types";
 import { getGroupMeetCount } from "@/lib/mockGroups";
 
@@ -78,11 +79,7 @@ function CardGroupContent({
           {careLabel || typeInfo.label}
         </span>
 
-        {group.visibility === "approval" && (
-          <span className="card-schedule-chip">
-            Approval required
-          </span>
-        )}
+        <GroupVisibilityChip visibility={group.visibility} variant="card" />
 
         {variant === "discover" && isMember && (
           <>

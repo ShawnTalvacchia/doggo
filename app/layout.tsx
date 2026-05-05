@@ -4,6 +4,7 @@ import { Open_Sans, Poppins } from "next/font/google";
 import "./globals.css";
 import { SignupProvider } from "@/contexts/SignupContext";
 import { CurrentUserProvider } from "@/contexts/CurrentUserContext";
+import { AuthGateProvider } from "@/contexts/AuthGateContext";
 import { ConversationsProvider } from "@/contexts/ConversationsContext";
 import { ConnectionsProvider } from "@/contexts/ConnectionsContext";
 import { BookingsProvider } from "@/contexts/BookingsContext";
@@ -19,6 +20,7 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { PostComposer } from "@/components/posts/PostComposer";
 import { MeetComposer } from "@/components/meets/MeetComposer";
 import { PostMeetReviewSheet } from "@/components/meets/PostMeetReviewSheet";
+import { TourOverlay } from "@/components/landing/TourOverlay";
 
 const headingFont = Poppins({
   subsets: ["latin"],
@@ -46,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <SignupProvider>
           <CurrentUserProvider>
+            <AuthGateProvider>
             <NotificationsProvider>
               <ReviewsProvider>
                 <ConversationsProvider>
@@ -76,6 +79,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             <Suspense fallback={null}>
                               <PostMeetReviewSheet />
                             </Suspense>
+                            {/* Demo-mode guided tour overlay. Returns null
+                                unless `?tour=<id>` is in the URL — zero
+                                cost outside the tour. Same Suspense rule
+                                as above (uses useSearchParams). */}
+                            <Suspense fallback={null}>
+                              <TourOverlay />
+                            </Suspense>
                           </PostMeetReviewProvider>
                         </MeetComposerProvider>
                       </PostComposerProvider>
@@ -85,6 +95,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </ConversationsProvider>
               </ReviewsProvider>
             </NotificationsProvider>
+            </AuthGateProvider>
           </CurrentUserProvider>
         </SignupProvider>
       </body>

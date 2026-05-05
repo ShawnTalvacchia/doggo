@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-04
+last-reviewed: 2026-05-05
 tags: [discover, care, booking, providers, map, payment, trust-gating]
 review-trigger: "when modifying Discover Care tab, provider profiles, booking flows, payment, or map"
 ---
@@ -81,6 +81,47 @@ Care arrangements sit inside existing trust relationships. Every provider card a
   - Klára Horáčková + Dr. Lenka Nováková directory entries with full credentials
   - Pre-existing directory carers backfilled with `credentials` blocks (Olga, Jana, Tomáš, Markéta, Pavel, Simona, Martin, Lenka S., Petr V.)
 
+### Pricing & Proposals additions (closed 2026-05-05)
+
+- **Auto-pricing engine (`computeQuote(config, inquiry, today)` in `lib/pricing.ts`).** Pure function: per-service config × inquiry data × today's date → `BookingPrice` with stacked line items. Replaces the prior "compose price freely" pattern. Engine is unit-test verified across four scenarios.
+- **Starter modifier set (4) — `PricingModifier` discriminated union on `CarerCareServiceConfig.modifiers`:**
+  - **Holiday surcharge** (% on subtotal) — Czech public holidays table in `lib/holidays.ts`
+  - **Weekend rate** (% on subtotal) — `recurringSchedule.days` or `startDate` weekday match
+  - **Multi-pet** (flat Kč per extra pet over 1) — `inquiry.pets.length`
+  - **Last-minute** (% on subtotal) — `today + N days < startDate` threshold-configurable
+  - Stacking order: flat-per-unit modifiers first; percentage modifiers compound on the subtotal. Each modifier renders its own `PriceLineItem` with `triggerNote` so the proposal can show "*Holiday surcharge — 3 Czech public holidays fall in this booking*" inline.
+- **No-bargaining principle, structurally enforced.** Engine output is the canonical answer at three surfaces:
+  1. **InquiryForm live estimate** — updates as the owner fills in fields
+  2. **InquiryCard estimate** — same total + modifier chips persist on the chat artifact, both sides
+  3. **ProposalForm "System quote"** — read-only by default; provider can ship in one tap
+- **Override mode** — provider opts in via "Adjust this quote." Edited rows tinted amber (`--warning-25`); a "You're sending a custom quote" callout appears with optional reason input + "Reset to system quote" link. Owner-side `BookingProposalCard` renders a "CUSTOM QUOTE" callout in the body when `isOverride: true`. Provider can override; provider cannot silently override.
+- **Inquiry decline path** — provider can decline an inline with optional reason. Inquiry status flips to `declined`; system message lands in thread; reason callout persists below title even when card collapses. Counter-suggestion at the inquiry stage was deliberately skipped — negotiation happens at proposal stage via "Suggest changes."
+- **InquiryCard + BookingProposalCard collapse on response.** Once an inquiry is responded/declined or a proposal is countered/declined/accepted, the body collapses to header + service line. Footer carries the truth — accepted proposals link to `/bookings/{id}`. Decline reason callout persists through the collapse.
+- **Mutual Connected on contract sign** — signing a proposal mutually marks both parties Connected (resolves part of [[Open Questions & Assumptions Log]] §2 — inquiry-driven trust transitions). Pairs with the auto-Familiar-on-inquiry stop-gap that already shipped in Discover & Care.
+- **Per-service pricing on Discover Care cards** — `ProviderCard.pricesByService` lookup keyed by active service filter. When filter is "All", falls back to single `priceFrom` + `priceUnit`. Service-tag chip row hides under specific filters (context implied).
+- **Provider modifier-config UI** — `PricingModifiersEditor` accordion in `ProfileServicesTab` (default-collapsed; "N on" badge). All four modifier kinds always render so providers can flip any on. Reasonable defaults so opt-in is one tap.
+- **Persistent persona override (`?as=...`).** `useCurrentUser` hook now mirrors `?as=<personaId>` URL param to `sessionStorage["doggo-as-preview"]` so directory-only personas (Petra, Shawn, Nikola) survive route changes during a session. Picker actions clear the sessionStorage + strip the URL param via custom event.
+
+---
+
+## Pricing model
+
+The auto-pricing engine is the canonical source of truth for proposal prices. Provider configures pricing once (per Care service); engine produces the quote from inquiry data; provider reviews and sends.
+
+**Files:**
+- `lib/pricing.ts` — `computeQuote`, evaluators per modifier kind, `quotesMatch`, `defaultModifiers`
+- `lib/holidays.ts` — Czech public holidays 2026/2027 + range helpers
+- `lib/types.ts` — `PricingModifier` union, `CarerCareServiceConfig.modifiers`, `BookingProposal.isOverride/overrideReason`, `PriceLineItem.triggerNote`, `ProviderCard.pricesByService`
+
+**Decision principles:**
+- Engine output visible at three surfaces (InquiryForm, InquiryCard, ProposalForm)
+- Override possible but visibly flagged with optional reason
+- Each modifier produces its own line item with a `triggerNote` so the math is legible
+- Recurring/ongoing bookings skip holiday + last-minute (rolling weekly billing handles each week independently)
+- Modifiers are per-service opt-in; carers without modifiers configured fall through with single line item
+
+**Future modifier passes** — see "Future inquiry-form fields" under Future section. Longer-walk, off-hours, boarding-specific (yard / house type / max-dogs), add-on opt-ins (bath, grooming, photo updates), package selection (bundles).
+
 ---
 
 ## Key Decisions
@@ -149,8 +190,15 @@ Booking detail (Info tab) → "You're providing" pill shown
 
 ## Future
 
-- **Pricing & Proposals (next phase):** structurally enforce the no-bargaining principle. Provider pricing config (base + modifiers — holiday surcharge, multi-pet, longer-walk, last-minute, off-hours). Auto-pricing engine takes (config × inquiry data) → quote. ProposalForm refactored from "compose price" to "review system quote and confirm." Inquiry form expanded to capture all dimensions needed for the engine. Service-aware filters on Discover (Walks needs pace/leash; Sitting/Boarding need home attributes). Provider onboarding UI for pricing setup. See [[Open Questions & Assumptions Log]] §6 → "Structured pricing model + no-bargaining principle."
-- **Discover Care surface gaps cluster** ([[Open Questions & Assumptions Log]] §4): Appointment filter pill on `/discover/care`, ProviderCard ↔ UserProfile fragmentation, per-service pricing on cards (`pricesByService`), service-aware filters (4–6 hour sub-workstream), unwired filter panel (visual-only no-ops). Cluster targeted at a future Discover refinement pass; some items move with Pricing & Proposals.
+- **Future inquiry-form fields (deferred from Pricing & Proposals v1).** The starter modifier set (holiday / weekend / multi-pet / last-minute) works with already-captured inquiry data, so the inquiry form didn't need to grow in v1. Future modifier passes will need new fields:
+  - **`durationMinutes`** on the inquiry → enables a *longer-walk* modifier (flat or % bump for walks > base duration). Walk-only.
+  - **Time-of-day** (`startTime`, picker or morning/afternoon/evening segment) → enables an *off-hours* modifier (% bump for early-morning / late-evening / overnight). Walk-only initially; could extend to per-visit sitting.
+  - **Home-attribute fields** (yard size, fenced, has-own-dogs, max-dogs-at-once) — these belong on the carer config (where they describe the home), not the inquiry. They feed *boarding-specific* modifiers and the service-aware filter refactor in §4 of Open Questions.
+  - **Add-on opt-ins** (bath, grooming reinforcement, photo updates) → multi-select on the inquiry, each one a flat add-on line item on the proposal. Boarding-only initially.
+  - **Package selection** (e.g. "5-night bundle" vs "5 × per-night") → radio on the inquiry when the carer offers one. Affects the base line item, not a stacked modifier.
+
+  Form-shape sketch: each new field is service-conditional (don't ask Hugo's owner about boarding-yard requirements when she's booking a walk). The InquiryForm already conditionally renders by `bookingType`; service-conditional fields slot into the same pattern.
+- **Discover Refinement (scheduled phase, after Sessions & Service Execution)**: bundles the §4 cluster items (Appointment filter pill, ProviderCard ↔ UserProfile fragmentation, per-service pricing, service-aware filters, unwired filter panel) with the **community-first Discover ordering** thesis — surface Helper-tier Connected carers distinctly above Providers. See [[ROADMAP]] → Discover Refinement.
 - **Inquiry-driven trust transitions:** the auto-Familiar shipped here is a stop-gap. Full model — mutual Familiar on inquiry send, mutual Connected on contract accept, first-service-message detection, decline rollback rules — logged in [[Open Questions & Assumptions Log]] §2 for Inbox & Notifications.
 - **Review form** — full review submission flow after completed bookings (currently stub button only).
 - **Provider dashboard** — earnings view, availability calendar, incoming requests management.

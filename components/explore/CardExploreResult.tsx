@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Handshake, MapPin, PawPrint, Star, Users } from "@phosphor-icons/react";
-import { ProviderCard, ServiceType } from "@/lib/types";
+import { ProviderCard, ServiceType, CarerCareServiceConfig } from "@/lib/types";
 import { getConnectionState } from "@/lib/mockConnections";
 import { getUserById } from "@/lib/mockUsers";
 import { getTrustBadges, userProfileToTrustSubject } from "@/lib/trustBadges";
@@ -20,6 +20,40 @@ function formatUnit(unit: ProviderCard["priceUnit"]) {
   if (unit === "per_visit") return "per visit";
   if (unit === "per_night") return "per night";
   return "per walk";
+}
+
+/**
+ * Per-service price resolution. When a specific service filter is active,
+ * try to surface the matching base rate — first from `provider.pricesByService`
+ * if seeded, then from the bridged UserProfile's care services (so we don't
+ * have to duplicate rate data on the directory card), and finally fall back
+ * to the legacy single `priceFrom` + `priceUnit`. Pricing & Proposals,
+ * 2026-05-04 (Open Q §4 last entry, item 3).
+ */
+function resolveDisplayPrice(
+  provider: ProviderCard,
+  activeService: ServiceType | null | undefined,
+): { priceFrom: number; priceUnit: ProviderCard["priceUnit"] } {
+  if (!activeService) {
+    return { priceFrom: provider.priceFrom, priceUnit: provider.priceUnit };
+  }
+  const seeded = provider.pricesByService?.[activeService];
+  if (seeded) return seeded;
+  if (provider.userId) {
+    const user = getUserById(provider.userId);
+    const match = user?.carerProfile?.services?.find(
+      (s): s is CarerCareServiceConfig =>
+        s.kind === "care" && s.serviceType === activeService,
+    );
+    if (match) {
+      // priceUnit on CarerCareServiceConfig is "per_visit" | "per_night";
+      // ProviderCard.priceUnit also accepts "per_walk" for legacy directory
+      // entries. Map straight through — both shapes overlap on the values
+      // we care about here.
+      return { priceFrom: match.pricePerUnit, priceUnit: match.priceUnit };
+    }
+  }
+  return { priceFrom: provider.priceFrom, priceUnit: provider.priceUnit };
 }
 
 const serviceLabels: Record<ServiceType, string> = {
@@ -60,6 +94,9 @@ export function CardExploreResult({
         repeatClients: provider.repeatClients,
       };
   const trustBadges = getTrustBadges(trustSubject, currentUserId).slice(0, 2);
+
+  // Per-service price resolution — see helper. Falls back gracefully.
+  const displayPrice = resolveDisplayPrice(provider, activeService);
 
   // Carry the full filter state into the profile URL so back navigation can restore it.
   const profileHref = returnQuery
@@ -111,8 +148,8 @@ export function CardExploreResult({
         </div>
         <div className="result-price-col">
           <div className="result-price-from">from</div>
-          <div className="result-price">{`${provider.priceFrom} Kč`}</div>
-          <div className="result-price-unit">{formatUnit(provider.priceUnit)}</div>
+          <div className="result-price">{`${displayPrice.priceFrom} Kč`}</div>
+          <div className="result-price-unit">{formatUnit(displayPrice.priceUnit)}</div>
         </div>
       </div>
 
@@ -151,7 +188,10 @@ export function CardExploreResult({
         )}
       </div>
 
-      {provider.services.length > 0 && (
+      {/* Service-tag row — hide when a specific service filter is active
+          (the context is implied by the filter; showing it again is just
+          noise). Pricing & Proposals, 2026-05-04. */}
+      {provider.services.length > 0 && !activeService && (
         <div className="result-services">
           {provider.services.map((s) => (
             <span key={s} className="tag">

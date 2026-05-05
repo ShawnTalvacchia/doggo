@@ -13,6 +13,7 @@ import {
   Bell,
   ChatCircleDots,
   CalendarPlus,
+  Compass,
 } from "@phosphor-icons/react";
 import { AddPostIcon } from "@/components/icons/AddPostIcon";
 import { usePostComposer } from "@/contexts/PostComposerContext";
@@ -21,15 +22,22 @@ import { useMeetComposer } from "@/contexts/MeetComposerContext";
 function GuestNavLinks() {
   return (
     <div className="app-nav-right" aria-label="Guest navigation">
-      {/* "Sign In" replaced 2026-04-29 with "Enter Demo" — current
-          audience is testers/reviewers, not first-use users. The "..."
-          → /pages dev menu was also removed; /pages stays accessible
-          via direct URL but isn't pinned to the chrome. Sign In can
-          come back when the prototype reaches real users. */}
-      <Link href="/demo" className="app-nav-link app-nav-link--hide-mobile">
-        Enter Demo
+      {/* Persistent demo affordance (Demo Presentation F1, 2026-05-05).
+          Replaces the prior text-only "Enter Demo" link — testers absorb
+          the value prop through the landing page and need a one-click
+          door into the prototype from any guest route. The "..." → /pages
+          dev menu was removed 2026-04-29; /pages stays reachable via
+          direct URL but isn't pinned to the chrome. Sign Up can flip back
+          to primary when real signup flows wire up. */}
+      <Link
+        href="/demo"
+        className="app-nav-link app-nav-link--demo"
+        aria-label="Try the prototype demo"
+      >
+        <Compass size={16} weight="bold" aria-hidden="true" />
+        <span className="app-nav-link-label">Try the demo</span>
       </Link>
-      <Link href="/signup/start" className="app-nav-link app-nav-link--primary">
+      <Link href="/signup/start" className="app-nav-link app-nav-link--primary app-nav-link--hide-mobile">
         Sign Up
       </Link>
     </div>
@@ -97,7 +105,7 @@ function LoggedNavLinks({ hideCreate = false }: { hideCreate?: boolean }) {
   );
 }
 
-const loggedRoutes = ["/home", "/communities", "/groups", "/activity", "/discover", "/meets", "/schedule", "/explore", "/inbox", "/notifications", "/bookings", "/profile"];
+const loggedRoutes = ["/home", "/communities", "/groups", "/activity", "/discover", "/meets", "/schedule", "/explore", "/inbox", "/notifications", "/bookings", "/profile", "/help"];
 
 function getPageTitle(pathname: string): string | null {
   if (pathname.startsWith("/discover/care")) return "Dog Care";

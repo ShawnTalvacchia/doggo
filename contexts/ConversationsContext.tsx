@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useCallback } from "react";
 import { mockConversations } from "@/lib/mockConversations";
-import { useDemoState } from "@/contexts/CurrentUserContext";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { usePersistedState } from "@/lib/usePersistedState";
 import type {
   Conversation,
@@ -63,6 +63,10 @@ interface ConversationsContextValue {
     msgId: string,
     status: InquiryStatus
   ) => void;
+  /** Provider-side decline. Flips status to "declined" and saves the
+   *  optional reason on the inquiry artifact so the owner sees why.
+   *  Pricing & Proposals walkthrough 2026-05-05. */
+  declineInquiry: (convId: string, msgId: string, reason?: string) => void;
 }
 
 // ── Context ────────────────────────────────────────────────────────────────────
@@ -80,9 +84,16 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
     "doggo-conversations",
     mockConversations,
   );
-  // Keep this provider static-prerender-safe: avoid useCurrentUser() here
-  // because it reads URL search params and requires a Suspense boundary.
-  const { user: currentUser } = useDemoState();
+  // Use useCurrentUser to honor `?as=` URL preview / sticky session
+  // overrides. Without this, conversations filter by picker persona only,
+  // and walkthrough scenarios where a tester views inbox/profile chat AS a
+  // non-picker persona (Petra, Shawn, Nikola) see empty results — even
+  // though the conversation exists. The earlier comment about avoiding
+  // useCurrentUser referenced an older implementation that used
+  // useSearchParams; the current version uses usePathname +
+  // window.location.search, which doesn't need a Suspense boundary.
+  // Pricing & Proposals walkthrough 2026-05-05.
+  const currentUser = useCurrentUser();
   const currentUserFullName = `${currentUser.firstName} ${currentUser.lastName}`;
   // The mock conversation seed data is currently Shawn-relative (Mock World
   // Building will populate per-persona threads). Non-Shawn personas will see
@@ -345,6 +356,32 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
     [],
   );
 
+  const declineInquiry = useCallback(
+    (convId: string, msgId: string, reason?: string) => {
+      setConversations((prev) =>
+        prev.map((c) => {
+          if (c.id !== convId) return c;
+          return {
+            ...c,
+            messages: c.messages.map((m) =>
+              m.id === msgId && m.inquiry
+                ? {
+                    ...m,
+                    inquiry: {
+                      ...m.inquiry,
+                      status: "declined",
+                      declineReason: reason && reason.length > 0 ? reason : undefined,
+                    },
+                  }
+                : m,
+            ),
+          };
+        }),
+      );
+    },
+    [],
+  );
+
   return (
     <ConversationsContext.Provider
       value={{
@@ -359,6 +396,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
         updateInquiry,
         updateProposalStatus,
         updateInquiryStatus,
+        declineInquiry,
       }}
     >
       {children}

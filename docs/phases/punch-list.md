@@ -1,6 +1,6 @@
 ---
 status: active
-last-reviewed: 2026-05-03
+last-reviewed: 2026-05-05
 review-trigger: "any time — add items as they're noticed, fix them when convenient"
 ---
 
@@ -51,3 +51,4 @@ If an item turns out to need design thinking or more than ~30 minutes:
 | P40 | "Familiar ✓" tag on profile pages should be tappable to reverse the mark. Today the tag is a passive label with no way to undo. Recommended: tap → small popover with "Unmark" + "Cancel" (friction-by-design). | Trust / Interaction | Profile page (Familiar viewer) | `app/profile/[userId]/page.tsx`, `components/ui/ConnectionIcon.tsx` | 2026-04-30 |
 | P42 | Inline comment compose on feed posts — `CommentThread` has a `canComment` prop but the send action is a stub. Wire to session-scoped local state (mirrors `ConnectionsContext` pattern), or skip until backend is real. Low priority. | Content / Interaction | Feed posts | `components/feed/FeedCard.tsx`, `components/feed/CommentThread.tsx` | 2026-04-30 |
 | P43 | Group join/leave actions are stubs — "Join Community" calls `setJoinRequested(true)` (local React state) but doesn't mutate membership. Real fix: `GroupsContext` mirroring `ConnectionsContext` (session-scoped overrides). Not load-bearing for the demo. | Trust / Interaction | Group detail | `app/communities/[id]/page.tsx`, `components/groups/GroupDetailPanel.tsx`, `lib/mockGroups.ts` | 2026-04-30 |
+| P54 | "Connected ✓" button on profile hero is a placeholder — currently non-interactive. Wire a small dropdown menu on tap with options: Unconnect, Block, Report. Friction-by-design (these are heavy actions; not a quick toggle like Familiar). Mirrors P40 pattern but with more options. | Trust / Interaction | Profile page (Connected viewer) | `app/profile/[userId]/page.tsx` | 2026-05-05 |

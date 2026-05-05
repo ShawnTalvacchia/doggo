@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { MapPin, Users, Lightning, Tree, UsersFour, Wrench, House, PawPrint, Storefront, Dog } from "@phosphor-icons/react";
+import { GroupVisibilityChip } from "@/components/groups/GroupVisibilityChip";
 import type { Group, GroupType } from "@/lib/types";
 import { getGroupMeetCount } from "@/lib/mockGroups";
 
@@ -40,18 +41,7 @@ export function GroupCard({ group }: { group: Group }) {
           <typeInfo.icon size={12} weight="regular" />
           {typeInfo.label}
         </span>
-        {group.visibility === "approval" && (
-          <span
-            className="text-xs font-semibold rounded-pill"
-            style={{
-              padding: "2px 8px",
-              background: "var(--brand-subtle)",
-              color: "var(--brand-main)",
-            }}
-          >
-            Approval
-          </span>
-        )}
+        <GroupVisibilityChip visibility={group.visibility} variant="card" />
       </div>
 
       {/* Name row: circular cover + bold name */}

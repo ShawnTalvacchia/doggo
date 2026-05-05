@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import {
@@ -26,6 +27,7 @@ import { getTrustBadges, userProfileToTrustSubject } from "@/lib/trustBadges";
 import { PetCard } from "@/components/profile/PetCard";
 import { PostsTab } from "@/components/profile/PostsTab";
 import { ProfileChatTab } from "@/components/profile/ProfileChatTab";
+import { AvailabilityGrid } from "@/components/profile/AvailabilityGrid";
 import { InquiryFormModal } from "@/components/messaging/InquiryFormModal";
 import type { ServiceType } from "@/lib/types";
 import { getCommunityCarers } from "@/lib/mockConnections";
@@ -285,13 +287,11 @@ function UserProfileInner() {
                   </p>
                 )}
               </div>
-              {/* Privacy explainer link — placeholder href; wire-up tracked
-                  on the punch list (destination page doesn't exist yet).
+              {/* Privacy explainer link — routes to /help/privacy.
                   Inline `text-decoration: underline` overrides the global
                   `a { text-decoration: none }` rule in globals.css. */}
-              <a
-                href="#"
-                onClick={(e) => e.preventDefault()}
+              <Link
+                href="/help/privacy"
                 className="text-sm font-semibold text-fg-primary hover:text-brand-main"
                 style={{
                   marginTop: "var(--space-lg)",
@@ -300,7 +300,7 @@ function UserProfileInner() {
                 }}
               >
                 Learn how privacy works
-              </a>
+              </Link>
             </div>
           );
         })()}
@@ -338,6 +338,7 @@ function UserProfileInner() {
                 </div>
                 <div className="w-full sm:flex-1 flex flex-col gap-xs min-w-0 items-center sm:items-start text-center sm:text-left">
                   <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">{name}</h1>
+
                   {location && (
                     <span className="flex items-center gap-xs text-sm text-fg-secondary">
                       <MapPin size={13} weight="fill" className="shrink-0" /> {location}
@@ -356,11 +357,18 @@ function UserProfileInner() {
                     </div>
                   )}
 
-                  {/* Familiar / connection-state action — lives at the bottom
-                      of the right column so it sits adjacent to the avatar
-                      rather than below it. Outline button style + breathing
-                      room reads as a deliberate affordance, not a label.
-                      Discover & Care 2026-05-04 visual refactor. */}
+                  {/* Relationship + action row — two slots side by side.
+                   *  Left slot: relationship state (Mark Familiar / Familiar /
+                   *    Connected). Familiar stays a quick toggle; Connected is
+                   *    a placeholder for a future dropdown (unconnect / block
+                   *    / report). See punch list.
+                   *  Right slot: primary action — tier-aware. Provider tier
+                   *    gets "Book care" (routes to Services tab where the
+                   *    per-service Book a session CTAs live); Helper tier
+                   *    gets "Connect with X" (relationship deepening).
+                   *    Connected → "Message" both tiers. Pending → "Request
+                   *    sent" disabled.
+                   *  Pricing & Proposals walkthrough 2026-05-05. */}
                   {!isSelf && (() => {
                     const matrix = resolvePersonActions(
                       { userId: currentUserId, profileOpen: currentUser.profileVisibility === "open" },
@@ -372,33 +380,54 @@ function UserProfileInner() {
                       },
                     );
                     const familiarAction = matrix.find((a) => a.kind === "familiar");
-                    const showFamiliarOn = connState === "familiar";
-                    const showFamiliarOff =
-                      connState === "none" &&
-                      familiarAction?.kind === "familiar" &&
-                      familiarAction.state === "off";
-                    // Connected gets no pill — the Message CTA carries the signal
-                    // unambiguously. Mirrors the PersonRow rule.
-                    const showConnectionIcon =
-                      !showFamiliarOn &&
-                      !showFamiliarOff &&
-                      connState !== "connected";
-                    if (!showFamiliarOn && !showFamiliarOff && !showConnectionIcon) return null;
+
+                    // Left slot — relationship state
+                    type LeftSlot = "connected" | "familiar_marked" | "mark_familiar" | null;
+                    const leftSlot: LeftSlot =
+                      connState === "connected"
+                        ? "connected"
+                        : connState === "familiar"
+                          ? "familiar_marked"
+                          : connState === "none" && familiarAction?.kind === "familiar" && familiarAction.state === "off"
+                            ? "mark_familiar"
+                            : null;
+
+                    // Right slot — tier-aware primary action
+                    type RightSlot = "message" | "book_care" | "connect" | "request_sent" | null;
+                    const rightSlot: RightSlot =
+                      connState === "connected"
+                        ? "message"
+                        : connState === "pending"
+                          ? "request_sent"
+                          : isProviderTier
+                            ? "book_care"
+                            : matrix.find((a) => a.kind === "connect")
+                              ? "connect"
+                              : null;
+
+                    if (!leftSlot && !rightSlot) return null;
+
                     return (
-                      <div className="flex items-center gap-sm flex-wrap" style={{ marginTop: "var(--space-md)" }}>
-                        {showConnectionIcon && (
-                          <ConnectionIcon
-                            state={connState}
-                            profileOpen={isProfileOpen}
-                            size={16}
-                            showLabel
-                          />
-                        )}
-                        {showFamiliarOn && (
+                      <div className="flex gap-sm w-full" style={{ marginTop: "var(--space-md)" }}>
+                        {leftSlot === "mark_familiar" && (
                           <ButtonAction
                             variant="outline"
-                            size="sm"
+                            size="md"
                             cta
+                            className="flex-1"
+                            leftIcon={<Plus size={14} weight="bold" />}
+                            onClick={() => markFamiliar(currentUserId, userId)}
+                            aria-label={`Mark ${firstName} as Familiar`}
+                          >
+                            Mark Familiar
+                          </ButtonAction>
+                        )}
+                        {leftSlot === "familiar_marked" && (
+                          <ButtonAction
+                            variant="outline"
+                            size="md"
+                            cta
+                            className="flex-1"
                             leftIcon={<Check size={14} weight="bold" />}
                             onClick={() => unmarkFamiliar(currentUserId, userId)}
                             aria-pressed
@@ -407,16 +436,61 @@ function UserProfileInner() {
                             Familiar
                           </ButtonAction>
                         )}
-                        {showFamiliarOff && (
+                        {leftSlot === "connected" && (
                           <ButtonAction
                             variant="outline"
-                            size="sm"
+                            size="md"
                             cta
-                            leftIcon={<Plus size={14} weight="bold" />}
-                            onClick={() => markFamiliar(currentUserId, userId)}
-                            aria-label={`Mark ${firstName} as Familiar`}
+                            className="flex-1"
+                            leftIcon={<Check size={14} weight="bold" />}
+                            aria-label={`You're connected with ${firstName}`}
                           >
-                            Mark Familiar
+                            Connected
+                          </ButtonAction>
+                        )}
+                        {rightSlot === "message" && (
+                          <ButtonAction
+                            variant="primary"
+                            size="md"
+                            cta
+                            className="flex-1"
+                            leftIcon={<ChatCircleDots size={16} weight="fill" />}
+                            onClick={() => handleTabChange("chat")}
+                          >
+                            Message
+                          </ButtonAction>
+                        )}
+                        {rightSlot === "book_care" && (
+                          <ButtonAction
+                            variant="primary"
+                            size="md"
+                            cta
+                            className="flex-1"
+                            leftIcon={<CalendarDots size={16} weight="light" />}
+                            onClick={() => handleTabChange("services")}
+                          >
+                            Book care
+                          </ButtonAction>
+                        )}
+                        {rightSlot === "connect" && (
+                          <ButtonAction
+                            variant="primary"
+                            size="md"
+                            cta
+                            className="flex-1"
+                          >
+                            Connect with {firstName}
+                          </ButtonAction>
+                        )}
+                        {rightSlot === "request_sent" && (
+                          <ButtonAction
+                            variant="outline"
+                            size="md"
+                            cta
+                            className="flex-1"
+                            disabled
+                          >
+                            Request sent
                           </ButtonAction>
                         )}
                       </div>
@@ -429,83 +503,6 @@ function UserProfileInner() {
                   <ConnectionIcon state={connState} profileOpen={isProfileOpen} size={16} showLabel />
                 </div>
               )}
-
-              {/* CTA buttons — driven by the action matrix. Span the full
-                * panel width; Familiar lives in the connection-state pill
-                * above. */}
-              {!isSelf && (() => {
-                const matrixActions = resolvePersonActions(
-                  { userId: currentUserId, profileOpen: currentUser.profileVisibility === "open" },
-                  {
-                    userId,
-                    connectionState: connState,
-                    theyMarkedFamiliar: connection?.theyMarkedFamiliar,
-                    profileOpen: isProfileOpen,
-                  },
-                );
-                if (connState === "pending") {
-                  return (
-                    <div className="flex gap-sm w-full">
-                      <ButtonAction variant="outline" size="md" cta className="flex-1" disabled>
-                        Request sent
-                      </ButtonAction>
-                    </div>
-                  );
-                }
-                const ctaActions = matrixActions.filter(
-                  (a) => a.kind === "connect" || a.kind === "message",
-                );
-                if (ctaActions.length === 0 && !(connState === "connected" && hasCare)) {
-                  return null;
-                }
-                return (
-                  <div className="flex gap-sm w-full">
-                    {ctaActions.map((action, i) => {
-                      if (action.kind === "message") {
-                        return (
-                          <ButtonAction
-                            key={`message-${i}`}
-                            variant="primary"
-                            size="md"
-                            cta
-                            className="flex-1"
-                            leftIcon={<ChatCircleDots size={16} weight="fill" />}
-                            onClick={() => handleTabChange("chat")}
-                          >
-                            Message
-                          </ButtonAction>
-                        );
-                      }
-                      if (action.kind === "connect") {
-                        return (
-                          <ButtonAction
-                            key={`connect-${i}`}
-                            variant="primary"
-                            size="md"
-                            cta
-                            className="flex-1"
-                          >
-                            Connect with {firstName}
-                          </ButtonAction>
-                        );
-                      }
-                      return null;
-                    })}
-                    {connState === "connected" && hasCare && (
-                      <ButtonAction
-                        variant="outline"
-                        size="md"
-                        cta
-                        className="flex-1"
-                        leftIcon={<CalendarDots size={16} weight="light" />}
-                        onClick={() => handleTabChange("chat")}
-                      >
-                        Book care
-                      </ButtonAction>
-                    )}
-                  </div>
-                );
-              })()}
 
             </div>
 
@@ -576,27 +573,50 @@ function UserProfileInner() {
 
         {/* ── Services tab ── */}
         {!isLocked && activeTab === "services" && (() => {
-          // "Open to helping" is the casual-helper signal. Hide it for users
-          // who already have listed services — the carerProfile IS the answer
-          // to "are you open to helping?" Showing both reads as redundant
-          // (and confusing on a professional provider's surface, which Klára
-          // is). Mock World Building 2026-04-30.
-          const hasListedServices =
-            (userProfile?.carerProfile?.services ?? []).some((s) => s.enabled);
+          // "Open to helping" is the **Helper-tier** signal — for users who
+          // casually offer care to their network without being publicly
+          // discoverable. Hide it for Provider-tier users (publicProfile:
+          // true) — they're a different tier on the same dial, the badge
+          // is redundant and reads as inconsistent on a public-Provider
+          // surface. Tier check is structural; the older `hasListedServices`
+          // heuristic missed directory-only Providers (Olga, Markéta) whose
+          // services come from the ProviderCard fallback path, not from
+          // `carerProfile.services`. Pricing & Proposals, 2026-05-04.
+          const isProviderTier = userProfile?.carerProfile?.publicProfile === true;
+          const isDirectoryProvider = !!provider; // listed in `/discover/care`
           const showHelpingBadge =
-            (userProfile?.openToHelping ?? false) && !hasListedServices;
+            (userProfile?.openToHelping ?? false) && !isProviderTier && !isDirectoryProvider;
           return (
             <div className="profile-tab-stack" style={{ padding: "var(--space-lg)" }}>
-              {/* Open to helping — inline badge, no wrapping card. Only shown
-                  for users who don't have listed services (i.e., the casual
-                  helper signal where it actually adds info). */}
+              {/* Helper-tier explainer — communicates that the services on
+                  this profile are gated to the carer's connections (not a
+                  public Provider). The small inline badge previously here
+                  surfaced "Open to helping" without explaining what that
+                  meant — the explainer card now sets expectations clearly.
+                  Pricing & Proposals walkthrough 2026-05-05. Future:
+                  Onboarding & In-Product Communication phase may layer a
+                  "what does this mean?" tooltip on top to teach the broader
+                  trust model (Helper vs Provider tier). */}
               {showHelpingBadge && (
-                <span
-                  className="flex items-center gap-xs rounded-pill px-md py-xs text-sm font-medium self-start"
-                  style={{ background: "var(--brand-subtle)", color: "var(--brand-strong)" }}
+                <section
+                  className="flex items-start gap-md rounded-panel p-md border border-edge-regular"
+                  style={{ background: "var(--brand-subtle)" }}
                 >
-                  <PawPrint size={16} weight="fill" /> Open to helping
-                </span>
+                  <PawPrint
+                    size={20}
+                    weight="fill"
+                    className="shrink-0"
+                    style={{ color: "var(--brand-strong)", marginTop: 2 }}
+                  />
+                  <div className="flex flex-col gap-xxs">
+                    <p className="text-sm font-semibold text-fg-primary m-0">
+                      Open to helping
+                    </p>
+                    <p className="text-sm text-fg-secondary m-0 leading-snug">
+                      {firstName} offers care to their connections — people they&apos;ve met through the community.
+                    </p>
+                  </div>
+                </section>
               )}
 
               {/* Service cards — single comprehensive catalogue.
@@ -619,6 +639,13 @@ function UserProfileInner() {
                         <span className="profile-service-name">{SERVICE_LABELS[svc.serviceType]}</span>
                         <div className="profile-service-price-wrap">
                           <span className="profile-service-price">
+                            {/* "From" telegraphs that the final quote depends
+                                on inquiry specifics (multi-pet, holiday, etc.)
+                                — surfaced in the proposal, not the catalogue.
+                                Pricing & Proposals, 2026-05-04. */}
+                            {(svc.modifiers ?? []).some((m) => m.enabled) && (
+                              <span className="profile-service-price-from">From </span>
+                            )}
                             {svc.pricePerUnit.toLocaleString()} Kč
                             <span className="profile-service-unit">
                               {" "}/ {svc.priceUnit === "per_visit" ? "visit" : "night"}
@@ -757,45 +784,44 @@ function UserProfileInner() {
                         </div>
                       ))}
                   </>
-                  : (provider?.services ?? communityCarer?.services ?? []).map((svcType) => (
-                    <div key={svcType} className="profile-service-card">
-                      <div className="profile-service-top">
-                        <span className="profile-service-name">{SERVICE_LABELS[svcType]}</span>
-                        <div className="profile-service-price-wrap">
-                          <span className="profile-service-price">
-                            from {(provider?.priceFrom ?? communityCarer?.priceFrom ?? 0).toLocaleString()} Kč
-                            {provider?.priceUnit && (
-                              <span className="profile-service-unit">
-                                {" "}/ {provider.priceUnit === "per_visit" ? "visit" : provider.priceUnit === "per_walk" ? "walk" : "night"}
-                              </span>
-                            )}
-                          </span>
+                  : (provider?.services ?? communityCarer?.services ?? []).map((svcType) => {
+                    // Directory-only carers carry a single `priceUnit` that
+                    // applies to every service in their catalogue, which is
+                    // wrong when the catalogue mixes service types. Map per
+                    // service type instead — sitting/walks render in their
+                    // natural unit, boarding always per night. Pricing &
+                    // Proposals walkthrough 2026-05-04.
+                    const unitWord =
+                      svcType === "boarding"
+                        ? "night"
+                        : svcType === "inhome_sitting"
+                          ? "visit"
+                          : "walk";
+                    return (
+                      <div key={svcType} className="profile-service-card">
+                        <div className="profile-service-top">
+                          <span className="profile-service-name">{SERVICE_LABELS[svcType]}</span>
+                          <div className="profile-service-price-wrap">
+                            <span className="profile-service-price">
+                              <span className="profile-service-price-from">From </span>
+                              {(provider?.priceFrom ?? communityCarer?.priceFrom ?? 0).toLocaleString()} Kč
+                              <span className="profile-service-unit">{" "}/ {unitWord}</span>
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 }
               </div>
             </section>
 
-              {/* Availability — neutral pills since we only render days/slots
-                  the user is available (not active-vs-inactive selection).
-                  Brand-tinted treatment was overkill here. */}
+              {/* Availability — shared `AvailabilityGrid` component with
+                  full Mon–Sun + muted inactive slots. */}
               {userProfile?.carerProfile?.availability && userProfile.carerProfile.availability.length > 0 && (
                 <section>
                   <h3 className="profile-card-subtitle">Availability</h3>
-                  <div className="profile-avail-grid">
-                    {userProfile.carerProfile.availability.map((slot) => (
-                      <div key={slot.day} className="profile-avail-row">
-                        <span className="profile-avail-day">{slot.day.charAt(0).toUpperCase() + slot.day.slice(1, 3)}</span>
-                        <div className="profile-avail-slots">
-                          {slot.slots.map((s) => (
-                            <span key={s} className="rounded-pill px-md py-xs text-sm bg-surface-inset text-fg-secondary">{s}</span>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <AvailabilityGrid availability={userProfile.carerProfile.availability} />
                 </section>
               )}
             </div>

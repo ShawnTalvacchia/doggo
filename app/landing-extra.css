@@ -559,3 +559,433 @@
     height: 140px;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THREE DOORS — community spine on the redesigned landing page
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.landing-doors-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+}
+
+.landing-door-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-xl);
+  background: var(--surface-top);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-regular);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+  position: relative;
+}
+
+.landing-door-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--brand-main);
+  transform: translateY(-2px);
+}
+
+.landing-door-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--brand-main) 12%, transparent);
+  color: var(--brand-main);
+  margin-bottom: var(--space-xs);
+}
+
+.landing-door-label {
+  font-family: var(--font-heading), sans-serif;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--brand-main);
+}
+
+.landing-door-title {
+  font-family: var(--font-heading), sans-serif;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.landing-door-body {
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.landing-door-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--space-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--brand-main);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   PERSONA PREVIEW ROW — four journey personas on the landing page
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.landing-persona-grid {
+  display: grid;
+  /* 2x2 on desktop — these cards are the primary entry to the prototype,
+     so they earn 50% width each. Restructured 2026-05-05 from a 4-across
+     row that crammed the story copy. Horizontal card layout (avatar left,
+     content right) keeps height tight and reads magazine-style. */
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-lg);
+}
+
+.landing-persona-card {
+  /* Grid lets the avatar span all content rows on desktop (left column,
+     all rows), then re-grid on mobile to sit inline with just the titles
+     row while story + cta wrap below. Restructured 2026-05-05. */
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  grid-template-areas:
+    "avatar titles"
+    "avatar story"
+    "avatar cta";
+  column-gap: var(--space-lg);
+  row-gap: var(--space-xs);
+  padding: var(--space-xl);
+  background: var(--surface-top);
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--border-regular);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+}
+
+.landing-persona-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--brand-main);
+  transform: translateY(-2px);
+}
+
+.landing-persona-avatar {
+  grid-area: avatar;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--surface-base);
+  align-self: start;
+}
+
+.landing-persona-titles {
+  grid-area: titles;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.landing-persona-archetype {
+  font-family: var(--font-heading), sans-serif;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--brand-main);
+}
+
+.landing-persona-name {
+  font-family: var(--font-heading), sans-serif;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.landing-persona-story {
+  grid-area: story;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--text-secondary);
+  margin: 0;
+  margin-top: var(--space-xs);
+}
+
+.landing-persona-cta {
+  grid-area: cta;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--space-sm);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--brand-main);
+  align-self: end;
+  justify-self: start;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CARE-SECTION CTA — promoted from inline text link to a primary pill
+   button 2026-05-05 (PO note: text link was too quiet for a section-closing
+   CTA, and inconsistent with the section-level pill CTAs in Hero, Archetypes,
+   and Bottom CTA). Wrapper carries the top spacing so the CTA reads as its
+   own beat, not a continuation of the bullet list above it.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.landing-care-cta-row {
+  /* 32px — bigger than the 20px gap between care bullets above, so the CTA
+     reads as its own beat rather than another bullet. */
+  margin-top: var(--space-xxxl);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THREE DOORS + PERSONA ROW — responsive
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 900px) {
+  .landing-doors-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  /* Tablet: one persona card per row, still horizontal layout. Each card
+     gets full width, plenty of room for the story copy. */
+  .landing-persona-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+}
+
+@media (max-width: 600px) {
+  /* Mobile: avatar sits inline with the titles (archetype + name) only —
+     story + cta wrap below at full card width. Hybrid pattern that reads
+     tighter than the desktop "avatar spans all rows" treatment when there
+     isn't much horizontal room. PO note 2026-05-05. */
+  .landing-persona-card {
+    grid-template-columns: 72px 1fr;
+    grid-template-areas:
+      "avatar titles"
+      "story  story"
+      "cta    cta";
+    column-gap: var(--space-md);
+    row-gap: var(--space-sm);
+    padding: var(--space-lg);
+  }
+
+  .landing-persona-avatar {
+    width: 72px;
+    height: 72px;
+    align-self: center;
+  }
+
+  .landing-persona-story {
+    margin-top: 0;
+  }
+
+  .landing-door-card {
+    padding: var(--space-lg);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GUIDED TOUR OVERLAY — URL-driven floating card.
+   Desktop: anchored bottom-left, sharing the sidebar's left padding
+            (12px from screen edge) so it lines up with the sidebar nav.
+   Mobile: full-width bottom sheet sitting above the BottomNav (64px tall).
+   Collapse: slim header pill (compass · counter · expand · exit) so the
+             user can peek at the page beneath without exiting the tour.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.tour-overlay {
+  position: fixed;
+  /* Sidebar uses `padding: 20px 12px 16px;` — match the 12px left so the
+     overlay's left edge aligns with the sidebar nav items above it. */
+  left: 12px;
+  bottom: 24px;
+  width: min(440px, calc(100vw - 24px));
+  max-width: 440px;
+  background: var(--surface-top);
+  border: 1px solid var(--border-regular);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  z-index: 9000;
+  animation: tour-overlay-in 0.2s ease both;
+}
+
+@keyframes tour-overlay-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Collapsed: just the meta row (compass · counter · expand · exit). The
+   gap drops since there's no body content below the row, and padding
+   tightens for a slim pill silhouette. */
+.tour-overlay--collapsed {
+  gap: 0;
+  padding: var(--space-sm) var(--space-md);
+  animation: none; /* don't re-trigger entry animation when collapsing */
+}
+
+.tour-overlay-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.tour-overlay-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-heading);
+  font-size: 10px;
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--brand-main);
+}
+
+.tour-overlay-counter {
+  margin-left: auto;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.tour-overlay-collapse,
+.tour-overlay-exit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tour-overlay-collapse:hover,
+.tour-overlay-exit:hover {
+  background: var(--on-hover-light);
+  color: var(--text-primary);
+}
+
+.tour-overlay-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.tour-overlay-body {
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.tour-overlay-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-top: var(--space-xs);
+}
+
+.tour-overlay-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
+}
+
+.tour-overlay-btn--primary {
+  background: var(--brand-main);
+  color: var(--text-white);
+  border-color: var(--brand-main);
+  margin-left: auto;
+}
+
+.tour-overlay-btn--primary:hover {
+  background: var(--brand-strong);
+  border-color: var(--brand-strong);
+}
+
+.tour-overlay-btn--secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-regular);
+}
+
+.tour-overlay-btn--secondary:hover:not(:disabled) {
+  border-color: var(--brand-main);
+  color: var(--brand-main);
+}
+
+.tour-overlay-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  /* Mobile: true bottom sheet — flush with the bottom edge. Rounded top
+     corners only; no left/right margins. Previously offset by 64px to
+     clear the BottomNav, but on guest/preview routes the nav isn't
+     rendered and the offset created a phantom gap (PO note 2026-05-05).
+     The tour's higher z-index covers any nav while open; collapse or exit
+     to access the nav. */
+  .tour-overlay {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 100%;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    padding: var(--space-lg) var(--space-lg) calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Bottom-sheet collapsed state stays compact — just the slim row. */
+  .tour-overlay--collapsed {
+    padding: var(--space-sm) var(--space-md) calc(var(--space-sm) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+

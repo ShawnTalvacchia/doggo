@@ -26,6 +26,7 @@ import Link from "next/link";
 import { PawPrint } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
+import { TierBadge } from "@/components/people/TierBadge";
 import { OwnerDogAvatar } from "@/components/people/OwnerDogAvatar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConnections } from "@/contexts/ConnectionsContext";
@@ -455,10 +456,10 @@ export function PersonRow(props: PersonRowProps) {
             <span className="person-row-pill person-row-pill--admin">Admin</span>
           )}
           {careTier === "provider" && (variant === "meet-attendee" || variant === "group-member") && (
-            <span className="person-row-pill person-row-pill--provider">Provider</span>
+            <TierBadge tier="provider" subjectName={name} />
           )}
           {careTier === "helper" && (variant === "meet-attendee" || variant === "group-member") && (
-            <span className="person-row-pill person-row-pill--helper">Helper</span>
+            <TierBadge tier="helper" subjectName={name} />
           )}
           {isInbox && timeAgo && (
             <span className="person-row-time text-xs text-fg-tertiary shrink-0 ml-auto">

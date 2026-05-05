@@ -147,6 +147,10 @@ function CareResultsList({ serviceFilter }: { serviceFilter: string }) {
     return providers.filter((p) => p.services.includes(serviceFilter as ServiceType));
   }, [serviceFilter]);
 
+  // Active service drives per-service price resolution + service-tag suppression
+  // on `CardExploreResult`. Pricing & Proposals, 2026-05-04.
+  const activeService = serviceFilter === "all" ? null : (serviceFilter as ServiceType);
+
   if (results.length === 0) {
     return (
       <div className="flex flex-col items-center gap-md p-xl text-center">
@@ -161,7 +165,7 @@ function CareResultsList({ serviceFilter }: { serviceFilter: string }) {
       </div>
     );
   }
-  return <>{results.map((p) => <CardExploreResult key={p.id} provider={p} />)}</>;
+  return <>{results.map((p) => <CardExploreResult key={p.id} provider={p} activeService={activeService} />)}</>;
 }
 
 /* ── Main page ── */

@@ -110,6 +110,10 @@ export const tereza: UserProfile = {
         priceUnit: "per_visit",
         subServices: ["Day sitting"],
         notes: "Small/medium dogs only. My flat, or yours if nearby.",
+        modifiers: [
+          { kind: "weekend", enabled: true, pct: 15 },
+          { kind: "multi_pet", enabled: true, flatPerExtra: 80 },
+        ],
       },
     ],
     publicProfile: false,
@@ -454,6 +458,10 @@ export const petra: UserProfile = {
         priceUnit: "per_visit",
         subServices: ["Day sitting", "Overnight"],
         notes: "My flat in Karlín. Fenced balcony. Max 2 dogs at a time.",
+        modifiers: [
+          { kind: "weekend", enabled: true, pct: 20 },
+          { kind: "last_minute", enabled: true, pct: 10, thresholdDays: 3 },
+        ],
       },
     ],
     publicProfile: false,
@@ -757,6 +765,11 @@ export const nikola: UserProfile = {
         priceUnit: "per_night",
         subServices: ["Home boarding", "Day care"],
         notes: "Garden access. Daily walks in Letenské sady. Photo updates.",
+        modifiers: [
+          { kind: "holiday", enabled: true, pct: 30 },
+          { kind: "multi_pet", enabled: true, flatPerExtra: 200 },
+          { kind: "last_minute", enabled: true, pct: 15, thresholdDays: 5 },
+        ],
       },
     ],
     publicProfile: true,
@@ -900,6 +913,10 @@ export const shawn: UserProfile = {
         priceUnit: "per_visit",
         subServices: ["Solo walk", "Group walk"],
         notes: "45–60 min walks around Riegrovy sady and Vítkov park. Max 3 dogs.",
+        modifiers: [
+          { kind: "holiday", enabled: true, pct: 25 },
+          { kind: "multi_pet", enabled: true, flatPerExtra: 100 },
+        ],
       },
     ],
     publicProfile: true,
@@ -977,6 +994,163 @@ export const lenkaVet: UserProfile = {
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   PROMOTED DIRECTORY CARERS
+   Bridged from `mockData.ts` ProviderCards (`olga-m`, `marketa-h`) to full
+   UserProfiles with proper carerProfile.services arrays. Pricing & Proposals
+   walkthrough A5, 2026-05-04 — every provider in `/discover/care` should be
+   a real user; bare cards were a data gap, not a design distinction. Both
+   are Provider-tier (`publicProfile: true`); not on the persona switcher,
+   not in the demo arc — just complete enough that their cards render with
+   sub-services + notes + Book CTA like Petra/Nikola.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+export const olgaM: UserProfile = {
+  id: "olga-m",
+  firstName: "Olga",
+  lastName: "M.",
+  email: "olga.marik@email.cz",
+  avatarUrl: "/images/generated/lucie-profile.jpeg",
+  bio: "Smíchov-based pet sitter, 4 years caring for dogs in my flat and walking neighbourhood regulars. Calm with anxious dogs.",
+  location: "Prague 5, Czech Republic",
+  neighbourhood: "Smíchov",
+  memberSince: "2025-04",
+  profileVisibility: "open",
+  tagApproval: "approve",
+  pets: [],
+  openToHelping: true,
+  carerProfile: {
+    bio: "Pet sitting and walks in Smíchov. My flat is small/medium dog friendly, with a fenced courtyard. I've cared for 30+ dogs across the last 4 years.",
+    location: "Prague 5 – Smíchov",
+    availability: [
+      { day: "Mon", slots: ["morning", "afternoon"] },
+      { day: "Tue", slots: ["morning", "afternoon"] },
+      { day: "Wed", slots: ["morning"] },
+      { day: "Thu", slots: ["morning", "afternoon"] },
+      { day: "Fri", slots: ["morning", "afternoon"] },
+      { day: "Sat", slots: ["morning"] },
+    ],
+    services: [
+      {
+        kind: "care",
+        serviceType: "walk_checkin",
+        enabled: true,
+        pricePerUnit: 390,
+        priceUnit: "per_visit",
+        subServices: ["Solo walk", "Drop-in"],
+        notes: "45–60 min walks around Smíchovský park or Petřín. Solo walks only.",
+        modifiers: [
+          { kind: "weekend", enabled: true, pct: 15 },
+          { kind: "multi_pet", enabled: true, flatPerExtra: 100 },
+        ],
+      },
+      {
+        kind: "care",
+        serviceType: "inhome_sitting",
+        enabled: true,
+        pricePerUnit: 500,
+        priceUnit: "per_visit",
+        subServices: ["Day sitting"],
+        notes: "Day sitting at my flat. Small/medium dogs only. Max 2 dogs at a time.",
+        modifiers: [
+          { kind: "weekend", enabled: true, pct: 15 },
+        ],
+      },
+    ],
+    publicProfile: true,
+    visibility: "open",
+    acceptingBookings: true,
+    credentials: {
+      yearsExperience: 4,
+      firstAidTrained: true,
+      insured: true,
+    },
+    repeatClients: 6,
+  },
+};
+
+export const marketaH: UserProfile = {
+  id: "marketa-h",
+  firstName: "Markéta",
+  lastName: "H.",
+  email: "marketa.h@email.cz",
+  avatarUrl: "/images/generated/tereza-profile.jpeg",
+  bio: "Premium full-service pet care in Old Town. 12 years experience across walking, sitting, and home boarding. ID-verified, insured, first-aid trained.",
+  location: "Prague 1, Czech Republic",
+  neighbourhood: "Staré Město",
+  memberSince: "2024-08",
+  profileVisibility: "open",
+  tagApproval: "approve",
+  pets: [],
+  openToHelping: true,
+  carerProfile: {
+    bio: "Full-service care in Old Town since 2014. I run a small operation — never more than 2 dogs at a time — with a focus on calm, structured days.",
+    location: "Prague 1 – Staré Město",
+    availability: [
+      { day: "Mon", slots: ["morning", "afternoon", "evening"] },
+      { day: "Tue", slots: ["morning", "afternoon", "evening"] },
+      { day: "Wed", slots: ["morning", "afternoon", "evening"] },
+      { day: "Thu", slots: ["morning", "afternoon", "evening"] },
+      { day: "Fri", slots: ["morning", "afternoon", "evening"] },
+      { day: "Sat", slots: ["morning", "afternoon", "evening"] },
+      { day: "Sun", slots: ["morning", "afternoon", "evening"] },
+    ],
+    services: [
+      {
+        kind: "care",
+        serviceType: "walk_checkin",
+        enabled: true,
+        pricePerUnit: 600,
+        priceUnit: "per_visit",
+        subServices: ["Solo walk", "Adventure walk"],
+        notes: "60–90 min walks across Vltava paths and Petřín. Solo or pair walks only.",
+        modifiers: [
+          { kind: "holiday", enabled: true, pct: 25 },
+          { kind: "weekend", enabled: true, pct: 15 },
+          { kind: "multi_pet", enabled: true, flatPerExtra: 150 },
+        ],
+      },
+      {
+        kind: "care",
+        serviceType: "inhome_sitting",
+        enabled: true,
+        pricePerUnit: 700,
+        priceUnit: "per_visit",
+        subServices: ["Day sitting", "Overnight"],
+        notes: "Day sitting or overnight at my home. Quiet flat, calm routine, photo updates throughout.",
+        modifiers: [
+          { kind: "holiday", enabled: true, pct: 25 },
+          { kind: "multi_pet", enabled: true, flatPerExtra: 200 },
+        ],
+      },
+      {
+        kind: "care",
+        serviceType: "boarding",
+        enabled: true,
+        pricePerUnit: 850,
+        priceUnit: "per_night",
+        subServices: ["Home boarding"],
+        notes: "Multi-night boarding at my home. Two daily walks, photo updates, consistent feeding schedule.",
+        modifiers: [
+          { kind: "holiday", enabled: true, pct: 30 },
+          { kind: "multi_pet", enabled: true, flatPerExtra: 250 },
+          { kind: "last_minute", enabled: true, pct: 15, thresholdDays: 7 },
+        ],
+      },
+    ],
+    publicProfile: true,
+    visibility: "open",
+    acceptingBookings: true,
+    credentials: {
+      yearsExperience: 12,
+      firstAidTrained: true,
+      insured: true,
+      identityVerified: true,
+    },
+    repeatClients: 18,
+  },
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════
    REGISTRY & HELPERS
    ═══════════════════════════════════════════════════════════════════════════ */
 
@@ -989,6 +1163,7 @@ export const allUsers: UserProfile[] = [
   jana, nikola, marie,
   shawn,
   lenkaVet,
+  olgaM, marketaH,
 ];
 
 /** Quick lookup by user ID. */
@@ -1074,6 +1249,12 @@ export function getUserOrProvider(id: string): UserProfile | undefined {
 
   // Synthesize a minimal UserProfile from ProviderCard data so callers can
   // render avatar/name/location without crashing.
+  //
+  // `openToHelping: false` here intentionally: directory-only ProviderCards
+  // are by definition Provider-tier (they're listed in `/discover/care`,
+  // which is the Provider-tier surface). Defaulting to `openToHelping: true`
+  // wrongly read them as Helper-tier and surfaced the "Open to helping"
+  // casual badge on full Provider profiles. Pricing & Proposals, 2026-05-04.
   const [firstName, ...rest] = providerCard.name.split(" ");
   return {
     id: providerCard.id,
@@ -1088,6 +1269,6 @@ export function getUserOrProvider(id: string): UserProfile | undefined {
     pets: [],
     profileVisibility: "open",
     tagApproval: "auto",
-    openToHelping: true,
+    openToHelping: false,
   };
 }

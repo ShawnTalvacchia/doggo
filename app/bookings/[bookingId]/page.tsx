@@ -31,6 +31,7 @@ import { CancelBookingModal } from "@/components/bookings/CancelBookingModal";
 import { SigningModal } from "@/components/messaging/SigningModal";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useConversations } from "@/contexts/ConversationsContext";
+import { useConnections } from "@/contexts/ConnectionsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { getUserById } from "@/lib/mockUsers";
 import { SERVICE_LABELS } from "@/lib/constants/services";
@@ -220,6 +221,7 @@ export default function BookingDetailPage() {
     getBookingByConversation,
   } = useBookings();
   const { conversations, updateProposalStatus, addMessage } = useConversations();
+  const { markConnected } = useConnections();
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
   const CURRENT_USER = useCurrentUserId();
   const [showCancel, setShowCancel] = useState(false);
@@ -345,6 +347,12 @@ export default function BookingDetailPage() {
       read: true,
     };
     addMessage(conv.id, contractMsg);
+
+    // Inquiry-driven trust transition: contract sign → mutual Connected.
+    // Mirrors `ThreadClient.handleSign`. Pricing & Proposals walkthrough
+    // 2026-05-05; resolves Open Q §2.
+    markConnected(conv.ownerId, conv.providerId);
+    markConnected(conv.providerId, conv.ownerId);
 
     setSigningOpen(false);
   }
@@ -593,12 +601,18 @@ export default function BookingDetailPage() {
                 <h3 className="font-heading text-xs font-medium text-fg-secondary m-0">Pricing</h3>
                 <div className="flex flex-col gap-xs rounded-panel p-md bg-surface-top border border-edge-regular">
                   {booking.price.lineItems.map((item, i) => (
-                    <div key={i} className="flex justify-between items-center">
-                      <span className={`text-sm ${item.isModifier ? "text-fg-tertiary" : "text-fg-secondary"}`}>
-                        {item.isModifier ? `+ ${item.label}` : item.label}
+                    <div key={i} className="flex justify-between items-start">
+                      <span className={`text-sm flex flex-col gap-xxs ${item.isModifier ? "text-fg-tertiary" : "text-fg-secondary"}`}>
+                        <span>{item.isModifier ? `+ ${item.label}` : item.label}</span>
+                        {item.triggerNote && (
+                          <span className="text-xs text-fg-tertiary italic">{item.triggerNote}</span>
+                        )}
                       </span>
-                      <span className="text-sm text-fg-primary font-medium">
-                        {item.amount.toLocaleString()} Kč <span className="text-fg-tertiary font-normal">/ {item.unit}</span>
+                      <span className="text-sm text-fg-primary font-medium whitespace-nowrap">
+                        {item.amount.toLocaleString()} Kč
+                        {!item.isModifier && (
+                          <span className="text-fg-tertiary font-normal"> / {item.unit}</span>
+                        )}
                       </span>
                     </div>
                   ))}

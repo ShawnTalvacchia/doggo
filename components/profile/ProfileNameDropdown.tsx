@@ -25,6 +25,7 @@ import { useRouter } from "next/navigation";
 import { CaretDown, ArrowSquareOut, Check, ArrowCounterClockwise } from "@phosphor-icons/react";
 import { personas } from "@/lib/personas";
 import { useDemoState } from "@/contexts/CurrentUserContext";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 /**
  * Wipe every `doggo:*` localStorage key — clears persona override, dismissed
@@ -49,7 +50,12 @@ interface ProfileNameDropdownProps {
 
 export function ProfileNameDropdown({ name }: ProfileNameDropdownProps) {
   const router = useRouter();
-  const { user, setUserById, resetToDefault } = useDemoState();
+  const { setUserById, resetToDefault } = useDemoState();
+  // Read the actually-resolved current user (which may be a `?as=` preview
+  // override of the picker persona), so the dropdown's active checkmark
+  // reflects who the user is *currently being rendered as* — not what the
+  // picker holds in localStorage. Pricing & Proposals walkthrough 2026-05-05.
+  const user = useCurrentUser();
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -81,6 +87,25 @@ export function ProfileNameDropdown({ name }: ProfileNameDropdownProps) {
     resetToDefault();
     setOpen(false);
     router.refresh();
+  }
+
+  // True when the resolved current user isn't on the picker — i.e. we're in
+  // a `?as=<non-picker>` preview (Petra, Shawn, Nikola, etc.). Surface an
+  // "Exit preview" item so the tester has a clear path back to their picker
+  // persona without opening a new tab. Pricing & Proposals walkthrough
+  // 2026-05-05.
+  const isPreviewingNonPicker = !personas.some((p) => p.user.id === user.id);
+  function handleExitPreview() {
+    if (typeof window === "undefined") return;
+    sessionStorage.removeItem("doggo-as-preview");
+    window.dispatchEvent(new CustomEvent("doggo-as-preview-changed"));
+    // Strip `?as=` from the current URL so subsequent navigation isn't
+    // affected. router.replace lets us update the URL without a full
+    // reload — the hook re-reads via the event above.
+    const url = new URL(window.location.href);
+    url.searchParams.delete("as");
+    router.replace(url.pathname + url.search + url.hash, { scroll: false });
+    setOpen(false);
   }
 
   return (
@@ -133,6 +158,18 @@ export function ProfileNameDropdown({ name }: ProfileNameDropdownProps) {
               );
             })}
           </ul>
+
+          {isPreviewingNonPicker && (
+            <button
+              type="button"
+              role="menuitem"
+              className="profile-name-dropdown-reset"
+              onClick={handleExitPreview}
+            >
+              <ArrowCounterClockwise size={12} weight="bold" />
+              Exit preview ({user.firstName})
+            </button>
+          )}
 
           <button
             type="button"

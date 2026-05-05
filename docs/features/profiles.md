@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-02
+last-reviewed: 2026-05-05
 tags: [profile, pets, provider, edit, posts, tagging]
 review-trigger: "when modifying profile pages, pet cards, posts, or provider sections"
 ---
@@ -78,6 +78,7 @@ The Chat tab embeds the full messaging thread directly on the profile page using
 - Connection list with state badges
 - **Posts tab:** photo grid of user's posts with "New post" CTA
 - **Services tab:** editable services, availability, visibility toggle. **Comprehensive catalogue** — both Care-type offerings (Walking, Sitting, Boarding) and Meet-type offerings (Training sessions, Workshops, paid Group meets) live here in one list. See [[Groups & Care Model]] → Services as Catalog for the split.
+- **Pricing modifiers (Pricing & Proposals 2026-05-05):** per-Care-service `PricingModifiersEditor` accordion below Notes. Default-collapsed; "N on" badge reflects enabled count. All four modifier kinds (Holiday / Weekend / Multi-pet / Last-minute) always render so providers can flip any on. Reasonable defaults so opt-in is one tap. Implementation: `components/profile/ProfileServicesTab.tsx`. View-mode card shows "From {price}" prefix when modifiers are enabled.
 
 ### Other user profiles (`/profile/[userId]`)
 

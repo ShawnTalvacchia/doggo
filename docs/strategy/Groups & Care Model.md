@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-04
+last-reviewed: 2026-05-05
 tags: [groups, community, providers, care, navigation, demo]
 review-trigger: "when touching group features, Community tab, provider groups, care model, or demo planning"
 ---
@@ -213,6 +213,19 @@ The core revenue line is platform-mediated transactions (per [[Product Vision]] 
 - Owners need to know what they're booking — a discrete session at a specific time, or an arrangement they're handing the dog over for.
 
 If Care and Meet collapse into one ambiguous "service" concept on the provider's catalogue, the booking flow can't differ correctly and the trust model (sign up vs. hand off) breaks. Keeping the model crisp is a precondition for monetisation, not a polish concern.
+
+### Pricing model (Care offerings, Pricing & Proposals 2026-05-05)
+
+Care offerings carry structured pricing — base rate per service + a starter modifier set. **Provider configures pricing once; auto-pricing engine produces the quote; provider reviews and sends.** This structurally enforces the no-bargaining principle: provider doesn't compose the price, the system does.
+
+- **Engine:** `computeQuote(config, inquiry, today)` in `lib/pricing.ts`. Pure function: per-service config × inquiry data × today's date → `BookingPrice` with stacked line items.
+- **Starter modifier set** (`PricingModifier` discriminated union on `CarerCareServiceConfig.modifiers`): Holiday surcharge, Weekend rate, Multi-pet, Last-minute. All work with already-captured inquiry data — no inquiry-form expansion required for v1.
+- **Override path** stays available — provider can deviate from the engine quote — but deviations are visibly flagged on the owner's `BookingProposalCard` with optional reason. Override is a documented exception, not silent bargaining.
+- **Three-surface visibility.** Engine output appears at three points so both parties see the same number through the lifecycle: InquiryForm live estimate (owner) → InquiryCard estimate (chat artifact, both sides) → ProposalForm "System quote" header (provider review).
+
+Meet and Appointment offerings retain flat-rate pricing for v1 (no modifier dimensions yet). Future modifier passes (longer-walk, off-hours, boarding-specific, add-ons, packages) will need inquiry-form expansion; tracked in `features/explore-and-care.md` → "Future inquiry-form fields."
+
+See `features/explore-and-care.md` → "Pricing model" for the full breakdown.
 
 ---
 

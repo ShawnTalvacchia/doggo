@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import {
   Plus,
   MagnifyingGlass,
   Sparkle,
   CaretRight,
+  Eye,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { PetCard } from "./PetCard";
@@ -198,6 +200,53 @@ export function ProfileAboutTab({
       <section className="profile-info-card">
         <h3 className="profile-card-subtitle">Connections</h3>
         <ConnectionsList viewerId={user.id} />
+      </section>
+
+      {/* Familiar asymmetry explainer — persistent, low-key card on the
+          own-profile About tab. Teaches the most-misunderstood mechanic in
+          the trust model: marking Familiar opens YOUR profile to them, not
+          the other way around. Deniability-safe (only the actor sees this
+          on their own profile). Onboarding & In-Product Communication
+          phase, 2026-05-04. See [[Trust & Connection Model]] →
+          "Connection States" → Familiar. */}
+      <section className="profile-info-card">
+        <div
+          className="flex flex-col gap-sm rounded-panel"
+          style={{
+            background: "var(--surface-inset)",
+            padding: "var(--space-lg)",
+          }}
+        >
+          <div className="flex items-center gap-sm">
+            <Eye size={18} weight="light" className="text-fg-secondary shrink-0" />
+            <h4
+              className="font-heading font-medium text-fg-primary m-0"
+              style={{ fontSize: "var(--text-sm)" }}
+            >
+              About marking people Familiar
+            </h4>
+          </div>
+          <p
+            className="text-sm text-fg-secondary m-0"
+            style={{ lineHeight: 1.5 }}
+          >
+            Marking someone Familiar opens <strong>your</strong> profile to
+            them — not the other way around. They can see more of you next
+            time they visit. It&apos;s silent — they&apos;re never told who
+            marked them.
+          </p>
+          <Link
+            href="/help/privacy#familiar"
+            className="text-sm font-semibold text-fg-primary hover:text-brand-main"
+            style={{
+              textDecoration: "underline",
+              textUnderlineOffset: "2px",
+              alignSelf: "flex-start",
+            }}
+          >
+            Learn more about how privacy works →
+          </Link>
+        </div>
       </section>
 
       {/* Tagging preferences */}

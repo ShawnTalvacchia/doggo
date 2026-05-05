@@ -24,5 +24,6 @@ coverage/
 # Per-user / local state
 .claude/settings.local.json
 .claude/launch.json
+.claude/worktrees/
 docs/.obsidian/workspace.json
 *.tsbuildinfo

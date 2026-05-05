@@ -13,7 +13,6 @@ import { LayoutList } from "@/components/layout/LayoutList";
 import {
   MapPin,
   UsersThree,
-  Lock,
   ShieldCheck,
   CaretDown,
   Check,
@@ -37,12 +36,14 @@ import {
   MetaDivider,
 } from "@/components/people/PersonSections";
 import { PrivateProfileRow } from "@/components/people/PrivateProfileRow";
+import { GroupVisibilityChip } from "@/components/groups/GroupVisibilityChip";
 import { getGroupById, getGroupMeets } from "@/lib/mockGroups";
 import { getPostsByGroup } from "@/lib/mockPosts";
 import { getConnectionState } from "@/lib/mockConnections";
 import { useConnections } from "@/contexts/ConnectionsContext";
 import { getUserById } from "@/lib/mockUsers";
-import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { useCurrentUserId, useIsGuest } from "@/hooks/useCurrentUser";
+import { useAuthGate } from "@/contexts/AuthGateContext";
 import type { ConnectionState, GroupMember } from "@/lib/types";
 import type { PersonAction } from "@/lib/personActions";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
@@ -141,6 +142,8 @@ function GroupDetailInner() {
   const { openComposer } = usePostComposer();
   const { openComposer: openMeetComposer } = useMeetComposer();
   const currentUserId = useCurrentUserId();
+  const isGuest = useIsGuest();
+  const { requireAuth } = useAuthGate();
 
   const group = getGroupById(params.id as string);
   const [joinRequested, setJoinRequested] = useState(false);
@@ -177,8 +180,14 @@ function GroupDetailInner() {
 
   const groupMeets = getGroupMeets(group.id, currentUserId);
   const groupPosts = getPostsByGroup(group.id);
-  const isMember = group.members.some((m) => m.userId === currentUserId);
-  const isAdmin = group.members.some((m) => m.userId === currentUserId && m.role === "admin");
+  // Guests have no membership identity — even if `currentUserId` resolves to
+  // Tereza (the read-only display fallback), a guest visitor isn't actually
+  // her, so they aren't a member or admin of any group. Forcing both flags
+  // false is what makes the FeedTab render the "Join community" action row
+  // (with a guest-mode AuthGate trigger) and the MembersTab fall to the
+  // public-info view. Demo Presentation D3, 2026-05-05.
+  const isMember = !isGuest && group.members.some((m) => m.userId === currentUserId);
+  const isAdmin = !isGuest && group.members.some((m) => m.userId === currentUserId && m.role === "admin");
   const totalDogs = group.members.reduce((sum, m) => sum + m.dogNames.length, 0);
   const isCare = group.groupType === "care";
   const tabs = getTabsForGroup(group, group.photos.length > 0);
@@ -190,8 +199,10 @@ function GroupDetailInner() {
   const visibleKeys = new Set(tabs.map((t) => t.key));
   const activeTab = visibleKeys.has(rawActiveTab) ? rawActiveTab : tabs[0]?.key ?? "feed";
 
-  // Right action changes per tab
-  const headerAction = isMember ? (() => {
+  // Right action changes per tab. Guests see no header action — the
+  // primary "Sign up to join" CTA in the action-buttons row is the single
+  // entry point; cluttering the header with a gated icon would dilute it.
+  const headerAction = (isMember && !isGuest) ? (() => {
     switch (activeTab) {
       case "meets":
         return (
@@ -214,11 +225,25 @@ function GroupDetailInner() {
     }
   })() : undefined;
 
-  // Feed detail header into AppNav on mobile
+  // Feed detail header into AppNav on mobile. Guests don't have a /home
+  // surface to fall back to — back goes to the landing page. When a tour is
+  // active, defer to browser history so the user lands back at the previous
+  // tour step (with overlay still active) instead of being silently kicked
+  // out of the tour by a hardcoded /home navigation. PO note 2026-05-05.
   useEffect(() => {
-    setDetailHeader(group.name, () => router.push("/home"), headerAction);
+    setDetailHeader(
+      group.name,
+      () => {
+        if (typeof window !== "undefined" && window.location.search.includes("tour=")) {
+          router.back();
+          return;
+        }
+        router.push(isGuest ? "/" : "/home");
+      },
+      headerAction,
+    );
     return () => clearDetailHeader();
-  }, [group.name, activeTab, isMember]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [group.name, activeTab, isMember, isGuest]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTabChange = (key: string) => {
     if (key === "feed") {
@@ -250,15 +275,17 @@ function GroupDetailInner() {
             isCare={isCare}
             totalDogs={totalDogs}
             joinRequested={joinRequested}
-            onJoinRequest={() => setJoinRequested(true)}
+            onJoinRequest={() => isGuest ? requireAuth("join this community") : setJoinRequested(true)}
             leaveMenuOpen={leaveMenuOpen}
             onLeaveMenuToggle={() => setLeaveMenuOpen((v) => !v)}
             onLeave={() => setLeaveMenuOpen(false)}
+            isGuest={isGuest}
+            onGuestAction={requireAuth}
           />
         )}
 
         {activeTab === "meets" && (
-          <MeetsTab group={group} groupMeets={groupMeets} />
+          <MeetsTab group={group} groupMeets={groupMeets} isGuest={isGuest} onGuestAction={requireAuth} />
         )}
 
         {activeTab === "services" && isCare && (
@@ -266,7 +293,7 @@ function GroupDetailInner() {
         )}
 
         {activeTab === "members" && (
-          <MembersTab group={group} />
+          <MembersTab group={group} isGuest={isGuest} />
         )}
 
         {activeTab === "gallery" && (
@@ -300,9 +327,13 @@ interface FeedTabProps {
   /** Stub for now — closes the menu. Real "leave community" mutation lives
    *  in the future when membership state is mutable. */
   onLeave: () => void;
+  /** True iff the viewer is a logged-out guest. Demo Presentation D3, 2026-05-05. */
+  isGuest: boolean;
+  /** Open the AuthGate prompt with a contextual action label. */
+  onGuestAction: (label: string) => void;
 }
 
-function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, joinRequested, onJoinRequest, leaveMenuOpen, onLeaveMenuToggle, onLeave }: FeedTabProps) {
+function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, joinRequested, onJoinRequest, leaveMenuOpen, onLeaveMenuToggle, onLeave, isGuest, onGuestAction }: FeedTabProps) {
   return (
     <>
       {/* ── Banner + info (only in Feed tab) ── */}
@@ -317,15 +348,7 @@ function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, join
           <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">
             {group.name}
           </h1>
-          {group.visibility !== "open" && (
-            <span className="flex items-center gap-xs rounded-pill px-sm py-xs text-xs font-medium bg-surface-base text-fg-secondary">
-              {group.visibility === "private" ? (
-                <><Lock size={10} weight="fill" /> Private</>
-              ) : (
-                <><ShieldCheck size={10} weight="fill" /> Approval required</>
-              )}
-            </span>
-          )}
+          <GroupVisibilityChip visibility={group.visibility} />
         </div>
 
         {/* Description */}
@@ -486,11 +509,22 @@ function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, join
               {joinRequested ? "Request sent" : "Request to join"}
             </ButtonAction>
           ) : (
-            <ButtonAction variant="neutral" size="md" cta>
+            <ButtonAction
+              variant="neutral"
+              size="md"
+              cta
+              onClick={isGuest ? () => onGuestAction("join this community") : undefined}
+            >
               Join community
             </ButtonAction>
           )}
-          <ButtonAction variant="outline" size="md" cta leftIcon={<UserPlus size={16} weight="bold" />}>
+          <ButtonAction
+            variant="outline"
+            size="md"
+            cta
+            leftIcon={<UserPlus size={16} weight="bold" />}
+            onClick={isGuest ? () => onGuestAction("invite friends") : undefined}
+          >
             Invite
           </ButtonAction>
         </div>
@@ -518,7 +552,17 @@ function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, join
 
 /* ── Meets tab ───────────────────────────────────────── */
 
-function MeetsTab({ group, groupMeets }: { group: Group; groupMeets: Meet[] }) {
+function MeetsTab({
+  group,
+  groupMeets,
+  isGuest,
+  onGuestAction,
+}: {
+  group: Group;
+  groupMeets: Meet[];
+  isGuest: boolean;
+  onGuestAction: (label: string) => void;
+}) {
   const { openComposer: openMeetComposer } = useMeetComposer();
   // Unified "meets" terminology app-wide 2026-04-27 — care groups
   // previously used "events" framing for tab + copy, but the data
@@ -526,6 +570,10 @@ function MeetsTab({ group, groupMeets }: { group: Group; groupMeets: Meet[] }) {
   // Care providers can still use formal language in their meet titles.
   const noun = "meets";
   const nounSingular = "meet";
+
+  const handleCreate = isGuest
+    ? () => onGuestAction(`create a ${nounSingular}`)
+    : () => openMeetComposer({ groupId: group.id });
 
   return (
     <div className="flex flex-col">
@@ -542,7 +590,7 @@ function MeetsTab({ group, groupMeets }: { group: Group; groupMeets: Meet[] }) {
             title={`No upcoming ${noun}`}
             subtitle={`Create one for the community!`}
             action={
-              <ButtonAction variant="primary" size="sm" onClick={() => openMeetComposer({ groupId: group.id })}>
+              <ButtonAction variant="primary" size="sm" onClick={handleCreate}>
                 Create {nounSingular}
               </ButtonAction>
             }
@@ -587,21 +635,47 @@ interface TieredMember extends GroupMember {
   rowActions: PersonAction[] | "auto";
 }
 
-function MembersTab({ group }: { group: Group }) {
+function MembersTab({ group, isGuest }: { group: Group; isGuest: boolean }) {
   const viewerId = useCurrentUserId();
   const {
     getConnection: getConnectionFromContext,
     markFamiliar,
     unmarkFamiliar,
   } = useConnections();
-
   // Local session marks — drive the per-row "✓ Familiar | Undo" footer for
-  // marks just made on this page visit. Resets on remount (navigation away
-  // and back). The actual relationship persists separately via
-  // ConnectionsContext, so when localMarks resets, the connection state
-  // stays — the row just stops showing the transient "you-just-did-this"
-  // footer. Mock World Building 2026-04-30.
+  // marks just made on this page visit. Declared above the guest-mode early
+  // return so hook order stays stable when isGuest flips. Resets on remount
+  // (navigation away and back). Actual relationship persists via
+  // ConnectionsContext separately. Mock World Building 2026-04-30.
   const [localMarks, setLocalMarks] = useState<Record<string, "familiar" | "connect">>({});
+
+  // Guests see a flat list — no sectioning by relationship state, no row
+  // actions. Members visibility is open content; relationship-tier UI would
+  // wrongly imply the guest has connections to compute against. Demo
+  // Presentation D3, 2026-05-05.
+  if (isGuest) {
+    return (
+      <LayoutSection>
+        <section className="flex flex-col gap-md">
+          <SectionHeader label={`${group.members.length} members`} />
+          <div className="flex flex-col gap-sm">
+            {group.members.map((m) => (
+              <PersonRow
+                key={m.userId}
+                variant="group-member"
+                userId={m.userId}
+                name={m.userName}
+                avatarUrl={m.avatarUrl}
+                pets={m.dogNames.map((name) => ({ name }))}
+                connectionState="none"
+                actions={[]}
+              />
+            ))}
+          </div>
+        </section>
+      </LayoutSection>
+    );
+  }
 
   const handleAdvance = (memberId: string) => {
     setLocalMarks((prev) => {

@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-02
+last-reviewed: 2026-05-05
 tags: [messaging, inbox, chat, booking, notifications]
 review-trigger: "when modifying inbox, threads, conversation types, or notifications"
 ---
@@ -87,24 +87,42 @@ Sorted: unread first, then by most recent message.
 Booking proposals happen inline in chat. The full lifecycle:
 
 ```
-Provider profile → "Book care" CTA → ?tab=chat
-→ InquiryForm (service, dates, dogs)
-→ Provider sees InquiryResponseCard (Send proposal / Decline / Suggest changes)
-→ BookingProposalCard appears in thread (dates, price, service)
-→ Owner: Accept → SigningModal → ContractCard
-→ PaymentCard (summary)
+Provider profile → "Book care" CTA → InquiryFormModal (service, dates, dogs)
+                                     ↳ live engine estimate above Send
+→ InquiryCard posts in thread (artifact + persistent estimate, both sides)
+→ Provider: Decline (with optional reason) OR Respond with proposal
+→ ProposalForm opens with read-only System quote
+                  ↳ "Adjust this quote" → editable, override flagged + reason
+→ BookingProposalCard appears in thread (header + body rows + line items + total)
+                       ↳ Custom-quote callout in body when isOverride
+→ Owner: Not now / Suggest changes (counter) / Review & sign
+→ Sign → ContractCard + booking flips proposed → upcoming
+→ Both sides become mutually Connected
 ```
+
+**Cards collapse on response.** Once an InquiryCard is responded/declined and once a BookingProposalCard is countered/declined/accepted, the body collapses to header + service line. The footer carries the truth — for accepted proposals the footer is a link to the live booking record. Decline reason callouts persist through the collapse since they're the substance of the declined state.
 
 ### Booking message components
 
 | Component | Purpose | Styling |
 |-----------|---------|---------|
-| `InquiryResponseCard` | Provider actions on new inquiry | Tailwind utilities, max-w-md, rounded-panel |
-| `BookingProposalCard` | Proposal display with accept/decline | 100% width, max-width 320px, surface-top bg, radius-panel |
-| `ContractCard` | Signed contract confirmation | Links to `/bookings/{bookingId}` |
+| `InquiryCard` | Structured inquiry artifact (replaces templated text). Renders engine estimate + provider Decline/Respond actions when pending. Collapses post-response. | `inbox-message-wrap--full`, surface-top bg, radius-panel |
+| `BookingProposalCard` | Proposal display. Three-action footer when pending (Not now / Suggest changes / Review & sign). Body collapses post-response; footer flips to status text or "View booking →" link. | 100% width, surface-top bg, radius-panel |
+| `ContractCard` | Signed contract confirmation. Links to `/bookings/{bookingId}` | — |
 | `PaymentCard` | Payment summary | Standard card styling |
 | `SigningModal` | Proposal acceptance flow | Modal overlay |
-| `ProposalForm` | Provider creates proposal | Form with service/price/schedule fields |
+| `ProposalForm` | Provider creates proposal. Default read-only System quote; "Adjust this quote" reveals editable mode with deviation flagging and override-reason capture. | Form modal |
+| `InquiryForm` | Owner builds inquiry. Live engine estimate appears above Send once form is sendable. | Form modal |
+
+### No-bargaining principle
+
+The auto-pricing engine (`computeQuote(config, inquiry, today)` in `lib/pricing.ts`) is the canonical source of truth for proposal prices. Engine output is visible at three surfaces so both parties see the same number through the lifecycle:
+
+1. **InquiryForm** — live estimate updates as the owner fills in fields
+2. **InquiryCard** — same estimate persists on the chat artifact, both sides
+3. **ProposalForm "System quote"** — what the provider reviews + sends
+
+Override is available but visibly flagged. Provider cannot silently undercut or inflate — the system shows what the configured pricing produces, and any deviation surfaces as a "Custom quote" callout on the owner's BookingProposalCard with the optional reason inline.
 
 ---
 
@@ -165,6 +183,8 @@ Same-type + same-href notifications cluster into groups with stacked avatars. Gr
 4. **Contact requires Connected status** — direct messaging only between Connected users. Core trust/safety gate.
 5. **No group Chat tab.** Three surfaces (Profile Chat, Feed comments, Meet chat) cover all use cases without overlap.
 6. **Architecture: mock now, Supabase later** — local state and mock data, designed for Supabase Realtime swap.
+7. **Auto-priced proposals (Pricing & Proposals, 2026-05-05).** Provider configures pricing once; engine produces the quote; provider reviews and sends. Override stays available but is visibly flagged on the owner's card. See "No-bargaining principle" above.
+8. **Inquiry decline path (Pricing & Proposals).** Inquiries can be declined inline with an optional reason. Counter-suggestion at the inquiry stage was deliberately skipped — negotiation happens at the proposal stage via "Suggest changes."
 
 ---
 

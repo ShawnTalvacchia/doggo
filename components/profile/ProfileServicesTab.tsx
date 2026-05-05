@@ -1,16 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import {
   Plus,
   Trash,
   Sparkle,
   PawPrint,
   Info,
+  CaretDown,
+  CaretUp,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { InputField } from "@/components/ui/InputField";
 import { Toggle } from "@/components/ui/Toggle";
 import { SERVICE_LABELS } from "@/lib/constants/services";
+import { defaultModifiers } from "@/lib/pricing";
+import { AvailabilityGrid } from "@/components/profile/AvailabilityGrid";
 import type {
   UserProfile,
   CarerProfile,
@@ -20,6 +25,7 @@ import type {
   ServiceType,
   TimeSlot,
   DayOfWeek,
+  PricingModifier,
 } from "@/lib/types";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -32,33 +38,161 @@ const TIME_SLOTS: { key: TimeSlot; label: string }[] = [
   { key: "evening", label: "Evening" },
 ];
 
-// ── Availability grid (view mode) ────────────────────────────────────────────
+const MODIFIER_LABEL: Record<PricingModifier["kind"], string> = {
+  holiday: "Holiday surcharge",
+  weekend: "Weekend rate",
+  multi_pet: "Multi-pet",
+  last_minute: "Last-minute",
+};
 
-function AvailabilityGrid({ carer }: { carer: CarerProfile }) {
+const MODIFIER_HINT: Record<PricingModifier["kind"], string> = {
+  holiday: "Czech public holidays in the booking dates",
+  weekend: "When the booking includes Sat or Sun",
+  multi_pet: "Per extra pet beyond the first",
+  last_minute: "Booking starts soon",
+};
+
+// ── PricingModifiersEditor ───────────────────────────────────────────────────
+//
+// Per-service modifier config UI. Default-collapsed accordion to keep the
+// Services edit form scannable. Inside: one row per modifier kind with a
+// Toggle + the param input(s) revealed once the toggle is on.
+// Pricing & Proposals, 2026-05-04.
+
+function PricingModifiersEditor({
+  modifiers,
+  onChange,
+}: {
+  modifiers: PricingModifier[];
+  onChange: (m: PricingModifier[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  // Merge the seeded modifiers with the full defaults set, so the editor
+  // always renders all four kinds. A carer who's only configured 2 of the 4
+  // (e.g. Tereza with weekend + multi-pet) still sees holiday + last-minute
+  // toggles in the off state — they just need to flip them on if they want
+  // them. Without this merge, the editor only shows what's already saved
+  // and the provider can't enable a modifier that wasn't on the seed.
+  const merged: PricingModifier[] = defaultModifiers().map((def) => {
+    const existing = modifiers.find((m) => m.kind === def.kind);
+    return existing ?? def;
+  });
+
+  const enabledCount = merged.filter((m) => m.enabled).length;
+
+  function updateModifier(idx: number, patch: Partial<PricingModifier>) {
+    const next = merged.map((m, i) =>
+      i === idx ? ({ ...m, ...patch } as PricingModifier) : m,
+    );
+    onChange(next);
+  }
+
   return (
-    <div className="profile-avail-grid">
-      {ALL_DAYS.map((day) => {
-        const dayData = carer.availability.find((a) => a.day === day);
-        const activeSlots = dayData?.slots ?? [];
-        return (
-          <div key={day} className="profile-avail-row">
-            <span className="profile-avail-day">{day}</span>
-            <div className="pill-group profile-avail-slots">
-              {TIME_SLOTS.map(({ key, label }) => (
-                <span
-                  key={key}
-                  className={`pill${activeSlots.includes(key) ? " active" : ""}`}
-                >
-                  {label}
-                </span>
-              ))}
+    <div className="profile-modifiers">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="profile-modifiers-toggle"
+      >
+        <span className="profile-modifiers-toggle-label">
+          Pricing modifiers
+          {enabledCount > 0 && (
+            <span className="profile-modifiers-count">{enabledCount} on</span>
+          )}
+        </span>
+        {open ? <CaretUp size={14} weight="bold" /> : <CaretDown size={14} weight="bold" />}
+      </button>
+
+      {open && (
+        <div className="profile-modifiers-body">
+          {merged.map((mod, idx) => (
+            <div key={mod.kind} className="profile-modifier-row">
+              <div className="profile-modifier-head">
+                <div className="profile-modifier-label-col">
+                  <span className="profile-modifier-label">{MODIFIER_LABEL[mod.kind]}</span>
+                  <span className="profile-modifier-hint">{MODIFIER_HINT[mod.kind]}</span>
+                </div>
+                <Toggle
+                  label={MODIFIER_LABEL[mod.kind]}
+                  checked={mod.enabled}
+                  onChange={(checked) => updateModifier(idx, { enabled: checked })}
+                />
+              </div>
+              {mod.enabled && (
+                <div className="profile-modifier-params">
+                  {(mod.kind === "holiday" ||
+                    mod.kind === "weekend" ||
+                    mod.kind === "last_minute") && (
+                    <label className="profile-modifier-param">
+                      <span>Surcharge</span>
+                      <span className="profile-modifier-input-wrap">
+                        <input
+                          type="number"
+                          value={mod.pct}
+                          onChange={(e) =>
+                            updateModifier(idx, {
+                              pct: Math.max(0, parseInt(e.target.value) || 0),
+                            } as Partial<PricingModifier>)
+                          }
+                          min={0}
+                          max={100}
+                        />
+                        <span className="profile-modifier-input-unit">%</span>
+                      </span>
+                    </label>
+                  )}
+                  {mod.kind === "multi_pet" && (
+                    <label className="profile-modifier-param">
+                      <span>Per extra pet</span>
+                      <span className="profile-modifier-input-wrap">
+                        <input
+                          type="number"
+                          value={mod.flatPerExtra}
+                          onChange={(e) =>
+                            updateModifier(idx, {
+                              flatPerExtra: Math.max(0, parseInt(e.target.value) || 0),
+                            } as Partial<PricingModifier>)
+                          }
+                          min={0}
+                        />
+                        <span className="profile-modifier-input-unit">Kč</span>
+                      </span>
+                    </label>
+                  )}
+                  {mod.kind === "last_minute" && (
+                    <label className="profile-modifier-param">
+                      <span>Within</span>
+                      <span className="profile-modifier-input-wrap">
+                        <input
+                          type="number"
+                          value={mod.thresholdDays}
+                          onChange={(e) =>
+                            updateModifier(idx, {
+                              thresholdDays: Math.max(1, parseInt(e.target.value) || 1),
+                            } as Partial<PricingModifier>)
+                          }
+                          min={1}
+                          max={30}
+                        />
+                        <span className="profile-modifier-input-unit">days</span>
+                      </span>
+                    </label>
+                  )}
+                </div>
+              )}
             </div>
-          </div>
-        );
-      })}
+          ))}
+        </div>
+      )}
     </div>
   );
 }
+
+
+// AvailabilityGrid (view mode) extracted to its own component — shared
+// between own-profile and the public viewer profile. See
+// `components/profile/AvailabilityGrid.tsx`.
 
 // ── Props ────────────────────────────────────────────────────────────────────
 
@@ -124,6 +258,7 @@ export function ProfileServicesTab({
         pricePerUnit: 0,
         priceUnit: available[0] === "walk_checkin" ? "per_visit" : "per_night",
         subServices: [],
+        modifiers: defaultModifiers(),
       },
     ]);
   }
@@ -233,7 +368,14 @@ export function ProfileServicesTab({
                         label="Price"
                         type="number"
                         value={svc.pricePerUnit.toString()}
-                        onChange={(val) => updateService(idx, { pricePerUnit: parseInt(val) || 0 })}
+                        onChange={(val) =>
+                          updateService(idx, {
+                            // Clamp to 0+ — negative base rate makes no
+                            // sense. Pricing & Proposals walkthrough
+                            // 2026-05-05.
+                            pricePerUnit: Math.max(0, parseInt(val) || 0),
+                          })
+                        }
                       />
                       <span className="text-sm text-fg-secondary whitespace-nowrap" style={{ paddingTop: 20 }}>
                         Kč / {svc.priceUnit === "per_visit" ? "visit" : "night"}
@@ -245,6 +387,10 @@ export function ProfileServicesTab({
                       value={svc.notes ?? ""}
                       onChange={(val) => updateService(idx, { notes: val })}
                       helper="e.g. Max 3 dogs, 45-60 min walks"
+                    />
+                    <PricingModifiersEditor
+                      modifiers={svc.modifiers ?? defaultModifiers()}
+                      onChange={(mods) => updateService(idx, { modifiers: mods })}
                     />
                   </div>
                 ))}
@@ -385,6 +531,12 @@ export function ProfileServicesTab({
                   </span>
                   <div className="profile-service-price-wrap">
                     <span className="profile-service-price">
+                      {/* "From" prefix when modifiers may bump the quote.
+                          Modifier specifics surface in the proposal, not on
+                          the catalogue card. Pricing & Proposals, 2026-05-04. */}
+                      {(svc.modifiers ?? []).some((m) => m.enabled) && (
+                        <span className="profile-service-price-from">From </span>
+                      )}
                       {svc.pricePerUnit.toLocaleString()} Kč
                       <span className="profile-service-unit">
                         {" "}/ {svc.priceUnit === "per_visit" ? "visit" : "night"}
@@ -444,7 +596,7 @@ export function ProfileServicesTab({
       {carer && (
         <section className="profile-info-card">
           <h3 className="profile-card-subtitle">Availability</h3>
-          <AvailabilityGrid carer={carer} />
+          <AvailabilityGrid availability={carer.availability} />
         </section>
       )}
     </div>

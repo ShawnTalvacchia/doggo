@@ -3,11 +3,17 @@
 /**
  * /demo — persona picker route.
  *
- * Standalone page (no AppNav, Sidebar, BottomNav — see GuestLayout). Lists
- * the personas from `lib/personas.ts` and lets a reviewer pick whose
- * perspective to drop into. The chosen persona persists in localStorage via
- * CurrentUserContext; switch personas anytime from the profile page's
- * "Change user" menu, or via the `?as=<personaId>` URL param.
+ * Standalone page (no AppNav, Sidebar, BottomNav — see GuestLayout). Two
+ * sections:
+ *   1. **Guided journeys** — 3 large scenario cards (Tereza/Daniel/Klára)
+ *      with rich storytelling. Tereza's card has both a tour entry and a
+ *      "just enter" entry; the others land directly on /home as that persona.
+ *   2. **Just explore** — 5 compact persona pills (T/D/K/Tomáš/New User) for
+ *      reviewers who already know what they want to see.
+ *
+ * Tour entry preserves the persona via `?as=tereza` and triggers the overlay
+ * via `?tour=tereza&step=1`. Tour overlay reads those params from the URL —
+ * see `components/landing/TourOverlay.tsx`.
  *
  * Placement decision (D1, persona-wiring.md): a standalone route was picked
  * over a landing-page panel/launcher because the landing page is stale and
@@ -21,10 +27,17 @@
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, House, ArrowCounterClockwise } from "@phosphor-icons/react";
-import { personas } from "@/lib/personas";
+import {
+  ArrowRight,
+  House,
+  ArrowCounterClockwise,
+  Compass,
+} from "@phosphor-icons/react";
+import { personas, defaultPersona } from "@/lib/personas";
 import { useDemoState } from "@/contexts/CurrentUserContext";
 import "./demo.css";
+
+const TOUR_ENTRY = "/home?as=tereza&tour=tereza&step=1";
 
 /** Wipe every `doggo:*` localStorage key. Mirror of the helper in
  *  ProfileNameDropdown — both surfaces support the same reset semantics. */
@@ -39,14 +52,50 @@ function clearDemoLocalStorage() {
   }
 }
 
+/** Curated journey cards — the "guided" half of the picker. Story copy is
+ *  hand-tuned to read like a narrative pitch, not a feature list. Persona
+ *  references stay in `lib/personas.ts` (single source of truth). */
+type Journey = {
+  personaId: "tereza" | "daniel" | "klara";
+  title: string;
+  story: string;
+  hasTour?: boolean;
+};
+
+const JOURNEYS: Journey[] = [
+  {
+    personaId: "tereza",
+    title: "A morning walking crew",
+    story:
+      "Tereza walks Riegrovy every morning with the same six people. She runs the Vinohrady Evening Walkers and sits for neighbours on weekends. The community-anchor view of how trust accrues over months.",
+    hasTour: true,
+  },
+  {
+    personaId: "daniel",
+    title: "Trust built from zero",
+    story:
+      "Daniel adopted Bára, a reactive rescue. His profile is locked, his connections are few. See how a single support group + one professional booking become the whole foundation of his confidence.",
+  },
+  {
+    personaId: "klara",
+    title: "A trainer's small business",
+    story:
+      "Klára runs a Care group for her training clients. Many joined a Saturday calm-dog session first and started booking weekday training by the third week. The community-as-funnel arc.",
+  },
+];
+
 export default function DemoPage() {
   const router = useRouter();
   const { user: currentUser, setUserById, resetToDefault } = useDemoState();
 
   function pick(personaId: string) {
     setUserById(personaId);
-    // Send the reviewer to the home feed where the change is most visible.
     router.push("/home");
+  }
+
+  function launchTour() {
+    setUserById("tereza");
+    router.push(TOUR_ENTRY);
   }
 
   function handleReset() {
@@ -62,47 +111,111 @@ export default function DemoPage() {
           <div className="demo-brand">DOGGO · Demo mode</div>
           <h1 className="demo-title">View as&hellip;</h1>
           <p className="demo-subtitle">
-            Pick a persona to drop into the prototype from their perspective.
-            The choice persists across navigation and refresh; switch back from
-            the profile page&rsquo;s &ldquo;Change user&rdquo; menu.
+            Pick a guided journey for a curated path through one persona&rsquo;s
+            community-to-care arc, or jump straight in as anyone. The choice
+            persists across navigation and refresh; switch back from the
+            profile page&rsquo;s &ldquo;Change user&rdquo; menu.
           </p>
         </header>
 
-        <section className="demo-options">
-          {personas.map((p) => {
-            const active = currentUser.id === p.user.id;
-            return (
-              <button
-                key={p.user.id}
-                type="button"
-                className={`demo-card${active ? " demo-card--active" : ""}`}
-                onClick={() => pick(p.user.id)}
-              >
-                <img
-                  src={p.user.avatarUrl}
-                  alt=""
-                  className="demo-avatar"
-                  loading="lazy"
-                />
-                <div className="demo-card-body">
-                  <div className="demo-card-row">
-                    <span className="demo-card-name">
+        {/* ── Guided journeys ─────────────────────────────────────────── */}
+        <section className="demo-section">
+          <div className="demo-section-header">
+            <Compass size={18} weight="bold" aria-hidden="true" />
+            <span>Guided journeys</span>
+          </div>
+          <div className="demo-journeys">
+            {JOURNEYS.map((j) => {
+              const persona = personas.find((p) => p.user.id === j.personaId);
+              if (!persona) return null;
+              const { user } = persona;
+              return (
+                <article key={j.personaId} className="demo-journey-card">
+                  <div className="demo-journey-row">
+                    <img
+                      src={user.avatarUrl}
+                      alt=""
+                      className="demo-journey-avatar"
+                      loading="lazy"
+                    />
+                    <div className="demo-journey-meta">
+                      <span className="demo-journey-archetype">
+                        {persona.archetype}
+                      </span>
+                      <h3 className="demo-journey-title">{j.title}</h3>
+                      <span className="demo-journey-name">
+                        {user.firstName} {user.lastName}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="demo-journey-story">{j.story}</p>
+                  <div className="demo-journey-actions">
+                    {j.hasTour && (
+                      <button
+                        type="button"
+                        className="demo-journey-btn demo-journey-btn--guided"
+                        onClick={launchTour}
+                      >
+                        <Compass size={14} weight="bold" aria-hidden="true" />
+                        Walk me through it
+                        <ArrowRight size={14} weight="bold" aria-hidden="true" />
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      className="demo-journey-btn"
+                      onClick={() => pick(j.personaId)}
+                    >
+                      {j.hasTour ? `Just enter as ${user.firstName}` : `Enter as ${user.firstName}`}
+                      <ArrowRight size={14} weight="bold" aria-hidden="true" />
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ── Just explore — flat persona pills ────────────────────────── */}
+        <section className="demo-section">
+          <div className="demo-section-header">
+            <span>Just explore</span>
+          </div>
+          <div className="demo-pills">
+            {personas.map((p) => {
+              const active = currentUser.id === p.user.id;
+              return (
+                <button
+                  key={p.user.id}
+                  type="button"
+                  className={`demo-pill${active ? " demo-pill--active" : ""}`}
+                  onClick={() => pick(p.user.id)}
+                >
+                  <img
+                    src={p.user.avatarUrl}
+                    alt=""
+                    className="demo-pill-avatar"
+                    loading="lazy"
+                  />
+                  <div className="demo-pill-body">
+                    <span className="demo-pill-name">
                       {p.user.firstName} {p.user.lastName}
                     </span>
-                    <span className="demo-card-archetype">{p.archetype}</span>
+                    <span className="demo-pill-archetype">{p.archetype}</span>
                   </div>
-                  <p className="demo-card-tagline">{p.tagline}</p>
-                  <span className="demo-card-action">
-                    {active ? "Active" : (
-                      <>
-                        Enter <ArrowRight size={14} weight="bold" />
-                      </>
-                    )}
+                  <span className="demo-pill-action">
+                    {active ? "Active" : <ArrowRight size={14} weight="bold" />}
                   </span>
-                </div>
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
+          </div>
+          {currentUser.id !== defaultPersona.user.id && (
+            <p className="demo-active-note">
+              Currently active: <strong>{currentUser.firstName}</strong>. Reset
+              below to return to the default ({defaultPersona.user.firstName}).
+            </p>
+          )}
         </section>
 
         <footer className="demo-footer">

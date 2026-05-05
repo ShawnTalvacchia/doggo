@@ -1,4 +1,5 @@
-import { CalendarCheck } from "@phosphor-icons/react";
+import Link from "next/link";
+import { CalendarCheck, Sparkle, ArrowRight } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import type { ChatMessage, BookingProposalStatus } from "@/lib/types";
 import { SERVICE_LABELS } from "@/lib/constants/services";
@@ -10,6 +11,7 @@ export function BookingProposalCard({
   onAccept,
   onDecline,
   onCounter,
+  bookingHref,
 }: {
   msg: ChatMessage;
   canRespond: boolean;
@@ -18,6 +20,11 @@ export function BookingProposalCard({
   /** Optional counter handler — opens ProposalForm pre-filled with this
    *  proposal's values. Discover & Care G4, 2026-05-02. */
   onCounter?: (msgId: string) => void;
+  /** Route to the Bookings detail page for this conversation's booking.
+   *  Surfaced in the footer of an `accepted` proposal so the recipient
+   *  can jump straight to the live record. Pricing & Proposals
+   *  walkthrough 2026-05-05. */
+  bookingHref?: string;
 }) {
   const p = msg.proposal!;
 
@@ -34,6 +41,12 @@ export function BookingProposalCard({
     ? `${formatShortDate(p.startDate)} – ${formatShortDate(p.endDate)}`
     : `From ${formatShortDate(p.startDate)}`;
 
+  // Once the proposal has a response (countered / declined / accepted) the
+  // body collapses — like InquiryCard. The status footer carries the truth;
+  // for `accepted`, that footer becomes a link to the live booking record.
+  // Pricing & Proposals walkthrough 2026-05-05.
+  const isCollapsed = p.status !== "pending";
+
   return (
     <div className={`inbox-proposal-card inbox-proposal-card--${p.status}`}>
       <div className="inbox-proposal-header">
@@ -44,6 +57,16 @@ export function BookingProposalCard({
         </span>
       </div>
 
+      {isCollapsed ? (
+        <div className="inbox-proposal-body inbox-proposal-body--collapsed">
+          <h4 className="inbox-proposal-collapsed-title">
+            {SERVICE_LABELS[p.serviceType]}
+            {p.subService && (
+              <span className="inbox-proposal-collapsed-sub"> · {p.subService}</span>
+            )}
+          </h4>
+        </div>
+      ) : (
       <div className="inbox-proposal-body">
         <div className="inbox-proposal-row">
           <span className="inbox-proposal-field">Service</span>
@@ -64,14 +87,41 @@ export function BookingProposalCard({
         </div>
         {p.price.lineItems.map((item, i) => (
           <div key={i} className="inbox-proposal-row">
-            <span className="inbox-proposal-field">{item.label}</span>
+            <span className="inbox-proposal-field">
+              {item.label}
+              {item.triggerNote && (
+                <span className="inbox-proposal-trigger-note">{item.triggerNote}</span>
+              )}
+            </span>
             <span className="inbox-proposal-value inbox-proposal-price">
               {item.isModifier ? "+" : ""}
               {item.amount.toLocaleString()} Kč
-              <span className="inbox-proposal-unit"> / {item.unit}</span>
+              {!item.isModifier && (
+                <span className="inbox-proposal-unit"> / {item.unit}</span>
+              )}
             </span>
           </div>
         ))}
+        {/* Custom-quote indicator. When the provider deviated from the
+            system quote, this callout sits in the body — always present
+            when `isOverride` (even with no written reason), so the deviation
+            is surfaced explicitly. The reason text follows the label when
+            set; otherwise just the label is shown. Pricing & Proposals
+            walkthrough 2026-05-05 — moved out of the header where the
+            badge clashed with the blue background. */}
+        {p.isOverride && (
+          <div className="inbox-proposal-override-callout">
+            <div className="inbox-proposal-override-callout-head">
+              <Sparkle size={12} weight="fill" />
+              <span className="inbox-proposal-override-callout-label">Custom quote</span>
+            </div>
+            {p.overrideReason && (
+              <div className="inbox-proposal-override-callout-reason">
+                &ldquo;{p.overrideReason}&rdquo;
+              </div>
+            )}
+          </div>
+        )}
         {p.price.lineItems.length > 1 && (
           <div className="inbox-proposal-row inbox-proposal-total-row">
             <span className="inbox-proposal-field">Total</span>
@@ -86,6 +136,7 @@ export function BookingProposalCard({
           </div>
         )}
       </div>
+      )}
 
       <div className="inbox-proposal-footer">
         {p.status === "pending" && canRespond ? (
@@ -111,6 +162,14 @@ export function BookingProposalCard({
               Review & sign
             </ButtonAction>
           </div>
+        ) : p.status === "accepted" && bookingHref ? (
+          <Link
+            href={bookingHref}
+            className="inbox-proposal-status inbox-proposal-status--accepted inbox-proposal-status-link"
+          >
+            View booking
+            <ArrowRight size={14} weight="bold" />
+          </Link>
         ) : (
           <span className={`inbox-proposal-status inbox-proposal-status--${p.status}`}>
             {statusLabel[p.status]}

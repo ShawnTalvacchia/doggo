@@ -16,8 +16,6 @@ import { LayoutList } from "@/components/layout/LayoutList";
 import {
   MapPin,
   UsersThree,
-  Lock,
-  ShieldCheck,
   Camera,
   CameraSlash,
   Prohibit,
@@ -33,6 +31,7 @@ import {
   CaretRight,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { GroupVisibilityChip } from "@/components/groups/GroupVisibilityChip";
 import { getUserById } from "@/lib/mockUsers";
 
 /** Truncate a bio to its first two sentences. Mirrors the helper in
@@ -150,15 +149,7 @@ export function GroupDetailPanel({ group, compact = false }: GroupDetailPanelPro
           <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">
             {group.name}
           </h1>
-          {group.visibility !== "open" && (
-            <span className="flex items-center gap-xs rounded-pill px-sm py-xs text-xs font-medium bg-surface-base text-fg-secondary">
-              {group.visibility === "private" ? (
-                <><Lock size={10} weight="fill" /> Private</>
-              ) : (
-                <><ShieldCheck size={10} weight="fill" /> Approval required</>
-              )}
-            </span>
-          )}
+          <GroupVisibilityChip visibility={group.visibility} />
         </div>
 
         {/* Description */}

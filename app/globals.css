@@ -3931,6 +3931,88 @@ body.guest-route {
   }
 }
 
+/* ─── AuthGate (sign-up-or-try-demo prompt for guest visitors) ──────────── */
+
+.auth-gate-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+}
+
+.auth-gate-headline {
+  font-family: var(--font-heading), sans-serif;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.auth-gate-headline strong {
+  color: var(--brand-main);
+  font-weight: var(--weight-semibold);
+}
+
+.auth-gate-sub {
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.auth-gate-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-xs);
+}
+
+.auth-gate-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.auth-gate-btn--primary {
+  background: var(--brand-main);
+  color: var(--text-white);
+  border-color: var(--brand-main);
+}
+
+.auth-gate-btn--primary:hover {
+  background: var(--brand-strong);
+  border-color: var(--brand-strong);
+}
+
+.auth-gate-btn--secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-regular);
+}
+
+.auth-gate-btn--secondary:hover {
+  border-color: var(--brand-main);
+  color: var(--brand-main);
+}
+
+.auth-gate-footnote {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  line-height: 1.55;
+  margin: var(--space-sm) 0 0;
+}
+
 /* ─── Post Composer ─────────────────────────────────────────────────────── */
 
 /* Empty state — friendly prompt + camera/gallery CTAs */
@@ -5050,7 +5132,11 @@ body.guest-route {
   flex-direction: column;
   gap: 8px;
   column-gap: 8px;
-  padding: 16px 0 0;
+  /* Horizontal padding inset cards from screen edges on the own-profile
+     About + Services tabs. Mirrors the viewer-side `/profile/[userId]`
+     pattern (which uses inline `padding: var(--space-lg)` on
+     `.profile-tab-stack`). Pricing & Proposals walkthrough 2026-05-05. */
+  padding: 16px var(--space-lg) 0;
 }
 
 /* ExploreProfileContent: persist gap and full width for profile-content-width + profile-section-stack */
@@ -6875,10 +6961,14 @@ body.guest-route {
   white-space: nowrap;
 }
 
-/* ── Sections ── */
+/* ── Sections ──
+   Landing-page rhythm: more breathing room than in-app surfaces. Section
+   padding bumped 56→88 (vertical) 2026-05-05 per PO feedback that the
+   sections felt cramped. Header→content gap bumped 24→40 to widen the
+   beat between section title and the cards/grids below it. */
 
 .landing-section {
-  padding: 56px 0;
+  padding: 88px 0;
 }
 
 .landing-section--alt {
@@ -6886,7 +6976,7 @@ body.guest-route {
 }
 
 .landing-section-header {
-  margin-bottom: 24px;
+  margin-bottom: 40px;
 }
 
 .landing-section-header--centered .landing-section-heading,
@@ -7048,6 +7138,38 @@ body.guest-route {
   background: var(--brand-strong);
 }
 
+/* ── Nav: Try the Demo affordance (guest + signup routes, persistent) ── */
+
+.app-nav-link--demo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid var(--brand-main);
+  background: transparent;
+  color: var(--brand-main) !important;
+  border-radius: var(--radius-circle);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-sm);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.app-nav-link--demo:hover {
+  background: var(--brand-main);
+  color: var(--text-white) !important;
+}
+
+@media (max-width: 600px) {
+  /* Hide the label on narrow screens — the icon alone communicates the
+     intent and the pill stays touch-friendly without overflowing the nav. */
+  .app-nav-link--demo .app-nav-link-label {
+    display: none;
+  }
+  .app-nav-link--demo {
+    padding: 7px 10px;
+  }
+}
+
 /* ── Nav: dev page-jump trigger (guest mode, subtle) ── */
 
 .app-nav-dev-trigger {
@@ -7129,11 +7251,11 @@ body.guest-route {
   }
 
   .landing-section {
-    padding: 40px 0;
+    padding: 56px 0;
   }
 
   .landing-cta-close {
-    padding: 40px 16px;
+    padding: 56px 16px;
   }
 
   .landing-cta-close-heading {
@@ -8204,7 +8326,7 @@ body:has(.bottom-nav) .bookings-page {
 .page-detail-header-title {
   font-family: var(--font-heading), sans-serif;
   font-size: var(--font-size-body-md);
-  font-weight: var(--weight-bold);
+  font-weight: var(--weight-semibold);
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -9164,6 +9286,62 @@ body:has(.bottom-nav) .inbox-page {
   color: var(--text-tertiary);
 }
 
+.inquiry-card-status--declined {
+  background: var(--surface-inset);
+  color: var(--text-tertiary);
+}
+
+/* Provider-side decline form — inline reveal beneath the action row when
+   the provider taps Decline. Optional reason text → owner sees it as a
+   quote on the declined card. Pricing & Proposals walkthrough 2026-05-05. */
+.inquiry-card-decline-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-light);
+}
+
+.inquiry-card-decline-label {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.inquiry-card-decline-optional {
+  font-weight: var(--weight-regular);
+  color: var(--text-tertiary);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.inquiry-card-decline-input {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border-stronger);
+  border-radius: var(--radius-sm);
+  background: var(--surface-top);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-family: var(--font-body), sans-serif;
+  resize: vertical;
+}
+
+.inquiry-card-decline-input:focus {
+  outline: none;
+  border-color: var(--brand-main);
+}
+
+/* Owner-facing reason callout on a declined inquiry card. Reuses the
+   notes block visual treatment but with a slightly muted tint to
+   reinforce the "declined" status. */
+.inquiry-card-decline-reason {
+  border-left-color: var(--text-tertiary) !important;
+  color: var(--text-tertiary);
+}
+
 .inquiry-card-title {
   margin: 0;
   font-size: var(--font-size-body-md);
@@ -9209,9 +9387,65 @@ body:has(.bottom-nav) .inbox-page {
   border-left: 2px solid var(--border-stronger);
 }
 
+/* Estimate block on the inquiry card — same engine output the
+   provider's ProposalForm renders. Visible on both owner + provider
+   sides; reinforces the no-bargaining principle. Pricing & Proposals
+   walkthrough 2026-05-05. */
+.inquiry-card-estimate {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-inset);
+  border-radius: var(--radius-sm);
+}
+
+.inquiry-card-estimate-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-md);
+}
+
+.inquiry-card-estimate-label {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.inquiry-card-estimate-total {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.inquiry-card-estimate-cycle {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: var(--text-tertiary);
+}
+
+.inquiry-card-estimate-modifiers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.inquiry-card-estimate-modifier {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  padding: 2px var(--space-xs);
+  border-radius: var(--radius-pill);
+  background: var(--surface-top);
+  color: var(--text-secondary);
+}
+
 .inquiry-card-actions {
   display: flex;
   justify-content: flex-end;
+  gap: var(--space-sm);
   padding-top: 12px;
   border-top: 1px solid var(--border-light);
 }
@@ -9225,7 +9459,11 @@ body:has(.bottom-nav) .inbox-page {
   display: flex;
   flex-direction: column;
   gap: var(--space-xxl);
-  padding: var(--space-xl);
+  /* Match the modal header's padding (--space-lg) so the body and header
+     align vertically. Was --space-xl before — read as misaligned because
+     the modal header padding is --space-lg.
+     Pricing & Proposals walkthrough 2026-05-05. */
+  padding: var(--space-lg);
 }
 
 .proposal-form-section {
@@ -9329,19 +9567,390 @@ body:has(.bottom-nav) .inbox-page {
   justify-content: space-between;
   align-items: baseline;
   gap: var(--space-md);
-  font-size: var(--text-sm);
+  /* Bumped from --text-sm to --text-md to match the bumped quote rows.
+     Pricing & Proposals walkthrough 2026-05-05. */
+  font-size: var(--text-md);
   color: var(--text-primary);
 }
 
 .proposal-form-price-line--muted {
   color: var(--text-tertiary);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
 }
 
 .proposal-form-price-line--total {
-  font-size: var(--text-md);
-  font-weight: var(--weight-semibold);
+  /* Owner pays is the final number — give it the most weight.
+     Bumped from --text-md to --text-lg. */
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
   padding-top: var(--space-xs);
+}
+
+/* ── ProposalForm: read-only quote view + override mode ──────────────────
+   Pricing & Proposals, 2026-05-04. Default state of the proposal form is
+   read-only — the auto-pricing engine produces a quote, the provider just
+   confirms. "Adjust this quote" reveals the editable mode (existing
+   .proposal-form-price-row markup) and any deviation flags the proposal
+   as a custom quote with optional reason. */
+
+.proposal-form-price-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.proposal-form-adjust-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xxs);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  font-family: var(--font-body), sans-serif;
+  cursor: pointer;
+}
+
+.proposal-form-adjust-btn:hover {
+  color: var(--brand-main);
+}
+
+.proposal-form-quote-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.proposal-form-quote-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-md);
+  align-items: baseline;
+  /* Bumped from --space-xs to --space-sm — this is the no-bargaining
+     moment, give the line items a bit more breathing room.
+     Pricing & Proposals walkthrough 2026-05-05. */
+  padding: var(--space-sm) 0;
+}
+
+.proposal-form-quote-label-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.proposal-form-quote-label {
+  /* Bumped from --text-sm to --text-md — line items are the substance of
+     this moment, they should read as the focus. Pricing & Proposals
+     walkthrough 2026-05-05. */
+  font-size: var(--text-md);
+  color: var(--text-primary);
+  font-weight: var(--weight-medium);
+}
+
+.proposal-form-quote-note {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+.proposal-form-quote-amount {
+  /* Bumped from --text-sm to --text-md to match the label, semibold so
+     the price reads as the answer to the line item. */
+  font-size: var(--text-md);
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+}
+
+/* Deviation flag — applied to .proposal-form-price-row when the row's
+   label or amount differs from the system-quote equivalent. Subtle
+   amber tint so it reads "this is intentional but worth noticing." Uses
+   the project's defined warning palette to match `.sessions-stat--inprogress`
+   and other warning-tinted surfaces. Pricing & Proposals walkthrough
+   2026-05-05. */
+.proposal-form-price-row--deviates {
+  background: var(--warning-25);
+  border-radius: var(--radius-xs);
+  padding: var(--space-xs);
+  margin: 0 calc(-1 * var(--space-xs));
+}
+
+.proposal-form-override-callout {
+  display: flex;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--warning-50);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-sm);
+}
+
+.proposal-form-override-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--warning-700, #b45309);
+}
+
+.proposal-form-override-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  flex: 1;
+  min-width: 0;
+}
+
+.proposal-form-override-title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.proposal-form-override-sub {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: var(--leading-snug);
+}
+
+.proposal-form-override-reason {
+  width: 100%;
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--border-stronger);
+  border-radius: var(--radius-xs);
+  background: var(--surface-top);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-family: var(--font-body), sans-serif;
+  margin-top: var(--space-xxs);
+}
+
+.proposal-form-override-reason:focus {
+  outline: none;
+  border-color: var(--brand-main);
+}
+
+.proposal-form-override-reset {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  font-family: var(--font-body), sans-serif;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: var(--space-xxs);
+}
+
+.proposal-form-override-reset:hover {
+  color: var(--brand-main);
+}
+
+/* ── BookingProposalCard: Custom-quote callout + trigger notes ──────────
+   The Custom-quote indicator lives in the card body (not the header) so
+   it doesn't clash with the blue header background. Always present when
+   `isOverride` — label alone if no reason, label + quoted reason if set.
+   Amber palette matches the deviation flag in ProposalForm so the
+   "this deviates" signal stays consistent across surfaces. Pricing &
+   Proposals walkthrough 2026-05-05. */
+
+.inbox-proposal-trigger-note {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  font-style: italic;
+  font-weight: var(--weight-regular);
+  margin-top: 2px;
+}
+
+.inbox-proposal-override-callout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--warning-50);
+  border-radius: var(--radius-sm);
+  margin-top: var(--space-xs);
+}
+
+.inbox-proposal-override-callout-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--warning-700, #b45309);
+}
+
+.inbox-proposal-override-callout-label {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.inbox-proposal-override-callout-reason {
+  font-size: var(--text-sm);
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* ── ProfileServicesTab: Pricing modifiers editor ──────────────────────────
+   Pricing & Proposals, 2026-05-04. Per-service modifier configuration UI
+   on the carer's own profile (edit mode), plus chip strip on view mode. */
+
+.profile-modifiers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--border-light);
+}
+
+.profile-modifiers-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  background: none;
+  border: none;
+  padding: var(--space-xs) 0;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  font-family: var(--font-body), sans-serif;
+  cursor: pointer;
+  text-align: left;
+}
+
+.profile-modifiers-toggle:hover {
+  color: var(--brand-main);
+}
+
+.profile-modifiers-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.profile-modifiers-count {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px var(--space-xs);
+  background: var(--brand-subtle);
+  color: var(--brand-strong);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.profile-modifiers-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-sm) 0 var(--space-xs);
+}
+
+.profile-modifier-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.profile-modifier-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.profile-modifier-label-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.profile-modifier-label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+}
+
+.profile-modifier-hint {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.profile-modifier-params {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-md);
+  padding-left: var(--space-md);
+}
+
+.profile-modifier-param {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.profile-modifier-input-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px var(--space-xs);
+  background: var(--surface-top);
+  border: 1px solid var(--border-stronger);
+  border-radius: var(--radius-xs);
+}
+
+.profile-modifier-input-wrap:focus-within {
+  border-color: var(--brand-main);
+}
+
+.profile-modifier-input-wrap input {
+  width: 50px;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  text-align: right;
+  font-family: var(--font-body), sans-serif;
+  padding: 0;
+}
+
+.profile-modifier-input-unit {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+/* View mode — small chip strip under base rate ("+ Holiday +25%   ...") */
+.profile-modifiers-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.profile-modifier-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-xs);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
 }
 
 /* ── Date separator ─────────────────────────────────────────── */
@@ -9523,9 +10132,48 @@ body:has(.bottom-nav) .inbox-page {
 }
 
 
+/* Collapsed body — proposal cards collapse to header + service title once
+   they have a response (countered / declined / accepted). Mirrors the
+   InquiryCard collapse pattern. Pricing & Proposals walkthrough 2026-05-05. */
+.inbox-proposal-body--collapsed {
+  padding: 12px 14px;
+}
+
+.inbox-proposal-collapsed-title {
+  margin: 0;
+  font-size: var(--font-size-body);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.inbox-proposal-collapsed-sub {
+  font-weight: var(--weight-regular);
+  color: var(--text-secondary);
+}
+
 .inbox-proposal-status {
+  display: block;
+  text-align: right;
   font-size: var(--font-size-body-sm);
-  font-weight: var(--weight-medium);
+  /* Bumped one level up from medium — the post-response footer is the
+     card's substance once collapsed, so it carries a touch more weight.
+     Pricing & Proposals walkthrough 2026-05-05. */
+  font-weight: var(--weight-semibold);
+}
+
+/* Accepted state — footer becomes a link to the live Booking record so
+   the recipient can jump straight to the contract / sessions. */
+.inbox-proposal-status-link {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  text-decoration: none;
+}
+
+.inbox-proposal-status-link:hover {
+  text-decoration: underline;
 }
 
 .inbox-proposal-status--pending {
@@ -9538,6 +10186,10 @@ body:has(.bottom-nav) .inbox-page {
 
 .inbox-proposal-status--declined {
   color: var(--text-muted);
+}
+
+.inbox-proposal-status--countered {
+  color: var(--text-secondary);
 }
 
 /* ── Compose bar ─────────────────────────────────────────────── */
@@ -9766,6 +10418,70 @@ body:has(.bottom-nav) .inbox-page {
 .inq-submit:disabled {
   background: var(--neutral-200);
   cursor: not-allowed;
+}
+
+/* Real-time estimate block — sits above the Send button on the inquiry
+   form. Same engine output as the provider's ProposalForm; surfaces the
+   no-bargaining principle at inquiry time. Updates live as the owner
+   picks dates / pets / frequency. Pricing & Proposals walkthrough
+   2026-05-05. */
+.inq-estimate {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  border-radius: var(--radius-sm);
+  background: var(--surface-inset);
+  border: 1px solid var(--border-light);
+}
+
+.inq-estimate-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-md);
+}
+
+.inq-estimate-label {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.inq-estimate-total {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.inq-estimate-cycle {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  color: var(--text-tertiary);
+}
+
+.inq-estimate-modifiers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.inq-estimate-modifier {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  padding: 2px var(--space-xs);
+  border-radius: var(--radius-pill);
+  background: var(--surface-top);
+  color: var(--text-secondary);
+}
+
+.inq-estimate-note {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin: 0;
+  font-style: italic;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -10327,6 +11043,17 @@ body:has(.bottom-nav) .inbox-page {
   color: var(--text-tertiary);
 }
 
+/* "From" prefix on the catalogue price — telegraphs that the final quote
+   depends on inquiry specifics (pets, dates, last-minute). The actual
+   modifier breakdown surfaces in the proposal, not on the card.
+   Pricing & Proposals, 2026-05-04. */
+.profile-service-price-from {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--weight-regular);
+  color: var(--text-tertiary);
+  margin-right: 2px;
+}
+
 .profile-service-subs {
   display: flex;
   flex-wrap: wrap;
@@ -10345,7 +11072,10 @@ body:has(.bottom-nav) .inbox-page {
 .profile-avail-grid {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  /* Increased from 12px to 18px (Pricing & Proposals walkthrough 2026-05-04)
+     — the rows were cramped, especially when all 7 days render with muted
+     inactive slots. */
+  gap: 18px;
 }
 
 .profile-avail-row {
@@ -10364,11 +11094,51 @@ body:has(.bottom-nav) .inbox-page {
 
 .profile-avail-slots {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: nowrap;
 }
 
-/* Availability slots use shared .pill / .pill.active from styleguide */
+/* Availability slot — viewer-side (public profile) full-week grid.
+   Active slot reads first; inactive slot is heavily muted so the eye
+   skims past it but the column anchor remains. The shared `.pill`
+   class is for clickable affordances (filters, toggles); availability
+   pills aren't interactive on the viewer side, so they get their own
+   class to avoid suggesting the wrong contract. Pricing & Proposals
+   walkthrough 2026-05-04. */
+.profile-avail-slot {
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+}
+
+.profile-avail-slot--off {
+  background: transparent;
+  color: var(--text-tertiary);
+  opacity: 0.4;
+}
+
+/* Narrow-screen compression — 320px viewports overflow the row at default
+   spacing (3 pills + day label + gaps ≈ 324px). Tighten label width, row
+   gap, slot gap, and slot padding so the full week fits without horizontal
+   scroll. Pricing & Proposals walkthrough 2026-05-04. */
+@media (max-width: 360px) {
+  .profile-avail-row {
+    gap: 8px;
+  }
+  .profile-avail-day {
+    width: 32px;
+  }
+  .profile-avail-slots {
+    gap: 6px;
+  }
+  .profile-avail-slot {
+    padding: 6px 10px;
+  }
+}
 
 /* ── Visibility section ──────────────────────────────────────────────────────── */
 
@@ -14615,4 +15385,78 @@ body:has(.bottom-nav) .inbox-page {
   border-color: var(--brand-strong);
   background-image: linear-gradient(45deg, transparent 45%, var(--surface-top) 45% 55%, transparent 55%),
                     linear-gradient(-45deg, transparent 45%, var(--surface-top) 45% 55%, transparent 55%);
+}
+
+/* ── TapTooltip ──────────────────────────────────────────────────────────────
+   Tap-to-open explainer popover. Used to teach product mechanics in-context
+   (group visibility chip, tier badges). Component: components/ui/TapTooltip.tsx.
+   Onboarding & In-Product Communication phase, 2026-05-04. */
+
+.tap-tooltip-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Default trigger styling — neutral focus ring + inherits font/color from
+   parent. Callers usually pass `triggerClassName` to inherit chip/badge
+   styles instead, so this baseline is intentionally minimal. */
+.tap-tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.tap-tooltip-trigger:focus-visible {
+  outline: 2px solid var(--brand-main);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+.tap-tooltip-body {
+  position: absolute;
+  z-index: 50;
+  width: max-content;
+  max-width: 240px;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-popout);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-regular);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-md);
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  font-weight: 400;
+  text-align: left;
+  white-space: normal;
+}
+
+.tap-tooltip-body--below {
+  top: calc(100% + 6px);
+  left: 0;
+}
+
+.tap-tooltip-body--above {
+  bottom: calc(100% + 6px);
+  right: 0;
+}
+
+/* Inline link inside the tooltip body — overrides the global `a` reset
+   so the "Learn more →" footer is recognisable as a link. */
+.tap-tooltip-body a {
+  color: var(--brand-strong);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: var(--space-xs);
+}
+
+.tap-tooltip-body a:hover {
+  color: var(--brand-main);
 }

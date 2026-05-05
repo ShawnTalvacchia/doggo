@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-05-04
+last-reviewed: 2026-05-05
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
@@ -36,11 +36,11 @@ The full product skeleton exists. Every page renders with real content and worki
 
 ## Current Phase
 
-**None active.** Discover & Care closed 2026-05-04. Next phase to open: **Pricing & Proposals** — see Upcoming Phases below.
+**None active.** Pricing & Proposals closed 2026-05-05. Next phase to open: **Sessions & Service Execution** — see Upcoming Phases below.
 
 ### Profiles Deep Pass — Paused
 
-Paused 2026-04-14. Trust signals, post composer, and post attribution shipped. Remaining content enrichment folded into Mock World Building (now closed).
+Paused 2026-04-14. Trust signals, post composer, and post attribution shipped. Remaining content enrichment folded into Mock World Building (now closed). Pre-loaded scope additions: D7 (Provider-tier progression UI — Helper→Provider ladder + design-system-compliant Toggle component) added 2026-05-05 from Pricing & Proposals walkthrough.
 
 **Phase board:** `phases/profiles-deep-pass.md`
 
@@ -52,8 +52,8 @@ Reorganized 2026-05-04 around the principle that **services are the core functio
 
 | Phase | Goal | Key refs |
 |-------|------|----------|
-| **Pricing & Proposals** *(NEW — next phase)* | Structurally enforce the no-bargaining principle. Provider pricing config (base rate + modifiers — holiday surcharge, multi-pet, longer-walk, last-minute, off-hours). Auto-pricing engine takes (config × inquiry data) → quote. Refactor `ProposalForm` from "compose price" to "review system quote and confirm" with optional override flagged as a deviation. Extend inquiry form to capture all dimensions needed for auto-quote (date for holiday detection, pet count for multi-pet pricing, etc.). Provider onboarding UI for pricing setup. Tighten visual polish on inquiry → proposal → contract artifact rendering inherited from Discover & Care. | `Open Questions §9`, `lib/types.ts:CarerCareServiceConfig`, `components/messaging/ProposalForm.tsx`, `lib/pricing.ts`, `Competitive Research - Prague Dog Care Scene.md` (Rover/Hlídačky modifier patterns) |
-| **Sessions & Service Execution** *(replaces "Schedule & Bookings")* | The other half of "services real" — what happens after a contract is signed. Visit report cards, real-time session updates, provider in-session UI, owner session view, aggregate stats (owner) vs per-session views (provider). Care review sheets + provider close-out flow. IA scaffolding + review-recent pattern landed early during Meets Deep Pass — see phase board for pre-loaded deferred scope. | `phases/schedule-bookings-deep-pass.md`, `features/schedule.md`, `features/explore-and-care.md`, `Competitive Research - Time To Pet.md` |
+| **Sessions & Service Execution** *(NEXT — replaces "Schedule & Bookings")* | The other half of "services real" — what happens after a contract is signed. Visit report cards, real-time session updates, provider in-session UI, owner session view, aggregate stats (owner) vs per-session views (provider). Care review sheets + provider close-out flow. IA scaffolding + review-recent pattern landed early during Meets Deep Pass — see phase board for pre-loaded deferred scope. | `phases/schedule-bookings-deep-pass.md`, `features/schedule.md`, `features/explore-and-care.md`, `Competitive Research - Time To Pet.md` |
+| **Discover Refinement** *(NEW — added 2026-05-04)* | Make Discover Care community-first instead of marketplace-first. **Surface Helper-tier carers (Connected to viewer) distinctly above Providers** — community-first ordering reinforces the meets-build-trust-builds-care thesis at the actual point of care discovery. Resolves the Discover Care surface gaps cluster: Appointment filter pill, ProviderCard ↔ UserProfile fragmentation (every provider becomes a real user), per-service pricing on cards (`pricesByService`), service-aware filters (Walks needs pace/leash; Sitting/Boarding need home attributes), wired filter panel (currently visual-only no-ops). Helper card variant — softer chrome, "Ask {name}" CTA, no platform-style ratings. | `Open Questions §4`, `app/discover/care/page.tsx`, `components/explore/CardExploreResult.tsx`, `lib/types.ts:ProviderCard`, `Competitive Research - Prague Dog Care Scene.md`, `Competitive Research - Fluv.md` |
 | **Inbox & Notifications** | Inbox visual polish, notification card patterns, badge counts, request-vs-thread distinction, possibly threading model + read state. **Compressed** because most service-flow notifications (inquiry sent, proposal received, accepted, etc.) get covered upstream. Also covers the inquiry-driven trust transitions logged in Open Questions §2 (mutual Familiar on inquiry send, mutual Connected on contract accept, edge cases). | `phases/inbox-and-notifications-deep-pass.md`, `features/messaging.md`, `app/inbox/`, `app/notifications/`, `Open Questions §2` |
 | **Cross-Cutting Flow Testing** | Every persona journey works end-to-end with the now-solid services core. Trust signals accumulate. No dead ends. Pre-loaded with mock-world edge-case seeding + People-tab disclosure model + mock-data hygiene items. | `phases/cross-cutting-flow-testing.md`, `User Journeys.pptx`, `Trust & Connection Model.md` |
 | **Onboarding & In-Product Communication** | Trust model + tier system + privacy mechanics + provider pricing setup tutorials. Multiple touchpoints (locked profile lock card, Familiar asymmetry, Helper/Provider tier, privacy explainer, share-link bypass, group visibility chip, pricing setup walkthrough) share the same root: users need to understand mechanics without being lectured. | `phases/onboarding-and-communication.md`, `Trust & Connection Model.md`, `Open Questions §2 + §3 + §4` |

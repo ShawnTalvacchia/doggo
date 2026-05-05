@@ -5,25 +5,47 @@ import type { Connection } from "@/lib/types";
 
 /**
  * Relationship trust signals — what the viewer and this person have in
- * common. Renders as a horizontal row of icon+text items that wraps to
- * additional lines if there isn't space (not pills), so they read as
- * context the platform is sharing rather than achievement labels on the
- * provider. Distinct vocabulary from the `TrustBadgeStrip` (which carries
- * credential / community-earned / platform badges *about* the person, in
- * pills). Discover & Care 2026-05-04.
+ * common. Two rows max, each with a single icon + inline text:
  *
- * Ordered by rhetorical strength: frequency → mutual people → shared community.
+ *   1. Shared activity — meets + groups, joined with `·` so the count
+ *      reads compactly. Example: "Both in Vinohrady Walkers · 6 shared
+ *      meets". Renamed "walked together" → "shared meets" 2026-05-05
+ *      so the label generalises beyond walks (training sessions, park
+ *      hangouts).
+ *   2. Mutual connections — kept distinct because the pronoun shift
+ *      ("You both know …") and named-person specificity reads better
+ *      on its own line.
+ *
+ * Distinct vocabulary from `TrustBadgeStrip` (credential / community-
+ * earned / platform badges *about* the person, in pills). Discover &
+ * Care 2026-05-04 + Punch List P53 2026-05-05.
  */
 export function TrustSignalBadges({ connection }: { connection: Connection }) {
   const rows: { icon: React.ReactNode; text: string }[] = [];
 
-  if (connection.meetsShared && connection.meetsShared > 0) {
-    rows.push({
-      icon: <Footprints size={14} weight="light" />,
-      text: `You've walked together ${connection.meetsShared} times`,
-    });
+  // Row 1 — combined activity line (groups + meets).
+  const groups = connection.sharedGroups ?? [];
+  const meetsShared = connection.meetsShared ?? 0;
+  const activityParts: string[] = [];
+  if (groups.length > 0) {
+    activityParts.push(
+      groups.length === 1 ? `Both in ${groups[0]}` : `${groups.length} shared groups`,
+    );
+  }
+  if (meetsShared > 0) {
+    activityParts.push(`${meetsShared} shared meet${meetsShared === 1 ? "" : "s"}`);
+  }
+  if (activityParts.length > 0) {
+    // Footprints icon when meets data exists (more concrete signal); fall
+    // back to HandsClapping for groups-only.
+    const icon =
+      meetsShared > 0
+        ? <Footprints size={14} weight="light" />
+        : <HandsClapping size={14} weight="light" />;
+    rows.push({ icon, text: activityParts.join(" · ") });
   }
 
+  // Row 2 — mutual connections (kept distinct).
   if (connection.mutualConnections && connection.mutualConnections.length > 0) {
     const names = connection.mutualConnections;
     const text = names.length === 1
@@ -33,17 +55,6 @@ export function TrustSignalBadges({ connection }: { connection: Connection }) {
       : `${names.length} mutual connections`;
     rows.push({
       icon: <UsersThree size={14} weight="light" />,
-      text,
-    });
-  }
-
-  if (connection.sharedGroups && connection.sharedGroups.length > 0) {
-    const groups = connection.sharedGroups;
-    const text = groups.length === 1
-      ? `Both in ${groups[0]}`
-      : `${groups.length} shared groups`;
-    rows.push({
-      icon: <HandsClapping size={14} weight="light" />,
       text,
     });
   }

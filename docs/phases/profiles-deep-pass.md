@@ -1,6 +1,6 @@
 ---
 status: paused
-last-reviewed: 2026-04-14
+last-reviewed: 2026-05-05
 review-trigger: When any task is completed or blocked
 ---
 
@@ -77,6 +77,7 @@ The About tab is the first thing a visitor sees. It needs to tell a story — no
 | D4 | "Open to helping" badge and provider stats — are these trust signals prominent enough? Do they help a potential booker decide? | todo |
 | D5 | Own profile services edit — review the edit flow for adding/removing services, setting availability, toggling visibility | todo |
 | D6 | Locked provider banner — verify the "your profile is private" banner appears and the CTA works | todo |
+| D7 | **Provider-tier progression UI.** Helper-tier (`openToHelping`) and Provider-tier (`publicProfile` / search visibility) currently render as two unrelated toggles at top and bottom of the Services edit form. CLAUDE.md frames the provider role as "a dial you turn up." The UI should reflect that: (a) group both controls into one section, (b) visually communicate the ladder (Owner → Helper → Provider), (c) the "Connections only" / "Public" pseudo-button on Search visibility should be a real `Toggle` (currently raw `<button>` with inline styles — `components/profile/ProfileServicesTab.tsx:448-459`), (d) consider whether Provider-tier escalation should be actively encouraged with copy/CTA when a user has been Helper-tier for a while or has multiple bookings. Pre-loaded 2026-05-05 from Pricing & Proposals walkthrough. | todo |
 
 ### Own Profile Polish
 

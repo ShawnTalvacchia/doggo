@@ -87,13 +87,21 @@ export function InquiryFormModal({
     markFamiliar(currentUser.id, provider.id);
     markFamiliar(provider.id, currentUser.id);
 
+    // Resolve startDate from the right source: one-off uses the picked
+    // range's start; ongoing uses the optional "Start from" date.
+    // Pricing & Proposals walkthrough 2026-05-05.
+    const resolvedStartDate =
+      data.bookingType === "one_off"
+        ? data.dateRange.start
+        : data.ongoingStart;
+
     updateInquiry(convId, {
       bookingType: data.bookingType,
       serviceType: data.service,
       subService: data.subService,
       pets: data.pets,
       dogName: data.pets.join(" & "),
-      startDate: data.bookingType === "one_off" ? data.dateRange.start : null,
+      startDate: resolvedStartDate,
       endDate: data.bookingType === "one_off" ? data.dateRange.end : null,
       recurringSchedule: data.recurringSchedule ?? undefined,
       message: data.message,
@@ -109,7 +117,7 @@ export function InquiryFormModal({
         serviceType: data.service,
         subService: data.subService,
         pets: data.pets,
-        startDate: data.bookingType === "one_off" ? data.dateRange.start : null,
+        startDate: resolvedStartDate,
         endDate: data.bookingType === "one_off" ? data.dateRange.end : null,
         recurringSchedule: data.recurringSchedule ?? undefined,
         notes: data.message?.trim() || undefined,

@@ -93,6 +93,13 @@ export interface ProviderCard {
   // directly. Discover & Care 2026-05-04.
   credentials?: CarerCredentials;
   repeatClients?: number;
+  /** Per-service base prices. When the active service filter is one of
+   *  these, `CardExploreResult` swaps the displayed price to the matching
+   *  entry instead of the legacy single `priceFrom + priceUnit`. Falls
+   *  back to the single price on "All". Pricing & Proposals, 2026-05-04. */
+  pricesByService?: Partial<
+    Record<ServiceType, { priceFrom: number; priceUnit: ProviderCard["priceUnit"] }>
+  >;
 }
 
 /** A single rate row inside a service block (e.g. Holiday Rate, Additional Dog Rate) */
@@ -176,7 +183,7 @@ export type BookingProposalStatus = "pending" | "accepted" | "declined" | "count
  *   visible but the focal action moves to the proposal / chat.
  * - `withdrawn`: owner retracted, or provider declined to engage.
  */
-export type InquiryStatus = "pending" | "responded" | "withdrawn";
+export type InquiryStatus = "pending" | "responded" | "declined" | "withdrawn";
 
 /**
  * Structured inquiry card — the artifact owners send when tapping "Book a
@@ -195,6 +202,11 @@ export interface InquiryDetails {
    *  templated stuff that's now structured above). */
   notes?: string;
   status: InquiryStatus;
+  /** Provider's optional explanation when declining. Renders on the
+   *  InquiryCard for the owner so they understand why and can decide
+   *  whether to send a new request with different parameters.
+   *  Pricing & Proposals walkthrough 2026-05-05. */
+  declineReason?: string;
 }
 
 export type ConversationStatus = "active" | "confirmed" | "archived";
@@ -209,6 +221,14 @@ export interface BookingProposal {
   recurringSchedule?: RecurringSchedule;
   price: BookingPrice;
   status: BookingProposalStatus;
+  /** True when the provider deviated from the auto-computed quote. Surfaced
+   *  on `BookingProposalCard` so the deviation is visible to the owner.
+   *  Pricing & Proposals, 2026-05-04. */
+  isOverride?: boolean;
+  /** Provider's optional explanation for the deviation — "repeat client
+   *  discount", "introductory rate", etc. Rendered alongside the price
+   *  when `isOverride` is true. */
+  overrideReason?: string;
 }
 
 export interface ContractConfirmation {
@@ -286,6 +306,11 @@ export interface PriceLineItem {
   amount: number;      // Kč
   unit: string;        // e.g. "per session", "per night"
   isModifier?: boolean;
+  /** Short explainer rendered under the label on proposal cards — e.g.
+   *  "Dec 25 falls in this booking", "2 extra pets", "Booking starts in
+   *  2 days." Set by `computeQuote` so the proposal explains itself.
+   *  Pricing & Proposals, 2026-05-04. */
+  triggerNote?: string;
 }
 
 export interface BookingPrice {
@@ -896,6 +921,53 @@ export type CarerServiceConfig =
   | CarerMeetServiceConfig
   | CarerAppointmentServiceConfig;
 
+/**
+ * Per-service pricing modifiers. Discriminated union — each modifier kind
+ * carries its own params. Stacked into `BookingPrice.lineItems` by
+ * `computeQuote` in `lib/pricing.ts`. Stacking order: flat-per-unit
+ * modifiers (multi-pet) apply to the base before percentage modifiers
+ * compound on the subtotal.
+ *
+ * Pricing & Proposals, 2026-05-04. Starter set ships four kinds; future
+ * passes will add longer-walk, off-hours, boarding-specific (yard, house
+ * type, max-dogs-at-once), add-on services, and package rates.
+ */
+export type PricingModifier =
+  | HolidayPricingModifier
+  | WeekendPricingModifier
+  | MultiPetPricingModifier
+  | LastMinutePricingModifier;
+
+export interface HolidayPricingModifier {
+  kind: "holiday";
+  enabled: boolean;
+  /** Percentage applied to the running subtotal. 25 = +25%. */
+  pct: number;
+}
+
+export interface WeekendPricingModifier {
+  kind: "weekend";
+  enabled: boolean;
+  /** Percentage applied to the running subtotal. 15 = +15%. */
+  pct: number;
+}
+
+export interface MultiPetPricingModifier {
+  kind: "multi_pet";
+  enabled: boolean;
+  /** Flat Kč added per extra pet above the first. */
+  flatPerExtra: number;
+}
+
+export interface LastMinutePricingModifier {
+  kind: "last_minute";
+  enabled: boolean;
+  /** Percentage applied to the running subtotal. 10 = +10%. */
+  pct: number;
+  /** Booking starts within this many days from `today` → modifier triggers. */
+  thresholdDays: number;
+}
+
 export interface CarerCareServiceConfig {
   kind: "care";
   serviceType: ServiceType;
@@ -904,6 +976,10 @@ export interface CarerCareServiceConfig {
   priceUnit: "per_visit" | "per_night";
   subServices: string[];
   notes?: string;
+  /** Optional pricing modifiers stacked onto the base rate at quote time.
+   *  See `lib/pricing.ts:computeQuote`. Empty/undefined = base rate only.
+   *  Pricing & Proposals, 2026-05-04. */
+  modifiers?: PricingModifier[];
 }
 
 /** Format hint for Meet-type catalogue cards. */

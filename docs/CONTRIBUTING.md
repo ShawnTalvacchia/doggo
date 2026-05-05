@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-04-23
+last-reviewed: 2026-05-05
 tags: [rules, workflow, css, conventions]
 review-trigger: "always — read before any working session"
 ---
@@ -68,6 +68,31 @@ Before marking a phase complete, work through the **Closing Checklist** on the p
    This isn't a checkbox — it's a thinking mode. Take the time to do it well. The goal is to surface insights and recommendations, not just confirm that docs are updated.
 
 **Enforcement:** The closing checklist items must all be checked off before a new phase can be opened.
+
+### Side Tasks
+
+Some work doesn't fit a phase board. It's bigger than a punch-list nit, smaller than a phase, and may land between phases or alongside the active one. Spawned tasks (created via the `spawn_task` mechanism in a chat session) typically land here.
+
+**Three sizes of work, decision rule:**
+
+| Size | Where it lives | Touches phase state? |
+|------|----------------|---------------------|
+| ≤30 min, isolated fix | Punch list (`phases/punch-list.md`) | No |
+| ~30 min – few hours, contained scope | Side task (worktree session) | No |
+| Multi-task scope, design thinking | Phase (open/close checklist) | Yes |
+
+**A side task should:**
+- Have a single, well-defined goal stated in its spawn prompt.
+- Land as a focused commit or PR.
+- Update any feature docs whose described behavior changed.
+- Update `last-reviewed` on docs it touched.
+
+**A side task should NOT:**
+- Modify `CLAUDE.md`, `ROADMAP.md`, phase boards, or the Open Questions log.
+- Unilaterally resume a paused phase. If the work clearly belongs in a paused phase, ASK the user before starting — they decide whether to formally resume the phase (running its Opening Checklist) or to treat the work as a one-off side task. Default is one-off.
+- Sprawl beyond the spawn prompt. If meaningful new scope appears, surface it back to the user — don't expand silently.
+
+**Promoting a side task to a phase.** If a side task reveals significant additional scope, stop and propose either (a) resuming a relevant paused phase, (b) opening a new phase, or (c) deferring the rest to the punch list. The user picks.
 
 ---
 
@@ -141,7 +166,7 @@ When updating existing styles:
 | `strategy/` | Product direction, user models, trust, groups, care, scope |
 | `features/` | Feature specs — what's built, key decisions, future plans |
 | `implementation/` | Technical references, coding standards, component catalog |
-| `phases/` | Active phase boards only (completed boards → archive) |
+| `phases/` | Active phase boards + cross-phase running lists (`punch-list.md`, `verification-checklist.md`). Completed phase boards → archive. |
 | `archive/` | Completed/superseded docs kept for reference |
 | root | Meta docs (this file, ROADMAP, CLAUDE.md) |
 

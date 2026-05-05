@@ -1,30 +1,41 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { PencilSimple, Warning } from "@phosphor-icons/react";
 import type {
   Conversation,
   BookingPrice,
   BookingProposal,
   InquiryDetails,
+  CarerCareServiceConfig,
 } from "@/lib/types";
-import { SERVICE_LABELS } from "@/lib/constants/services";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { formatShortDate } from "@/lib/dateUtils";
-import { buildProposalPrice } from "@/lib/pricing";
+import { SERVICE_LABELS } from "@/lib/constants/services";
+import { computeQuote, quotesMatch } from "@/lib/pricing";
 import { getUserById } from "@/lib/mockUsers";
 
 const PLATFORM_FEE_PERCENT = 12;
 
 /**
- * Provider-side proposal builder. Pre-fills from the conversation's inquiry
- * (or an explicit `inquiry` prop, used by counter flow), auto-calculates the
- * price using the provider's actual `pricePerUnit` from their carer profile,
- * and shows the platform fee transparently. Provider can edit line items
- * before sending.
+ * Provider-side proposal builder.
  *
- * Discover & Care G3, 2026-05-02. Counter flow (G4) reuses this form
- * pre-filled with the existing proposal's values via `initialPrice`.
+ * Default state is **read-only** — the auto-pricing engine
+ * (`computeQuote(config, inquiry, today)`) generates a quote from the
+ * provider's per-service config (base rate + modifiers) and the owner's
+ * inquiry details, and the provider just confirms it. This structurally
+ * enforces the no-bargaining principle: the system computes the right
+ * number, the provider doesn't compose it.
+ *
+ * Override mode is available via "Adjust this quote." When the provider
+ * deviates, the line items become editable and the proposal is flagged
+ * `isOverride: true` with an optional `overrideReason` so the owner can
+ * see a deviation happened — deviations stay possible (real providers
+ * need exceptions) but they're visible, not silent.
+ *
+ * Pricing & Proposals, 2026-05-04. Replaces the earlier "compose price
+ * freely" pattern from Discover & Care G3.
  */
 export function ProposalForm({
   conv,
@@ -43,7 +54,7 @@ export function ProposalForm({
    *  `conv.inquiry`. */
   inquiry?: InquiryDetails;
   /** Pre-fill the price (counter flow). Otherwise auto-calculates from
-   *  provider rate. */
+   *  the carer config via `computeQuote`. */
   initialPrice?: BookingPrice;
 }) {
   // Derive the source inquiry. When the caller passes an InquiryCard's data
@@ -65,24 +76,62 @@ export function ProposalForm({
   }, [inquiry, conv.inquiry]);
 
   const ownerFirst = conv.ownerName.split(" ")[0];
+  const todayISO = new Date().toISOString().slice(0, 10);
 
-  // Look up the provider's actual rate for the inquired service.
+  // Look up the provider's actual Care config for the inquired service.
   const provider = getUserById(conv.providerId);
-  const careService = provider?.carerProfile?.services?.find(
-    (s) => s.kind === "care" && s.serviceType === sourceInquiry.serviceType,
+  const careService: CarerCareServiceConfig | undefined = provider?.carerProfile?.services?.find(
+    (s): s is CarerCareServiceConfig =>
+      s.kind === "care" && s.serviceType === sourceInquiry.serviceType,
   );
-  const baseRate = careService?.kind === "care" ? careService.pricePerUnit : 0;
-  const priceUnit = careService?.kind === "care" ? careService.priceUnit : "per_visit";
 
-  const [price, setPrice] = useState<BookingPrice>(
-    initialPrice ??
-      buildProposalPrice(
-        sourceInquiry,
-        baseRate,
-        priceUnit,
-        SERVICE_LABELS[sourceInquiry.serviceType],
-      ),
-  );
+  // System quote — the canonical answer. If the carer has no config for
+  // this service (shouldn't happen in practice; would mean the inquiry was
+  // sent to someone who doesn't offer it), fall back to a 0-Kč skeleton
+  // that the provider must override.
+  const systemQuote: BookingPrice = useMemo(() => {
+    if (!careService) {
+      return {
+        lineItems: [
+          {
+            label: SERVICE_LABELS[sourceInquiry.serviceType],
+            amount: 0,
+            unit: "per session",
+          },
+        ],
+        total: 0,
+        currency: "Kč",
+        billingCycle: "per_session",
+      };
+    }
+    return computeQuote(careService, sourceInquiry, todayISO);
+  }, [careService, sourceInquiry, todayISO]);
+
+  // Working price — what the provider will send. Starts from the system
+  // quote (or the initialPrice in counter flow). Edits in override mode
+  // mutate this; we compare against `systemQuote` to detect deviations.
+  const [price, setPrice] = useState<BookingPrice>(initialPrice ?? systemQuote);
+  const [editing, setEditing] = useState(false);
+  const [overrideReason, setOverrideReason] = useState("");
+
+  // Re-seed local state each time the modal opens. The component stays
+  // mounted across open/close cycles (ModalSheet portals away when closed
+  // but ProposalForm itself doesn't unmount), so without this effect the
+  // initial useState values stick across openings — counter flow would
+  // show stale price + read-only mode instead of the source proposal's
+  // price in editing mode. Pricing & Proposals walkthrough 2026-05-05.
+  useEffect(() => {
+    if (!open) return;
+    const startPrice = initialPrice ?? systemQuote;
+    setPrice(startPrice);
+    setOverrideReason("");
+    setEditing(initialPrice ? !quotesMatch(initialPrice, systemQuote) : false);
+  }, [open, initialPrice, systemQuote]);
+
+  // Counter flow: if the caller passed `initialPrice` and it doesn't match
+  // the engine's output, we're starting from a pre-existing override —
+  // open in editing mode so the provider can see/adjust the deviation.
+  const isOverride = !quotesMatch(price, systemQuote);
 
   const platformFee = Math.round((price.total * PLATFORM_FEE_PERCENT) / 100);
   const ownerTotal = price.total + platformFee;
@@ -95,8 +144,15 @@ export function ProposalForm({
     setPrice({ ...price, lineItems: next, total: next.reduce((s, li) => s + li.amount, 0) });
   }
 
+  function resetToSystemQuote() {
+    setPrice(systemQuote);
+    setOverrideReason("");
+    setEditing(false);
+  }
+
   function handleSubmit() {
     if (!canSubmit) return;
+    const reason = overrideReason.trim();
     const proposal: BookingProposal = {
       bookingType: sourceInquiry.bookingType,
       serviceType: sourceInquiry.serviceType,
@@ -108,6 +164,8 @@ export function ProposalForm({
         sourceInquiry.bookingType === "ongoing" ? sourceInquiry.recurringSchedule : undefined,
       price,
       status: "pending",
+      isOverride,
+      overrideReason: isOverride && reason.length > 0 ? reason : undefined,
     };
     onSubmit(proposal);
   }
@@ -157,30 +215,121 @@ export function ProposalForm({
           )}
         </section>
 
-        {/* Price — auto-calculated from provider rate, editable */}
+        {/* Price — auto-calculated from carer config + inquiry */}
         <section className="proposal-form-section">
-          <h4 className="proposal-form-eyebrow">Price</h4>
-          <div className="proposal-form-price-list">
-            {price.lineItems.map((item, idx) => (
-              <div key={idx} className="proposal-form-price-row">
-                <input
-                  className="proposal-form-price-label"
-                  value={item.label}
-                  onChange={(e) => updateLineItem(idx, { label: e.target.value })}
-                  aria-label="Line item label"
-                />
-                <div className="proposal-form-price-amount">
-                  <input
-                    type="number"
-                    value={item.amount}
-                    onChange={(e) => updateLineItem(idx, { amount: Number(e.target.value) || 0 })}
-                    aria-label="Line item amount"
-                  />
-                  <span className="proposal-form-price-unit">Kč</span>
-                </div>
-              </div>
-            ))}
+          <div className="proposal-form-price-header">
+            <h4 className="proposal-form-eyebrow">
+              {editing ? "Adjusted quote" : "System quote"}
+            </h4>
+            {!editing && (
+              <button
+                type="button"
+                className="proposal-form-adjust-btn"
+                onClick={() => setEditing(true)}
+              >
+                <PencilSimple size={14} weight="regular" />
+                Adjust this quote
+              </button>
+            )}
           </div>
+
+          {!editing ? (
+            // ── Read-only quote (default) ──
+            <div className="proposal-form-quote-list">
+              {price.lineItems.map((item, idx) => (
+                <div key={idx} className="proposal-form-quote-row">
+                  <div className="proposal-form-quote-label-col">
+                    <span className="proposal-form-quote-label">{item.label}</span>
+                    {item.triggerNote && (
+                      <span className="proposal-form-quote-note">{item.triggerNote}</span>
+                    )}
+                  </div>
+                  <span className="proposal-form-quote-amount">
+                    {item.isModifier ? "+ " : ""}
+                    {item.amount.toLocaleString()} Kč
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            // ── Editable mode (override) ──
+            <>
+              <div className="proposal-form-price-list">
+                {price.lineItems.map((item, idx) => {
+                  const original = systemQuote.lineItems[idx];
+                  const deviates =
+                    !original ||
+                    original.label !== item.label ||
+                    original.amount !== item.amount;
+                  return (
+                    <div
+                      key={idx}
+                      className={`proposal-form-price-row${
+                        deviates ? " proposal-form-price-row--deviates" : ""
+                      }`}
+                    >
+                      <input
+                        className="proposal-form-price-label"
+                        value={item.label}
+                        onChange={(e) => updateLineItem(idx, { label: e.target.value })}
+                        aria-label="Line item label"
+                      />
+                      <div className="proposal-form-price-amount">
+                        <input
+                          type="number"
+                          min={0}
+                          value={item.amount}
+                          onChange={(e) =>
+                            // Clamp to 0+ — line items REPLACE the original
+                            // amount (they don't subtract), so negative
+                            // values would invert the math without warning.
+                            // `min={0}` blocks the spinner; the clamp
+                            // defends against paste / manual entry.
+                            // Pricing & Proposals walkthrough 2026-05-05.
+                            updateLineItem(idx, {
+                              amount: Math.max(0, Number(e.target.value) || 0),
+                            })
+                          }
+                          aria-label="Line item amount"
+                        />
+                        <span className="proposal-form-price-unit">Kč</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {isOverride && (
+                <div className="proposal-form-override-callout">
+                  <Warning size={16} weight="fill" className="proposal-form-override-icon" />
+                  <div className="proposal-form-override-body">
+                    <p className="proposal-form-override-title">
+                      You&apos;re sending a custom quote
+                    </p>
+                    <p className="proposal-form-override-sub">
+                      This deviates from your configured pricing. {ownerFirst} will see it
+                      flagged as a custom quote.
+                    </p>
+                    <input
+                      type="text"
+                      className="proposal-form-override-reason"
+                      value={overrideReason}
+                      onChange={(e) => setOverrideReason(e.target.value)}
+                      placeholder="Optional: why? e.g. repeat client, intro rate"
+                      aria-label="Override reason"
+                    />
+                    <button
+                      type="button"
+                      className="proposal-form-override-reset"
+                      onClick={resetToSystemQuote}
+                    >
+                      Reset to system quote
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
           <div className="proposal-form-price-summary">
             <div className="proposal-form-price-line">
               <span>Subtotal</span>
@@ -200,4 +349,3 @@ export function ProposalForm({
     </ModalSheet>
   );
 }
-

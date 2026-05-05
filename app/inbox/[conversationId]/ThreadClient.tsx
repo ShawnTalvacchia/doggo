@@ -23,6 +23,7 @@ import { InquiryResponseCard } from "@/components/messaging/InquiryResponseCard"
 import { ProposalForm } from "@/components/messaging/ProposalForm";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { useBookings } from "@/contexts/BookingsContext";
+import { useConnections } from "@/contexts/ConnectionsContext";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -76,10 +77,11 @@ export function ThreadClient({
    *  Editable by the user before sending. */
   initialDraft?: string;
 }) {
-  const { addMessage, updateInquiry, updateProposalStatus, updateInquiryStatus } =
+  const { addMessage, updateInquiry, updateProposalStatus, updateInquiryStatus, declineInquiry } =
     useConversations();
   const { createBooking, upsertProposedBooking, updateStatus, getBookingByConversation } =
     useBookings();
+  const { markConnected } = useConnections();
   const [localMessages, setLocalMessages] = useState<ChatMessage[]>(conv.messages);
   const [draft, setDraft] = useState(initialDraft ?? "");
   const [signingMsgId, setSigningMsgId] = useState<string | null>(null);
@@ -295,6 +297,42 @@ export function ThreadClient({
     }
   }
 
+  // Provider declines an inquiry — flips status to "declined", saves the
+  // optional reason, and posts a short system message in the thread.
+  // Pricing & Proposals walkthrough 2026-05-05.
+  function handleInquiryDecline(msgId: string, reason: string) {
+    declineInquiry(conv.id, msgId, reason);
+    setLocalMessages((prev) =>
+      prev.map((m) =>
+        m.id === msgId && m.inquiry
+          ? {
+              ...m,
+              inquiry: {
+                ...m.inquiry,
+                status: "declined",
+                declineReason: reason && reason.length > 0 ? reason : undefined,
+              },
+            }
+          : m,
+      ),
+    );
+
+    const declineMsg: ChatMessage = {
+      id: `msg-${Date.now()}`,
+      conversationId: conv.id,
+      sender: myRole,
+      type: "text",
+      text:
+        reason && reason.length > 0
+          ? `Inquiry declined — ${reason}`
+          : "Inquiry declined.",
+      sentAt: new Date().toISOString(),
+      read: true,
+    };
+    addMessage(conv.id, declineMsg);
+    setLocalMessages((prev) => [...prev, declineMsg]);
+  }
+
   // Sign & Book — creates Booking, appends ContractCard
   function handleSign(msgId: string) {
     const proposalMsg = localMessages.find((m) => m.id === msgId);
@@ -359,6 +397,13 @@ export function ThreadClient({
     };
     addMessage(conv.id, contractMsg);
     setLocalMessages((prev) => [...prev, contractMsg]);
+
+    // Inquiry-driven trust transition: contract sign → mutual Connected.
+    // The booking IS the connection request — when it's signed, both
+    // parties move from Familiar (set on inquiry send) to Connected.
+    // Pricing & Proposals walkthrough 2026-05-05; resolves Open Q §2.
+    markConnected(conv.ownerId, conv.providerId);
+    markConnected(conv.providerId, conv.ownerId);
 
     setSigningMsgId(null);
   }
@@ -460,6 +505,7 @@ export function ThreadClient({
                         <InquiryCard
                           inquiry={msg.inquiry}
                           ownerName={conv.ownerName}
+                          providerId={conv.providerId}
                           notes={msg.inquiry.notes}
                           variant={isProviderViewer ? "provider" : "owner"}
                           onSendProposal={
@@ -470,12 +516,18 @@ export function ThreadClient({
                                 }
                               : undefined
                           }
+                          onDecline={
+                            isProviderViewer && msg.inquiry.status === "pending"
+                              ? (reason: string) => handleInquiryDecline(msg.id, reason)
+                              : undefined
+                          }
                         />
                         <span className="inbox-message-time">{formatTime(msg.sentAt)}</span>
                       </div>
                     );
                   }
                   if (msg.type === "booking_proposal") {
+                    const linkedBooking = getBookingByConversation(conv.id);
                     return (
                       <div
                         key={msg.id}
@@ -487,6 +539,9 @@ export function ThreadClient({
                           onAccept={handleProposalAccept}
                           onDecline={handleProposalDecline}
                           onCounter={handleProposalCounter}
+                          bookingHref={
+                            linkedBooking ? `/bookings/${linkedBooking.id}` : undefined
+                          }
                         />
                         <span className="inbox-message-time">{formatTime(msg.sentAt)}</span>
                       </div>

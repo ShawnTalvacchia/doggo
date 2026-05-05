@@ -1,24 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import type {
   Conversation,
   ServiceType,
   BookingType,
   RecurringSchedule,
+  CarerCareServiceConfig,
+  InquiryDetails,
 } from "@/lib/types";
 import { SUB_SERVICES } from "@/lib/constants/services";
 import { DateTrigger, DatePicker, type DateRange } from "@/components/ui/DatePicker";
 import { RecurringSchedulePicker } from "@/components/ui/RecurringSchedulePicker";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { getUserById } from "@/lib/mockUsers";
+import { computeQuote } from "@/lib/pricing";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const SERVICE_TYPES: { value: ServiceType; label: string }[] = [
-  { value: "walk_checkin", label: "Walks & Check-ins" },
-  { value: "inhome_sitting", label: "In-home Sitting" },
-  { value: "boarding", label: "Overnight Boarding" },
-];
+const SERVICE_TYPE_LABELS: Record<ServiceType, string> = {
+  walk_checkin: "Walks & Check-ins",
+  inhome_sitting: "In-home Sitting",
+  boarding: "Overnight Boarding",
+};
 
 // No default days — preselecting Mon/Wed/Fri presumes intent. Owner must
 // pick days deliberately. Time defaults to a common morning slot since some
@@ -37,6 +41,11 @@ export type InquirySubmitData = {
   pets: string[];
   bookingType: BookingType;
   dateRange: DateRange;
+  /** For ongoing bookings, the date the recurring schedule should start
+   *  from. Optional — provider can ask if not set, but useful to capture
+   *  when the owner has a target. Pricing & Proposals walkthrough
+   *  2026-05-05. */
+  ongoingStart: string | null;
   recurringSchedule: RecurringSchedule | null;
   message: string;
 };
@@ -64,6 +73,21 @@ export function InquiryForm({
   const currentUser = useCurrentUser();
   const allPets = currentUser.pets.map((p) => p.name);
 
+  // Service + sub-service options come from the carer's actual catalogue —
+  // not the global SERVICE_TYPES / SUB_SERVICES constants. A carer who only
+  // offers sitting shouldn't see Walks + Boarding picker tiles. When a
+  // single service is offered (or the entry CTA already pre-selected one),
+  // the picker collapses entirely. Pricing & Proposals, 2026-05-04.
+  const provider = getUserById(conv.providerId);
+  const carerCareServices: CarerCareServiceConfig[] = useMemo(
+    () =>
+      (provider?.carerProfile?.services ?? []).filter(
+        (s): s is CarerCareServiceConfig => s.kind === "care" && s.enabled,
+      ),
+    [provider],
+  );
+  const carerServiceTypes = carerCareServices.map((s) => s.serviceType);
+
   const [service, setService] = useState<ServiceType>(
     initialService ?? conv.inquiry.serviceType
   );
@@ -86,7 +110,13 @@ export function InquiryForm({
   const [recurringSchedule, setRecurringSchedule] = useState<RecurringSchedule>(
     conv.inquiry.recurringSchedule ?? DEFAULT_SCHEDULE
   );
+  // Separate from dateRange — that's only used for one-off bookings (start
+  // + end). Ongoing bookings need a single "start from" date that sits
+  // alongside the recurring schedule. Pricing & Proposals walkthrough
+  // 2026-05-05.
+  const [ongoingStart, setOngoingStart] = useState<string | null>(null);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [ongoingDatePickerOpen, setOngoingDatePickerOpen] = useState(false);
 
   // Free-text "anything else?" notes — optional, empty by default. The
   // structured fields above carry the templated content; this textarea is
@@ -116,7 +146,15 @@ export function InquiryForm({
   // date is always required, plus an end > start when the service is
   // boarding (overnight needs ≥ 1 night). The "Anything else?" textarea
   // is optional and never blocks Send.
-  const subOptions = SUB_SERVICES[service];
+  //
+  // Sub-options come from the carer's own `subServices` array on this
+  // service config — we don't show generic catalogue options the carer
+  // doesn't actually offer. Falls back to the global SUB_SERVICES catalogue
+  // only if the carer hasn't seeded any (legacy directory entries).
+  // Pricing & Proposals, 2026-05-04.
+  const carerSubsForService =
+    carerCareServices.find((s) => s.serviceType === service)?.subServices ?? [];
+  const subOptions = carerSubsForService.length > 0 ? carerSubsForService : SUB_SERVICES[service];
   const oneOffDatesValid =
     bookingType !== "one_off" ||
     (dateRange.start !== null &&
@@ -127,6 +165,35 @@ export function InquiryForm({
     (subOptions.length === 0 || subService !== null) &&
     (bookingType !== "ongoing" || recurringSchedule.days.length > 0) &&
     oneOffDatesValid;
+
+  // Real-time estimate — same engine the provider's ProposalForm runs.
+  // Surfaces the no-bargaining principle at inquiry time: the price is
+  // computed from (carer config × inquiry data), not negotiated. Owner
+  // sees the engine respond as they pick dates, pets, frequency. The
+  // provider's "Send proposal" then becomes confirmation, not composition.
+  // Pricing & Proposals walkthrough 2026-05-05.
+  const careConfig = carerCareServices.find((s) => s.serviceType === service);
+  const todayISO = new Date().toISOString().slice(0, 10);
+  const estimate = useMemo(() => {
+    if (!careConfig || !canSubmit) return null;
+    const draftInquiry: InquiryDetails = {
+      bookingType,
+      serviceType: service,
+      subService,
+      pets: selectedPets,
+      startDate: bookingType === "one_off" ? dateRange.start : null,
+      endDate: bookingType === "one_off" ? dateRange.end : null,
+      recurringSchedule: bookingType === "ongoing" ? recurringSchedule : undefined,
+      status: "pending",
+    };
+    return computeQuote(careConfig, draftInquiry, todayISO);
+    // canSubmit captures all the input deps; explicit list for clarity.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [careConfig, canSubmit, bookingType, service, subService, selectedPets, dateRange.start, dateRange.end, recurringSchedule, todayISO]);
+
+  const triggeredModifiers = estimate?.lineItems.filter((li) => li.isModifier) ?? [];
+  const cycleLabel =
+    estimate?.billingCycle === "weekly" ? "/ week" : "";
 
   return (
     <div className="inbox-inquiry-form">
@@ -147,25 +214,30 @@ export function InquiryForm({
         </div>
       </div>
 
-      {/* Service type */}
-      <div className="filter-field">
-        <div className="label">Service</div>
-        <div className="inq-service-row">
-          {SERVICE_TYPES.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              className={`filter-option-card inq-service-card${service === opt.value ? " active" : ""}`}
-              onClick={() => {
-                setService(opt.value);
-                setSubService(null);
-              }}
-            >
-              <strong>{opt.label}</strong>
-            </button>
-          ))}
+      {/* Service type — only render when the carer offers more than one Care
+          service. With one (or zero — directory-only fallback), the entry CTA
+          already established which service this is, so a one-option picker
+          is just visual clutter. Pricing & Proposals, 2026-05-04. */}
+      {carerServiceTypes.length > 1 && (
+        <div className="filter-field">
+          <div className="label">Service</div>
+          <div className="inq-service-row">
+            {carerServiceTypes.map((value) => (
+              <button
+                key={value}
+                type="button"
+                className={`filter-option-card inq-service-card${service === value ? " active" : ""}`}
+                onClick={() => {
+                  setService(value);
+                  setSubService(null);
+                }}
+              >
+                <strong>{SERVICE_TYPE_LABELS[value]}</strong>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Sub-service */}
       <div className="filter-field">
@@ -235,12 +307,40 @@ export function InquiryForm({
           />
         </div>
       ) : (
-        // RecurringSchedulePicker self-labels its two sub-sections ("For
-        // which days?" + "Time"), so no outer wrapper label needed.
-        <RecurringSchedulePicker
-          value={recurringSchedule}
-          onChange={setRecurringSchedule}
-        />
+        <>
+          {/* Start-from date for ongoing bookings. Optional — the schedule
+              days are the required commitment, start date helps the
+              provider plan but isn't blocking. Pricing & Proposals
+              walkthrough 2026-05-05. */}
+          <div className="filter-field">
+            <div className="label" style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" }}>
+              <span>Start from</span>
+              <span className="text-fg-tertiary text-xs font-normal">Optional</span>
+            </div>
+            <DateTrigger
+              label="Pick a start date"
+              value={ongoingStart}
+              onClick={() => setOngoingDatePickerOpen(true)}
+            />
+            <DatePicker
+              mode="single"
+              open={ongoingDatePickerOpen}
+              onClose={() => setOngoingDatePickerOpen(false)}
+              value={ongoingStart}
+              onChange={(iso) => {
+                setOngoingStart(iso);
+                setOngoingDatePickerOpen(false);
+              }}
+              title="Start from"
+            />
+          </div>
+          {/* RecurringSchedulePicker self-labels its two sub-sections ("For
+              which days?" + "Time"), so no outer wrapper label needed. */}
+          <RecurringSchedulePicker
+            value={recurringSchedule}
+            onChange={setRecurringSchedule}
+          />
+        </>
       )}
 
       {/* Optional notes — context the form doesn't capture (special needs,
@@ -260,6 +360,36 @@ export function InquiryForm({
         />
       </div>
 
+      {/* Real-time estimate. Hidden until canSubmit (all inputs the engine
+          needs are filled in). Updates as the form changes. Same engine
+          output the provider will see in the ProposalForm. Pricing &
+          Proposals walkthrough 2026-05-05. */}
+      {estimate && estimate.total > 0 && (
+        <div className="inq-estimate">
+          <div className="inq-estimate-row">
+            <span className="inq-estimate-label">Estimate</span>
+            <span className="inq-estimate-total">
+              {estimate.total.toLocaleString()} Kč
+              {cycleLabel && (
+                <span className="inq-estimate-cycle"> {cycleLabel}</span>
+              )}
+            </span>
+          </div>
+          {triggeredModifiers.length > 0 && (
+            <div className="inq-estimate-modifiers">
+              {triggeredModifiers.map((m, i) => (
+                <span key={i} className="inq-estimate-modifier">
+                  {m.label}
+                </span>
+              ))}
+            </div>
+          )}
+          <p className="inq-estimate-note">
+            {firstName} will confirm this quote. Platform fee added at checkout.
+          </p>
+        </div>
+      )}
+
       {/* Submit */}
       <button
         className="inq-submit"
@@ -271,6 +401,7 @@ export function InquiryForm({
             pets: selectedPets,
             bookingType,
             dateRange,
+            ongoingStart: bookingType === "ongoing" ? ongoingStart : null,
             recurringSchedule: bookingType === "ongoing" ? recurringSchedule : null,
             message,
           })
