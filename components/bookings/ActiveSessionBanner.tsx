@@ -19,6 +19,7 @@
  */
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { CaretRight, HandHeart, House, Bed } from "@phosphor-icons/react";
 import { useActiveSession } from "@/lib/useActiveSession";
 import type { ServiceType } from "@/lib/types";
@@ -29,9 +30,24 @@ function serviceIcon(serviceType: ServiceType): React.ReactNode {
   return <HandHeart size={14} weight="fill" />;
 }
 
+/** Returns true when the current path is the booking the active session
+ *  belongs to (with or without a tab querystring). The banner is meant to
+ *  *route the user* to that booking — pointless to render when they're
+ *  already there, since the in-page Active panel carries the same signal
+ *  with more affordances. Strip the querystring before comparing so
+ *  `/bookings/[id]?tab=sessions` and `/bookings/[id]` both match.
+ *  2026-05-08 walkthrough refinement. */
+function isOnActiveBookingPage(pathname: string, activeHref: string): boolean {
+  const cleanActive = activeHref.split("?")[0];
+  const cleanPath = pathname.split("?")[0];
+  return cleanPath === cleanActive;
+}
+
 export function ActiveSessionBanner() {
   const active = useActiveSession();
+  const pathname = usePathname();
   if (!active) return null;
+  if (isOnActiveBookingPage(pathname, active.href)) return null;
 
   return (
     <Link

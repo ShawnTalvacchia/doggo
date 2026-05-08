@@ -532,13 +532,18 @@ function ActiveSessionPanel({
           cross-app banners, with `--live-pulse-color` overridden to
           warning-850 so the dot reads as dark on the yellow pill bg.
           2026-05-08 walkthrough refinement. */}
-      <div className="flex flex-wrap items-center gap-x-sm gap-y-xs">
+      <div className="flex flex-wrap items-center gap-x-md gap-y-xs">
         <span
           className="inline-flex items-center gap-xs px-sm py-xs text-xs font-semibold rounded-pill"
           style={{
             background: "var(--status-warning-main)",
             color: "var(--warning-850)",
+            // Dot color reads as dark on the yellow pill bg; size dialed
+            // down from the global 10px since the pill is small and the
+            // pulse only needs a quiet presence here. The cross-app
+            // banner + sidebar keep the larger global default.
             ["--live-pulse-color" as string]: "var(--warning-850)",
+            ["--live-pulse-size" as string]: "8px",
           } as React.CSSProperties}
         >
           <span className="live-pulse-dot" role="img" aria-label="Live" />
@@ -832,6 +837,15 @@ function SessionsPetHeader({
   const petLabel = isMulti
     ? pets.map((p) => p.name).join(" & ")
     : primary.name;
+  // Meta line — small, lighter type below the name. Single-pet only:
+  // the multi-pet case (Open Q §4) needs its own treatment since which
+  // dog's breed/age would we show? Owner name + page-header context
+  // already establishes who's involved (page detail header shows "Daniel"
+  // for provider view / "Klára" for owner view), so this row stays
+  // dog-anchored: breed + age. 2026-05-08 walkthrough refinement.
+  const metaParts = isMulti
+    ? []
+    : [primary.breed, primary.ageLabel].filter((s) => s && s.trim());
 
   return (
     <div className="flex flex-col gap-md">
@@ -853,12 +867,19 @@ function SessionsPetHeader({
           style={{ maxHeight: "clamp(250px, 45vw, 300px)" }}
         />
       </div>
-      <h2
-        className="font-heading font-semibold text-fg-primary m-0"
-        style={{ fontSize: "28px", lineHeight: 1.15 }}
-      >
-        {petLabel}
-      </h2>
+      <div className="flex flex-col gap-xs">
+        <h2
+          className="font-heading font-semibold text-fg-primary m-0"
+          style={{ fontSize: "24px", lineHeight: 1.15 }}
+        >
+          {petLabel}
+        </h2>
+        {metaParts.length > 0 && (
+          <span className="text-sm text-fg-tertiary font-normal">
+            {metaParts.join(" · ")}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

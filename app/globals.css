@@ -8427,8 +8427,8 @@ body:has(.bottom-nav) .bookings-page {
    matches the original banner palette. 2026-05-08. */
 .live-pulse-dot {
   position: relative;
-  width: 10px;
-  height: 10px;
+  width: var(--live-pulse-size, 10px);
+  height: var(--live-pulse-size, 10px);
   border-radius: 50%;
   background: var(--live-pulse-color, var(--status-warning-strong));
   flex-shrink: 0;
