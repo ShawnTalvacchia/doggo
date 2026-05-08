@@ -524,22 +524,30 @@ function ActiveSessionPanel({
         borderLeft: "4px solid var(--status-warning-main)",
       }}
     >
-      {/* Header row — status pill + when-it-started clustered at left
-          (one idea: where things stand right now), date pushed to the
-          far edge as ambient metadata. Both metadata strings sit at
-          text-tertiary so the pill carries the row's chroma. */}
-      <div className="flex items-center gap-sm">
+      {/* Header row — status pill + when-it-started + date. flex-wrap
+          allows the date to drop to its own line on narrow viewports
+          rather than word-wrapping ("8 May 2026" on three lines). The
+          pill itself shortened to a pulsing dot + "Live" to free up
+          horizontal room — same live-pulse-dot utility as the
+          cross-app banners, with `--live-pulse-color` overridden to
+          warning-850 so the dot reads as dark on the yellow pill bg.
+          2026-05-08 walkthrough refinement. */}
+      <div className="flex flex-wrap items-center gap-x-sm gap-y-xs">
         <span
           className="inline-flex items-center gap-xs px-sm py-xs text-xs font-semibold rounded-pill"
-          style={{ background: "var(--status-warning-main)", color: "var(--warning-850)" }}
+          style={{
+            background: "var(--status-warning-main)",
+            color: "var(--warning-850)",
+            ["--live-pulse-color" as string]: "var(--warning-850)",
+          } as React.CSSProperties}
         >
-          <Timer size={12} weight="fill" />
-          Active now
+          <span className="live-pulse-dot" role="img" aria-label="Live" />
+          Live
         </span>
         {startedAt && (
-          <span className="text-sm text-fg-tertiary">started {startedAt}</span>
+          <span className="text-sm text-fg-tertiary whitespace-nowrap">started {startedAt}</span>
         )}
-        <span className="text-sm text-fg-tertiary ml-auto">
+        <span className="text-sm text-fg-tertiary whitespace-nowrap ml-auto">
           {formatShortDate(session.date)}
         </span>
       </div>

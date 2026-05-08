@@ -8413,21 +8413,25 @@ body:has(.bottom-nav) .bookings-page {
   padding: clamp(8px, 2vw, 14px) var(--space-md);
 }
 
-/* Live-pulse dot — shared utility used by both the mobile
-   ActiveSessionBanner and the desktop SidebarActiveSessionLink. Same
-   visual grammar as live-recording indicators across the web (8px
-   warning-strong dot + a pulsing ring expanding 4× outward). Inner
-   dot stays crisp because the ring lives on a ::before pseudo;
+/* Live-pulse dot — shared utility used by ActiveSessionBanner (mobile),
+   SidebarActiveSessionLink (desktop), and the in-page Active panel pill.
+   Same visual grammar as live-recording indicators across the web (8px
+   solid dot + a pulsing ring expanding 4× outward). Inner dot stays
+   crisp because the ring lives on a ::before pseudo;
    prefers-reduced-motion stops the animation and falls back to a
-   slightly-enlarged static ring. Refactored 2026-05-08 from the
-   banner-specific rules so the desktop sidebar can reuse the pattern
-   without duplication. */
+   slightly-enlarged static ring.
+
+   Color is parameterized via `--live-pulse-color` so each context can
+   pick a contrast that reads against its background (warning-strong on
+   the amber banner / sidebar; warning-850 ≈ dark amber on the
+   warning-main yellow pill inside the in-page Active panel). Default
+   matches the original banner palette. 2026-05-08. */
 .live-pulse-dot {
   position: relative;
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--status-warning-strong);
+  background: var(--live-pulse-color, var(--status-warning-strong));
   flex-shrink: 0;
 }
 
@@ -8436,7 +8440,7 @@ body:has(.bottom-nav) .bookings-page {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: var(--status-warning-strong);
+  background: var(--live-pulse-color, var(--status-warning-strong));
   opacity: 0.55;
   animation: live-pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
