@@ -849,31 +849,28 @@ function SessionsPetHeader({
 
   return (
     <div className="flex flex-col gap-md">
-      {/* Hero photo — full-width, height clamps with viewport so the
-          frame doesn't go letterbox-wide on mid-mobile (~600–768px) and
-          doesn't push the active panel below the fold. Floor 250px,
-          ceiling 300px, scaling at 45vw in between — chosen so the
-          frame looks honest across the mobile range without dominating
-          the page on tablet-width viewports. 2026-05-08 walkthrough
-          refinement. */}
+      {/* Hero photo — full-width, height clamps with viewport. Floor
+          160px, ceiling 240px, scaling at 45vw — tightened to keep
+          the active panel above the fold on most viewports. 2026-05-08
+          walkthrough refinement. */}
       <div
         className="rounded-panel overflow-hidden bg-surface-inset w-full"
-        style={{ maxHeight: "clamp(250px, 45vw, 300px)" }}
+        style={{ maxHeight: "clamp(160px, 45vw, 240px)" }}
       >
         <img
           src={primary.imageUrl}
           alt={primary.name}
           className="block w-full object-cover object-center"
-          style={{ maxHeight: "clamp(250px, 45vw, 300px)" }}
+          style={{ maxHeight: "clamp(160px, 45vw, 240px)" }}
         />
       </div>
-      {/* Name + meta on the same line so the hero block stays compact —
-          the photo is already pushing the active panel down the viewport;
-          a stacked meta line was costing another row. `items-baseline`
-          aligns the heading's baseline to the smaller meta text;
-          `flex-wrap` lets the meta drop below on very narrow widths
-          rather than overflow. 2026-05-08 walkthrough refinement. */}
-      <div className="flex items-baseline flex-wrap gap-x-sm gap-y-xs">
+      {/* Name + meta stacked. Tried inline with items-baseline but the
+          font-heading (Poppins) baseline didn't sit right against the
+          body-font meta — visual drift was distracting at this size
+          difference. Stacked reads cleanly. The image clamp ceiling was
+          tightened to compensate for the extra row's vertical cost.
+          2026-05-08 walkthrough. */}
+      <div className="flex flex-col gap-xs">
         <h2
           className="font-heading font-semibold text-fg-primary m-0"
           style={{ fontSize: "24px", lineHeight: 1.15 }}
