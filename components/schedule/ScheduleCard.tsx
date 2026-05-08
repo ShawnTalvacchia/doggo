@@ -28,6 +28,8 @@ import { getUserById } from "@/lib/mockUsers";
 import { formatShortDate } from "@/lib/dateUtils";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { useBookings } from "@/contexts/BookingsContext";
+import { useNotifications } from "@/contexts/NotificationsContext";
+import { buildSessionStartedNotification } from "@/lib/notificationBuilders";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { recurrenceLabel, getOccurrenceCancellation } from "@/lib/meetUtils";
 import type { MeetRole } from "@/components/meets/CardMeet";
@@ -357,6 +359,7 @@ export function ScheduleCareCard({
   const CURRENT_USER = useCurrentUserId();
   const router = useRouter();
   const { updateSession } = useBookings();
+  const { addNotification } = useNotifications();
   const isOwner = booking.ownerId === CURRENT_USER;
   const isProviding = !isOwner;
   const other = isOwner
@@ -384,6 +387,10 @@ export function ScheduleCareCard({
       status: "in_progress",
       checkedInAt: new Date().toISOString(),
     });
+    // Owner-facing notification — fires on every Start path so the bell
+    // matches the booking-detail funnel. Inbox & Notifications A2,
+    // 2026-05-08.
+    addNotification(buildSessionStartedNotification(booking));
     router.push(`/bookings/${booking.id}?tab=sessions`);
   }
 

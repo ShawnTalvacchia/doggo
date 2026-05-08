@@ -3,12 +3,9 @@
   "configurations": [
     {
       "name": "doggo-dev",
-      "runtimeExecutable": "python3",
-      "runtimeArgs": [
-        "-c",
-        "import os; os.chdir('/Users/shawntalvacchia/Desktop/Doggo'); os.execvp('npm', ['npm', 'run', 'dev'])"
-      ],
-      "cwd": "/Users/shawntalvacchia/Desktop/Doggo",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": ".",
       "port": 3000,
       "autoPort": true
     }

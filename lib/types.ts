@@ -170,7 +170,12 @@ export type ProviderHeaderState = "expanded" | "condensed";
 
 export type MessageSender = "owner" | "provider";
 
-export type MessageType = "text" | "inquiry" | "booking_proposal" | "contract" | "payment_summary" | "payment_confirmed";
+/** `"contract"` was retired during Inbox & Notifications F3 (2026-05-08).
+ *  The accepted-state footer on `BookingProposalCard` (`Signed HH:MM ·
+ *  View booking →`) now carries the signing signal in the chat stream;
+ *  Booking.signedAt is the canonical record. ContractCard.tsx + the
+ *  `.inbox-contract-card` CSS were dropped at the same time. */
+export type MessageType = "text" | "inquiry" | "booking_proposal" | "payment_summary" | "payment_confirmed";
 
 export type BookingProposalStatus = "pending" | "accepted" | "declined" | "countered";
 
@@ -237,15 +242,6 @@ export interface BookingProposal {
   signedAt?: string;
 }
 
-export interface ContractConfirmation {
-  bookingId: string;
-  serviceType: ServiceType;
-  subService: string | null;
-  carerName: string;
-  pets: string[];
-  startDate: string;
-}
-
 export interface ChatMessage {
   id: string;
   conversationId: string;
@@ -254,7 +250,6 @@ export interface ChatMessage {
   text?: string;
   inquiry?: InquiryDetails;
   proposal?: BookingProposal;
-  contract?: ContractConfirmation;
   paymentSummary?: PaymentSummary;
   sentAt: string; // ISO timestamp
   read: boolean;
@@ -373,6 +368,11 @@ export interface VisitReport {
   /** Set when the provider seals the report (status flips to
    *  "completed"). Absence means draft / in-progress. */
   completedAt?: string;
+  /** Set when the provider edits the report after sealing. Drives the
+   *  silent "edited" tag on the visit-report card. Last-write-wins —
+   *  no chronicle of prior versions; the field updates each time the
+   *  provider saves an edit. Inbox & Notifications E2, 2026-05-08. */
+  editedAt?: string;
 }
 
 export interface BookingSession {

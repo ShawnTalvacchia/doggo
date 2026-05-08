@@ -189,12 +189,17 @@ function ScheduleInner() {
         // Active/ongoing — only surface when a session was completed
         // recently (so reviews get prompted gradually rather than after
         // the booking ends, which may be never for an ongoing weekly).
+        // Inclusive of today: a session sealed an hour ago is the
+        // strongest moment to ask for a review; the `<=` here was a `<`
+        // until Inbox & Notifications G1 (2026-05-08), which dropped
+        // today's seals out of the review-recent section and left
+        // Daniel's list empty after Klára finished Bára's training.
         const lastCompleted = (b.sessions ?? [])
           .filter((s) => s.status === "completed")
           .map((s) => s.date)
           .sort()
           .reverse()[0];
-        return !!lastCompleted && lastCompleted >= recentCutoffIso && lastCompleted < todayIso;
+        return !!lastCompleted && lastCompleted >= recentCutoffIso && lastCompleted <= todayIso;
       })
       .map((b) => {
         const lastSessionDate = (b.sessions ?? [])

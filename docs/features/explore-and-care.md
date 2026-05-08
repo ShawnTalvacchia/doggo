@@ -181,6 +181,13 @@ Single-mode for solo-role users: owner-only personas (Daniel, Tomáš) see "My C
 
 6. **Provider setup consolidated** — all "Offer Care" entry points route to `/profile?tab=services`. One place to set up and manage care services.
 
+7. **Owner-to-provider communication: three surfaces, three jobs (Inbox & Notifications E4, 2026-05-08).** Adopted principle:
+   - **Chat** = conversation, time-stamped, bidirectional, ephemeral context. ("Running late, be there 10 mins.")
+   - **`Booking.ownerNotes`** = persistent care instructions, true for every session of this booking. ("Key under the blue pot. Bára gets one treat after walks.") Provider-side counterpart: `Booking.carerNotes`.
+   - **`BookingSession.ownerNote`** *(deferred — not yet built)* = forward-looking, date-anchored note for a single session. Expires after that session. Symmetric with `BookingSession.report` (provider's backward-looking date-anchored artifact). Use case: "Today only, please skip the leash — vet said her paw needs another day."
+
+   Build status: Chat + `ownerNotes` are live. Per-session `ownerNote` was sketched + decided as the right shape, but build is deferred — adopting it adds a third comms surface that warrants its own walkthrough. Today, owners use chat for "today only" messages. Revisit if the deferred third surface earns its keep. Inbox & Notifications phase resolved the principle, not the build.
+
 ---
 
 ## User Flows

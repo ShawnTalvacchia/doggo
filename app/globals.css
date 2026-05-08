@@ -8010,7 +8010,6 @@ body:has(.bottom-nav) .bookings-page {
    they don't read as draft text. Discover & Care G6, 2026-05-02. */
 .person-row-preview--inquiry::before,
 .person-row-preview--proposal::before,
-.person-row-preview--contract::before,
 .person-row-preview--payment::before {
   display: inline-block;
   margin-right: 6px;
@@ -8032,14 +8031,6 @@ body:has(.bottom-nav) .bookings-page {
 .person-row-preview--proposal::before {
   content: "✦";
   color: var(--brand-main);
-}
-
-.person-row-preview--contract {
-  color: var(--status-success-strong);
-}
-.person-row-preview--contract::before {
-  content: "✓";
-  color: var(--status-success-main);
 }
 
 .person-row-preview--payment {
@@ -10552,18 +10543,85 @@ body:has(.bottom-nav) .inbox-page {
   min-width: 0;
 }
 
-/* Accepted proposals — inherit the default border. The earlier
-   brand-green border (`--success-300`) read as "this card is the
-   active CTA," which fights the chronicle pattern (the proposal is
-   *historical* once accepted; the live record is the booking). The
-   "View booking →" footer link carries the actionable signal. */
-.inbox-proposal-card--accepted {
-  border-color: var(--border-default);
-}
-
+/* Superseded states (countered / declined / accepted) — subdued chrome so
+ * the chronicle artifacts don't compete with the active proposal. The
+ * pending card keeps its full vivid header + chrome; everything else
+ * dims, swaps to a muted header background, and lowers contrast on
+ * label / icon. Pairs with `inbox-proposal-collapsed-trigger`'s
+ * tap-to-expand affordance — the body details are still inspectable
+ * on demand without scrolling away from the active card.
+ * Inbox & Notifications E3, 2026-05-08. */
+.inbox-proposal-card--accepted,
+.inbox-proposal-card--countered,
 .inbox-proposal-card--declined {
   border-color: var(--border-default);
   opacity: 0.7;
+}
+
+.inbox-proposal-card--accepted .inbox-proposal-header,
+.inbox-proposal-card--countered .inbox-proposal-header,
+.inbox-proposal-card--declined .inbox-proposal-header {
+  background: var(--surface-inset);
+  border-bottom-color: var(--border-subtle);
+}
+
+.inbox-proposal-card--accepted .inbox-proposal-icon,
+.inbox-proposal-card--countered .inbox-proposal-icon,
+.inbox-proposal-card--declined .inbox-proposal-icon {
+  color: var(--text-tertiary);
+}
+
+.inbox-proposal-card--accepted .inbox-proposal-label,
+.inbox-proposal-card--countered .inbox-proposal-label,
+.inbox-proposal-card--declined .inbox-proposal-label {
+  color: var(--text-secondary);
+}
+
+/* Tap-to-expand trigger on the collapsed body. Renders as a button so
+ * keyboard + screen-reader semantics work; visually it's the same
+ * collapsed title row + a trailing caret that signals "more inside." */
+.inbox-proposal-collapsed-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+}
+
+.inbox-proposal-collapsed-trigger:hover {
+  background: var(--on-hover-light);
+}
+
+.inbox-proposal-collapsed-caret {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.inbox-proposal-collapse-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 0;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.inbox-proposal-collapse-toggle:hover {
+  color: var(--text-primary);
 }
 
 .inbox-proposal-header {
@@ -11077,79 +11135,17 @@ body:has(.bottom-nav) .inbox-page {
   font-weight: var(--weight-bold);
 }
 
-/* ── Contract card ───────────────────────────────────────────────────────────── */
+/* `.inbox-contract-card` + headers / body / link / icon rules retired during
+ * Inbox & Notifications F2 (2026-05-08). The contract message UI was dropped
+ * during Pricing & Proposals close — the accepted-state footer on
+ * BookingProposalCard now carries the signing signal ("Signed HH:MM · View
+ * booking →"). `.inbox-message-wrap--center` kept (used by other surfaces). */
 
 .inbox-message-wrap--center {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 4px 16px;
-}
-
-.inbox-contract-card {
-  background: var(--surface-base);
-  border: 1.5px solid var(--success-300);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  width: 100%;
-  max-width: 360px;
-}
-
-.inbox-contract-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 11px 14px;
-  background: var(--status-success-light);
-  border-bottom: 1px solid var(--success-100);
-}
-
-.inbox-contract-icon {
-  color: var(--status-success-main);
-  flex-shrink: 0;
-}
-
-.inbox-contract-label {
-  font-size: var(--font-size-body-reg);
-  font-weight: var(--weight-bold);
-  color: var(--status-success-strong);
-}
-
-.inbox-contract-body {
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.inbox-contract-service {
-  font-size: var(--font-size-body-reg);
-  font-weight: var(--weight-semibold);
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.inbox-contract-meta {
-  font-size: var(--font-size-sub);
-  color: var(--text-tertiary);
-  margin: 0;
-}
-
-.inbox-contract-link {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 14px;
-  border-top: 1px solid var(--border-subtle);
-  font-size: var(--font-size-sub);
-  font-weight: var(--weight-semibold);
-  color: var(--brand-400);
-  text-decoration: none;
-  transition: background 0.15s;
-}
-
-.inbox-contract-link:hover {
-  background: var(--interaction-hover-darken);
 }
 
 /* ── Signing modal body ──────────────────────────────────────────────────────── */
@@ -12136,186 +12132,14 @@ body:has(.bottom-nav) .inbox-page {
    PHASE 6 — Notifications panel · Review section · Earnings card
    ───────────────────────────────────────────────────────────────────────────── */
 
-/* Notifications panel wrapper (positioned relative to bell icon) */
-.app-nav-notif-wrap {
-  position: relative;
-}
-
-/* Notifications panel dropdown */
-.notif-panel {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  width: 360px;
-  max-height: 480px;
-  display: flex;
-  flex-direction: column;
-  background: var(--surface-top);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-  overflow: hidden;
-  z-index: 200;
-}
-
-/* Mobile: full-screen overlay */
-@media (max-width: 767px) {
-  .notif-panel {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    max-height: none;
-    border-radius: 0;
-    border: none;
-    box-shadow: none;
-  }
-}
-
-/* Panel header */
-.notif-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 16px 12px;
-  border-bottom: 1px solid var(--border-subtle);
-  flex-shrink: 0;
-}
-
-.notif-panel-title {
-  font-size: var(--font-size-body-reg);
-  font-weight: var(--weight-bold);
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.notif-panel-unread-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
-  border-radius: var(--radius-circle);
-  background: var(--brand-400);
-  color: var(--text-white);
-  font-size: var(--font-size-fine);
-  font-weight: var(--weight-bold);
-}
-
-.notif-panel-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.notif-mark-all-btn {
-  font-size: var(--font-size-body-sm);
-  font-weight: var(--weight-medium);
-  color: var(--brand-600);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 2px 4px;
-  border-radius: var(--radius-xxs);
-  transition: background 0.1s;
-}
-
-.notif-mark-all-btn:hover {
-  background: var(--surface-raised);
-}
-
-.notif-close-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: var(--radius-circle);
-  border: none;
-  background: var(--surface-raised);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background 0.1s;
-}
-
-.notif-close-btn:hover {
-  background: var(--border-subtle);
-  color: var(--text-primary);
-}
-
-/* Notification list */
-.notif-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.notif-row {
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.notif-row:last-child {
-  border-bottom: none;
-}
-
-.notif-row-inner {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 12px 16px;
-  text-decoration: none;
-  color: inherit;
-  transition: background 0.12s;
-  cursor: pointer;
-  position: relative;
-}
-
-.notif-row-inner:hover {
-  background: var(--surface-raised);
-}
-
-.notif-row--read .notif-row-inner {
-  opacity: 0.7;
-}
-
-/* Notification avatar + type icon */
-.notif-avatar-wrap {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.notif-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-circle);
-  object-fit: cover;
-  display: block;
-}
-
-.notif-avatar--placeholder {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-circle);
-  background: var(--surface-raised);
-}
-
-.notif-type-icon {
-  position: absolute;
-  bottom: -2px;
-  right: -4px;
-}
-
-.notif-type-icon--done { color: var(--success-500, #22c55e); }
-.notif-type-icon--proposal { color: var(--brand-400); }
-.notif-type-icon--confirmed { color: var(--status-info-main); }
-.notif-type-icon--message { color: var(--text-secondary); }
+/* Notifications — the dropdown panel was retired in Inbox & Notifications C1
+ * (2026-05-08). The bell icon now routes directly to /notifications on every
+ * device. Panel-specific rules (.notif-panel*, .notif-list, .notif-row*,
+ * .notif-avatar-wrap, .notif-avatar, .notif-type-icon*, .notif-body,
+ * .notif-title, .notif-preview, .notif-time, .notif-unread-dot, .notif-empty*,
+ * .notif-mark-all-btn, .notif-close-btn, .app-nav-notif-wrap) all dropped at
+ * that time. The page uses Tailwind utilities for layout + a small set of
+ * shared rules below. */
 
 /* Grouped notification avatar stack */
 .notif-avatar-stack {
@@ -12338,51 +12162,9 @@ body:has(.bottom-nav) .inbox-page {
 .notif-avatar-stack-item:nth-child(2) { left: 12px; }
 .notif-avatar-stack-item:nth-child(3) { left: 24px; }
 
-/* Notification body */
-.notif-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.notif-title {
-  font-size: var(--font-size-sub);
-  font-weight: var(--weight-semibold);
-  color: var(--text-primary);
-  margin: 0 0 2px;
-  line-height: 1.3;
-}
-
-.notif-preview {
-  font-size: var(--font-size-body-sm);
-  color: var(--text-secondary);
-  margin: 0 0 3px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.notif-time {
-  font-size: var(--font-size-fine);
-  color: var(--text-tertiary, var(--text-secondary));
-  margin: 0;
-}
-
-/* Unread dot — used in the dropdown panel (NotificationsPanel.tsx)
-   on the right edge of each row. The full /notifications page uses
-   `.notif-unread-badge` instead — see below. */
-.notif-unread-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: var(--radius-circle);
-  background: var(--brand-400);
-  flex-shrink: 0;
-  margin-top: 4px;
-}
-
-/* Unread badge — corner pip overlaid on the avatar in the full
-   /notifications page. Replaces the older left-side dot column, which
-   fought the avatar visually. Border in the surface color so the badge
-   reads as overlapping the avatar edge. 2026-05-08. */
+/* Unread badge — corner pip overlaid on the avatar in the
+   /notifications page. Border in the surface color so the badge reads as
+   overlapping the avatar edge. 2026-05-08. */
 .notif-unread-badge {
   position: absolute;
   top: 0;
@@ -12404,27 +12186,6 @@ body:has(.bottom-nav) .inbox-page {
   font-weight: var(--weight-semibold);
   font-size: 10px;
   color: var(--text-tertiary);
-}
-
-/* Empty state */
-.notif-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 40px 16px;
-  color: var(--text-secondary);
-}
-
-.notif-empty-icon {
-  opacity: 0.4;
-}
-
-.notif-empty-text {
-  font-size: var(--font-size-sub);
-  color: var(--text-secondary);
-  margin: 0;
 }
 
 /* Badge count in ButtonIcon */
@@ -15742,7 +15503,13 @@ body:has(.bottom-nav) .inbox-page {
 }
 
 .person-row--inbox-conversation .person-row-body {
-  padding: var(--space-sm) var(--space-md);
+  /* Density bumped from `--space-sm var(--space-md)` (8/12) to
+     `var(--space-md)` (12 all round) during Inbox & Notifications D1
+     (2026-05-08). The earlier value packed a 3-line row (name + meta +
+     preview) into a tight 8px gutter; bumping the vertical padding gives
+     the cluster room to breathe. Pairs with `gap-sm` between identity
+     rows (was `gap-xs`) and a subtler divider on the list wrapper. */
+  padding: var(--space-md);
 }
 
 /* Connection-state pills — token-mapped colors, single shape */

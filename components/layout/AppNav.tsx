@@ -1,10 +1,8 @@
 "use client";
 
-import { useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ButtonIcon } from "@/components/ui/ButtonIcon";
-import { NotificationsPanel } from "@/components/ui/NotificationsPanel";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
@@ -59,8 +57,6 @@ function LoggedNavLinks({ hideCreate = false }: { hideCreate?: boolean }) {
   const { conversations } = useConversations();
   const { openComposer } = usePostComposer();
   const { openComposer: openMeetComposer } = useMeetComposer();
-  const [notifOpen, setNotifOpen] = useState(false);
-  const notifWrapRef = useRef<HTMLDivElement>(null);
 
   // Count unread conversations for inbox badge
   const unreadInbox = conversations.filter((c) => c.unreadCount > 0).length;
@@ -86,17 +82,18 @@ function LoggedNavLinks({ hideCreate = false }: { hideCreate?: boolean }) {
             {createIcon}
           </ButtonIcon>
         )}
-        <div className="app-nav-notif-wrap" ref={notifWrapRef}>
-          <ButtonIcon
-            label="Notifications"
-            showBadge={unreadCount > 0}
-            badgeCount={unreadCount}
-            onClick={() => setNotifOpen((v) => !v)}
-          >
-            <Bell size={28} weight={notifOpen ? "fill" : "light"} />
-          </ButtonIcon>
-          <NotificationsPanel open={notifOpen} onClose={() => setNotifOpen(false)} wrapperRef={notifWrapRef} />
-        </div>
+        {/* Bell now routes to the full /notifications page on every device.
+            The desktop dropdown panel was dropped during Inbox &
+            Notifications C1 (2026-05-08) — one canonical surface, less
+            code path to maintain, and mobile already used the page. */}
+        <ButtonIcon
+          label="Notifications"
+          href="/notifications"
+          showBadge={unreadCount > 0}
+          badgeCount={unreadCount}
+        >
+          <Bell size={28} weight="light" />
+        </ButtonIcon>
         <ButtonIcon label="Messages" href="/inbox" showBadge={unreadInbox > 0} badgeCount={unreadInbox}>
           <ChatCircleDots size={28} weight="light" />
         </ButtonIcon>

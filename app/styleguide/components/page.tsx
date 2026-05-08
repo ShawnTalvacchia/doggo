@@ -709,7 +709,7 @@ export default function ComponentsPage() {
         <p className="sg-body-copy" style={{ maxWidth: "64ch" }}>
           Single overlay component for all modal/sheet needs. At desktop (&gt;804px) it renders as a
           centered card with a blurred backdrop. At mobile (&lt;804px) it slides up as a bottom
-          sheet. Used by DatePicker, RecurringSchedulePicker, BookingModal, and NotificationsPanel.
+          sheet. Used by DatePicker, RecurringSchedulePicker, and BookingModal.
           Click the backdrop or the × button to close. Body scroll is locked while open.
         </p>
         <PropTable>
@@ -1086,7 +1086,7 @@ export default function ComponentsPage() {
             "CheckboxRow (unified)", "Toggle",
             "MultiSelectSegmentBar", "Slider",
             "ModalSheet", "DatePicker + DateTrigger", "RecurringSchedulePicker",
-            "NotificationsPanel", "BookingModal",
+            "BookingModal",
             "FormHeader", "FormFooter",
             "AppNav (guest / signup / logged)", "BottomNav",
             "CardExploreResult",

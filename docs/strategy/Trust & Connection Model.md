@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-30
+last-reviewed: 2026-05-08
 tags: [trust, connections, privacy, safety]
 review-trigger: "when touching connection states, visibility, or trust signals"
 ---
@@ -146,19 +146,20 @@ This principle constrains UI design in the consuming surfaces, not the underlyin
 
 Implementation references: `lib/meetUtils.ts:getAttendeeTier` (bumps on either direction), `components/people/PersonRow.tsx` (pill suppression), `components/ui/ConnectionIcon.tsx` (single rendering across directions), `lib/personActions.ts:resolvePersonActions` (matrix of action affordances). See `Trust & Visibility Pass D2` for the original decision rationale.
 
-### Inquiry-driven transitions (open question — proposed model)
+### Inquiry-driven transitions
 
-**Status:** stub — full model lives in [[Open Questions & Assumptions Log]] §2 → "Inquiry-driven trust transitions". Stop-gap shipped 2026-05-04: `InquiryFormModal` auto-marks mutual Familiar on send so the proposal flow isn't blocked by locked-profile views.
+The community-first thesis assumes Familiar is *earned* through community interaction (meets, shared groups, post-meet review). The Discover→Inquiry path bypasses this — a stranger can send a structured booking inquiry to a provider they've never met, then neither side could see the other's profile to act on it. Same gap exists on the Appointment "Ask about this" path (no structured inquiry, just a chat thread). The four rules below close it.
 
-The community-first thesis assumes Familiar is *earned* through community interaction (meets, shared groups, post-meet review). The Discover→Inquiry path bypasses this — a stranger can send a structured booking inquiry to a provider they've never met, then neither side can see the other's profile to act on it.
+**Resolved 2026-05-08 (Inbox & Notifications B1–B2):**
 
-Proposed resolution (to be ratified next phase):
-- **Inquiry send → mutual Familiar.** Two-sided because the inquiry itself is explicit and known to both parties; the deniability principle for stranger-encounter Familiar doesn't apply to a transactional handshake.
-- **Contract acceptance → mutual Connected.** Strongest possible "we're working together" milestone.
-- **First service-context message → same mutual Familiar trigger.** Covers the Appointment-type "Ask about this" path which doesn't go through the structured inquiry form.
-- **Withdrawn / declined doesn't roll back.** Awareness, once created, persists.
+1. **Inquiry send → mutual Familiar.** Two-sided because the inquiry itself is explicit and known to both parties; the deniability principle for stranger-encounter Familiar doesn't apply to a transactional handshake. *Hook: `InquiryFormModal.handleSubmit` calls `markFamiliar` both directions before posting the inquiry message. (Discover & Care, 2026-05-04.)*
+2. **Contract acceptance → mutual Connected.** Strongest possible "we're working together" milestone. *Hook: `ThreadClient.handleSign` + `app/bookings/[bookingId]/page.tsx:handleSign` both call `markConnected` both directions on sign. (Pricing & Proposals, 2026-05-05.)*
+3. **First message in any non-Connected conversation → mutual Familiar.** Covers the Appointment-flow "Ask about this" path (no structured inquiry) plus any direct first outreach. *Hook: `ThreadClient.handleSend` checks `getConnection(other, viewer)` and fires `markFamiliar` both directions if state is currently none AND `theyMarkedFamiliar` is false. Idempotent on already-Familiar pairs; no-op on already-Connected via the state-rank merge in `getConnection`. (Inbox & Notifications, 2026-05-08.)*
+4. **Withdrawn / declined inquiries don't roll back.** Awareness, once created, persists.
 
-Open implementation questions: hook locations (InquiryFormModal — done; ProposalForm accept handler — pending; first-message detection in chat thread — pending); edge cases for re-inquiring after a decline; interaction with the existing manual Familiar/Connect controls. Inbox & Notifications phase.
+Together these mean: any genuine outreach (inquiry, message, contract sign) leaves a Familiar/Connected mark proportional to the depth of the contact. The community trust model and the transactional path converge on the same connection states without forcing one to ape the other.
+
+Interaction with manual controls: the auto-marks behave identically to manual `markFamiliar` calls — they just set the override. Manual `Unmark Familiar` (P40 when wired) reverses any source. Re-inquiring after a decline is a no-op trust-wise (already Familiar from the original inquiry).
 
 ---
 

@@ -23,6 +23,18 @@ import { formatRelativeTime } from "@/lib/dateUtils";
 
 // ── Helpers ──────────────────────────────────────────────────────
 
+/** Compact display name for inbox rows: `firstName + lastInitial.`
+ *  Single-word names render as-is. Multi-part last names take the initial
+ *  of the last word only. Picked over full-name rendering to fit the
+ *  inbox row's tight column and stay neutral across naming cultures.
+ *  Inbox & Notifications D3, 2026-05-08. */
+function compactName(fullName: string): string {
+  const parts = fullName.trim().split(/\s+/).filter(Boolean);
+  if (parts.length <= 1) return parts[0] ?? fullName;
+  const lastInitial = parts[parts.length - 1][0]?.toUpperCase();
+  return lastInitial ? `${parts[0]} ${lastInitial}.` : parts[0];
+}
+
 function getLastMessage(conv: Conversation): ChatMessage | null {
   if (conv.messages.length === 0) return null;
   // Prefer the explicit pointer when set, but always fall back to the last
@@ -37,7 +49,7 @@ function getLastMessage(conv: Conversation): ChatMessage | null {
   return conv.messages.at(-1) ?? null;
 }
 
-type PreviewKind = "text" | "inquiry" | "proposal" | "contract" | "payment";
+type PreviewKind = "text" | "inquiry" | "proposal" | "payment";
 
 function getPreview(conv: Conversation): { text: string; kind: PreviewKind } {
   const lastMsg = getLastMessage(conv);
@@ -63,7 +75,6 @@ function getPreview(conv: Conversation): { text: string; kind: PreviewKind } {
       kind: "proposal",
     };
   }
-  if (lastMsg.type === "contract") return { text: "Booking confirmed", kind: "contract" };
   if (lastMsg.type === "payment_summary" || lastMsg.type === "payment_confirmed") {
     return { text: "Payment", kind: "payment" };
   }
@@ -205,7 +216,7 @@ export default function InboxPage() {
       const partnerDogs = inquiryPets.length > 0
         ? inquiryPets
         : (getUserById(other.id)?.pets.map((p) => p.name) ?? []);
-      const { text: previewText, kind: previewKind } = getPreview(conv);
+      const { text: rawPreview, kind: previewKind } = getPreview(conv);
       // hasUnread is viewer-aware: "did the counterparty send the last
       // message?" The Conversation.unreadCount field is owner-centric
       // (addMessage only increments it for `sender === "provider"`), so
@@ -216,9 +227,19 @@ export default function InboxPage() {
         ? (currentUserId === conv.ownerId && lastMsg.sender === "provider") ||
           (currentUserId === conv.providerId && lastMsg.sender === "owner")
         : false;
+      // "You:" prefix — when the last message is the viewer's own outgoing
+      // text, prepend "You: " per FB / iMessage / most chat-app conventions
+      // so the reader can tell who said the previewed line. Limited to text
+      // previews; system-message kinds (inquiry, proposal, contract,
+      // payment) carry their own framing already and reading "You: New
+      // proposal" is awkward. Inbox & Notifications D2, 2026-05-08.
+      const previewText =
+        lastMsg && !lastFromOther && previewKind === "text" && rawPreview
+          ? `You: ${rawPreview}`
+          : rawPreview;
       result.push({
         userId: other.id,
-        name: other.name,
+        name: compactName(other.name),
         avatarUrl: other.avatarUrl,
         dogNames: partnerDogs,
         serviceLabel: conv.inquiry?.subService ?? undefined,
@@ -242,7 +263,7 @@ export default function InboxPage() {
 
       result.push({
         userId: conn.userId,
-        name: conn.userName,
+        name: compactName(conn.userName),
         avatarUrl: conn.avatarUrl,
         dogNames: conn.dogNames ?? [],
         preview: "Start chatting",
@@ -295,7 +316,7 @@ export default function InboxPage() {
         {/* List */}
         {filtered.length > 0 ? (
           <LayoutList>
-            <div className="flex flex-col divide-y divide-edge-regular">
+            <div className="flex flex-col divide-y divide-edge-subtle">
               {filtered.map((row) => (
                 <PersonRow
                   key={row.userId}

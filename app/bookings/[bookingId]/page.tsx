@@ -18,6 +18,7 @@ import {
   CalendarCheck,
   Footprints,
   CaretDown,
+  CaretRight,
   Play,
   Pill,
   Ruler,
@@ -41,10 +42,15 @@ import { useBookings } from "@/contexts/BookingsContext";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { useConnections } from "@/contexts/ConnectionsContext";
 import { useReviews } from "@/contexts/ReviewsContext";
+import { useNotifications } from "@/contexts/NotificationsContext";
 import { useViewedReports } from "@/lib/useViewedReports";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { getUserById } from "@/lib/mockUsers";
 import { SERVICE_LABELS } from "@/lib/constants/services";
+import {
+  buildSessionStartedNotification,
+  buildSessionCompletedNotification,
+} from "@/lib/notificationBuilders";
 import { formatShortDate, formatDateRange } from "@/lib/dateUtils";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { Booking, BookingSession, ChatMessage, PetProfile, ServiceType, VisitReport } from "@/lib/types";
@@ -115,8 +121,28 @@ function SessionIcon({ status }: { status: BookingSession["status"] }) {
 
 /* ── Visit report inline rendering ── */
 
-function VisitReportInline({ session }: { session: BookingSession }) {
+function VisitReportInline({
+  session,
+  canEdit = false,
+  onSaveEdit,
+}: {
+  session: BookingSession;
+  /** Provider-only — within the edit window. Surfaces an `Edit` action
+   *  next to the report. Lean defaults from Inbox & Notifications E2:
+   *  24h from `completedAt` OR until the owner views the report,
+   *  whichever is shorter. Window calculation lives at the SessionRow
+   *  level (it has access to the owner's `lastViewedAt`); this
+   *  component just renders the affordance when told. */
+  canEdit?: boolean;
+  /** Save handler — caller merges the new notes into the existing
+   *  report and stamps `editedAt`. Last-write-wins; no chronicle of
+   *  prior versions per the lean defaults. */
+  onSaveEdit?: (notes: string) => void;
+}) {
   const r = session.report;
+  const [editing, setEditing] = useState(false);
+  const [draftNotes, setDraftNotes] = useState(r?.notes ?? "");
+
   if (!r) {
     if (session.note) {
       return <p className="text-sm text-fg-secondary m-0">{session.note}</p>;
@@ -129,6 +155,56 @@ function VisitReportInline({ session }: { session: BookingSession }) {
         minute: "2-digit",
       })
     : null;
+
+  if (editing) {
+    return (
+      <div className="flex flex-col gap-sm">
+        {r.photos.length > 0 && (
+          <div className="flex gap-xs flex-wrap">
+            {r.photos.map((url, i) => (
+              <div
+                key={i}
+                className="relative overflow-hidden rounded-md bg-surface-inset"
+                style={{ width: 72, height: 72 }}
+              >
+                <img src={url} alt="" className="w-full h-full object-cover" />
+              </div>
+            ))}
+          </div>
+        )}
+        <textarea
+          value={draftNotes}
+          onChange={(e) => setDraftNotes(e.target.value)}
+          rows={4}
+          className="w-full rounded-form border border-edge-regular bg-surface-top p-sm text-sm text-fg-primary"
+          aria-label="Edit visit report notes"
+        />
+        <div className="flex items-center justify-end gap-xs">
+          <ButtonAction
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setDraftNotes(r.notes ?? "");
+              setEditing(false);
+            }}
+          >
+            Cancel
+          </ButtonAction>
+          <ButtonAction
+            variant="primary"
+            size="sm"
+            onClick={() => {
+              onSaveEdit?.(draftNotes);
+              setEditing(false);
+            }}
+          >
+            Save
+          </ButtonAction>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-sm">
       {r.photos.length > 0 && (
@@ -163,9 +239,33 @@ function VisitReportInline({ session }: { session: BookingSession }) {
           ) : null}
         </div>
       ) : null}
-      {completedTime && (
-        <span className="text-xs text-fg-tertiary">Completed at {completedTime}</span>
-      )}
+      <div className="flex items-center justify-between gap-sm">
+        <span className="text-xs text-fg-tertiary">
+          {completedTime && <>Completed at {completedTime}</>}
+          {/* Silent "edited" tag — no notification, no chat system message;
+              just a visible signal that the report has been updated since
+              first sealing. E2 lean defaults. */}
+          {r.editedAt && (
+            <>
+              {completedTime ? " · " : ""}
+              <em>edited</em>
+            </>
+          )}
+        </span>
+        {canEdit && (
+          <button
+            type="button"
+            onClick={() => {
+              setDraftNotes(r.notes ?? "");
+              setEditing(true);
+            }}
+            className="text-xs font-semibold text-brand-main underline-offset-2 hover:underline"
+            aria-label="Edit visit report"
+          >
+            Edit
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -180,6 +280,7 @@ function SessionRow({
   onCancelSession,
   bookingId,
   cancelledReason,
+  ownerLastViewedAt,
 }: {
   session: BookingSession;
   isLast: boolean;
@@ -188,7 +289,24 @@ function SessionRow({
   onCancelSession?: (session: BookingSession) => void;
   bookingId?: string;
   cancelledReason?: string;
+  /** ISO timestamp of when the owner last visited the Sessions tab for
+   *  this booking, or null if never. Drives the edit-window cutoff —
+   *  once the owner has read the report, the provider can no longer
+   *  edit it (lean defaults from Inbox & Notifications E2). */
+  ownerLastViewedAt?: string | null;
 }) {
+  // Edit window: provider can edit a sealed report for up to 24h after
+  // sealing OR until the owner views it, whichever comes first. Demo
+  // window matches the lean defaults from E2 (typo-fix-friendly without
+  // letting forever-rewrites pile up).
+  const r = session.report;
+  const editWindowMs = 24 * 60 * 60 * 1000;
+  const canEditReport =
+    canAct === true &&
+    session.status === "completed" &&
+    !!r?.completedAt &&
+    Date.now() - new Date(r.completedAt).getTime() < editWindowMs &&
+    (!ownerLastViewedAt || ownerLastViewedAt < r.completedAt);
   return (
     <div
       className="flex items-start gap-sm bg-surface-top"
@@ -225,7 +343,25 @@ function SessionRow({
           </span>
         </div>
 
-        {session.status === "completed" && <VisitReportInline session={session} />}
+        {session.status === "completed" && (
+          <VisitReportInline
+            session={session}
+            canEdit={canEditReport}
+            onSaveEdit={
+              canEditReport && bookingId && onUpdate
+                ? (notes) =>
+                    onUpdate(bookingId, session.id, {
+                      report: {
+                        photos: r?.photos ?? [],
+                        ...r,
+                        notes,
+                        editedAt: new Date().toISOString(),
+                      },
+                    })
+                : undefined
+            }
+          />
+        )}
 
         {session.status === "cancelled" && cancelledReason && (
           <p className="text-sm text-fg-tertiary m-0 italic">{cancelledReason}</p>
@@ -862,7 +998,8 @@ export default function BookingDetailPage() {
   const { conversations, updateProposalStatus, addMessage } = useConversations();
   const { markConnected } = useConnections();
   const { hasReview, addReview } = useReviews();
-  const { markViewed } = useViewedReports();
+  const { addNotification } = useNotifications();
+  const { markViewed, lastViewedAt } = useViewedReports();
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
   const CURRENT_USER = useCurrentUserId();
   const [showCancel, setShowCancel] = useState(false);
@@ -879,6 +1016,28 @@ export default function BookingDetailPage() {
   const booking = bookings.find((b) => b.id === params.bookingId);
   const isOwner = booking?.ownerId === CURRENT_USER;
   const isProvider = booking?.carerId === CURRENT_USER;
+
+  /** Wrap `updateSession` to fire owner-facing notifications on the
+   *  upcoming → in_progress and in_progress → completed transitions.
+   *  Other status transitions (cancelled, upcoming after Undo Start) and
+   *  non-status updates (report photos, notes) flow through unchanged.
+   *  Single funnel keeps lifecycle notifications consistent across every
+   *  Start / Finish entry point on this page (Sessions tab Start, Active
+   *  panel Finish, Active panel Undo, cancellation modal). Inbox &
+   *  Notifications A2 + A3, 2026-05-08. */
+  function handleUpdateSession(
+    bookingId: string,
+    sessionId: string,
+    partial: Partial<BookingSession>,
+  ) {
+    updateSession(bookingId, sessionId, partial);
+    if (!booking) return;
+    if (partial.status === "in_progress") {
+      addNotification(buildSessionStartedNotification(booking));
+    } else if (partial.status === "completed") {
+      addNotification(buildSessionCompletedNotification(booking));
+    }
+  }
 
   // Feed detail header to mobile AppNav. Format as "{otherFirstName} · {service}"
   // so the header carries the relationship context (the through-line for any
@@ -900,9 +1059,20 @@ export default function BookingDetailPage() {
   // tab — clears the "new visit report" indicator on the BookingRow
   // for this booking. Provider side doesn't need to mark; the
   // indicator is owner-only. Sessions & Service Execution A6.
+  //
+  // Fires once per mounted booking — `markedBookingRef` gates the effect
+  // so persona switches (which re-run this effect because CURRENT_USER
+  // is in the deps) don't re-stamp lastViewedAt. Without the gate, the
+  // sequence "Klára seals on /bookings/.../?tab=sessions → user switches
+  // back to Daniel → effect re-fires → lastViewedAt stamped AFTER the
+  // seal" suppressed the strip on /bookings even though the report was
+  // genuinely new. Inbox & Notifications G2 fix, 2026-05-08.
+  const markedBookingRef = useRef<string | null>(null);
   useEffect(() => {
     if (!booking || activeTab !== "sessions") return;
     if (booking.ownerId !== CURRENT_USER) return;
+    if (markedBookingRef.current === booking.id) return;
+    markedBookingRef.current = booking.id;
     markViewed(booking.id);
   }, [booking?.id, activeTab, CURRENT_USER, markViewed]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1313,6 +1483,48 @@ export default function BookingDetailPage() {
             {petsForBooking.length > 0 && (
               <SessionsPetHeader pets={petsForBooking} />
             )}
+            {/* Inline review prompt — surfaces on the Sessions tab when
+                the owner has at least one sealed visit report and no
+                review yet. Mirrors the Info-tab "Leave a review" CTA
+                without forcing a tab flip; G3 walkthrough finding,
+                2026-05-08. Suppressed on cancelled bookings (the banner
+                below already sets the read-only frame). */}
+            {isOwner &&
+              !hasReview(booking.id) &&
+              booking.status !== "cancelled" &&
+              sessions.some(
+                (s) => s.status === "completed" && s.report?.completedAt,
+              ) && (
+                <button
+                  type="button"
+                  onClick={() => setReviewOpen(true)}
+                  className="flex items-center gap-sm w-full rounded-panel text-left"
+                  style={{
+                    padding: "var(--space-md)",
+                    background: "var(--brand-subtle)",
+                    border: "1px solid var(--border-light)",
+                  }}
+                >
+                  <Star
+                    size={20}
+                    weight="fill"
+                    style={{ color: "var(--status-warning-main)", flexShrink: 0 }}
+                  />
+                  <span className="flex flex-col flex-1 min-w-0 gap-xs">
+                    <span className="text-sm font-semibold text-fg-primary">
+                      Leave a review for {booking.carerName.split(" ")[0]}
+                    </span>
+                    <span className="text-xs text-fg-tertiary">
+                      Helps the community know who to trust.
+                    </span>
+                  </span>
+                  <CaretRight
+                    size={14}
+                    weight="bold"
+                    className="text-fg-tertiary shrink-0"
+                  />
+                </button>
+              )}
             {/* Booking-cancelled banner — sits at the top of the
                 Sessions tab regardless of session count. The booking
                 is dead; everything below is read-only history. Active
@@ -1372,7 +1584,7 @@ export default function BookingDetailPage() {
                     serviceType={booking.serviceType}
                     isProvider={isProvider}
                     onUpdateReport={(s, partial) =>
-                      updateSession(booking.id, s.id, {
+                      handleUpdateSession(booking.id, s.id, {
                         report: {
                           // Lazy-init the report on first edit. Empty
                           // photo array forms the floor; partial merges
@@ -1405,7 +1617,7 @@ export default function BookingDetailPage() {
                           walkDurationMin = elapsedMin;
                         }
                       }
-                      updateSession(booking.id, s.id, {
+                      handleUpdateSession(booking.id, s.id, {
                         status: "completed",
                         report: {
                           ...existingReport,
@@ -1417,7 +1629,7 @@ export default function BookingDetailPage() {
                       });
                     }}
                     onUndoStart={(s) =>
-                      updateSession(booking.id, s.id, {
+                      handleUpdateSession(booking.id, s.id, {
                         status: "upcoming",
                         checkedInAt: undefined,
                       })
@@ -1448,7 +1660,7 @@ export default function BookingDetailPage() {
                             session={session}
                             isLast={i === upcomingSessions.length - 1}
                             canAct={isProvider}
-                            onUpdate={updateSession}
+                            onUpdate={handleUpdateSession}
                             onCancelSession={setCancelSession}
                             bookingId={booking.id}
                           />
@@ -1477,9 +1689,10 @@ export default function BookingDetailPage() {
                             session={session}
                             isLast={i === pastSessions.length - 1}
                             canAct={isProvider}
-                            onUpdate={updateSession}
+                            onUpdate={handleUpdateSession}
                             bookingId={booking.id}
                             cancelledReason={booking.cancelledDates?.[session.date]?.reason}
+                            ownerLastViewedAt={lastViewedAt(booking.id)}
                           />
                         ))}
                     </div>
@@ -1524,7 +1737,7 @@ export default function BookingDetailPage() {
         sessionDateLabel={cancelSession ? formatShortDate(cancelSession.date) : ""}
         onConfirm={(reason) => {
           if (!cancelSession) return;
-          updateSession(booking.id, cancelSession.id, {
+          handleUpdateSession(booking.id, cancelSession.id, {
             status: "cancelled",
           });
           updateBooking(booking.id, {

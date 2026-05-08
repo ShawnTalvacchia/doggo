@@ -80,7 +80,7 @@ export function ThreadClient({
     useConversations();
   const { createBooking, upsertProposedBooking, updateStatus, getBookingByConversation } =
     useBookings();
-  const { markConnected } = useConnections();
+  const { markConnected, markFamiliar, getConnection } = useConnections();
   const [localMessages, setLocalMessages] = useState<ChatMessage[]>(conv.messages);
   const [draft, setDraft] = useState(initialDraft ?? "");
   const [signingMsgId, setSigningMsgId] = useState<string | null>(null);
@@ -140,6 +140,25 @@ export function ThreadClient({
     addMessage(conv.id, newMsg);
     setLocalMessages((prev) => [...prev, newMsg]);
     setDraft("");
+
+    // Inquiry-driven trust transitions, rule (4): first message in a
+    // non-Connected conversation triggers mutual Familiar. Covers the
+    // Appointment-flow "Ask about this" path (no structured inquiry) plus
+    // any direct first outreach. Connected pairs no-op via the state-rank
+    // merge in ConnectionsContext.getConnection. Already-Familiar pairs
+    // skip too (idempotent + spares an override write). Open Q §2 close.
+    // Inbox & Notifications B1, 2026-05-08.
+    const otherPartyId = isCarerPerspective ? conv.ownerId : conv.providerId;
+    const conn = getConnection(otherPartyId, MY_USER_ID);
+    const alreadyTrusted =
+      conn?.state === "familiar" ||
+      conn?.state === "connected" ||
+      conn?.theyMarkedFamiliar;
+    if (!alreadyTrusted) {
+      markFamiliar(MY_USER_ID, otherPartyId);
+      markFamiliar(otherPartyId, MY_USER_ID);
+    }
+
     setTimeout(() => inputRef.current?.focus(), 0);
   }
 
@@ -332,7 +351,12 @@ export function ThreadClient({
     setLocalMessages((prev) => [...prev, declineMsg]);
   }
 
-  // Sign & Book — creates Booking, appends ContractCard
+  // Sign & Book — flips the proposal to `accepted` (which stamps
+  // `signedAt` via `updateProposalStatus`) and creates the live Booking
+  // record. The accepted-state footer on `BookingProposalCard` carries
+  // the signing signal in the chat stream; no separate contract message
+  // is appended (the dedicated `ContractCard` was retired during
+  // Inbox & Notifications F1).
   function handleSign(msgId: string) {
     const proposalMsg = localMessages.find((m) => m.id === msgId);
     if (!proposalMsg?.proposal) return;
@@ -533,14 +557,6 @@ export function ThreadClient({
                         <span className="inbox-message-time">{formatTime(msg.sentAt)}</span>
                       </div>
                     );
-                  }
-                  if (msg.type === "contract") {
-                    // Contract messages are no longer rendered in the
-                    // stream — the accepted proposal card carries the
-                    // signing signal + inline timestamp. Legacy contract
-                    // messages on seeded conversations are silently
-                    // skipped. Sessions & Service Execution, 2026-05-05.
-                    return null;
                   }
                   if (msg.type === "payment_summary" || msg.type === "payment_confirmed") {
                     return (

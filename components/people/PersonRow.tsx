@@ -96,7 +96,7 @@ export interface PersonRowProps {
    *  (inquiry / proposal / contract) distinctly from chat text. Defaults
    *  to "text". Discover & Care G6, 2026-05-02 (closes P46-2 within
    *  service-thread scope). */
-  messagePreviewKind?: "text" | "inquiry" | "proposal" | "contract" | "payment";
+  messagePreviewKind?: "text" | "inquiry" | "proposal" | "payment";
   timeAgo?: string;              // inbox-conversation only
   unreadDot?: boolean;           // inbox-conversation only
   /**
@@ -407,7 +407,7 @@ export function PersonRow(props: PersonRowProps) {
             blurring into a uniform two-row rhythm. */}
       <div
         className={`person-row-identity flex flex-col flex-1 min-w-0 ${
-          isInbox ? "gap-xs" : "h-16"
+          isInbox ? "gap-sm" : "h-16"
         }`}
       >
         <div

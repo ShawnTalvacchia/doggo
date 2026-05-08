@@ -1,5 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { CalendarCheck, Sparkle, ArrowRight } from "@phosphor-icons/react";
+import { CalendarCheck, Sparkle, ArrowRight, CaretDown, CaretUp } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import type { ChatMessage, BookingProposalStatus } from "@/lib/types";
 import { SERVICE_LABELS } from "@/lib/constants/services";
@@ -45,7 +48,15 @@ export function BookingProposalCard({
   // body collapses — like InquiryCard. The status footer carries the truth;
   // for `accepted`, that footer becomes a link to the live booking record.
   // Pricing & Proposals walkthrough 2026-05-05.
+  //
+  // Inbox & Notifications E3 (2026-05-08): superseded cards are tappable to
+  // expand the full body inline — chronicle still inspectable on demand
+  // without scrolling away. CSS subdues the header background + opacity
+  // for non-pending states so they don't compete visually with the active
+  // proposal sitting above or below.
   const isCollapsed = p.status !== "pending";
+  const [expanded, setExpanded] = useState(false);
+  const showCollapsedBody = isCollapsed && !expanded;
 
   return (
     <div className={`inbox-proposal-card inbox-proposal-card--${p.status}`}>
@@ -57,15 +68,26 @@ export function BookingProposalCard({
         </span>
       </div>
 
-      {isCollapsed ? (
-        <div className="inbox-proposal-body inbox-proposal-body--collapsed">
+      {showCollapsedBody ? (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="inbox-proposal-body inbox-proposal-body--collapsed inbox-proposal-collapsed-trigger"
+          aria-expanded="false"
+          aria-label="Expand booking proposal details"
+        >
           <h4 className="inbox-proposal-collapsed-title">
             {SERVICE_LABELS[p.serviceType]}
             {p.subService && (
               <span className="inbox-proposal-collapsed-sub"> · {p.subService}</span>
             )}
           </h4>
-        </div>
+          <CaretDown
+            size={14}
+            weight="bold"
+            className="inbox-proposal-collapsed-caret"
+          />
+        </button>
       ) : (
       <div className="inbox-proposal-body">
         <div className="inbox-proposal-row">
@@ -134,6 +156,20 @@ export function BookingProposalCard({
                 : ""}
             </span>
           </div>
+        )}
+        {/* Show-less affordance — appears only when the user has expanded a
+            superseded card. Clicking returns to the compact title view.
+            Pending cards never show this since they're never collapsed. */}
+        {isCollapsed && expanded && (
+          <button
+            type="button"
+            onClick={() => setExpanded(false)}
+            className="inbox-proposal-collapse-toggle"
+            aria-expanded="true"
+          >
+            <CaretUp size={12} weight="bold" />
+            Show less
+          </button>
         )}
       </div>
       )}
