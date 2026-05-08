@@ -14,6 +14,7 @@ import {
 import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useNotifications } from "@/contexts/NotificationsContext";
+import { useConversations } from "@/contexts/ConversationsContext";
 import { SidebarActiveSessionLink } from "@/components/bookings/SidebarActiveSessionLink";
 
 const navItems: { label: string; href: string; Icon: PhosphorIcon; match: string[] }[] = [
@@ -30,6 +31,12 @@ export function Sidebar() {
   const pathname = usePathname();
   const currentUser = useCurrentUser();
   const { unreadCount } = useNotifications();
+  const { conversations } = useConversations();
+  // Inbox count mirrors the mobile bell pattern in AppNav: number of
+  // conversations carrying any unread, not total messages. (Per-row
+  // viewer-aware unread is computed in `app/inbox/page.tsx` if a closer
+  // match to displayed dots is ever needed.)
+  const unreadInbox = conversations.filter((c) => c.unreadCount > 0).length;
 
   function isActive(match: string[]) {
     return match.some((m) => pathname === m || pathname.startsWith(m + "/"));
@@ -49,11 +56,16 @@ export function Sidebar() {
           const active = isOtherProfile ? false : isActive(match);
           const isProfileTab = href === "/profile";
           const showAvatar = isProfileTab && !!currentUser.avatarUrl;
-          // Notifications row mirrors the mobile bell's unread count, but
-          // sits next to the text label rather than as a corner pip on the
-          // icon — sidebar icons are smaller (22px) and a corner badge would
-          // compete visually. Inbox & Notifications follow-up, 2026-05-08.
-          const showNotifCount = href === "/notifications" && unreadCount > 0;
+          // Unread-count badge: Notifications + Inbox rows mirror the mobile
+          // icon-row badges, but sit next to the text label since sidebar
+          // icons are smaller (22px) and a corner pip would compete
+          // visually. Inbox & Notifications follow-up, 2026-05-08.
+          const count =
+            href === "/notifications"
+              ? unreadCount
+              : href === "/inbox"
+                ? unreadInbox
+                : 0;
           return (
             <Link
               key={href}
@@ -71,12 +83,12 @@ export function Sidebar() {
                 <Icon size={22} weight={active ? "fill" : "light"} />
               )}
               {label}
-              {showNotifCount && (
+              {count > 0 && (
                 <span
                   className="sidebar-nav-count"
-                  aria-label={`${unreadCount} unread`}
+                  aria-label={`${count} unread`}
                 >
-                  {unreadCount > 99 ? "99+" : unreadCount}
+                  {count > 99 ? "99+" : count}
                 </span>
               )}
             </Link>
