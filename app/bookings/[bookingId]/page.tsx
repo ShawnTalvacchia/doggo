@@ -867,7 +867,13 @@ function SessionsPetHeader({
           style={{ maxHeight: "clamp(250px, 45vw, 300px)" }}
         />
       </div>
-      <div className="flex flex-col gap-xs">
+      {/* Name + meta on the same line so the hero block stays compact —
+          the photo is already pushing the active panel down the viewport;
+          a stacked meta line was costing another row. `items-baseline`
+          aligns the heading's baseline to the smaller meta text;
+          `flex-wrap` lets the meta drop below on very narrow widths
+          rather than overflow. 2026-05-08 walkthrough refinement. */}
+      <div className="flex items-baseline flex-wrap gap-x-sm gap-y-xs">
         <h2
           className="font-heading font-semibold text-fg-primary m-0"
           style={{ fontSize: "24px", lineHeight: 1.15 }}
