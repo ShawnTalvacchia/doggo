@@ -828,21 +828,21 @@ function SessionsPetHeader({
   return (
     <div className="flex flex-col gap-md">
       {/* Hero photo — full-width, height clamps with viewport so the
-          frame doesn't go letterbox-wide on mid-mobile (~600–768px). At
-          the small-phone end we floor at 240px (keeps the active panel
-          above the fold); at desktop we ceiling at 360px (avoids
-          dominating the page); in between we scale at ~55vw so a
-          ~700px container shows ~360px tall (≈2:1) instead of the
-          previous ~240px (≈3:1 cropped). 2026-05-08 walkthrough refinement. */}
+          frame doesn't go letterbox-wide on mid-mobile (~600–768px) and
+          doesn't push the active panel below the fold. Floor 250px,
+          ceiling 300px, scaling at 45vw in between — chosen so the
+          frame looks honest across the mobile range without dominating
+          the page on tablet-width viewports. 2026-05-08 walkthrough
+          refinement. */}
       <div
         className="rounded-panel overflow-hidden bg-surface-inset w-full"
-        style={{ maxHeight: "clamp(240px, 55vw, 360px)" }}
+        style={{ maxHeight: "clamp(250px, 45vw, 300px)" }}
       >
         <img
           src={primary.imageUrl}
           alt={primary.name}
           className="block w-full object-cover object-center"
-          style={{ maxHeight: "clamp(240px, 55vw, 360px)" }}
+          style={{ maxHeight: "clamp(250px, 45vw, 300px)" }}
         />
       </div>
       <h2

@@ -8413,48 +8413,41 @@ body:has(.bottom-nav) .bookings-page {
   padding: clamp(8px, 2vw, 14px) var(--space-md);
 }
 
-/* Live indicator — solid dot in the warning-strong palette with a
-   pulsing ring expanding outward. Replaces the prior text pill ("Active")
-   per the 2026-05-08 walkthrough — same visual grammar as live-recording
-   indicators across the web; the pulse carries the meaning without
-   needing a label. The ring uses a pseudo-element so the inner dot stays
-   crisp; both inherit the same color so palette swaps are one rule. */
-.active-session-banner-live {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-}
-
-.active-session-banner-live-dot {
+/* Live-pulse dot — shared utility used by both the mobile
+   ActiveSessionBanner and the desktop SidebarActiveSessionLink. Same
+   visual grammar as live-recording indicators across the web (8px
+   warning-strong dot + a pulsing ring expanding 4× outward). Inner
+   dot stays crisp because the ring lives on a ::before pseudo;
+   prefers-reduced-motion stops the animation and falls back to a
+   slightly-enlarged static ring. Refactored 2026-05-08 from the
+   banner-specific rules so the desktop sidebar can reuse the pattern
+   without duplication. */
+.live-pulse-dot {
   position: relative;
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--status-warning-strong);
-  z-index: 1;
+  flex-shrink: 0;
 }
 
-.active-session-banner-live-dot::before {
+.live-pulse-dot::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 50%;
   background: var(--status-warning-strong);
   opacity: 0.55;
-  animation: active-banner-pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: live-pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-@keyframes active-banner-pulse {
+@keyframes live-pulse {
   0% { transform: scale(1); opacity: 0.55; }
   100% { transform: scale(4); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .active-session-banner-live-dot::before {
+  .live-pulse-dot::before {
     animation: none;
     opacity: 0.3;
     transform: scale(2);
@@ -8520,49 +8513,34 @@ body:has(.bottom-nav) .bookings-page {
   border-color: var(--warning-300);
 }
 
-.sidebar-active-session-pet {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-md);
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.sidebar-active-session-text {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  flex: 1;
-  min-width: 0;
-}
-
-.sidebar-active-session-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 11px;
-  font-weight: var(--weight-semibold);
-  color: var(--status-warning-strong, var(--text-secondary));
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.sidebar-active-session-elapsed {
-  font-weight: var(--weight-regular);
-  text-transform: none;
-  letter-spacing: 0;
-}
+/* Old two-line layout (`.sidebar-active-session-text`,
+   `.sidebar-active-session-status`, `.sidebar-active-session-pet`) was
+   retired during the 2026-05-08 walkthrough refinement — the desktop
+   sidebar now mirrors the mobile banner: live-pulse dot + service icon
+   + copy + elapsed inline. Single-line keeps cross-app presence
+   visually consistent with mobile. */
 
 .sidebar-active-session-copy {
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  flex: 1;
+  min-width: 0;
   font-size: 14px;
   font-weight: var(--weight-semibold);
   color: var(--text-primary);
-  white-space: nowrap;
+}
+
+.sidebar-active-session-copy-text {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-active-session-elapsed {
+  flex-shrink: 0;
+  font-weight: var(--weight-regular);
+  color: var(--text-secondary);
 }
 
 .booking-card-top {

@@ -40,13 +40,7 @@ export function ActiveSessionBanner() {
       aria-label={`${active.copy} — tap to view session`}
     >
       <div className="active-session-banner-content">
-        <span
-          className="active-session-banner-live"
-          role="img"
-          aria-label="Live"
-        >
-          <span className="active-session-banner-live-dot" />
-        </span>
+        <span className="live-pulse-dot" role="img" aria-label="Live" />
         <span className="active-session-banner-copy">
           {serviceIcon(active.booking.serviceType)}
           <span className="active-session-banner-copy-text">{active.copy}</span>
