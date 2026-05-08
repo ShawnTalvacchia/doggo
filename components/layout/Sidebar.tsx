@@ -13,6 +13,7 @@ import {
 } from "@phosphor-icons/react";
 import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useNotifications } from "@/contexts/NotificationsContext";
 import { SidebarActiveSessionLink } from "@/components/bookings/SidebarActiveSessionLink";
 
 const navItems: { label: string; href: string; Icon: PhosphorIcon; match: string[] }[] = [
@@ -28,6 +29,7 @@ const navItems: { label: string; href: string; Icon: PhosphorIcon; match: string
 export function Sidebar() {
   const pathname = usePathname();
   const currentUser = useCurrentUser();
+  const { unreadCount } = useNotifications();
 
   function isActive(match: string[]) {
     return match.some((m) => pathname === m || pathname.startsWith(m + "/"));
@@ -47,6 +49,11 @@ export function Sidebar() {
           const active = isOtherProfile ? false : isActive(match);
           const isProfileTab = href === "/profile";
           const showAvatar = isProfileTab && !!currentUser.avatarUrl;
+          // Notifications row mirrors the mobile bell's unread count, but
+          // sits next to the text label rather than as a corner pip on the
+          // icon — sidebar icons are smaller (22px) and a corner badge would
+          // compete visually. Inbox & Notifications follow-up, 2026-05-08.
+          const showNotifCount = href === "/notifications" && unreadCount > 0;
           return (
             <Link
               key={href}
@@ -64,6 +71,14 @@ export function Sidebar() {
                 <Icon size={22} weight={active ? "fill" : "light"} />
               )}
               {label}
+              {showNotifCount && (
+                <span
+                  className="sidebar-nav-count"
+                  aria-label={`${unreadCount} unread`}
+                >
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
             </Link>
           );
         })}
