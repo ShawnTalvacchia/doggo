@@ -6,13 +6,14 @@
  * `<SidebarActiveSessionLink>` provides the equivalent affordance
  * inside the sidebar nav. Shared data via `useActiveSession`.
  *
- * Single-line layout (2026-05-08 walkthrough refinement):
- *   [ACTIVE]  🏠 Sitting Bára · 24 min     ›
+ * Layout (2026-05-08 walkthrough — pulse dot replaces text pill):
+ *   ●(pulsing)  🏠 Sitting Bára · 24 min     ›
  *
- * The dark pill with yellow text contrasts against the amber shell
- * tint so the live state is unmistakable; the rest of the line
- * carries service icon + copy + elapsed inline. Tighter vertical
- * padding too — the banner is meant to be a slim signal, not a tile.
+ * The pulsing red dot reads as "this is live right now" — same visual
+ * grammar as live-recording / live-broadcast indicators across the
+ * web. Vertical padding scales with viewport (clamp) so the banner
+ * grows slightly taller on wider mobile widths instead of staying
+ * uniformly slim and feeling cramped at 600–768px.
  *
  * Sessions & Service Execution A3, 2026-05-05.
  */
@@ -39,7 +40,13 @@ export function ActiveSessionBanner() {
       aria-label={`${active.copy} — tap to view session`}
     >
       <div className="active-session-banner-content">
-        <span className="active-session-banner-pill">Active</span>
+        <span
+          className="active-session-banner-live"
+          role="img"
+          aria-label="Live"
+        >
+          <span className="active-session-banner-live-dot" />
+        </span>
         <span className="active-session-banner-copy">
           {serviceIcon(active.booking.serviceType)}
           <span className="active-session-banner-copy-text">{active.copy}</span>

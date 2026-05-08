@@ -827,20 +827,22 @@ function SessionsPetHeader({
 
   return (
     <div className="flex flex-col gap-md">
-      {/* Hero photo — full-width, height-capped so it stays prominent
-          without pushing the active panel below the fold. Mobile cap
-          at 240px keeps the active panel above the fold; desktop has
-          more room so we let the photo show more of the natural frame
-          (360px) — at 240 desktop tends to crop dog faces because the
-          wider container letterboxes the image. Aspect ratio preserved
-          (no forced crop) — owner-uploaded photos render honestly.
-          Photo behavior nudge: owners see their dog at this scale and
-          tend to upload better photos. 2026-05-08. */}
-      <div className="rounded-panel overflow-hidden bg-surface-inset w-full max-h-[240px] md:max-h-[360px]">
+      {/* Hero photo — full-width, height clamps with viewport so the
+          frame doesn't go letterbox-wide on mid-mobile (~600–768px). At
+          the small-phone end we floor at 240px (keeps the active panel
+          above the fold); at desktop we ceiling at 360px (avoids
+          dominating the page); in between we scale at ~55vw so a
+          ~700px container shows ~360px tall (≈2:1) instead of the
+          previous ~240px (≈3:1 cropped). 2026-05-08 walkthrough refinement. */}
+      <div
+        className="rounded-panel overflow-hidden bg-surface-inset w-full"
+        style={{ maxHeight: "clamp(240px, 55vw, 360px)" }}
+      >
         <img
           src={primary.imageUrl}
           alt={primary.name}
-          className="block w-full max-h-[240px] md:max-h-[360px] object-cover object-center"
+          className="block w-full object-cover object-center"
+          style={{ maxHeight: "clamp(240px, 55vw, 360px)" }}
         />
       </div>
       <h2

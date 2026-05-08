@@ -8405,28 +8405,60 @@ body:has(.bottom-nav) .bookings-page {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  /* Tighter vertical padding — banner is a slim signal, not a tile.
-     Single-line layout means we don't need the extra height. 2026-05-08. */
-  padding: 6px var(--space-md);
+  /* Vertical padding scales with viewport via clamp — at narrow phones
+     (~360px) it stays slim (~8px), at wider mobile (700–768px) it grows
+     to ~14px so the banner doesn't feel cramped at the wider end of the
+     mobile range. Banner is hidden on desktop ≥768px regardless.
+     2026-05-08 walkthrough refinement. */
+  padding: clamp(8px, 2vw, 14px) var(--space-md);
 }
 
-/* Status pill — dark surface with warning-yellow text. Strong contrast
-   against the amber-tinted shell so the live state reads unmistakably.
-   2026-05-08 walkthrough refinement (replaces the older two-line layout
-   with status icon + uppercase "ACTIVE NOW" header). */
-.active-session-banner-pill {
+/* Live indicator — solid dot in the warning-strong palette with a
+   pulsing ring expanding outward. Replaces the prior text pill ("Active")
+   per the 2026-05-08 walkthrough — same visual grammar as live-recording
+   indicators across the web; the pulse carries the meaning without
+   needing a label. The ring uses a pseudo-element so the inner dot stays
+   crisp; both inherit the same color so palette swaps are one rule. */
+.active-session-banner-live {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-  background: var(--surface-base-inverse);
-  color: var(--warning-300);
-  font-size: var(--font-size-body-xs);
-  font-weight: var(--weight-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
-  line-height: 1.4;
+}
+
+.active-session-banner-live-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--status-warning-strong);
+  z-index: 1;
+}
+
+.active-session-banner-live-dot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--status-warning-strong);
+  opacity: 0.5;
+  animation: active-banner-pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes active-banner-pulse {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .active-session-banner-live-dot::before {
+    animation: none;
+    opacity: 0.3;
+    transform: scale(1.6);
+  }
 }
 
 .active-session-banner-copy {
