@@ -8404,13 +8404,12 @@ body:has(.bottom-nav) .bookings-page {
 .active-session-banner-content {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
-  /* Vertical padding scales with viewport via clamp — at narrow phones
-     (~360px) it stays slim (~8px), at wider mobile (700–768px) it grows
-     to ~14px so the banner doesn't feel cramped at the wider end of the
-     mobile range. Banner is hidden on desktop ≥768px regardless.
-     2026-05-08 walkthrough refinement. */
-  padding: clamp(8px, 2vw, 14px) var(--space-md);
+  gap: var(--space-md);
+  /* Vertical padding scales with viewport via clamp; horizontal jumped
+     to space-xl during the 2026-05-08 walkthrough refinement so the
+     pulse + copy + chevron cluster sits with more breathing room from
+     the row edges. Banner is hidden on desktop ≥768px regardless. */
+  padding: clamp(10px, 2vw, 14px) var(--space-xl);
 }
 
 /* Live-pulse dot — shared utility used by ActiveSessionBanner (mobile),
@@ -8428,8 +8427,8 @@ body:has(.bottom-nav) .bookings-page {
    matches the original banner palette. 2026-05-08. */
 .live-pulse-dot {
   position: relative;
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--live-pulse-color, var(--status-warning-strong));
   flex-shrink: 0;
@@ -8447,14 +8446,14 @@ body:has(.bottom-nav) .bookings-page {
 
 @keyframes live-pulse {
   0% { transform: scale(1); opacity: 0.55; }
-  100% { transform: scale(4); opacity: 0; }
+  100% { transform: scale(2.4); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .live-pulse-dot::before {
     animation: none;
     opacity: 0.3;
-    transform: scale(2);
+    transform: scale(1.5);
   }
 }
 
