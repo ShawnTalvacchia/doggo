@@ -1532,7 +1532,7 @@ export default function BookingDetailPage() {
                 <button
                   type="button"
                   onClick={() => setReviewOpen(true)}
-                  className="flex items-center gap-sm w-full rounded-panel text-left"
+                  className="flex items-center gap-sm w-full rounded-panel text-left cursor-pointer"
                   style={{
                     padding: "var(--space-md)",
                     background: "var(--brand-subtle)",
