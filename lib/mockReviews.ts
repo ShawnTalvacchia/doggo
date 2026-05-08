@@ -1,18 +1,15 @@
 import type { UserReview } from "./types";
 
 export const mockReviews: UserReview[] = [
-  /* ── Klára (6 reviews, avg 4.8) — most reviewed, social proof ─────── */
-  {
-    id: "review-klara-1",
-    bookingId: "booking-klara-daniel",
-    authorId: "daniel",
-    authorName: "Daniel P.",
-    carerName: "Klára Horáčková",
-    carerAvatarUrl: "/images/generated/klara-profile.jpeg",
-    rating: 5,
-    text: "Klára completely changed how I handle Bára's reactivity. Patient, knowledgeable, and her dog Eda is an amazing demo dog. Bára went from lunging at every dog to calmly passing them in 4 sessions.",
-    createdAt: "2026-03-10T14:00:00Z",
-  },
+  /* ── Klára (4 seeded reviews, avg 4.75) — social proof on her profile.
+        Both `review-klara-1` (Daniel) and `review-klara-4` (Shawn) were
+        previously seeded against `booking-klara-daniel` and short-
+        circuited the live demo flow — testers walking the kd-6 seal as
+        Daniel never saw the inline "Leave a review" prompt because
+        `hasReview()` returned true (it only checks bookingId, not
+        viewer). Both removed during Inbox & Notifications walkthrough,
+        2026-05-08, so Daniel's review lands fresh from the demo flow
+        and Klára's count climbs back to 5 in-session. ─────── */
   {
     id: "review-klara-2",
     bookingId: "booking-klara-filip",
@@ -35,17 +32,14 @@ export const mockReviews: UserReview[] = [
     text: "Been working with Klára for 5 weeks on Runa's reactivity. She really understands the threshold work and adjusts the pace to the dog. Runa is visibly more relaxed on walks now.",
     createdAt: "2026-02-20T16:00:00Z",
   },
-  {
-    id: "review-klara-4",
-    bookingId: "booking-klara-daniel",
-    authorId: "shawn",
-    authorName: "Shawn T.",
-    carerName: "Klára Horáčková",
-    carerAvatarUrl: "/images/generated/klara-profile.jpeg",
-    rating: 5,
-    text: "Took Spot to one of Klára's group sessions for socialisation practice. She managed the group really well and gave specific feedback for each dog. Spot was calmer with new dogs afterwards.",
-    createdAt: "2026-03-05T11:00:00Z",
-  },
+  // `review-klara-4` was previously here (authorId: "shawn",
+  // bookingId: "booking-klara-daniel"). Removed alongside review-klara-1
+  // because (a) `hasReview` only checks bookingId, so it would still
+  // hide Daniel's inline review CTA after kd-6 seals, and (b) the
+  // review's text references "Klára's group sessions" while the
+  // bookingId points at Daniel's 1-on-1 reactive training — the data
+  // didn't internally cohere. Shawn isn't a viewer persona and has no
+  // Klára booking to legitimately attach this review to. 2026-05-08.
   {
     id: "review-klara-5",
     bookingId: "booking-klara-hana",
