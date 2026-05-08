@@ -54,7 +54,7 @@ export function ActiveSessionBanner() {
             <span className="active-session-banner-elapsed"> · {active.elapsed}</span>
           )}
         </span>
-        <CaretRight size={16} weight="bold" className="active-session-banner-chevron" />
+        <CaretRight size={12} weight="bold" className="active-session-banner-chevron" />
       </div>
     </Link>
   );

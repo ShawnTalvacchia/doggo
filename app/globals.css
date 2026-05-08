@@ -8444,20 +8444,20 @@ body:has(.bottom-nav) .bookings-page {
   inset: 0;
   border-radius: 50%;
   background: var(--status-warning-strong);
-  opacity: 0.5;
+  opacity: 0.55;
   animation: active-banner-pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes active-banner-pulse {
-  0% { transform: scale(1); opacity: 0.5; }
-  100% { transform: scale(2.6); opacity: 0; }
+  0% { transform: scale(1); opacity: 0.55; }
+  100% { transform: scale(4); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .active-session-banner-live-dot::before {
     animation: none;
     opacity: 0.3;
-    transform: scale(1.6);
+    transform: scale(2);
   }
 }
 
