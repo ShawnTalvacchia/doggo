@@ -2528,6 +2528,40 @@ export function setMeetRsvp(
 }
 
 /**
+ * Demo-only runtime mutation — mark a single occurrence of a recurring meet
+ * cancelled or restore it. Mirrors `setMeetRsvp` for the cancellation field.
+ *
+ * Mutates `meet.cancelledDates[date]` directly so any open meet detail /
+ * Schedule view picks up the change on next render. No-op for one-off meets
+ * (their cancellation is series-level via `meet.status === "cancelled"` —
+ * use a separate edit flow).
+ *
+ * Pass `null` as the reason to clear the cancellation for that date.
+ */
+export function setOccurrenceCancellation(
+  meet: Meet,
+  date: string,
+  reason: string | null,
+): void {
+  if (meet.cadence === "one_off") return;
+
+  if (reason === null) {
+    if (!meet.cancelledDates) return;
+    delete meet.cancelledDates[date];
+    if (Object.keys(meet.cancelledDates).length === 0) {
+      meet.cancelledDates = undefined;
+    }
+    return;
+  }
+
+  if (!meet.cancelledDates) meet.cancelledDates = {};
+  meet.cancelledDates[date] = {
+    reason,
+    cancelledAt: new Date().toISOString(),
+  };
+}
+
+/**
  * Helper: every recurring series this user follows.
  *
  * Following is series-level subscription — separate from per-occurrence RSVP.

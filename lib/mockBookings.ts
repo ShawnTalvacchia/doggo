@@ -1,5 +1,5 @@
 import type { Booking } from "./types";
-import { daysFromNow } from "./mockDate";
+import { daysAgo, daysAgoIso, daysFromNow } from "./mockDate";
 
 // ── Active ongoing — Olga, solo walks Mon/Wed/Fri ──────────────────────────────
 // Rolling weekly. Recent completed sessions + one upcoming next week.
@@ -44,7 +44,19 @@ const olgaBooking: Booking = {
     { id: "s-olga-3", date: "2026-04-03", status: "completed", note: "Met a new friend in the park" },
     { id: "s-olga-4", date: "2026-04-06", status: "completed", note: "Spot did great, very energetic today!" },
     { id: "s-olga-5", date: "2026-04-08", status: "completed" },
-    { id: "s-olga-6", date: "2026-04-10", status: "completed" },
+    {
+      id: "s-olga-6",
+      date: "2026-04-10",
+      status: "completed",
+      report: {
+        photos: [],
+        notes:
+          "Riegrovy Sady loop, full 45 min. Spot was bouncy off the leash by the fountain — big hello to a Vizsla called Tony. Treat after, key returned to the pot. All good.",
+        walkDistanceKm: 3.2,
+        walkDurationMin: 45,
+        completedAt: "2026-04-10T09:52:00Z",
+      },
+    },
     // Next session only
     { id: "s-olga-7", date: daysFromNow(2), status: "upcoming" },
   ],
@@ -221,13 +233,32 @@ const klaraTrainingDaniel: Booking = {
   },
   ownerNotes: "Bára is reactive to other dogs, especially on-leash. She's fine with people. Please meet us at the park entrance, not the car park — too many dogs there.",
   carerNotes: "We're working on threshold training. Current distance is 5m from trigger dogs. Don't push closer than 4m yet.",
+  // Weekly Wed cadence anchored to today: kd-6 (today, upcoming) is
+  // preceded by 5 completed sessions one week apart. Dates are relative
+  // (`daysAgo`) so the booking always reads as a live, ongoing
+  // arrangement regardless of when the demo is opened. kd-5's report
+  // sits a week in the past — outside the `findNewReport` recency
+  // window, so it doesn't false-trigger the "new visit report"
+  // indicator after demo reset. The indicator only fires when kd-6
+  // gets sealed during the walkthrough. 2026-05-08.
   sessions: [
-    { id: "kd-1", date: "2026-03-12", status: "completed", note: "Good session. Bára responded well to the threshold exercises." },
-    { id: "kd-2", date: "2026-03-19", status: "completed", note: "Bára stayed under threshold with Eda at 5m. Big progress." },
-    { id: "kd-3", date: "2026-03-26", status: "completed" },
-    { id: "kd-4", date: "2026-04-02", status: "completed" },
-    { id: "kd-5", date: "2026-04-09", status: "completed" },
-    { id: "kd-6", date: daysFromNow(4), status: "upcoming" },
+    { id: "kd-1", date: daysAgo(35), status: "completed", note: "Good session. Bára responded well to the threshold exercises." },
+    { id: "kd-2", date: daysAgo(28), status: "completed", note: "Bára stayed under threshold with Eda at 5m. Big progress." },
+    { id: "kd-3", date: daysAgo(21), status: "completed" },
+    { id: "kd-4", date: daysAgo(14), status: "completed" },
+    {
+      id: "kd-5",
+      date: daysAgo(7),
+      status: "completed",
+      report: {
+        photos: ["/images/generated/bara-portrait.jpeg"],
+        notes:
+          "Threshold work at Stromovka. Bára held under-threshold at 4m today — first time we've closed the distance. We worked on the look-at-that game with three trigger dogs across the field. She was visibly tired by the end (good tired). I'd hold here for the next two sessions before stepping closer.",
+        walkDurationMin: 60,
+        completedAt: daysAgoIso(7, "11:08"),
+      },
+    },
+    { id: "kd-6", date: daysFromNow(0), status: "upcoming" },
   ],
   price: {
     lineItems: [{ label: "1-on-1 reactive dog session", amount: 600, unit: "per session" }],
@@ -379,6 +410,119 @@ const klaraTrainingHana: Booking = {
   paymentStatus: "paid",
 };
 
+// ── Tereza walks Marek's Benny — ongoing Tue/Thu mornings ─────────────────────
+// Casual neighbour-help arrangement. Tereza already sat for Marek (see
+// `terezaSittingMarek`); that trust deepened into routine walks. Lives on
+// the default persona (Tereza) so testers can demo the GPS-tracked walk
+// flow without a `?as=` URL injection. Today's session is upcoming →
+// Schedule quick-start affordance surfaces immediately.
+const terezaWalksMarek: Booking = {
+  id: "booking-tereza-walks-marek",
+  conversationId: "tereza-marek-conv",
+  ownerId: "marek",
+  ownerName: "Marek Dvořák",
+  ownerAvatarUrl: "/images/generated/marek-profile.jpeg",
+  carerId: "tereza",
+  carerName: "Tereza Nováková",
+  carerAvatarUrl: "/images/generated/tereza-profile.jpeg",
+  type: "ongoing",
+  serviceType: "walk_checkin",
+  subService: "Solo walk",
+  pets: ["Benny"],
+  startDate: "2026-04-21",
+  endDate: null,
+  recurringSchedule: {
+    days: ["Tue", "Thu"],
+    time: "08:00",
+    timeLabel: "8:00–8:45am",
+  },
+  ownerNotes: "Benny's great off-leash but on-leash he gets twitchy with bigger dogs. Stick to the south fields at Riegrovy sady. Treats in the kitchen drawer, key under the geranium pot.",
+  carerNotes: "South-fields loop, ~40 min. Benny knows me — slip-lead works fine.",
+  sessions: [
+    { id: "tw-marek-1", date: "2026-04-23", status: "completed" },
+    { id: "tw-marek-2", date: "2026-04-28", status: "completed", note: "Quiet day at the park. Benny was gentle with a young whippet." },
+    { id: "tw-marek-3", date: "2026-04-30", status: "completed" },
+    {
+      id: "tw-marek-4",
+      date: "2026-05-05",
+      status: "completed",
+      report: {
+        photos: [],
+        notes:
+          "South-fields loop, full 40 min. Benny had a long sniff session by the rose garden — could have stayed there all morning. Polite hello with a Bernese, no leash drama. Treat after, key returned.",
+        walkDistanceKm: 2.6,
+        walkDurationMin: 40,
+        completedAt: "2026-05-05T08:42:00Z",
+      },
+    },
+    { id: "tw-marek-5", date: daysFromNow(0), status: "upcoming" },
+  ],
+  price: {
+    lineItems: [{ label: "Solo walk", amount: 200, unit: "per session" }],
+    total: 400, // 2 walks/week × 200 Kč
+    currency: "Kč",
+    billingCycle: "weekly",
+  },
+  status: "active",
+  signedAt: "2026-04-20T18:00:00Z",
+  paymentStatus: "paid",
+};
+
+// ── Olga walks Franta — Tereza's midday walks (owner-side for default persona) ─
+//
+// Tereza is the default picker persona and runs the Vinohrady Evening Walkers,
+// so she shows up everywhere as a connector + carer. Adding an owner-side
+// booking gives her bookings on both sides simultaneously, which (a) makes
+// /bookings render the dual-tab UI on the default persona without `?as=`
+// trickery, and (b) reinforces the narrative that even active community
+// members sometimes need help themselves. Olga is a Vinohrady-adjacent
+// neighbour she'd plausibly hire. Sessions & Service Execution walkthrough
+// refinement, 2026-05-08.
+
+const olgaWalksTereza: Booking = {
+  id: "booking-olga-tereza",
+  conversationId: null,
+  ownerId: "tereza",
+  ownerName: "Tereza Nováková",
+  ownerAvatarUrl: "/images/generated/tereza-profile.jpeg",
+  carerId: "olga-m",
+  carerName: "Olga Mašková",
+  carerAvatarUrl: "/images/generated/lucie-profile.jpeg",
+  type: "ongoing",
+  serviceType: "walk_checkin",
+  subService: "Solo walk",
+  pets: ["Franta"],
+  startDate: daysAgo(28),
+  endDate: null,
+  recurringSchedule: {
+    days: ["Tue", "Thu"],
+    time: "11:00",
+    timeLabel: "11:00am–12:00pm",
+  },
+  ownerNotes: "Franta knows the Riegrovy loop — that's where I take him most mornings, so it's familiar. He's gentle with everyone but can pull a bit when he sees a squirrel. Treats are in the jar by the door.",
+  carerNotes: "Riegrovy loop, ~50 min. Franta and I are old friends — slip-lead is fine.",
+  sessions: [
+    { id: "ot-1", date: daysAgo(28), status: "completed" },
+    { id: "ot-2", date: daysAgo(23), status: "completed" },
+    { id: "ot-3", date: daysAgo(21), status: "completed", note: "Quiet day at the park, Franta enjoyed a long sniff." },
+    { id: "ot-4", date: daysAgo(16), status: "completed" },
+    { id: "ot-5", date: daysAgo(14), status: "completed" },
+    { id: "ot-6", date: daysAgo(9), status: "completed" },
+    { id: "ot-7", date: daysAgo(7), status: "completed" },
+    { id: "ot-8", date: daysAgo(2), status: "completed" },
+    { id: "ot-9", date: daysFromNow(1), status: "upcoming" },
+  ],
+  price: {
+    lineItems: [{ label: "Solo walk", amount: 330, unit: "per session" }],
+    total: 660, // 2 walks/week × 330 Kč
+    currency: "Kč",
+    billingCycle: "weekly",
+  },
+  status: "active",
+  signedAt: daysAgoIso(29, "10:00"),
+  paymentStatus: "paid",
+};
+
 // ── Exports ─────────────────────────────────────────────────────────────────────
 
 export const mockBookings: Booking[] = [
@@ -391,7 +535,9 @@ export const mockBookings: Booking[] = [
   klaraTrainingFilip,
   petraSittingTomas,
   terezaSittingMarek,
+  terezaWalksMarek,
   klaraTrainingHana,
+  olgaWalksTereza,
 ];
 
 export function getBooking(id: string): Booking | undefined {

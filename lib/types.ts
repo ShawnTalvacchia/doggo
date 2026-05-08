@@ -229,6 +229,12 @@ export interface BookingProposal {
    *  discount", "introductory rate", etc. Rendered alongside the price
    *  when `isOverride` is true. */
   overrideReason?: string;
+  /** ISO timestamp set when the proposal flips to `accepted`. Rendered
+   *  inline in the accepted-state footer (`Signed HH:MM · View booking`)
+   *  so the chronicle artifact carries its own signing time without
+   *  needing a separate contract card in the chat stream.
+   *  Sessions & Service Execution, 2026-05-05. */
+  signedAt?: string;
 }
 
 export interface ContractConfirmation {
@@ -325,32 +331,48 @@ export interface BookingPrice {
  * close-out. Per Time To Pet research, this is what makes pet parents
  * feel safe: photos, notes, structured care checks, timestamps.
  *
- * Photos accumulate during an active session (mid-session updates from
- * provider) and are sealed when close-out submits. Notes + checks +
- * walk metrics fill at close-out only.
+ * The report object exists from the moment the provider adds anything
+ * during the active session — photos accumulate, notes / checks /
+ * metrics get composed inline on the Active panel — and is sealed when
+ * the provider taps Finish. `completedAt` is the seal timestamp;
+ * absence means the report is still draft (session.status === "in_progress").
  *
  * Sessions & Service Execution, 2026-05-05.
  */
 export interface VisitReport {
-  /** Photos sent with the report. May be partially populated during an
-   *  active session (mid-session updates); sealed on close-out. */
+  /** Photos sent with the report. Accumulate during the active session
+   *  (mid-session photo updates); sealed when the provider finishes. */
   photos: string[];
-  /** Provider's written notes. Required at close-out (≥1 char). */
-  notes: string;
-  /** Structured care checks. All optional — a 30-min walk wouldn't
-   *  fed/watered, but might walked + pottied; boarding hits all. */
-  checks: {
+  /** Provider's written notes. Required at finish (≥1 char). May be
+   *  empty / undefined while the session is in progress. */
+  notes?: string;
+  /** **Dormant 2026-05-07** — UI removed (every-walk-has-Walked-✓ chips
+   *  read as noise). Field kept on the type so a richer comeback (e.g.
+   *  medication doses tied to pet info) doesn't need a migration. Not
+   *  read by any current renderer; do not seed in new mock data. See
+   *  Open Questions §4 → "Care checks — dormant." */
+  checks?: {
     fed?: boolean;
     watered?: boolean;
     walked?: boolean;
     pottied?: boolean;
     medsGiven?: boolean;
   };
-  /** Walk metrics — present when service is a walk. */
+  /** Walk metrics — present when service is a walk. May be auto-derived
+   *  from GPS tracking (when `gpsStartedAt` is set) or entered manually
+   *  via the modal's walk-details inputs. */
   walkDistanceKm?: number;
   walkDurationMin?: number;
-  /** Auto-set on close-out submit. */
-  completedAt: string;
+  /** ISO timestamp when the provider tapped "Log route with GPS" on the
+   *  active panel. Demo-state field — actual GPS tracking is deferred;
+   *  during the active session, distance/duration tick up via a simple
+   *  time-based simulation. On finish, the simulated values get sealed
+   *  into `walkDistanceKm` / `walkDurationMin`. Sessions & Service
+   *  Execution A3 walkthrough, 2026-05-05. */
+  gpsStartedAt?: string;
+  /** Set when the provider seals the report (status flips to
+   *  "completed"). Absence means draft / in-progress. */
+  completedAt?: string;
 }
 
 export interface BookingSession {
@@ -358,13 +380,16 @@ export interface BookingSession {
   date: string;         // ISO YYYY-MM-DD
   status: "upcoming" | "in_progress" | "completed" | "cancelled";
   checkedInAt?: string; // ISO timestamp — set when status moves to in_progress
-  /** Visit report — populated on close-out via SessionCloseOutSheet.
-   *  When present, supersedes the legacy `note`/`photoUrl` fields below.
-   *  Sessions & Service Execution, 2026-05-05. */
+  /** Visit report — created lazily when the provider adds the first
+   *  artifact during an in-progress session (photo, note, check, metric).
+   *  Lives in draft state through in_progress and is sealed when the
+   *  provider taps Finish; sealing sets `completedAt` and flips
+   *  `session.status` to "completed". Sessions & Service Execution,
+   *  2026-05-05. */
   report?: VisitReport;
   /** Legacy single-note field. Pre-VisitReport completed sessions in
    *  seeded mock data may have `note` without `report`; renderers fall
-   *  back to this when `report` is absent. New close-out writes `report`. */
+   *  back to this when `report` is absent. New finish writes `report`. */
   note?: string;
   /** Legacy single-photo field. Same fallback rules as `note`. */
   photoUrl?: string;
@@ -400,6 +425,13 @@ export interface Booking {
   signedAt: string;  // ISO timestamp
   paymentStatus?: "unpaid" | "paid";
   cancellationReason?: string;
+  /** Per-occurrence cancellations on a recurring booking. Keyed by ISO
+   *  date — provider cancels a single session ("this Wednesday is rained
+   *  out") without ending the whole booking. The session entry's status
+   *  flips to "cancelled" and this map captures the reason + when.
+   *  Sessions & Service Execution F1, 2026-05-05. Meets-side parallel
+   *  (Open Questions §3) lives as a follow-up side task. */
+  cancelledDates?: Record<string, { reason: string; cancelledAt: string }>;
 }
 
 export type ConversationType = "booking" | "direct";
@@ -425,6 +457,7 @@ export interface Conversation {
 // ── Notifications ──────────────────────────────────────────────────────────────
 
 export type NotificationType =
+  | "session_started"
   | "session_completed"
   | "new_message"
   | "booking_message"
@@ -472,6 +505,16 @@ export interface UserReview {
   rating: number;   // 1–5
   text: string;
   createdAt: string;
+  /** Optional dog-photo from owner submitted with the review.
+   *  Sessions & Service Execution, 2026-05-05. */
+  photoUrl?: string;
+  /** Default true. Surfaced on the carer's profile as a "would book
+   *  again" tally. */
+  wouldBookAgain?: boolean;
+  /** Visibility rule (Sessions & Service Execution, 2026-05-05): rating
+   *  + text both present → public review. Rating-only → private feedback
+   *  to the carer (skipped from the public Reviews list). */
+  isPrivate?: boolean;
 }
 
 // ── Meets ─────────────────────────────────────────────────────────────────────
@@ -634,12 +677,29 @@ export interface Meet {
    * `description` so the original meet info stays intact (viewers can still
    * see what it was supposed to be).
    *
-   * For recurring meets this represents *series-level* cancellation.
-   * Per-occurrence cancellation ("just this Wednesday is rained out") needs
-   * a separate `cancelledDates` shape and is filed for the Schedule &
-   * Bookings Deep Pass.
+   * For recurring meets this represents *series-level* cancellation —
+   * the entire series is dead. Per-occurrence cancellation ("just this
+   * Wednesday is rained out") lives on `cancelledDates` instead, and the
+   * series stays active.
    */
   cancellationReason?: string;
+  /**
+   * Per-occurrence cancellations for recurring meets, keyed by ISO YYYY-MM-DD.
+   * The host marks a single date dead ("rained out") without killing the
+   * series; the row renders as cancelled on meet detail's Upcoming dates
+   * section and on the Schedule, with the original info preserved. The
+   * series-level fields (`status`, `cancellationReason`) are untouched —
+   * the series keeps generating future occurrences as normal.
+   *
+   * Distinct from per-user Skip (`useDismissedReviews` with `kind:
+   * "meet-skip"`): cancel is a host action affecting all attendees;
+   * Skip is a user action affecting only that user.
+   *
+   * Sparse — only contains keys for cancelled dates. Undefined / empty
+   * for one-off meets (use `status === "cancelled"` + `cancellationReason`
+   * for those — there's only one occurrence to cancel).
+   */
+  cancelledDates?: Record<string, { reason: string; cancelledAt: string }>;
   creatorId: string;
   creatorName: string;
   creatorAvatarUrl: string;

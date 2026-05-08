@@ -27,6 +27,9 @@ interface BookingsContextValue {
   upsertProposedBooking: (data: Omit<Booking, "id" | "signedAt">) => string;
   cancelBooking: (bookingId: string, reason?: string) => void;
   updatePaymentStatus: (bookingId: string, status: "unpaid" | "paid") => void;
+  /** Generic booking-level field update — used for fields that don't have
+   *  a dedicated action (e.g. cancelledDates per-occurrence map). */
+  updateBooking: (bookingId: string, update: Partial<Booking>) => void;
 }
 
 // ── Context ─────────────────────────────────────────────────────────────────────
@@ -139,6 +142,15 @@ export function BookingsProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
+  const updateBooking = useCallback(
+    (bookingId: string, update: Partial<Booking>) => {
+      setBookings((prev) =>
+        prev.map((b) => (b.id === bookingId ? { ...b, ...update } : b))
+      );
+    },
+    []
+  );
+
   const updateSession = useCallback(
     (bookingId: string, sessionId: string, update: Partial<BookingSession>) => {
       setBookings((prev) =>
@@ -169,6 +181,7 @@ export function BookingsProvider({ children }: { children: React.ReactNode }) {
         upsertProposedBooking,
         cancelBooking,
         updatePaymentStatus,
+        updateBooking,
       }}
     >
       {children}

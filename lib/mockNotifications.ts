@@ -138,12 +138,12 @@ export const mockNotifications: AppNotification[] = [
   {
     id: "notif-10",
     type: "session_completed",
-    title: "Walk completed",
-    body: "Klára completed Spot's solo walk. Leave a review?",
+    title: "Training session completed",
+    body: "Klára completed Bára's reactive dog session. Leave a review?",
     avatarUrl:
       "/images/generated/klara-profile.jpeg",
-    href: "/bookings/booking-klara",
-    createdAt: "2026-03-31T17:00:00Z",
+    href: "/bookings/booking-klara-daniel",
+    createdAt: daysAgoIso(7, "11:30"),
     read: true,
   },
   {

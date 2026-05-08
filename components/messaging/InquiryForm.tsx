@@ -351,7 +351,7 @@ export function InquiryForm({
           <span className="text-fg-tertiary text-xs font-normal">Optional</span>
         </div>
         <textarea
-          className="input inq-message"
+          className="textarea inq-message"
           rows={3}
           value={message}
           onChange={(e) => setMessage(e.target.value)}

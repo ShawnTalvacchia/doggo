@@ -7,6 +7,7 @@ import {
   CalendarBlank,
   ShareNetwork,
   CopySimple,
+  PencilSimple,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { TabBar } from "@/components/ui/TabBar";
@@ -234,14 +235,29 @@ function ProfileInner() {
                 </span>
               </div>
 
-              <ShareProfileButton shareCode={user.shareCode ?? user.id} />
+              {/* Page-level actions — Share + Edit are paired side-by-side
+                  as the two things you can do with this profile from the
+                  hero. Edit is hidden during the editing flow (Save /
+                  Cancel take its place inside the tab body). */}
+              <div className="flex flex-wrap items-center justify-center gap-sm">
+                <ShareProfileButton shareCode={user.shareCode ?? user.id} />
+                {!aboutEditing && (
+                  <ButtonAction
+                    variant="outline"
+                    size="md"
+                    leftIcon={<PencilSimple size={14} weight="bold" />}
+                    onClick={startAboutEdit}
+                  >
+                    Edit Profile
+                  </ButtonAction>
+                )}
+              </div>
             </div>
 
             {/* About tab content — bio, pets, connections, tagging */}
             <ProfileAboutTab
               user={user}
               editing={aboutEditing}
-              onStartEdit={startAboutEdit}
               onCancel={cancelAboutEdit}
               onSave={saveAboutEdit}
               editState={{ bio: editBio, pets: editPets }}

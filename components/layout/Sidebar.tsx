@@ -13,6 +13,7 @@ import {
 } from "@phosphor-icons/react";
 import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { SidebarActiveSessionLink } from "@/components/bookings/SidebarActiveSessionLink";
 
 const navItems: { label: string; href: string; Icon: PhosphorIcon; match: string[] }[] = [
   { label: "Community", href: "/home", Icon: Users, match: ["/home", "/communities", "/groups"] },
@@ -67,6 +68,14 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      {/* Sits right below the regular nav items with a top-border
+          divider when there's an active session for the viewer; absent
+          state leaves the regular nav items in their normal positions
+          (the card just doesn't render). Bottom-pinning was harder to
+          notice — discoverability matters more than positional
+          stability here. */}
+      <SidebarActiveSessionLink />
     </aside>
   );
 }

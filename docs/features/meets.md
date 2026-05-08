@@ -1,7 +1,7 @@
 ---
 category: feature
 status: active
-last-reviewed: 2026-05-02
+last-reviewed: 2026-05-05
 tags: [meets, groups, community, social]
 review-trigger: "when modifying meets, groups, group detail tabs, or meet discovery"
 ---
@@ -140,7 +140,11 @@ The split applies only when `cadence !== "one_off"`. Per-occurrence Interested w
 
 **Carrying both fields.** On recurring meets, `meet.attendees` stays populated as a *representative* list (typically next-occurrence) so legacy callsites — cards, summaries, post-meet review — continue to render without per-call migration. The authoritative per-date data is on `attendeesByDate`. Surfaces that need to be instance-aware (Schedule cards, meet-detail RSVP rows, Who's coming) read via `getOccurrenceAttendees`. This is a deliberate prototype tradeoff documented in `Meet.attendees` and the `meet-recurrence-model` phase board.
 
-**Out of scope (future):** per-occurrence editing (different time/location/cover on a single instance), per-occurrence cancellation ("skip this Wednesday only"), end-of-series UI semantics, full notification delivery for Following.
+**Per-occurrence cancellation.** A host can cancel a single date of a recurring series without killing the series. Stored on `Meet.cancelledDates` — sparse `Record<ISO date, { reason; cancelledAt }>`, distinct from series-level `meet.status === "cancelled"` + `meet.cancellationReason`. Affordance lives on the meet-detail "Upcoming dates" rows: a quiet inline "Cancel" link sits alongside the host's Hosting pill; tapping opens `CancelOccurrenceModal` (`components/meets/CancelOccurrenceModal.tsx`) — reason required because attendees see it. Confirmed cancellation mutates via `setOccurrenceCancellation(meet, date, reason)` in `lib/mockMeets.ts`. The cancelled row renders muted with strikethrough title + reason caption; attendees see a "Cancelled" pill, host sees a single-tap Restore (no modal — undo doesn't need the gauntlet). On Schedule, cancelled occurrences keep rendering on Upcoming with the same muted treatment + reason caption (calendar-app convention: don't silently disappear). They're filtered out of the History review pipeline (`isOccurrenceCancelled` gate in `app/schedule/page.tsx`) — a host-cancelled date isn't a reviewable past meet. Read paths in `lib/meetUtils.ts`: `isOccurrenceCancelled(meet, date)` and `getOccurrenceCancellation(meet, date)` — both fall back to series-level cancellation for one-off meets so callers can use one helper for either shape.
+
+**Cancel vs Skip distinction.** Cancel is a host action affecting all attendees (mutates `cancelledDates`, surfaces on every viewer's Schedule). Skip is a user action affecting only that user (persists via `useDismissedReviews` with `kind: "meet-skip"`, hides the row in place with inline Undo). The two states are independent and the cancellation supersedes Skip — a cancelled occurrence renders as Cancelled even if the user had Skipped it.
+
+**Out of scope (future):** per-occurrence editing (different time/location/cover on a single instance — cancel kills, doesn't reschedule), end-of-series UI semantics, full notification delivery for Following, broadcast notification when a host cancels a date (the data is in place; the delivery pipeline belongs to Inbox & Notifications).
 
 ### Care-group meets (paid sessions)
 

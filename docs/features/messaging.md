@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-05
+last-reviewed: 2026-05-08
 tags: [messaging, inbox, chat, booking, notifications]
 review-trigger: "when modifying inbox, threads, conversation types, or notifications"
 ---
@@ -170,8 +170,14 @@ Same-type + same-href notifications cluster into groups with stacked avatars. Gr
 
 ### Surfaces
 
-- **NotificationsPanel** — dropdown from bell icon in nav (desktop). Shows recent notifications with type-specific overlay icons on avatars.
-- **Notifications page** — `/notifications`. Full page with mark-all-read, grouped rendering.
+- **NotificationsPanel** — dropdown from bell icon in nav (desktop). Shows recent notifications with type-specific overlay icons on avatars. Unread indicator: dot on the right edge.
+- **Notifications page** — `/notifications`. Full page with mark-all-read, grouped rendering. Sessions & Service Execution refresh (2026-05-08): unread indicator moved from a left-side dot column to a corner pip on the avatar (`.notif-unread-badge` — brand-tinted, surface-bordered so it overlaps the edge). Category label moved from a third body line to a small uppercase letter-spaced tag on the top row, paired with the timestamp via `·`. Pattern: `{title}                              CARE · 7d ago` / `{body line}`.
+
+### Visit-report indicator
+
+Owner-side `/bookings` cards surface a "New visit report from {carer} · {date} →" strip when there's a completed session with a sealed report newer than the viewer's last Sessions-tab visit. Tapping the card routes straight to `?tab=sessions` (skipping Info). After viewing, navigate elsewhere and return — the indicator is gone.
+
+**Recency window (Sessions & Service Execution, 2026-05-08):** the indicator only fires for reports sealed within the last 5 days. Older completed reports stop counting as "new" even if unviewed — the framing implies "fresh from a recent session," not "this booking has had reports at some point." Pre-seeded mock reports (kd-5 dated `daysAgo(7)`) sit safely outside the window so a fresh demo state doesn't false-trigger. Implemented in `findNewReport` in `components/ui/BookingRow.tsx`.
 
 ---
 

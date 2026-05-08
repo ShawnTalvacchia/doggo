@@ -167,6 +167,15 @@ export function BookingProposalCard({
             href={bookingHref}
             className="inbox-proposal-status inbox-proposal-status--accepted inbox-proposal-status-link"
           >
+            {p.signedAt && (
+              <span className="inbox-proposal-signed-stamp">
+                Signed {new Date(p.signedAt).toLocaleTimeString("en-GB", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+                {" · "}
+              </span>
+            )}
             View booking
             <ArrowRight size={14} weight="bold" />
           </Link>

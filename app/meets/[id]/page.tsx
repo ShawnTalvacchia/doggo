@@ -41,12 +41,14 @@ import {
   CaretDown,
   UserPlus,
   Warning,
+  X,
 } from "@phosphor-icons/react";
 import Link from "next/link";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ShareMeetModal } from "@/components/meets/ShareMeetModal";
 import { ServiceBookingSheet } from "@/components/meets/ServiceBookingSheet";
+import { CancelOccurrenceModal } from "@/components/meets/CancelOccurrenceModal";
 import { ParticipantList } from "@/components/meets/ParticipantList";
 import { MeetPhotoGallery } from "@/components/meets/MeetPhotoGallery";
 import { LayoutSection } from "@/components/layout/LayoutSection";
@@ -63,6 +65,7 @@ import {
   getOccurrenceAttendees,
   getSeriesAttendees,
   nextOccurrenceDates,
+  getOccurrenceCancellation,
 } from "@/lib/meetUtils";
 import { useCurrentUser, useCurrentUserId } from "@/hooks/useCurrentUser";
 import { getDogImageByOwnerAndName } from "@/lib/dogLookup";
@@ -71,6 +74,7 @@ import { getGroupById } from "@/lib/mockGroups";
 import {
   mockMeets,
   setMeetRsvp,
+  setOccurrenceCancellation,
   getSeriesFollowers,
   MEET_TYPE_LABELS,
   LEASH_LABELS,
@@ -129,6 +133,12 @@ function formatShortDate(dateStr: string): { weekday: string; day: string; month
     day: d.getDate().toString(),
     month: d.toLocaleDateString("en-GB", { month: "short" }),
   };
+}
+
+/** Flat date label for the cancel-occurrence modal body, e.g. "Wed, 13 May". */
+function formatCancelDateLabel(dateStr: string): string {
+  const { weekday, day, month } = formatShortDate(dateStr);
+  return `${weekday}, ${day} ${month}`;
 }
 
 function formatMessageTime(sentAt: string): string {
@@ -212,6 +222,13 @@ function MeetDetailInner() {
   // For one-off care meets the date is `meet.date`; for recurring it's the
   // tapped occurrence date from the Upcoming dates row. `null` = sheet closed.
   const [bookingDate, setBookingDate] = useState<string | null>(null);
+  // Cancel-this-occurrence modal state — host-only, recurring meets only.
+  // `null` = closed; otherwise the ISO date being cancelled.
+  const [cancelOccDate, setCancelOccDate] = useState<string | null>(null);
+  // Bumps a render counter when we mutate `meet.cancelledDates` so the page
+  // re-renders. mockMeets is mutated in place by `setOccurrenceCancellation`,
+  // and React doesn't observe object-identity changes on a captured ref.
+  const [, setMutationTick] = useState(0);
   const [newMessage, setNewMessage] = useState("");
   // One-off RSVP — single state value. For recurring meets the equivalent
   // state lives on `rsvpByDate` below.
@@ -307,6 +324,25 @@ function MeetDetailInner() {
     if (meet) setMeetRsvp(meet, currentUser, meet.date, status);
   }
 
+  // Confirm-from-modal handler. Mutates `meet.cancelledDates` via the
+  // mockMeets helper, then nudges a re-render so the row + Schedule pick
+  // up the change immediately.
+  function handleConfirmCancelOccurrence(reason: string) {
+    if (!meet || !cancelOccDate) return;
+    setOccurrenceCancellation(meet, cancelOccDate, reason);
+    setCancelOccDate(null);
+    setMutationTick((t) => t + 1);
+  }
+
+  // Host-side restore — clears `meet.cancelledDates[date]`. No modal: the
+  // host already saw the cancellation, undoing it shouldn't require a
+  // confirmation gauntlet. Same mutation-tick re-render path as confirm.
+  function handleRestoreOccurrence(date: string) {
+    if (!meet) return;
+    setOccurrenceCancellation(meet, date, null);
+    setMutationTick((t) => t + 1);
+  }
+
   // Right action changes per tab
   const headerAction = activeTab === "details" ? (
     <ButtonAction
@@ -362,6 +398,8 @@ function MeetDetailInner() {
               onFollowingChange={setFollowing}
               onShare={() => setShowShare(true)}
               onBook={(date) => setBookingDate(date)}
+              onCancelOccurrence={(date) => setCancelOccDate(date)}
+              onRestoreOccurrence={handleRestoreOccurrence}
             />
           )}
 
@@ -387,6 +425,13 @@ function MeetDetailInner() {
       </div>
 
       <ShareMeetModal meet={meet} open={showShare} onClose={() => setShowShare(false)} />
+      <CancelOccurrenceModal
+        open={cancelOccDate !== null}
+        onClose={() => setCancelOccDate(null)}
+        onConfirm={handleConfirmCancelOccurrence}
+        dateLabel={cancelOccDate ? formatCancelDateLabel(cancelOccDate) : ""}
+        meetTitle={meet.title}
+      />
       <ServiceBookingSheet
         meet={meet}
         occurrenceDate={bookingDate ?? meet.date}
@@ -430,6 +475,8 @@ function DetailsTab({
   onFollowingChange,
   onShare,
   onBook,
+  onCancelOccurrence,
+  onRestoreOccurrence,
 }: {
   meet: Meet;
   /**
@@ -463,6 +510,17 @@ function DetailsTab({
    * buttons on the Upcoming dates section for recurring care meets.
    */
   onBook: (date: string) => void;
+  /**
+   * Open the host-side cancel-this-date modal for a specific occurrence.
+   * Host-only — gated in `RecurringUpcomingDates` by `isCreator`. Wired
+   * into the page's `cancelOccDate` state.
+   */
+  onCancelOccurrence: (date: string) => void;
+  /**
+   * Host-side undo for a previously cancelled occurrence. Clears the
+   * `cancelledDates[date]` entry directly — no confirmation modal.
+   */
+  onRestoreOccurrence: (date: string) => void;
 }) {
   const currentUser = useCurrentUser();
   const currentUserId = currentUser.id;
@@ -893,6 +951,8 @@ function DetailsTab({
           onRsvpDateChange={onRsvpDateChange}
           isCreator={isCreator}
           onBook={onBook}
+          onCancelOccurrence={onCancelOccurrence}
+          onRestoreOccurrence={onRestoreOccurrence}
         />
       )}
 
@@ -1279,6 +1339,8 @@ function RecurringUpcomingDates({
   onRsvpDateChange,
   isCreator,
   onBook,
+  onCancelOccurrence,
+  onRestoreOccurrence,
 }: {
   meet: Meet;
   occurrences: ReturnType<typeof getMeetOccurrences>;
@@ -1291,6 +1353,15 @@ function RecurringUpcomingDates({
    * becomes Book instead of Join in that case.
    */
   onBook: (date: string) => void;
+  /**
+   * Open the host-side cancel modal for a specific date. Host-only —
+   * rendered as a quiet inline link in the row's right slot when
+   * `isCreator`, alongside the Hosting pill. Confirmed cancellations
+   * mutate `meet.cancelledDates` via the page's setter.
+   */
+  onCancelOccurrence: (date: string) => void;
+  /** Host-side undo — clears the cancelled state for a specific date. */
+  onRestoreOccurrence: (date: string) => void;
 }) {
   const { dismissed, dismiss, undismiss } = useDismissedReviews();
   const skipId = (date: string) => makeDismissId("meet-skip", `${meet.id}::${date}`);
@@ -1320,6 +1391,8 @@ function RecurringUpcomingDates({
           const isFull = occSpotsLeft <= 0 && myStatus !== "going";
           const skipped = dismissed.has(skipId(occ.date));
           const joined = myStatus === "going";
+          const cancellation = getOccurrenceCancellation(meet, occ.date);
+          const isCancelled = cancellation !== null;
           // Click handler for the primary action varies by mode. Paid
           // sessions open the booking sheet (terminal commitment, payment-
           // backed). Free sessions toggle the per-occurrence going status
@@ -1327,6 +1400,52 @@ function RecurringUpcomingDates({
           const handlePrimary = isPaidSession
             ? () => onBook(occ.date)
             : () => onRsvpDateChange(occ.date, "going");
+
+          // Cancelled rows: muted body, strikethrough title, reason caption,
+          // single right-slot affordance (Cancelled pill for attendees,
+          // Restore for the host). All other actions suppressed — there's
+          // no Going/Booking a date the host has killed. Skip is also
+          // suppressed; cancellation supersedes per-user opt-out.
+          if (isCancelled) {
+            return (
+              <div
+                key={occ.date}
+                className="flex items-center justify-between gap-md p-md border-b border-edge-strong last:border-b-0 opacity-60"
+              >
+                <div className="flex flex-col gap-xs min-w-0">
+                  <span className="text-sm font-semibold text-fg-primary line-through">
+                    {date.weekday}, {date.day} {date.month}
+                  </span>
+                  <span className="text-xs text-fg-tertiary">
+                    {meet.time}
+                    {cancellation.reason ? <> · {cancellation.reason}</> : null}
+                  </span>
+                </div>
+                <div className="flex items-center gap-xs shrink-0">
+                  {isCreator ? (
+                    <button
+                      type="button"
+                      className="text-xs font-semibold text-fg-primary underline underline-offset-2"
+                      onClick={() => onRestoreOccurrence(occ.date)}
+                    >
+                      Restore
+                    </button>
+                  ) : (
+                    <span
+                      className="inline-flex items-center gap-xs text-xs font-semibold rounded-pill px-sm py-xs"
+                      style={{
+                        background: "var(--status-error-light)",
+                        color: "var(--status-error-strong)",
+                      }}
+                    >
+                      <X size={11} weight="bold" />
+                      Cancelled
+                    </span>
+                  )}
+                </div>
+              </div>
+            );
+          }
 
           return (
             <div
@@ -1354,9 +1473,22 @@ function RecurringUpcomingDates({
 
               <div className="flex items-center gap-xs shrink-0">
                 {isCreator ? (
-                  <span className="text-xs font-semibold rounded-pill px-sm py-xs bg-brand-subtle text-brand-strong">
-                    Hosting
-                  </span>
+                  // Hosting pill + a quiet inline Cancel for the host. Cancel
+                  // is rendered as an underlined link rather than a button —
+                  // the host doesn't need to be tempted to cancel; the
+                  // affordance just needs to be reachable when they do.
+                  <>
+                    <span className="text-xs font-semibold rounded-pill px-sm py-xs bg-brand-subtle text-brand-strong">
+                      Hosting
+                    </span>
+                    <button
+                      type="button"
+                      className="text-xs font-medium text-fg-tertiary underline underline-offset-2 hover:text-fg-secondary"
+                      onClick={() => onCancelOccurrence(occ.date)}
+                    >
+                      Cancel
+                    </button>
+                  </>
                 ) : skipped ? (
                   // Muted-in-place: replaces the action buttons with a label +
                   // inline Undo so the user can reverse a Skip without hunting.

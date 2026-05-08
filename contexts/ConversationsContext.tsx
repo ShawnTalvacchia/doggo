@@ -320,6 +320,11 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
 
   const updateProposalStatus = useCallback(
     (convId: string, msgId: string, status: BookingProposalStatus) => {
+      // Stamp signedAt automatically when a proposal flips to `accepted`.
+      // Single source of truth — every call site lands the timestamp,
+      // so the proposal card's accepted footer can render "Signed HH:MM"
+      // without each caller threading the value separately.
+      const stampedAt = status === "accepted" ? new Date().toISOString() : undefined;
       setConversations((prev) =>
         prev.map((c) => {
           if (c.id !== convId) return c;
@@ -327,7 +332,14 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
             ...c,
             messages: c.messages.map((m) =>
               m.id === msgId && m.proposal
-                ? { ...m, proposal: { ...m.proposal, status } }
+                ? {
+                    ...m,
+                    proposal: {
+                      ...m.proposal,
+                      status,
+                      ...(stampedAt ? { signedAt: stampedAt } : {}),
+                    },
+                  }
                 : m
             ),
           };

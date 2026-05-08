@@ -109,7 +109,7 @@ export function PostMeetReviewSheet() {
         />
       }
     >
-      <div className="flex flex-col gap-lg p-lg">
+      <div className="flex flex-col gap-xl p-lg">
         <StepIndicator step={step} />
         {step === 1 && (
           <ReflectStep

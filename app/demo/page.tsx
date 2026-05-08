@@ -35,6 +35,7 @@ import {
 } from "@phosphor-icons/react";
 import { personas, defaultPersona } from "@/lib/personas";
 import { useDemoState } from "@/contexts/CurrentUserContext";
+import { resetPersistedState } from "@/lib/usePersistedState";
 import "./demo.css";
 
 const TOUR_ENTRY = "/home?as=tereza&tour=tereza&step=1";
@@ -50,6 +51,10 @@ function clearDemoLocalStorage() {
   } catch {
     // Ignore — private browsing / storage disabled.
   }
+  // Wipe the module-level usePersistedState cache too, otherwise mounted
+  // components keep reading stale post-reset state from memory until a
+  // full page reload swaps the modules. 2026-05-08.
+  resetPersistedState("doggo");
 }
 
 /** Curated journey cards — the "guided" half of the picker. Story copy is

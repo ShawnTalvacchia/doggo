@@ -6,7 +6,7 @@ review-trigger: "Update as items are walked, edit as scope adjusts"
 
 # Phase Name — Walkthrough
 
-Verification checklist for the Phase Name phase. **This document is for checking, not record-keeping** — decisions, follow-ups, and findings belong in the phase board, Open Questions log, or feature docs.
+Verification checklist for the Phase Name phase. **This document is primarily for checking** — most decisions, follow-ups, and findings belong in the phase board, Open Questions log, or feature docs. The exception is the **"Decisions surfaced during walkthrough"** section at the bottom, which exists specifically to catch emergent decisions in the moment and ensure they propagate to feature docs at phase close.
 
 **Scope rule.** Walkthroughs verify the **phase thesis** — the structural / behavioral change the phase delivered. They are NOT for edge cases, regression checks, cross-persona permutations, or every filter/state combo. Rule of thumb: if you find yourself adding a 5th sub-scenario, or "verify the same thing from the other side," that item goes in `verification-checklist.md` instead. Aim for 8–15 items per workstream — if a workstream is sprawling, split it or trim it.
 
@@ -37,11 +37,33 @@ One-line context if helpful.
 
 - [ ] **B1. ...**
 
+---
+
+## Decisions surfaced during walkthrough
+
+Emergent decisions, design changes, or rationale that surfaced during verification and need to land in their proper home docs. **Append as you walk** — don't wait until the end. **At phase close, sweep this list** — update each named doc, mark each entry `[x]`. The walkthrough should not be archived until every entry here is processed (or explicitly marked "no doc update needed").
+
+Format:
+```
+- [ ] **{Decision in one line.}** {Optional one-line context.} → `features/foo.md`
+- [ ] **{Implementation-only change}** {What/why.} → no feature-doc update needed
+```
+
+Examples of what belongs here:
+- A behavior was changed during the walkthrough (e.g. "added a 5-day recency window to X")
+- A design pattern shifted (e.g. "moved the Y CTA from card-bottom to top banner")
+- Mock data assumptions changed (e.g. "kd-5 dates moved from fixed to relative")
+- An implementation gap was fixed in a way that warrants documentation (e.g. "demo reset now also clears the in-memory cache")
+
+Examples of what does NOT belong here:
+- Walkthrough wording fixes (just update the item)
+- Bug fixes with no behavior change worth documenting (just commit + move on)
+- Decisions captured elsewhere (phase board, Open Questions, punch list)
+
 <!--
 Conventions:
-- Each item starts with a bold persona + URL anchor so the reader knows where to go without reading the rest.
+- Each verification item starts with a bold persona + URL anchor so the reader knows where to go without reading the rest.
 - Expected outcomes use sub-bullets when there are multiple things to confirm; one-line item otherwise.
 - Use `**bold**` for the things that should match, `*italic*` for trigger notes / explanatory copy.
-- DO NOT add "Findings & follow-ups" sections — those belong in the phase board, Open Questions log, or a relevant feature doc. The walkthrough is verification only.
-- DO NOT track decisions inline. If the walkthrough surfaces a product call, capture it in the right home doc and update the walkthrough item to reflect the new expected behavior.
+- DO NOT add "Findings & follow-ups" sections to individual workstreams — those belong in the phase board, Open Questions log, or a relevant feature doc. Workstreams are verification-only. The Decisions section above is the ONE place where emergent stuff is captured inline.
 -->

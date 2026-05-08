@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   PersonSimpleWalk,
   Tree,
@@ -16,6 +17,9 @@ import {
   CalendarDots,
   CaretRight,
   X,
+  Timer,
+  Prohibit,
+  Play,
 } from "@phosphor-icons/react";
 import type { Meet, MeetType, Booking, BookingSession } from "@/lib/types";
 import { MEET_TYPE_LABELS } from "@/lib/mockMeets";
@@ -23,7 +27,9 @@ import { SERVICE_LABELS } from "@/lib/constants/services";
 import { getUserById } from "@/lib/mockUsers";
 import { formatShortDate } from "@/lib/dateUtils";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
-import { recurrenceLabel } from "@/lib/meetUtils";
+import { useBookings } from "@/contexts/BookingsContext";
+import { ButtonAction } from "@/components/ui/ButtonAction";
+import { recurrenceLabel, getOccurrenceCancellation } from "@/lib/meetUtils";
 import type { MeetRole } from "@/components/meets/CardMeet";
 
 /* ── Icons ─────────────────────────────────────────────────────── */
@@ -138,12 +144,20 @@ function AvatarCombo({
 export function ScheduleMeetCard({
   meet,
   role,
+  date,
   isRecent = false,
   isPast = false,
   onDismiss,
 }: {
   meet: Meet;
   role: MeetRole;
+  /** ISO YYYY-MM-DD of the specific occurrence this card represents. Used for
+   *  per-occurrence cancellation lookup on recurring meets — without it we
+   *  couldn't tell "this Wednesday is rained out" apart from any other
+   *  Wednesday in the series. Optional for surfaces that legitimately render
+   *  series-level (e.g. "Suggested" lane); when omitted the card falls back
+   *  to series-level cancellation only. */
+  date?: string;
   /** Recent completed meet — links to connect page, shows brand-fill Review CTA. */
   isRecent?: boolean;
   /** Past meet not eligible for review (older than 14 days, or already dismissed/reviewed).
@@ -230,7 +244,16 @@ export function ScheduleMeetCard({
   // Cancelled treatment — strikethrough title + "Cancelled" pill replaces
   // role pill + muted card. Card stays tappable so the user can land on
   // the meet detail and see the cancellation reason.
-  const isCancelled = meet.status === "cancelled";
+  //
+  // Two paths to cancelled:
+  //   - Series-level (`meet.status === "cancelled"`): the whole meet is
+  //     dead; one-off meets and cancelled recurring series both use this.
+  //   - Per-occurrence (`meet.cancelledDates[date]`): just this date is
+  //     dead; the rest of the series is still active. `getOccurrenceCancellation`
+  //     returns the right thing for either path when a date is provided.
+  const occCancellation = date ? getOccurrenceCancellation(meet, date) : null;
+  const isCancelled = meet.status === "cancelled" || occCancellation !== null;
+  const cancellationReason = occCancellation?.reason ?? meet.cancellationReason;
 
   return (
     <Link
@@ -288,6 +311,14 @@ export function ScheduleMeetCard({
       {/* Row 2: Title — strike-through when cancelled. */}
       <h3 className={`sched-card-title${isCancelled ? " line-through" : ""}`}>{meet.title}</h3>
 
+      {/* Cancellation reason caption — only when cancelled and a reason is
+          set. Sits between title and the standard meta row so the "why"
+          lands right next to the strikethrough title rather than mixed in
+          with location / count. */}
+      {isCancelled && cancellationReason && (
+        <span className="text-xs text-fg-tertiary">{cancellationReason}</span>
+      )}
+
       {/* Row 3: Location · going count · price (if paid). Role used to
           live here in the right slot — moved to row 1 (see top-row
           comment). Price surfaces last on care-group meets so users
@@ -324,6 +355,8 @@ export function ScheduleCareCard({
   session: BookingSession;
 }) {
   const CURRENT_USER = useCurrentUserId();
+  const router = useRouter();
+  const { updateSession } = useBookings();
   const isOwner = booking.ownerId === CURRENT_USER;
   const isProviding = !isOwner;
   const other = isOwner
@@ -332,6 +365,35 @@ export function ScheduleCareCard({
   const timeLabel = booking.recurringSchedule?.timeLabel;
   const days = booking.recurringSchedule?.days;
   const isOneOff = !booking.recurringSchedule;
+  const isLive = session.status === "in_progress";
+  const isCancelled = session.status === "cancelled";
+  const cancelReason = booking.cancelledDates?.[session.date]?.reason;
+
+  // Quick-start affordance: when the carer's looking at TODAY's
+  // upcoming session, surface a Start button right on the schedule
+  // card. Tap → flips status to in_progress + routes to the booking's
+  // Sessions tab where the Active panel takes over. Saves the carer
+  // ~3 taps on their most-frequent path. Sessions & Service Execution
+  // A3 walkthrough refinement, 2026-05-06.
+  const today = new Date().toISOString().slice(0, 10);
+  const showQuickStart =
+    isProviding && session.status === "upcoming" && session.date === today;
+
+  function handleQuickStart() {
+    updateSession(booking.id, session.id, {
+      status: "in_progress",
+      checkedInAt: new Date().toISOString(),
+    });
+    router.push(`/bookings/${booking.id}?tab=sessions`);
+  }
+
+  // Operational location hint — boarding/sitting handover happens at the
+  // carer's neighbourhood; walks happen from the owner's. Fail gracefully
+  // when the relevant party's profile lacks a neighbourhood.
+  const handoverParty = booking.serviceType === "walk_checkin"
+    ? getUserById(booking.ownerId)
+    : getUserById(booking.carerId);
+  const handoverNeighbourhood = handoverParty?.neighbourhood;
 
   // Get the first pet's avatar for the combo
   const firstPetName = booking.pets[0] ?? null;
@@ -344,29 +406,44 @@ export function ScheduleCareCard({
   return (
     <Link
       href={`/bookings/${booking.id}`}
-      className={`sched-card sched-card--care${isProviding ? " sched-card--providing" : ""}`}
+      className={`sched-card sched-card--care${isProviding ? " sched-card--providing" : ""}${isCancelled ? " sched-card--cancelled" : ""}`}
       style={{ textDecoration: "none" }}
     >
       {/* Row 1: Time or date range (left) · recurring days or drop-off · pill (right) */}
       <div className="sched-card-top">
-        {timeLabel && (
+        {isLive ? (
+          <span
+            className="inline-flex items-center gap-xs px-sm py-xs text-xs font-semibold rounded-pill"
+            style={{ background: "var(--status-warning-main)", color: "white" }}
+          >
+            <Timer size={12} weight="fill" />
+            Active now
+          </span>
+        ) : isCancelled ? (
+          <span
+            className="inline-flex items-center gap-xs px-sm py-xs text-xs font-semibold rounded-pill"
+            style={{ background: "var(--surface-inset)", color: "var(--text-tertiary)" }}
+          >
+            <Prohibit size={12} weight="light" />
+            Cancelled
+          </span>
+        ) : timeLabel ? (
           <span className="sched-card-time">
             <Clock size={14} weight="light" />
             {timeLabel}
           </span>
-        )}
-        {!timeLabel && isOneOff && (
+        ) : isOneOff ? (
           <span className="sched-card-time">
             <CalendarDots size={14} weight="light" />
             {formatShortDate(booking.startDate)}{booking.endDate ? ` – ${formatShortDate(booking.endDate)}` : ""}
           </span>
-        )}
-        {days && (
+        ) : null}
+        {days && !isLive && !isCancelled && (
           <span className="sched-card-days">
             {days.join(" · ")}
           </span>
         )}
-        {isOneOff && (
+        {isOneOff && !isLive && !isCancelled && (
           <span className="sched-card-recurring">
             Drop-off
           </span>
@@ -379,7 +456,7 @@ export function ScheduleCareCard({
       </div>
 
       {/* Row 2: Service type + sub-service */}
-      <h3 className="sched-card-title">
+      <h3 className={`sched-card-title${isCancelled ? " line-through" : ""}`}>
         {booking.subService ?? SERVICE_LABELS[booking.serviceType]}
       </h3>
 
@@ -405,6 +482,52 @@ export function ScheduleCareCard({
           {careLabel}
         </span>
       </div>
+
+      {/* Operational hint — where the handover happens. Skipped for
+          cancelled / active so the row can carry status-specific copy. */}
+      {!isCancelled && !isLive && handoverNeighbourhood && (
+        <div className="sched-card-meta">
+          <MapPin size={13} weight="light" className="text-fg-tertiary" />
+          <span className="sched-card-names truncate text-fg-tertiary">
+            {booking.serviceType === "walk_checkin"
+              ? `Pick up at ${handoverNeighbourhood}`
+              : `Drop off in ${handoverNeighbourhood}`}
+          </span>
+        </div>
+      )}
+
+      {/* Quick-start button — only shown to the carer for today's
+          upcoming session. One-tap to start + jump to the Sessions
+          tab. Standard ButtonAction primary so it inherits the
+          design-system button styling rather than a one-off class. */}
+      {showQuickStart && (
+        <div
+          className="sched-card-quick-start-wrap"
+          onClick={(e) => {
+            // Stop the wrapping <Link> from firing default navigation
+            // (which would land on the Info tab instead of Sessions).
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        >
+          <ButtonAction
+            variant="primary"
+            size="md"
+            leftIcon={<Play size={14} weight="fill" />}
+            onClick={handleQuickStart}
+          >
+            Start session
+          </ButtonAction>
+        </div>
+      )}
+
+      {isCancelled && cancelReason && (
+        <div className="sched-card-meta">
+          <span className="sched-card-names truncate text-fg-tertiary italic">
+            {cancelReason}
+          </span>
+        </div>
+      )}
     </Link>
   );
 }

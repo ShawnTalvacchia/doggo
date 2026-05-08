@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-05-05
+last-reviewed: 2026-05-08
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
@@ -36,9 +36,7 @@ The full product skeleton exists. Every page renders with real content and worki
 
 ## Current Phase
 
-**Sessions & Service Execution.** Opened 2026-05-05. The other half of "services real" — what happens after a contract signs. Visit report cards, in-session UI, owner session view, care review sheet, per-occurrence booking cancellation. Phase thesis: *after a contract signs, both sides experience a service that feels alive.* Per-session pricing scoped OUT (avoids §6 sub-questions). Close-out does NOT trigger billing.
-
-**Phase board:** `phases/sessions-and-service-execution.md`
+**None active.** Sessions & Service Execution closed 2026-05-08. Next phase to open: **Inbox & Notifications** — see Upcoming Phases below.
 
 ### Profiles Deep Pass — Paused
 
@@ -54,8 +52,8 @@ Reorganized 2026-05-04 around the principle that **services are the core functio
 
 | Phase | Goal | Key refs |
 |-------|------|----------|
-| **Discover Refinement** *(NEXT — added 2026-05-04)* | Make Discover Care community-first instead of marketplace-first. **Surface Helper-tier carers (Connected to viewer) distinctly above Providers** — community-first ordering reinforces the meets-build-trust-builds-care thesis at the actual point of care discovery. Resolves the Discover Care surface gaps cluster: Appointment filter pill, ProviderCard ↔ UserProfile fragmentation (every provider becomes a real user), per-service pricing on cards (`pricesByService`), service-aware filters (Walks needs pace/leash; Sitting/Boarding need home attributes), wired filter panel (currently visual-only no-ops). Helper card variant — softer chrome, "Ask {name}" CTA, no platform-style ratings. | `Open Questions §4`, `app/discover/care/page.tsx`, `components/explore/CardExploreResult.tsx`, `lib/types.ts:ProviderCard`, `Competitive Research - Prague Dog Care Scene.md`, `Competitive Research - Fluv.md` |
-| **Inbox & Notifications** | Inbox visual polish, notification card patterns, badge counts, request-vs-thread distinction, possibly threading model + read state. **Compressed** because most service-flow notifications (inquiry sent, proposal received, accepted, etc.) get covered upstream. Also covers the inquiry-driven trust transitions logged in Open Questions §2 (mutual Familiar on inquiry send, mutual Connected on contract accept, edge cases). | `phases/inbox-and-notifications-deep-pass.md`, `features/messaging.md`, `app/inbox/`, `app/notifications/`, `Open Questions §2` |
+| **Inbox & Notifications** *(NEXT — recommended)* | Inbox visual polish, notification card patterns, badge counts, request-vs-thread distinction, possibly threading model + read state. **Wires actual delivery for `session_started` / `session_completed`** (typed during Sessions, no firing yet). Covers the inquiry-driven trust transitions logged in Open Questions §2 (mutual Familiar on inquiry send, mutual Connected on contract accept, first-service-message edge case for Appointment flow). Edit-after-submit on visit reports also lives here. **Compressed** because most service-flow notifications (inquiry sent, proposal received, accepted, etc.) shipped upstream. | `phases/inbox-and-notifications-deep-pass.md`, `features/messaging.md`, `app/inbox/`, `app/notifications/`, `Open Questions §2` |
+| **Discover Refinement** *(added 2026-05-04)* | Make Discover Care community-first instead of marketplace-first. **Surface Helper-tier carers (Connected to viewer) distinctly above Providers** — community-first ordering reinforces the meets-build-trust-builds-care thesis at the actual point of care discovery. Resolves the Discover Care surface gaps cluster: Appointment filter pill, ProviderCard ↔ UserProfile fragmentation (every provider becomes a real user), per-service pricing on cards (`pricesByService`), service-aware filters (Walks needs pace/leash; Sitting/Boarding need home attributes), wired filter panel (currently visual-only no-ops). Helper card variant — softer chrome, "Ask {name}" CTA, no platform-style ratings. | `Open Questions §4`, `app/discover/care/page.tsx`, `components/explore/CardExploreResult.tsx`, `lib/types.ts:ProviderCard`, `Competitive Research - Prague Dog Care Scene.md`, `Competitive Research - Fluv.md` |
 | **Cross-Cutting Flow Testing** | Every persona journey works end-to-end with the now-solid services core. Trust signals accumulate. No dead ends. Pre-loaded with mock-world edge-case seeding + People-tab disclosure model + mock-data hygiene items. | `phases/cross-cutting-flow-testing.md`, `User Journeys.pptx`, `Trust & Connection Model.md` |
 | **Onboarding & In-Product Communication** | Trust model + tier system + privacy mechanics + provider pricing setup tutorials. Multiple touchpoints (locked profile lock card, Familiar asymmetry, Helper/Provider tier, privacy explainer, share-link bypass, group visibility chip, pricing setup walkthrough) share the same root: users need to understand mechanics without being lectured. | `phases/onboarding-and-communication.md`, `Trust & Connection Model.md`, `Open Questions §2 + §3 + §4` |
 | **Design System Cleanup** | Resolve accumulated design-system inconsistencies — chip vs button visual collision, ButtonAction variant overlap, ModalSheet footer pattern drift, owner+dog avatar pattern cascade, optional-field label conventions (P51). Audits existing components into a coherent vocabulary; doesn't add new ones. Can run any time; best opened after a content phase. | `phases/design-system-cleanup.md`, `implementation/design-system.md`, Punch List P51 |

@@ -17,7 +17,6 @@ import type {
 import { BookingProposalCard } from "@/components/messaging/BookingProposalCard";
 import { InquiryCard } from "@/components/messaging/InquiryCard";
 import { PaymentCard } from "@/components/messaging/PaymentCard";
-import { ContractCard } from "@/components/messaging/ContractCard";
 import { SigningModal } from "@/components/messaging/SigningModal";
 import { InquiryResponseCard } from "@/components/messaging/InquiryResponseCard";
 import { ProposalForm } from "@/components/messaging/ProposalForm";
@@ -370,33 +369,21 @@ export function ThreadClient({
       });
     }
 
+    // Flip proposal → accepted; updateProposalStatus stamps `signedAt`
+    // on the proposal itself so the accepted-state footer can render
+    // "Signed HH:MM · View booking" inline. The separate ContractCard
+    // was redundant with the accepted-state proposal card and added a
+    // chronicle event for an action the proposal already represents.
+    // Sessions & Service Execution walkthrough, 2026-05-05.
+    const signedAt = new Date().toISOString();
     updateProposalStatus(conv.id, msgId, "accepted");
     setLocalMessages((prev) =>
       prev.map((m) =>
         m.id === msgId && m.proposal
-          ? { ...m, proposal: { ...m.proposal, status: "accepted" } }
+          ? { ...m, proposal: { ...m.proposal, status: "accepted", signedAt } }
           : m
       )
     );
-
-    const contractMsg: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      conversationId: conv.id,
-      sender: myRole,
-      type: "contract",
-      contract: {
-        bookingId,
-        serviceType: p.serviceType,
-        subService: p.subService,
-        carerName: conv.providerName,
-        pets: p.pets,
-        startDate: p.startDate,
-      },
-      sentAt: new Date().toISOString(),
-      read: true,
-    };
-    addMessage(conv.id, contractMsg);
-    setLocalMessages((prev) => [...prev, contractMsg]);
 
     // Inquiry-driven trust transition: contract sign → mutual Connected.
     // The booking IS the connection request — when it's signed, both
@@ -548,15 +535,12 @@ export function ThreadClient({
                     );
                   }
                   if (msg.type === "contract") {
-                    return (
-                      <div
-                        key={msg.id}
-                        className="inbox-message-wrap inbox-message-wrap--center"
-                      >
-                        <ContractCard msg={msg} />
-                        <span className="inbox-message-time">{formatTime(msg.sentAt)}</span>
-                      </div>
-                    );
+                    // Contract messages are no longer rendered in the
+                    // stream — the accepted proposal card carries the
+                    // signing signal + inline timestamp. Legacy contract
+                    // messages on seeded conversations are silently
+                    // skipped. Sessions & Service Execution, 2026-05-05.
+                    return null;
                   }
                   if (msg.type === "payment_summary" || msg.type === "payment_confirmed") {
                     return (

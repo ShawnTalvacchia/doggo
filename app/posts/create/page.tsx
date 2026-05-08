@@ -130,23 +130,22 @@ export default function CreatePostPage() {
           </div>
 
           {/* Caption */}
-          <div className="flex flex-col gap-xs">
-            <label className="text-sm font-medium text-fg-primary">
-              Caption <span className="text-fg-tertiary font-normal">(optional)</span>
+          <div className="input-block">
+            <label
+              className="inline-flex items-center gap-xs text-sm font-semibold text-fg-primary"
+              htmlFor="post-caption"
+            >
+              Caption
+              <span className="text-xs font-normal text-fg-tertiary">(Optional)</span>
             </label>
             <textarea
+              id="post-caption"
+              className="textarea"
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               placeholder="What's happening?"
               rows={2}
               maxLength={280}
-              className="rounded-form px-md py-sm text-sm"
-              style={{
-                border: "1px solid var(--border-regular)",
-                background: "var(--surface-base)",
-                resize: "vertical",
-                fontFamily: "var(--font-body)",
-              }}
             />
             <span className="text-xs text-fg-tertiary text-right">{caption.length}/280</span>
           </div>

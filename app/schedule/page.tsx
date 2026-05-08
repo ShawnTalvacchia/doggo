@@ -16,8 +16,10 @@ import { LayoutSection } from "@/components/layout/LayoutSection";
 import { FilterPillRow } from "@/components/ui/FilterPillRow";
 import { getUserMeetInstances, getFollowedSeries, mockMeets } from "@/lib/mockMeets";
 import { getUserGroups } from "@/lib/mockGroups";
-import { getMeetRole, getMeetOccurrences, isMeetVisibleTo } from "@/lib/meetUtils";
+import { getMeetRole, getMeetOccurrences, isMeetVisibleTo, isOccurrenceCancelled } from "@/lib/meetUtils";
 import { useBookings } from "@/contexts/BookingsContext";
+import { useReviews } from "@/contexts/ReviewsContext";
+import { CareReviewSheet } from "@/components/bookings/CareReviewSheet";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { useDismissedReviews, makeDismissId } from "@/lib/dismissedReviews";
 import type { Meet, Booking, BookingSession } from "@/lib/types";
@@ -123,6 +125,12 @@ function ScheduleInner() {
   // "what series do I belong to."
   const myInstances = getUserMeetInstances(CURRENT_USER);
   const { bookings } = useBookings();
+  const { hasReview, addReview } = useReviews();
+  // CareReviewSheet state — opened directly from a review-recent card so
+  // the user doesn't have to bounce through the booking-detail page just
+  // to leave a review. The booking-detail "Leave a review" CTA stays as
+  // the alternative path for someone who's there for other reasons.
+  const [reviewBooking, setReviewBooking] = useState<Booking | null>(null);
   const todayIso = new Date().toISOString().slice(0, 10);
   // Cancelled meets DO appear in Upcoming — silently disappearing from
   // the schedule is worse than showing them with a clear cancelled
@@ -145,9 +153,12 @@ function ScheduleInner() {
     return d.toISOString().slice(0, 10);
   })();
   const recentReviewItems = useMemo<ReviewItem[]>(() => {
-    return myInstances
+    const meetItems: ReviewItem[] = myInstances
       .filter((occ) =>
-        occ.meet.status !== "cancelled" &&
+        // Filter out both series-level (`meet.status`) and per-occurrence
+        // (`meet.cancelledDates[date]`) cancellations — neither is a
+        // reviewable past meet.
+        !isOccurrenceCancelled(occ.meet, occ.date) &&
         occ.date >= recentCutoffIso &&
         occ.date < todayIso,
       )
@@ -162,15 +173,52 @@ function ScheduleInner() {
         date: occ.date,
         sortKey: occ.date,
       }));
-  }, [myInstances, recentCutoffIso, todayIso, CURRENT_USER]);
+
+    // Care-side: completed bookings owned by the viewer that haven't been
+    // reviewed yet. Also surfaces ongoing bookings where at least one
+    // session has been completed — the prompt nudges the owner to leave
+    // a review even before the whole arrangement ends. Limited to
+    // bookings where the viewer is the owner (carers don't review
+    // themselves) and where the most-recent activity is within the same
+    // 14-day window the meets use, for consistent recency framing.
+    const sessionItems: ReviewItem[] = bookings
+      .filter((b) => b.ownerId === CURRENT_USER)
+      .filter((b) => {
+        if (hasReview(b.id)) return false;
+        if (b.status === "completed") return true;
+        // Active/ongoing — only surface when a session was completed
+        // recently (so reviews get prompted gradually rather than after
+        // the booking ends, which may be never for an ongoing weekly).
+        const lastCompleted = (b.sessions ?? [])
+          .filter((s) => s.status === "completed")
+          .map((s) => s.date)
+          .sort()
+          .reverse()[0];
+        return !!lastCompleted && lastCompleted >= recentCutoffIso && lastCompleted < todayIso;
+      })
+      .map((b) => {
+        const lastSessionDate = (b.sessions ?? [])
+          .filter((s) => s.status === "completed")
+          .map((s) => s.date)
+          .sort()
+          .reverse()[0];
+        const sortKey = lastSessionDate ?? b.endDate ?? b.startDate;
+        return { kind: "session" as const, booking: b, sortKey };
+      });
+
+    return [...meetItems, ...sessionItems];
+  }, [myInstances, recentCutoffIso, todayIso, CURRENT_USER, bookings, hasReview]);
 
   // Pending count = recent items that haven't been dismissed. Drives the
   // History tab badge. Date is part of the dismiss key so dismissing one
   // occurrence doesn't dismiss every other occurrence of the same series.
   const pendingReviewCount = useMemo(() => {
-    return recentReviewItems.filter(
-      (it) => !dismissed.has(meetOccurrenceDismissId(it.meet.id, it.date)),
-    ).length;
+    return recentReviewItems.filter((it) => {
+      const id = it.kind === "meet"
+        ? meetOccurrenceDismissId(it.meet.id, it.date)
+        : makeDismissId("session", it.booking.id);
+      return !dismissed.has(id);
+    }).length;
   }, [recentReviewItems, dismissed]);
 
   // "Earlier" — past occurrences the user attended, beyond the review window
@@ -178,7 +226,7 @@ function ScheduleInner() {
   // chronologically, most recent first.
   const earlierMeets = useMemo<{ meet: Meet; role: MeetRole; date: string; sortKey: string }[]>(() => {
     return myInstances
-      .filter((occ) => occ.meet.status !== "cancelled" && occ.date < todayIso)
+      .filter((occ) => !isOccurrenceCancelled(occ.meet, occ.date) && occ.date < todayIso)
       .filter((occ) => {
         const role = getMeetRole(occ.meet, CURRENT_USER, occ.date);
         return role === "joining" || role === "hosting";
@@ -419,7 +467,10 @@ function ScheduleInner() {
         {/* History tab — review section on top, earlier chronicle below. */}
         {tab === "history" && (
           <>
-            <ReviewRecentSection items={recentReviewItems} />
+            <ReviewRecentSection
+              items={recentReviewItems}
+              onReviewSession={(booking) => setReviewBooking(booking)}
+            />
 
             {earlierMeets.length > 0 ? (
               <div className="flex flex-col">
@@ -437,6 +488,7 @@ function ScheduleInner() {
                       key={`${item.meet.id}-${item.date}`}
                       meet={item.meet}
                       role={item.role}
+                      date={item.date}
                       isPast
                     />
                   );
@@ -479,6 +531,7 @@ function ScheduleInner() {
                       key={`${item.meet.id}-${item.date}`}
                       meet={item.meet}
                       role={item.role}
+                      date={item.date}
                     />
                   ) : item.kind === "session" ? (
                     <ScheduleCareCard
@@ -527,6 +580,35 @@ function ScheduleInner() {
 
         <Spacer />
       </div>
+
+      {/* Care review sheet — opened by a review-recent card's Review tap.
+          Single instance at the page level; closes on submit / cancel. */}
+      <CareReviewSheet
+        open={!!reviewBooking}
+        onClose={() => setReviewBooking(null)}
+        carerName={reviewBooking?.carerName ?? ""}
+        onSubmit={(payload) => {
+          if (!reviewBooking) return;
+          const ownerNameParts = reviewBooking.ownerName.split(" ");
+          addReview({
+            bookingId: reviewBooking.id,
+            authorId: reviewBooking.ownerId,
+            authorName:
+              ownerNameParts.slice(0, 1).join(" ") +
+              " " +
+              (ownerNameParts[1]?.[0] ?? "") +
+              ".",
+            carerName: reviewBooking.carerName,
+            carerAvatarUrl: reviewBooking.carerAvatarUrl,
+            rating: payload.rating,
+            text: payload.text,
+            photoUrl: payload.photoUrl,
+            wouldBookAgain: payload.wouldBookAgain,
+            isPrivate: payload.isPrivate,
+          });
+          setReviewBooking(null);
+        }}
+      />
     </PageColumn>
   );
 }

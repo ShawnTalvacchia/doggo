@@ -35,27 +35,32 @@ export function CancelBookingModal({ open, onClose, onConfirm, carerName }: Canc
         </div>
       }
     >
-      <div className="flex flex-col gap-md">
-        <p className="text-sm text-fg-secondary m-0">
+      <div className="flex flex-col gap-md p-lg">
+        <p className="text-base text-fg-secondary m-0">
           Are you sure you want to cancel your booking with {carerName}? This action cannot be undone.
         </p>
 
-        <div className="flex flex-col gap-xs">
-          <label className="text-sm font-medium text-fg-primary">
-            Reason <span className="text-fg-tertiary font-normal">(optional)</span>
+        <div className="input-block">
+          {/* Sibling pattern to CancelSessionModal — uses the
+              design-system `.textarea` primitive + matching label
+              styling (semibold + primary text, tertiary "(Optional)"
+              suffix) so all the cancel-flow modals read as one
+              language. Was previously inline-styled with surface-base
+              bg + lighter border. Aligned 2026-05-08. */}
+          <label
+            className="inline-flex items-center gap-xs text-sm font-semibold text-fg-primary"
+            htmlFor="cancel-booking-reason"
+          >
+            Reason
+            <span className="text-xs font-normal text-fg-tertiary">(Optional)</span>
           </label>
           <textarea
+            id="cancel-booking-reason"
+            className="textarea"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="Let them know why you're cancelling..."
             rows={3}
-            className="rounded-form px-md py-sm text-sm"
-            style={{
-              border: "1px solid var(--border-regular)",
-              background: "var(--surface-base)",
-              resize: "vertical",
-              fontFamily: "var(--font-body)",
-            }}
           />
         </div>
       </div>

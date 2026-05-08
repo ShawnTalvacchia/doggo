@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-02
+last-reviewed: 2026-05-08
 tags: [demo, persona-switching, testing, infrastructure]
 review-trigger: "when adding a new persona, when changing persona-switching surfaces, when wiring per-persona mock data"
 ---
@@ -46,6 +46,8 @@ Five personas, ordered for the picker:
 Shawn was removed from the picker 2026-04-26 — the actual developer's name shouldn't double as a demo character. He still exists in mock-world data as a Vinohrady regular other personas encounter; he's just no longer a "view as" option.
 
 Each entry pairs a `UserProfile` with `archetype` + `tagline` framing copy. The `new-user` persona is defined inline in `personas.ts` — empty `pets[]`, blank bio, no `carerProfile`, generic SVG avatar, locked profile visibility, `tagApproval: "approve"`.
+
+**Tereza is a dual-role persona** (Sessions & Service Execution, 2026-05-08). She's both an owner (Olga walks Franta — recurring Tue/Thu, ongoing, `booking-olga-tereza`) and a carer (sits + walks Marek's Benny). On `/bookings`, this triggers the dual-tab UI (My Care + My Services) on the default persona without any `?as=` URL trickery. Reinforces the narrative that even active community members are sometimes on the receiving end of care — and demonstrates the cross-side surface naturally.
 
 **Helpers:**
 - `getPersona(userId): PersonaOption | undefined` — registry lookup by ID
@@ -110,7 +112,18 @@ Use cases:
 - "What does the home feed look like for a brand-new user?" → `/home?as=new-user`
 - "What does this group page look like to a non-member?" → `/communities/svc-klara-training?as=daniel`
 
-The override applies per-render and per-URL only — no global state mutation.
+**Sticky `?as=` (Pricing & Proposals, 2026-05-05).** The override now mirrors to `sessionStorage["doggo-as-preview"]` so it survives route changes within a tab — matters for directory-only personas (Petra, Shawn, Nikola) you can't reach from the picker. Picker actions clear the sessionStorage and strip the URL param via custom event so a deliberate persona switch wins over a stuck preview.
+
+---
+
+## Reset behavior
+
+The `/demo` route and the profile-name dropdown both expose a "Reset demo state" action. Reset wipes:
+
+1. **localStorage** — all `doggo*` keys (`doggo-bookings`, `doggo-conversations`, `doggo-connection-overrides`, `doggo-care-reviews`, `doggo:dismissedReviews`, `doggo-bookings-upsell-dismissed`, `doggo-viewed-reports`, `doggo-as-preview`).
+2. **In-memory `usePersistedState` cache** (Sessions & Service Execution, 2026-05-08). Previous behavior cleared localStorage but left the module-level Map holding stale values until a full page reload swapped modules — leading to confusing "I reset but state didn't change" symptoms during walkthroughs. `resetPersistedState("doggo")` now broadcasts a notification so all subscribed components re-read fresh state on next render.
+
+After reset, mock data re-seeds from the static modules (`lib/mockBookings.ts`, etc.). Mock dates use `daysAgo` / `daysFromNow` (Sessions & Service Execution, 2026-05-08) so the demo always reads as a live ongoing arrangement regardless of when a tester opens it — kd-1 through kd-5 step weekly back from today; `notif-10` is dated relative to today.
 
 ---
 

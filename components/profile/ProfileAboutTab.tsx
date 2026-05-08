@@ -97,50 +97,42 @@ function ConnectionsList({ viewerId }: { viewerId: string }) {
   );
 }
 
-// ── Edit chrome (top of tab) ─────────────────────────────────────────────────
+// ── Edit chrome (form actions while editing) ────────────────────────────────
+//
+// Renders only during edit mode — Save + Cancel are form-level actions tied
+// to the section being edited, so they live inside the tab body. The
+// "Edit Profile" entry-point button lives in the page hero alongside
+// "Share Profile" (page-level actions cluster). When not editing, this
+// block renders nothing.
 
 function EditChrome({
   editing,
-  onStartEdit,
   onCancel,
   onSave,
 }: {
   editing: boolean;
-  onStartEdit: () => void;
   onCancel: () => void;
   onSave: () => void;
 }) {
+  if (!editing) return null;
   return (
     <div className="flex justify-end gap-sm">
-      {editing ? (
-        <>
-          <ButtonAction
-            variant="outline"
-            size="md"
-            leftIcon={<X size={14} weight="bold" />}
-            onClick={onCancel}
-          >
-            Cancel
-          </ButtonAction>
-          <ButtonAction
-            variant="primary"
-            size="md"
-            leftIcon={<Check size={14} weight="bold" />}
-            onClick={onSave}
-          >
-            Save
-          </ButtonAction>
-        </>
-      ) : (
-        <ButtonAction
-          variant="outline"
-          size="md"
-          leftIcon={<PencilSimple size={14} weight="bold" />}
-          onClick={onStartEdit}
-        >
-          Edit Profile
-        </ButtonAction>
-      )}
+      <ButtonAction
+        variant="outline"
+        size="md"
+        leftIcon={<X size={14} weight="bold" />}
+        onClick={onCancel}
+      >
+        Cancel
+      </ButtonAction>
+      <ButtonAction
+        variant="primary"
+        size="md"
+        leftIcon={<Check size={14} weight="bold" />}
+        onClick={onSave}
+      >
+        Save
+      </ButtonAction>
     </div>
   );
 }
@@ -150,7 +142,6 @@ function EditChrome({
 interface ProfileAboutTabProps {
   user: UserProfile;
   editing: boolean;
-  onStartEdit: () => void;
   onCancel: () => void;
   onSave: () => void;
   editState: { bio: string; pets: PetProfile[] };
@@ -164,7 +155,6 @@ interface ProfileAboutTabProps {
 export function ProfileAboutTab({
   user,
   editing,
-  onStartEdit,
   onCancel,
   onSave,
   editState,
@@ -176,7 +166,6 @@ export function ProfileAboutTab({
     <div className="profile-tab-stack" style={{ padding: "var(--space-lg)" }}>
       <EditChrome
         editing={editing}
-        onStartEdit={onStartEdit}
         onCancel={onCancel}
         onSave={onSave}
       />

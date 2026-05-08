@@ -26,6 +26,7 @@ import { CaretDown, ArrowSquareOut, Check, ArrowCounterClockwise } from "@phosph
 import { personas } from "@/lib/personas";
 import { useDemoState } from "@/contexts/CurrentUserContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { resetPersistedState } from "@/lib/usePersistedState";
 
 /**
  * Wipe every `doggo:*` localStorage key — clears persona override, dismissed
@@ -41,6 +42,9 @@ function clearDemoLocalStorage() {
   } catch {
     // Ignore — private browsing / storage disabled.
   }
+  // Also wipe the in-memory usePersistedState cache so mounted components
+  // re-read fresh defaults instead of stale post-reset state. 2026-05-08.
+  resetPersistedState("doggo");
 }
 
 interface ProfileNameDropdownProps {

@@ -1,7 +1,8 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-05
+last-reviewed: 2026-05-08
+
 tags: [discover, care, booking, providers, map, payment, trust-gating]
 review-trigger: "when modifying Discover Care tab, provider profiles, booking flows, payment, or map"
 ---
@@ -119,8 +120,48 @@ The auto-pricing engine is the canonical source of truth for proposal prices. Pr
 - Each modifier produces its own line item with a `triggerNote` so the math is legible
 - Recurring/ongoing bookings skip holiday + last-minute (rolling weekly billing handles each week independently)
 - Modifiers are per-service opt-in; carers without modifiers configured fall through with single line item
+- **Session close-out does NOT trigger billing** (Sessions & Service Execution, 2026-05-05). Billing stays decoupled from session state — rolling-weekly cycles handle each week independently. Coupling close-out to billing would create a UX cliff ("if I don't close out, do I not get paid?") and break the rolling model. The visit report is the artifact that closes the loop emotionally; the billing loop runs on its own schedule.
+- **Per-session pricing is intentionally NOT surfaced** in the Sessions tab (Sessions & Service Execution scope decision, 2026-05-05). Session views show care content (photos, notes, structured checks, walk metrics, timestamps) — not money. Pricing stays at booking total + week-level for ongoing bookings. Avoiding per-session pricing avoids two structural sub-questions (ongoing-vs-one-off engine divergence, holiday line-item granularity) that would force engine changes without a real product reason. See `Open Questions §6`.
 
 **Future modifier passes** — see "Future inquiry-form fields" under Future section. Longer-walk, off-hours, boarding-specific (yard / house type / max-dogs), add-on opt-ins (bath, grooming, photo updates), package selection (bundles).
+
+---
+
+## Booking detail surfaces
+
+`/bookings/[bookingId]` — the deep surface for a single booking. Two tabs: **Info** + **Sessions**.
+
+### Sessions tab anatomy (Sessions & Service Execution, 2026-05-08)
+
+Top of the Sessions tab leads with the dog. **`SessionsPetHeader`** renders a full-width hero photo (rounded-panel, max-height 240px mobile / 360px desktop, aspect-preserving) + 28px name heading. No supporting line — photo + name carry identity; the active panel below surfaces session state; service/cadence info lives on the Info tab.
+
+This is a deliberate **pet-as-protagonist** design choice. For an app rooted in trust around your dog, the dog is the experience. Hero treatment over a small avatar:
+
+- Encourages emotional bonding — the dog visually anchors every session interaction
+- Makes scrolling `/bookings` recall each dog instantly
+- Behavioral nudge: owners who see their dog rendered at hero scale tend to upload better photos
+
+Aspect ratio is preserved (no forced crop), so owner-uploaded photos render honestly. If a photo is bad, the hero amplifies that — accepted trade-off (the cost is "this dog has a bad photo," which nudges the owner to fix it).
+
+Multi-pet bookings use primary photo + name "&" join for now; full multi-pet design lands when a multi-pet booking enters mock data.
+
+Below the hero: optional booking-cancelled banner → active session panel (when in_progress) → upcoming sessions → past sessions.
+
+### Active session — multi-surface presence
+
+When a session is `in_progress`, three surfaces signal it:
+
+1. **Sessions tab Active panel** — full composition surface (photo upload, notes, GPS for walks, Finish CTA). Owner sees a passive read-only version (latest photo + reassuring copy).
+2. **Mobile: floating banner** above bottom nav — `[ACTIVE]  🏠 Sitting Bára · 24 min  ›` (single line, dark pill with yellow text against amber-tinted shell, slim height). Tap routes to the booking's Sessions tab.
+3. **Desktop: sidebar item** below regular nav — same data, different chrome.
+
+Both mobile banner and desktop sidebar item are avatar-less by design — the status pill + service icon + copy carry the active state without a thumbnail competing for attention in slim formats.
+
+### Bookings list (`/bookings`)
+
+Single-mode for solo-role users: owner-only personas (Daniel, Tomáš) see "My Care" content directly with no tabs; carer-only personas (Klára) see "My Services" directly. Tabs return when a viewer has bookings on both sides (Tereza, Tomáš in mock world).
+
+**Cross-side role-expansion banner (2026-05-08):** in single-mode, a slim dismissable banner sits at the top of the panel — for owners, "Offer to help your neighbours? Set up a service on your profile →"; for carers, "Need care for your dog? Find someone you trust →". Aligns with the "everyone-on-the-same-dial" principle from Provider Tier strategy. Persistent dismiss via `doggo-bookings-upsell-dismissed` — once X'd, it's gone for good. Replaces the older bottom-of-list card placement, which got buried as users accumulated bookings.
 
 ---
 
@@ -203,6 +244,7 @@ Booking detail (Info tab) → "You're providing" pill shown
 - **Review form** — full review submission flow after completed bookings (currently stub button only).
 - **Provider dashboard** — earnings view, availability calendar, incoming requests management.
 - **Session photos** — `photoUrl` field exists on BookingSession type, UI not yet built.
+- **Native camera trigger for in-session photos.** Today the "Send a photo update" button on the Active panel opens a generic file picker (works fine, lets the provider grab a photo from gallery or camera). On mobile, the HTML `capture="environment"` attribute on the file input would prompt the rear camera directly — a small no-cost improvement. Beyond that, a true camera-first flow (full-screen camera UI with shutter, gallery toggle, retake) matches Time To Pet's pattern and feels much more "in-session" than a file dialog. Worth a mock-screen pass during Demo Presentation if we want the in-session flow to feel native; full implementation is post-prototype. Sessions & Service Execution walkthrough B4, 2026-05-05.
 - **Walker service tiers** — neighbourhood walk vs. park walk with different pricing (folds into Pricing & Proposals).
 - **Availability window filter on Discover** (morning / afternoon / evening) — currently no time filter; sub-note inside the service-aware filter refactor.
 

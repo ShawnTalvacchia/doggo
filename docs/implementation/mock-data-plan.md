@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-05-02
+last-reviewed: 2026-05-08
 tags: [mock-data, demo, prototype, data-model]
 review-trigger: "before creating or modifying mock data files"
 ---
@@ -18,7 +18,7 @@ Depends on: [[Groups & Care Model]], [[Content Visibility Model]], [[Trust & Con
 
 ---
 
-## Current State (as of 2026-05-02)
+## Current State (as of 2026-05-08)
 
 | Entity | Count | Notes |
 |--------|-------|-------|
@@ -27,12 +27,34 @@ Depends on: [[Groups & Care Model]], [[Content Visibility Model]], [[Trust & Con
 | Connections | per-persona | Shawn 12, Tereza 8, Daniel 5, Klára 10, Tomáš 6, New User 0 (intentional empty state). Indexed via `mockConnectionsByViewer` |
 | Meets | 44 | Mix of completed + upcoming, recurring + one-off, free + paid. All 4 group types represented. |
 | Groups | 24 | Park, Neighbour, Interest, Care types; canonical demo example for each |
-| Bookings | 10 | Active (Daniel↔Klára recurring), completed (Tomáš↔Petra emergency), Tereza-as-carer once, plus Shawn's existing |
+| Bookings | 12 | Active recurring (Daniel↔Klára training, Klára↔Hana training, Olga↔Tereza walks), active one-off (Shawn↔Marie), completed (Tomáš↔Petra emergency, Klára↔Filip training, Tereza↔Marek sitting + walks, Shawn↔Tomáš), plus Olga↔Shawn ongoing walks. Tereza is the only dual-role persona — both owner-side (Olga walks Franta) and carer-side (Marek's Benny). |
 | Posts | 53 | Authorship spread: Klára 10, Shawn 9, Jana 9, Eva 8, Tomáš 7, Tereza 6, Daniel 6, plus supporting cast |
 | Reviews | 13 | Anchored on Klára (training), Petra (sitting), Olga / Nikola (existing providers), Tereza (one warm review from Marek) |
 | Conversations | 13 | Per-persona threads — booking + direct/social mix |
 
 **Quality bar:** all four journey personas have populated home feeds, inboxes, profiles, schedules, and bookings. Tap any persona and their world reads as a real account. Profile-visibility distribution sits at ~67% locked / 33% open per the community-first thesis (P36 rebalance).
+
+### Date strategy: relative dates for live-feeling demo
+
+**Sessions & Service Execution refresh, 2026-05-08.** Mock data that needs to track "today" uses the helpers in `lib/mockDate.ts`:
+
+- `daysAgo(n)` for things that should always look recently past (review-eligible meets, recently-completed sessions, fresh chat timestamps)
+- `daysFromNow(n)` for things that should always look soon (upcoming meets, scheduled care sessions, upcoming bookings)
+- `daysAgoIso(n, time?)` / `daysFromNowIso(n, time?)` for full ISO datetime variants (notification `createdAt`, visit-report `completedAt`, etc.)
+
+Why: hardcoded dates ("2026-04-09") drift out of useful windows over time — meets fall off the schedule, completed sessions age past the review-recent window, "new visit report" indicators stop firing, notifications disappear off the visible recency cutoff. Relative dates keep the same day-zero state coherent every time someone opens the demo.
+
+Use sparingly — only data that needs to track today. Static deeper history (long-term context, profile member-since dates, reviewable past events) is fine. Module-level evaluation means values stabilize for the page session; route-level mounting refreshes them.
+
+**Currently relative:**
+- `klaraTrainingDaniel` sessions kd-1 through kd-5 (weekly back from today) + kd-5 visit report
+- `klaraTrainingHana` sessions
+- `olgaBooking` sessions
+- `olgaWalksTereza` sessions
+- `shawnCarerActiveBooking`, `terezaWalksMarek` (and other ongoing bookings) upcoming sessions
+- `notif-10` session_completed notification
+
+**Should remain static:** historical milestones (signed dates), long-completed bookings used for archival demonstration, posts with anchored timestamps in story copy.
 
 ---
 

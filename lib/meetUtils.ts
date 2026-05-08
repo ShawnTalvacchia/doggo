@@ -167,6 +167,39 @@ export function getDisplayDate(meet: Meet): string {
 }
 
 /**
+ * True iff a specific occurrence of a recurring meet has been cancelled by
+ * the host. Series-level cancellation (`meet.status === "cancelled"`) is a
+ * separate concept — that kills the whole series.
+ *
+ * For one-off meets the per-occurrence concept doesn't apply; falls back to
+ * the series-level cancellation flag so callers can use one helper for both
+ * shapes when they need to ask "is this (meet, date) cancelled."
+ */
+export function isOccurrenceCancelled(meet: Meet, date: string): boolean {
+  if (meet.cadence === "one_off") return meet.status === "cancelled";
+  return Boolean(meet.cancelledDates?.[date]);
+}
+
+/**
+ * Reason a specific occurrence was cancelled, if any. Mirrors
+ * `isOccurrenceCancelled` — returns the series-level cancellation reason for
+ * one-off meets, the per-date reason for recurring.
+ */
+export function getOccurrenceCancellation(
+  meet: Meet,
+  date: string,
+): { reason: string; cancelledAt: string } | null {
+  if (meet.cadence === "one_off") {
+    if (meet.status !== "cancelled") return null;
+    return {
+      reason: meet.cancellationReason ?? "",
+      cancelledAt: meet.createdAt,
+    };
+  }
+  return meet.cancelledDates?.[date] ?? null;
+}
+
+/**
  * Resolve the next `count` occurrences of a meet, with attendees pre-attached.
  *
  * - One-off: returns a single occurrence at `meet.date` with `meet.attendees`.

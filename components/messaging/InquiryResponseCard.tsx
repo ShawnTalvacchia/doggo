@@ -46,7 +46,7 @@ export function InquiryResponseCard({
           Decline {ownerFirst}&apos;s inquiry?
         </p>
         <textarea
-          className="input w-full mb-sm"
+          className="textarea mb-sm"
           rows={2}
           placeholder={`Optional message to ${ownerFirst}…`}
           value={declineReason}

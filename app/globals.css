@@ -486,8 +486,13 @@
    */
   --app-page-max-width: 768px;
 
-  /* Layout shell (Phase 16 redesign) */
-  --sidebar-width: 180px;
+  /* Layout shell (Phase 16 redesign).
+     Sidebar bumped 180→240 on 2026-05-07: original width was sized for
+     a multi-panel layout that no longer exists. Widening gives the nav
+     items room to breathe and lets the active-session card carry pet
+     copy without aesthetic crowding. Content area stays at
+     `--content-max-width` (640) — no shrink, just shifts right. */
+  --sidebar-width: 240px;
   --content-max-width: 640px;
   --side-panel-width: 320px;
   --padding-main: var(--space-xxl); /* 24px desktop, 0 mobile */
@@ -1654,7 +1659,11 @@ body.guest-route {
 
 .input::placeholder,
 .textarea::placeholder {
-  color: var(--text-tertiary);
+  /* Placeholders should read as hints, not content. `--text-tertiary`
+     (#656666, ~60% black) was reading too close to typed text;
+     `--neutral-400` (#969898, ~41% black) registers as ambient hint
+     while staying WCAG-readable. Bumped 2026-05-07. */
+  color: var(--neutral-400);
 }
 
 .input:hover:not(:focus),
@@ -1962,6 +1971,26 @@ body.guest-route {
 
 .btn-neutral:hover:not(:disabled) {
   background: var(--surface-base);
+}
+
+/* ── Soft variant ──
+   Tile-like: lighter than the surface beneath (popout > base), thin
+   resting border, secondary text. Use when a button needs to feel
+   raised against a base-grey surface without the loudness of primary
+   or the chroma of secondary — typically a row of peer actions sitting
+   inside a tinted panel (e.g. the in-session UPDATES row: Add a note /
+   Send a photo update / Log route with GPS). Hover keeps the bg shift
+   subtle and lets the border + text-color upgrade carry the affordance. */
+.btn-soft {
+  background: var(--surface-popout);
+  color: var(--text-secondary);
+  border: var(--border-width-reg) solid var(--border-strong);
+}
+
+.btn-soft:hover:not(:disabled) {
+  background: var(--surface-top);
+  border-color: var(--border-strongest);
+  color: var(--text-primary);
 }
 
 /* ── Brand-subtle variant ──
@@ -8064,6 +8093,435 @@ body:has(.bottom-nav) .bookings-page {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
 }
 
+/* Past / completed bookings — same card shape at reduced visual weight,
+   so the My Care + My Services Past sections read as a calm chronicle
+   rather than active items. Mirrors `.sched-card--past`. Left stripe
+   neutralises (no brand accent for finished work), surface drops to
+   the inset, title drops to secondary, progress fill mutes to a
+   tertiary tone — bar still reads "this is fully complete," but it no
+   longer competes with active rows above. */
+.booking-card--past {
+  opacity: 0.85;
+  background: var(--surface-base);
+  border-left-color: var(--border-regular);
+}
+
+.booking-card--past .booking-card-name,
+.booking-card--past .booking-card-service {
+  color: var(--text-secondary);
+}
+
+.booking-card--past .booking-card-progress-fill {
+  background: var(--text-tertiary);
+}
+
+.booking-card--past .booking-card-avatar-person,
+.booking-card--past .booking-card-avatar-pet {
+  filter: saturate(0.75);
+}
+
+/* New visit report indicator — surfaces when the owner has an unseen
+   visit report for this booking. Tapping the card routes straight to
+   ?tab=sessions; the indicator is the visual cue. Brand-tinted so it
+   reads as "tap here for the new thing." Contained chip (not edge-to-
+   edge) so all four corners read as rounded. Sessions & Service
+   Execution A6 walkthrough, 2026-05-05. */
+.booking-card-new-report {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  /* No margin — `.booking-card` uses flex-column `gap` for between-row
+     spacing, and adding margins here doubled it up. */
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--brand-strong);
+  background: var(--brand-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.booking-card-new-report > span {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Recent-cancellation indicator ────────────────────────────────────
+   Per-occurrence cancellation surfaces here at the list level so the
+   owner / carer doesn't have to dig into Sessions to see "Klára
+   cancelled this Wednesday." Muted neutral palette — not error/red —
+   because routine cancellation isn't a crisis. Stacks above
+   .booking-card-new-report when both apply (most-recent-event first).
+   F4 walkthrough refinement, 2026-05-08. */
+.booking-card-cancelled {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  background: var(--surface-inset);
+  border-radius: var(--radius-sm);
+}
+
+.booking-card-cancelled > span {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Cross-side upsell card on /bookings — surfaces inside single-mode
+   (when the viewer only has bookings on one side). Owner-side hooks
+   "become a provider"; carer-side hooks "find care." Community-first
+   voice; soft surface so it doesn't compete with the actual booking
+   list above. Sessions & Service Execution A6 walkthrough refinement,
+   2026-05-06. */
+.bookings-upsell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  margin: var(--space-lg) var(--space-md) 0;
+  background: var(--surface-base);
+  border: 1px solid var(--border-regular);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.bookings-upsell:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+.bookings-upsell-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.bookings-upsell-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.bookings-upsell-title {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.bookings-upsell-subtitle {
+  font-size: var(--font-size-body-xs);
+  color: var(--text-tertiary);
+}
+
+.bookings-upsell-chevron {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+/* ── Cross-side upsell banner (slim, dismissable) ──
+   Replaces the older bottom-of-list .bookings-upsell card. Sits at the
+   TOP of single-mode bookings (above the list) so it's discoverable
+   without competing with the booking content. Single line, soft
+   surface, X to dismiss for good. 2026-05-08 walkthrough refinement —
+   bottom placement was getting buried as users accumulated bookings. */
+.bookings-upsell-banner {
+  display: flex;
+  align-items: stretch;
+  margin: var(--space-md) var(--space-md) var(--space-sm);
+  background: var(--surface-base);
+  border: 1px solid var(--border-regular);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.bookings-upsell-banner:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+.bookings-upsell-banner-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.bookings-upsell-banner-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.bookings-upsell-banner-label {
+  font-size: var(--font-size-body-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bookings-upsell-banner-chevron {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.bookings-upsell-banner-dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-md);
+  background: none;
+  border: none;
+  border-left: 1px solid var(--border-regular);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 0.12s ease, background 0.12s ease;
+  flex-shrink: 0;
+}
+
+.bookings-upsell-banner-dismiss:hover {
+  color: var(--text-primary);
+  background: var(--surface-hover);
+}
+
+/* Active-session card — booking has a session currently in_progress.
+   Light amber surface + amber left stripe pulls the card forward in
+   the list so providers can spot live work at a glance. Sits above
+   the status pill (which says "Active" for active *bookings*) — the
+   distinction is "the booking is live" (status pill) vs "a session
+   is happening RIGHT NOW" (card chrome). Sessions & Service
+   Execution walkthrough A3, 2026-05-05. */
+.booking-card--live {
+  background: var(--warning-25);
+  border-left-color: var(--status-warning-main);
+}
+
+/* On a live card, the green "Active" pill + green "In progress" row +
+   green pulse dot all clash with the amber surface. Retint each to
+   match the warning palette so the card reads as one coherent
+   "happening right now" treatment instead of green-on-amber soup.
+   Text uses `--warning-850` (dark amber-brown) rather than the
+   semantic `--status-warning-strong` (= `--warning-600`, a yellow-gold)
+   — the strong alias was designed for darker surfaces, not for text
+   on amber tints, so it ends up looking washed out against
+   `--warning-25`. */
+.booking-card--live .booking-status-badge--active {
+  color: var(--warning-850);
+  background: var(--warning-100);
+}
+
+.booking-card--live .booking-card-next--live {
+  color: var(--warning-850);
+}
+
+.booking-card--live .booking-card-live-dot {
+  background: var(--status-warning-main);
+}
+
+/* ── Active session banner (mobile) ───────────────────────────────────
+   Sticks to the top of the scrollable content area (.logged-shell-main)
+   when a session is in_progress for the viewer. NOT a card — instead,
+   the shell itself gets a soft amber tint (via :has below) and the
+   banner is a strip of content on that shared surface. The page panel
+   below has its own white surface that covers most of the amber,
+   leaving the amber visible only behind the panel's rounded top
+   corners and the banner's row — a single integrated "active care"
+   section rather than a card-on-a-card.
+
+   Hidden on desktop — sidebar's `<SidebarActiveSessionLink>` carries
+   that surface there. Sessions & Service Execution A3, 2026-05-05. */
+.active-session-banner {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: block;
+  /* `.logged-shell-main` is `display: flex; justify-content: center`,
+     which would otherwise shrink the banner to its content width and
+     center it. `width: 100%` opts the banner out of that — it spans
+     the available row width like a normal block. */
+  width: 100%;
+  text-decoration: none;
+  color: inherit;
+  /* No bg — inherits the amber tint applied to .logged-shell-main
+     when this banner is in the DOM (rule below). Top border separates
+     the banner from the AppNav above. */
+  border-top: 1px solid var(--warning-100);
+}
+
+/* Tint the shell amber when the banner is mounted. Panel covers most
+   of it; what shows through is the banner's row + small triangles
+   behind the panel's rounded top corners. Keys off DOM presence via
+   `:has`, so absence-state shells stay neutral with no class plumbing. */
+.logged-shell-main:has(.active-session-banner) {
+  background: var(--warning-50);
+}
+
+@media (min-width: 768px) {
+  /* Hidden on desktop — sidebar's `<SidebarActiveSessionLink>` carries
+     this signal there. Suppress both the banner itself and the shell
+     tint so the desktop layout stays neutral. */
+  .active-session-banner {
+    display: none;
+  }
+  .logged-shell-main:has(.active-session-banner) {
+    background: transparent;
+  }
+}
+
+.active-session-banner-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  /* Tighter vertical padding — banner is a slim signal, not a tile.
+     Single-line layout means we don't need the extra height. 2026-05-08. */
+  padding: 6px var(--space-md);
+}
+
+/* Status pill — dark surface with warning-yellow text. Strong contrast
+   against the amber-tinted shell so the live state reads unmistakably.
+   2026-05-08 walkthrough refinement (replaces the older two-line layout
+   with status icon + uppercase "ACTIVE NOW" header). */
+.active-session-banner-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-base-inverse);
+  color: var(--warning-300);
+  font-size: var(--font-size-body-xs);
+  font-weight: var(--weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.active-session-banner-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  font-size: var(--font-size-body-sm);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.active-session-banner-copy-text {
+  font-weight: var(--weight-semibold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.active-session-banner-elapsed {
+  font-weight: var(--weight-regular);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.active-session-banner-chevron {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+/* ── Sidebar Active Now card (desktop) ────────────────────────────────
+   Pinned to the bottom of the sidebar (after the regular nav items)
+   when a session is in_progress for the viewer. `margin-top: auto`
+   pushes it to the bottom of the sidebar's flex column, so the regular
+   nav items stay anchored at the top — adding/removing the card
+   doesn't shift them. */
+.sidebar-active-session {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  /* Sits right below the regular nav items so it's discoverable at a
+     glance, not buried at the bottom of the sidebar. The top margin
+     forms a visual gap that separates "your nav" from "what's
+     happening right now"; the amber chrome carries the visual
+     distinction by itself, no top-divider line needed. */
+  margin-top: 16px;
+  border-radius: var(--radius-sm);
+  background: var(--warning-50);
+  border: 1px solid var(--warning-100);
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.sidebar-active-session:hover {
+  background: var(--warning-100);
+  border-color: var(--warning-300);
+}
+
+.sidebar-active-session-pet {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.sidebar-active-session-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-active-session-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  color: var(--status-warning-strong, var(--text-secondary));
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sidebar-active-session-elapsed {
+  font-weight: var(--weight-regular);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.sidebar-active-session-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .booking-card-top {
   display: flex;
   align-items: center;
@@ -8072,7 +8530,10 @@ body:has(.bottom-nav) .bookings-page {
 
 .booking-card-avatars {
   position: relative;
-  width: 48px;
+  /* 36px person + 36px pet overlapping at left:20 → right edge at 56px.
+     Container width must contain its children so the flex gap that
+     separates avatars from the name actually renders. */
+  width: 56px;
   height: 36px;
   flex-shrink: 0;
 }
@@ -9154,6 +9615,12 @@ body:has(.bottom-nav) .inbox-page {
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  /* min-width: 0 cascades down to the embedded thread shell, which
+     allows the proposal/inquiry cards inside to size correctly on
+     narrow viewports rather than being forced to their intrinsic
+     min-content width. Sessions & Service Execution walkthrough fix
+     2026-05-05. */
+  min-width: 0;
   height: 100%;
   overflow: hidden;
   position: relative;
@@ -9165,6 +9632,7 @@ body:has(.bottom-nav) .inbox-page {
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  min-width: 0;
 }
 
 .inbox-thread-embedded .inbox-thread-body {
@@ -9179,6 +9647,12 @@ body:has(.bottom-nav) .inbox-page {
   margin: 0;
   flex: 1;
   min-height: 0;
+  /* min-width: 0 lets flex children that have intrinsic min-content
+     widths (proposal-card rows with long values like "20 Jan 2026 –
+     10 Feb 2026") shrink properly inside narrow viewports — without
+     this, mobile rendering falls into a "one word per line" column
+     because the card's intrinsic width tries to overflow the wrap. */
+  min-width: 0;
 }
 
 /* ── Thread header ───────────────────────────────────────────── */
@@ -9268,6 +9742,13 @@ body:has(.bottom-nav) .inbox-page {
   flex-direction: column;
   gap: 12px;
   width: 100%;
+  /* Defensive: keep the card from being forced wider than its parent by
+     internal long-content rows (subService labels, date ranges) on
+     narrow viewports. Without this, mobile collapses the card to
+     min-content width and stacks every chip one-per-line. Same fix
+     pattern as `.inbox-proposal-card`. Sessions & Service Execution
+     walkthrough, 2026-05-05. */
+  min-width: 0;
 }
 
 .inquiry-card-header {
@@ -9986,7 +10467,7 @@ body:has(.bottom-nav) .inbox-page {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px 0 10px;
+  padding: 24px 0 18px;
 }
 
 .inbox-date-sep-label {
@@ -10004,8 +10485,12 @@ body:has(.bottom-nav) .inbox-page {
 .inbox-message-wrap {
   display: flex;
   flex-direction: column;
-  margin-bottom: 4px;
+  margin-bottom: 14px;
   max-width: 80%;
+  /* min-width: 0 keeps proposal/inquiry cards from forcing an
+     intrinsic min-content width that overflows narrow viewports.
+     Sessions & Service Execution walkthrough fix 2026-05-05. */
+  min-width: 0;
 }
 
 .inbox-message-wrap--owner {
@@ -10051,7 +10536,7 @@ body:has(.bottom-nav) .inbox-page {
 .inbox-message-time {
   font-size: var(--font-size-fine);
   color: var(--text-muted);
-  padding: 2px 6px 0;
+  padding: 4px 6px 0;
 }
 
 /* ── Booking proposal card ───────────────────────────────────── */
@@ -10062,10 +10547,18 @@ body:has(.bottom-nav) .inbox-page {
   border-radius: var(--radius-panel);
   overflow: hidden;
   width: 100%;
+  /* Defensive: keep the card from being forced wider than its parent by
+     internal long-value rows on narrow viewports. */
+  min-width: 0;
 }
 
+/* Accepted proposals — inherit the default border. The earlier
+   brand-green border (`--success-300`) read as "this card is the
+   active CTA," which fights the chronicle pattern (the proposal is
+   *historical* once accepted; the live record is the booking). The
+   "View booking →" footer link carries the actionable signal. */
 .inbox-proposal-card--accepted {
-  border-color: var(--success-300);
+  border-color: var(--border-default);
 }
 
 .inbox-proposal-card--declined {
@@ -10195,6 +10688,16 @@ body:has(.bottom-nav) .inbox-page {
 
 .inbox-proposal-status-link:hover {
   text-decoration: underline;
+}
+
+/* Signed-at stamp inline-prefixes the "View booking" link on the
+   accepted-state footer. Lower-contrast than the link itself so the
+   tap target stays the visual anchor, but the time is legible at a
+   glance — replaces the redundant ContractCard chronicle event.
+   Sessions & Service Execution, 2026-05-05. */
+.inbox-proposal-signed-stamp {
+  color: var(--text-muted);
+  font-weight: var(--weight-regular);
 }
 
 .inbox-proposal-status--pending {
@@ -11864,7 +12367,9 @@ body:has(.bottom-nav) .inbox-page {
   margin: 0;
 }
 
-/* Unread dot */
+/* Unread dot — used in the dropdown panel (NotificationsPanel.tsx)
+   on the right edge of each row. The full /notifications page uses
+   `.notif-unread-badge` instead — see below. */
 .notif-unread-dot {
   width: 8px;
   height: 8px;
@@ -11872,6 +12377,33 @@ body:has(.bottom-nav) .inbox-page {
   background: var(--brand-400);
   flex-shrink: 0;
   margin-top: 4px;
+}
+
+/* Unread badge — corner pip overlaid on the avatar in the full
+   /notifications page. Replaces the older left-side dot column, which
+   fought the avatar visually. Border in the surface color so the badge
+   reads as overlapping the avatar edge. 2026-05-08. */
+.notif-unread-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-circle);
+  background: var(--brand-400);
+  border: 2px solid var(--surface-popout);
+  pointer-events: none;
+}
+
+/* Category tag — small uppercase letter-spaced label paired with the
+   timestamp on the top row of each notification row. Visually distinct
+   from body text so it doesn't read as message wrap. 2026-05-08. */
+.notif-cat-tag {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: var(--weight-semibold);
+  font-size: 10px;
+  color: var(--text-tertiary);
 }
 
 /* Empty state */
@@ -14444,6 +14976,20 @@ body:has(.bottom-nav) .inbox-page {
   gap: 3px;
   font-size: var(--font-size-body-xs);
   color: var(--text-tertiary);
+}
+
+/* Wrapper for the quick-start button on a Schedule care card — uses
+   the standard ButtonAction primary variant inside, which carries its
+   own styling. The wrapper just adds top margin and stops the parent
+   Link's click bubble so tapping the button doesn't also navigate
+   through the card's outer Link. Sessions & Service Execution A3
+   walkthrough refinement, 2026-05-06. */
+.sched-card-quick-start-wrap {
+  margin-top: 8px;
+}
+
+.sched-card-quick-start-wrap > button {
+  width: 100%;
 }
 
 .sched-card-days {

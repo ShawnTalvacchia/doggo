@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-05-05
+last-reviewed: 2026-05-08
 tags: [rules, workflow, css, conventions]
 review-trigger: "always — read before any working session"
 ---
@@ -47,18 +47,19 @@ Before writing any code for a new phase, complete the **Opening Checklist** on t
 Before marking a phase complete, work through the **Closing Checklist** on the phase board:
 
 1. **Walk through every acceptance criterion.** Verify each one against the running app, not just the code.
-2. **Update all affected feature docs.** If the phase changed how meets, groups, profiles, etc. work, the feature docs must reflect the new reality.
-3. **Update the Open Questions log.** Close any questions this phase resolved. Add any new ones that emerged.
-4. **Update ROADMAP.md.** Move the completed phase out of "Current Phase." Do NOT add a completion summary — the archived phase board is the record.
-5. **Review CLAUDE.md.** If the phase changed navigation, key components, or project structure, update the project instructions.
-6. **Review Punch List changes.** Read completed items and change reports in `phases/punch-list.md` since the last phase close. Check if any completed fixes affected feature docs, design-system.md, or design-tokens.md — update anything that was missed.
-7. **Archive the phase board.** Mark `status: archived` in the frontmatter, then `git mv docs/phases/<name>.md docs/archive/phases/`. Single atomic move — no opportunity for orphan duplicates if a delete step fails.
-8. **Trim pass.** Skim the Roadmap, CLAUDE.md, and touched docs. Cut anything stale, redundant, or duplicated. See Doc Hygiene Rules.
-8a. **Structural audit.** Run these three checks — any hits get fixed before phase close:
+2. **Sweep the walkthrough's "Decisions surfaced" section.** Every entry there represents an emergent decision that needs to land in a feature doc (or be explicitly marked "no doc update needed"). Process each one: update the named home doc, mark the entry `[x]`. **The walkthrough cannot be archived until this section is fully processed.** This is the single biggest defense against feature-doc staleness — earlier phases shipped many decisions that never made it home, and this step plugs the gap going forward.
+3. **Update all affected feature docs.** Beyond what the Decisions section covers, scan for anything else the phase changed (component patterns, edge cases, copy conventions). The feature docs must reflect the new reality.
+4. **Update the Open Questions log.** Close any questions this phase resolved. Add any new ones that emerged.
+5. **Update ROADMAP.md.** Move the completed phase out of "Current Phase." Do NOT add a completion summary — the archived phase board is the record.
+6. **Review CLAUDE.md.** If the phase changed navigation, key components, or project structure, update the project instructions.
+7. **Review Punch List changes.** Read completed items and change reports in `phases/punch-list.md` since the last phase close. Check if any completed fixes affected feature docs, design-system.md, or design-tokens.md — update anything that was missed.
+8. **Archive the phase board AND walkthrough.** Mark `status: archived` in the frontmatter on both, then `git mv docs/phases/<name>.md docs/archive/phases/` and the same for the walkthrough. Single atomic moves.
+9. **Trim pass.** Skim the Roadmap, CLAUDE.md, and touched docs. Cut anything stale, redundant, or duplicated. See Doc Hygiene Rules.
+9a. **Structural audit.** Run these three checks — any hits get fixed before phase close:
    - `grep -rl "status: archived\|status: complete" docs/phases/` should return nothing but `_phase-template.md` (never) and legitimately paused phases. Anything else — delete it; the archive copy exists in `docs/archive/phases/`.
    - Compare filenames in `docs/phases/` vs `docs/archive/phases/`. Any overlap means a phase-close cleanup was skipped — delete the live copy.
    - Scan docs in `strategy/`, `features/`, `implementation/` with `last-reviewed` older than 21 days. Review or bump.
-9. **Strategic review.** This is the most important step. Stop building and think. Read the Open Questions log, the Roadmap, the relevant strategy and competitive research docs, and the next phase's scope. Then present a brief to the team covering:
+10. **Strategic review.** This is the most important step. Stop building and think. Read the Open Questions log, the Roadmap, the relevant strategy and competitive research docs, and the next phase's scope. Then present a brief to the team covering:
    - **What changed.** How does the work just completed shift our understanding of the product? Did building it reveal anything we didn't anticipate?
    - **Open questions worth resolving now.** Which unresolved questions from the log would benefit from research or discussion before the next phase opens? Don't just list them — recommend whether to research, discuss, or defer, and why.
    - **Alternatives and challenges.** Is there anything in the current design, feature set, or direction that deserves reconsideration? Are we overbuilding something? Underbuilding something? Is a competitor doing something that should change our approach? Are there simpler paths we're ignoring?

@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-04-29
+last-reviewed: 2026-05-08
 tags: [design-system, components, patterns, css]
 review-trigger: "when building or refactoring components, adding CSS patterns, or consolidating styles"
 ---
@@ -20,6 +20,8 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 2. **Tokens first.** All colors, spacing, radii, and typography via CSS custom properties. Never raw values.
 3. **Tailwind for simple styles.** 1-3 property patterns go in JSX as utilities. CSS classes only for complex patterns (pseudo-elements, animations, multi-state, 9+ properties).
 4. **Consolidate aggressively.** If two patterns do the same thing, merge them. Flag candidates in the Consolidation Queue below.
+5. **Avatar shape Rule B (entity identity, 2026-05-08).** People are circles. Dogs are rounded squares (`rounded-panel` / `--radius-panel`). The shape encodes the entity type, not the layout role — same dog renders the same way wherever it appears (`PetCard`, booking row, schedule card, hero treatment, Pet info section). This gives entity types a fixed visual identity. Codebase-wide audit tracked in punch list P58. Caveat: shapes encoding *relationship* (Familiar/Connected ring on Discover provider cards) are an orthogonal pattern and not affected by Rule B.
+6. **Pet-as-protagonist (Sessions & Service Execution, 2026-05-08).** For surfaces that frame care of a specific dog (booking detail Sessions tab, future session-cards on the schedule), the dog is the visual centerpiece. Hero photo treatment over avatar-as-thumbnail. Encourages emotional bonding, instant recall, and a behavioral nudge for owners to upload quality photos. Currently applied on `SessionsPetHeader`; candidate for codification in `strategy/Product Vision.md` if extended elsewhere.
 
 ---
 

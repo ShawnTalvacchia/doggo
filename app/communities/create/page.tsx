@@ -45,20 +45,20 @@ export default function CreateGroupPage() {
           />
 
           {/* Description */}
-          <div className="flex flex-col gap-xs">
-            <label className="text-sm font-medium text-fg-primary">Description</label>
+          <div className="input-block">
+            <label
+              className="text-sm font-semibold text-fg-primary"
+              htmlFor="community-description"
+            >
+              Description
+            </label>
             <textarea
+              id="community-description"
+              className="textarea"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What's this community about? Who should join?"
               rows={3}
-              className="rounded-form px-md py-sm text-sm"
-              style={{
-                border: "1px solid var(--border-regular)",
-                background: "var(--surface-base)",
-                resize: "vertical",
-                fontFamily: "var(--font-body)",
-              }}
             />
           </div>
 

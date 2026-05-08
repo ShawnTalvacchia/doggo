@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useCallback } from "react";
 import { mockReviews } from "@/lib/mockReviews";
+import { usePersistedState } from "@/lib/usePersistedState";
 import type { UserReview } from "@/lib/types";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -20,7 +21,10 @@ const ReviewsContext = createContext<ReviewsContextValue | undefined>(undefined)
 // ── Provider ───────────────────────────────────────────────────────────────────
 
 export function ReviewsProvider({ children }: { children: React.ReactNode }) {
-  const [reviews, setReviews] = useState<UserReview[]>(mockReviews);
+  const [reviews, setReviews] = usePersistedState<UserReview[]>(
+    "doggo-care-reviews",
+    mockReviews,
+  );
 
   const hasReview = useCallback(
     (bookingId: string) => reviews.some((r) => r.bookingId === bookingId),

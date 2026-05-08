@@ -15,6 +15,7 @@ import {
   Star,
   EnvelopeSimple,
   CheckCircle,
+  Timer,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { LayoutList } from "@/components/layout/LayoutList";
@@ -87,6 +88,7 @@ const TYPE_ICONS: Record<NotificationType, typeof Bell> = {
   group_activity: UsersThree,
   booking_proposal: Briefcase,
   booking_confirmed: CheckCircle,
+  session_started: Timer,
   session_completed: CheckCircle,
   care_review: Star,
   new_message: EnvelopeSimple,
@@ -105,6 +107,7 @@ const TYPE_LABELS: Record<NotificationType, string> = {
   group_activity: "Group",
   booking_proposal: "Booking",
   booking_confirmed: "Booking",
+  session_started: "Care",
   session_completed: "Care",
   care_review: "Review",
   new_message: "Message",
@@ -141,37 +144,40 @@ function NotificationRow({
         group.hasUnread ? " bg-surface-popout" : ""
       }`}
     >
-      {/* Unread dot */}
-      <div className="flex items-center shrink-0 w-2 pt-1.5">
+      {/* Avatar(s) — wrapped in relative so we can corner-badge the
+          unread state. Replaces the older left-side dot, which fought
+          the avatar for visual real estate. 2026-05-08. */}
+      <div className="relative shrink-0">
+        {isGrouped && avatars.length > 1 ? (
+          <div className="notif-avatar-stack">
+            {avatars.map((url, i) => (
+              <img
+                key={i}
+                src={url!}
+                alt=""
+                className="notif-avatar-stack-item"
+                style={{ zIndex: avatars.length - i }}
+              />
+            ))}
+          </div>
+        ) : n.avatarUrl ? (
+          <img
+            src={n.avatarUrl}
+            alt=""
+            className="w-10 h-10 rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-surface-inset flex items-center justify-center">
+            <TypeIcon size={20} weight="light" className="text-fg-tertiary" />
+          </div>
+        )}
         {group.hasUnread && (
-          <div className="w-2 h-2 rounded-full bg-brand-main" />
+          <span
+            className="notif-unread-badge"
+            aria-label="Unread"
+          />
         )}
       </div>
-
-      {/* Avatar(s) */}
-      {isGrouped && avatars.length > 1 ? (
-        <div className="notif-avatar-stack shrink-0">
-          {avatars.map((url, i) => (
-            <img
-              key={i}
-              src={url!}
-              alt=""
-              className="notif-avatar-stack-item"
-              style={{ zIndex: avatars.length - i }}
-            />
-          ))}
-        </div>
-      ) : n.avatarUrl ? (
-        <img
-          src={n.avatarUrl}
-          alt=""
-          className="w-10 h-10 rounded-full object-cover shrink-0"
-        />
-      ) : (
-        <div className="w-10 h-10 rounded-full bg-surface-inset flex items-center justify-center shrink-0">
-          <TypeIcon size={20} weight="light" className="text-fg-tertiary" />
-        </div>
-      )}
 
       {/* Content */}
       <div className="flex flex-col flex-1 min-w-0 gap-xs">
@@ -183,15 +189,14 @@ function NotificationRow({
           >
             {title}
           </span>
-          <span className="text-xs text-fg-tertiary shrink-0">
-            {formatRelativeTime(n.createdAt)}
+          <span className="flex items-center gap-1.5 shrink-0 text-xs text-fg-tertiary">
+            <span className="notif-cat-tag">{label}</span>
+            <span aria-hidden="true">·</span>
+            <span>{formatRelativeTime(n.createdAt)}</span>
           </span>
         </div>
         <span className="text-sm text-fg-tertiary leading-snug line-clamp-2">
           {n.body}
-        </span>
-        <span className="text-xs text-fg-tertiary mt-0.5">
-          {label}
         </span>
       </div>
     </div>
