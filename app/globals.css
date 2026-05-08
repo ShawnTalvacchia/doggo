@@ -819,13 +819,12 @@ a {
   background: var(--transparent-dark-4);
 }
 
-/* Unread-count badge on a sidebar nav row — sits to the right of the
-   label, brand-tinted pill matching the mobile bell's icon-corner badge.
-   Currently only applied to the Notifications row; if more rows want
-   counts, factor into a shared pattern. Inbox & Notifications follow-up,
+/* Unread-count badge on a sidebar nav row — sits adjacent to the text
+   label (no `margin-left: auto`), brand-light fill so it reads as a
+   companion to the row rather than a hard right-aligned alert. Applied
+   to Notifications + Inbox rows. Inbox & Notifications follow-up,
    2026-05-08. */
 .sidebar-nav-count {
-  margin-left: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -833,7 +832,7 @@ a {
   height: 20px;
   padding: 0 6px;
   border-radius: var(--radius-pill);
-  background: var(--brand-main);
+  background: var(--brand-light);
   color: var(--text-white);
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
