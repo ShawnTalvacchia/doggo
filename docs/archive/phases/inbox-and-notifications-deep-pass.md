@@ -1,6 +1,6 @@
 ---
-status: active
-last-reviewed: 2026-05-08
+status: archived
+last-reviewed: 2026-05-10
 review-trigger: When any task is completed or blocked
 ---
 
@@ -107,35 +107,37 @@ Surfaced during scope-locking conversation 2026-05-08 — Daniel ↔ Klára trai
 
 ## Acceptance Criteria
 
-- [ ] Klára (provider) starting Bára's training session fires a `session_started` notification visible in Daniel's `/notifications`. Tap routes to booking detail.
-- [ ] Klára finishing the session fires a `session_completed` notification with "Leave a review?" body. Tap routes to booking detail; Daniel can land on the Sessions tab and review inline (G3) or via Info tab.
-- [ ] Daniel's `/bookings` row shows the "New visit report from Klára" strip after the seal (G2 fixed).
-- [ ] Daniel's `/schedule` review-recent card label adapts to mixed contents (G1 fixed).
-- [ ] All three demotion surfaces (bell, /schedule, /bookings) coexist without contradicting each other.
-- [ ] First-service-message in a non-Connected conversation auto-marks both parties Familiar (Tomáš → Lenka Appointment flow demonstrates).
-- [ ] Bell click on desktop routes to `/notifications` (no dropdown panel).
-- [ ] No imports of deleted ContractCard remain. Seeded conversations have no `type: "contract"` messages.
-- [ ] Inbox row density passes a side-by-side review against current state; "You: " prefix appears on outgoing previews; row data is consistent across all rows.
-- [ ] Provider can edit a sealed visit report within the window; owner sees a quiet "edited" tag on the report card if it was modified.
-- [ ] Superseded proposal cards are visually subdued and expand on click.
-- [ ] Open Q §2 (Trust transitions) has zero open sub-bullets.
+- [x] Klára (provider) starting Bára's training session fires a `session_started` notification visible in Daniel's `/notifications`. Tap routes to booking detail.
+- [x] Klára finishing the session fires a `session_completed` notification with "Leave a review?" body. Tap routes to booking detail; Daniel can land on the Sessions tab and review inline (G3) or via Info tab.
+- [x] Daniel's `/bookings` row shows the "New visit report from Klára" strip after the seal (G2 fixed).
+- [x] Daniel's `/schedule` review-recent card label adapts to mixed contents (G1 fixed).
+- [x] All three demotion surfaces (bell, /schedule, /bookings) coexist without contradicting each other.
+- [x] First-service-message in a non-Connected conversation auto-marks both parties Familiar (Tomáš → Lenka Appointment flow demonstrates).
+- [x] Bell click on desktop routes to `/notifications` (no dropdown panel).
+- [x] No imports of deleted ContractCard remain. Seeded conversations have no `type: "contract"` messages.
+- [x] Inbox row density passes a side-by-side review against current state; "You: " prefix appears on outgoing previews; row data is consistent across all rows.
+- [x] Provider can edit a sealed visit report within the window; owner sees a quiet "edited" tag on the report card if it was modified.
+- [x] Superseded proposal cards are visually subdued and expand on click.
+- [x] Open Q §2 (Trust transitions) has zero open sub-bullets.
+
+(Workstream H — active-session focused-page treatment — added during walkthrough; verified end-to-end including H3 desktop back arrow via `DetailHeader` `abovePanel` slot.)
 
 ---
 
 ## Closing Checklist
 
-- [ ] Walk through every acceptance criterion against the running app
-- [ ] Sweep walkthrough's "Decisions surfaced" section — every entry processed
-- [ ] Update all affected feature docs (messaging, explore-and-care, profiles)
-- [ ] Update Open Questions log — close §2 transitions
-- [ ] Update ROADMAP.md — mark phase complete; next phase = Discover Refinement
-- [ ] Review CLAUDE.md — update current phase / key decisions
-- [ ] Punch list scan — clear or migrate any items this phase touched (P46 should fully retire)
-- [ ] Archive this phase board + walkthrough
-- [ ] Trim pass on Roadmap, CLAUDE.md, touched docs
-- [ ] Structural audit (3 checks per CONTRIBUTING.md)
-- [ ] Strategic review brief
-- [ ] Check Discover Refinement scope for conflicts
+- [x] Walk through every acceptance criterion against the running app
+- [x] Sweep walkthrough's "Decisions surfaced" section — every entry processed (reformatted as a table; each row's home doc absorbed the change)
+- [x] Update all affected feature docs (`features/messaging.md`, `features/explore-and-care.md`, `implementation/design-system.md`, `implementation/design-tokens.md`, `implementation/mock-data-plan.md`)
+- [x] Update Open Questions log — §2 transitions already closed (resolved 2026-05-08); §3 dog-tagging, §4 multi-pet / hero photo / note+photo composer, §11 notification settings all logged with detail
+- [x] Update ROADMAP.md — moved out of Current Phase; Discover Refinement marked as strong candidate (next-phase decision deferred to strategic review)
+- [x] Review CLAUDE.md — current phase block + new key decisions added (active sub-route, dual back-button, recipientId, lifecycle update id, cross-surface counts, single notification surface, edit-after-submit, superseded cards, contract-type removal, container tokens)
+- [x] Punch list scan — P46 already retired in Discover & Care close; no items closed by this phase, no migrations needed
+- [x] Archive this phase board + walkthrough
+- [x] Trim pass on Roadmap, CLAUDE.md, touched docs
+- [x] Structural audit (3 checks per CONTRIBUTING.md)
+- [x] Strategic review brief — delivered in chat at close
+- [x] Next phase scope check — Discover Refinement, Demo Presentation, Onboarding & In-Product Communication evaluated; recommendation delivered in strategic review
 
 ---
 
