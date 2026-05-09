@@ -9,7 +9,7 @@ export const mockNotifications: AppNotification[] = [
   // see meet-recurrence-model phase doc workstream G2.
   {
     id: "notif-series-1",
-    recipientId: "shawn",
+    recipientId: "tereza",
     type: "meet_series_update",
     title: "Thursday morning walk — new dates",
     body: "Three new occurrences scheduled. Next one is Thu 30 Apr at 08:00.",
@@ -137,7 +137,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-9",
-    recipientId: "shawn",
+    recipientId: "tereza",
     type: "group_activity",
     title: "Tomáš joined Vinohrady Morning Crew",
     body: "Your group now has 3 members",
@@ -221,7 +221,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-16",
-    recipientId: "shawn",
+    recipientId: "daniel",
     type: "group_activity",
     title: "Klára posted in Calm Dog Sessions",
     body: "Next session is Thursday 10am at Letná",

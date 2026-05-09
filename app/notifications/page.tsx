@@ -259,9 +259,16 @@ export default function NotificationsPage() {
           ))}
         </LayoutList>
 
-        {/* Empty state */}
+        {/* Empty state — narrowed column + generous top padding so the
+            empty bell doesn't sit too close to the page header. The
+            max-width caps body text at a comfortable line length on
+            wide viewports; vertical clamp scales padding with viewport
+            so short phones don't get pushed down too far. 2026-05-08. */}
         {notifications.length === 0 && (
-          <div className="flex flex-col items-center gap-md py-xxxl px-lg text-center">
+          <div
+            className="flex flex-col items-center gap-md px-lg pb-xxxl text-center mx-auto max-w-xs"
+            style={{ paddingTop: "clamp(64px, 18vh, 160px)" }}
+          >
             <Bell size={40} weight="light" className="text-fg-tertiary" />
             <p className="text-md text-fg-secondary">No notifications yet</p>
             <p className="text-sm text-fg-tertiary">
