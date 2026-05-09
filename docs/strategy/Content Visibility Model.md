@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-02
+last-reviewed: 2026-05-10
 tags: [privacy, visibility, content, groups, photos]
 review-trigger: "when touching content sharing, photo features, feed logic, or group visibility"
 ---
@@ -10,7 +10,7 @@ review-trigger: "when touching content sharing, photo features, feed logic, or g
 
 This document defines **who can see what content and why**. It governs the home feed, profile galleries, group feeds, and meet albums. Every rendering decision in the app should trace back to a rule in this doc.
 
-Depends on: [[Trust & Connection Model]] (connection states, profile visibility toggle), [[groups]] (group types), [[profiles]] (profile structure).
+Depends on: [[Trust & Connection Model]] (connection states, profile visibility toggle), [[Groups & Care Model]] (group types), [[profiles]] (profile structure).
 
 ---
 
@@ -230,5 +230,5 @@ Tags, feed ranking, and UI filtering are all secondary to these two gates. Get t
 
 - [[Trust & Connection Model]] — connection states, profile visibility toggle, contact gates
 - [[profiles]] — profile structure and display rules
-- [[groups]] — group types and membership
+- [[Groups & Care Model]] — group types and membership
 - [[meets]] — meet structure and attendee lists

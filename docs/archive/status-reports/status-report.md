@@ -10,7 +10,7 @@ review-trigger: "update after each phase or major feature addition"
 
 **Last updated:** 2026-03-21
 **Current phase:** 7 — Community-Native Care
-**Previous report:** `docs/archive/status-report-2026-03-15.md`
+**Previous report:** `docs/archive/status-reports/status-report-2026-03-15.md`
 
 ---
 

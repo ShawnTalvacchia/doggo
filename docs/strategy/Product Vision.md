@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-24
+last-reviewed: 2026-05-10
 tags: [vision, principles, strategy, monetization]
 review-trigger: "before any major feature decision or strategic discussion"
 ---
@@ -116,7 +116,7 @@ People could Venmo each other and skip the platform. But the platform offers:
 Community  |  Discover  |  My Schedule  |  Bookings  |  Profile
 ```
 
-- **Community** (formerly Home) — MasterDetailShell. Left panel: category tabs (All / Parks / Neighbors / Interest / Care) filter the group list. Right panel: aggregated feed (default) or selected group detail. Posts from connections appear in the "All" feed even if not posted to a group. See [[Community & Provider Groups Evolution]] for full spec.
+- **Community** (formerly Home) — MasterDetailShell. Left panel: category tabs (All / Parks / Neighbors / Interest / Care) filter the group list. Right panel: aggregated feed (default) or selected group detail. Posts from connections appear in the "All" feed even if not posted to a group. See [[Groups & Care Model]] for full spec.
 - **Discover** — three-door hub: Meets, Groups, Dog Care. Each door links to a sub-page with browse/filter UI. Not a tabbed layout — cards with illustrations.
 - **My Schedule** — Upcoming/History toggle with unified timeline of meets + bookings. "What am I committed to?"
 - **Bookings** — two tabs: My Care (owner bookings) and My Services (provider dashboard). "What care am I managing?"
@@ -145,7 +145,7 @@ Desktop uses a left sidebar (200px). 7 items — same top-level destinations as 
 
 ### Care discovery
 
-Provider search lives within Discover hub > Dog Care card. Also accessible via "Find Care" CTAs on the Community feed and through the Care tab in the Community left panel. Care groups (provider-hosted) also surface in the Community > Care tab. See [[explore-and-care]] for the full flow and [[Community & Provider Groups Evolution]] for provider group types.
+Provider search lives within Discover hub > Dog Care card. Also accessible via "Find Care" CTAs on the Community feed and through the Care tab in the Community left panel. Care groups (provider-hosted) also surface in the Community > Care tab. See [[explore-and-care]] for the full flow and [[Groups & Care Model]] for provider group types.
 
 ### Detail pages
 
@@ -178,5 +178,6 @@ Emotional hook → what you can do → how it works → who it's for → care as
 
 - [[User Archetypes]] — who we're building for (ramps, behavioral profiles)
 - [[Trust & Connection Model]] — how trust and relationships work
-- ~~[[Prototype Scope]]~~ — archived April 2026 (see `docs/archive/`)
-- [[Open Questions]] — unresolved strategic questions
+- [[Groups & Care Model]] — group taxonomy, provider tiers, services-as-catalog
+- [[Content Visibility Model]] — who sees what content and why
+- [[Open Questions & Assumptions Log]] — unresolved strategic questions

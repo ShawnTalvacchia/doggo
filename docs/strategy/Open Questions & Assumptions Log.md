@@ -12,6 +12,8 @@ review-trigger: "before starting a new phase, after any strategic discussion"
 
 Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of every phase.
 
+**How this log works.** When a question resolves, it leaves a marker here pointing at the canonical doc that now owns it. The log is intentionally a *register* — the full reasoning lives in the SOT (strategy doc, feature doc, or phase archive), not in this file. Resolved markers exist so re-reading the log doesn't re-litigate decided questions. Long resolved blocks are fine when they capture nuance not yet absorbed by a home doc; the goal over time is to compress them down to one-liners pointing at the home.
+
 ---
 
 ## 1. Community Adoption
