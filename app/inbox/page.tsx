@@ -11,6 +11,7 @@ import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { getConnectionsByState, getConnectionState } from "@/lib/mockConnections";
 import { getUserById } from "@/lib/mockUsers";
+import { getLastMessage, isConversationUnread } from "@/lib/conversationUtils";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutList } from "@/components/layout/LayoutList";
@@ -18,7 +19,7 @@ import { LayoutSection } from "@/components/layout/LayoutSection";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ButtonIcon } from "@/components/ui/ButtonIcon";
 import { PersonRow } from "@/components/people/PersonRow";
-import type { Conversation, ChatMessage, ConnectionState } from "@/lib/types";
+import type { Conversation, ConnectionState } from "@/lib/types";
 import { formatRelativeTime } from "@/lib/dateUtils";
 
 // ── Helpers ──────────────────────────────────────────────────────
@@ -33,20 +34,6 @@ function compactName(fullName: string): string {
   if (parts.length <= 1) return parts[0] ?? fullName;
   const lastInitial = parts[parts.length - 1][0]?.toUpperCase();
   return lastInitial ? `${parts[0]} ${lastInitial}.` : parts[0];
-}
-
-function getLastMessage(conv: Conversation): ChatMessage | null {
-  if (conv.messages.length === 0) return null;
-  // Prefer the explicit pointer when set, but always fall back to the last
-  // message in the array. The previous early-return on empty `lastMessageId`
-  // hid messages whose conv had been created without the pointer being
-  // updated yet — making new inquiries sort to the bottom of the inbox.
-  // G3 fix 2026-05-04.
-  if (conv.lastMessageId) {
-    const found = conv.messages.find((m) => m.id === conv.lastMessageId);
-    if (found) return found;
-  }
-  return conv.messages.at(-1) ?? null;
 }
 
 type PreviewKind = "text" | "inquiry" | "proposal" | "payment";
@@ -217,24 +204,20 @@ export default function InboxPage() {
         ? inquiryPets
         : (getUserById(other.id)?.pets.map((p) => p.name) ?? []);
       const { text: rawPreview, kind: previewKind } = getPreview(conv);
-      // hasUnread is viewer-aware: "did the counterparty send the last
-      // message?" The Conversation.unreadCount field is owner-centric
-      // (addMessage only increments it for `sender === "provider"`), so
-      // using it directly mis-flagged provider-side views — Klára seeing
-      // owner-stale unread counts on old threads, while a fresh
-      // owner-sent inquiry registered as no-unread. G3 fix 2026-05-04.
-      const lastFromOther = lastMsg
-        ? (currentUserId === conv.ownerId && lastMsg.sender === "provider") ||
-          (currentUserId === conv.providerId && lastMsg.sender === "owner")
-        : false;
-      // "You:" prefix — when the last message is the viewer's own outgoing
-      // text, prepend "You: " per FB / iMessage / most chat-app conventions
-      // so the reader can tell who said the previewed line. Limited to text
-      // previews; system-message kinds (inquiry, proposal, contract,
-      // payment) carry their own framing already and reading "You: New
-      // proposal" is awkward. Inbox & Notifications D2, 2026-05-08.
+      // Viewer-aware unread state: "did the counterparty send the last
+      // message?" Shared with the AppNav + Sidebar inbox-bubble counts
+      // via `isConversationUnread` so all three signals agree. The
+      // Conversation.unreadCount field is owner-centric (addMessage
+      // only increments it for `sender === "provider"`) and was the
+      // source of long-standing nav-vs-inbox count divergence.
+      const isUnread = isConversationUnread(conv, currentUserId);
+      // "You:" prefix — when the viewer's own message is the last text,
+      // prepend "You: " per iMessage / WhatsApp conventions so the reader
+      // can tell who said the previewed line. Limited to text previews
+      // (system-message kinds carry their own framing). Inbox &
+      // Notifications D2, 2026-05-08.
       const previewText =
-        lastMsg && !lastFromOther && previewKind === "text" && rawPreview
+        lastMsg && !isUnread && previewKind === "text" && rawPreview
           ? `You: ${rawPreview}`
           : rawPreview;
       result.push({
@@ -247,7 +230,7 @@ export default function InboxPage() {
         previewKind,
         timeAgo: lastMsg ? formatRelativeTime(lastMsg.sentAt) : "",
         sortKey: lastMsg?.sentAt ?? "1970-01-01T00:00:00Z",
-        hasUnread: lastFromOther,
+        hasUnread: isUnread,
         hasConversation: true,
         connectionState: conn?.state ?? "none",
         theyMarkedFamiliar: conn?.theyMarkedFamiliar,

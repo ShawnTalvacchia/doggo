@@ -6,6 +6,8 @@ import { ButtonIcon } from "@/components/ui/ButtonIcon";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { countUnreadConversations } from "@/lib/conversationUtils";
 import {
   ArrowLeft,
   Bell,
@@ -57,9 +59,13 @@ function LoggedNavLinks({ hideCreate = false }: { hideCreate?: boolean }) {
   const { conversations } = useConversations();
   const { openComposer } = usePostComposer();
   const { openComposer: openMeetComposer } = useMeetComposer();
+  const currentUserId = useCurrentUserId();
 
-  // Count unread conversations for inbox badge
-  const unreadInbox = conversations.filter((c) => c.unreadCount > 0).length;
+  // Inbox badge count — viewer-aware (matches the inbox's own dot
+  // rendering). Earlier formula `c.unreadCount > 0` read the
+  // owner-centric counter and gave divergent counts on provider-side
+  // viewers vs the inbox itself + the desktop sidebar. 2026-05-08.
+  const unreadInbox = countUnreadConversations(conversations, currentUserId);
 
   // Context-aware Create action: on /schedule the primary create is a meet,
   // everywhere else it's a post. Icon flips to match.

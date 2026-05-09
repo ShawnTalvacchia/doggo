@@ -12,9 +12,10 @@ import {
   UserCircle,
 } from "@phosphor-icons/react";
 import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUser, useCurrentUserId } from "@/hooks/useCurrentUser";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import { useConversations } from "@/contexts/ConversationsContext";
+import { countUnreadConversations } from "@/lib/conversationUtils";
 import { SidebarActiveSessionLink } from "@/components/bookings/SidebarActiveSessionLink";
 
 const navItems: { label: string; href: string; Icon: PhosphorIcon; match: string[] }[] = [
@@ -32,11 +33,13 @@ export function Sidebar() {
   const currentUser = useCurrentUser();
   const { unreadCount } = useNotifications();
   const { conversations } = useConversations();
-  // Inbox count mirrors the mobile bell pattern in AppNav: number of
-  // conversations carrying any unread, not total messages. (Per-row
-  // viewer-aware unread is computed in `app/inbox/page.tsx` if a closer
-  // match to displayed dots is ever needed.)
-  const unreadInbox = conversations.filter((c) => c.unreadCount > 0).length;
+  const currentUserId = useCurrentUserId();
+  // Inbox badge count — viewer-aware via `countUnreadConversations` so
+  // it matches the dots displayed inside `/inbox` AND the mobile-nav
+  // badge. Earlier inline formula (`c.unreadCount > 0`) used the
+  // owner-centric counter, which diverged on provider-side viewers.
+  // 2026-05-08.
+  const unreadInbox = countUnreadConversations(conversations, currentUserId);
 
   function isActive(match: string[]) {
     return match.some((m) => pathname === m || pathname.startsWith(m + "/"));

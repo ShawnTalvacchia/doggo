@@ -12514,6 +12514,20 @@ body:has(.bottom-nav) .inbox-page {
   padding: 2px;
   background: var(--surface-inset);
   border-radius: var(--radius-pill);
+  /* Horizontal scroll inside the bar's own bounds when the tabs would
+     overflow the parent (narrow viewports + 4+ tabs). Mirrors the
+     .filter-pill-row pattern. Without `max-width: 100%` the flex parent
+     would expand to fit content and push horizontal scroll onto the
+     panel body. Inbox & Notifications walkthrough D follow-up,
+     2026-05-08. */
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE/Edge */
+}
+
+.tab-bar-container::-webkit-scrollbar {
+  display: none;                  /* Chrome/Safari */
 }
 
 /* Tab component — pill/capsule style */
@@ -12523,6 +12537,9 @@ body:has(.bottom-nav) .inbox-page {
   justify-content: center;
   height: 36px;
   padding: 0 var(--space-lg);
+  /* Don't squash on narrow viewports — keep the natural pill width and
+     let the container scroll instead. */
+  flex-shrink: 0;
   border-radius: var(--radius-lg);
   font-family: var(--font-body), sans-serif;
   font-weight: var(--weight-semibold);
@@ -12533,6 +12550,7 @@ body:has(.bottom-nav) .inbox-page {
   border: none;
   border-radius: var(--radius-pill);
   cursor: pointer;
+  white-space: nowrap;
   white-space: nowrap;
   transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
