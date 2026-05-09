@@ -8562,7 +8562,11 @@ body:has(.bottom-nav) .bookings-page {
   justify-content: center;
   gap: var(--space-sm);
   width: 100%;
-  padding: var(--space-jumbo-1) var(--space-lg);
+  /* Fixed 320px height — matches the PostPhotoGrid single-photo height
+     so swapping between empty-tile and photo states keeps the section
+     vertically stable (no jump when first photo lands). */
+  height: 320px;
+  padding: var(--space-lg);
   border: 2px dashed var(--border-regular);
   border-radius: var(--radius-md);
   background: var(--surface-base);
@@ -8580,10 +8584,14 @@ body:has(.bottom-nav) .bookings-page {
   color: var(--text-primary);
 }
 
+/* Compact variant — when one or more photos already exist, the tile
+   collapses to btn-md height with icon-left layout. The photo grid
+   above carries the 240–320px visual weight; this is just the
+   affordance to add more. */
 .active-session-add-photo-tile--compact {
   flex-direction: row;
   gap: var(--space-sm);
-  /* Match btn-md (Add a note) height: min-height 40px + padding 9/12. */
+  height: auto;
   min-height: 40px;
   padding: 9px 12px;
 }

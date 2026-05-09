@@ -28,6 +28,7 @@ import {
   NotePencil,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
 import type { BookingSession, ServiceType, VisitReport } from "@/lib/types";
 import { formatShortDate } from "@/lib/dateUtils";
 
@@ -109,8 +110,11 @@ export function ActiveSessionPanel({
   }
 
   return (
-    // Inner gap matches the page-level frame's gap so sections breathe
-    // consistently up and down the canvas. 2026-05-08 walkthrough.
+    // Outer xl gap separates the Live strip from the action group below
+    // (mirrors the airy rhythm between pet hero / name+meta / live strip
+    // at the page level). Inside the action group, gap shrinks to md so
+    // photo / note / GPS sit close together rather than scattering down
+    // the page. 2026-05-08 walkthrough.
     <div className="flex flex-col gap-xl">
       {/* Session-state strip — Live pill + when-it-started + date.
           Flat row, no container — the page chrome already provides
@@ -173,9 +177,12 @@ export function ActiveSessionPanel({
         </>
       )}
 
-      {/* Provider side — full composition. */}
+      {/* Provider side — full composition. Wrapped in its own flex
+          column with a tighter gap-md so the action stack reads as a
+          coherent group separated from the Live strip above (which has
+          the parent's airy gap-xl). */}
       {isProvider && (
-        <>
+        <div className="flex flex-col gap-md">
           <input
             ref={fileInputRef}
             type="file"
@@ -185,31 +192,19 @@ export function ActiveSessionPanel({
             className="hidden"
           />
 
-          {/* Photos thumbnail row — wraps; capped width so they don't
-              sprawl on wide viewports. Mirror of the post-composer
-              multi-photo pattern. 2026-05-08 walkthrough refinement. */}
-          {photos.length > 0 && (
-            <div
-              className="flex gap-xs flex-wrap"
-              style={{ maxWidth: 480 }}
-            >
-              {photos.map((url, i) => (
-                <div
-                  key={i}
-                  className="relative rounded-md overflow-hidden bg-surface-inset"
-                  style={{ width: 96, height: 96 }}
-                >
-                  <img src={url} alt="" className="w-full h-full object-cover" />
-                </div>
-              ))}
-            </div>
-          )}
+          {/* Photo display — reuses the post-style PhotoGrid:
+                1 photo → full-width × 320px tall
+                2-4 photos → 200×240 each, horizontally scrollable
+              Mirrors the post composer's multi-photo treatment.
+              2026-05-08 walkthrough. */}
+          {photos.length > 0 && <PostPhotoGrid photos={photos} />}
 
           {/* Dashed-border photo tile — two states.
-              No photos: tall vertical tile (strong visual nudge).
+              No photos: 320px-tall vertical tile (strong visual nudge,
+                fills the same vertical real estate the photos would).
               With photos: collapses to a btn-md-height row with icon
-              on the left ("Add another photo"); the thumbnail row
-              above carries the visual weight.
+                on the left ("Add another photo"); the photo grid
+                above carries the visual weight at 240–320px tall.
               2026-05-08 walkthrough. */}
           <button
             type="button"
@@ -218,7 +213,7 @@ export function ActiveSessionPanel({
               photos.length > 0 ? " active-session-add-photo-tile--compact" : ""
             }`}
           >
-            <Camera size={photos.length > 0 ? 16 : 20} weight="light" />
+            <Camera size={photos.length > 0 ? 16 : 24} weight="light" />
             <span>
               {photos.length === 0 ? "Add a photo" : "Add another photo"}
             </span>
@@ -284,9 +279,7 @@ export function ActiveSessionPanel({
             </div>
           )}
 
-          {/* Add a note — full-width on its own. UPDATES header dropped:
-              with photo getting its own dashed tile and notes getting
-              its own row, there's nothing left to group. 2026-05-08. */}
+          {/* Add a note — full-width on its own. */}
           {!notesOpen && (
             <ButtonAction
               variant="soft"
@@ -330,7 +323,7 @@ export function ActiveSessionPanel({
               />
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );
