@@ -3,13 +3,17 @@
 import { createContext, useContext, useCallback, useMemo } from "react";
 import { mockNotifications } from "@/lib/mockNotifications";
 import { usePersistedState } from "@/lib/usePersistedState";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { AppNotification } from "@/lib/types";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 /** Input shape for `addNotification`. Caller supplies the meaningful fields;
  *  `id`, `createdAt`, and `read` get sensible defaults if omitted so callers
- *  at firing sites (Start session, Finish session) don't have to mint IDs. */
+ *  at firing sites (Start session, Finish session) don't have to mint IDs.
+ *  `recipientId` IS required — the principle is that every notification has
+ *  a target person; without it, an actor (carer triggering Start) would get
+ *  notified about events they themselves caused. */
 export type NewNotification = Omit<AppNotification, "id" | "createdAt" | "read"> & {
   id?: string;
   createdAt?: string;
@@ -17,7 +21,9 @@ export type NewNotification = Omit<AppNotification, "id" | "createdAt" | "read">
 };
 
 interface NotificationsContextValue {
+  /** Filtered to the current viewer (`recipientId === currentUserId`). */
   notifications: AppNotification[];
+  /** Filtered unread count for the current viewer. */
   unreadCount: number;
   addNotification: (n: NewNotification) => void;
   markRead: (id: string) => void;
@@ -36,20 +42,30 @@ const NotificationsContext = createContext<NotificationsContextValue | undefined
 const STORAGE_KEY = "doggo-notifications";
 
 export function NotificationsProvider({ children }: { children: React.ReactNode }) {
-  const [notifications, setNotifications] = usePersistedState<AppNotification[]>(
+  // Internal store holds the FULL multi-persona notification stream so a
+  // persona switch reveals each user's slice from the same persisted
+  // data. The public API filters to the current viewer.
+  const [allNotifications, setAllNotifications] = usePersistedState<AppNotification[]>(
     STORAGE_KEY,
     mockNotifications,
+  );
+  const currentUserId = useCurrentUserId();
+
+  const notifications = useMemo(
+    () => allNotifications.filter((n) => n.recipientId === currentUserId),
+    [allNotifications, currentUserId],
   );
 
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.read).length,
-    [notifications]
+    [notifications],
   );
 
   const addNotification = useCallback((n: NewNotification) => {
     const filled: AppNotification = {
       id: n.id ?? `notif-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       type: n.type,
+      recipientId: n.recipientId,
       title: n.title,
       body: n.body,
       avatarUrl: n.avatarUrl,
@@ -59,18 +75,25 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
     };
     // Prepend — list is rendered newest-first, matching mockNotifications
     // ordering convention (descending createdAt).
-    setNotifications((prev) => [filled, ...prev]);
-  }, [setNotifications]);
+    setAllNotifications((prev) => [filled, ...prev]);
+  }, [setAllNotifications]);
 
   const markRead = useCallback((id: string) => {
-    setNotifications((prev) =>
+    setAllNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read: true } : n))
     );
-  }, [setNotifications]);
+  }, [setAllNotifications]);
 
+  // Mark-all-read scoped to the CURRENT viewer's notifications — without
+  // this filter, switching to Klára and tapping Mark all read would also
+  // clear Daniel's unread state (they share the persisted store).
   const markAllRead = useCallback(() => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-  }, [setNotifications]);
+    setAllNotifications((prev) =>
+      prev.map((n) =>
+        n.recipientId === currentUserId ? { ...n, read: true } : n
+      ),
+    );
+  }, [setAllNotifications, currentUserId]);
 
   return (
     <NotificationsContext.Provider

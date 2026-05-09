@@ -39,12 +39,15 @@ function petLabel(booking: Booking): string {
 }
 
 /** Owner-facing notification — fired when the carer flips a session from
- *  upcoming → in_progress. Routes to the Sessions tab where the active
- *  panel + mid-session updates live. */
+ *  upcoming → in_progress. Recipient is the booking's owner: the carer
+ *  triggered the event, the owner is the audience. Without the explicit
+ *  recipient field the carer would also see "{carer} started Bára's
+ *  walk" in their own bell, which makes no sense. */
 export function buildSessionStartedNotification(booking: Booking): NewNotification {
   const { started } = actionPhrases(booking.serviceType, petLabel(booking));
   return {
     type: "session_started",
+    recipientId: booking.ownerId,
     title: `${booking.carerName} ${started}`,
     body: "Tap to follow along — see photos and updates as they come in.",
     avatarUrl: booking.carerAvatarUrl,
@@ -60,6 +63,7 @@ export function buildSessionCompletedNotification(booking: Booking): NewNotifica
   const { finished } = actionPhrases(booking.serviceType, petLabel(booking));
   return {
     type: "session_completed",
+    recipientId: booking.ownerId,
     title: `${booking.carerName} ${finished}`,
     body: "Tap to view the visit report and leave a review.",
     avatarUrl: booking.carerAvatarUrl,

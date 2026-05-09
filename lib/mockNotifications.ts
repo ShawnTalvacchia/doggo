@@ -9,6 +9,7 @@ export const mockNotifications: AppNotification[] = [
   // see meet-recurrence-model phase doc workstream G2.
   {
     id: "notif-series-1",
+    recipientId: "shawn",
     type: "meet_series_update",
     title: "Thursday morning walk — new dates",
     body: "Three new occurrences scheduled. Next one is Thu 30 Apr at 08:00.",
@@ -19,6 +20,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-postmeet-1",
+    recipientId: "shawn",
     type: "post_meet_review",
     title: "How was Saturday Stromovka off-leash?",
     body: "Mark who you met and turn some familiar faces into connections",
@@ -29,6 +31,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-postmeet-2",
+    recipientId: "shawn",
     type: "post_meet_review",
     title: "Thursday walk — review attendees",
     body: "Tereza, Marek, Lucie and Jana were there — want to mark anyone as familiar?",
@@ -39,6 +42,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-1",
+    recipientId: "shawn",
     type: "meet_invite",
     title: "Jana invited you to a meet",
     body: "Weekend hangout — Stromovka, Sat 21 Mar at 10:00",
@@ -50,6 +54,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-2",
+    recipientId: "shawn",
     type: "connection_request",
     title: "Martin wants to connect",
     body: "You met at Stromovka Off-Leash Club",
@@ -61,6 +66,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-3",
+    recipientId: "shawn",
     type: "booking_confirmed",
     title: "Booking confirmed",
     body: "Klára accepted your booking for Tue 8 Apr, 14:00 — Solo walk",
@@ -72,6 +78,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-4",
+    recipientId: "shawn",
     type: "group_activity",
     title: "New post in Vinohrady Morning Crew",
     body: "Tereza shared a photo from this morning's walk",
@@ -83,6 +90,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-5",
+    recipientId: "shawn",
     type: "meet_reminder",
     title: "Meet tomorrow",
     body: "Morning walk — Riegrovy sady, Tue 18 Mar at 08:00",
@@ -93,6 +101,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-6",
+    recipientId: "shawn",
     type: "connection_accepted",
     title: "Eva accepted your connection",
     body: "You're now connected — you can message each other and book care",
@@ -104,6 +113,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-7",
+    recipientId: "shawn",
     type: "care_review",
     title: "Jana left you a review",
     body: "\"Shawn was great with Rex. Very reliable and caring.\" ★★★★★",
@@ -115,6 +125,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-8",
+    recipientId: "shawn",
     type: "meet_invite",
     title: "Eva invited you to training",
     body: "Recall practice — Letná, Sat 22 Mar at 09:00",
@@ -126,6 +137,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-9",
+    recipientId: "shawn",
     type: "group_activity",
     title: "Tomáš joined Vinohrady Morning Crew",
     body: "Your group now has 3 members",
@@ -137,6 +149,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-11",
+    recipientId: "shawn",
     type: "meet_rsvp",
     title: "Petra is going to your meet",
     body: "Morning walk — Riegrovy sady, Wed 18 Mar",
@@ -148,6 +161,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-11b",
+    recipientId: "shawn",
     type: "meet_rsvp",
     title: "Tomáš is going to your meet",
     body: "Morning walk — Riegrovy sady, Wed 18 Mar",
@@ -159,6 +173,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-12",
+    recipientId: "shawn",
     type: "group_activity",
     title: "New post in Prague Doodle Owners",
     body: "Jana shared grooming day results",
@@ -170,6 +185,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-13",
+    recipientId: "shawn",
     type: "booking_message",
     title: "New message from Olga",
     body: "Re: Walks & Check-ins — \"See you Monday at 8!\"",
@@ -181,6 +197,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-14",
+    recipientId: "shawn",
     type: "meet_invite",
     title: "Pawel created a new meet",
     body: "Morning Pack Walk — Riegrovy sady, Fri 10 Apr at 09:00",
@@ -192,6 +209,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-15",
+    recipientId: "shawn",
     type: "connection_request",
     title: "Petra wants to connect",
     body: "You met at Reactive Dog Support",
@@ -203,6 +221,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-16",
+    recipientId: "shawn",
     type: "group_activity",
     title: "Klára posted in Calm Dog Sessions",
     body: "Next session is Thursday 10am at Letná",
@@ -214,6 +233,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-17",
+    recipientId: "shawn",
     type: "meet_reminder",
     title: "Meet in 2 hours",
     body: "Recall practice — Letná, today at 09:00",
@@ -224,6 +244,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-18",
+    recipientId: "shawn",
     type: "post_comment",
     title: "Eva commented on your post",
     body: "\"Luna loved it too. Same time tomorrow?\"",
@@ -235,6 +256,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-19",
+    recipientId: "shawn",
     type: "new_message",
     title: "New message from Jana",
     body: "\"Hey! Are you free for a walk this weekend?\"",
@@ -245,6 +267,7 @@ export const mockNotifications: AppNotification[] = [
   },
   {
     id: "notif-20",
+    recipientId: "shawn",
     type: "booking_proposal",
     title: "Klára sent a booking proposal",
     body: "Solo walk — 600 Kč per session, starting Tue 8 Apr",

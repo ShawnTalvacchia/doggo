@@ -485,6 +485,12 @@ export type NotificationType =
 export interface AppNotification {
   id: string;
   type: NotificationType;
+  /** The user this notification is addressed to. Notifications are
+   *  filtered at the context layer so each persona's bell shows only
+   *  their own — without this, an actor (e.g. carer triggering Start /
+   *  Finish) would get notified about events they themselves caused.
+   *  Inbox & Notifications walkthrough fix, 2026-05-08. */
+  recipientId: string;
   title: string;
   body: string;
   avatarUrl?: string;
