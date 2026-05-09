@@ -8586,14 +8586,94 @@ body:has(.bottom-nav) .bookings-page {
 
 /* Compact variant — when one or more photos already exist, the tile
    collapses to btn-md height with icon-left layout. The photo grid
-   above carries the 240–320px visual weight; this is just the
-   affordance to add more. */
+   above carries the 320px visual weight; this is just the affordance
+   to add more. */
 .active-session-add-photo-tile--compact {
   flex-direction: row;
   gap: var(--space-sm);
   height: auto;
   min-height: 40px;
   padding: 9px 12px;
+}
+
+/* Active-session photo grid — fixed 320px tall regardless of count so
+   adding the second / third / Nth photo doesn't shrink the section
+   height (which the shared PostPhotoGrid does deliberately for posts).
+   Single child takes 100% width; multiple children each render at
+   240px wide and the row scrolls horizontally (scrollbar hidden, like
+   PostPhotoGrid). */
+.active-session-photo-grid {
+  display: flex;
+  gap: var(--space-xs);
+  height: 320px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.active-session-photo-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.active-session-photo-grid-item {
+  position: relative;
+  width: 240px;
+  height: 100%;
+  flex: 0 0 240px;
+}
+
+.active-session-photo-grid--single .active-session-photo-grid-item {
+  width: 100%;
+  flex: 1 1 auto;
+}
+
+.active-session-photo-grid-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  display: block;
+}
+
+/* Remove-photo X — appears on hover (touch devices show it always
+   since they have no hover state). Dark translucent circle reads on
+   any photo background; white icon. Click stops propagation so the
+   parent thumbnail doesn't pick up any taps. */
+.active-session-photo-remove {
+  position: absolute;
+  top: var(--space-xs);
+  right: var(--space-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-circle);
+  background: var(--transparent-dark-64, rgba(0, 0, 0, 0.64));
+  color: white;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.active-session-photo-grid-item:hover .active-session-photo-remove,
+.active-session-photo-remove:focus-visible {
+  opacity: 1;
+}
+
+.active-session-photo-remove:hover {
+  background: var(--transparent-dark-90, rgba(0, 0, 0, 0.9));
+}
+
+/* Touch / no-hover devices — always show the remove button so phone
+   users have any way to delete a photo. */
+@media (hover: none) {
+  .active-session-photo-remove {
+    opacity: 1;
+  }
 }
 
 /* ── Sidebar Active Now card (desktop) ────────────────────────────────

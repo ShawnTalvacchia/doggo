@@ -26,9 +26,9 @@ import {
   CheckCircle,
   MapPin,
   NotePencil,
+  X,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
-import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
 import type { BookingSession, ServiceType, VisitReport } from "@/lib/types";
 import { formatShortDate } from "@/lib/dateUtils";
 
@@ -192,12 +192,43 @@ export function ActiveSessionPanel({
             className="hidden"
           />
 
-          {/* Photo display — reuses the post-style PhotoGrid:
-                1 photo → full-width × 320px tall
-                2-4 photos → 200×240 each, horizontally scrollable
-              Mirrors the post composer's multi-photo treatment.
+          {/* Photo grid — locked at 320px tall regardless of count so
+              the section doesn't jump in height as photos are added.
+              1 photo → full-width × 320, 2+ → 240×320 horizontally
+              scrollable. Each tile shows an X-on-hover button to
+              remove (touch devices show it always via @media). Custom
+              over PostPhotoGrid because the active-session use case
+              wants stable height + remove affordance — posts don't.
               2026-05-08 walkthrough. */}
-          {photos.length > 0 && <PostPhotoGrid photos={photos} />}
+          {photos.length > 0 && (
+            <div
+              className={`active-session-photo-grid${
+                photos.length === 1 ? " active-session-photo-grid--single" : ""
+              }`}
+            >
+              {photos.map((url, i) => (
+                <div key={i} className="active-session-photo-grid-item">
+                  <img
+                    src={url}
+                    alt=""
+                    className="active-session-photo-grid-img"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onUpdateReport(session, {
+                        photos: photos.filter((_, idx) => idx !== i),
+                      })
+                    }
+                    className="active-session-photo-remove"
+                    aria-label="Remove photo"
+                  >
+                    <X size={14} weight="bold" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Dashed-border photo tile — two states.
               No photos: 320px-tall vertical tile (strong visual nudge,
