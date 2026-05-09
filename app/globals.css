@@ -10801,10 +10801,14 @@ body:has(.bottom-nav) .inbox-page {
 }
 
 /* Tap-to-expand trigger on the collapsed body. Renders as a button so
- * keyboard + screen-reader semantics work; visually it's the same
- * collapsed title row + a trailing caret that signals "more inside." */
+ * keyboard + screen-reader semantics work. Single-row layout: title
+ * far-left, trailing caret far-right via space-between. The explicit
+ * flex-direction overrides the column inherited from .inbox-proposal-body
+ * (the same element carries both classes, base body wins on properties
+ * the trigger doesn't set). 2026-05-08 walkthrough fix. */
 .inbox-proposal-collapsed-trigger {
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
@@ -10830,7 +10834,10 @@ body:has(.bottom-nav) .inbox-page {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  align-self: flex-start;
+  /* Right-aligned (mirrors the collapsed trigger's right-edge caret).
+     The toggle reads as a "close this drawer" affordance pinned to the
+     same edge the open-drawer caret was on. 2026-05-08 walkthrough. */
+  align-self: flex-end;
   margin-top: 4px;
   padding: 0;
   background: none;

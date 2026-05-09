@@ -167,8 +167,8 @@ export function BookingProposalCard({
             className="inbox-proposal-collapse-toggle"
             aria-expanded="true"
           >
-            <CaretUp size={12} weight="bold" />
             Show less
+            <CaretUp size={12} weight="bold" />
           </button>
         )}
       </div>
