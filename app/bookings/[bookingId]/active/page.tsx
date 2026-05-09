@@ -44,6 +44,7 @@ import {
 import { SessionsPetHeader } from "@/components/bookings/SessionsPetHeader";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { PageColumn } from "@/components/layout/PageColumn";
+import { DetailHeader } from "@/components/layout/DetailHeader";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
@@ -165,8 +166,24 @@ export default function ActiveSessionPage() {
 
   const showUndo = isProvider && isActiveSessionEmpty(activeSession);
 
+  // Header title — "{petName} · Live session" carries who-this-is-for
+  // alongside session state. Same shape as the mobile AppNav header
+  // (set via setDetailHeader above). Back goes UP one level to the
+  // parent's Sessions tab (NOT browser-history back) — same hierarchy
+  // pattern as `/bookings/[id]` → `/bookings`.
+  const petName = booking.pets[0] ?? null;
+  const headerTitle = petName ? `${petName} · Live session` : "Live session";
+
   return (
-    <PageColumn title="Live session">
+    <PageColumn
+      hideHeader
+      abovePanel={
+        <DetailHeader
+          backHref={`/bookings/${booking.id}?tab=sessions`}
+          title={headerTitle}
+        />
+      }
+    >
       <div className="page-column-panel-body">
         {/* Page-level frame — the warning-25 tint + 4px left amber
             accent stripe make THIS PAGE the active element (mirrors

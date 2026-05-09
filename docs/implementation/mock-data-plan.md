@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-05-08
+last-reviewed: 2026-05-10
 tags: [mock-data, demo, prototype, data-model]
 review-trigger: "before creating or modifying mock data files"
 ---
@@ -52,7 +52,7 @@ Use sparingly — only data that needs to track today. Static deeper history (lo
 - `olgaBooking` sessions
 - `olgaWalksTereza` sessions
 - `shawnCarerActiveBooking`, `terezaWalksMarek` (and other ongoing bookings) upcoming sessions
-- `notif-10` session_completed notification
+- All `mockConversations` `sentAt` timestamps (61 strings across all threads). Per-conversation latest ages range 1d (active proposals / fresh threads) → 12d (completed bookings) so the inbox always reads as live activity, not a frozen snapshot. Inbox & Notifications, 2026-05-08.
 
 **Should remain static:** historical milestones (signed dates), long-completed bookings used for archival demonstration, posts with anchored timestamps in story copy.
 

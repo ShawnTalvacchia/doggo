@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-05-08
+last-reviewed: 2026-05-10
 tags: [design-system, components, patterns, css]
 review-trigger: "when building or refactoring components, adding CSS patterns, or consolidating styles"
 ---
@@ -34,7 +34,7 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 | `InputField` | Text inputs with label, helper, error | `label`, `error`, `helper` |
 | `CheckboxRow` | Labeled checkbox | `checked`, `label`, `placement` |
 | `Toggle` | On/off switch for immediate settings | `checked`, `onChange` |
-| `TabBar` | Horizontal tab row | `tabs`, `activeKey`, `onChange` |
+| `TabBar` | Horizontal tab row | `tabs`, `activeKey`, `onChange`. The bar itself overflows scrollably (`max-width: 100%; overflow-x: auto`) with `flex-shrink: 0; white-space: nowrap` on each tab — mirrors the `.filter-pill-row` pattern. Without this, narrow viewports bleed horizontal scroll onto the panel body. (Inbox & Notifications, 2026-05-08.) |
 | `StatusBadge` | Contract lifecycle + session state labels | `status` |
 | `SectionLabel` | Section heading in lists/panels | `label` |
 | `EmptyState` | Zero-content placeholder | `icon`, `title`, `subtitle`, `action` |
@@ -47,7 +47,6 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 | `BookingRow` | Booking list item (My Bookings + My Services) | `booking`, `perspective` |
 | `FilterPillRow` | Unified horizontal scrollable filter pills | `pills`, `activePill`, `onChange` |
 | `CameraPlusFill` | Camera icon with plus badge (photo upload prompt) | `size`, `className` |
-| `NotificationsPanel` | Dropdown notifications list | — |
 
 ## Layout (`components/layout/`)
 
@@ -62,7 +61,7 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 | `LayoutSection` | Padded content block inside PanelBody | Adds horizontal padding. |
 | `LayoutList` | Edge-to-edge card list inside PanelBody | No horizontal padding. |
 | `Spacer` | Bottom spacer (last child of PanelBody) | Prevents content from being clipped by panel border-radius. |
-| `DetailHeader` | Back-button header for detail/subpages | Back target wraps arrow + title as single clickable area. Uses `router.back()`. |
+| `DetailHeader` | Back-button header for detail/subpages (desktop) | Back target wraps arrow + title as single clickable area. Accepts `backHref` (Link) or omitted (router.back). Renders inside `PageColumn`'s `abovePanel` slot. **Pairs with `setDetailHeader` (PageHeaderContext) on mobile** — the AppNav-rendered detail header (`.app-nav-detail-header`) is `display: none` above 767px, so detail pages set both: `setDetailHeader(title, onBack)` for the mobile bar in AppNav AND a `<DetailHeader>` `abovePanel` for desktop. Pattern: `app/bookings/[id]/page.tsx`, `app/bookings/[id]/active/page.tsx`, etc. (Inbox & Notifications H, 2026-05-08.) |
 | `FormHeader` / `FormFooter` | Multi-step form page header and footer | Back/Continue button row. |
 | `GuestLayout` | Layout shell for public/guest routes | — |
 | `ListPanel` | *(Legacy — avoid for new code)* | Wrapper for list panels. Use `PanelBody` inside raw div instead. |
@@ -109,6 +108,8 @@ Shared CSS classes in `globals.css` that are used across multiple components. Us
 | `.person-row` + `.person-row--*` variants | Shared person-row chrome | Used by `PersonRow`. Variant modifiers: `--meet-attendee`, `--group-member`, `--inbox-conversation`, `--default`. Row uses `gap: var(--space-xl)` (20px) between avatar combo and identity column. Inbox variant is denser + transparent (sits inside flush conversation list); others are panel-bordered cards. |
 | `.person-row-pill` + `.person-row-pill--familiar` / `--pending` / `--admin` / `--provider` / `--helper` | Connection-state, role, and tier pills inside `PersonRow` | Familiar/pending/admin use `surface-inset` neutral. Provider tier uses `brand-subtle` (public, professional). Helper tier uses `surface-inset` (informal, Connected-only privacy gate enforced by caller). Connected status renders no pill (the Message CTA carries the signal). `.person-row-pill--care` retained as legacy alias of `--provider`. |
 | `.person-avatar-*` | OwnerDogAvatar primitive (combo container, owner img, dogs slot, dog avatars, "+N" chip) | `.person-avatar-combo` is inline-flex with `align-items: flex-end`, `height: 64px`. `.person-avatar-dogs` is the 44px right-aligned slot with `margin-left: -16px` anchoring it to the owner. Dog size set inline (36px / 32px) per slot count. |
+| `.live-pulse-dot` | Animated pulsing dot — "live now" indicator | Custom-property API: `--live-pulse-color` (default `--status-warning-strong`) and `--live-pulse-size` (default `8px`). Pulses via `@keyframes live-pulse` (opacity + scale). Used by mobile `ActiveSessionBanner`, desktop `SidebarActiveSessionLink`, and the in-page Live pill on `ActiveSessionPanel`. (Sessions & Service Execution → Inbox & Notifications, 2026-05-08.) |
+| `.active-session-frame` + `.active-session-frame-content` + `.active-session-action-footer` | Page-level frame for the active session sub-page | 4px left amber accent stripe (`border-left: 4px solid var(--status-warning-strong)`) on the frame; content slot inside; sticky bottom action footer (`position: sticky; bottom: 0`) carrying Finish + Undo. The page IS the active surface — `ActiveSessionPanel` within renders content only. (Inbox & Notifications H, 2026-05-08.) |
 
 ---
 

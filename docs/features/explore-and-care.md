@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-08
+last-reviewed: 2026-05-10
 
 tags: [discover, care, booking, providers, map, payment, trust-gating]
 review-trigger: "when modifying Discover Care tab, provider profiles, booking flows, payment, or map"
@@ -149,13 +149,34 @@ Below the hero: optional booking-cancelled banner → active session panel (when
 
 ### Active session — multi-surface presence
 
-When a session is `in_progress`, three surfaces signal it:
+When a session is `in_progress`, four surfaces signal it:
 
-1. **Sessions tab Active panel** — full composition surface (photo upload, notes, GPS for walks, Finish CTA). Owner sees a passive read-only version (latest photo + reassuring copy).
-2. **Mobile: floating banner** above bottom nav — `[ACTIVE]  🏠 Sitting Bára · 24 min  ›` (single line, dark pill with yellow text against amber-tinted shell, slim height). Tap routes to the booking's Sessions tab.
-3. **Desktop: sidebar item** below regular nav — same data, different chrome.
+1. **Active session sub-page** (`/bookings/[id]/active`) — focused full-bleed surface dedicated to the live session. Pet hero + ActiveSessionPanel (composition tools — note + photo, GPS for walks) + sticky Finish/Undo footer. Page-level frame with a 4px left amber accent stripe. The page IS the active surface; the panel within renders content only (no card chrome). See "Active session sub-page" below.
+2. **Sessions tab Active card** — slim "Active session · Tap for live updates" link card on the parent's Sessions tab (warning-tinted, live-pulse dot + chevron). Routes into the sub-page. The Sessions tab does NOT inline the full composition surface anymore — that lives in the sub-page.
+3. **Mobile: floating banner** above bottom nav — `[ACTIVE]  🏠 Sitting Bára · 24 min  ›` (single line, dark pill with yellow text against amber-tinted shell, slim height). Tap routes directly to the active sub-page.
+4. **Desktop: sidebar item** below regular nav — same data, different chrome. Routes directly to the active sub-page.
 
 Both mobile banner and desktop sidebar item are avatar-less by design — the status pill + service icon + copy carry the active state without a thumbnail competing for attention in slim formats.
+
+### Active session sub-page (Inbox & Notifications H, 2026-05-08)
+
+Promoted from a query-state branch on the parent (`?view=active`) to a real sub-route at `/bookings/[bookingId]/active` so the live session reads as its own focused page rather than a re-render of the chronicle with content swapped out. Hierarchy:
+
+```
+/bookings                      — list
+/bookings/[id]                 — detail (Info / Sessions tabs, chronicle)
+/bookings/[id]/active          — active session (pet hero + composition + sticky footer)
+```
+
+**Routing in:** booking-detail Start button, Schedule quick-start, mobile cross-app banner, desktop sidebar item — all route directly to the sub-page when a session is in_progress. The carer's most-frequent post-Start path is the engagement surface, not the chronicle.
+
+**Routing out:** Finish / Undo / cancel route to `/bookings/[id]?tab=sessions` so the just-completed session appears at the top of the past list with its visit report inline.
+
+**Back navigation goes UP a level**, not browser-history back. Mobile back arrow rendered via `setDetailHeader` (AppNav). Desktop back arrow rendered via `<DetailHeader>` in `PageColumn`'s `abovePanel` slot — `setDetailHeader` only fires on `max-width: 767px`, so desktop needs the explicit `<DetailHeader>` partner. Same dual-back-button pattern as `/bookings/[id]` → `/bookings`.
+
+**Stale-URL guard:** if the URL is hit when there's no in_progress session for this booking (already finished, never started, cancelled), the page redirects to the parent. Prevents a broken empty state.
+
+**Composition surface — note + photo unified.** The active panel uses one composer for either or without (note alone, photo alone, both together) rather than separate add-photo + add-note affordances. Earlier dashed full-frame photo tile was removed in favor of a slim attach-photo control inside the input. Single composition target reduces cognitive overhead during a live session.
 
 ### Bookings list (`/bookings`)
 
@@ -181,7 +202,9 @@ Single-mode for solo-role users: owner-only personas (Daniel, Tomáš) see "My C
 
 6. **Provider setup consolidated** — all "Offer Care" entry points route to `/profile?tab=services`. One place to set up and manage care services.
 
-7. **Owner-to-provider communication: three surfaces, three jobs (Inbox & Notifications E4, 2026-05-08).** Adopted principle:
+7. **Active session is a sub-route, not a query state (Inbox & Notifications H, 2026-05-08).** `/bookings/[id]/active` is its own page; the parent Sessions tab carries a slim link card. See "Active session sub-page" above.
+
+8. **Owner-to-provider communication: three surfaces, three jobs (Inbox & Notifications E4, 2026-05-08).** Adopted principle:
    - **Chat** = conversation, time-stamped, bidirectional, ephemeral context. ("Running late, be there 10 mins.")
    - **`Booking.ownerNotes`** = persistent care instructions, true for every session of this booking. ("Key under the blue pot. Bára gets one treat after walks.") Provider-side counterpart: `Booking.carerNotes`.
    - **`BookingSession.ownerNote`** *(deferred — not yet built)* = forward-looking, date-anchored note for a single session. Expires after that session. Symmetric with `BookingSession.report` (provider's backward-looking date-anchored artifact). Use case: "Today only, please skip the leash — vet said her paw needs another day."

@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-08
+last-reviewed: 2026-05-10
 tags: [messaging, inbox, chat, booking, notifications]
 review-trigger: "when modifying inbox, threads, conversation types, or notifications"
 ---
@@ -74,7 +74,7 @@ Each row represents a user, not a conversation:
 1. Users from existing conversations (via ConversationsContext) — **filtered to threads where the current persona is provider OR owner**, so each persona only sees their own conversations.
 2. Connected users without conversations yet (via `getConnectionsByState("connected")`)
 
-Sorted: unread first, then by most recent message.
+Sorted: pure recency descending (most recent activity first). Inbox & Notifications, 2026-05-08 — was previously "unread first, then recency," which pinned 85-day-old unread threads above 2-day-old active ones and read as broken. Same shape as iMessage / Slack: ordering is recency, the unread dot remains as the visual cue.
 
 ### Route redirects
 
@@ -96,7 +96,7 @@ Provider profile → "Book care" CTA → InquiryFormModal (service, dates, dogs)
 → BookingProposalCard appears in thread (header + body rows + line items + total)
                        ↳ Custom-quote callout in body when isOverride
 → Owner: Not now / Suggest changes (counter) / Review & sign
-→ Sign → ContractCard + booking flips proposed → upcoming
+→ Sign → BookingProposalCard footer flips to "Signed HH:MM · View booking →" + booking flips proposed → upcoming
 → Both sides become mutually Connected
 ```
 
@@ -107,8 +107,7 @@ Provider profile → "Book care" CTA → InquiryFormModal (service, dates, dogs)
 | Component | Purpose | Styling |
 |-----------|---------|---------|
 | `InquiryCard` | Structured inquiry artifact (replaces templated text). Renders engine estimate + provider Decline/Respond actions when pending. Collapses post-response. | `inbox-message-wrap--full`, surface-top bg, radius-panel |
-| `BookingProposalCard` | Proposal display. Three-action footer when pending (Not now / Suggest changes / Review & sign). Body collapses post-response; footer flips to status text or "View booking →" link. | 100% width, surface-top bg, radius-panel |
-| `ContractCard` | Signed contract confirmation. Links to `/bookings/{bookingId}` | — |
+| `BookingProposalCard` | Proposal display. Three-action footer when pending (Not now / Suggest changes / Review & sign). Body collapses post-response; footer flips to status text or "View booking →" link. Accepted proposals carry an inline `Signed HH:MM · View booking →` footer link — the contract confirmation lives on the proposal card itself, not a separate artifact. | 100% width, surface-top bg, radius-panel |
 | `PaymentCard` | Payment summary | Standard card styling |
 | `SigningModal` | Proposal acceptance flow | Modal overlay |
 | `ProposalForm` | Provider creates proposal. Default read-only System quote; "Adjust this quote" reveals editable mode with deviation flagging and override-reason capture. | Form modal |
@@ -146,7 +145,7 @@ Group feed posts have flat comments for async discussion. This replaces the prev
 
 ### Types
 
-13 notification types, each with distinct icon, label, and action:
+14 notification types, each with distinct icon, label, and action:
 
 | Type | Icon | Label | Example action |
 |------|------|-------|---------------|
@@ -160,9 +159,22 @@ Group feed posts have flat comments for async discussion. This replaces the prev
 | `booking_confirmed` | CheckCircle | Booking | → `/bookings/[bookingId]` |
 | `booking_message` | EnvelopeSimple | Message | → `/profile/[userId]?tab=chat` |
 | `new_message` | EnvelopeSimple | Message | → `/profile/[userId]?tab=chat` |
-| `session_completed` | CheckCircle | Care | → `/bookings/[bookingId]` |
+| `session_started` | PlayCircle | Care | → `/bookings/[bookingId]?tab=sessions` |
+| `session_completed` | CheckCircle | Care | → `/bookings/[bookingId]?tab=sessions` |
 | `care_review` | Star | Review | → `/profile` |
 | `post_comment` | ChatCircle | Comment | → `/communities/[groupId]` |
+
+### Recipient targeting
+
+Each `AppNotification` carries a required `recipientId`. The bell list is filtered per-viewer in `NotificationsContext` so a notification only appears for the user it's addressed to. The actor of an event (e.g. carer pressing Start) does not self-notify — `recipientId` resolves to `booking.ownerId` for session lifecycle events. Pre-Inbox & Notifications (2026-05-08), notifications were a global list and the carer who triggered Start would see their own notification fire.
+
+### Lifecycle update pattern (session_started → session_completed)
+
+The notification builders (`lib/notificationBuilders.ts`) issue a deterministic id `notif-session-${session.id}` for both events. `addNotification` upserts by id, so the second event overwrites the first row in place — the bell shows **one evolving notification per session**, not two. This mirrors iOS / ride-share notification grammar (the same banner updates from "Driver is on the way" to "Driver has arrived"). The shape is reusable for any future event pair where a state change should refresh an existing row rather than spawn a duplicate.
+
+### Cross-surface unread counts
+
+Mobile bell, desktop sidebar, and inbox dots all read the same viewer-aware helper `countUnreadConversations(conversations, viewerId)` from `lib/conversationUtils.ts`. Pre-Inbox & Notifications (2026-05-08), the AppNav bell counted via `c.unreadCount > 0` (owner-centric counter) while the inbox itself filtered with viewer-aware logic, so a provider-side viewer would see divergent counts on different surfaces. Single helper resolves the divergence. The desktop sidebar surfaces unread badges next to the Notifications + Inbox labels using the same numbers.
 
 ### Notification grouping
 
@@ -170,8 +182,7 @@ Same-type + same-href notifications cluster into groups with stacked avatars. Gr
 
 ### Surfaces
 
-- **NotificationsPanel** — dropdown from bell icon in nav (desktop). Shows recent notifications with type-specific overlay icons on avatars. Unread indicator: dot on the right edge.
-- **Notifications page** — `/notifications`. Full page with mark-all-read, grouped rendering. Sessions & Service Execution refresh (2026-05-08): unread indicator moved from a left-side dot column to a corner pip on the avatar (`.notif-unread-badge` — brand-tinted, surface-bordered so it overlaps the edge). Category label moved from a third body line to a small uppercase letter-spaced tag on the top row, paired with the timestamp via `·`. Pattern: `{title}                              CARE · 7d ago` / `{body line}`.
+- **`/notifications`** — single canonical surface on every device. Full page with mark-all-read, grouped rendering. Bell icon in AppNav uses `ButtonIcon{href="/notifications"}` — same pattern as the inbox link. The desktop dropdown panel (`NotificationsPanel.tsx`) was retired in Inbox & Notifications C1 (2026-05-08) — one rendering path to maintain. Unread indicator is a corner pip on the avatar (`.notif-unread-badge` — brand-tinted, surface-bordered so it overlaps the edge). Category label sits as a small uppercase letter-spaced tag on the top row paired with the timestamp via `·`. Pattern: `{title}                              CARE · 7d ago` / `{body line}`.
 
 ### Visit-report indicator
 
@@ -196,6 +207,10 @@ Owner-side `/bookings` cards surface a "New visit report from {carer} · {date} 
 11. **Single notification surface (Inbox & Notifications C1, 2026-05-08).** Bell icon now routes to `/notifications` on every device. The desktop dropdown panel (`NotificationsPanel.tsx`) was retired — one canonical surface, one rendering path to maintain.
 12. **Edit-after-submit on visit reports (Inbox & Notifications E2, 2026-05-08).** Provider can edit a sealed report's notes for up to 24h after `completedAt` OR until the owner views the report (whichever comes first). Last-write-wins — `editedAt` field on `VisitReport` records the most-recent save; no chronicle of prior versions. Owner sees a quiet `edited` tag on the report card; no notification, no chat system message. Designed for typo fixes; chronicle versioning was deliberately skipped as overengineering for the demo.
 13. **Superseded proposal cards subdue + expand-on-click (Inbox & Notifications E3, 2026-05-08).** Countered / declined / accepted proposal cards collapse to header + service title and dim (lower opacity, muted header background, lower-contrast icon + label). Tapping the collapsed body expands the full chronicle inline; "Show less" returns to compact. Chronicle stays inspectable on demand without scrolling away from the active card. Pending proposals retain their full vivid header.
+14. **Inbox sort: pure recency descending (Inbox & Notifications D, 2026-05-08).** Was unread-first then recency — surfaced 85d-old unread threads above 2d-old active ones and read as broken. Same shape as iMessage / Slack. Unread dot stays as visual cue.
+15. **Cross-surface unread counts share `countUnreadConversations(conversations, viewerId)` (Inbox & Notifications D, 2026-05-08).** Mobile bell, desktop sidebar, and inbox dots all read the same viewer-aware helper. Earlier owner-centric counter caused divergent counts on provider-side viewers vs the inbox itself.
+16. **Notifications carry `recipientId`; bell filters per-viewer (Inbox & Notifications A, 2026-05-08).** Actor of an event no longer self-notifies. See "Recipient targeting" above.
+17. **Lifecycle update pattern via deterministic id (Inbox & Notifications A, 2026-05-08).** `session_started` → `session_completed` upsert the same notification row via id `notif-session-${session.id}`. iOS / ride-share grammar; one evolving row per lifecycle. See "Lifecycle update pattern" above.
 
 ---
 
