@@ -1,27 +1,31 @@
 "use client";
 
 /**
- * ActiveSessionPanel — the engagement surface for an in-progress care
- * session. Provider gets composition affordances (notes, photos, GPS
- * stub on walks, single-tap Finish, Undo on empty start). Owner gets a
- * calmer "we'll send a report when it wraps up" view with the latest
- * mid-session photo + GPS readout.
+ * ActiveSessionPanel — content body of the active session sub-page.
  *
- * Lives as a shared component since 2026-05-08 — used by both the
- * (now-historical) inline render on the booking-detail Sessions tab AND
- * the focused active-session sub-route at `/bookings/[id]/active`.
+ * Renders the session-state strip + provider composition affordances
+ * (photos, notes, GPS) OR owner-side calm "session in progress" view.
  *
- * Sessions & Service Execution A3, 2026-05-05; extracted 2026-05-08.
+ * **No outer card chrome** — the active sub-page provides the page-level
+ * frame (warning-25 surface + left amber accent stripe). This component
+ * is content only.
+ *
+ * **No action footer** — Finish session + Undo Start are rendered as a
+ * sticky footer at the page level so they're always reachable while
+ * the content scrolls. Provider clicks Finish on the sub-page wrapper,
+ * not in here.
+ *
+ * Sessions & Service Execution A3, 2026-05-05; refactored to
+ * content-only + lifted action footer 2026-05-08 alongside the
+ * sub-route promotion.
  */
 
 import { useEffect, useRef, useState } from "react";
 import {
   Camera,
   CheckCircle,
-  Clock,
   MapPin,
   NotePencil,
-  Ruler,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import type { BookingSession, ServiceType, VisitReport } from "@/lib/types";
@@ -32,8 +36,6 @@ export function ActiveSessionPanel({
   serviceType,
   isProvider,
   onUpdateReport,
-  onFinish,
-  onUndoStart,
 }: {
   session: BookingSession;
   serviceType: ServiceType;
@@ -42,23 +44,12 @@ export function ActiveSessionPanel({
    *  report object on first edit so callers don't have to manage
    *  null-vs-existing branching. */
   onUpdateReport: (session: BookingSession, partial: Partial<VisitReport>) => void;
-  /** Seal the visit report and flip status to completed. Single-tap
-   *  Finish — no preview modal. GPS auto-stops on Finish (simulated
-   *  metrics seal into walkDistanceKm / walkDurationMin) so the
-   *  provider doesn't have to remember to tap Stop first. */
-  onFinish: (session: BookingSession) => void;
-  /** Revert an accidental Start tap — flips status back to upcoming and
-   *  clears `checkedInAt`. Different from cancel-this-session (which marks
-   *  it dead with a reason and notifies the owner); undo is a soft reset
-   *  for "oops, didn't mean to tap that." Provider-only. */
-  onUndoStart: (session: BookingSession) => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [notesOpen, setNotesOpen] = useState<boolean>(
     !!session.report?.notes && session.report.notes.length > 0,
   );
-  // Per-minute tick to refresh the GPS-sim readout (km / min). Cheap;
-  // only runs while the panel is mounted (i.e. while a session is active).
+  // Per-minute tick to refresh the GPS-sim readout (km / min).
   const [now, setNow] = useState<number>(() => Date.now());
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 60_000);
@@ -87,11 +78,6 @@ export function ActiveSessionPanel({
     ? Math.round(gpsElapsedMin * 0.06 * 10) / 10
     : 0;
 
-  const isEmpty =
-    photos.length === 0 &&
-    notes.trim().length === 0 &&
-    !gpsStartedAt;
-
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -107,9 +93,7 @@ export function ActiveSessionPanel({
 
   function toggleGps() {
     if (gpsStartedAt) {
-      // Stop tracking — only seal metrics if the provider actually
-      // tracked something meaningful (≥1 min). Sub-minute Start→Stop
-      // is a non-event.
+      // Stop tracking — only seal metrics if ≥1 min tracked.
       if (gpsElapsedMin > 0) {
         onUpdateReport(session, {
           gpsStartedAt: undefined,
@@ -125,17 +109,11 @@ export function ActiveSessionPanel({
   }
 
   return (
-    <div
-      className="flex flex-col rounded-panel bg-surface-base"
-      style={{
-        padding: "var(--space-lg)",
-        gap: "var(--space-lg)",
-        border: "1px solid var(--border-regular)",
-        borderLeft: "4px solid var(--status-warning-main)",
-      }}
-    >
-      {/* Header row — Live pill + when-it-started + date. Wraps on
-          narrow viewports rather than word-wrapping. */}
+    <div className="flex flex-col gap-lg">
+      {/* Session-state strip — Live pill + when-it-started + date.
+          Flat row, no container — the page chrome already provides
+          "this is active" context; double-containerizing reads as
+          redundant. */}
       <div className="flex flex-wrap items-center gap-x-md gap-y-xs">
         <span
           className="inline-flex items-center gap-xs px-sm py-xs text-xs font-semibold rounded-pill"
@@ -150,7 +128,7 @@ export function ActiveSessionPanel({
           Live
         </span>
         {startedAt && (
-          <span className="text-sm text-fg-tertiary whitespace-nowrap">started {startedAt}</span>
+          <span className="text-sm text-fg-secondary whitespace-nowrap">started {startedAt}</span>
         )}
         <span className="text-sm text-fg-tertiary whitespace-nowrap ml-auto">
           {formatShortDate(session.date)}
@@ -179,7 +157,7 @@ export function ActiveSessionPanel({
           {gpsStartedAt && (
             <div
               className="inline-flex items-center gap-xs self-start px-sm py-xs text-sm rounded-pill"
-              style={{ background: "var(--surface-inset)", color: "var(--text-secondary)" }}
+              style={{ background: "var(--surface-top)", color: "var(--text-secondary)" }}
             >
               <MapPin size={14} weight="fill" />
               On the move · {gpsDistanceKm} km · {gpsElapsedMin} min
@@ -193,7 +171,7 @@ export function ActiveSessionPanel({
         </>
       )}
 
-      {/* Provider side — quick-add layout. */}
+      {/* Provider side — full composition. */}
       {isProvider && (
         <>
           <input
@@ -205,24 +183,43 @@ export function ActiveSessionPanel({
             className="hidden"
           />
 
-          {latestPhoto && (
+          {/* Photos thumbnail row — wraps; capped width so they don't
+              sprawl on wide viewports. Mirror of the post-composer
+              multi-photo pattern. 2026-05-08 walkthrough refinement. */}
+          {photos.length > 0 && (
             <div
-              className="relative overflow-hidden rounded-md bg-surface-inset"
-              style={{ aspectRatio: "16 / 9", maxHeight: 200 }}
+              className="flex gap-xs flex-wrap"
+              style={{ maxWidth: 480 }}
             >
-              <img src={latestPhoto} alt="" className="w-full h-full object-cover" />
-              {photos.length > 1 && (
-                <span
-                  className="absolute bottom-1 right-1 inline-flex items-center gap-xs px-sm py-xs text-xs font-semibold rounded-pill"
-                  style={{ background: "var(--transparent-dark-64)", color: "white" }}
+              {photos.map((url, i) => (
+                <div
+                  key={i}
+                  className="relative rounded-md overflow-hidden bg-surface-inset"
+                  style={{ width: 96, height: 96 }}
                 >
-                  {photos.length} photos
-                </span>
-              )}
+                  <img src={url} alt="" className="w-full h-full object-cover" />
+                </div>
+              ))}
             </div>
           )}
 
-          {/* GPS state row — three states share the same slot. */}
+          {/* Dashed-border photo tile — strong visual nudge to upload.
+              Always full-width; copy adapts to "add another" once a
+              photo exists. 2026-05-08 walkthrough. */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="active-session-add-photo-tile"
+          >
+            <Camera size={20} weight="light" />
+            <span>
+              {photos.length === 0 ? "Add a photo" : "Add another photo"}
+            </span>
+          </button>
+
+          {/* GPS state row — three states share the same slot:
+              tracking active, tracking stopped + recorded, idle (button
+              renders separately below). */}
           {isWalk && gpsStartedAt && (
             <div
               className="flex items-center gap-sm rounded-panel"
@@ -280,45 +277,33 @@ export function ActiveSessionPanel({
             </div>
           )}
 
-          {/* Updates — quick-add affordances grouped under one header. */}
-          <div className="flex flex-col gap-xs">
-            <span className="text-xs font-semibold text-fg-tertiary uppercase tracking-wide">
-              Updates
-            </span>
-            <div className="flex flex-wrap gap-xs">
-              {!notesOpen && (
-                <ButtonAction
-                  variant="soft"
-                  size="sm"
-                  leftIcon={<NotePencil size={14} weight="light" />}
-                  onClick={() => setNotesOpen(true)}
-                  className="flex-1"
-                >
-                  Add a note
-                </ButtonAction>
-              )}
-              <ButtonAction
-                variant="soft"
-                size="sm"
-                leftIcon={<Camera size={14} weight="light" />}
-                onClick={() => fileInputRef.current?.click()}
-                className="flex-1"
-              >
-                {latestPhoto ? "Add another photo" : "Send a photo update"}
-              </ButtonAction>
-              {isWalk && !gpsStartedAt && !hasRecordedWalkMetrics && (
-                <ButtonAction
-                  variant="soft"
-                  size="sm"
-                  leftIcon={<MapPin size={14} weight="light" />}
-                  onClick={toggleGps}
-                  className="flex-1"
-                >
-                  Log route with GPS
-                </ButtonAction>
-              )}
-            </div>
-          </div>
+          {/* Add a note — full-width on its own. UPDATES header dropped:
+              with photo getting its own dashed tile and notes getting
+              its own row, there's nothing left to group. 2026-05-08. */}
+          {!notesOpen && (
+            <ButtonAction
+              variant="soft"
+              size="md"
+              leftIcon={<NotePencil size={16} weight="light" />}
+              onClick={() => setNotesOpen(true)}
+              className="w-full"
+            >
+              Add a note
+            </ButtonAction>
+          )}
+
+          {/* GPS log button — only when applicable + idle. */}
+          {isWalk && !gpsStartedAt && !hasRecordedWalkMetrics && (
+            <ButtonAction
+              variant="soft"
+              size="md"
+              leftIcon={<MapPin size={16} weight="light" />}
+              onClick={toggleGps}
+              className="w-full"
+            >
+              Log route with GPS
+            </ButtonAction>
+          )}
 
           {notesOpen && (
             <div className="input-block">
@@ -338,36 +323,22 @@ export function ActiveSessionPanel({
               />
             </div>
           )}
-
-          {/* Action footer */}
-          <div className="flex flex-col gap-sm">
-            <ButtonAction
-              variant="primary"
-              size="md"
-              leftIcon={<CheckCircle size={16} weight="fill" />}
-              onClick={() => onFinish(session)}
-            >
-              Finish session
-            </ButtonAction>
-            {isEmpty && (
-              <button
-                type="button"
-                onClick={() => onUndoStart(session)}
-                className="w-full text-left text-xs text-fg-tertiary underline underline-offset-2 cursor-pointer hover:text-fg-secondary transition-colors"
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  padding: 0,
-                  height: 24,
-                  lineHeight: "24px",
-                }}
-              >
-                Started by accident? Undo
-              </button>
-            )}
-          </div>
         </>
       )}
     </div>
+  );
+}
+
+/** Whether the session has no provider-composed content yet. Used by
+ *  callers (the active sub-page) to decide whether to surface the
+ *  "Started by accident? Undo" link in the sticky action footer. */
+export function isActiveSessionEmpty(session: BookingSession): boolean {
+  const photos = session.report?.photos ?? [];
+  const notes = session.report?.notes ?? "";
+  const gpsStartedAt = session.report?.gpsStartedAt;
+  return (
+    photos.length === 0 &&
+    notes.trim().length === 0 &&
+    !gpsStartedAt
   );
 }

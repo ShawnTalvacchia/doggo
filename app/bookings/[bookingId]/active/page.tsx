@@ -10,35 +10,46 @@
  *   /bookings/[id]      ← detail (Info / Sessions tabs)
  *   /bookings/[id]/active  ← THIS PAGE (no tabs; pet hero + ActivePanel)
  *
- * The detail header's back arrow goes UP one level to the parent booking
- * (NOT browser-history back). Cross-app banner / Schedule quick-start /
- * the slim "Active session" card on the parent's Sessions tab all route
- * directly here. Active panel's Finish / Undo route OUT to
+ * The detail header's back arrow goes UP one level to the parent
+ * booking (NOT browser-history back). Cross-app banner, Schedule
+ * quick-start, and the slim "Active session" card on the parent's
+ * Sessions tab all route directly here. Finish / Undo route OUT to
  * `/bookings/[id]?tab=sessions`.
+ *
+ * Page chrome: warning-25 surface tint + 4px left amber accent stripe
+ * — mirrors the schedule card's live treatment. The page IS the active
+ * surface; ActiveSessionPanel within renders content only (no card
+ * chrome of its own).
+ *
+ * Sticky action footer — Finish + Undo are pinned to the bottom of the
+ * scroll viewport via `position: sticky; bottom: 0` so the primary
+ * action stays reachable while content scrolls.
  *
  * Stale-URL guard: if there's no in-progress session for this booking
  * (already finished, never started, cancelled), the page redirects
  * automatically to the parent so we don't show a broken empty state.
  *
  * 2026-05-08 walkthrough — promoted from a query-state branch on the
- * parent (`?view=active`) to a real sub-route.
+ * parent (`?view=active`) to a real sub-route, then refined to a
+ * page-level frame + sticky footer.
  */
 
 import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ActiveSessionPanel } from "@/components/bookings/ActiveSessionPanel";
+import { CheckCircle } from "@phosphor-icons/react";
+import {
+  ActiveSessionPanel,
+  isActiveSessionEmpty,
+} from "@/components/bookings/ActiveSessionPanel";
 import { SessionsPetHeader } from "@/components/bookings/SessionsPetHeader";
+import { ButtonAction } from "@/components/ui/ButtonAction";
 import { PageColumn } from "@/components/layout/PageColumn";
-import { Spacer } from "@/components/layout/Spacer";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { getUserById } from "@/lib/mockUsers";
-import {
-  buildSessionStartedNotification,
-  buildSessionCompletedNotification,
-} from "@/lib/notificationBuilders";
+import { buildSessionCompletedNotification } from "@/lib/notificationBuilders";
 import type { BookingSession } from "@/lib/types";
 
 export default function ActiveSessionPage() {
@@ -57,9 +68,7 @@ export default function ActiveSessionPage() {
     (s) => s.status === "in_progress",
   );
 
-  // Detail header: session-anchored title + back-up to the booking's
-  // Sessions tab (NOT browser-history back). Up-a-level navigation is
-  // the standard sub-page pattern (iOS / Android).
+  // Detail header — session-anchored title + back-up to parent.
   useEffect(() => {
     if (!booking) return;
     const petName = booking.pets[0] ?? null;
@@ -70,9 +79,7 @@ export default function ActiveSessionPage() {
     return () => clearDetailHeader();
   }, [booking?.id, booking?.pets]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Stale-URL guard. If the user navigated here but there's no
-  // in-progress session (already finished, never started, cancelled),
-  // redirect to the parent so we don't render a broken empty state.
+  // Stale-URL guard — redirect to the parent if no in-progress session.
   useEffect(() => {
     if (!booking) return;
     const stillActive =
@@ -94,21 +101,14 @@ export default function ActiveSessionPage() {
     );
   }
   if (!activeSession || booking.status === "cancelled") {
-    // Render nothing while the redirect kicks in to avoid flashing an
-    // empty hero. The redirect effect above handles the navigation.
     return <PageColumn title="Live session"><div className="page-column-panel-body" /></PageColumn>;
   }
 
-  // Pet profiles for the hero — pulled from the owner's user profile.
   const owner = getUserById(booking.ownerId);
   const petsForBooking = (owner?.pets ?? []).filter((p) =>
     booking.pets.includes(p.name),
   );
 
-  // Handlers — funnels through to BookingsContext.updateSession with
-  // the same logic as the parent booking-detail page (notification fire
-  // on completed → upserts the session_started entry; route OUT on
-  // Finish / Undo so the user lands on the chronicle view).
   function handleUpdateReport(
     s: BookingSession,
     partial: Partial<NonNullable<BookingSession["report"]>>,
@@ -125,7 +125,7 @@ export default function ActiveSessionPage() {
   function handleFinish(s: BookingSession) {
     // Single-tap seal. If GPS is tracking, auto-stop + simulate the
     // metrics so the report carries them. Sub-minute tracking is a
-    // non-event (skip the seal so we don't print "0 km · 0 min").
+    // non-event.
     const existingReport = s.report ?? { photos: [] };
     let walkDistanceKm = existingReport.walkDistanceKm;
     let walkDurationMin = existingReport.walkDurationMin;
@@ -151,12 +151,7 @@ export default function ActiveSessionPage() {
         completedAt: new Date().toISOString(),
       },
     });
-    // Owner-facing notification — same deterministic id as the
-    // session_started fire so the bell shows one evolving row, not
-    // two duplicates.
     addNotification(buildSessionCompletedNotification(booking!, s));
-    // Route OUT to the booking's Sessions tab. The chronicle view
-    // shows the just-completed session at the top of the past list.
     router.push(`/bookings/${booking!.id}?tab=sessions`);
   }
 
@@ -168,24 +163,62 @@ export default function ActiveSessionPage() {
     router.push(`/bookings/${booking!.id}?tab=sessions`);
   }
 
+  const showUndo = isProvider && isActiveSessionEmpty(activeSession);
+
   return (
     <PageColumn title="Live session">
-      <div
-        className="page-column-panel-body flex flex-col gap-lg"
-        style={{ padding: "var(--space-lg)" }}
-      >
-        {petsForBooking.length > 0 && (
-          <SessionsPetHeader pets={petsForBooking} />
-        )}
-        <ActiveSessionPanel
-          session={activeSession}
-          serviceType={booking.serviceType}
-          isProvider={isProvider}
-          onUpdateReport={handleUpdateReport}
-          onFinish={handleFinish}
-          onUndoStart={handleUndoStart}
-        />
-        <Spacer />
+      <div className="page-column-panel-body">
+        {/* Page-level frame — the warning-25 tint + 4px left amber
+            accent stripe make THIS PAGE the active element (mirrors
+            schedule card live treatment). min-height 100% so the
+            accent extends full viewport height even when content is
+            short. ActiveSessionPanel within renders content only —
+            no card chrome of its own. */}
+        <div className="active-session-frame">
+          <div className="active-session-frame-content">
+            {petsForBooking.length > 0 && (
+              <SessionsPetHeader pets={petsForBooking} />
+            )}
+            <ActiveSessionPanel
+              session={activeSession}
+              serviceType={booking.serviceType}
+              isProvider={isProvider}
+              onUpdateReport={handleUpdateReport}
+            />
+          </div>
+
+          {/* Sticky action footer — provider's primary action. Pinned
+              to the bottom of the scroll viewport via position: sticky
+              so it's always reachable. Owner side has no actions, so
+              the footer only renders for the provider. */}
+          {isProvider && (
+            <div className="active-session-action-footer">
+              <ButtonAction
+                variant="primary"
+                size="md"
+                leftIcon={<CheckCircle size={16} weight="fill" />}
+                onClick={() => handleFinish(activeSession)}
+                className="w-full"
+              >
+                Finish session
+              </ButtonAction>
+              {showUndo && (
+                <button
+                  type="button"
+                  onClick={() => handleUndoStart(activeSession)}
+                  className="w-full text-center text-xs text-fg-tertiary underline underline-offset-2 cursor-pointer hover:text-fg-secondary transition-colors"
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    padding: "var(--space-xs) 0",
+                  }}
+                >
+                  Started by accident? Undo
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </PageColumn>
   );

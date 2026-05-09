@@ -8499,6 +8499,76 @@ body:has(.bottom-nav) .bookings-page {
   flex-shrink: 0;
 }
 
+/* ── Active session sub-page (`/bookings/[id]/active`) ────────────────
+   Page-level frame that signals "this is the active session" via a
+   warning-25 surface tint + 4px left amber accent stripe (mirroring
+   the schedule card's live treatment + .booking-card--live). The frame
+   spans the panel-body so the accent extends full viewport height even
+   when content is short. ActiveSessionPanel within renders content
+   only — no card chrome of its own.
+
+   Sticky action footer pins Finish (+ Undo when applicable) to the
+   bottom of the scroll viewport so the provider's primary action is
+   always reachable while content scrolls. 2026-05-08. */
+.active-session-frame {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: var(--warning-25);
+  border-left: 4px solid var(--status-warning-main);
+}
+
+.active-session-frame-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  /* flex-1 so the content region fills the frame, leaving the action
+     footer pinned at the bottom when content is short. */
+  flex: 1;
+}
+
+.active-session-action-footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--warning-25);
+  /* Subtle separator so scrolled content fades behind the footer
+     instead of running into the Finish button. */
+  border-top: 1px solid var(--warning-100);
+}
+
+/* Dashed-border photo tile inside ActiveSessionPanel — strong visual
+   nudge to upload. Vertical icon-over-label stack reads as a target;
+   hover state shifts to brand chrome to confirm interactivity. */
+.active-session-add-photo-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  width: 100%;
+  padding: var(--space-xl) var(--space-lg);
+  border: 2px dashed var(--border-regular);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.active-session-add-photo-tile:hover {
+  border-color: var(--brand-main);
+  background: var(--brand-faint);
+  color: var(--text-primary);
+}
+
 /* ── Sidebar Active Now card (desktop) ────────────────────────────────
    Pinned to the bottom of the sidebar (after the regular nav items)
    when a session is in_progress for the viewer. `margin-top: auto`
