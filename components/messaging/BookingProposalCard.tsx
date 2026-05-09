@@ -72,7 +72,7 @@ export function BookingProposalCard({
         <button
           type="button"
           onClick={() => setExpanded(true)}
-          className="inbox-proposal-body inbox-proposal-body--collapsed inbox-proposal-collapsed-trigger"
+          className="inbox-proposal-body--collapsed inbox-proposal-collapsed-trigger"
           aria-expanded="false"
           aria-label="Expand booking proposal details"
         >

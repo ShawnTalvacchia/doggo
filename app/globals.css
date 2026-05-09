@@ -10947,6 +10947,15 @@ body:has(.bottom-nav) .inbox-page {
   font-weight: var(--weight-semibold);
   color: var(--text-primary);
   line-height: 1.3;
+  /* Truncate when the title runs long — keep title + trailing caret on
+     a single row so the collapsed card stays compact. min-width: 0 lets
+     the flex item shrink past its intrinsic content size, which is
+     what enables ellipsis on a flex child. 2026-05-08 walkthrough. */
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .inbox-proposal-collapsed-sub {
