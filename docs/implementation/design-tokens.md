@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-05-04
+last-reviewed: 2026-05-08
 tags: [tokens, css, figma, design-system]
 review-trigger: "when adding or changing CSS variables"
 ---
@@ -215,6 +215,20 @@ CSS pattern: `--transparent-{dark|light|gray}-{step}`
 | Spacing/Jumbo-1 | `--space-jumbo-1` | `40px` |
 | Spacing/Jumbo-2 | `--space-jumbo-2` | `64px` |
 | Spacing/Jumbo-3 | `--space-jumbo-3` | `80px` |
+
+---
+
+## Container max-widths
+
+Tailwind v4's `max-w-*` utilities resolve from the `--container-*` namespace in the `@theme` block. The defaults Tailwind ships (`max-w-xs`/`md`/etc) fall through to the spacing scale in this project — `max-w-xs` = `--space-xs` = 6px — so always use one of these tokens for layout-width caps.
+
+| Token              | CSS                  | Use for                                                           |
+| ------------------ | -------------------- | ----------------------------------------------------------------- |
+| Container/Narrow   | `--container-narrow` | Empty states, single-column forms · `400px`                       |
+| Container/Prose    | `--container-prose`  | Long-form body copy at a comfortable line length · `640px`        |
+| Container/Page     | `--container-page`   | Centered page-content panels · `800px`                            |
+
+Tailwind utilities: `max-w-narrow`, `max-w-prose`, `max-w-page`. Add more here when surfaces need them.
 
 ---
 

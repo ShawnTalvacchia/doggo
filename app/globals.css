@@ -122,6 +122,19 @@
   --breakpoint-xl: 1024px;
   --breakpoint-2xl: 1280px;
   --breakpoint-content: 1088px;
+
+  /* ── Container max-widths ──
+   * Tailwind v4's `max-w-*` utilities resolve from the `--container-*`
+   * namespace. Without these, `max-w-xs` etc fall through to the spacing
+   * scale (`--space-xs` = 6px) which produced a 6px-wide empty state on
+   * /notifications. Three useful sizes:
+   *   max-w-narrow (400px) — empty states, forms, single-column copy
+   *   max-w-prose  (640px) — long-form body text (comfortable line length)
+   *   max-w-page   (800px) — centered page-content panels
+   * Add more here when surfaces need them. 2026-05-08. */
+  --container-narrow: 400px;
+  --container-prose: 640px;
+  --container-page: 800px;
 }
 
 /* ============================================
