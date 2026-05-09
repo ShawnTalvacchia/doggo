@@ -37,7 +37,10 @@ export function SessionsPetHeader({
     : [primary.breed, primary.ageLabel].filter((s) => s && s.trim());
 
   return (
-    <div className="flex flex-col gap-md">
+    // Outer gap matches the active-session page's section rhythm so
+    // the dog name reads as its own section below the hero photo
+    // rather than crowding the frame. 2026-05-08 walkthrough.
+    <div className="flex flex-col gap-xl">
       <div
         className="rounded-panel overflow-hidden bg-surface-inset w-full"
         style={{ maxHeight: "clamp(160px, 45vw, 240px)" }}

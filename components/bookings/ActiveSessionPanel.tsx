@@ -205,15 +205,20 @@ export function ActiveSessionPanel({
             </div>
           )}
 
-          {/* Dashed-border photo tile — strong visual nudge to upload.
-              Always full-width; copy adapts to "add another" once a
-              photo exists. 2026-05-08 walkthrough. */}
+          {/* Dashed-border photo tile — two states.
+              No photos: tall vertical tile (strong visual nudge).
+              With photos: collapses to a btn-md-height row with icon
+              on the left ("Add another photo"); the thumbnail row
+              above carries the visual weight.
+              2026-05-08 walkthrough. */}
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="active-session-add-photo-tile"
+            className={`active-session-add-photo-tile${
+              photos.length > 0 ? " active-session-add-photo-tile--compact" : ""
+            }`}
           >
-            <Camera size={20} weight="light" />
+            <Camera size={photos.length > 0 ? 16 : 20} weight="light" />
             <span>
               {photos.length === 0 ? "Add a photo" : "Add another photo"}
             </span>

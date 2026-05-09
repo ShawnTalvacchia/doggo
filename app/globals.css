@@ -8546,10 +8546,15 @@ body:has(.bottom-nav) .bookings-page {
 }
 
 /* Dashed-border photo tile inside ActiveSessionPanel — strong visual
-   nudge to upload. Vertical icon-over-label stack reads as a target;
-   subtle surface-top fill gives the tile weight against the page bg;
-   hover state shifts to brand chrome to confirm interactivity.
-   Generous vertical padding for a substantial tap target. */
+   nudge to upload. Two states share the class:
+     - Default (no photos): tall vertical icon-over-label tile, generous
+       padding for a substantial tap target, surface-base fill so it
+       reads as the canvas of an empty slot.
+     - `--compact` modifier (one or more photos already added): shrinks
+       to a btn-md-height row, icon on the left, "Add another photo"
+       label. The thumbnail row above takes the visual weight; the
+       button is just the affordance to add more.
+   Hover state in both: brand-faint fill + brand border. */
 .active-session-add-photo-tile {
   display: flex;
   flex-direction: column;
@@ -8557,10 +8562,10 @@ body:has(.bottom-nav) .bookings-page {
   justify-content: center;
   gap: var(--space-sm);
   width: 100%;
-  padding: var(--space-xxxl) var(--space-lg);
+  padding: var(--space-jumbo-1) var(--space-lg);
   border: 2px dashed var(--border-regular);
   border-radius: var(--radius-md);
-  background: var(--surface-top);
+  background: var(--surface-base);
   color: var(--text-secondary);
   font-family: var(--font-body);
   font-size: var(--text-sm);
@@ -8573,6 +8578,14 @@ body:has(.bottom-nav) .bookings-page {
   border-color: var(--brand-main);
   background: var(--brand-faint);
   color: var(--text-primary);
+}
+
+.active-session-add-photo-tile--compact {
+  flex-direction: row;
+  gap: var(--space-sm);
+  /* Match btn-md (Add a note) height: min-height 40px + padding 9/12. */
+  min-height: 40px;
+  padding: 9px 12px;
 }
 
 /* ── Sidebar Active Now card (desktop) ────────────────────────────────
