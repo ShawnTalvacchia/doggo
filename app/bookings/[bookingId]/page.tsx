@@ -23,9 +23,6 @@ import {
   Pill,
   Ruler,
   Clock,
-  Camera,
-  MapPin,
-  NotePencil,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { DetailHeader } from "@/components/layout/DetailHeader";
@@ -36,6 +33,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { CancelBookingModal } from "@/components/bookings/CancelBookingModal";
 import { CancelSessionModal } from "@/components/bookings/CancelSessionModal";
 import { CareReviewSheet } from "@/components/bookings/CareReviewSheet";
+import { SessionsPetHeader } from "@/components/bookings/SessionsPetHeader";
 import { OwnerDogAvatar } from "@/components/people/OwnerDogAvatar";
 import { SigningModal } from "@/components/messaging/SigningModal";
 import { useBookings } from "@/contexts/BookingsContext";
@@ -53,7 +51,7 @@ import {
 } from "@/lib/notificationBuilders";
 import { formatShortDate, formatDateRange } from "@/lib/dateUtils";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
-import type { Booking, BookingSession, ChatMessage, PetProfile, ServiceType, VisitReport } from "@/lib/types";
+import type { Booking, BookingSession, PetProfile } from "@/lib/types";
 
 const TABS = [
   { key: "info", label: "Info" },
@@ -397,496 +395,6 @@ function SessionRow({
   );
 }
 
-/* ── Active session panel ── */
-
-function ActiveSessionPanel({
-  session,
-  serviceType,
-  isProvider,
-  onUpdateReport,
-  onFinish,
-  onUndoStart,
-}: {
-  session: BookingSession;
-  serviceType: ServiceType;
-  isProvider: boolean;
-  /** Apply a partial update to the session's report. Lazy-creates the
-   *  report object on first edit so callers don't have to manage
-   *  null-vs-existing branching. */
-  onUpdateReport: (session: BookingSession, partial: Partial<VisitReport>) => void;
-  /** Seal the visit report and flip status to completed. Single-tap
-   *  Finish — no preview modal. GPS auto-stops on Finish (simulated
-   *  metrics seal into walkDistanceKm / walkDurationMin) so the
-   *  provider doesn't have to remember to tap Stop first. */
-  onFinish: (session: BookingSession) => void;
-  /** Revert an accidental Start tap — flips status back to upcoming and
-   *  clears `checkedInAt`. Different from cancel-this-session (which marks
-   *  it dead with a reason and notifies the owner); undo is a soft reset
-   *  for "oops, didn't mean to tap that." Provider-only. */
-  onUndoStart: (session: BookingSession) => void;
-}) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [notesOpen, setNotesOpen] = useState<boolean>(
-    !!session.report?.notes && session.report.notes.length > 0,
-  );
-  // Per-minute tick to refresh the GPS-sim readout (km / min). Cheap;
-  // only runs while the panel is mounted (i.e. while a session is active).
-  const [now, setNow] = useState<number>(() => Date.now());
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 60_000);
-    return () => clearInterval(id);
-  }, []);
-
-  const startedAt = session.checkedInAt
-    ? new Date(session.checkedInAt).toLocaleTimeString("en-GB", {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : null;
-  const photos = session.report?.photos ?? [];
-  const latestPhoto = photos[photos.length - 1] ?? null;
-  const notes = session.report?.notes ?? "";
-  const gpsStartedAt = session.report?.gpsStartedAt;
-  const isWalk = serviceType === "walk_checkin";
-  // True once Stop has sealed real metrics into the report (we skip the
-  // seal for sub-minute Start→Stop, so 0/0 won't trigger this). Drives
-  // both the "Walk recorded" pill (visible) and hides the "Log route
-  // with GPS" button — re-tracking-and-overriding within one session
-  // is deferred (see Open Questions §4 → "Multi-leg tracking").
-  const hasRecordedWalkMetrics = !!(
-    session.report?.walkDistanceKm || session.report?.walkDurationMin
-  );
-
-  // Simulated GPS metrics — rough 3.6 km/hr pet-walking pace. Demo-state;
-  // real GPS is deferred. The simulated values get sealed into
-  // walkDistanceKm/walkDurationMin on Finish via the modal pre-fill.
-  const gpsElapsedMin = gpsStartedAt
-    ? Math.max(0, Math.floor((now - new Date(gpsStartedAt).getTime()) / 60_000))
-    : 0;
-  const gpsDistanceKm = gpsStartedAt
-    ? Math.round(gpsElapsedMin * 0.06 * 10) / 10
-    : 0;
-
-  // Finish is always enabled — a quiet session where nothing notable
-  // happened is valid; the owner gets "Completed at HH:MM" and that's
-  // a meaningful confirmation. The "Started by accident? Undo" link
-  // below covers the only real failure mode (accidental Start tap).
-  // `isEmpty` still drives whether to show the Undo link.
-  const isEmpty =
-    photos.length === 0 &&
-    notes.trim().length === 0 &&
-    !gpsStartedAt;
-
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        onUpdateReport(session, { photos: [...photos, reader.result] });
-      }
-    };
-    reader.readAsDataURL(file);
-    e.target.value = "";
-  }
-
-  function toggleGps() {
-    if (gpsStartedAt) {
-      // Stop tracking. Seal the simulated metrics into the report only
-      // if the provider actually tracked something meaningful (≥1 min).
-      // Sub-minute Start→Stop is a non-event — skip the seal so we
-      // don't pollute the report with 0 km / 0 min, and so a prior
-      // recording (if there was one) isn't overwritten by an accidental
-      // restart-then-stop.
-      if (gpsElapsedMin > 0) {
-        onUpdateReport(session, {
-          gpsStartedAt: undefined,
-          walkDistanceKm: gpsDistanceKm,
-          walkDurationMin: gpsElapsedMin,
-        });
-      } else {
-        onUpdateReport(session, { gpsStartedAt: undefined });
-      }
-    } else {
-      onUpdateReport(session, { gpsStartedAt: new Date().toISOString() });
-    }
-  }
-
-  return (
-    <div
-      className="flex flex-col rounded-panel bg-surface-base"
-      style={{
-        padding: "var(--space-lg)",
-        gap: "var(--space-lg)",
-        border: "1px solid var(--border-regular)",
-        // Amber left stripe carries the "active" signal; keeps the
-        // panel surface neutral so it doesn't dominate the page.
-        borderLeft: "4px solid var(--status-warning-main)",
-      }}
-    >
-      {/* Header row — status pill + when-it-started + date. flex-wrap
-          allows the date to drop to its own line on narrow viewports
-          rather than word-wrapping ("8 May 2026" on three lines). The
-          pill itself shortened to a pulsing dot + "Live" to free up
-          horizontal room — same live-pulse-dot utility as the
-          cross-app banners, with `--live-pulse-color` overridden to
-          warning-850 so the dot reads as dark on the yellow pill bg.
-          2026-05-08 walkthrough refinement. */}
-      <div className="flex flex-wrap items-center gap-x-md gap-y-xs">
-        <span
-          className="inline-flex items-center gap-xs px-sm py-xs text-xs font-semibold rounded-pill"
-          style={{
-            background: "var(--status-warning-main)",
-            color: "var(--warning-850)",
-            // Dot color reads as dark on the yellow pill bg; size dialed
-            // down from the global 10px since the pill is small and the
-            // pulse only needs a quiet presence here. The cross-app
-            // banner + sidebar keep the larger global default.
-            ["--live-pulse-color" as string]: "var(--warning-850)",
-            ["--live-pulse-size" as string]: "8px",
-          } as React.CSSProperties}
-        >
-          <span className="live-pulse-dot" role="img" aria-label="Live" />
-          Live
-        </span>
-        {startedAt && (
-          <span className="text-sm text-fg-tertiary whitespace-nowrap">started {startedAt}</span>
-        )}
-        <span className="text-sm text-fg-tertiary whitespace-nowrap ml-auto">
-          {formatShortDate(session.date)}
-        </span>
-      </div>
-
-      {/* Owner side — calm reassurance, no composition affordances. */}
-      {!isProvider && (
-        <>
-          {latestPhoto && (
-            <div
-              className="relative overflow-hidden rounded-md bg-surface-inset"
-              style={{ aspectRatio: "16 / 9", maxHeight: 200 }}
-            >
-              <img src={latestPhoto} alt="" className="w-full h-full object-cover" />
-              {photos.length > 1 && (
-                <span
-                  className="absolute bottom-1 right-1 inline-flex items-center gap-xs px-sm py-xs text-xs font-semibold rounded-pill"
-                  style={{ background: "var(--transparent-dark-64)", color: "white" }}
-                >
-                  {photos.length} photos
-                </span>
-              )}
-            </div>
-          )}
-          {gpsStartedAt && (
-            <div
-              className="inline-flex items-center gap-xs self-start px-sm py-xs text-sm rounded-pill"
-              style={{ background: "var(--surface-inset)", color: "var(--text-secondary)" }}
-            >
-              <MapPin size={14} weight="fill" />
-              On the move · {gpsDistanceKm} km · {gpsElapsedMin} min
-            </div>
-          )}
-          <p className="text-sm text-fg-secondary m-0">
-            {latestPhoto
-              ? "The session is in progress. You'll get the full visit report when it wraps up."
-              : "The session is in progress. You'll get a visit report when it wraps up."}
-          </p>
-        </>
-      )}
-
-      {/* Provider side — quick-add layout. Composition fields update
-          `session.report` directly so quitting the page mid-session
-          and coming back picks up where the provider left off. Notes
-          collapse behind "+ Add a note" since most sessions don't
-          need them; care checks stay as a chip row (single-tap).
-          GPS is a stub on walks — toggles a sim that ticks km/min
-          based on elapsed time. Sessions & Service Execution A3
-          walkthrough, 2026-05-05. */}
-      {isProvider && (
-        <>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            // `capture="environment"` prompts the rear camera directly on
-            // mobile browsers (iOS Safari, Android Chrome, Brave). Falls
-            // back to the standard file picker on desktop. One-attribute
-            // mobile-native moment for the in-session photo flow.
-            capture="environment"
-            onChange={handleFile}
-            className="hidden"
-          />
-
-          {/* Photo (when present) — sits above the structured sections
-              so it's the visual anchor of the panel. The "Send a photo
-              update" button lives in UPDATES below. */}
-          {latestPhoto && (
-            <div
-              className="relative overflow-hidden rounded-md bg-surface-inset"
-              style={{ aspectRatio: "16 / 9", maxHeight: 200 }}
-            >
-              <img src={latestPhoto} alt="" className="w-full h-full object-cover" />
-              {photos.length > 1 && (
-                <span
-                  className="absolute bottom-1 right-1 inline-flex items-center gap-xs px-sm py-xs text-xs font-semibold rounded-pill"
-                  style={{ background: "var(--transparent-dark-64)", color: "white" }}
-                >
-                  {photos.length} photos
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* GPS state row — three states share the same slot:
-              (1) tracking active → warning palette + Stop affordance;
-              (2) tracking stopped + metrics recorded → success palette
-                  confirmation pill (the work was saved);
-              (3) idle → nothing here, "Log route with GPS" lives in the
-                  UPDATES row below.
-              Demo sim — km / min derived from elapsed time. */}
-          {isWalk && gpsStartedAt && (
-            <div
-              className="flex items-center gap-sm rounded-panel"
-              style={{
-                padding: "var(--space-md)",
-                background: "var(--warning-25)",
-                border: "1px solid var(--warning-100)",
-              }}
-            >
-              <MapPin size={16} weight="fill" style={{ color: "var(--status-warning-strong)" }} />
-              <span className="text-sm font-semibold" style={{ color: "var(--warning-850)" }}>
-                Tracking route
-              </span>
-              <span className="text-sm" style={{ color: "var(--warning-850)" }}>
-                · {gpsDistanceKm} km · {gpsElapsedMin} min
-              </span>
-              <span className="flex-1" />
-              {/* Stop is a secondary escape hatch — Finish auto-stops GPS,
-                  so this is for "stop tracking but keep the session
-                  going" (battery, transition to playtime, GPS jitter).
-                  Same de-emphasis register as the Undo link below: text
-                  only, generous tap area, no icon. */}
-              <button
-                type="button"
-                onClick={toggleGps}
-                className="text-xs font-semibold uppercase tracking-wide cursor-pointer rounded-pill transition-colors"
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  padding: "var(--space-xs) var(--space-sm)",
-                  color: "var(--warning-850)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = "var(--warning-100)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = "transparent";
-                }}
-              >
-                Stop
-              </button>
-            </div>
-          )}
-          {isWalk && !gpsStartedAt && hasRecordedWalkMetrics && (
-            <div
-              className="flex items-center gap-sm rounded-panel"
-              style={{
-                padding: "var(--space-md)",
-                background: "var(--success-25)",
-                border: "1px solid var(--success-100)",
-              }}
-            >
-              <CheckCircle size={16} weight="fill" style={{ color: "var(--status-success-strong)" }} />
-              <span className="text-sm font-semibold" style={{ color: "var(--success-850)" }}>
-                Walk recorded
-              </span>
-              <span className="text-sm" style={{ color: "var(--success-850)" }}>
-                · {session.report?.walkDistanceKm ?? 0} km · {session.report?.walkDurationMin ?? 0} min
-              </span>
-            </div>
-          )}
-
-          {/* Updates — quick-add affordances grouped under one header.
-              All three are peers under Finish (which stays the only
-              primary-dark CTA). Soft variant tiles them against the
-              base-grey panel — lighter fill than the surface, hairline
-              border that strengthens on hover. */}
-          <div className="flex flex-col gap-xs">
-            <span className="text-xs font-semibold text-fg-tertiary uppercase tracking-wide">
-              Updates
-            </span>
-            <div className="flex flex-wrap gap-xs">
-              {!notesOpen && (
-                <ButtonAction
-                  variant="soft"
-                  size="sm"
-                  leftIcon={<NotePencil size={14} weight="light" />}
-                  onClick={() => setNotesOpen(true)}
-                  className="flex-1"
-                >
-                  Add a note
-                </ButtonAction>
-              )}
-              <ButtonAction
-                variant="soft"
-                size="sm"
-                leftIcon={<Camera size={14} weight="light" />}
-                onClick={() => fileInputRef.current?.click()}
-                className="flex-1"
-              >
-                {latestPhoto ? "Add another photo" : "Send a photo update"}
-              </ButtonAction>
-              {isWalk && !gpsStartedAt && !hasRecordedWalkMetrics && (
-                <ButtonAction
-                  variant="soft"
-                  size="sm"
-                  leftIcon={<MapPin size={14} weight="light" />}
-                  onClick={toggleGps}
-                  className="flex-1"
-                >
-                  Log route with GPS
-                </ButtonAction>
-              )}
-            </div>
-          </div>
-
-          {/* Notes — only when expanded. Once opened, stays open for the
-              session (no auto-collapse on blur). Provider can still
-              clear the textarea; we don't auto-close even when empty
-              because re-typing is friction. */}
-          {notesOpen && (
-            <div className="input-block">
-              <label className="label" htmlFor="active-session-notes">
-                <span className="label-primary-group">
-                  <span>Notes</span>
-                </span>
-              </label>
-              <textarea
-                id="active-session-notes"
-                className="textarea"
-                placeholder="Anything the owner should know."
-                value={notes}
-                onChange={(e) => onUpdateReport(session, { notes: e.target.value })}
-                rows={3}
-                autoFocus
-              />
-            </div>
-          )}
-
-          {/* Action footer */}
-          <div className="flex flex-col gap-sm">
-            <ButtonAction
-              variant="primary"
-              size="md"
-              leftIcon={<CheckCircle size={16} weight="fill" />}
-              onClick={() => onFinish(session)}
-            >
-              Finish session
-            </ButtonAction>
-            {isEmpty && (
-              // Full-width hit area for tappability (escape hatch for an
-              // accidental Start), but the visible link stays left-aligned
-              // and de-emphasized — link styling makes it read as clickable
-              // without competing with Finish.
-              <button
-                type="button"
-                onClick={() => onUndoStart(session)}
-                className="w-full text-left text-xs text-fg-tertiary underline underline-offset-2 cursor-pointer hover:text-fg-secondary transition-colors"
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  padding: 0,
-                  height: 24,
-                  lineHeight: "24px",
-                }}
-              >
-                Started by accident? Undo
-              </button>
-            )}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-/* ── Sessions-tab pet header ── */
-
-/**
- * Pet-as-protagonist hero on the Sessions tab — full-width rounded
- * photo (Rule B: dogs are rounded, people are circles) + 28px name
- * heading. No supporting line: the photo + name carry the identity,
- * and the active panel below already surfaces session state.
- *
- * Walkthrough surfaced that the dog's name was nowhere on the Sessions
- * tab; testers had to hunt through note text to confirm. The hero
- * treatment also nudges owners toward better photo hygiene — your dog
- * gets rendered at this scale, you tend to upload a good photo.
- * 2026-05-08.
- *
- * Multi-pet: primary photo + names joined with " & " for now. Full
- * multi-pet treatment lands when a multi-pet booking enters mock data.
- */
-function SessionsPetHeader({
-  pets,
-}: {
-  pets: PetProfile[];
-}) {
-  if (pets.length === 0) return null;
-  const primary = pets[0];
-  const isMulti = pets.length > 1;
-  const petLabel = isMulti
-    ? pets.map((p) => p.name).join(" & ")
-    : primary.name;
-  // Meta line — small, lighter type below the name. Single-pet only:
-  // the multi-pet case (Open Q §4) needs its own treatment since which
-  // dog's breed/age would we show? Owner name + page-header context
-  // already establishes who's involved (page detail header shows "Daniel"
-  // for provider view / "Klára" for owner view), so this row stays
-  // dog-anchored: breed + age. 2026-05-08 walkthrough refinement.
-  const metaParts = isMulti
-    ? []
-    : [primary.breed, primary.ageLabel].filter((s) => s && s.trim());
-
-  return (
-    <div className="flex flex-col gap-md">
-      {/* Hero photo — full-width, height clamps with viewport. Floor
-          160px, ceiling 240px, scaling at 45vw — tightened to keep
-          the active panel above the fold on most viewports. 2026-05-08
-          walkthrough refinement. */}
-      <div
-        className="rounded-panel overflow-hidden bg-surface-inset w-full"
-        style={{ maxHeight: "clamp(160px, 45vw, 240px)" }}
-      >
-        <img
-          src={primary.imageUrl}
-          alt={primary.name}
-          className="block w-full object-cover object-center"
-          style={{ maxHeight: "clamp(160px, 45vw, 240px)" }}
-        />
-      </div>
-      {/* Name + meta stacked. Tried inline with items-baseline but the
-          font-heading (Poppins) baseline didn't sit right against the
-          body-font meta — visual drift was distracting at this size
-          difference. Stacked reads cleanly. The image clamp ceiling was
-          tightened to compensate for the extra row's vertical cost.
-          2026-05-08 walkthrough. */}
-      <div className="flex flex-col gap-xs">
-        <h2
-          className="font-heading font-semibold text-fg-primary m-0"
-          style={{ fontSize: "24px", lineHeight: 1.15 }}
-        >
-          {petLabel}
-        </h2>
-        {metaParts.length > 0 && (
-          <span className="text-sm text-fg-tertiary font-normal">
-            {metaParts.join(" · ")}
-          </span>
-        )}
-      </div>
-    </div>
-  );
-}
-
 /* ── Pet info section (provider in-session reference) ── */
 
 /**
@@ -1042,14 +550,6 @@ export default function BookingDetailPage() {
   const [reviewOpen, setReviewOpen] = useState(false);
 
   const activeTab = searchParams.get("tab") ?? "info";
-  // Focused active-session view: a deeper level beneath the Sessions tab.
-  // When `?tab=sessions&view=active`, the page renders only the pet hero
-  // + ActiveSessionPanel (no past list, no leave-a-review prompt) and
-  // the detail-header back-button drops the `view` param to return up
-  // to the standard Sessions tab. Without this query, the Sessions tab
-  // shows a slim "Active now" card linking down INTO the focused view.
-  // 2026-05-08 walkthrough refinement.
-  const isActiveView = activeTab === "sessions" && searchParams.get("view") === "active";
 
   const handleTabChange = useCallback((key: string) => {
     router.replace(`/bookings/${params.bookingId}?tab=${key}`, { scroll: false });
@@ -1079,10 +579,10 @@ export default function BookingDetailPage() {
     if (partial.status === "in_progress") {
       addNotification(buildSessionStartedNotification(booking, session));
       // Provider's most-frequent path post-Start is the engagement
-      // surface. Route them into the focused active view so they're
-      // not stuck on the chronicle. The cross-app banner + Schedule
-      // quick-start follow the same pattern. 2026-05-08.
-      router.push(`/bookings/${bookingId}?tab=sessions&view=active`);
+      // surface. Route them onto the active-session sub-page directly
+      // so they're not stuck on the chronicle. Cross-app banner +
+      // Schedule quick-start follow the same pattern. 2026-05-08.
+      router.push(`/bookings/${bookingId}/active`);
     } else if (partial.status === "completed") {
       // Same id as the started notif → upserts the existing row
       // rather than spawning a duplicate. Owner sees one evolving
@@ -1102,32 +602,10 @@ export default function BookingDetailPage() {
       ? booking.carerName.split(" ")[0]
       : booking.ownerName.split(" ")[0];
     const serviceTitle = booking.subService ?? SERVICE_LABELS[booking.serviceType];
-    // In the focused active view, the back button goes UP one level —
-    // back to the standard Sessions tab — rather than out to /bookings.
-    // Same screen-hierarchy semantic as iOS / Android sub-pages.
-    const title = isActiveView ? "Active session" : `${otherFirstName} · ${serviceTitle}`;
-    const onBack = isActiveView
-      ? () => router.push(`/bookings/${booking.id}?tab=sessions`)
-      : () => router.push("/bookings");
-    setDetailHeader(title, onBack);
+    const title = `${otherFirstName} · ${serviceTitle}`;
+    setDetailHeader(title, () => router.push("/bookings"));
     return () => clearDetailHeader();
-  }, [booking?.id, isActiveView]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Stale `?view=active` — if the URL says focused view but there's no
-  // active session (already finished, never started, or cancelled),
-  // redirect to the standard Sessions tab. Otherwise the page renders
-  // an empty focused view (pet hero with nothing below it) which is a
-  // broken state. 2026-05-08.
-  useEffect(() => {
-    if (!booking) return;
-    if (!isActiveView) return;
-    const stillActive =
-      booking.status !== "cancelled" &&
-      (booking.sessions ?? []).some((s) => s.status === "in_progress");
-    if (!stillActive) {
-      router.replace(`/bookings/${booking.id}?tab=sessions`);
-    }
-  }, [booking?.id, isActiveView, booking?.status, booking?.sessions]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [booking?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Mark this booking as "viewed" once the owner opens the Sessions
   // tab — clears the "new visit report" indicator on the BookingRow
@@ -1557,17 +1035,17 @@ export default function BookingDetailPage() {
             {petsForBooking.length > 0 && (
               <SessionsPetHeader pets={petsForBooking} />
             )}
-            {/* Compact "Active now" card — links DOWN into the focused
-                active view (`?view=active`). Replaces the inline
-                ActiveSessionPanel that used to sit at the top of the
-                tab when a session was in progress. Lets the Sessions
-                tab stay focused on chronicle (past + upcoming) while
-                the live-engagement surface gets its own page treatment.
-                Visual grammar mirrors the cross-app banner: live-pulse
-                dot + service-aware copy + chevron. 2026-05-08. */}
-            {!isActiveView && booking.status !== "cancelled" && activeSession && (
+            {/* Compact "Active session" link card — when a session is
+                in progress on this booking, links DOWN into the
+                focused sub-page at `/bookings/[id]/active`. Replaces
+                the inline ActiveSessionPanel that used to sit at the
+                top of the tab. Lets the Sessions tab stay focused on
+                chronicle (past + upcoming) while live engagement gets
+                its own surface. Visual grammar mirrors the cross-app
+                banner: live-pulse dot + label + chevron. 2026-05-08. */}
+            {booking.status !== "cancelled" && activeSession && (
               <Link
-                href={`/bookings/${booking.id}?tab=sessions&view=active`}
+                href={`/bookings/${booking.id}/active`}
                 className="flex items-center gap-md w-full rounded-panel no-underline"
                 style={{
                   padding: "var(--space-md) var(--space-lg)",
@@ -1592,12 +1070,9 @@ export default function BookingDetailPage() {
                 the owner has at least one sealed visit report and no
                 review yet. Mirrors the Info-tab "Leave a review" CTA
                 without forcing a tab flip; G3 walkthrough finding,
-                2026-05-08. Suppressed on cancelled bookings (the banner
-                below already sets the read-only frame) AND in the
-                focused active view (the active session is the focus,
-                not chronicle). */}
-            {!isActiveView &&
-              isOwner &&
+                2026-05-08. Suppressed on cancelled bookings (the
+                banner below already sets the read-only frame). */}
+            {isOwner &&
               !hasReview(booking.id) &&
               booking.status !== "cancelled" &&
               sessions.some(
@@ -1633,75 +1108,10 @@ export default function BookingDetailPage() {
                   />
                 </button>
               )}
-            {/* Focused active view — only renders when
-                `?view=active` is in the URL AND there's a live
-                session. Pet hero (above) + this panel only; chronicle
-                + leave-a-review prompt are suppressed since the focus
-                is engagement, not browsing. Detail-header back button
-                drops `view=active` to return to the standard Sessions
-                tab. 2026-05-08. */}
-            {isActiveView && booking.status !== "cancelled" && activeSession && (
-              <ActiveSessionPanel
-                session={activeSession}
-                serviceType={booking.serviceType}
-                isProvider={isProvider}
-                onUpdateReport={(s, partial) =>
-                  handleUpdateSession(booking.id, s.id, {
-                    report: {
-                      photos: s.report?.photos ?? [],
-                      ...s.report,
-                      ...partial,
-                    },
-                  })
-                }
-                onFinish={(s) => {
-                  // Single-tap seal. If GPS is tracking, auto-stop +
-                  // simulate the metrics so the report carries them.
-                  // Sub-minute tracking is treated as a non-event.
-                  const existingReport = s.report ?? { photos: [] };
-                  let walkDistanceKm = existingReport.walkDistanceKm;
-                  let walkDurationMin = existingReport.walkDurationMin;
-                  if (existingReport.gpsStartedAt) {
-                    const elapsedMin = Math.max(
-                      0,
-                      Math.floor(
-                        (Date.now() - new Date(existingReport.gpsStartedAt).getTime()) / 60_000,
-                      ),
-                    );
-                    if (elapsedMin > 0) {
-                      walkDistanceKm = Math.round(elapsedMin * 0.06 * 10) / 10;
-                      walkDurationMin = elapsedMin;
-                    }
-                  }
-                  handleUpdateSession(booking.id, s.id, {
-                    status: "completed",
-                    report: {
-                      ...existingReport,
-                      ...(walkDistanceKm !== undefined ? { walkDistanceKm } : {}),
-                      ...(walkDurationMin !== undefined ? { walkDurationMin } : {}),
-                      gpsStartedAt: undefined,
-                      completedAt: new Date().toISOString(),
-                    },
-                  });
-                  // On Finish, drop back to standard Sessions tab —
-                  // the focused view is no longer applicable.
-                  router.push(`/bookings/${booking.id}?tab=sessions`);
-                }}
-                onUndoStart={(s) => {
-                  handleUpdateSession(booking.id, s.id, {
-                    status: "upcoming",
-                    checkedInAt: undefined,
-                  });
-                  router.push(`/bookings/${booking.id}?tab=sessions`);
-                }}
-              />
-            )}
             {/* Booking-cancelled banner — sits at the top of the
                 Sessions tab regardless of session count. The booking
-                is dead; everything below is read-only history. Active
-                panel + upcoming-sessions list are suppressed when
-                booking is cancelled (gates further down). */}
-            {!isActiveView && booking.status === "cancelled" && (
+                is dead; everything below is read-only history. */}
+            {booking.status === "cancelled" && (
               <div
                 className="flex items-start gap-sm rounded-panel"
                 style={{
@@ -1734,27 +1144,18 @@ export default function BookingDetailPage() {
                 </div>
               </div>
             )}
-            {/* Chronicle (empty / upcoming + past) — suppressed in
-                focused active view. The full default render falls
-                here when not isActiveView. */}
-            {!isActiveView && (sessions.length === 0 ? (
+            {/* Chronicle — empty state OR upcoming + past sessions list.
+                The active-session panel previously sat at the top of
+                this list; as of 2026-05-08 it lives at the dedicated
+                sub-page `/bookings/[id]/active`. The slim "Active
+                session" link card rendered above is the entry point. */}
+            {sessions.length === 0 ? (
               <div className="flex flex-col items-center gap-md p-xl text-center">
                 <CalendarDots size={32} weight="light" className="text-fg-tertiary" />
                 <p className="text-fg-secondary m-0">No sessions yet.</p>
               </div>
             ) : (
               <>
-                {/* Active session panel previously sat here as the
-                    top entry of the Sessions tab. As of 2026-05-08 it
-                    moved to a dedicated focused view at
-                    `?tab=sessions&view=active` — the Sessions tab now
-                    surfaces a slim "Active session · tap for live
-                    updates" link card (rendered above) which navigates
-                    INTO the focused view. Sessions tab stays focused
-                    on chronicle (upcoming + past); active engagement
-                    gets its own page treatment with full pet-hero
-                    framing. */}
-
                 {/* Upcoming sessions — suppressed on cancelled bookings;
                     no future sessions will run, so showing them as
                     "Upcoming" would mislead. Past sessions stay below
@@ -1817,7 +1218,7 @@ export default function BookingDetailPage() {
                   </>
                 )}
               </>
-            ))}
+            )}
           </div>
         )}
 

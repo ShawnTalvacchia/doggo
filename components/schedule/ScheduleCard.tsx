@@ -391,11 +391,11 @@ export function ScheduleCareCard({
     // matches the booking-detail funnel. Inbox & Notifications A2,
     // 2026-05-08.
     addNotification(buildSessionStartedNotification(booking, session));
-    // Quick-start lands directly in the focused active view —
+    // Quick-start lands directly on the active-session sub-page —
     // provider's most-frequent path is "tap Start, do session" so the
-    // routing should drop them straight into the engagement surface.
-    // 2026-05-08.
-    router.push(`/bookings/${booking.id}?tab=sessions&view=active`);
+    // routing should drop them straight onto the engagement surface
+    // (no booking detail flash in between). 2026-05-08.
+    router.push(`/bookings/${booking.id}/active`);
   }
 
   // Operational location hint — boarding/sitting handover happens at the
