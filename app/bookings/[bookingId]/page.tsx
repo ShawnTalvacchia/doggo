@@ -1042,6 +1042,14 @@ export default function BookingDetailPage() {
   const [reviewOpen, setReviewOpen] = useState(false);
 
   const activeTab = searchParams.get("tab") ?? "info";
+  // Focused active-session view: a deeper level beneath the Sessions tab.
+  // When `?tab=sessions&view=active`, the page renders only the pet hero
+  // + ActiveSessionPanel (no past list, no leave-a-review prompt) and
+  // the detail-header back-button drops the `view` param to return up
+  // to the standard Sessions tab. Without this query, the Sessions tab
+  // shows a slim "Active now" card linking down INTO the focused view.
+  // 2026-05-08 walkthrough refinement.
+  const isActiveView = activeTab === "sessions" && searchParams.get("view") === "active";
 
   const handleTabChange = useCallback((key: string) => {
     router.replace(`/bookings/${params.bookingId}?tab=${key}`, { scroll: false });
@@ -1070,6 +1078,11 @@ export default function BookingDetailPage() {
     if (!session) return;
     if (partial.status === "in_progress") {
       addNotification(buildSessionStartedNotification(booking, session));
+      // Provider's most-frequent path post-Start is the engagement
+      // surface. Route them into the focused active view so they're
+      // not stuck on the chronicle. The cross-app banner + Schedule
+      // quick-start follow the same pattern. 2026-05-08.
+      router.push(`/bookings/${bookingId}?tab=sessions&view=active`);
     } else if (partial.status === "completed") {
       // Same id as the started notif → upserts the existing row
       // rather than spawning a duplicate. Owner sees one evolving
@@ -1089,10 +1102,32 @@ export default function BookingDetailPage() {
       ? booking.carerName.split(" ")[0]
       : booking.ownerName.split(" ")[0];
     const serviceTitle = booking.subService ?? SERVICE_LABELS[booking.serviceType];
-    const title = `${otherFirstName} · ${serviceTitle}`;
-    setDetailHeader(title, () => router.push("/bookings"));
+    // In the focused active view, the back button goes UP one level —
+    // back to the standard Sessions tab — rather than out to /bookings.
+    // Same screen-hierarchy semantic as iOS / Android sub-pages.
+    const title = isActiveView ? "Active session" : `${otherFirstName} · ${serviceTitle}`;
+    const onBack = isActiveView
+      ? () => router.push(`/bookings/${booking.id}?tab=sessions`)
+      : () => router.push("/bookings");
+    setDetailHeader(title, onBack);
     return () => clearDetailHeader();
-  }, [booking?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [booking?.id, isActiveView]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Stale `?view=active` — if the URL says focused view but there's no
+  // active session (already finished, never started, or cancelled),
+  // redirect to the standard Sessions tab. Otherwise the page renders
+  // an empty focused view (pet hero with nothing below it) which is a
+  // broken state. 2026-05-08.
+  useEffect(() => {
+    if (!booking) return;
+    if (!isActiveView) return;
+    const stillActive =
+      booking.status !== "cancelled" &&
+      (booking.sessions ?? []).some((s) => s.status === "in_progress");
+    if (!stillActive) {
+      router.replace(`/bookings/${booking.id}?tab=sessions`);
+    }
+  }, [booking?.id, isActiveView, booking?.status, booking?.sessions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Mark this booking as "viewed" once the owner opens the Sessions
   // tab — clears the "new visit report" indicator on the BookingRow
@@ -1522,13 +1557,47 @@ export default function BookingDetailPage() {
             {petsForBooking.length > 0 && (
               <SessionsPetHeader pets={petsForBooking} />
             )}
+            {/* Compact "Active now" card — links DOWN into the focused
+                active view (`?view=active`). Replaces the inline
+                ActiveSessionPanel that used to sit at the top of the
+                tab when a session was in progress. Lets the Sessions
+                tab stay focused on chronicle (past + upcoming) while
+                the live-engagement surface gets its own page treatment.
+                Visual grammar mirrors the cross-app banner: live-pulse
+                dot + service-aware copy + chevron. 2026-05-08. */}
+            {!isActiveView && booking.status !== "cancelled" && activeSession && (
+              <Link
+                href={`/bookings/${booking.id}?tab=sessions&view=active`}
+                className="flex items-center gap-md w-full rounded-panel no-underline"
+                style={{
+                  padding: "var(--space-md) var(--space-lg)",
+                  background: "var(--warning-50)",
+                  border: "1px solid var(--warning-100)",
+                  color: "inherit",
+                }}
+              >
+                <span className="live-pulse-dot" role="img" aria-label="Live" />
+                <span className="flex flex-col flex-1 min-w-0 gap-xs">
+                  <span className="text-sm font-semibold text-fg-primary">
+                    Active session
+                  </span>
+                  <span className="text-xs text-fg-tertiary">
+                    Tap for live updates
+                  </span>
+                </span>
+                <CaretRight size={14} weight="bold" className="text-fg-tertiary shrink-0" />
+              </Link>
+            )}
             {/* Inline review prompt — surfaces on the Sessions tab when
                 the owner has at least one sealed visit report and no
                 review yet. Mirrors the Info-tab "Leave a review" CTA
                 without forcing a tab flip; G3 walkthrough finding,
                 2026-05-08. Suppressed on cancelled bookings (the banner
-                below already sets the read-only frame). */}
-            {isOwner &&
+                below already sets the read-only frame) AND in the
+                focused active view (the active session is the focus,
+                not chronicle). */}
+            {!isActiveView &&
+              isOwner &&
               !hasReview(booking.id) &&
               booking.status !== "cancelled" &&
               sessions.some(
@@ -1564,12 +1633,75 @@ export default function BookingDetailPage() {
                   />
                 </button>
               )}
+            {/* Focused active view — only renders when
+                `?view=active` is in the URL AND there's a live
+                session. Pet hero (above) + this panel only; chronicle
+                + leave-a-review prompt are suppressed since the focus
+                is engagement, not browsing. Detail-header back button
+                drops `view=active` to return to the standard Sessions
+                tab. 2026-05-08. */}
+            {isActiveView && booking.status !== "cancelled" && activeSession && (
+              <ActiveSessionPanel
+                session={activeSession}
+                serviceType={booking.serviceType}
+                isProvider={isProvider}
+                onUpdateReport={(s, partial) =>
+                  handleUpdateSession(booking.id, s.id, {
+                    report: {
+                      photos: s.report?.photos ?? [],
+                      ...s.report,
+                      ...partial,
+                    },
+                  })
+                }
+                onFinish={(s) => {
+                  // Single-tap seal. If GPS is tracking, auto-stop +
+                  // simulate the metrics so the report carries them.
+                  // Sub-minute tracking is treated as a non-event.
+                  const existingReport = s.report ?? { photos: [] };
+                  let walkDistanceKm = existingReport.walkDistanceKm;
+                  let walkDurationMin = existingReport.walkDurationMin;
+                  if (existingReport.gpsStartedAt) {
+                    const elapsedMin = Math.max(
+                      0,
+                      Math.floor(
+                        (Date.now() - new Date(existingReport.gpsStartedAt).getTime()) / 60_000,
+                      ),
+                    );
+                    if (elapsedMin > 0) {
+                      walkDistanceKm = Math.round(elapsedMin * 0.06 * 10) / 10;
+                      walkDurationMin = elapsedMin;
+                    }
+                  }
+                  handleUpdateSession(booking.id, s.id, {
+                    status: "completed",
+                    report: {
+                      ...existingReport,
+                      ...(walkDistanceKm !== undefined ? { walkDistanceKm } : {}),
+                      ...(walkDurationMin !== undefined ? { walkDurationMin } : {}),
+                      gpsStartedAt: undefined,
+                      completedAt: new Date().toISOString(),
+                    },
+                  });
+                  // On Finish, drop back to standard Sessions tab —
+                  // the focused view is no longer applicable.
+                  router.push(`/bookings/${booking.id}?tab=sessions`);
+                }}
+                onUndoStart={(s) => {
+                  handleUpdateSession(booking.id, s.id, {
+                    status: "upcoming",
+                    checkedInAt: undefined,
+                  });
+                  router.push(`/bookings/${booking.id}?tab=sessions`);
+                }}
+              />
+            )}
             {/* Booking-cancelled banner — sits at the top of the
                 Sessions tab regardless of session count. The booking
                 is dead; everything below is read-only history. Active
                 panel + upcoming-sessions list are suppressed when
                 booking is cancelled (gates further down). */}
-            {booking.status === "cancelled" && (
+            {!isActiveView && booking.status === "cancelled" && (
               <div
                 className="flex items-start gap-sm rounded-panel"
                 style={{
@@ -1602,79 +1734,26 @@ export default function BookingDetailPage() {
                 </div>
               </div>
             )}
-            {sessions.length === 0 ? (
+            {/* Chronicle (empty / upcoming + past) — suppressed in
+                focused active view. The full default render falls
+                here when not isActiveView. */}
+            {!isActiveView && (sessions.length === 0 ? (
               <div className="flex flex-col items-center gap-md p-xl text-center">
                 <CalendarDots size={32} weight="light" className="text-fg-tertiary" />
                 <p className="text-fg-secondary m-0">No sessions yet.</p>
               </div>
             ) : (
               <>
-                {/* Active session panel — surfaces only when a session is
-                    in_progress. Both sides see it. Provider gets the
-                    "Send report" CTA prominently; owner sees status +
-                    start time + latest photo (mid-session photos land
-                    in C2). Suppressed on cancelled bookings — the top
-                    banner already sets the "this is over" frame, and
-                    an active panel implies forward action that no
-                    longer applies. */}
-                {booking.status !== "cancelled" && activeSession && (
-                  <ActiveSessionPanel
-                    session={activeSession}
-                    serviceType={booking.serviceType}
-                    isProvider={isProvider}
-                    onUpdateReport={(s, partial) =>
-                      handleUpdateSession(booking.id, s.id, {
-                        report: {
-                          // Lazy-init the report on first edit. Empty
-                          // photo array forms the floor; partial merges
-                          // over it so any field can be the first one set.
-                          photos: s.report?.photos ?? [],
-                          ...s.report,
-                          ...partial,
-                        },
-                      })
-                    }
-                    onFinish={(s) => {
-                      // Single-tap seal. If GPS is tracking, auto-stop +
-                      // simulate the metrics so the report carries them
-                      // without the provider needing to tap Stop first.
-                      // Sub-minute tracking is treated as a non-event —
-                      // skip the seal so we don't print "0 km · 0 min"
-                      // on an otherwise-quiet visit report.
-                      const existingReport = s.report ?? { photos: [] };
-                      let walkDistanceKm = existingReport.walkDistanceKm;
-                      let walkDurationMin = existingReport.walkDurationMin;
-                      if (existingReport.gpsStartedAt) {
-                        const elapsedMin = Math.max(
-                          0,
-                          Math.floor(
-                            (Date.now() - new Date(existingReport.gpsStartedAt).getTime()) / 60_000,
-                          ),
-                        );
-                        if (elapsedMin > 0) {
-                          walkDistanceKm = Math.round(elapsedMin * 0.06 * 10) / 10;
-                          walkDurationMin = elapsedMin;
-                        }
-                      }
-                      handleUpdateSession(booking.id, s.id, {
-                        status: "completed",
-                        report: {
-                          ...existingReport,
-                          ...(walkDistanceKm !== undefined ? { walkDistanceKm } : {}),
-                          ...(walkDurationMin !== undefined ? { walkDurationMin } : {}),
-                          gpsStartedAt: undefined,
-                          completedAt: new Date().toISOString(),
-                        },
-                      });
-                    }}
-                    onUndoStart={(s) =>
-                      handleUpdateSession(booking.id, s.id, {
-                        status: "upcoming",
-                        checkedInAt: undefined,
-                      })
-                    }
-                  />
-                )}
+                {/* Active session panel previously sat here as the
+                    top entry of the Sessions tab. As of 2026-05-08 it
+                    moved to a dedicated focused view at
+                    `?tab=sessions&view=active` — the Sessions tab now
+                    surfaces a slim "Active session · tap for live
+                    updates" link card (rendered above) which navigates
+                    INTO the focused view. Sessions tab stays focused
+                    on chronicle (upcoming + past); active engagement
+                    gets its own page treatment with full pet-hero
+                    framing. */}
 
                 {/* Upcoming sessions — suppressed on cancelled bookings;
                     no future sessions will run, so showing them as
@@ -1738,7 +1817,7 @@ export default function BookingDetailPage() {
                   </>
                 )}
               </>
-            )}
+            ))}
           </div>
         )}
 

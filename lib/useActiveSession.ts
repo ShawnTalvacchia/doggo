@@ -110,6 +110,10 @@ export function useActiveSession(): ActiveSessionInfo | null {
     copy,
     elapsed,
     petImage,
-    href: `/bookings/${booking.id}?tab=sessions`,
+    // Cross-app banner taps route directly into the focused active
+    // view (`view=active`) — that's the surface the banner is selling.
+    // The Sessions tab itself shows a slim "Active session" link card
+    // in its default view that links here too. 2026-05-08.
+    href: `/bookings/${booking.id}?tab=sessions&view=active`,
   };
 }
