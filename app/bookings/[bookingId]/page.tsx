@@ -176,7 +176,7 @@ function VisitReportInline({
           value={draftNotes}
           onChange={(e) => setDraftNotes(e.target.value)}
           rows={4}
-          className="w-full rounded-form border border-edge-regular bg-surface-top p-sm text-sm text-fg-primary"
+          className="textarea"
           aria-label="Edit visit report notes"
         />
         <div className="flex items-center justify-end gap-xs">
