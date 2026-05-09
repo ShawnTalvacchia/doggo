@@ -8501,11 +8501,11 @@ body:has(.bottom-nav) .bookings-page {
 
 /* ── Active session sub-page (`/bookings/[id]/active`) ────────────────
    Page-level frame that signals "this is the active session" via a
-   warning-25 surface tint + 4px left amber accent stripe (mirroring
-   the schedule card's live treatment + .booking-card--live). The frame
-   spans the panel-body so the accent extends full viewport height even
-   when content is short. ActiveSessionPanel within renders content
-   only — no card chrome of its own.
+   single 4px left amber accent stripe — no surface tint. Walkthrough
+   refinement 2026-05-08: the full warning-25 fill felt heavy on a long
+   page; the lone accent does the signaling work without saturating the
+   whole canvas. ActiveSessionPanel within renders content only (no
+   card chrome of its own).
 
    Sticky action footer pins Finish (+ Undo when applicable) to the
    bottom of the scroll viewport so the provider's primary action is
@@ -8514,14 +8514,16 @@ body:has(.bottom-nav) .bookings-page {
   display: flex;
   flex-direction: column;
   min-height: 100%;
-  background: var(--warning-25);
   border-left: 4px solid var(--status-warning-main);
 }
 
 .active-session-frame-content {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  /* Generous gap between major sections — pet hero, panel content,
+     etc — so the page reads as a calm engagement surface rather than
+     a packed dashboard. 2026-05-08 walkthrough. */
+  gap: var(--space-xl);
   padding: var(--space-lg);
   /* flex-1 so the content region fills the frame, leaving the action
      footer pinned at the bottom when content is short. */
@@ -8535,26 +8537,30 @@ body:has(.bottom-nav) .bookings-page {
   flex-direction: column;
   gap: var(--space-xs);
   padding: var(--space-md) var(--space-lg);
-  background: var(--warning-25);
-  /* Subtle separator so scrolled content fades behind the footer
-     instead of running into the Finish button. */
-  border-top: 1px solid var(--warning-100);
+  /* Match the panel-body's bg so the footer reads as a natural floor
+     to the scroll surface, not a separately-tinted strip. The top
+     border handles the visual boundary between scrolled content and
+     the pinned action. */
+  background: var(--surface-popout);
+  border-top: 1px solid var(--border-light);
 }
 
 /* Dashed-border photo tile inside ActiveSessionPanel — strong visual
    nudge to upload. Vertical icon-over-label stack reads as a target;
-   hover state shifts to brand chrome to confirm interactivity. */
+   subtle surface-top fill gives the tile weight against the page bg;
+   hover state shifts to brand chrome to confirm interactivity.
+   Generous vertical padding for a substantial tap target. */
 .active-session-add-photo-tile {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-xs);
+  gap: var(--space-sm);
   width: 100%;
-  padding: var(--space-xl) var(--space-lg);
+  padding: var(--space-xxxl) var(--space-lg);
   border: 2px dashed var(--border-regular);
   border-radius: var(--radius-md);
-  background: transparent;
+  background: var(--surface-top);
   color: var(--text-secondary);
   font-family: var(--font-body);
   font-size: var(--text-sm);

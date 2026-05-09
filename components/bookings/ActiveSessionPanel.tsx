@@ -109,7 +109,9 @@ export function ActiveSessionPanel({
   }
 
   return (
-    <div className="flex flex-col gap-lg">
+    // Inner gap matches the page-level frame's gap so sections breathe
+    // consistently up and down the canvas. 2026-05-08 walkthrough.
+    <div className="flex flex-col gap-xl">
       {/* Session-state strip — Live pill + when-it-started + date.
           Flat row, no container — the page chrome already provides
           "this is active" context; double-containerizing reads as
