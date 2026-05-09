@@ -47,11 +47,11 @@ The bell goes from "designed but quiet" to actually firing on session lifecycle.
 
 The fourth rule lands: first message in a non-Connected conversation auto-marks both sides Familiar.
 
-- [ ] **B1. Set up: persona = Tomáš.** Pick a profile Tomáš has no existing connection to and isn't already Familiar with. Quickest path: `/profile/[someId]?tab=chat` for someone who's not in his connections list. (The Pricing & Proposals seed gave Tomáš a few connections; pick around them.) Verify on the profile that the Familiar state is **not** already set.
-- [ ] **B2. Tomáš → type a message in the chat tab → send.** First message in this thread. Behind the scenes: `markFamiliar` fires both directions. Reload → navigate to the same profile: the Familiar marker is now present (e.g. tag near the name, profile chrome reflects Familiar viewer state).
-- [ ] **B3. Switch persona to the recipient → open `/profile/tomas?tab=chat`.** They see Tomáš's message AND can see Tomáš's profile content as a Familiar viewer would (relevant for locked profiles — content that was hidden pre-message is visible). Symmetrical mark.
-- [ ] **B4. Send another message in the same thread.** No double-fire — the gate `getConnection(other, viewer).state` returns `familiar` after B2, so the rule short-circuits. (Hard to verify externally; a console-side check would confirm — for the walkthrough just confirm the relationship state is unchanged.)
-- [ ] **B5. Pre-Connected sanity.** Pick a Connected pair (e.g. Tereza and any of her Connected contacts) — sending a first message in their thread shouldn't downgrade or create override pollution. State stays Connected (`getConnection`'s state-rank merge prevents downgrade).
+- [x] **B1. Set up: persona = Tomáš.** Pick a profile Tomáš has no existing connection to and isn't already Familiar with. Quickest path: `/profile/[someId]?tab=chat` for someone who's not in his connections list. (The Pricing & Proposals seed gave Tomáš a few connections; pick around them.) Verify on the profile that the Familiar state is **not** already set.
+- [x] **B2. Tomáš → type a message in the chat tab → send.** First message in this thread. Behind the scenes: `markFamiliar` fires both directions. Reload → navigate to the same profile: the Familiar marker is now present (e.g. tag near the name, profile chrome reflects Familiar viewer state).
+- [x] **B3. Switch persona to the recipient → open `/profile/tomas?tab=chat`.** They see Tomáš's message AND can see Tomáš's profile content as a Familiar viewer would (relevant for locked profiles — content that was hidden pre-message is visible). Symmetrical mark.
+- [x] **B4. Send another message in the same thread.** No double-fire — the gate `getConnection(other, viewer).state` returns `familiar` after B2, so the rule short-circuits. (Hard to verify externally; a console-side check would confirm — for the walkthrough just confirm the relationship state is unchanged.)
+- [x] **B5. Pre-Connected sanity.** Pick a Connected pair (e.g. Tereza and any of her Connected contacts) — sending a first message in their thread shouldn't downgrade or create override pollution. State stays Connected (`getConnection`'s state-rank merge prevents downgrade).
 
 ---
 
@@ -59,10 +59,10 @@ The fourth rule lands: first message in a non-Connected conversation auto-marks 
 
 One bell, one surface.
 
-- [ ] **C1. Any logged-in persona → click the bell icon in the top-right of any page.** **Desktop:** routes to `/notifications` (no dropdown panel slides down). **Mobile:** same — routes to `/notifications`. Same behavior on both viewports; the bell now uses the same `ButtonIcon{href}` pattern as the inbox icon next to it.
-- [ ] **C2. The dropdown is gone.** No `NotificationsPanel.tsx` import in AppNav; no flickering panel on bell hover; clicking nothing else dismisses anything. Just navigation.
-- [ ] **C3. `/notifications` page chrome.** Corner unread pip on the avatar (`.notif-unread-badge`), uppercase category tag (`.notif-cat-tag`) with `·` separator + relative timestamp on the top row. Body line below. Pattern: `{title}                  CARE · 7d ago` / `{body line}`. This is the chrome that previously diverged from the dropdown — now it's the only surface.
-- [ ] **C4. Grouped notifications still work.** Anywhere `meet_rsvp` or `group_activity` events stack on the same href, the avatar stack renders (`.notif-avatar-stack`) with up to 3 stacked avatars + group title (e.g. "3 people are going to your meet"). Page-level grouping logic is untouched.
+- [x] **C1. Any logged-in persona → click the bell icon in the top-right of any page.** **Desktop:** routes to `/notifications` (no dropdown panel slides down). **Mobile:** same — routes to `/notifications`. Same behavior on both viewports; the bell now uses the same `ButtonIcon{href}` pattern as the inbox icon next to it.
+- [x] **C2. The dropdown is gone.** No `NotificationsPanel.tsx` import in AppNav; no flickering panel on bell hover; clicking nothing else dismisses anything. Just navigation.
+- [x] **C3. `/notifications` page chrome.** Corner unread pip on the avatar (`.notif-unread-badge`), uppercase category tag (`.notif-cat-tag`) with `·` separator + relative timestamp on the top row. Body line below. Pattern: `{title}                  CARE · 7d ago` / `{body line}`. This is the chrome that previously diverged from the dropdown — now it's the only surface.
+- [x] **C4. Grouped notifications still work.** Anywhere `meet_rsvp` or `group_activity` events stack on the same href, the avatar stack renders (`.notif-avatar-stack`) with up to 3 stacked avatars + group title (e.g. "3 people are going to your meet"). Page-level grouping logic is untouched.
 
 ---
 
@@ -70,11 +70,11 @@ One bell, one surface.
 
 Inbox row reads cleaner.
 
-- [ ] **D1. Density.** `/inbox` → rows have ~12px vertical padding (was 8). The 3-line cluster (name+meta / dog+service / preview) breathes; rows no longer feel packed. Divider between rows is subtler (was regular border, now subtle).
-- [ ] **D2. "You:" prefix.** Find a thread where you (the current persona) sent the last text message. Inbox row preview reads `You: …` not just `…`. System-message kinds (inquiry, proposal, contract, payment) **don't** get the prefix — those still read as their framed event ("New inquiry" / "New proposal" / etc).
-- [ ] **D3. Name normalization.** All inbox rows render names as `firstName LastInitial.` (e.g. "Lucie Č.", "Jana K."). No row shows a full last name like "Lucie Černá". Single-name personas stay as-is. The connected-without-conversations branch (people with no thread yet but you're connected) follows the same rule.
-- [ ] **D4. Dog data.** Every row that has a dog associated (via inquiry pets OR partner's profile pets) shows the paw icon + dog name(s) inline next to the partner name. Rows without a dog (provider with no pets seeded, or a direct conversation with no booking + no profile pets) just show the partner name — no orphan paw icon.
-- [ ] **D5. System-message preview chrome.** Inquiry / proposal previews carry the `✦` glyph in brand color; payment previews carry the `✓` glyph in success color. Text previews stay plain. (Contract preview kind was retired — no rule should fire for it.)
+- [x] **D1. Density.** `/inbox` → rows have ~12px vertical padding (was 8). The 3-line cluster (name+meta / dog+service / preview) breathes; rows no longer feel packed. Divider between rows is subtler (was regular border, now subtle).
+- [x] **D2. "You:" prefix.** Find a thread where you (the current persona) sent the last text message. Inbox row preview reads `You: …` not just `…`. System-message kinds (inquiry, proposal, contract, payment) **don't** get the prefix — those still read as their framed event ("New inquiry" / "New proposal" / etc).
+- [x] **D3. Name normalization.** All inbox rows render names as `firstName LastInitial.` (e.g. "Lucie Č.", "Jana K."). No row shows a full last name like "Lucie Černá". Single-name personas stay as-is. The connected-without-conversations branch (people with no thread yet but you're connected) follows the same rule.
+- [x] **D4. Dog data.** Every row that has a dog associated (via inquiry pets OR partner's profile pets) shows the paw icon + dog name(s) inline next to the partner name. Rows without a dog (provider with no pets seeded, or a direct conversation with no booking + no profile pets) just show the partner name — no orphan paw icon.
+- [x] **D5. System-message preview chrome.** Inquiry / proposal previews carry the `✦` glyph in brand color; payment previews carry the `✓` glyph in success color. Text previews stay plain. (Contract preview kind was retired — no rule should fire for it.)
 
 ---
 

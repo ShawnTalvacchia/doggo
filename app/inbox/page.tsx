@@ -278,11 +278,14 @@ export default function InboxPage() {
       });
     }
 
-    // Sort: unread first, then by most recent message
-    result.sort((a, b) => {
-      if (a.hasUnread !== b.hasUnread) return a.hasUnread ? -1 : 1;
-      return b.sortKey.localeCompare(a.sortKey);
-    });
+    // Sort: pure recency — newest message first, regardless of read
+    // state. Matches the standard chat-app convention (WhatsApp,
+    // iMessage, Slack). The unread dot remains as the visual cue, but
+    // an old unread message no longer pins to the top above newer
+    // active threads. Inbox & Notifications walkthrough D fix,
+    // 2026-05-08 — earlier "unread first then recency" surfaced 85d-old
+    // unread threads above 2d-old active ones, which read as broken.
+    result.sort((a, b) => b.sortKey.localeCompare(a.sortKey));
 
     return result;
   }, [conversations, currentUserId]);

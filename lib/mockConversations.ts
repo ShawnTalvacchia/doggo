@@ -25,7 +25,7 @@ const olgaMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Hi Olga! I'm looking for someone to walk Mochi (my Shiba Inu) a few times a week around Smíchov. She's friendly but can be a bit nervous meeting new dogs. Would you be up for a meet & greet first?",
-    sentAt: "2026-03-01T10:14:00Z",
+    sentAt: daysAgoIso(5, "10:14"),
     read: true,
   },
   {
@@ -34,7 +34,7 @@ const olgaMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Hi! Mochi sounds lovely — Shibas are one of my favourites. A meet & greet is a great idea, I always recommend it. I'm free most mornings this week. Would Tuesday at 9am near Nusle steps work for you?",
-    sentAt: "2026-03-01T11:02:00Z",
+    sentAt: daysAgoIso(5, "11:02"),
     read: true,
   },
   {
@@ -43,7 +43,7 @@ const olgaMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Tuesday at 9am works perfectly! I'll bring Mochi and some treats so she can warm up to you. 🐕",
-    sentAt: "2026-03-01T11:30:00Z",
+    sentAt: daysAgoIso(5, "11:30"),
     read: true,
   },
   {
@@ -52,7 +52,7 @@ const olgaMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Perfect, see you Tuesday! I'll send you my number closer to the day in case anything changes. Looking forward to meeting Mochi 🐾",
-    sentAt: "2026-03-02T08:45:00Z",
+    sentAt: daysAgoIso(4, "08:45"),
     read: false,
   },
 ];
@@ -66,7 +66,7 @@ const nikolaMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Hi Nikola, we're going away August 12–18 and need boarding for our Golden, Pepper. She's 3 years old, very social, loves other dogs. Do you have space those dates?",
-    sentAt: "2026-03-03T14:20:00Z",
+    sentAt: daysAgoIso(6, "14:20"),
     read: true,
   },
   {
@@ -75,7 +75,7 @@ const nikolaMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Hi! August 12–18 looks good for me. Pepper sounds like she'd get on great with my dog Bora. I usually do a short walk together before confirming — are you based in Prague 2?",
-    sentAt: "2026-03-03T15:10:00Z",
+    sentAt: daysAgoIso(6, "15:10"),
     read: true,
   },
   {
@@ -84,7 +84,7 @@ const nikolaMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Yes, we're in Vinohrady. A walk sounds great actually — she needs to know she's going somewhere safe. What park do you usually use?",
-    sentAt: "2026-03-03T15:42:00Z",
+    sentAt: daysAgoIso(6, "15:42"),
     read: true,
   },
   {
@@ -93,7 +93,7 @@ const nikolaMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "I usually take dogs to Riegrovy sady — lots of space and a fenced section. Would a weekend morning work for you? I'm free Saturday or Sunday this week.",
-    sentAt: "2026-03-04T09:18:00Z",
+    sentAt: daysAgoIso(5, "09:18"),
     read: false,
   },
 ];
@@ -109,7 +109,7 @@ const janaMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Hi Jana, I'm looking for Monday–Friday morning walks for Bruno starting in September. He's a 2-year-old Labrador, very energetic and good with other dogs. Would you have regular availability?",
-    sentAt: "2026-03-05T09:00:00Z",
+    sentAt: daysAgoIso(11, "09:00"),
     read: true,
   },
   {
@@ -118,7 +118,7 @@ const janaMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Hi! Mon–Fri mornings are my main slot so that works great. Bruno sounds like a fun one — Labs are always full of energy. My standard walk is 45–60 min. Would you want drop-in check-ins on any days, or just walks?",
-    sentAt: "2026-03-05T09:55:00Z",
+    sentAt: daysAgoIso(11, "09:55"),
     read: true,
   },
   {
@@ -127,7 +127,7 @@ const janaMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Just walks for now. If he settles in well I might add a lunchtime check-in later. Can you do around 8–9am?",
-    sentAt: "2026-03-05T10:20:00Z",
+    sentAt: daysAgoIso(11, "10:20"),
     read: true,
   },
   {
@@ -136,7 +136,7 @@ const janaMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "8–9am works perfectly for me. I've put together a booking proposal for the regular slot — let me know what you think!",
-    sentAt: "2026-03-06T08:10:00Z",
+    sentAt: daysAgoIso(10, "08:10"),
     read: true,
   },
   {
@@ -164,7 +164,7 @@ const janaMessages: ChatMessage[] = [
       },
       status: "pending",
     },
-    sentAt: "2026-03-06T08:11:00Z",
+    sentAt: daysAgoIso(10, "08:11"),
     read: true,
   },
   // Social chat (later — after meeting at a park hangout)
@@ -174,7 +174,7 @@ const janaMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Hey Jana! Great meeting you and your pup at the park hangout yesterday. Spot really enjoyed playing with Rex!",
-    sentAt: "2026-03-14T18:30:00Z",
+    sentAt: daysAgoIso(2, "18:30"),
     read: true,
   },
   {
@@ -183,7 +183,7 @@ const janaMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Hi Shawn! It was lovely meeting you too! Rex was so tired after playing with Spot — he slept the whole evening 😄 We should do that again sometime!",
-    sentAt: "2026-03-14T19:15:00Z",
+    sentAt: daysAgoIso(2, "19:15"),
     read: true,
   },
   {
@@ -192,7 +192,7 @@ const janaMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Absolutely! Are you going to the Vinohrady walk this Saturday? I was thinking of taking both Spot and Goldie this time.",
-    sentAt: "2026-03-15T08:20:00Z",
+    sentAt: daysAgoIso(1, "08:20"),
     read: true,
   },
   {
@@ -201,7 +201,7 @@ const janaMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Yes, I'll be there! Looking forward to meeting Goldie. See you Saturday morning 🐾",
-    sentAt: "2026-03-15T09:05:00Z",
+    sentAt: daysAgoIso(1, "09:05"),
     read: false,
   },
 ];
@@ -215,7 +215,7 @@ const marieMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Hi Shawn! I found your profile on Doggo and I'm looking for regular walks for my Labrador, Molly. She's 3 years old, very friendly and loves other dogs. I'd need Mon, Wed, Fri mornings around Vinohrady — would that work for you?",
-    sentAt: "2026-03-07T09:10:00Z",
+    sentAt: daysAgoIso(6, "09:10"),
     read: true,
   },
   {
@@ -224,7 +224,7 @@ const marieMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Hi Marie! Molly sounds great — Mon/Wed/Fri mornings work perfectly for me. I do 45–60 min walks starting around 8am, usually through Riegrovy sady and back. Happy to do a quick meet & greet with Molly first if you'd like. My rate is 280 Kč per walk.",
-    sentAt: "2026-03-07T09:45:00Z",
+    sentAt: daysAgoIso(6, "09:45"),
     read: true,
   },
   {
@@ -233,7 +233,7 @@ const marieMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "That sounds perfect! Riegrovy sady is great, Molly loves it there. A meet & greet would be lovely. When are you free this week?",
-    sentAt: "2026-03-07T10:02:00Z",
+    sentAt: daysAgoIso(6, "10:02"),
     read: false,
   },
 ];
@@ -247,7 +247,7 @@ const terezaDirectMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Hey Shawn! Thanks for coming to the evening walk last week. Franta and Spot really got on well. Are you planning to come again this Thursday?",
-    sentAt: "2026-03-20T17:30:00Z",
+    sentAt: daysAgoIso(5, "17:30"),
     read: true,
   },
   {
@@ -256,7 +256,7 @@ const terezaDirectMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Hey! Yes, Thursday works — I'll bring Spot. Should I bring Goldie too or is the group getting big?",
-    sentAt: "2026-03-20T18:15:00Z",
+    sentAt: daysAgoIso(5, "18:15"),
     read: true,
   },
   {
@@ -265,7 +265,7 @@ const terezaDirectMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Bring both! It's still a small group — just me, Marek, and Lucie confirmed so far. The more the merrier 🐕",
-    sentAt: "2026-03-20T18:40:00Z",
+    sentAt: daysAgoIso(5, "18:40"),
     read: false,
   },
 ];
@@ -279,7 +279,7 @@ const klaraBookingMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Hi Klára! I'd love to book a socialisation session for Spot. He's nervous around new dogs and I've heard amazing things about your work with Daniel's dog Bára. Do you have any openings?",
-    sentAt: "2026-03-22T09:00:00Z",
+    sentAt: daysAgoIso(1, "09:00"),
     read: true,
   },
   {
@@ -288,7 +288,7 @@ const klaraBookingMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Hi Shawn! Thanks for reaching out — Daniel's been great to work with. I have a spot in my Wednesday group session at Stromovka, or I can do a 1-on-1 if you'd prefer to start with something calmer. What works better for Spot?",
-    sentAt: "2026-03-22T10:30:00Z",
+    sentAt: daysAgoIso(1, "10:30"),
     read: true,
   },
   {
@@ -297,7 +297,7 @@ const klaraBookingMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "I think 1-on-1 first would be best. He can be unpredictable with new dogs. How much is that?",
-    sentAt: "2026-03-22T11:00:00Z",
+    sentAt: daysAgoIso(1, "11:00"),
     read: true,
   },
   {
@@ -306,7 +306,7 @@ const klaraBookingMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "600 Kč for a 60-minute session. We'd do it at Stromovka — quiet area near the pond. I'll bring Eda as the calm dog for controlled introductions. He's a Border Collie, super gentle. Want to try next Wednesday at 10?",
-    sentAt: "2026-03-22T11:45:00Z",
+    sentAt: daysAgoIso(1, "11:45"),
     read: true,
   },
   {
@@ -315,7 +315,7 @@ const klaraBookingMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "That sounds perfect. Wednesday at 10 it is! Looking forward to it.",
-    sentAt: "2026-03-22T12:10:00Z",
+    sentAt: daysAgoIso(1, "12:10"),
     read: true,
   },
   {
@@ -340,7 +340,7 @@ const klaraBookingMessages: ChatMessage[] = [
       },
       status: "pending",
     },
-    sentAt: "2026-03-22T12:30:00Z",
+    sentAt: daysAgoIso(1, "12:30"),
     read: false,
   },
 ];
@@ -354,7 +354,7 @@ const evaDirectMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Hi Eva! We met briefly at the Letná Park hangout last week. Luna and Spot seemed to get along really well — would love to set up a playdate sometime if you're up for it!",
-    sentAt: "2026-03-16T10:00:00Z",
+    sentAt: daysAgoIso(8, "10:00"),
     read: true,
   },
 ];
@@ -376,7 +376,7 @@ const danielKlaraMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Hi Klára. Hana from the reactive dog group recommended you. My rescue Bára is reactive on-leash — barking, lunging at other dogs. We've been managing but I'd love help with proper training. I should say up front, she's nervous around new people too. Is that something you work with?",
-    sentAt: "2026-01-28T19:42:00Z",
+    sentAt: daysAgoIso(36, "19:42"),
     read: true,
   },
   {
@@ -385,7 +385,7 @@ const danielKlaraMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Hi Daniel — yes, absolutely. Reactive dogs are the bulk of my 1-on-1 work. Hana mentioned you too 🙂 Before we book a session, can I ask a few things? How long have you had Bára, and roughly how close can other dogs get before she reacts?",
-    sentAt: "2026-01-29T08:15:00Z",
+    sentAt: daysAgoIso(35, "08:15"),
     read: true,
   },
   {
@@ -394,7 +394,7 @@ const danielKlaraMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "We adopted her in October so about 4 months. Threshold is roughly 8-10m on leash, less on the other side of the road. Off-leash she's actually fine if she has space. People — she'll hide behind me but won't react. She just doesn't approach.",
-    sentAt: "2026-01-29T09:30:00Z",
+    sentAt: daysAgoIso(35, "09:30"),
     read: true,
   },
   {
@@ -403,7 +403,7 @@ const danielKlaraMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "That's really helpful. The fact that off-leash she's fine tells me a lot — most of what you're seeing is leash + barrier frustration plus some uncertainty. Workable. I'd like to start with weekly 1-on-1s in a quiet area at Stromovka. I bring Eda (Border Collie, calm, used to reactive dogs). We work on threshold + reorienting. 600 Kč/session, 60 min. Want to book a Wednesday?",
-    sentAt: "2026-01-29T10:05:00Z",
+    sentAt: daysAgoIso(35, "10:05"),
     read: true,
   },
   {
@@ -412,7 +412,7 @@ const danielKlaraMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Yes please. Wednesday Feb 10 at 10? I can come to Stromovka. One thing — Bára pulls hard if she sees a dog at the entrance, can we meet by the southern path instead?",
-    sentAt: "2026-01-29T11:20:00Z",
+    sentAt: daysAgoIso(35, "11:20"),
     read: true,
   },
   {
@@ -421,7 +421,7 @@ const danielKlaraMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Southern path works. I'll send a pin closer to the day. See you Wednesday.",
-    sentAt: "2026-01-29T11:45:00Z",
+    sentAt: daysAgoIso(35, "11:45"),
     read: true,
   },
   {
@@ -450,7 +450,7 @@ const danielKlaraMessages: ChatMessage[] = [
       },
       status: "accepted",
     },
-    sentAt: "2026-01-29T11:46:00Z",
+    sentAt: daysAgoIso(35, "11:46"),
     read: true,
   },
   {
@@ -459,7 +459,7 @@ const danielKlaraMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Bára did so well today. We held threshold at 6m for almost ten minutes — biggest stretch yet. Walking back to the car she only reacted once, and reset within seconds. You should feel proud.",
-    sentAt: "2026-03-26T11:20:00Z",
+    sentAt: daysAgoIso(4, "11:20"),
     read: true,
   },
   {
@@ -468,7 +468,7 @@ const danielKlaraMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Thank you. Genuinely — I left feeling lighter than I have in months. She slept the whole afternoon. We tried the reorient cue on our walk last night and it actually worked once.",
-    sentAt: "2026-03-26T20:15:00Z",
+    sentAt: daysAgoIso(4, "20:15"),
     read: true,
   },
   {
@@ -477,7 +477,7 @@ const danielKlaraMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "That's a huge win. The first transfer to a real walk is the hardest. Keep using the cue at low pressure — don't try to test it on a tough trigger yet. See you Wednesday.",
-    sentAt: "2026-03-27T07:30:00Z",
+    sentAt: daysAgoIso(2, "07:30"),
     read: false,
   },
 ];
@@ -492,7 +492,7 @@ const tomasPetraMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Petra — short notice, sorry. Got pulled into a 2-day project in Brno tomorrow morning. Any chance you could take Hugo Sat night through Mon morning? I know it's last-minute, totally understand if not.",
-    sentAt: "2026-03-13T22:14:00Z",
+    sentAt: daysAgoIso(12, "22:14"),
     read: true,
   },
   {
@@ -501,7 +501,7 @@ const tomasPetraMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Tomáš! Yes of course. Hugo and Daisy always have a blast. Drop him by 8am Saturday? Bring his bed and food, I have everything else.",
-    sentAt: "2026-03-13T22:28:00Z",
+    sentAt: daysAgoIso(12, "22:28"),
     read: true,
   },
   {
@@ -510,7 +510,7 @@ const tomasPetraMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "You're saving me. 8am works. He's been a bit clingy this week so might need a few minutes to settle. I'll send his vet card and the emergency contact.",
-    sentAt: "2026-03-13T22:35:00Z",
+    sentAt: daysAgoIso(12, "22:35"),
     read: true,
   },
   {
@@ -519,7 +519,7 @@ const tomasPetraMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "All good. He always settles fast here — Daisy does the heavy lifting. Drive safe tomorrow. I'll send a photo when you're in your meeting.",
-    sentAt: "2026-03-13T22:50:00Z",
+    sentAt: daysAgoIso(12, "22:50"),
     read: true,
   },
   {
@@ -528,7 +528,7 @@ const tomasPetraMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Update: Hugo is in his element. Just had a full afternoon at Vítkov, currently asleep on top of Daisy. He ate everything. Hope the project is going OK 🐾",
-    sentAt: "2026-03-15T17:42:00Z",
+    sentAt: daysAgoIso(10, "17:42"),
     read: true,
   },
   {
@@ -537,7 +537,7 @@ const tomasPetraMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "This made my day. Thank you Petra. Project is a slog but ending on time. Will see you Mon morning.",
-    sentAt: "2026-03-15T19:08:00Z",
+    sentAt: daysAgoIso(10, "19:08"),
     read: true,
   },
   {
@@ -546,7 +546,7 @@ const tomasPetraMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "On my way back. ETA 10am. How was he today?",
-    sentAt: "2026-03-17T08:30:00Z",
+    sentAt: daysAgoIso(8, "08:30"),
     read: true,
   },
   {
@@ -555,7 +555,7 @@ const tomasPetraMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Good as gold. Tired out from yesterday. Sending him back clean and full 😄",
-    sentAt: "2026-03-17T08:55:00Z",
+    sentAt: daysAgoIso(8, "08:55"),
     read: false,
   },
 ];
@@ -572,7 +572,7 @@ const terezaMarekMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Tereza — visiting my folks in Brno this weekend. Any chance Benny could spend Sat night with you and Franta? He gets so anxious at the kennels and I'd rather not.",
-    sentAt: "2026-02-18T19:00:00Z",
+    sentAt: daysAgoIso(7, "19:00"),
     read: true,
   },
   {
@@ -581,7 +581,7 @@ const terezaMarekMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Of course! Bring him over Sat morning whenever works. Franta will be thrilled. We can do the morning Riegrovy walk together if you want, before you head off.",
-    sentAt: "2026-02-18T19:25:00Z",
+    sentAt: daysAgoIso(7, "19:25"),
     read: true,
   },
   {
@@ -590,7 +590,7 @@ const terezaMarekMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Walk sounds great. Will bring his food + bed. Around 8?",
-    sentAt: "2026-02-18T19:30:00Z",
+    sentAt: daysAgoIso(7, "19:30"),
     read: true,
   },
   {
@@ -599,7 +599,7 @@ const terezaMarekMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "8 it is. Drive safe.",
-    sentAt: "2026-02-18T19:35:00Z",
+    sentAt: daysAgoIso(7, "19:35"),
     read: true,
   },
   {
@@ -608,7 +608,7 @@ const terezaMarekMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Quick update — Benny's settled in. They had the best afternoon, both flopped on the rug now. No issues at all.",
-    sentAt: "2026-02-22T16:30:00Z",
+    sentAt: daysAgoIso(3, "16:30"),
     read: true,
   },
   {
@@ -617,7 +617,7 @@ const terezaMarekMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "You're the best. Coming back tomorrow afternoon, will text when I'm close.",
-    sentAt: "2026-02-22T17:00:00Z",
+    sentAt: daysAgoIso(3, "17:00"),
     read: false,
   },
 ];
@@ -632,7 +632,7 @@ const klaraFilipMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Hi Klára. Toby's recall is non-existent — he just runs. Need help before I lose him for real one day. Saw you in the Stromovka group, are you taking new clients?",
-    sentAt: "2026-01-15T14:00:00Z",
+    sentAt: daysAgoIso(35, "14:00"),
     read: true,
   },
   {
@@ -641,7 +641,7 @@ const klaraFilipMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Hi Filip. Yes, recall is one of my favourite things to work on — high-prey-drive Jacks especially. I'd suggest a 3-session block to start, 600 Kč each at Stromovka. We build the recall on long-line, no shortcuts. Tuesdays at noon work?",
-    sentAt: "2026-01-15T15:20:00Z",
+    sentAt: daysAgoIso(35, "15:20"),
     read: true,
   },
   {
@@ -650,7 +650,7 @@ const klaraFilipMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Perfect. Booking it.",
-    sentAt: "2026-01-15T15:45:00Z",
+    sentAt: daysAgoIso(35, "15:45"),
     read: true,
   },
   {
@@ -659,7 +659,7 @@ const klaraFilipMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Tested Toby off-leash at Letná this morning. Recalled 7/10 times, 8/10 if I had a treat. Couldn't have imagined this 3 weeks ago. Going to leave you a glowing review.",
-    sentAt: "2026-02-12T10:30:00Z",
+    sentAt: daysAgoIso(12, "10:30"),
     read: false,
   },
 ];
@@ -674,7 +674,7 @@ const klaraHanaMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Hi Klára — Eva said you're the person to talk to about Runa. She's a husky mix, reactive on-leash, fearful of new environments. We've been stuck for a year. Can we book something?",
-    sentAt: "2026-01-08T11:00:00Z",
+    sentAt: daysAgoIso(28, "11:00"),
     read: true,
   },
   {
@@ -683,7 +683,7 @@ const klaraHanaMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Hi Hana. Yes — recurring weekly is the way for fearful dogs, you need consistency. Thursdays 11 at Stromovka, 600/session. I usually bring Eda. We start where Runa is comfortable and only push when she tells us we can.",
-    sentAt: "2026-01-08T13:30:00Z",
+    sentAt: daysAgoIso(28, "13:30"),
     read: true,
   },
   {
@@ -692,7 +692,7 @@ const klaraHanaMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "That's exactly the approach I want. Booking it.",
-    sentAt: "2026-01-08T14:00:00Z",
+    sentAt: daysAgoIso(28, "14:00"),
     read: true,
   },
   {
@@ -701,7 +701,7 @@ const klaraHanaMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Today was a turning point. Runa initiated a parallel walk with Eda — first time I've seen her offer engagement instead of just tolerating. Don't change anything at home, the work is doing its job.",
-    sentAt: daysAgoIso(16, "12:15"),
+    sentAt: daysAgoIso(3, "12:15"),
     read: false,
   },
 ];
@@ -715,7 +715,7 @@ const terezaLucieMessages: ChatMessage[] = [
     sender: "provider",
     type: "text",
     text: "Lucie — quick one, are you good with the route changing this Thursday? Park's getting busy with the warmer weather, was thinking we loop around the back instead.",
-    sentAt: daysAgoIso(18, "18:30"),
+    sentAt: daysAgoIso(6, "18:30"),
     read: true,
   },
   {
@@ -724,7 +724,7 @@ const terezaLucieMessages: ChatMessage[] = [
     sender: "owner",
     type: "text",
     text: "Sounds great. Pepík hates the crowds anyway. See you 7pm.",
-    sentAt: daysAgoIso(18, "18:45"),
+    sentAt: daysAgoIso(6, "18:45"),
     read: false,
   },
 ];
