@@ -61,6 +61,15 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
     [notifications],
   );
 
+  /** Add or replace by id. If the caller passes an explicit `id` that
+   *  matches an existing notification, it's replaced in place (hoisted
+   *  to the top, marked unread again, with a fresh `createdAt`) — the
+   *  "lifecycle update" pattern: a `session_started` notification
+   *  transforms into `session_completed` rather than spawning a second
+   *  row, mirroring how iOS / ride-share apps handle paired status
+   *  notifications. If `id` is omitted (or doesn't match), the new
+   *  notification prepends as before. Inbox & Notifications walkthrough
+   *  refinement, 2026-05-08. */
   const addNotification = useCallback((n: NewNotification) => {
     const filled: AppNotification = {
       id: n.id ?? `notif-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -73,9 +82,18 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
       createdAt: n.createdAt ?? new Date().toISOString(),
       read: n.read ?? false,
     };
-    // Prepend — list is rendered newest-first, matching mockNotifications
-    // ordering convention (descending createdAt).
-    setAllNotifications((prev) => [filled, ...prev]);
+    setAllNotifications((prev) => {
+      const existingIdx = prev.findIndex((existing) => existing.id === filled.id);
+      if (existingIdx >= 0) {
+        // Upsert — drop old position, prepend the replacement.
+        // Re-prepending carries the "this just transformed, pay
+        // attention again" semantic naturally.
+        const next = [...prev];
+        next.splice(existingIdx, 1);
+        return [filled, ...next];
+      }
+      return [filled, ...prev];
+    });
   }, [setAllNotifications]);
 
   const markRead = useCallback((id: string) => {

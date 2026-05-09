@@ -1066,10 +1066,15 @@ export default function BookingDetailPage() {
   ) {
     updateSession(bookingId, sessionId, partial);
     if (!booking) return;
+    const session = (booking.sessions ?? []).find((s) => s.id === sessionId);
+    if (!session) return;
     if (partial.status === "in_progress") {
-      addNotification(buildSessionStartedNotification(booking));
+      addNotification(buildSessionStartedNotification(booking, session));
     } else if (partial.status === "completed") {
-      addNotification(buildSessionCompletedNotification(booking));
+      // Same id as the started notif → upserts the existing row
+      // rather than spawning a duplicate. Owner sees one evolving
+      // notification per session, not two.
+      addNotification(buildSessionCompletedNotification(booking, session));
     }
   }
 

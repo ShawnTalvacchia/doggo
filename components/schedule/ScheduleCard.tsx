@@ -390,7 +390,7 @@ export function ScheduleCareCard({
     // Owner-facing notification — fires on every Start path so the bell
     // matches the booking-detail funnel. Inbox & Notifications A2,
     // 2026-05-08.
-    addNotification(buildSessionStartedNotification(booking));
+    addNotification(buildSessionStartedNotification(booking, session));
     router.push(`/bookings/${booking.id}?tab=sessions`);
   }
 

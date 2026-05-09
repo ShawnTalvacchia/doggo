@@ -1,5 +1,15 @@
-import type { Booking, ServiceType } from "@/lib/types";
+import type { Booking, BookingSession, ServiceType } from "@/lib/types";
 import type { NewNotification } from "@/contexts/NotificationsContext";
+
+/** Deterministic notification id for a session lifecycle. Both the
+ *  `session_started` and `session_completed` notifications use this
+ *  same id so that the second one upserts the first — owner sees ONE
+ *  evolving row in the bell rather than two duplicates of the same
+ *  session. iOS / ride-share / delivery-tracking pattern. Inbox &
+ *  Notifications walkthrough refinement, 2026-05-08. */
+function sessionLifecycleNotifId(sessionId: string): string {
+  return `notif-session-${sessionId}`;
+}
 
 /** Service-aware action phrases, lower-case so they slot into a sentence
  *  starting with the carer's name (`Klára started Bára's walk`). Adding
@@ -40,12 +50,16 @@ function petLabel(booking: Booking): string {
 
 /** Owner-facing notification — fired when the carer flips a session from
  *  upcoming → in_progress. Recipient is the booking's owner: the carer
- *  triggered the event, the owner is the audience. Without the explicit
- *  recipient field the carer would also see "{carer} started Bára's
- *  walk" in their own bell, which makes no sense. */
-export function buildSessionStartedNotification(booking: Booking): NewNotification {
+ *  triggered the event, the owner is the audience. Uses a deterministic
+ *  id keyed on the session so the later `session_completed` fire upserts
+ *  this row rather than spawning a duplicate. */
+export function buildSessionStartedNotification(
+  booking: Booking,
+  session: BookingSession,
+): NewNotification {
   const { started } = actionPhrases(booking.serviceType, petLabel(booking));
   return {
+    id: sessionLifecycleNotifId(session.id),
     type: "session_started",
     recipientId: booking.ownerId,
     title: `${booking.carerName} ${started}`,
@@ -58,10 +72,16 @@ export function buildSessionStartedNotification(booking: Booking): NewNotificati
 /** Owner-facing notification — fired when the carer seals the visit
  *  report (in_progress → completed). Body carries the review prompt;
  *  href routes to Sessions tab where the report renders inline (G3 adds
- *  the inline Leave-a-review CTA). */
-export function buildSessionCompletedNotification(booking: Booking): NewNotification {
+ *  the inline Leave-a-review CTA). Same id as the started notification
+ *  so this REPLACES that row in the owner's bell rather than spawning a
+ *  duplicate (lifecycle-update pattern, 2026-05-08). */
+export function buildSessionCompletedNotification(
+  booking: Booking,
+  session: BookingSession,
+): NewNotification {
   const { finished } = actionPhrases(booking.serviceType, petLabel(booking));
   return {
+    id: sessionLifecycleNotifId(session.id),
     type: "session_completed",
     recipientId: booking.ownerId,
     title: `${booking.carerName} ${finished}`,
