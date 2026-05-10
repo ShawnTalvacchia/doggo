@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-05-10
+last-reviewed: 2026-05-11
 tags: [design-system, components, patterns, css]
 review-trigger: "when building or refactoring components, adding CSS patterns, or consolidating styles"
 ---
@@ -29,7 +29,7 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 
 | Component | Purpose | Key props |
 |-----------|---------|-----------|
-| `ButtonAction` | All clickable actions — buttons, links, CTAs | `variant` (primary/secondary/tertiary/outline/neutral/brand-subtle/destructive/white), `size` (sm/md/lg), `href`, `cta`. **`neutral`** is filled `--surface-inset` with no border — use for inactive toggle states (RSVP not yet, Join community before joining) and quiet secondary actions (Decline, Skip). **`brand-subtle`** is filled `--brand-subtle` with `--brand-strong` text and no border — use for ACTIVE toggle states (Going, Interested, Joined, Following). The toggle pattern (FB Events "Interested" model): brand color appears ONLY on active state — never on inactive — so the brand presence reads as "your committed state, celebrated." Inactive is quiet (`neutral`) so the active state's brand identity isn't competed with. |
+| `ButtonAction` | All clickable actions — buttons, links, CTAs | `variant` (primary/secondary/tertiary/outline/neutral/soft/brand-subtle/white/outline-white), `size` (sm/md/lg), `href`, `cta`, `destructive`. **`neutral`** is filled `--surface-inset` with no border — use for inactive toggle states (RSVP not yet, Join community before joining) and quiet secondary actions (Decline, Skip). **`brand-subtle`** is filled `--brand-subtle` with `--brand-strong` text and no border — use for ACTIVE toggle states (Going, Interested, Joined, Following). The toggle pattern (FB Events "Interested" model): brand color appears ONLY on active state — never on inactive — so the brand presence reads as "your committed state, celebrated." Inactive is quiet (`neutral`) so the active state's brand identity isn't competed with. **`destructive` is a modifier, not a variant** (Design System Cleanup 2026-05-11) — it composes with primary / secondary / outline / tertiary so the destructive palette can scale from loud commit (`primary destructive`, filled error) through mid (`secondary destructive`, error-tinted) and ringed (`outline destructive`) down to text-only (`tertiary destructive`). Use the *quietest* combination that still reads as the destructive path — keep `primary destructive` for the commit action of a Cancel-confirmation modal where it IS the primary action of the flow. |
 | `ButtonIcon` | Icon-only buttons (40px square) | `icon`, `badge` (notification dot) |
 | `InputField` | Text inputs with label, helper, error | `label`, `error`, `helper` |
 | `CheckboxRow` | Labeled checkbox | `checked`, `label`, `placement` |

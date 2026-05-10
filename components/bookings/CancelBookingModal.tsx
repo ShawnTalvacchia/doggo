@@ -25,7 +25,8 @@ export function CancelBookingModal({ open, onClose, onConfirm, carerName }: Canc
             Keep booking
           </ButtonAction>
           <ButtonAction
-            variant="destructive"
+            variant="primary"
+            destructive
             size="md"
             onClick={() => onConfirm(reason.trim() || undefined)}
             className="flex-1"

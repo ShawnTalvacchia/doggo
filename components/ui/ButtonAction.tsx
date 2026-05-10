@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-/** Variants when CTA is false (full set) */
+/** Variants — same set whether `cta` (pill shape) is on or off. */
 export type ButtonVariant =
   | "primary"
   | "secondary"
@@ -9,33 +9,31 @@ export type ButtonVariant =
   | "neutral"
   | "soft"
   | "brand-subtle"
-  | "destructive"
   | "white"
   | "outline-white";
 
-/** Variants when CTA is true (subset — pill shape) */
-export type CTAButtonVariant =
-  | "primary"
-  | "secondary"
-  | "tertiary"
-  | "outline"
-  | "neutral"
-  | "soft"
-  | "brand-subtle"
-  | "white"
-  | "outline-white";
+/** @deprecated alias kept for callers that imported the CTA-subset name. Same set as ButtonVariant. */
+export type CTAButtonVariant = ButtonVariant;
 
 type ButtonActionProps = {
   children: React.ReactNode;
   onClick?: () => void;
   type?: "button" | "submit";
-  /** Variant: primary | secondary | tertiary | outline | disabled | destructive. When cta=true, use primary | secondary | tertiary | disabled. */
-  variant?: ButtonVariant | CTAButtonVariant;
+  /** Visual variant. Combine with the `destructive` modifier for red treatments. */
+  variant?: ButtonVariant;
   size?: "sm" | "md" | "lg";
   /** Interactive disabled state (dimmed, non-clickable) */
   disabled?: boolean;
-  /** CTA mode: pill shape; use with variant primary | secondary | tertiary | disabled */
+  /** CTA mode: pill shape. Composes with any variant. */
   cta?: boolean;
+  /**
+   * Destructive modifier — recolors the chosen variant with the error palette.
+   * Composes with primary / secondary / tertiary / outline (loud → quiet).
+   * Use with the *quietest* variant that still reads as the destructive path
+   * — e.g. tertiary/outline for inline "Decline", primary for the commit
+   * action of a Cancel-confirmation modal.
+   */
+  destructive?: boolean;
   href?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
@@ -52,28 +50,27 @@ export function ButtonAction({
   size = "md",
   disabled,
   cta = false,
+  destructive = false,
   href,
   leftIcon,
   rightIcon,
   className,
   style,
 }: ButtonActionProps) {
-  const normalizedVariant = variant as ButtonVariant;
-
   const classes = [
     "btn",
     "btn-action",
-    normalizedVariant === "primary" ? "btn-primary" : "",
-    normalizedVariant === "secondary" ? "btn-secondary" : "",
-    normalizedVariant === "tertiary" ? "btn-tertiary" : "",
-    normalizedVariant === "outline" ? "btn-outline" : "",
-    normalizedVariant === "neutral" ? "btn-neutral" : "",
-    normalizedVariant === "soft" ? "btn-soft" : "",
-    normalizedVariant === "brand-subtle" ? "btn-brand-subtle" : "",
-    normalizedVariant === "destructive" ? "btn-destructive" : "",
-    normalizedVariant === "white" ? "btn-white" : "",
-    normalizedVariant === "outline-white" ? "btn-outline-white" : "",
+    variant === "primary" ? "btn-primary" : "",
+    variant === "secondary" ? "btn-secondary" : "",
+    variant === "tertiary" ? "btn-tertiary" : "",
+    variant === "outline" ? "btn-outline" : "",
+    variant === "neutral" ? "btn-neutral" : "",
+    variant === "soft" ? "btn-soft" : "",
+    variant === "brand-subtle" ? "btn-brand-subtle" : "",
+    variant === "white" ? "btn-white" : "",
+    variant === "outline-white" ? "btn-outline-white" : "",
     cta ? "btn-cta" : "",
+    destructive ? "btn-is-destructive" : "",
     size === "sm" ? "btn-sm" : "",
     size === "md" ? "btn-md" : "",
     size === "lg" ? "btn-lg" : "",

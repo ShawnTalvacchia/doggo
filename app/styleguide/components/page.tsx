@@ -75,7 +75,7 @@ function PropTable({ children }: { children: React.ReactNode }) {
 // ── ButtonAction playground ────────────────────────────────────────────────────
 
 const BTN_VARIANTS: ButtonVariant[] = [
-  "primary", "secondary", "tertiary", "outline", "destructive",
+  "primary", "secondary", "tertiary", "outline",
 ];
 const BTN_SIZES = ["sm", "md", "lg"] as const;
 const BTN_ICONS = { none: null, left: <MagnifyingGlass size={20} weight="light" />, right: <ArrowRight size={20} weight="light" /> };
@@ -84,6 +84,7 @@ function ButtonPlayground() {
   const [variant, setVariant] = useState<ButtonVariant>("primary");
   const [size, setSize] = useState<"sm" | "md" | "lg">("md");
   const [cta, setCta] = useState(false);
+  const [destructive, setDestructive] = useState(false);
   const [onDark, setOnDark] = useState(false);
   const [icon, setIcon] = useState<keyof typeof BTN_ICONS>("none");
 
@@ -93,7 +94,7 @@ function ButtonPlayground() {
   return (
     <div className="sg-btn-playground">
       <div className={`sg-btn-playground-preview${onDark ? " sg-btn-playground-preview--dark" : ""}`}>
-        <ButtonAction variant={variant} size={size} cta={cta} leftIcon={leftIcon} rightIcon={rightIcon}>
+        <ButtonAction variant={variant} size={size} cta={cta} destructive={destructive} leftIcon={leftIcon} rightIcon={rightIcon}>
           Button label
         </ButtonAction>
       </div>
@@ -126,6 +127,7 @@ function ButtonPlayground() {
           <span className="sg-btn-ctrl-label">modifiers</span>
           <div className="sg-btn-ctrl-pills">
             <button type="button" className={`sg-btn-ctrl-pill${cta ? " active" : ""}`} onClick={() => setCta((v) => !v)}>cta</button>
+            <button type="button" className={`sg-btn-ctrl-pill${destructive ? " active" : ""}`} onClick={() => setDestructive((v) => !v)}>destructive</button>
             <button type="button" className={`sg-btn-ctrl-pill${onDark ? " active" : ""}`} onClick={() => setOnDark((v) => !v)}>onDark</button>
           </div>
         </div>
@@ -320,9 +322,10 @@ export default function ComponentsPage() {
           White variants are for dark or brand-coloured surfaces only.
         </p>
         <PropTable>
-          <PropRow name="variant" type="primary | secondary | tertiary | outline | destructive | white | outline-white | disabled" note="white/outline-white: dark backgrounds only." />
+          <PropRow name="variant" type="primary | secondary | tertiary | outline | neutral | soft | brand-subtle | white | outline-white" note="white/outline-white: dark backgrounds only." />
           <PropRow name="size" type="sm | md | lg" note="lg for marketing. md for in-app. sm for condensed contexts." />
-          <PropRow name="cta" type="boolean" note="Pill shape. Available variants: primary, secondary, tertiary, outline, white, outline-white, disabled." />
+          <PropRow name="cta" type="boolean" note="Pill shape. Composes with any variant." />
+          <PropRow name="destructive" type="boolean" note="Recolors variant with the error palette. Combine with primary (loud commit) / secondary (mid) / outline (ringed) / tertiary (text-only)." />
           <PropRow name="href" type="string?" note="Renders as <Link>. href + disabled renders as <span aria-disabled>." />
           <PropRow name="leftIcon / rightIcon" type="ReactNode?" note="Phosphor icon. CTA mode auto-balances spacing with a spacer element." />
           <PropRow name="disabled" type="boolean?" note="Functional disabled state. Separate from variant='disabled' which is visual only." />

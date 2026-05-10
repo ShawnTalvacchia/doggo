@@ -54,7 +54,8 @@ export function InquiryResponseCard({
         />
         <div className="flex gap-sm">
           <ButtonAction
-            variant="destructive"
+            variant="primary"
+            destructive
             size="sm"
             onClick={() => onDecline(declineReason)}
           >

@@ -42,7 +42,8 @@ export function CancelSessionModal({
             Keep session
           </ButtonAction>
           <ButtonAction
-            variant="destructive"
+            variant="primary"
+            destructive
             size="md"
             onClick={() => {
               onConfirm(reason.trim() || undefined);

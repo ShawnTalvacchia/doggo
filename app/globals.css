@@ -2071,19 +2071,71 @@ body.guest-route {
   box-shadow: var(--shadow-sm);
 }
 
-.btn-destructive {
+/* ── Destructive modifier ──
+   Recolors any base variant with the error palette. Composes with the
+   variant's shape (radius, padding, border treatment) so a tertiary
+   destructive stays text-only and an outline destructive stays ringed,
+   while primary destructive is the loudest filled-red treatment. Picking
+   the right combination follows loudness: primary > secondary > outline >
+   tertiary, same as the non-destructive ladder. */
+
+/* Loud: filled error, white text. Use for the commit action of a
+   Cancel-confirmation modal (destructive IS the primary action there). */
+.btn-primary.btn-is-destructive {
   background: var(--error);
   color: var(--text-white);
 }
 
-.btn-destructive:hover:not(:disabled) {
+.btn-primary.btn-is-destructive:hover:not(:disabled) {
   background: color-mix(in srgb, var(--error) 85%, black);
 }
 
-.btn-destructive:disabled,
-.btn-destructive.btn-disabled-state {
+/* Mid: error-tinted fill, error text, no border. Use when destructive
+   needs to read as a deliberate-but-not-shouting alternate path. */
+.btn-secondary.btn-is-destructive {
+  background: color-mix(in srgb, var(--error) 12%, transparent);
+  color: var(--error);
+}
+
+.btn-secondary.btn-is-destructive:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--error) 18%, transparent);
+}
+
+/* Quiet ringed: transparent bg, error border, error text. Use for inline
+   "Decline" / "Remove" actions where the surrounding row already contains
+   a louder primary. */
+.btn-outline.btn-is-destructive {
+  background: transparent;
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.btn-outline.btn-is-destructive:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--error) 8%, transparent);
+  border-color: var(--error);
+  color: var(--error);
+  box-shadow: none;
+}
+
+/* Quietest: text-only error. Use inside a row of actions where one needs
+   to read as destructive without occupying visual weight. */
+.btn-tertiary.btn-is-destructive {
+  background: transparent;
+  color: var(--error);
+}
+
+.btn-tertiary.btn-is-destructive:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--error) 8%, transparent);
+  color: var(--error);
+}
+
+/* Disabled state — same dimming pattern across all destructive
+   compositions. Applies to both filled and outlined treatments. */
+.btn-is-destructive:disabled,
+.btn-is-destructive.btn-disabled-state {
   background: var(--surface-disabled);
   color: var(--text-tertiary);
+  border-color: transparent;
   cursor: not-allowed;
 }
 

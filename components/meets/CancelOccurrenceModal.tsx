@@ -58,7 +58,8 @@ export function CancelOccurrenceModal({
             Keep date
           </ButtonAction>
           <ButtonAction
-            variant="destructive"
+            variant="primary"
+            destructive
             size="md"
             disabled={!canSubmit}
             onClick={handleConfirm}
