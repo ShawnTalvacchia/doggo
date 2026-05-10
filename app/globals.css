@@ -4903,9 +4903,28 @@ body.guest-route {
    rating row in JSX and let the connection chip + trust signals carry
    the message. Discover Refinement C2, 2026-05-10. */
 .result-card--in-circle {
-  background: var(--brand-subtle);
   border-left: 3px solid var(--brand-main);
   padding-left: 13px; /* 16 - 3 to keep content alignment */
+}
+
+/* Section header for grouped results on Discover surfaces — sits the
+   header on the page surface beneath cards, giving the grouping a clear
+   visual division. Distinct from PersonSections SectionHeader (which is
+   a quieter sub-section label inside one tab). Discover Refinement
+   walkthrough decision, 2026-05-10. */
+.results-section-header {
+  background: var(--surface-base);
+  margin: 0;
+  padding: var(--space-md) var(--space-md);
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.results-section-header-count {
+  font-weight: var(--weight-regular);
+  color: var(--text-tertiary);
 }
 
 .result-head {
