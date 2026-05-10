@@ -8774,10 +8774,11 @@ body:has(.bottom-nav) .bookings-page {
 
 .booking-card-avatars {
   position: relative;
-  /* 36px person + 36px pet overlapping at left:20 → right edge at 56px.
-     Container width must contain its children so the flex gap that
-     separates avatars from the name actually renders. */
-  width: 56px;
+  /* 36px person + 36px pet overlapping at left:28 → right edge at 64px.
+     Less overlap than before (was left:20 / width:56) — the avatars are
+     the same size, so reducing overlap makes both clearly visible without
+     one swallowing the other. */
+  width: 64px;
   height: 36px;
   flex-shrink: 0;
 }
@@ -8796,7 +8797,7 @@ body:has(.bottom-nav) .bookings-page {
 
 .booking-card-avatar-pet {
   position: absolute;
-  left: 20px;
+  left: 28px;
   top: 0;
   width: 36px;
   height: 36px;
@@ -15517,8 +15518,11 @@ body:has(.bottom-nav) .inbox-page {
 /* ── Avatar combo: person + pet overlapping ── */
 .sched-avatar-combo {
   position: relative;
-  width: 40px;
-  height: 28px;
+  /* 32px person + 32px pet overlapping at left:20 → right edge at 52px.
+     Bumped from 28→32 during Discover Refinement walkthrough so the
+     schedule-card combo reads more cleanly at glance distance. */
+  width: 52px;
+  height: 32px;
   flex-shrink: 0;
 }
 
@@ -15526,8 +15530,8 @@ body:has(.bottom-nav) .inbox-page {
   position: absolute;
   left: 0;
   top: 0;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--surface-top);
@@ -15536,10 +15540,10 @@ body:has(.bottom-nav) .inbox-page {
 
 .sched-avatar-pet {
   position: absolute;
-  left: 16px;
+  left: 20px;
   top: 0;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   /* Rule B: dogs render as rounded squares (not circles) — shape encodes
      the entity type, not layout role. Matches `.person-avatar-dog`.
      Sessions & Service Execution 2026-05-08; sweep applied app-wide in
@@ -15906,6 +15910,17 @@ body:has(.bottom-nav) .inbox-page {
 .person-row-pill--pending {
   background: var(--surface-inset);
   color: var(--text-secondary);
+}
+
+/* Carer Identity badge — uniform light info-blue fill, dark info-blue
+   text. One treatment for both `publicProfile: true` and circle-Carers
+   (the audience signal is encoded by visibility, not visual intensity —
+   the privacy gate hides circle-Carers' badge from non-Connected viewers
+   via getCarerIdentity). Discover Refinement walkthrough decision,
+   2026-05-10. */
+.person-row-pill--carer {
+  background: var(--status-info-light);
+  color: var(--status-info-strong);
 }
 
 /* "+ Familiar" — quieter, outlined treatment for the not-yet-marked state.
