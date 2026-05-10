@@ -11,14 +11,15 @@ export function CompactGreeting({ user }: { user: UserProfile }) {
   return (
     <div className="feed-greeting">
       <div className="feed-greeting-info">
-        {/* Dog avatars */}
+        {/* Dog avatars — Rule B: rounded square, not circle. Discover
+            Refinement F sweep, 2026-05-10. */}
         <div className="flex items-center shrink-0">
           {user.pets.slice(0, 2).map((pet, i) => (
             <img
               key={pet.id}
               src={pet.imageUrl}
               alt={pet.name}
-              className="rounded-full border-2"
+              className="rounded-md border-2"
               style={{
                 width: 36,
                 height: 36,

@@ -701,31 +701,36 @@ export const mockGroups: Group[] = [
     createdAt: "2025-10-01T12:00:00Z",
   },
   {
+    // Originally "group-premiumvet" — repurposed as a grooming salon
+    // during Discover Refinement walkthrough D1 (2026-05-10) to align
+    // with the strategic call (Open Q §6) that vets are post-MVP. The
+    // group ID is retained to avoid an invasive rename across every
+    // mock-data reference; the entity itself is now Mánesova Grooming.
     id: "group-premiumvet",
-    name: "PremiumVet Prague Community",
+    name: "Mánesova Grooming Salon",
     description:
-      "Health tips, seasonal alerts, and Q&A from PremiumVet's team. Join for vaccination reminders, tick-season warnings, and community wellness events. Your neighbourhood vet, online.",
+      "Vinohrady-based grooming salon with three groomers, all trained in calm-handling and force-free methods. Anxious dogs welcome — we book longer first visits and never use restraints. Community space for grooming questions, brush-out tips, and seasonal coat changes.",
     groupType: "care",
-    careCategory: "vet",
+    careCategory: "grooming",
     visibility: "open",
     providers: [
-      { userId: "premiumvet", name: "PremiumVet", avatarUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80" },
-      { userId: "lenka-vet", name: "Dr. Nováková", avatarUrl: "/images/generated/zuzana-profile.jpeg" },
-      { userId: "vet-stepanek", name: "Dr. Štěpánek", avatarUrl: "/images/generated/jakub-profile.jpeg" },
+      { userId: "premiumvet", name: "Mánesova Grooming", avatarUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80" },
+      { userId: "lenka-vet", name: "Lenka Nováková", avatarUrl: "/images/generated/zuzana-profile.jpeg" },
+      { userId: "vet-stepanek", name: "Pavel Štěpánek", avatarUrl: "/images/generated/jakub-profile.jpeg" },
     ],
     neighbourhood: "Vinohrady",
     location: "Vinohrady, Prague 2",
     locationFixed: "Mánesova 67, Prague 2",
     coverPhotoUrl: "/images/generated/spot-portrait.jpeg",
     creatorId: "premiumvet",
-    creatorName: "PremiumVet",
-    galleryMode: "standard",
-    careConfig: CARE_CONFIG_DEFAULTS.vet,
+    creatorName: "Mánesova Grooming",
+    galleryMode: "portfolio",
+    careConfig: CARE_CONFIG_DEFAULTS.grooming,
     serviceListings: [],
     members: [
-      { userId: "premiumvet", userName: "PremiumVet", avatarUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80", dogNames: [], role: "admin", joinedAt: "2025-09-01" },
+      { userId: "premiumvet", userName: "Mánesova Grooming", avatarUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80", dogNames: [], role: "admin", joinedAt: "2025-09-01" },
       { userId: "lenka-vet", userName: "Lenka Nováková", avatarUrl: "/images/generated/zuzana-profile.jpeg", dogNames: [], role: "admin", joinedAt: "2025-09-01" },
-      { userId: "vet-stepanek", userName: "Dr. Štěpánek", avatarUrl: "/images/generated/jakub-profile.jpeg", dogNames: [], role: "admin", joinedAt: "2025-09-01" },
+      { userId: "vet-stepanek", userName: "Pavel Štěpánek", avatarUrl: "/images/generated/jakub-profile.jpeg", dogNames: [], role: "admin", joinedAt: "2025-09-01" },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot", "Goldie"], role: "member", joinedAt: "2025-10-01" },
       { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], role: "member", joinedAt: "2025-10-15" },
       { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"], role: "member", joinedAt: "2025-11-01" },
@@ -733,7 +738,7 @@ export const mockGroups: Group[] = [
       { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"], role: "member", joinedAt: "2025-12-01" },
     ],
     photos: ["/images/generated/spot-portrait.jpeg"],
-    photoPolicy: "optional",
+    photoPolicy: "encouraged",
     createdAt: "2025-09-01T08:00:00Z",
   },
 

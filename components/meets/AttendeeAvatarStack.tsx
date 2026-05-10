@@ -73,7 +73,12 @@ export function AttendeeAvatarStack({
               key={slot.key}
               src={slot.imageUrl}
               alt={slot.altLabel}
-              className="rounded-full border-2 border-surface-top object-cover"
+              // Rule B: dogs render as rounded squares, people as circles.
+              // The slot may resolve to either depending on whether
+              // `getDogImageByOwnerAndName` returned a dog photo (preferred)
+              // or fell back to the owner avatar. Discover Refinement F
+              // sweep, 2026-05-10.
+              className={`border-2 border-surface-top object-cover ${slot.isDogImage ? "rounded-md" : "rounded-full"}`}
               style={{
                 width: size,
                 height: size,

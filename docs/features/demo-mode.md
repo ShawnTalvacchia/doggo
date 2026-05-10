@@ -137,7 +137,7 @@ The community-anchor archetype. Vinohrady regular who runs the evening walking g
 
 1. **Home feed** — `/home?as=tereza` — Vinohrady Evening Walkers + Vinohrady Morning Crew + Riegrovy posts dominate. Reads as "someone embedded in a neighbourhood."
 2. **Vinohrady Evening Walkers** — `/communities/group-tereza-neighbourhood?as=tereza` — admin role, recurring evening loop, members tab shows neighbour cluster. Description in admin's voice (first-person).
-3. **Profile** — `/profile?as=tereza` — Open profile, Helper-tier carer (sitting at modest rate), Open visibility, Vinohrady neighbourhood, Franta the dog.
+3. **Profile** — `/profile?as=tereza` — Open profile, Carer with circle audience (`publicProfile: false` — sitting at modest rate for Connected viewers only), Vinohrady neighbourhood, Franta the dog.
 4. **Riegrovy morning recurring meet** — `/meets/meet-1?as=tereza` — weekly Riegrovy walk she's part of (group-1 Vinohrady Morning Crew). People tab shows her connection cluster; Photos tab from completed sessions.
 
 ### Daniel — Anxious New Owner

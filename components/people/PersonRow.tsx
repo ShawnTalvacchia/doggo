@@ -26,7 +26,6 @@ import Link from "next/link";
 import { PawPrint } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
-import { TierBadge } from "@/components/people/TierBadge";
 import { OwnerDogAvatar } from "@/components/people/OwnerDogAvatar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useConnections } from "@/contexts/ConnectionsContext";
@@ -35,6 +34,7 @@ import {
   type PersonAction,
 } from "@/lib/personActions";
 import type { ConnectionState } from "@/lib/types";
+import type { CarerIdentity } from "@/lib/identityBadges";
 
 /**
  * Format a dog name list for the secondary text line below the owner name.
@@ -84,13 +84,26 @@ export interface PersonRowProps {
   contextLine?: string;          // e.g. "Joining Saturday's walk"
   isAdmin?: boolean;             // group-member only
   /**
-   * Care tier badge — derived from `UserProfile.carerProfile.publicProfile`
-   * by the consumer. Helper-tier visibility is the consumer's job to gate:
-   * pass `"helper"` only when the viewer is Connected to the subject (or
-   * is the subject themselves), otherwise pass `undefined`. Provider tier
-   * has no privacy gate. See `docs/implementation/badges.md`.
+   * Carer identity badge — info-blue pill that surfaces "this person
+   * offers care" with two variants by audience setting:
+   *   - `{ kind: "open" }`   → publicProfile === true. Visible to everyone.
+   *                            Strong fill, white text. Reads as
+   *                            "open to anyone."
+   *   - `{ kind: "circle" }` → publicProfile === false AND viewer is
+   *                            Connected to subject. Visible only to
+   *                            Connected viewers (privacy rule). Light
+   *                            fill, dark blue text. Reads as
+   *                            "open to your circle."
+   * Resolved by the caller via `getCarerIdentity(subject, viewerId)`
+   * from `lib/identityBadges.ts` — the privacy gate is the caller's
+   * responsibility (return `undefined` when the viewer isn't Connected
+   * to a circle-only Carer). Renders only on `meet-attendee` and
+   * `group-member` variants. Discover Refinement walkthrough decision,
+   * 2026-05-10 — replaces the retired Helper/Provider tier pill with a
+   * single Carer noun + audience-encoding visual variants. See
+   * `docs/implementation/badges.md` → Identity badges.
    */
-  careTier?: "helper" | "provider";
+  carerBadge?: CarerIdentity;
   messagePreview?: string;       // inbox-conversation only
   /** Type of the previewed message — used to style system messages
    *  (inquiry / proposal / contract) distinctly from chat text. Defaults
@@ -192,7 +205,7 @@ export function PersonRow(props: PersonRowProps) {
     profileOpen = false,
     contextLine,
     isAdmin = false,
-    careTier,
+    carerBadge,
     mark = null,
     onAdvance,
     onUndoMark,
@@ -455,11 +468,10 @@ export function PersonRow(props: PersonRowProps) {
           {isAdmin && variant === "group-member" && (
             <span className="person-row-pill person-row-pill--admin">Admin</span>
           )}
-          {careTier === "provider" && (variant === "meet-attendee" || variant === "group-member") && (
-            <TierBadge tier="provider" subjectName={name} />
-          )}
-          {careTier === "helper" && (variant === "meet-attendee" || variant === "group-member") && (
-            <TierBadge tier="helper" subjectName={name} />
+          {carerBadge && (variant === "meet-attendee" || variant === "group-member") && (
+            <span className="person-row-pill person-row-pill--carer">
+              {carerBadge.label}
+            </span>
           )}
           {isInbox && timeAgo && (
             <span className="person-row-time text-xs text-fg-tertiary shrink-0 ml-auto">

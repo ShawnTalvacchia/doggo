@@ -4897,6 +4897,17 @@ body.guest-route {
   background: var(--surface-top);
 }
 
+/* In-circle variant — softer chrome for Carers connected/familiar to the
+   viewer. Subtle brand-tinted background + 3px brand left accent stripe.
+   The relationship is the trust signal; we suppress the platform-style
+   rating row in JSX and let the connection chip + trust signals carry
+   the message. Discover Refinement C2, 2026-05-10. */
+.result-card--in-circle {
+  background: var(--brand-subtle);
+  border-left: 3px solid var(--brand-main);
+  padding-left: 13px; /* 16 - 3 to keep content alignment */
+}
+
 .result-head {
   display: grid;
   grid-template-columns: 64px 1fr auto;
@@ -6115,7 +6126,7 @@ body.guest-route {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 6px;
   color: var(--text-tertiary);
   text-decoration: none;
   font-size: var(--font-size-body-xs);
@@ -8770,7 +8781,10 @@ body:has(.bottom-nav) .bookings-page {
   top: 0;
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  /* Rule B: dogs render as rounded squares. Discover Refinement F sweep,
+     2026-05-10 (originally decided in Sessions & Service Execution
+     2026-05-08; sweep landed here). */
+  border-radius: var(--radius-md);
   object-fit: cover;
   border: 2px solid var(--surface-top);
   z-index: 2;
@@ -14317,6 +14331,13 @@ body:has(.bottom-nav) .inbox-page {
   margin-left: -8px;
 }
 
+/* Dog modifier — Rule B: pet imagery renders as rounded squares, not
+   circles. Discover Refinement F sweep, 2026-05-10. The consumer adds
+   this when the resolved image is a dog photo (not the owner fallback). */
+.meet-summary-avatar--dog {
+  border-radius: var(--radius-md);
+}
+
 .meet-summary-avatar:first-child { margin-left: 0; }
 
 .meet-summary-meta {
@@ -15500,7 +15521,11 @@ body:has(.bottom-nav) .inbox-page {
   top: 0;
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  /* Rule B: dogs render as rounded squares (not circles) — shape encodes
+     the entity type, not layout role. Matches `.person-avatar-dog`.
+     Sessions & Service Execution 2026-05-08; sweep applied app-wide in
+     Discover Refinement F (2026-05-10). */
+  border-radius: var(--radius-md);
   object-fit: cover;
   border: 2px solid var(--surface-top);
   z-index: 2;
@@ -15900,38 +15925,6 @@ body:has(.bottom-nav) .inbox-page {
 .person-row-pill--admin {
   background: var(--surface-inset);
   color: var(--text-secondary);
-}
-
-/* Provider tier — public, professional. Info-blue fill so care signals
-   read consistently with the schedule's care cards (blue = care across
-   the app). Strong fill + white text for the public/confident reading.
-   See `docs/implementation/badges.md` for the tier taxonomy. */
-.person-row-pill--provider {
-  background: var(--status-info-main);
-  color: var(--surface-top);
-  font-size: 10px;
-  padding: 0 6px;
-}
-
-/* Helper tier — Connected-only privacy. Same info-blue palette as
-   Provider but lighter fill + dark blue text — quieter, "informal,
-   between friends" rather than the public Provider signal. Visibility
-   gated by the consumer (only render when viewer is Connected to
-   subject) per the privacy rule in Groups & Care Model.md. */
-.person-row-pill--helper {
-  background: var(--status-info-light);
-  color: var(--status-info-strong);
-  font-size: 10px;
-  padding: 0 6px;
-}
-
-/* Legacy alias — keep until any remaining `.person-row-pill--care`
-   references are migrated. Prefer `--provider` for new code. */
-.person-row-pill--care {
-  background: var(--status-info-main);
-  color: var(--surface-top);
-  font-size: 10px;
-  padding: 0 6px;
 }
 
 /* Unread dot on inbox conversation avatar */

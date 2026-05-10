@@ -1083,7 +1083,9 @@ function DetailsTab({
                         key={a.userId}
                         src={dogImg ?? a.avatarUrl}
                         alt={dogImg && primaryDog ? `${primaryDog} (${a.userName}'s dog)` : a.userName}
-                        className="meet-summary-avatar"
+                        // Rule B: dogs render as rounded squares; owner-fallback
+                        // stays a circle. Discover Refinement F sweep, 2026-05-10.
+                        className={`meet-summary-avatar${dogImg ? " meet-summary-avatar--dog" : ""}`}
                       />
                     );
                   });

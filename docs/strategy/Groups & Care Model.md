@@ -1,9 +1,9 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-05
-tags: [groups, community, providers, care, navigation, demo]
-review-trigger: "when touching group features, Community tab, provider groups, care model, or demo planning"
+last-reviewed: 2026-05-10
+tags: [groups, community, carers, care, navigation, demo]
+review-trigger: "when touching group features, Community tab, Care groups, care model, or demo planning"
 ---
 
 # Groups & Care Model
@@ -108,7 +108,9 @@ Prague market research identified distinct provider categories, each with a diff
 | **Boarding** | 58+ facilities, trust is #1 barrier | Daily photo updates (anxiety reduction) + booking | Updates |
 | **Rehab** | Specialized niche, referral-driven, premium | Recovery progress + exercise tips + Q&A | Standard |
 | **Venue** | Dog-friendly cafés, growing segment | Event hosting + cross-promotion with park groups | Standard |
-| **Vet** | Range of practices, high authority | Health tips + seasonal alerts + community Q&A | Standard |
+| **Vet** *(deprioritized — see note below)* | Range of practices, high authority | Health tips + seasonal alerts + community Q&A | Standard |
+
+> **Vet category — sunset from the demo arc (2026-05-10).** Per Open Q §6 (Provider category prioritization), vets are post-MVP at best, possibly never as first-class accounts: existing PMS/billing systems (eVet, Provet, ezyVet) are sticky and compliance-integrated, and vet selection is location + reputation + emergency rather than community-shaped. The demo's seeded vet entity (Lenka N. + PremiumVet group) was repurposed as a **grooming salon** during Discover Refinement walkthrough D1 to align the demo with this strategic call. The `vet` category is retained in the data model (`AppointmentCategory` + `careCategory` enums + this category table) for forward compatibility, but no live mock data carries it. The likely landing place for vets long-term is the **Adjacent-business advertising** surface (Open Q §6) — external pointers, not first-class Doggo accounts. See also [[Shelter Dogs & Community Walks]] for the parallel non-paid-account thread.
 
 ### Configuration Model
 
@@ -229,41 +231,39 @@ See `features/explore-and-care.md` → "Pricing model" for the full breakdown.
 
 ---
 
-## Provider Tiers on Profiles
+## Carers on Profiles
 
-The "provider dial" lives on profiles, not on groups. Every user starts as an Owner and can progress as their comfort with offering care grows. Progression is always visible, never transactional — copy never frames care as "earning income" or "becoming a provider."
+The "care dial" lives on profiles, not on groups. Every user starts as an Owner and can become a Carer as their comfort with offering care grows. Progression is always visible, never transactional — copy never frames care as "earning income" or "becoming a Provider."
 
-### Lock and Tier — orthogonal axes
+### One role: Carer
 
-Provider Tier is the **action** dial — controls who can act on services (book / inquire / transact). It's independent from the **Lock** setting, which is the visibility dial — controls who can see the profile at all. These two compose:
+A user is either an Owner (no `carerProfile`) or a Carer (has a `carerProfile` with services configured). There is no separate "Provider" tier; the earlier Owner / Helper / Provider three-tier framing collapsed during Discover Refinement (2026-05-10) when we accepted that Helper and Provider weren't different roles, just two settings of the same audience configuration on the single Carer role. The previous "Provider tier action axis" goes away — what's left is one boolean on the Carer's profile: `publicProfile`.
 
-- **Lock = visibility.** Open profile = visible to anyone. Locked = only Familiar/Connected viewers see expanded content. Privacy axis. Lives on the profile globally; not service-specific.
-- **Tier = action.** Owner / Helper / Provider — defines who can act on the user's services. Action axis. Lives on the carer profile.
+### Carer audience: circle vs anyone
 
-A Locked + Provider user is unusual but valid — services exist publicly in the model (Provider tier), but the profile they live on is gated (Lock). The platform shows a soft banner advising Open profile for Provider-tier carers since discoverability narrows otherwise. See `features/profiles.md` → Lock and Tier — orthogonal axes for the full composition matrix.
+A Carer's services have an audience setting that controls who can act on them — book, inquire, transact. Same role; what changes is the audience reached.
 
-### Three tiers
+| Audience setting (`carerProfile.publicProfile`) | Who can act on services | Appears in `/discover/care`? |
+|---|---|---|
+| `false` — "open to your circle" | Connected viewers only | No |
+| `true` — "open to anyone" | Anyone (subject to Lock visibility — Locked profile narrows actionable viewers to those who can see the profile) | Yes |
 
-| Tier | Who can act on services | Appears in Discover > Dog Care? | Commits to |
-|---|---|---|---|
-| **Owner** (default) | Nobody | No | Nothing. Full community participation. |
-| **Helper** | Connected users only | No | Lightweight — a rate, basic availability. Informal, between friends. |
-| **Provider** | Anyone (subject to Lock visibility — Locked + Provider narrows to Familiar/Connected viewers) | Yes (when Open) | Published prices, response-time expectation, cancellation policy, intro-session option. |
+Composition with **Lock** (the profile-visibility setting from [[Trust & Connection Model]]) is documented at `features/profiles.md` → Lock + Carer audience: two settings, one role.
 
-### Individual Providers and Care groups are both first-class
+### Individual Carers and Care groups are both first-class
 
 Neither requires the other.
 
-- **Individual Provider.** Services live on the profile. Appears in Dog Care search on their own merit. No group required. (Tereza's journey: sits for neighbours at a modest rate, no group.)
-- **Care group.** A team or small-service-business container. Group appears in Dog Care search and in Groups. Individual member-providers are surfaced through the group — see Care Group Admin Model below. (Pawz: team of trainers. Klára could run her solo practice as a Care group if she wants a community-wrapped channel — but she doesn't have to.)
+- **Individual Carer.** Services live on the profile. With `publicProfile: true`, appears in `/discover/care` on their own merit. No group required. (Tereza's journey: sits for neighbours at a modest rate, no group; her audience setting could be circle or anyone depending on whether she wants to take strangers.)
+- **Care group.** A team or small-service-business container. Group appears in Dog Care search and in Groups. Individual member-carers are surfaced through the group — see Care Group Admin Model below. (Pawz: team of trainers. Klára could run her solo practice as a Care group if she wants a community-wrapped channel — but she doesn't have to.)
 
-A Provider can be both — services on their profile *and* membership/admin of a Care group. The two surfaces reinforce each other.
+A Carer can be both — services on their profile *and* membership/admin of a Care group. The two surfaces reinforce each other.
 
 ### Copy rules
 
 - **Never:** "Become a Provider." "Start earning." "List your services."
 - **Instead:** "Offer to walk for friends?" "Ready to open this to your neighbourhood?"
-- The progression is always framed as opening the circle wider — from nobody, to network, to neighbourhood. Commitment scales with reach.
+- The progression is always framed as opening the audience wider — from nobody, to your circle, to anyone. Commitment scales with reach.
 - **Narrative and copy are a living discipline, not a one-time exercise.** Every phase includes a pass on the language of its surfaces. We move toward copy that sounds natural, specific, and un-transactional — and revisit existing copy as the model sharpens.
 
 ---
@@ -368,11 +368,11 @@ The Members tab uses the same section-grouped + attendance-gated pattern as the 
 
 **Action availability: group co-membership is the context signal.** The Members tab does NOT gate on past meet attendance. Reasoning: users recognise each other from real-world meetings (outside the platform) or from group context itself; gating on platform attendance is overly strict. Each row's actions resolve from the matrix without a context filter.
 
-**Visual pattern matches the People tab.** Same `PersonRow` rendering — inline Familiar/Pending pill + tier badges on the left, Connect/Message buttons on the right. The only difference between People tab and Members tab is the gating rule (People: attendance-based; Members: always-available); the visual treatment is unified so users learn one pattern across surfaces.
+**Visual pattern matches the People tab.** Same `PersonRow` rendering — inline Familiar/Pending pill on the left, single inline action affordance on the right. The only difference between People tab and Members tab is the gating rule (People: attendance-based; Members: always-available); the visual treatment is unified so users learn one pattern across surfaces.
 
 **Trade-off acknowledged:** Members tab IS less restrictive than People tab. The community-first thesis (meets build trust) is preserved at the meet level — meets remain the canonical Familiar trigger via the post-meet review sheet. The Members tab is a secondary path for users who recognise someone from real life or group context.
 
-**Helper / Provider tier badges** propagate from `UserProfile.carerProfile.publicProfile`: Provider tier renders for all viewers; Helper tier only renders when the viewer is Connected to the subject (or is the subject) — privacy rule per `docs/implementation/badges.md`.
+**No Carer-status badge on PersonRow.** Discover Refinement (2026-05-10) retired the per-row tier pill — connection grouping + section labels do the work, and trust badges (Community Regular, Trusted by Your Network, etc.) reclaim the badge real estate. Carer audience signaling (`publicProfile`) lives at the surface level (Discover Care section structure, profile hero) and not on individual rows.
 
 Implementation: `MembersTab` in `app/communities/[id]/page.tsx`. Section primitives (SectionHeader, MetaDivider, LockedChipList) shared with `ParticipantList` via `components/people/PersonSections.tsx`.
 

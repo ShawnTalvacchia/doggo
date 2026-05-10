@@ -77,6 +77,13 @@ export interface ProviderCard {
   blurb: string;
   avatarUrl: string;
   services: ServiceType[];
+  /** Appointment-shape offerings (vet, grooming) tagged on the directory card
+   *  so the "Appointment" filter pill on `/discover/care` matches them. The
+   *  authoritative offering data lives on the bridged
+   *  `UserProfile.carerProfile.services` (entries with `kind: "appointment"`);
+   *  this field is the directory-level summary used for filtering and chip
+   *  rendering. Discover Refinement D1, 2026-05-10. */
+  appointmentTypes?: AppointmentCategory[];
   availableTimes?: Array<"6-11" | "11-15" | "15-22">;
   // Trust / proximity signals
   distanceKm?: number;
@@ -1075,6 +1082,18 @@ export interface LastMinutePricingModifier {
   thresholdDays: number;
 }
 
+// `WalkPace` already exists higher up the file (Meet domain); reused here
+// for the Carer service config so the filter and meet schemas align on
+// "leisurely / moderate / brisk." Discover Refinement D3, 2026-05-10.
+
+/** Walks-specific: leash policy. Surfaces as filter dimension and on
+ *  profile. Discover Refinement D3, 2026-05-10. */
+export type LeashPolicy = "always" | "off_leash_areas" | "case_by_case";
+
+/** Sitting/Boarding-specific: home setting category. Discover Refinement
+ *  D3, 2026-05-10. */
+export type HomeType = "flat" | "house" | "ground_floor_with_garden";
+
 export interface CarerCareServiceConfig {
   kind: "care";
   serviceType: ServiceType;
@@ -1087,6 +1106,26 @@ export interface CarerCareServiceConfig {
    *  See `lib/pricing.ts:computeQuote`. Empty/undefined = base rate only.
    *  Pricing & Proposals, 2026-05-04. */
   modifiers?: PricingModifier[];
+
+  /* ─── Service-aware filter dimensions (Discover Refinement D3, 2026-05-10) ───
+   * Each serviceType reads only the fields relevant to it. The filter UI in
+   * `/discover/care` renders different field groups per active service pill;
+   * the data shape is flat (all-optional on this interface) so the discriminator
+   * is `serviceType`, not a nested type — keeps the API legible.
+   */
+
+  /** Walks: pace expectation. */
+  pace?: WalkPace;
+  /** Walks: leash policy. */
+  leashPolicy?: LeashPolicy;
+  /** Sitting / Boarding: type of home the carer offers. */
+  homeType?: HomeType;
+  /** Sitting / Boarding: carer has own dog(s) on premises. */
+  hasOwnDogs?: boolean;
+  /** Boarding: outdoor space (yard / garden / terrace). */
+  hasYard?: boolean;
+  /** Boarding: max simultaneous dogs the carer takes. */
+  maxDogs?: number;
 }
 
 /** Format hint for Meet-type catalogue cards. */

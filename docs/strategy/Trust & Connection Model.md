@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-08
+last-reviewed: 2026-05-10
 tags: [trust, connections, privacy, safety]
 review-trigger: "when touching connection states, visibility, or trust signals"
 ---
@@ -66,16 +66,18 @@ Separately from per-person states, users have a global visibility setting:
 
 A Locked user builds their network selectively through Familiar/Connected. An Open user is broadly discoverable. Neither is penalised. Both paths lead to trusted relationships.
 
-### How visibility applies to care providers
+### How visibility applies to Carers
 
 Care services follow the same visibility rules as everything else on a profile. There is no separate "care discoverability" setting — the profile visibility toggle controls it all:
 
-- **Open** providers are discoverable by anyone in care search. This is the natural choice for professional providers who want clients.
-- **Locked** providers are only visible to people they've marked as Familiar or are Connected with. This fits the casual/neighbourhood helper who only wants to help people they already know.
+- **Open** Carers are discoverable by anyone in care search (subject to their Carer audience setting — see below). This is the natural choice for someone who wants to reach clients beyond their network.
+- **Locked** Carers are only visible to people they've marked as Familiar or are Connected with. This fits the neighbourhood Carer who only wants to help people they already know.
 
 When a user adds care services but their profile is Locked, an informational banner explains: "Your profile is private — only people you've marked as Familiar or Connected with can see your services. Want to make your profile public?"
 
-This simplicity is intentional. The connection model is the same between any two users regardless of whether care is involved. A provider doesn't need a different relationship model — they just have more content visible on their profile.
+This simplicity is intentional. The connection model is the same between any two users regardless of whether care is involved. A Carer doesn't need a different relationship model — they just have more content visible on their profile.
+
+**Carer audience is a separate setting from Lock.** Lock controls who can SEE the profile; the Carer's `publicProfile` boolean controls who can ACT on services (Connected viewers only when `false`; anyone when `true`). They compose. See [[profiles]] → "Lock + Carer audience: two settings, one role" for the composition matrix and [[Groups & Care Model]] → "Carer audience: circle vs anyone" for the role framing. There is no separate "Provider tier" axis — the earlier Owner/Helper/Provider three-tier framing collapsed during Discover Refinement (2026-05-10).
 
 ### Share profile link
 

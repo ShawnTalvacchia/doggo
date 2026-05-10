@@ -67,10 +67,13 @@ export function DogsNearYou() {
   if (dogs.length === 0) return null;
 
   return (
-    <section className="flex flex-col gap-sm">
-      {/* Section header — inset so it respects page padding even though the
-          scroll row below bleeds to the edge. */}
-      <div className="flex items-center gap-xs px-md">
+    <section
+      className="flex flex-col gap-sm py-lg border-edge-regular"
+      style={{ borderTopWidth: 1, borderBottomWidth: 1 }}
+    >
+      {/* Section header — inset to match the meet/feed cards' content edge
+          (px-lg matches `.card-schedule-meet`'s padding: var(--space-lg)). */}
+      <div className="flex items-center gap-xs px-lg">
         <Dog size={14} weight="light" className="text-fg-tertiary" />
         <h2 className="text-xs font-semibold uppercase tracking-wider text-fg-tertiary m-0">
           {stats.activeDogs} dogs in {stats.neighbourhood}
@@ -79,7 +82,7 @@ export function DogsNearYou() {
 
       {/* Horizontal avatar strip — edge-to-edge for a natural scroll. */}
       <div
-        className="flex gap-md pb-sm px-md"
+        className="flex gap-sm px-lg"
         style={{ overflowX: "auto", scrollSnapType: "x mandatory" }}
       >
         {dogs.map((dog) => {
@@ -91,20 +94,23 @@ export function DogsNearYou() {
             <div
               key={`${dog.userId}-${dog.dogName}`}
               className="flex flex-col items-center gap-xs flex-shrink-0"
-              style={{ scrollSnapAlign: "start", width: 72 }}
+              style={{ scrollSnapAlign: "start", width: 160 }}
             >
               <img
                 src={imageUrl}
                 alt={dogImg ? `${dog.dogName} (${dog.userName}'s dog)` : dog.userName}
-                className="rounded-full"
+                /* Rule B: dogs render as rounded squares; owner-fallback
+                   stays a circle. Discover Refinement F sweep,
+                   2026-05-10. */
+                className={dogImg ? "rounded-md" : "rounded-full"}
                 style={{
-                  width: 48,
-                  height: 48,
+                  width: 160,
+                  height: 160,
                   objectFit: "cover",
-                  border: "2px solid var(--border-light)",
+                  border: "1px solid var(--border-light)",
                 }}
               />
-              <span className="text-xs text-fg-secondary text-center" style={{ lineHeight: 1.2 }}>
+              <span className="text-sm text-fg-secondary text-center" style={{ lineHeight: 1.2 }}>
                 {dog.dogName}
               </span>
             </div>

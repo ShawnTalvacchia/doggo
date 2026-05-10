@@ -42,6 +42,7 @@ import { getPostsByGroup } from "@/lib/mockPosts";
 import { getConnectionState } from "@/lib/mockConnections";
 import { useConnections } from "@/contexts/ConnectionsContext";
 import { getUserById } from "@/lib/mockUsers";
+import { getCarerIdentity, type CarerIdentity } from "@/lib/identityBadges";
 import { useCurrentUserId, useIsGuest } from "@/hooks/useCurrentUser";
 import { useAuthGate } from "@/contexts/AuthGateContext";
 import type { ConnectionState, GroupMember } from "@/lib/types";
@@ -631,8 +632,11 @@ interface TieredMember extends GroupMember {
   connectionState: ConnectionState;
   theyMarkedFamiliar?: boolean;
   profileOpen?: boolean;
-  careTier?: "helper" | "provider";
   rowActions: PersonAction[] | "auto";
+  /** Carer identity badge — info-blue pill, two variants (open / circle).
+   *  Resolved per-viewer; circle variant is Connected-only by privacy
+   *  rule. Discover Refinement walkthrough decision, 2026-05-10. */
+  carerBadge?: CarerIdentity;
 }
 
 function MembersTab({ group, isGuest }: { group: Group; isGuest: boolean }) {
@@ -702,7 +706,7 @@ function MembersTab({ group, isGuest }: { group: Group; isGuest: boolean }) {
     unmarkFamiliar(viewerId, memberId);
   };
 
-  // Resolve tier + careTier + action gating per member. Same shape as
+  // Resolve tier + action gating per member. Same shape as
   // ParticipantList's tier() — duplicated rather than extracted because the
   // member shape differs slightly (Group.members vs Meet.attendees) and the
   // logic is small.
@@ -751,19 +755,6 @@ function MembersTab({ group, isGuest }: { group: Group; isGuest: boolean }) {
       memberTier = 3;
     }
 
-    // Helper/Provider tier badge resolution. Helper has a privacy gate
-    // (Connected viewers only); Provider is public. See
-    // `docs/implementation/badges.md`. Reuses the `subject` lookup from
-    // the profileOpen fallback above.
-    let careTier: "helper" | "provider" | undefined;
-    if (subject?.carerProfile) {
-      if (subject.carerProfile.publicProfile) {
-        careTier = "provider";
-      } else if (isSelf || state === "connected") {
-        careTier = "helper";
-      }
-    }
-
     // Group co-membership IS the context signal — Members tab doesn't gate
     // on past meet attendance. Reasoning: users recognise each other from
     // real-world meetings (outside the platform) or from group context
@@ -772,14 +763,23 @@ function MembersTab({ group, isGuest }: { group: Group; isGuest: boolean }) {
     // softer, persistent action surface. Self-row always info-only.
     const rowActions: PersonAction[] | "auto" = isSelf ? [] : "auto";
 
+    // Carer identity badge — info-blue pill ("Carer") with two variants.
+    // Open variant (publicProfile: true) shows to everyone; circle variant
+    // (publicProfile: false) only renders when viewer is Connected (or is
+    // self) per the privacy rule. Replaces the retired Helper/Provider
+    // tier pill with a single noun + audience-encoding visual.
+    // Discover Refinement walkthrough decision, 2026-05-10.
+    const viewerIsConnected = isSelf || state === "connected";
+    const carerBadge = getCarerIdentity(subject, viewerIsConnected);
+
     return {
       ...m,
       tier: memberTier,
       connectionState: state,
       theyMarkedFamiliar,
       profileOpen,
-      careTier,
       rowActions,
+      carerBadge,
     };
   };
 
@@ -839,7 +839,7 @@ function MembersTab({ group, isGuest }: { group: Group; isGuest: boolean }) {
         connectionState={m.connectionState}
         theyMarkedFamiliar={m.theyMarkedFamiliar}
         profileOpen={m.profileOpen}
-        careTier={m.careTier}
+        carerBadge={m.carerBadge}
         actions={m.rowActions}
         mark={localMarks[m.userId] ?? null}
         onAdvance={() => handleAdvance(m.userId)}

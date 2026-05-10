@@ -1,9 +1,9 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-05
-tags: [profile, pets, provider, edit, posts, tagging]
-review-trigger: "when modifying profile pages, pet cards, posts, or provider sections"
+last-reviewed: 2026-05-10
+tags: [profile, pets, carer, edit, posts, tagging]
+review-trigger: "when modifying profile pages, pet cards, posts, or carer sections"
 ---
 
 # Profiles
@@ -14,27 +14,34 @@ Owner profiles, pet profiles, posts, and care provider sections — all part of 
 
 ## Overview
 
-Every user has one profile. There is no separate "provider account." Users who offer care have additional sections visible on the same profile (services, availability, reviews). The profile page serves double duty: it's how you manage your own identity/pets/settings, and it's how others learn about you and your dogs.
+Every user has one profile. There is no separate "provider account" — and no separate "Carer account" either. Users who offer care have additional sections visible on the same profile (services, availability, reviews). The profile page serves double duty: it's how you manage your own identity/pets/settings, and it's how others learn about you and your dogs.
 
-### Lock and Tier — orthogonal axes
+### Lock + Carer audience: two settings, one role
 
-Two independent settings govern who can see a profile and who can act on its services:
+Two independent settings govern who can see a profile and who can act on its services. There is no third "tier" axis — that earlier framing collapsed during Discover Refinement (2026-05-10) once we accepted that "Helper" and "Provider" weren't really different roles, just two settings of the same audience configuration on a single role: **Carer**.
 
 - **Lock (profile visibility):** controls who can **see** the profile and its content. Open = anyone; Locked = only Familiar/Connected viewers see expanded content. Privacy axis.
-- **Provider Tier:** controls who can **act** on services — book, inquire, transact. Owner = no services. Helper = Connected viewers only can act. Provider = anyone can act. Action axis. Defined in `strategy/Groups & Care Model.md` → Provider Tiers on Profiles.
+- **Carer audience (`carerProfile.publicProfile`):** controls who can **act** on a Carer's services — book, inquire, transact. `false` = open to your Connected circle only. `true` = open to anyone. Same Carer either way; what changes is the audience their services reach.
 
-These are independent settings that compose:
+These compose:
 
-| Lock × Tier | Visibility | Service action |
+| Lock × Carer audience | Visibility | Service action |
 |---|---|---|
-| Open + Owner | Profile visible to anyone | No services to act on |
-| Open + Helper | Profile visible to anyone | Only Connected can book/inquire |
-| Open + Provider | Profile visible to anyone | Anyone can book/inquire |
-| Locked + Owner | Profile gated to Familiar/Connected | No services to act on |
-| Locked + Helper | Profile gated to Familiar/Connected | Subset of those viewers (Connected only) can book |
-| Locked + Provider | Profile gated to Familiar/Connected | Those viewers can book — note: makes the Provider's discoverability narrow, banner advises Open |
+| Open + (no carer profile) | Profile visible to anyone | No services to act on |
+| Open + Carer (circle) | Profile visible to anyone | Only Connected viewers can book/inquire |
+| Open + Carer (anyone) | Profile visible to anyone | Anyone can book/inquire — surfaces in `/discover/care` |
+| Locked + (no carer profile) | Profile gated to Familiar/Connected | No services to act on |
+| Locked + Carer (circle) | Profile gated to Familiar/Connected | Connected viewers can book — within those who can see the profile |
+| Locked + Carer (anyone) | Profile gated to Familiar/Connected | "Open to anyone" but only viewers who can see the profile reach the action — banner advises Open |
 
-The "Lock = visibility, Tier = action" framing replaces an earlier formulation that conflated the two (where Lock was described as gating service visibility specifically). Lock is the privacy setting; Tier is the service-readiness dial. Both apply.
+The dial framing in [[User Archetypes]] and [[Groups & Care Model]] maps onto this directly: dial at zero = Owner (no carerProfile); dial turned slightly = Carer with a small audience (circle); dial turned all the way = Carer open to anyone. Same person, same role, wider audience as the dial moves up.
+
+Visual signaling of the audience setting is primarily implicit:
+- **Surface implies it.** `/discover/care` only lists Carers with `publicProfile === true`. The surface itself is the public signal — no badge needed.
+- **Card chrome differential.** Discover Care results split into "Carers in your circle" (softer chrome, no marketplace-style ratings) above "Other carers" (standard chrome). Audience setting is invisible to the viewer; their relationship to the Carer is what surfaces.
+- **Profile hero status.** A small "Open to bookings" pill or equivalent may earn its keep on profile hero where the public-vs-circle distinction matters and the surface itself doesn't carry it. Decided per-surface during Discover Refinement.
+
+PersonRow surfaces (Members tab, People tab) carry **no Carer-status badge** — connection grouping + section labels do the work. Trust badges (Community Regular, Trusted by Your Network, etc.) reclaim the badge real estate.
 
 All profile pages use the **PageColumn + TabBar** pattern — the same layout as every other page in the app. No custom shell, no two-column desktop layout.
 

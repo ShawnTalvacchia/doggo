@@ -13,6 +13,9 @@ import {
   UsersThree,
   Plus,
   Check,
+  House,
+  Tree,
+  Dog,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { DetailHeader } from "@/components/layout/DetailHeader";
@@ -24,6 +27,7 @@ import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import { TrustSignalBadges } from "@/components/profile/TrustSignalBadges";
 import { TrustBadgeStrip } from "@/components/badges/TrustBadgeStrip";
 import { getTrustBadges, userProfileToTrustSubject } from "@/lib/trustBadges";
+import { getCarerIdentity } from "@/lib/identityBadges";
 import { PetCard } from "@/components/profile/PetCard";
 import { PostsTab } from "@/components/profile/PostsTab";
 import { ProfileChatTab } from "@/components/profile/ProfileChatTab";
@@ -337,7 +341,27 @@ function UserProfileInner() {
                   )}
                 </div>
                 <div className="w-full sm:flex-1 flex flex-col gap-xs min-w-0 items-center sm:items-start text-center sm:text-left">
-                  <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">{name}</h1>
+                  <div className="flex items-center gap-sm flex-wrap justify-center sm:justify-start">
+                    <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">{name}</h1>
+                    {/* Carer identity badge — light info-blue pill with
+                     *  the Carer's sub-spec label ("Dog Trainer", "Vet
+                     *  Clinic", etc.) when one resolves; "Carer" otherwise.
+                     *  Audience signal is encoded by visibility — circle-
+                     *  Carers' badge only renders to Connected viewers (or
+                     *  self) per the privacy rule. Discover Refinement
+                     *  walkthrough decision, 2026-05-10. */}
+                    {(() => {
+                      const viewerIsConnected =
+                        userId === currentUserId || connState === "connected";
+                      const carerBadge = getCarerIdentity(userProfile, viewerIsConnected);
+                      if (!carerBadge) return null;
+                      return (
+                        <span className="person-row-pill person-row-pill--carer">
+                          {carerBadge.label}
+                        </span>
+                      );
+                    })()}
+                  </div>
 
                   {location && (
                     <span className="flex items-center gap-xs text-sm text-fg-secondary">
@@ -525,7 +549,7 @@ function UserProfileInner() {
                 );
               })()}
               {userProfile?.memberSince && (
-                <p className="flex items-center gap-xs text-xs text-fg-tertiary m-0" style={{ marginTop: "var(--space-sm)" }}>
+                <p className="flex items-center gap-xs text-xs text-fg-tertiary m-0" style={{ marginTop: "var(--space-lg)" }}>
                   <Calendar size={12} weight="light" />
                   Member since {new Date(userProfile.memberSince + "-01").toLocaleDateString("en-GB", { month: "long", year: "numeric" })}
                 </p>
@@ -618,6 +642,72 @@ function UserProfileInner() {
                   </div>
                 </section>
               )}
+
+              {/* About my home — surfaces the home-setting fields a carer
+                  configures on their sitting/boarding service config (D3
+                  service-aware fields: homeType, hasOwnDogs, hasYard,
+                  maxDogs). Renders only when the carer has any of those set
+                  — so walks-only carers don't get a misleading empty
+                  section. Home is a person-attribute (one home per carer);
+                  resolves from the first sitting/boarding Care service we
+                  find that carries any home field. Discover Refinement
+                  walkthrough decision, 2026-05-10 (B4) — surfaces D3 data
+                  that was previously filter-only. */}
+            {(() => {
+              const services = userProfile?.carerProfile?.services ?? [];
+              const careWithHome = services.find(
+                (s): s is import("@/lib/types").CarerCareServiceConfig =>
+                  s.kind === "care" &&
+                  (s.serviceType === "inhome_sitting" || s.serviceType === "boarding") &&
+                  (s.homeType !== undefined ||
+                    s.hasOwnDogs !== undefined ||
+                    s.hasYard !== undefined ||
+                    s.maxDogs !== undefined),
+              );
+              if (!careWithHome) return null;
+
+              const HOME_TYPE_LABEL: Record<string, string> = {
+                flat: "Flat",
+                house: "House",
+                ground_floor_with_garden: "Ground floor + garden",
+              };
+
+              return (
+                <section>
+                  <h3 className="profile-card-subtitle">About {firstName}&rsquo;s home</h3>
+                  <ul className="flex flex-col gap-sm m-0 p-0 list-none text-sm text-fg-secondary">
+                    {careWithHome.homeType && (
+                      <li className="flex items-center gap-sm">
+                        <House size={16} weight="light" className="shrink-0 text-fg-tertiary" />
+                        <span>{HOME_TYPE_LABEL[careWithHome.homeType]}</span>
+                      </li>
+                    )}
+                    {careWithHome.hasYard === true && (
+                      <li className="flex items-center gap-sm">
+                        <Tree size={16} weight="light" className="shrink-0 text-fg-tertiary" />
+                        <span>Yard / outdoor space</span>
+                      </li>
+                    )}
+                    {careWithHome.hasOwnDogs !== undefined && (
+                      <li className="flex items-center gap-sm">
+                        <Dog size={16} weight="light" className="shrink-0 text-fg-tertiary" />
+                        <span>{careWithHome.hasOwnDogs ? "Has their own dog(s)" : "No own dogs"}</span>
+                      </li>
+                    )}
+                    {careWithHome.maxDogs !== undefined && (
+                      <li className="flex items-center gap-sm">
+                        <UsersThree size={16} weight="light" className="shrink-0 text-fg-tertiary" />
+                        <span>
+                          {careWithHome.maxDogs === 1
+                            ? "Hosts one dog at a time"
+                            : `Hosts up to ${careWithHome.maxDogs} dogs at once`}
+                        </span>
+                      </li>
+                    )}
+                  </ul>
+                </section>
+              );
+            })()}
 
               {/* Service cards — single comprehensive catalogue.
                   Care-type cards render first (drop-off services), then Meet-type

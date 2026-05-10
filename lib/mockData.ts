@@ -72,30 +72,41 @@ export const dogsCareOptions = [
  *
  * **Provider ↔ User bridge contract** (Mock World Building A1, 2026-04-30):
  *
- * Most entries here are *directory-only* — they exist as `ProviderCard`
- * with no `UserProfile` counterpart in `lib/mockUsers.ts`. This is
- * intentional: providers who never appear as journey personas don't need
- * full profile data, and back-filling them would be deadweight.
+ * **Bridge contract (Discover Refinement B, 2026-05-10):** every entry
+ * in this array now carries a `userId` field bridging to a real
+ * `UserProfile` in `lib/mockUsers.ts`. The earlier "directory-only"
+ * pattern (ProviderCard with no UserProfile counterpart) was retired
+ * during Discover Refinement — every Carer in `/discover/care` is now a
+ * real user, and per-viewer signals like connection state, trust badges,
+ * and per-service pricing all resolve through the bridge.
  *
  * Rules:
- * 1. **Bookings, conversations, meet attendees** that reference a
- *    directory-only provider (e.g. `carerId: "olga-m"`) must always
- *    snapshot the display fields they need (`carerName`, `carerAvatarUrl`,
- *    etc.) on the surrounding object. `getUserById(providerId)` returns
- *    `undefined` for these IDs and that's expected.
- * 2. **Providers that bridge to a real user** set `userId: "<userId>"`
- *    here. Currently: `nikola-r` → `nikola`. Use this for providers who
- *    have a journey-persona presence (full UserProfile in `mockUsers.ts`).
- * 3. **Profile navigation** (`/profile/[userId]`) should use
- *    `getUserOrProvider(id)` from `lib/mockUsers.ts`, which:
- *    - Returns the bridged `UserProfile` if `provider.userId` is set
- *    - Otherwise synthesizes a minimal `UserProfile` from this card so
- *      the page renders without crashing.
+ * 1. **Bookings, conversations, meet attendees** that reference a Carer
+ *    (e.g. `carerId: "olga-m"`) should still snapshot the display fields
+ *    they need (`carerName`, `carerAvatarUrl`, etc.) on the surrounding
+ *    object — that pattern survives the bridge and is the right shape
+ *    for a future Supabase migration where joins are explicit.
+ * 2. **Bridge field.** Every ProviderCard's `userId` matches an entry in
+ *    `mockUsers.allUsers`. The IDs typically match (e.g. `jana-k` ↔
+ *    `jana-k`), but `klara-h` → `klara`, `nikola-r` → `nikola`,
+ *    `lenka-n` → `lenka-vet` because those bridge to journey-persona
+ *    user IDs that pre-existed.
+ * 3. **Profile navigation** (`/profile/[userId]`) uses
+ *    `getUserOrProvider(id)` from `lib/mockUsers.ts`, which prefers the
+ *    bridged `UserProfile`. The synthesis fallback exists for safety but
+ *    no live ProviderCard hits it post-bridge.
+ * 4. **Per-service data** (per-service pricing, modifier configs,
+ *    credentials, repeat-client counts) lives on the bridged
+ *    `UserProfile.carerProfile.*`. ProviderCard's legacy single-price
+ *    fields (`priceFrom` + `priceUnit`) remain as a fallback when no
+ *    active service filter is set; per-service prices resolve through
+ *    `CardExploreResult.resolveDisplayPrice` → bridged services array.
  *
- * Helpers and Casual-tier providers (e.g. Petra) live as full
- * `UserProfile` entries with a `carerProfile` field — they don't appear
- * here, since Helper-tier services are visible to Connected only and
- * don't surface in Discover > Dog Care.
+ * Carers with `publicProfile: false` (services for the Connected circle
+ * only) live as full `UserProfile` entries in `lib/mockUsers.ts` and do
+ * NOT appear here — they don't surface in `/discover/care`. The Discover
+ * Refinement community-first ordering surfaces those Carers from the
+ * viewer's connection graph above this directory.
  */
 export const providers: ProviderCard[] = [
   {
@@ -141,19 +152,25 @@ export const providers: ProviderCard[] = [
   },
   {
     id: "lenka-n",
-    name: "Dr. Lenka Nováková",
+    name: "Lenka Nováková",
     district: "Prague 2",
     neighborhood: "Vinohrady",
     rating: 4.9,
     reviewCount: 24,
-    priceFrom: 900,
+    priceFrom: 500,
     priceUnit: "per_visit",
-    blurb: "Small-animal vet · dermatology + gentle handling for anxious pets",
+    blurb: "Salon groomer · calm-handling, force-free methods for anxious dogs",
     avatarUrl: "/images/generated/zuzana-profile.jpeg",
-    // Vet/grooming offerings are appointment-type, not ServiceType. Leaving
-    // services empty: she only surfaces on the "All" filter pill, never on
-    // Walks/Sitting/Boarding. A future Appointment filter would slot in here.
+    // Care `services` stay empty — appointments aren't a Care subtype.
+    // Grooming surfaces via the Appointment filter pill driven by
+    // `appointmentTypes`; the authoritative offering data lives on the
+    // bridged `lenkaVet.carerProfile.services` (kind: "appointment").
+    // Discover Refinement D1, 2026-05-10. Lenka was originally seeded as
+    // a vet (Discover & Care C3); repurposed as a groomer in the
+    // walkthrough D1 to match the strategic call (Open Q §6) to sunset
+    // vets from the demo arc.
     services: [],
+    appointmentTypes: ["grooming"],
     availableTimes: ["6-11", "11-15"],
     distanceKm: 2.0,
     neighbourhoodMatch: false,
@@ -202,13 +219,7 @@ export const providers: ProviderCard[] = [
     mutualConnections: 0,
     lat: 50.101,
     lng: 14.3888,
-    credentials: {
-      yearsExperience: 6,
-      methodology: "Force-free, calm-handling",
-      certifications: ["Certified Trainer"],
-      firstAidTrained: true,
-    },
-    repeatClients: 4,
+    userId: "jana-k",
   },
   {
     id: "tomas-b",
@@ -229,11 +240,7 @@ export const providers: ProviderCard[] = [
     mutualConnections: 0,
     lat: 50.0834,
     lng: 14.451,
-    credentials: {
-      yearsExperience: 3,
-      certifications: ["Certified Trainer"],
-    },
-    repeatClients: 3,
+    userId: "tomas-b",
   },
   {
     id: "marketa-h",
@@ -275,8 +282,7 @@ export const providers: ProviderCard[] = [
     mutualConnections: 0,
     lat: 50.0944,
     lng: 14.45,
-    credentials: { yearsExperience: 5, insured: true },
-    repeatClients: 5,
+    userId: "pavel-d",
   },
   {
     id: "simona-v",
@@ -297,12 +303,7 @@ export const providers: ProviderCard[] = [
     mutualConnections: 3,
     lat: 50.062,
     lng: 14.428,
-    credentials: {
-      yearsExperience: 7,
-      firstAidTrained: true,
-      identityVerified: true,
-    },
-    repeatClients: 9,
+    userId: "simona-v",
   },
   {
     id: "martin-k",
@@ -323,8 +324,7 @@ export const providers: ProviderCard[] = [
     mutualConnections: 1,
     lat: 50.1022,
     lng: 14.4342,
-    credentials: { yearsExperience: 4, insured: true },
-    repeatClients: 4,
+    userId: "martin-k",
   },
   {
     id: "lenka-s",
@@ -345,8 +345,7 @@ export const providers: ProviderCard[] = [
     mutualConnections: 0,
     lat: 50.0697,
     lng: 14.4503,
-    credentials: { yearsExperience: 3 },
-    repeatClients: 3,
+    userId: "lenka-s",
   },
   {
     id: "petr-v",
@@ -367,12 +366,6 @@ export const providers: ProviderCard[] = [
     mutualConnections: 0,
     lat: 50.1094,
     lng: 14.4992,
-    credentials: {
-      yearsExperience: 8,
-      firstAidTrained: true,
-      insured: true,
-      identityVerified: true,
-    },
-    repeatClients: 7,
+    userId: "petr-v",
   },
 ];

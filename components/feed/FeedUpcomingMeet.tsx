@@ -24,8 +24,8 @@ import { getDisplayDate, isRecurring, recurrenceLabel } from "@/lib/meetUtils";
  * community feed. Mirrors the shared meet-card anatomy (see
  * `docs/features/meets.md` → Meet-card anatomy): type pill → title → date row
  * → location → group context → avatar stack. The contextual reminder is
- * carried by a small "Coming up" label inline with the date — no separate
- * banner, no group-avatar header.
+ * carried by a small "Coming up" badge in the top row, right of the type pill
+ * — no separate banner, no group-avatar header.
  */
 
 const MEET_ICONS: Record<MeetType, React.ReactNode> = {
@@ -47,11 +47,16 @@ export function FeedUpcomingMeet({ meet }: { meet: Meet }) {
       className="card-schedule-meet"
       style={{ textDecoration: "none" }}
     >
-      {/* Type pill */}
+      {/* Type pill + "Coming up" context badge — identity first, then the
+          reason this card is surfaced in the feed. */}
       <div className="flex flex-wrap items-center gap-xs">
         <span className="card-schedule-chip card-schedule-chip--primary">
           {MEET_ICONS[meet.type]}
           {MEET_TYPE_LABELS[meet.type]}
+        </span>
+        <span className="flex items-center gap-xs text-xs font-semibold text-brand-main">
+          <Clock size={14} weight="fill" />
+          Coming up
         </span>
       </div>
 
@@ -70,14 +75,8 @@ export function FeedUpcomingMeet({ meet }: { meet: Meet }) {
       </h3>
 
       <div className="flex flex-col gap-xs">
-        {/* Date row — "Coming up" leads inline (brand-main), then standard date.
-            Recurring meets show next upcoming occurrence ("Next: ..."). */}
+        {/* Date row — recurring meets show next upcoming occurrence ("Next: ..."). */}
         <div className="flex items-center gap-xs text-sm text-fg-secondary flex-wrap">
-          <span className="flex items-center gap-xs font-semibold text-brand-main shrink-0">
-            <Clock size={14} weight="fill" />
-            Coming up
-          </span>
-          <span style={{ color: "var(--text-tertiary)" }}>·</span>
           <CalendarDots size={16} weight="light" className="shrink-0" />
           <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>
             {isRecurring(meet) ? "Next: " : ""}

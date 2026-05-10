@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-04-23
+last-reviewed: 2026-05-10
 tags: [users, personas, trust, funnels]
 review-trigger: "when designing user-facing flows or onboarding"
 ---
@@ -41,33 +41,33 @@ This is the journey from "I downloaded this dog app" to "I'm a regular — I go 
 
 Most users settle at **Participant** or **Regular** and never need to go further. A healthy community has far more regulars than connectors. The product should never pressure users to advance — each stage is a valid, complete experience.
 
-### Ramp 2: The Provider Dial
+### Ramp 2: The Carer Dial
 
-This is not a career decision. It's a dial that any active user can turn up or down at any time.
+This is not a career decision. It's a dial that any active user can turn up or down at any time. As your audience widens, you remain the same role — a Carer — just reaching further.
 
 At **zero**, you're an owner. You use Doggo for your dog's social life and your own community.
 
 **Turned slightly** — You toggled "open to helping" on your profile. Your Connected network can see you'd be willing to lend a hand. Maybe you grab a friend's dog on the way to the park because you're going anyway.
 
-**Turned more** — You listed a service with a price. Walking, or sitting, or both. You set your own constraints — neighbourhood, availability, group size. Maybe your listing is deliberately narrow and you rarely get requests. That's fine.
+**Turned more** — You listed a service with a price. Walking, or sitting, or both. You set your own constraints — neighbourhood, availability, group size. Audience setting is "circle" — Connected viewers only can act. Maybe your listing is deliberately narrow and you rarely get requests. That's fine.
 
-**Turned high** — You've built a real provider profile. Multiple services, set availability, reviews from past arrangements. Dog care is meaningful income for you, part-time or full-time.
+**Turned high** — You've opened your services to anyone. Multiple services, set availability, reviews from past arrangements. You appear in `/discover/care`. Dog care is meaningful income for you, part-time or full-time.
 
-The key insight: **the dial can be turned back down at any time**. Someone who listed walking last month can delist it this month. There's no commitment, no "provider account" that's separate from their owner account. It's all one profile with more or less visible.
+The key insight: **the dial can be turned back down at any time**. Someone who opened to anyone last month can narrow back to circle (or remove services) this month. There's no commitment, no "Provider account" that's separate from their Carer account. It's all one profile with more or less visible.
 
 The product should make each position on the dial feel equally valid. The person who walks one extra dog on Saturdays and the person who runs a full dog-walking business both use the same tools — just different amounts of them.
 
 Most users never touch the dial. Some barely turn it. Few go all in. All of these are success.
 
-### Bridge to the tier model
+### Bridge to the role model
 
-The provider dial maps onto three discrete tiers defined in `Groups & Care Model.md`:
+The Carer dial maps onto a single role with an audience setting (no separate "Provider tier" — the earlier three-tier framing collapsed during Discover Refinement, 2026-05-10):
 
-- **Owner** (dial at zero)
-- **Helper** (dial turned slightly — services visible to Connected network only)
-- **Provider** (dial turned more or high — services visible to everyone, appears in Discover > Dog Care)
+- **Owner** (dial at zero — no `carerProfile`)
+- **Carer with circle audience** (dial turned slightly — `carerProfile.publicProfile === false`; services visible only to Connected viewers)
+- **Carer with anyone audience** (dial turned more or high — `carerProfile.publicProfile === true`; services visible to everyone, appears in `/discover/care`)
 
-The archetypes below describe *behavioural patterns*; the tiers describe *what the system does* at each dial position. The Casual Helper archetype lives in the Helper tier; the Aspiring and Professional Provider archetypes are gradations within the Provider tier.
+The archetypes below describe *behavioural patterns*; the dial position describes *what audience reaches the Carer's services*. The Casual Carer archetype lives at the circle-audience setting; the Aspiring and Professional Carer archetypes are gradations toward the anyone-audience setting (and the comfort of appearing publicly).
 
 ---
 
@@ -180,12 +180,12 @@ High engagement with meets and group features. Likely to become a Regular quickl
 
 ---
 
-### The Casual Helper
+### The Casual Carer
 
-*Ramp 2 — dial barely turned*
+*Ramp 2 — dial barely turned (audience: circle)*
 
 **Who they are**
-An active community member who'd help with someone's dog if it's convenient — but doesn't think of themselves as a provider. They're going to the park anyway. They're home all day and wouldn't mind a second dog around. It's a favour that happens to be facilitated by the platform.
+An active community member who'd help with someone's dog if it's convenient — but doesn't think of themselves as a Carer. They're going to the park anyway. They're home all day and wouldn't mind a second dog around. It's a favour that happens to be facilitated by the platform.
 
 **Primary goals**
 
@@ -211,13 +211,13 @@ An active community member who'd help with someone's dog if it's convenient — 
 - Participation remains entirely optional
 
 **Product behaviour**
-Has "open to helping" toggled on. May or may not have a listed service with a price. If they do, the constraints are narrow — their neighbourhood, a few hours, dogs they already know. They might accept one or two arrangements a month, or none. The platform makes this feel as lightweight as it actually is.
+Has "open to helping" toggled on. May or may not have a listed service with a price. If they do, the constraints are narrow — their neighbourhood, a few hours, dogs they already know. Audience setting is "circle" (Connected viewers only). They might accept one or two arrangements a month, or none. The platform makes this feel as lightweight as it actually is.
 
 ---
 
-### The Aspiring Provider
+### The Aspiring Carer
 
-*Ramp 2 — dial mid-range*
+*Ramp 2 — dial mid-range (audience moving from circle toward anyone)*
 
 **Who they are**
 Someone interested in offering dog-related services more regularly. Could be building toward side income, testing whether this could be a real thing, or just enjoys the work and wants to do more of it.
@@ -246,13 +246,13 @@ Someone interested in offering dog-related services more regularly. Could be bui
 - Income that grows naturally alongside reputation
 
 **Product behaviour**
-Has listed one or more services. Active profile with availability. May have started through the Casual Helper stage and found they enjoyed it. Building reviews and care history. Still primarily an owner — their own dog is their main reason for being on the platform.
+Has listed one or more services. Active profile with availability. May have started through the Casual Carer stage and found they enjoyed it. Building reviews and care history. Audience setting may still be "circle" (testing the waters with people they know) or freshly opened to "anyone" (just appearing in `/discover/care`). Still primarily an owner — their own dog is their main reason for being on the platform.
 
 ---
 
-### The Professional Provider
+### The Professional Carer
 
-*Ramp 2 — dial turned high (later stage)*
+*Ramp 2 — dial turned high (audience: anyone)*
 
 **Who they are**
 A professional or semi-professional dog walker, sitter, or carer. Dog care is meaningful income — part-time or full-time.
@@ -281,14 +281,14 @@ A professional or semi-professional dog walker, sitter, or carer. Dog care is me
 - Fair visibility and matching
 
 **Product behaviour**
-Full provider profile, set schedule, multiple services. Uses scheduling and booking tools heavily. May also be a community Regular or Connector — many professional providers are deeply embedded in local dog communities. The community participation reinforces their credibility.
+Full Carer profile with audience set to "anyone," set schedule, multiple services. Surfaces in `/discover/care`. Uses scheduling and booking tools heavily. May also be a community Regular or Connector — many professional Carers are deeply embedded in local dog communities. The community participation reinforces their credibility.
 
 ---
 
 ## Archetype Notes
 
-- **All users start as owners.** There is no separate "provider signup." The provider dial exists within the same profile.
-- **Movement between archetypes is expected and encouraged.** A Routine Owner might become a Social Seeker after a life change. A Casual Helper might turn the dial up or back down.
+- **All users start as owners.** There is no separate "Carer signup." The Carer dial exists within the same profile.
+- **Movement between archetypes is expected and encouraged.** A Routine Owner might become a Social Seeker after a life change. A Casual Carer might turn the dial up or back down.
 - **Trust is built through participation and proximity**, not labels or self-declared roles.
 - **The product should never force a user to adopt an archetype.** No "what type of user are you?" screens. The product observes behaviour and adapts.
 - **The ramps describe product design intent**, not user-facing language. Users don't see "Ramp 1" or "Ramp 2." They see features that naturally support their current motivation.

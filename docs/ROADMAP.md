@@ -36,11 +36,15 @@ The full product skeleton exists. Every page renders with real content and worki
 
 ## Current Phase
 
-**Between phases** *(2026-05-10)*. Inbox & Notifications closed 2026-05-10 — full record in `archive/phases/inbox-and-notifications-deep-pass.md`. Next phase TBD pending strategic review (likely **Discover Refinement**, but Demo Presentation and Onboarding & Communication are also live candidates).
+**Care Catalog Taxonomy & Filter Redesign** *(opens after Discover Refinement close)*. Resolve the service taxonomy that drifted (`inhome_sitting` ended up meaning carer-side day care, not the babysitter-metaphor "sitting at owner's home" originally intended) and redesign the Discover Care filter panel against the resolved model. Phase board: `phases/care-catalog-taxonomy-and-filter-redesign.md` *(to be drafted at phase open)*.
+
+Discover Refinement closed 2026-05-10 — full record in `archive/phases/discover-refinement.md`.
+
+Inbox & Notifications closed 2026-05-10 — full record in `archive/phases/inbox-and-notifications-deep-pass.md`.
 
 ### Profiles Deep Pass — Paused
 
-Paused 2026-04-14. Trust signals, post composer, and post attribution shipped. Remaining content enrichment folded into Mock World Building (now closed). Pre-loaded scope additions: D7 (Provider-tier progression UI — Helper→Provider ladder + design-system-compliant Toggle component) added 2026-05-05 from Pricing & Proposals walkthrough.
+Paused 2026-04-14. Trust signals, post composer, and post attribution shipped. Remaining content enrichment folded into Mock World Building (now closed). Pre-loaded scope additions: D7 (Carer audience-setting toggle UI — `publicProfile` circle↔anyone progression + design-system-compliant Toggle component) added 2026-05-05 from Pricing & Proposals walkthrough; reframed 2026-05-10 (Discover Refinement) as the role collapse retired the Helper/Provider tier framing.
 
 **Phase board:** `phases/profiles-deep-pass.md`
 
@@ -52,9 +56,8 @@ Reorganized 2026-05-04 around the principle that **services are the core functio
 
 | Phase | Goal | Key refs |
 |-------|------|----------|
-| **Discover Refinement** *(strong candidate for next)* | Make Discover Care community-first instead of marketplace-first. **Surface Helper-tier carers (Connected to viewer) distinctly above Providers** — community-first ordering reinforces the meets-build-trust-builds-care thesis at the actual point of care discovery. Resolves the Discover Care surface gaps cluster: Appointment filter pill, ProviderCard ↔ UserProfile fragmentation (every provider becomes a real user), per-service pricing on cards (`pricesByService`), service-aware filters (Walks needs pace/leash; Sitting/Boarding need home attributes), wired filter panel (currently visual-only no-ops). Helper card variant — softer chrome, "Ask {name}" CTA, no platform-style ratings. | `Open Questions §4`, `app/discover/care/page.tsx`, `components/explore/CardExploreResult.tsx`, `lib/types.ts:ProviderCard`, `Competitive Research - Prague Dog Care Scene.md`, `Competitive Research - Fluv.md` |
-| **Cross-Cutting Flow Testing** | Every persona journey works end-to-end with the now-solid services core. Trust signals accumulate. No dead ends. Pre-loaded with mock-world edge-case seeding + People-tab disclosure model + mock-data hygiene items. | `phases/cross-cutting-flow-testing.md`, `User Journeys.pptx`, `Trust & Connection Model.md` |
-| **Onboarding & In-Product Communication** | Trust model + tier system + privacy mechanics + provider pricing setup tutorials. Multiple touchpoints (locked profile lock card, Familiar asymmetry, Helper/Provider tier, privacy explainer, share-link bypass, group visibility chip, pricing setup walkthrough) share the same root: users need to understand mechanics without being lectured. | `phases/onboarding-and-communication.md`, `Trust & Connection Model.md`, `Open Questions §2 + §3 + §4` |
+| **Cross-Cutting Flow Testing** *(after Care Catalog Taxonomy)* | Every persona journey works end-to-end with the now-solid services core. Trust signals accumulate. No dead ends. Pre-loaded with mock-world edge-case seeding + People-tab disclosure model + mock-data hygiene items. | `phases/cross-cutting-flow-testing.md`, `User Journeys.pptx`, `Trust & Connection Model.md` |
+| **Onboarding & In-Product Communication** | Trust model + Carer audience + privacy mechanics + Carer pricing setup tutorials. Multiple touchpoints (locked profile lock card, Familiar asymmetry, Carer audience setting, privacy explainer, share-link bypass, group visibility chip, pricing setup walkthrough) share the same root: users need to understand mechanics without being lectured. | `phases/onboarding-and-communication.md`, `Trust & Connection Model.md`, `Open Questions §2 + §3 + §4` |
 | **Design System Cleanup** | Resolve accumulated design-system inconsistencies — chip vs button visual collision, ButtonAction variant overlap, ModalSheet footer pattern drift, owner+dog avatar pattern cascade, optional-field label conventions (P51). Audits existing components into a coherent vocabulary; doesn't add new ones. Can run any time; best opened after a content phase. | `phases/design-system-cleanup.md`, `implementation/design-system.md`, Punch List P51 |
 | **Demo Presentation** | Landing page redesign, persona selection presentation, guided tours. Free exploration also rewarding. The `/demo` route from Persona Wiring is the technical foundation; presentation framing is the open work. | `Product Vision.md`, `User Archetypes.md`, `features/demo-mode.md` |
 

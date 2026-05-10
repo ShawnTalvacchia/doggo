@@ -28,20 +28,21 @@ export function FeedCTA({ dogPhotos = [] }: FeedCTAProps) {
         textAlign: "left",
       }}
     >
-      {/* Dog avatar stack */}
+      {/* Dog avatar stack — Rule B: rounded square, not circle. Discover
+          Refinement F sweep, 2026-05-10. */}
       {photos.length > 0 && (
         <div className="flex items-center shrink-0" style={{ width: 64, height: 44, justifyContent: "center" }}>
           <img
             src={photos[0]}
             alt=""
-            className="rounded-full object-cover shrink-0"
+            className="rounded-md object-cover shrink-0"
             style={{ width: 36, height: 36, border: "2px solid #f8f8f8" }}
           />
           {photos[1] && (
             <img
               src={photos[1]}
               alt=""
-              className="rounded-full object-cover shrink-0"
+              className="rounded-md object-cover shrink-0"
               style={{ width: 36, height: 36, border: "2px solid #f8f8f8", marginLeft: -10 }}
             />
           )}

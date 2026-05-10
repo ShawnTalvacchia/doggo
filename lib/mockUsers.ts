@@ -954,19 +954,25 @@ export const shawn: UserProfile = {
 
 /* ═══════════════════════════════════════════════════════════════════════════
    APPOINTMENT-TYPE EXEMPLAR
-   Minimal vet profile to prove the Appointment offering shape renders.
-   Added 2026-05-02 (Discover & Care C3). Not in the demo arc; not on the
-   persona switcher. Co-provider on the PremiumVet care group, which seeds
-   multi-provider data for the B3 hero variant.
+   Minimal grooming-salon profile to prove the Appointment offering shape
+   renders. Originally seeded as a vet (Discover & Care C3, 2026-05-02);
+   repurposed as a groomer during Discover Refinement walkthrough (D1,
+   2026-05-10) to align the demo with the Open Q §6 strategic call that
+   vets are post-MVP at best (sticky existing PMS systems, less community-
+   shaped relationship). The const name `lenkaVet` + ID `lenka-vet` are
+   retained to avoid an invasive rename across every mock-data reference;
+   the entity itself is now Lenka the groomer. Co-provider on the
+   Mánesova Grooming Salon group, which seeds multi-provider data for the
+   B3 hero variant.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export const lenkaVet: UserProfile = {
   id: "lenka-vet",
   firstName: "Lenka",
   lastName: "Nováková",
-  email: "lenka.novakova@premiumvet.cz",
+  email: "lenka.novakova@manesova-grooming.cz",
   avatarUrl: AV.zuzana,
-  bio: "Small-animal vet at PremiumVet Vinohrady. 8 years in practice; special interest in dermatology and gentle handling for anxious pets.",
+  bio: "Salon groomer in Vinohrady. 8 years working with anxious and reactive dogs — calm-handling and force-free methods, never restraints or muzzles.",
   location: "Prague 2, Czech Republic",
   neighbourhood: "Vinohrady",
   memberSince: "2025-09",
@@ -975,7 +981,7 @@ export const lenkaVet: UserProfile = {
   pets: [],
   openToHelping: true,
   carerProfile: {
-    bio: "Vinohrady-based vet, 8 years in small-animal practice. Same-day appointments for established clients; new clients seen within the week.",
+    bio: "Mánesova Grooming Salon, Vinohrady. I specialise in nervous dogs — long initial sessions, breaks whenever they need them, and no muzzling. Booking by appointment; same-week availability for established clients.",
     location: "Mánesova 67, Prague 2",
     availability: [
       { day: "Mon", slots: ["morning", "afternoon"] },
@@ -987,23 +993,23 @@ export const lenkaVet: UserProfile = {
     services: [
       {
         kind: "appointment",
-        id: "lenka-vet-checkup",
-        title: "Annual checkup",
+        id: "lenka-grooming-full",
+        title: "Full groom — small/medium breed",
         enabled: true,
-        pricePerAppointment: 1200,
-        durationMinutes: 30,
-        appointmentCategory: "vet",
-        notes: "Physical exam, vaccination review, weight + dental check.",
+        pricePerAppointment: 800,
+        durationMinutes: 60,
+        appointmentCategory: "grooming",
+        notes: "Bath, brush-out, full clip, nails, ears. 60–75 min. Anxious dogs welcome — we go at their pace.",
       },
       {
         kind: "appointment",
-        id: "lenka-vet-skin",
-        title: "Skin & coat consult",
+        id: "lenka-grooming-bath",
+        title: "Bath & brush",
         enabled: true,
-        pricePerAppointment: 900,
-        durationMinutes: 25,
-        appointmentCategory: "vet",
-        notes: "Dermatology consult — itching, allergies, hot spots. Diagnostics quoted at consult.",
+        pricePerAppointment: 500,
+        durationMinutes: 45,
+        appointmentCategory: "grooming",
+        notes: "Bath, blow-dry, brush-out, nails. Good for between-grooms maintenance or first-time visitors getting comfortable with the salon.",
       },
     ],
     publicProfile: true,
@@ -1011,7 +1017,7 @@ export const lenkaVet: UserProfile = {
     acceptingBookings: true,
     credentials: {
       yearsExperience: 8,
-      certifications: ["Veterinary degree (UVPS Brno)"],
+      certifications: ["Force-free grooming certification"],
       firstAidTrained: true,
       insured: true,
       identityVerified: true,
@@ -1022,13 +1028,24 @@ export const lenkaVet: UserProfile = {
 
 /* ═══════════════════════════════════════════════════════════════════════════
    PROMOTED DIRECTORY CARERS
-   Bridged from `mockData.ts` ProviderCards (`olga-m`, `marketa-h`) to full
-   UserProfiles with proper carerProfile.services arrays. Pricing & Proposals
-   walkthrough A5, 2026-05-04 — every provider in `/discover/care` should be
-   a real user; bare cards were a data gap, not a design distinction. Both
-   are Provider-tier (`publicProfile: true`); not on the persona switcher,
-   not in the demo arc — just complete enough that their cards render with
-   sub-services + notes + Book CTA like Petra/Nikola.
+   Bridged from `mockData.ts` ProviderCards to full UserProfiles with proper
+   carerProfile.services arrays. Started with `olga-m` + `marketa-h` (Pricing
+   & Proposals walkthrough A5, 2026-05-04). Discover Refinement B (2026-05-10)
+   completed the bridge for the remaining seven (`jana-k`, `tomas-b`,
+   `pavel-d`, `simona-v`, `martin-k`, `lenka-s`, `petr-v`).
+
+   Bridge contract status: **every provider in `/discover/care` is now a real
+   user.** `getUserOrProvider`'s synthesis fallback exists for safety (any
+   future directory-only entry) but no live ProviderCard hits it. Future
+   Supabase migration will collapse the two registries into one users table.
+
+   All bridged carers are `publicProfile: true` (they're listed in
+   `/discover/care`, which is the public-audience surface — there is no
+   "Helper tier" distinction anymore; see Carer audience model in
+   `docs/strategy/Groups & Care Model.md` → "Carers on Profiles"). They're
+   not on the persona switcher and not in the demo arc — just complete
+   enough that their cards render with sub-services + notes + Book CTA like
+   Petra/Nikola.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export const olgaM: UserProfile = {
@@ -1069,6 +1086,8 @@ export const olgaM: UserProfile = {
           { kind: "weekend", enabled: true, pct: 15 },
           { kind: "multi_pet", enabled: true, flatPerExtra: 100 },
         ],
+        pace: "moderate",
+        leashPolicy: "always",
       },
       {
         kind: "care",
@@ -1081,6 +1100,9 @@ export const olgaM: UserProfile = {
         modifiers: [
           { kind: "weekend", enabled: true, pct: 15 },
         ],
+        homeType: "flat",
+        hasOwnDogs: false,
+        maxDogs: 2,
       },
     ],
     publicProfile: true,
@@ -1135,6 +1157,8 @@ export const marketaH: UserProfile = {
           { kind: "weekend", enabled: true, pct: 15 },
           { kind: "multi_pet", enabled: true, flatPerExtra: 150 },
         ],
+        pace: "moderate",
+        leashPolicy: "always",
       },
       {
         kind: "care",
@@ -1148,6 +1172,9 @@ export const marketaH: UserProfile = {
           { kind: "holiday", enabled: true, pct: 25 },
           { kind: "multi_pet", enabled: true, flatPerExtra: 200 },
         ],
+        homeType: "flat",
+        hasOwnDogs: false,
+        maxDogs: 2,
       },
       {
         kind: "care",
@@ -1162,6 +1189,10 @@ export const marketaH: UserProfile = {
           { kind: "multi_pet", enabled: true, flatPerExtra: 250 },
           { kind: "last_minute", enabled: true, pct: 15, thresholdDays: 7 },
         ],
+        homeType: "flat",
+        hasOwnDogs: false,
+        hasYard: false,
+        maxDogs: 2,
       },
     ],
     publicProfile: true,
@@ -1174,6 +1205,515 @@ export const marketaH: UserProfile = {
       identityVerified: true,
     },
     repeatClients: 18,
+  },
+};
+
+export const janaK: UserProfile = {
+  id: "jana-k",
+  firstName: "Jana",
+  lastName: "K.",
+  email: "jana.k@email.cz",
+  avatarUrl: "/images/generated/eva-profile.jpeg",
+  bio: "Patient pet care for shy and senior dogs in Dejvice. Six years of force-free, calm-handling experience.",
+  location: "Prague 6, Czech Republic",
+  neighbourhood: "Dejvice",
+  memberSince: "2024-09",
+  profileVisibility: "open",
+  tagApproval: "approve",
+  pets: [],
+  openToHelping: true,
+  carerProfile: {
+    bio: "Walks, drop-in visits, and home boarding for dogs who need a calmer setting. I've worked with anxious rescues and seniors for six years; my flat is quiet and on a residential street near Stromovka.",
+    location: "Prague 6 – Dejvice",
+    availability: [
+      { day: "Mon", slots: ["morning", "evening"] },
+      { day: "Tue", slots: ["morning", "evening"] },
+      { day: "Wed", slots: ["morning", "evening"] },
+      { day: "Thu", slots: ["morning", "evening"] },
+      { day: "Fri", slots: ["morning", "evening"] },
+      { day: "Sat", slots: ["morning", "evening"] },
+      { day: "Sun", slots: ["morning"] },
+    ],
+    services: [
+      {
+        kind: "care",
+        serviceType: "walk_checkin",
+        enabled: true,
+        pricePerUnit: 330,
+        priceUnit: "per_visit",
+        subServices: ["Drop-in visit", "Solo walk"],
+        notes: "45 min visits or solo walks. Great fit for shy or senior dogs who need patience.",
+        modifiers: [
+          { kind: "weekend", enabled: true, pct: 10 },
+        ],
+        pace: "leisurely",
+        leashPolicy: "always",
+      },
+      {
+        kind: "care",
+        serviceType: "inhome_sitting",
+        enabled: true,
+        pricePerUnit: 430,
+        priceUnit: "per_visit",
+        subServices: ["Day sitting"],
+        notes: "Day sitting at my flat — small/medium dogs only. Max 2 at once.",
+        modifiers: [
+          { kind: "weekend", enabled: true, pct: 10 },
+        ],
+        homeType: "flat",
+        hasOwnDogs: false,
+        maxDogs: 2,
+      },
+      {
+        kind: "care",
+        serviceType: "boarding",
+        enabled: true,
+        pricePerUnit: 700,
+        priceUnit: "per_night",
+        subServices: ["Home boarding"],
+        notes: "Multi-night boarding at my home. Quiet flat, two daily walks, photo updates throughout.",
+        modifiers: [
+          { kind: "holiday", enabled: true, pct: 25 },
+          { kind: "multi_pet", enabled: true, flatPerExtra: 150 },
+        ],
+        homeType: "flat",
+        hasOwnDogs: false,
+        hasYard: false,
+        maxDogs: 2,
+      },
+    ],
+    publicProfile: true,
+    visibility: "open",
+    acceptingBookings: true,
+    credentials: {
+      yearsExperience: 6,
+      methodology: "Force-free, calm-handling",
+      certifications: ["Certified Trainer"],
+      firstAidTrained: true,
+    },
+    repeatClients: 4,
+  },
+};
+
+export const tomasB: UserProfile = {
+  id: "tomas-b",
+  firstName: "Tomáš",
+  lastName: "B.",
+  email: "tomas.b@email.cz",
+  avatarUrl: "/images/generated/shawn-profile.jpg",
+  bio: "Solo walks with a trainer's touch. Žižkov-based, three years in.",
+  location: "Prague 3, Czech Republic",
+  neighbourhood: "Žižkov",
+  memberSince: "2025-02",
+  profileVisibility: "open",
+  tagApproval: "approve",
+  pets: [],
+  openToHelping: true,
+  carerProfile: {
+    bio: "Solo walks only — I work on loose-leash and recall during the walk so your dog comes back calmer than they left. Žižkov, Vinohrady, and Riegrovy Sady are my regular routes.",
+    location: "Prague 3 – Žižkov",
+    availability: [
+      { day: "Mon", slots: ["morning", "evening"] },
+      { day: "Tue", slots: ["morning", "evening"] },
+      { day: "Wed", slots: ["morning", "evening"] },
+      { day: "Thu", slots: ["morning", "evening"] },
+      { day: "Fri", slots: ["morning", "evening"] },
+      { day: "Sat", slots: ["morning"] },
+    ],
+    services: [
+      {
+        kind: "care",
+        serviceType: "walk_checkin",
+        enabled: true,
+        pricePerUnit: 520,
+        priceUnit: "per_visit",
+        subServices: ["Solo walk"],
+        notes: "60 min solo walks with light training reinforcement (loose leash, recall). One dog per walk.",
+        modifiers: [
+          { kind: "weekend", enabled: true, pct: 15 },
+        ],
+        pace: "moderate",
+        leashPolicy: "case_by_case",
+      },
+    ],
+    publicProfile: true,
+    visibility: "open",
+    acceptingBookings: true,
+    credentials: {
+      yearsExperience: 3,
+      certifications: ["Certified Trainer"],
+    },
+    repeatClients: 3,
+  },
+};
+
+export const pavelD: UserProfile = {
+  id: "pavel-d",
+  firstName: "Pavel",
+  lastName: "D.",
+  email: "pavel.d@email.cz",
+  avatarUrl: "/images/generated/daniel-profile.jpeg",
+  bio: "Family home in Karlín — sociable dogs always welcome. Five years of walks and weekend boarding.",
+  location: "Prague 8, Czech Republic",
+  neighbourhood: "Karlín",
+  memberSince: "2024-11",
+  profileVisibility: "open",
+  tagApproval: "approve",
+  pets: [],
+  openToHelping: true,
+  carerProfile: {
+    bio: "Walks around Karlín and weekend boarding at our family home. We have a small fenced garden and our own well-socialised dog, so guests need to be friendly with other dogs.",
+    location: "Prague 8 – Karlín",
+    availability: [
+      { day: "Mon", slots: ["morning", "afternoon"] },
+      { day: "Tue", slots: ["morning", "afternoon"] },
+      { day: "Wed", slots: ["morning", "afternoon"] },
+      { day: "Thu", slots: ["morning", "afternoon"] },
+      { day: "Fri", slots: ["morning", "afternoon"] },
+      { day: "Sat", slots: ["morning", "afternoon", "evening"] },
+      { day: "Sun", slots: ["morning", "afternoon", "evening"] },
+    ],
+    services: [
+      {
+        kind: "care",
+        serviceType: "walk_checkin",
+        enabled: true,
+        pricePerUnit: 440,
+        priceUnit: "per_visit",
+        subServices: ["Group walk", "Solo walk"],
+        notes: "45–60 min walks. Group walks (max 3 dogs) preferred — your dog should be friendly with others.",
+        modifiers: [
+          { kind: "weekend", enabled: true, pct: 15 },
+        ],
+        pace: "moderate",
+        leashPolicy: "always",
+      },
+      {
+        kind: "care",
+        serviceType: "boarding",
+        enabled: true,
+        pricePerUnit: 720,
+        priceUnit: "per_night",
+        subServices: ["Home boarding"],
+        notes: "Weekend or multi-night boarding at our family home. Sociable dogs only — we have our own dog. Garden access.",
+        modifiers: [
+          { kind: "holiday", enabled: true, pct: 30 },
+          { kind: "multi_pet", enabled: true, flatPerExtra: 200 },
+          { kind: "last_minute", enabled: true, pct: 15, thresholdDays: 5 },
+        ],
+        homeType: "house",
+        hasOwnDogs: true,
+        hasYard: true,
+        maxDogs: 2,
+      },
+    ],
+    publicProfile: true,
+    visibility: "open",
+    acceptingBookings: true,
+    credentials: {
+      yearsExperience: 5,
+      insured: true,
+    },
+    repeatClients: 5,
+  },
+};
+
+export const simonaV: UserProfile = {
+  id: "simona-v",
+  firstName: "Simona",
+  lastName: "V.",
+  email: "simona.v@email.cz",
+  avatarUrl: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=200&q=80",
+  bio: "Calm, attentive home sitter in Nusle. Seven years, ID-verified, first-aid trained.",
+  location: "Prague 4, Czech Republic",
+  neighbourhood: "Nusle",
+  memberSince: "2023-06",
+  profileVisibility: "open",
+  tagApproval: "approve",
+  pets: [],
+  openToHelping: true,
+  carerProfile: {
+    bio: "Day sitting and overnight boarding at my Nusle flat. I work from home so dogs are rarely alone. Calm routine, photo updates throughout the day.",
+    location: "Prague 4 – Nusle",
+    availability: [
+      { day: "Mon", slots: ["morning", "afternoon", "evening"] },
+      { day: "Tue", slots: ["morning", "afternoon", "evening"] },
+      { day: "Wed", slots: ["morning", "afternoon", "evening"] },
+      { day: "Thu", slots: ["morning", "afternoon", "evening"] },
+      { day: "Fri", slots: ["morning", "afternoon", "evening"] },
+      { day: "Sat", slots: ["morning", "afternoon", "evening"] },
+      { day: "Sun", slots: ["morning", "afternoon", "evening"] },
+    ],
+    services: [
+      {
+        kind: "care",
+        serviceType: "inhome_sitting",
+        enabled: true,
+        pricePerUnit: 350,
+        priceUnit: "per_visit",
+        subServices: ["Day sitting"],
+        notes: "Day sitting at my flat — calm, low-traffic environment. Small to medium dogs only.",
+        modifiers: [
+          { kind: "weekend", enabled: true, pct: 10 },
+          { kind: "multi_pet", enabled: true, flatPerExtra: 100 },
+        ],
+        homeType: "flat",
+        hasOwnDogs: false,
+        maxDogs: 2,
+      },
+      {
+        kind: "care",
+        serviceType: "boarding",
+        enabled: true,
+        pricePerUnit: 620,
+        priceUnit: "per_night",
+        subServices: ["Home boarding"],
+        notes: "Overnight or multi-night boarding. Two daily walks in Folimanka park. Detailed photo updates.",
+        modifiers: [
+          { kind: "holiday", enabled: true, pct: 25 },
+          { kind: "multi_pet", enabled: true, flatPerExtra: 180 },
+        ],
+        homeType: "flat",
+        hasOwnDogs: false,
+        hasYard: false,
+        maxDogs: 2,
+      },
+    ],
+    publicProfile: true,
+    visibility: "open",
+    acceptingBookings: true,
+    credentials: {
+      yearsExperience: 7,
+      firstAidTrained: true,
+      identityVerified: true,
+    },
+    repeatClients: 9,
+  },
+};
+
+export const martinK: UserProfile = {
+  id: "martin-k",
+  firstName: "Martin",
+  lastName: "K.",
+  email: "martin.k@email.cz",
+  avatarUrl: "/images/generated/martin-profile.jpeg",
+  bio: "Active walks and reliable boarding by the river — Holešovice based. Four years, insured.",
+  location: "Prague 7, Czech Republic",
+  neighbourhood: "Holešovice",
+  memberSince: "2024-12",
+  profileVisibility: "open",
+  tagApproval: "approve",
+  pets: [],
+  openToHelping: true,
+  carerProfile: {
+    bio: "Long walks around Stromovka and the Vltava embankment, plus weekend boarding at my flat near Letná. Active dogs welcome — I run.",
+    location: "Prague 7 – Holešovice",
+    availability: [
+      { day: "Mon", slots: ["morning", "evening"] },
+      { day: "Tue", slots: ["morning", "evening"] },
+      { day: "Wed", slots: ["morning", "evening"] },
+      { day: "Thu", slots: ["morning", "evening"] },
+      { day: "Fri", slots: ["morning", "evening"] },
+      { day: "Sat", slots: ["morning", "afternoon", "evening"] },
+      { day: "Sun", slots: ["morning", "afternoon", "evening"] },
+    ],
+    services: [
+      {
+        kind: "care",
+        serviceType: "walk_checkin",
+        enabled: true,
+        pricePerUnit: 480,
+        priceUnit: "per_visit",
+        subServices: ["Solo walk", "Adventure walk"],
+        notes: "60–90 min active walks. Stromovka or Vltava paths. I can bring your dog on my own runs (consult first).",
+        modifiers: [
+          { kind: "weekend", enabled: true, pct: 15 },
+        ],
+        pace: "brisk",
+        leashPolicy: "off_leash_areas",
+      },
+      {
+        kind: "care",
+        serviceType: "boarding",
+        enabled: true,
+        pricePerUnit: 750,
+        priceUnit: "per_night",
+        subServices: ["Home boarding"],
+        notes: "Weekend or multi-night boarding. Two long walks daily, river access. Active dogs preferred.",
+        modifiers: [
+          { kind: "holiday", enabled: true, pct: 25 },
+          { kind: "multi_pet", enabled: true, flatPerExtra: 200 },
+        ],
+        homeType: "flat",
+        hasOwnDogs: false,
+        hasYard: false,
+        maxDogs: 2,
+      },
+    ],
+    publicProfile: true,
+    visibility: "open",
+    acceptingBookings: true,
+    credentials: {
+      yearsExperience: 4,
+      insured: true,
+    },
+    repeatClients: 4,
+  },
+};
+
+export const lenkaS: UserProfile = {
+  id: "lenka-s",
+  firstName: "Lenka",
+  lastName: "S.",
+  email: "lenka.s@email.cz",
+  avatarUrl: "/images/generated/jana-profile.jpeg",
+  bio: "Affordable care for all dogs in Vršovice — walks and overnight stays. Three years.",
+  location: "Prague 10, Czech Republic",
+  neighbourhood: "Vršovice",
+  memberSince: "2025-03",
+  profileVisibility: "open",
+  tagApproval: "approve",
+  pets: [],
+  openToHelping: true,
+  carerProfile: {
+    bio: "Walks, day sitting, and overnight boarding in Vršovice. I'm a student so I have flexible afternoons. Modest rates, all sizes welcome.",
+    location: "Prague 10 – Vršovice",
+    availability: [
+      { day: "Mon", slots: ["afternoon"] },
+      { day: "Tue", slots: ["afternoon"] },
+      { day: "Wed", slots: ["morning", "afternoon"] },
+      { day: "Thu", slots: ["afternoon"] },
+      { day: "Fri", slots: ["morning", "afternoon"] },
+      { day: "Sat", slots: ["morning", "afternoon", "evening"] },
+      { day: "Sun", slots: ["morning", "afternoon", "evening"] },
+    ],
+    services: [
+      {
+        kind: "care",
+        serviceType: "walk_checkin",
+        enabled: true,
+        pricePerUnit: 310,
+        priceUnit: "per_visit",
+        subServices: ["Drop-in visit", "Solo walk"],
+        notes: "45 min visits or walks around Heroldovy sady or Bohemians stadium area.",
+        modifiers: [
+          { kind: "weekend", enabled: true, pct: 10 },
+        ],
+        pace: "leisurely",
+        leashPolicy: "always",
+      },
+      {
+        kind: "care",
+        serviceType: "inhome_sitting",
+        enabled: true,
+        pricePerUnit: 410,
+        priceUnit: "per_visit",
+        subServices: ["Day sitting"],
+        notes: "Day sitting at my flat. Cosy and quiet — I study from home.",
+        modifiers: [],
+        homeType: "flat",
+        hasOwnDogs: false,
+        maxDogs: 1,
+      },
+      {
+        kind: "care",
+        serviceType: "boarding",
+        enabled: true,
+        pricePerUnit: 640,
+        priceUnit: "per_night",
+        subServices: ["Home boarding"],
+        notes: "Overnight stays at my flat. Mostly student schedule so dogs get plenty of attention.",
+        modifiers: [
+          { kind: "holiday", enabled: true, pct: 20 },
+          { kind: "multi_pet", enabled: true, flatPerExtra: 130 },
+        ],
+        homeType: "flat",
+        hasOwnDogs: false,
+        hasYard: false,
+        maxDogs: 1,
+      },
+    ],
+    publicProfile: true,
+    visibility: "open",
+    acceptingBookings: true,
+    credentials: {
+      yearsExperience: 3,
+    },
+    repeatClients: 3,
+  },
+};
+
+export const petrV: UserProfile = {
+  id: "petr-v",
+  firstName: "Petr",
+  lastName: "V.",
+  email: "petr.v@email.cz",
+  avatarUrl: "/images/generated/tomas-profile.jpeg",
+  bio: "Home away from home in Vysočany — sitting and boarding only. Eight years, ID-verified, insured, first-aid trained.",
+  location: "Prague 9, Czech Republic",
+  neighbourhood: "Vysočany",
+  memberSince: "2022-11",
+  profileVisibility: "open",
+  tagApproval: "approve",
+  pets: [],
+  openToHelping: true,
+  carerProfile: {
+    bio: "Day sitting and overnight boarding at my house in Vysočany — fenced garden, quiet residential street. Eight years of experience; I treat each booking like the dog is family.",
+    location: "Prague 9 – Vysočany",
+    availability: [
+      { day: "Mon", slots: ["morning", "afternoon", "evening"] },
+      { day: "Tue", slots: ["morning", "afternoon", "evening"] },
+      { day: "Wed", slots: ["morning", "afternoon", "evening"] },
+      { day: "Thu", slots: ["morning", "afternoon", "evening"] },
+      { day: "Fri", slots: ["morning", "afternoon", "evening"] },
+      { day: "Sat", slots: ["morning", "afternoon", "evening"] },
+      { day: "Sun", slots: ["morning", "afternoon", "evening"] },
+    ],
+    services: [
+      {
+        kind: "care",
+        serviceType: "inhome_sitting",
+        enabled: true,
+        pricePerUnit: 480,
+        priceUnit: "per_visit",
+        subServices: ["Day sitting"],
+        notes: "Day sitting at my house. Garden access, my own dog is friendly with all sizes.",
+        modifiers: [
+          { kind: "multi_pet", enabled: true, flatPerExtra: 150 },
+        ],
+        homeType: "house",
+        hasOwnDogs: true,
+        maxDogs: 3,
+      },
+      {
+        kind: "care",
+        serviceType: "boarding",
+        enabled: true,
+        pricePerUnit: 720,
+        priceUnit: "per_night",
+        subServices: ["Home boarding"],
+        notes: "Multi-night home boarding. Garden access, two daily walks, video updates each evening.",
+        modifiers: [
+          { kind: "holiday", enabled: true, pct: 30 },
+          { kind: "multi_pet", enabled: true, flatPerExtra: 200 },
+          { kind: "last_minute", enabled: true, pct: 20, thresholdDays: 7 },
+        ],
+        homeType: "house",
+        hasOwnDogs: true,
+        hasYard: true,
+        maxDogs: 3,
+      },
+    ],
+    publicProfile: true,
+    visibility: "open",
+    acceptingBookings: true,
+    credentials: {
+      yearsExperience: 8,
+      firstAidTrained: true,
+      insured: true,
+      identityVerified: true,
+    },
+    repeatClients: 7,
   },
 };
 
@@ -1191,6 +1731,7 @@ export const allUsers: UserProfile[] = [
   shawn,
   lenkaVet,
   olgaM, marketaH,
+  janaK, tomasB, pavelD, simonaV, martinK, lenkaS, petrV,
 ];
 
 /** Quick lookup by user ID. */
@@ -1277,11 +1818,12 @@ export function getUserOrProvider(id: string): UserProfile | undefined {
   // Synthesize a minimal UserProfile from ProviderCard data so callers can
   // render avatar/name/location without crashing.
   //
-  // `openToHelping: false` here intentionally: directory-only ProviderCards
-  // are by definition Provider-tier (they're listed in `/discover/care`,
-  // which is the Provider-tier surface). Defaulting to `openToHelping: true`
-  // wrongly read them as Helper-tier and surfaced the "Open to helping"
-  // casual badge on full Provider profiles. Pricing & Proposals, 2026-05-04.
+  // Discover Refinement (2026-05-10) bridged every live ProviderCard to a
+  // real UserProfile, so this synthesis path is now defensive — kept in
+  // case any future ProviderCard ships without a userId bridge.
+  // `openToHelping: false` because the synthesis intentionally produces a
+  // bare profile (no carerProfile, no services); a bare profile shouldn't
+  // claim it's open to helping.
   const [firstName, ...rest] = providerCard.name.split(" ");
   return {
     id: providerCard.id,

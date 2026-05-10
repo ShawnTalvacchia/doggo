@@ -3,8 +3,8 @@ category: feature
 status: built
 last-reviewed: 2026-05-10
 
-tags: [discover, care, booking, providers, map, payment, trust-gating]
-review-trigger: "when modifying Discover Care tab, provider profiles, booking flows, payment, or map"
+tags: [discover, care, booking, carers, map, payment, trust-gating]
+review-trigger: "when modifying Discover Care tab, Carer profiles, booking flows, payment, or map"
 ---
 
 # Explore & Care
@@ -79,7 +79,7 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 - **Mock-data seeds (Discover & Care 2026-05-04):**
   - `conn-daniel-nikola` (Familiar) — gives Daniel a positive ring case on `/discover/care`
   - `conn-klara-pavel` (Familiar) — directory-only ProviderCard match (no UserProfile bridge), tests both ProviderCard shape paths
-  - Klára Horáčková + Dr. Lenka Nováková directory entries with full credentials
+  - Klára Horáčková + Lenka Nováková directory entries with full credentials *(Lenka was originally seeded as a vet — repurposed as a groomer at Mánesova Grooming Salon during Discover Refinement walkthrough D1, 2026-05-10, per Open Q §6)*
   - Pre-existing directory carers backfilled with `credentials` blocks (Olga, Jana, Tomáš, Markéta, Pavel, Simona, Martin, Lenka S., Petr V.)
 
 ### Pricing & Proposals additions (closed 2026-05-05)
@@ -269,7 +269,7 @@ Booking detail (Info tab) → "You're providing" pill shown
   - **Package selection** (e.g. "5-night bundle" vs "5 × per-night") → radio on the inquiry when the carer offers one. Affects the base line item, not a stacked modifier.
 
   Form-shape sketch: each new field is service-conditional (don't ask Hugo's owner about boarding-yard requirements when she's booking a walk). The InquiryForm already conditionally renders by `bookingType`; service-conditional fields slot into the same pattern.
-- **Discover Refinement (scheduled phase, after Sessions & Service Execution)**: bundles the §4 cluster items (Appointment filter pill, ProviderCard ↔ UserProfile fragmentation, per-service pricing, service-aware filters, unwired filter panel) with the **community-first Discover ordering** thesis — surface Helper-tier Connected carers distinctly above Providers. See [[ROADMAP]] → Discover Refinement.
+- **Discover Refinement (active phase, opened 2026-05-10)**: bundles the §4 cluster items (Appointment filter pill, ProviderCard ↔ UserProfile fragmentation, per-service pricing, service-aware filters, unwired filter panel) with the **community-first Discover ordering** thesis — surface Carers in your circle distinctly above other carers. Also collapses Helper/Provider tier into a single Carer role with an audience setting (`publicProfile`). See [[ROADMAP]] → Discover Refinement.
 - **Inquiry-driven trust transitions:** the auto-Familiar shipped here is a stop-gap. Full model — mutual Familiar on inquiry send, mutual Connected on contract accept, first-service-message detection, decline rollback rules — logged in [[Open Questions & Assumptions Log]] §2 for Inbox & Notifications.
 - **Review form** — full review submission flow after completed bookings (currently stub button only).
 - **Provider dashboard** — earnings view, availability calendar, incoming requests management.

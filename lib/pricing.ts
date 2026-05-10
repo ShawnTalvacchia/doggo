@@ -26,10 +26,16 @@ export function getExploreRateBounds(service: ServiceType | null): RateBounds {
     return { min: 150, max: 900 };
   }
   if (service === "inhome_sitting") {
-    return { min: 500, max: 1800 };
+    // Floor lowered to 300 in Discover Refinement E (2026-05-10) to fit
+    // the affordable end of the seeded directory (Lenka S. at 410, Jana K.
+    // at 430, Petr V. at 480). The previous 500 floor hid them under the
+    // Sitting pill's default min.
+    return { min: 300, max: 1800 };
   }
   if (service === "boarding") {
-    return { min: 450, max: 1600 };
+    // Floor lowered to 400 alongside Sitting — matches Lenka S. boarding
+    // (640) and the seeded weekend rates without clipping.
+    return { min: 400, max: 1600 };
   }
   return { min: FILTER_RATE_MIN_KC, max: FILTER_RATE_MAX_KC };
 }

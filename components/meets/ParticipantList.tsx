@@ -9,6 +9,7 @@ import {
 import { getConnectionState } from "@/lib/mockConnections";
 import { getAttendeeTier, viewerCanAct } from "@/lib/meetUtils";
 import { getUserById } from "@/lib/mockUsers";
+import { getCarerIdentity, type CarerIdentity } from "@/lib/identityBadges";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { ConnectionState, Meet, MeetAttendee } from "@/lib/types";
 import type { PersonAction } from "@/lib/personActions";
@@ -41,14 +42,10 @@ interface TieredAttendee extends MeetAttendee {
   tier: 1 | 2 | 3;
   connectionState: ConnectionState;
   theyMarkedFamiliar?: boolean;
-  /**
-   * Care tier for the badge. `"provider"` shows to all viewers (services are
-   * public). `"helper"` only shows when viewer is Connected to subject (or
-   * is the subject) — services are private to Connected users, so the badge
-   * follows the same rule. `undefined` = no badge. See
-   * `docs/implementation/badges.md`.
-   */
-  careTier?: "helper" | "provider";
+  /** Carer identity badge — info-blue pill, two variants (open / circle).
+   *  Resolved per-viewer; circle variant is Connected-only by privacy
+   *  rule. Discover Refinement walkthrough decision, 2026-05-10. */
+  carerBadge?: CarerIdentity;
 }
 
 /**
@@ -93,28 +90,6 @@ export function ParticipantList({
     ? "auto"
     : [];
 
-  /**
-   * Resolve the care tier badge per the visibility rules in
-   * `docs/implementation/badges.md`:
-   * - No `carerProfile` → no badge.
-   * - `publicProfile === true` → "provider" (visible to anyone).
-   * - `publicProfile === false` → "helper" (Connected-only privacy gate;
-   *   suppress when viewer is not Connected to subject).
-   * - Self-render: tier always shows on the viewer's own row.
-   */
-  function resolveCareTier(
-    subjectUserId: string,
-    connectionState: ConnectionState,
-  ): "helper" | "provider" | undefined {
-    const subject = getUserById(subjectUserId);
-    if (!subject?.carerProfile) return undefined;
-    if (subject.carerProfile.publicProfile) return "provider";
-    // Helper tier — privacy rule: only visible to Connected viewers (or self).
-    const isSelf = subjectUserId === viewerId;
-    if (isSelf || connectionState === "connected") return "helper";
-    return undefined;
-  }
-
   // Fall back to UserProfile.profileVisibility when an attendee record
   // doesn't carry `profileOpen`. Without this, attendees seeded without
   // `profileOpen: true` (most of mock data — see punch-list P28) appear
@@ -129,6 +104,21 @@ export function ParticipantList({
     return getUserById(userId)?.profileVisibility === "open";
   };
 
+  /** Resolve the Carer identity badge for a row, with the privacy gate
+   *  baked in: circle-Carers (publicProfile: false) only render their
+   *  badge when the viewer is Connected to them OR is the subject. Open
+   *  Carers render their badge to everyone. Discover Refinement
+   *  walkthrough decision, 2026-05-10. */
+  const resolveCarerBadge = (
+    subjectUserId: string,
+    connectionState: ConnectionState,
+  ): CarerIdentity | undefined => {
+    const subject = getUserById(subjectUserId);
+    const isSelf = subjectUserId === viewerId;
+    const viewerIsConnected = isSelf || connectionState === "connected";
+    return getCarerIdentity(subject, viewerIsConnected);
+  };
+
   const tier = (a: MeetAttendee): TieredAttendee => {
     if (a.userId === viewerId) {
       return {
@@ -136,7 +126,7 @@ export function ParticipantList({
         profileOpen: resolveProfileOpen(a.profileOpen, a.userId),
         tier: 1 as const,
         connectionState: "connected" as const,
-        careTier: resolveCareTier(a.userId, "connected"),
+        carerBadge: resolveCarerBadge(a.userId, "connected"),
       };
     }
 
@@ -151,7 +141,7 @@ export function ParticipantList({
       tier: t,
       connectionState: state,
       theyMarkedFamiliar,
-      careTier: resolveCareTier(a.userId, state),
+      carerBadge: resolveCarerBadge(a.userId, state),
     };
   };
 
@@ -321,7 +311,7 @@ function PeopleSection({
               connectionState={a.connectionState}
               theyMarkedFamiliar={a.theyMarkedFamiliar}
               profileOpen={a.profileOpen}
-              careTier={a.careTier}
+              carerBadge={a.carerBadge}
               actions={rowActions}
             />
           ))}
@@ -343,7 +333,7 @@ function PeopleSection({
               connectionState={a.connectionState}
               theyMarkedFamiliar={a.theyMarkedFamiliar}
               profileOpen={a.profileOpen}
-              careTier={a.careTier}
+              carerBadge={a.carerBadge}
               actions={rowActions}
             />
           ))}
@@ -372,7 +362,7 @@ function PeopleSection({
               connectionState={a.connectionState}
               theyMarkedFamiliar={a.theyMarkedFamiliar}
               profileOpen={a.profileOpen}
-              careTier={a.careTier}
+              carerBadge={a.carerBadge}
               actions={rowActions}
             />
           ))}
