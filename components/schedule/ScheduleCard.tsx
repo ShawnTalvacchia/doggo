@@ -86,8 +86,9 @@ function getServiceVerb(booking: Booking): string {
   if (sub.includes("training") || sub.includes("session")) return "training";
 
   // Fallback by service type
-  if (booking.serviceType === "walk_checkin") return "walking";
-  if (booking.serviceType === "inhome_sitting") return "minding";
+  if (booking.serviceType === "walks_checkins") return "walking";
+  if (booking.serviceType === "house_sitting") return "sitting for";
+  if (booking.serviceType === "day_care") return "minding";
   if (booking.serviceType === "boarding") return "hosting";
   return "caring for";
 }
@@ -401,7 +402,7 @@ export function ScheduleCareCard({
   // Operational location hint — boarding/sitting handover happens at the
   // carer's neighbourhood; walks happen from the owner's. Fail gracefully
   // when the relevant party's profile lacks a neighbourhood.
-  const handoverParty = booking.serviceType === "walk_checkin"
+  const handoverParty = booking.serviceType === "walks_checkins"
     ? getUserById(booking.ownerId)
     : getUserById(booking.carerId);
   const handoverNeighbourhood = handoverParty?.neighbourhood;
@@ -500,7 +501,7 @@ export function ScheduleCareCard({
         <div className="sched-card-meta">
           <MapPin size={13} weight="light" className="text-fg-tertiary" />
           <span className="sched-card-names truncate text-fg-tertiary">
-            {booking.serviceType === "walk_checkin"
+            {booking.serviceType === "walks_checkins"
               ? `Pick up at ${handoverNeighbourhood}`
               : `Drop off in ${handoverNeighbourhood}`}
           </span>

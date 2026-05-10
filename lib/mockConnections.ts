@@ -927,21 +927,21 @@ export interface CommunityCarer {
 export const communityCarers: CommunityCarer[] = [
   {
     userId: "jana",
-    services: ["walk_checkin"],
+    services: ["walks_checkins"],
     priceFrom: 240,
     priceUnit: "per_visit",
     meetsShared: 8,
   },
   {
     userId: "klara",
-    services: ["walk_checkin", "inhome_sitting"],
+    services: ["walks_checkins"],
     priceFrom: 300,
     priceUnit: "per_visit",
     meetsShared: 3,
   },
   {
     userId: "tereza",
-    services: ["inhome_sitting"],
+    services: ["walks_checkins", "house_sitting", "day_care"],
     priceFrom: 150,
     priceUnit: "per_visit",
     meetsShared: 4,
@@ -955,7 +955,7 @@ export const communityCarers: CommunityCarer[] = [
   },
   {
     userId: "petra",
-    services: ["inhome_sitting"],
+    services: ["day_care", "boarding"],
     priceFrom: 120,
     priceUnit: "per_visit",
     meetsShared: 0,

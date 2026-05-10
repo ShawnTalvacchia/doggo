@@ -26,8 +26,9 @@ import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import Link from "next/link";
 
 const serviceNavLabels: Record<ServiceType, string> = {
-  walk_checkin: SERVICE_LABELS.walk_checkin,
-  inhome_sitting: SERVICE_LABELS.inhome_sitting,
+  walks_checkins: SERVICE_LABELS.walks_checkins,
+  house_sitting: SERVICE_LABELS.house_sitting,
+  day_care: SERVICE_LABELS.day_care,
   boarding: SERVICE_LABELS.boarding,
 };
 
@@ -38,43 +39,54 @@ const mobileServiceOptions: {
   Icon: typeof PersonSimpleWalk;
 }[] = [
   {
-    value: "walk_checkin",
-    label: SERVICE_LABELS.walk_checkin,
-    helper: "Short visits at your home",
+    value: "walks_checkins",
+    label: SERVICE_LABELS.walks_checkins,
+    helper: "Outdoor walks and check-ins",
     Icon: PersonSimpleWalk,
   },
   {
-    value: "inhome_sitting",
-    label: SERVICE_LABELS.inhome_sitting,
-    helper: "Overnight care at your home",
+    value: "house_sitting",
+    label: SERVICE_LABELS.house_sitting,
+    helper: "Carer comes to your home",
+    Icon: House,
+  },
+  {
+    value: "day_care",
+    label: SERVICE_LABELS.day_care,
+    helper: "Daytime care at carer's home",
     Icon: House,
   },
   {
     value: "boarding",
     label: SERVICE_LABELS.boarding,
-    helper: "Your dog stays with a trusted host",
+    helper: "Overnight stay at carer's home",
     Icon: PawPrint,
   },
 ];
 
 const resultsHeaderCopy: Record<ServiceType, { heading: string; subtitle: string }> = {
-  walk_checkin: {
+  walks_checkins: {
     heading: "Find dog walkers & check-ins",
     subtitle: "Add date filters to see who's available for visits",
   },
-  inhome_sitting: {
-    heading: "Find in-home sitters",
-    subtitle: "Add date filters to see who's available for visits",
+  house_sitting: {
+    heading: "Find house sitters",
+    subtitle: "Carers who come to your home — drop-ins through overnight",
+  },
+  day_care: {
+    heading: "Find day care",
+    subtitle: "Daytime care at the carer's home — same-day return",
   },
   boarding: {
     heading: "Find boarding hosts",
-    subtitle: "Add date filters to see who's available for visits",
+    subtitle: "Overnight stays at the carer's home",
   },
 };
 
 const expectedPriceUnitByService: Record<ServiceType, ProviderCard["priceUnit"]> = {
-  walk_checkin: "per_walk",
-  inhome_sitting: "per_night",
+  walks_checkins: "per_walk",
+  house_sitting: "per_visit",
+  day_care: "per_visit",
   boarding: "per_night",
 };
 

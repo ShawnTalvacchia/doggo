@@ -2,7 +2,12 @@ import { defaultExploreFilters } from "@/lib/mockData";
 import { FILTER_RATE_MIN_KC } from "@/lib/pricing";
 import { ExploreFilters, ServiceType } from "@/lib/types";
 
-const SERVICE_VALUES = new Set<ServiceType>(["walk_checkin", "inhome_sitting", "boarding"]);
+const SERVICE_VALUES = new Set<ServiceType>([
+  "walks_checkins",
+  "house_sitting",
+  "day_care",
+  "boarding",
+]);
 
 const TIME_VALUES = new Set<"6-11" | "11-15" | "15-22">(["6-11", "11-15", "15-22"]);
 

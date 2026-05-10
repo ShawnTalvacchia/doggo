@@ -22,19 +22,26 @@ type RateBounds = {
 };
 
 export function getExploreRateBounds(service: ServiceType | null): RateBounds {
-  if (service === "walk_checkin") {
+  if (service === "walks_checkins") {
     return { min: 150, max: 900 };
   }
-  if (service === "inhome_sitting") {
-    // Floor lowered to 300 in Discover Refinement E (2026-05-10) to fit
-    // the affordable end of the seeded directory (Lenka S. at 410, Jana K.
-    // at 430, Petr V. at 480). The previous 500 floor hid them under the
-    // Sitting pill's default min.
-    return { min: 300, max: 1800 };
+  if (service === "house_sitting") {
+    // House sitting (carer goes to owner's home) is per-visit by default;
+    // per-night supported when the carer offers overnight stays. Bounds
+    // bracket both shapes — short evening sits at the bottom, weekend
+    // stay-overs near the top.
+    return { min: 200, max: 1800 };
+  }
+  if (service === "day_care") {
+    // Day care (carer hosts dog at carer's home, daytime) inherits the
+    // affordable end of the seeded directory after the inhome_sitting →
+    // day_care migration (Lenka S. at 410, Jana K. at 430, Petr V. at
+    // 480, Simona at 350). Floor matches the previous Sitting floor.
+    return { min: 300, max: 1500 };
   }
   if (service === "boarding") {
-    // Floor lowered to 400 alongside Sitting — matches Lenka S. boarding
-    // (640) and the seeded weekend rates without clipping.
+    // Floor lowered to 400 in Discover Refinement E (2026-05-10) — matches
+    // Lenka S. boarding (640) and the seeded weekend rates without clipping.
     return { min: 400, max: 1600 };
   }
   return { min: FILTER_RATE_MIN_KC, max: FILTER_RATE_MAX_KC };
@@ -77,15 +84,16 @@ const PLATFORM_FEE_PERCENT = 12;
 // from `new Date()`, so the function stays pure and testable.
 
 // Unit word derives from `priceUnit` (per_visit / per_night), not
-// `serviceType` — `inhome_sitting` can be either a per-visit day sitting
-// or a per-night overnight depending on the config.
+// `serviceType` — `house_sitting` can be either a per-visit day sit or a
+// per-night overnight depending on the config.
 function unitWordFor(priceUnit: "per_visit" | "per_night"): string {
   return priceUnit === "per_visit" ? "visit" : "night";
 }
 
 const SERVICE_BASE_LABEL: Record<ServiceType, string> = {
-  walk_checkin: "Walk",
-  inhome_sitting: "In-home sitting",
+  walks_checkins: "Walk",
+  house_sitting: "House sitting",
+  day_care: "Day care",
   boarding: "Boarding",
 };
 

@@ -19,9 +19,10 @@ import { computeQuote } from "@/lib/pricing";
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const SERVICE_TYPE_LABELS: Record<ServiceType, string> = {
-  walk_checkin: "Walks & Check-ins",
-  inhome_sitting: "In-home Sitting",
-  boarding: "Overnight Boarding",
+  walks_checkins: "Walks & Check-ins",
+  house_sitting: "House sitting",
+  day_care: "Day care",
+  boarding: "Boarding",
 };
 
 // No default days — preselecting Mon/Wed/Fri presumes intent. Owner must

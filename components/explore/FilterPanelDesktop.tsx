@@ -30,21 +30,27 @@ const serviceOptions: {
   CardIcon: typeof PersonSimpleWalk;
 }[] = [
   {
-    value: "walk_checkin",
-    label: SERVICE_LABELS.walk_checkin,
-    helper: "Short visits at your home",
+    value: "walks_checkins",
+    label: SERVICE_LABELS.walks_checkins,
+    helper: "Outdoor walks and check-ins",
     CardIcon: PersonSimpleWalk,
   },
   {
-    value: "inhome_sitting",
-    label: SERVICE_LABELS.inhome_sitting,
-    helper: "Overnight care at your home",
+    value: "house_sitting",
+    label: SERVICE_LABELS.house_sitting,
+    helper: "Carer comes to your home",
+    CardIcon: House,
+  },
+  {
+    value: "day_care",
+    label: SERVICE_LABELS.day_care,
+    helper: "Daytime care at carer's home",
     CardIcon: House,
   },
   {
     value: "boarding",
     label: SERVICE_LABELS.boarding,
-    helper: "Your dog stays with a trusted host",
+    helper: "Overnight stay at carer's home",
     CardIcon: PawPrint,
   },
 ];
@@ -55,7 +61,8 @@ function serviceLabel(service: ServiceType | null) {
 }
 
 function ServiceIcon({ service }: { service: ServiceType }) {
-  if (service === "inhome_sitting") return <House size={16} weight="bold" />;
+  if (service === "day_care") return <House size={16} weight="bold" />;
+  if (service === "house_sitting") return <House size={16} weight="bold" />;
   if (service === "boarding") return <PawPrint size={16} weight="bold" />;
   return <PersonSimpleWalk size={16} weight="bold" />;
 }
@@ -76,7 +83,7 @@ export function FilterPanelDesktop({
     if (!filters.service) setPanelView("service");
   }, [filters.service]);
 
-  const selectedService = useMemo(() => filters.service || "walk_checkin", [filters.service]);
+  const selectedService = useMemo(() => filters.service || "walks_checkins", [filters.service]);
   const rateBounds = useMemo(() => getExploreRateBounds(filters.service), [filters.service]);
 
   const rangeRowStyle = useMemo(() => {

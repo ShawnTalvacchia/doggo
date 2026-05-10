@@ -17,26 +17,37 @@ export const RATE_MAX = FILTER_RATE_MAX_KC;
 const TIME_OPTIONS: Array<"6-11" | "11-15" | "15-22"> = ["6-11", "11-15", "15-22"];
 const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"] as const;
 
-const WALK_SERVICES = ["Drop-in visit", "Group walk", "Solo walk"];
-const SITTING_SERVICES = [
-  "Sitter home full-time",
+// Sub-services per service. Updated 2026-05-10 (Care Catalog Taxonomy).
+// Drop-in visits moved into House sitting (same shape — carer goes to
+// owner's home). Walks narrows to outdoor activity. Day care + Boarding
+// share the carer-home extras.
+const WALK_SERVICES = ["Solo walk", "Group walk"];
+const HOUSE_SITTING_SERVICES = [
+  "Drop-in visit",
+  "Full-time care",
   "Special feeding",
   "Medication",
-  "Walking",
-  "Walking +30 mins",
 ];
-const BOARDING_SERVICES = ["Day care", "Overnight"];
+const DAY_CARE_SERVICES = ["Special feeding", "Medication"];
+const BOARDING_SERVICES = ["Special feeding", "Medication"];
 const BOARDING_HOME_FEATURES = ["Fenced garden", "No other dogs", "No kids"];
 const BOARDING_HOME_TYPES = ["House", "Apartment", "Farm"];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function rateUnit(service: ServiceType | null): string {
-  return service === "inhome_sitting" || service === "boarding" ? "per night" : "per visit";
+  // Boarding is per-night; everything else (Walks, House sitting, Day care)
+  // is per-visit by default. House sitting can also be per-night when the
+  // carer offers overnight stays — surfaced on the carer config, not here.
+  return service === "boarding" ? "per night" : "per visit";
 }
 
 function addressPlaceholder(service: ServiceType | null): string {
-  return service === "walk_checkin" ? "Pick up location" : "Your location";
+  // Walks: pick-up location. House sitting: owner's home (where the carer
+  // goes). Day care / Boarding: owner's location for distance filtering.
+  if (service === "walks_checkins") return "Pick up location";
+  if (service === "house_sitting") return "Your home";
+  return "Your location";
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -102,7 +113,7 @@ export function FilterBody({
   const [datePickerOpen, setDatePickerOpen] = useState<"range" | "start" | null>(null);
 
   const service = filters.service;
-  const isWalk = !service || service === "walk_checkin";
+  const isWalk = !service || service === "walks_checkins";
   const unit = rateUnit(service);
   const rateBounds = getExploreRateBounds(service);
   const minRateValue = Math.max(rateBounds.min, Math.min(filters.minRate, rateBounds.max));
@@ -328,24 +339,22 @@ export function FilterBody({
       </div>
 
       <div className="filter-accordion-stack">
-        {/* ── Services accordion (all services) ───────────────────────────── */}
+        {/* ── Services accordion (per active service) ─────────────────────── */}
         <Accordion title="Services">
           {(isWalk
             ? WALK_SERVICES
-            : service === "inhome_sitting"
-              ? SITTING_SERVICES
-              : BOARDING_SERVICES
+            : service === "house_sitting"
+              ? HOUSE_SITTING_SERVICES
+              : service === "day_care"
+                ? DAY_CARE_SERVICES
+                : BOARDING_SERVICES
           ).map((s) => (
-            <AccordionOption
-              key={s}
-              label={s}
-              defaultChecked={service === "inhome_sitting" && s === "Walking"}
-            />
+            <AccordionOption key={s} label={s} />
           ))}
         </Accordion>
 
-        {/* ── Boarding-only accordions ─────────────────────────────────────── */}
-        {service === "boarding" && (
+        {/* ── Carer-home accordions (Day care + Boarding) ──────────────────── */}
+        {(service === "day_care" || service === "boarding") && (
           <>
             <Accordion title="Home features">
               {BOARDING_HOME_FEATURES.map((f) => (

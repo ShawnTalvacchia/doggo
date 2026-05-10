@@ -1,6 +1,34 @@
 export type Role = "owner" | "walker" | "host";
 
-export type ServiceType = "walk_checkin" | "inhome_sitting" | "boarding";
+/**
+ * Care service taxonomy. Distinguishes services by *whose home* and
+ * *day vs overnight*. Resolved 2026-05-10 (Care Catalog Taxonomy & Filter
+ * Redesign) — replaces the earlier three-service model
+ * (`walk_checkin | inhome_sitting | boarding`) where `inhome_sitting`
+ * had drifted to mean "carer hosts dog at carer's home, daytime"
+ * despite the label suggesting "carer comes to owner's home." See
+ * [[Groups & Care Model]] → "Care taxonomy — the four services."
+ *
+ * - **walks_checkins** — Outdoor activity with the dog. Solo / group walks,
+ *   walk-and-potty check-ins. Excludes home visits. Per-visit pricing.
+ * - **house_sitting** — Carer goes to the OWNER's home. Includes drop-in
+ *   visits (short version) through to overnight stays. Per-visit by
+ *   default; per-night supported when the carer offers overnight stays.
+ * - **day_care** — Carer hosts dog at the CARER's home, daytime only.
+ *   Returns to owner same day. Per-visit pricing.
+ * - **boarding** — Carer hosts dog at the CARER's home, overnight.
+ *   Per-night pricing.
+ *
+ * Variant names carry intent — `house_sitting` (owner's home) vs
+ * `day_care` (carer's home, day) vs `boarding` (carer's home, night).
+ * Drift back to ambiguous "sitting" labels should be treated as a
+ * regression in future reviews.
+ */
+export type ServiceType =
+  | "walks_checkins"
+  | "house_sitting"
+  | "day_care"
+  | "boarding";
 
 export interface PetDraft {
   name: string;
@@ -14,8 +42,9 @@ export interface PetDraft {
 }
 
 export interface ServicePrices {
-  walk_checkin: number | null; // Kč per visit
-  inhome_sitting: number | null; // Kč per night
+  walks_checkins: number | null; // Kč per visit
+  house_sitting: number | null; // Kč per visit (per-night supported when carer offers overnight stays)
+  day_care: number | null; // Kč per visit
   boarding: number | null; // Kč per night
 }
 

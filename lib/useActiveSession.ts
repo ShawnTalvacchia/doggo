@@ -49,21 +49,24 @@ function copyFor(
   petText: string,
   providerFirst: string,
 ): string {
-  if (booking.serviceType === "walk_checkin") {
+  if (booking.serviceType === "walks_checkins") {
     return isProvider ? `Walking ${petText}` : `${petText} is on a walk`;
   }
   if (booking.serviceType === "boarding") {
     return isProvider ? `Hosting ${petText}` : `${petText} is at ${providerFirst}'s`;
   }
-  // inhome_sitting
-  return isProvider ? `Sitting ${petText}` : `${petText} is with ${providerFirst}`;
+  if (booking.serviceType === "house_sitting") {
+    return isProvider ? `Sitting ${petText}` : `${providerFirst} is with ${petText}`;
+  }
+  // day_care
+  return isProvider ? `Looking after ${petText}` : `${petText} is with ${providerFirst}`;
 }
 
 function showsTimer(serviceType: ServiceType): boolean {
   // Walks have a contract-defined duration (30/45/60 min); a stopwatch
   // is meaningful. Sitting and boarding last hours-to-days; a stopwatch
   // reads as anxiety, not status.
-  return serviceType === "walk_checkin";
+  return serviceType === "walks_checkins";
 }
 
 export function useActiveSession(): ActiveSessionInfo | null {

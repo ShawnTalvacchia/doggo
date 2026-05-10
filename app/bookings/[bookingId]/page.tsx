@@ -80,8 +80,9 @@ function getServiceVerb(booking: Booking): string {
   if (sub.includes("sitting") || sub.includes("visit")) return "minding";
   if (sub.includes("overnight") || sub.includes("boarding")) return "hosting";
   if (sub.includes("training") || sub.includes("session")) return "training";
-  if (booking.serviceType === "walk_checkin") return "walking";
-  if (booking.serviceType === "inhome_sitting") return "minding";
+  if (booking.serviceType === "walks_checkins") return "walking";
+  if (booking.serviceType === "house_sitting") return "sitting for";
+  if (booking.serviceType === "day_care") return "minding";
   if (booking.serviceType === "boarding") return "hosting";
   return "caring for";
 }
@@ -92,8 +93,9 @@ function getServiceNoun(booking: Booking): string {
   if (sub.includes("sitting") || sub.includes("visit")) return "visits";
   if (sub.includes("overnight") || sub.includes("boarding")) return "nights";
   if (sub.includes("training") || sub.includes("session")) return "sessions";
-  if (booking.serviceType === "walk_checkin") return "walks";
-  if (booking.serviceType === "inhome_sitting") return "visits";
+  if (booking.serviceType === "walks_checkins") return "walks";
+  if (booking.serviceType === "house_sitting") return "visits";
+  if (booking.serviceType === "day_care") return "visits";
   if (booking.serviceType === "boarding") return "nights";
   return "sessions";
 }

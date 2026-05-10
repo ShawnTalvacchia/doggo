@@ -42,8 +42,9 @@ const TIME_SLOTS: { key: TimeSlot; label: string }[] = [
 ];
 
 const SERVICE_TYPE_ORDER: ServiceType[] = [
-  "walk_checkin",
-  "inhome_sitting",
+  "walks_checkins",
+  "house_sitting",
+  "day_care",
   "boarding",
 ];
 
@@ -379,7 +380,7 @@ export function ProfileServicesTab({
         serviceType: available[0],
         enabled: true,
         pricePerUnit: 0,
-        priceUnit: available[0] === "walk_checkin" ? "per_visit" : "per_night",
+        priceUnit: available[0] === "walks_checkins" ? "per_visit" : "per_night",
         subServices: [],
         modifiers: defaultModifiers(),
       },
@@ -516,7 +517,7 @@ export function ProfileServicesTab({
                             updateService(idx, {
                               serviceType: val as ServiceType,
                               priceUnit:
-                                val === "walk_checkin" ? "per_visit" : "per_night",
+                                val === "walks_checkins" ? "per_visit" : "per_night",
                             })
                           }
                           options={typeOptions}

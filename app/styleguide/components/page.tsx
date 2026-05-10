@@ -147,7 +147,7 @@ const DEMO_PROVIDER: ProviderCard = {
   priceUnit: "per_visit",
   blurb: "Professional dog walker with 5 years of experience. Your dog's happiness is my priority.",
   avatarUrl: "https://images.unsplash.com/photo-1542206395-9feb3edaa68d?auto=format&fit=crop&w=200&q=80",
-  services: ["walk_checkin", "boarding"],
+  services: ["walks_checkins", "boarding"],
   distanceKm: 1.2,
   neighbourhoodMatch: true,
   mutualConnections: 2,
@@ -157,7 +157,7 @@ const DEMO_SERVICES: ProviderServiceOffering[] = [
   {
     id: "svc-1",
     providerId: "demo-provider",
-    serviceType: "walk_checkin",
+    serviceType: "walks_checkins",
     title: "Walks & Check-ins",
     shortDescription: "Daily walks and drop-in visits at your home.",
     priceFrom: 350,
@@ -283,7 +283,7 @@ export default function ComponentsPage() {
   // FilterBody demo
   const [filterState, setFilterState] = useState<ExploreFilters>({
     ...defaultExploreFilters,
-    service: "walk_checkin",
+    service: "walks_checkins",
   });
 
   const DOG_AGES = [
@@ -874,7 +874,7 @@ export default function ComponentsPage() {
         <PropTable>
           <PropRow name="provider" type="ProviderCard" note="id, name, district, neighborhood, rating, reviewCount, priceFrom, priceUnit, blurb, avatarUrl, services[]." />
           <PropRow name="activeService" type="ServiceType?" note="Highlighted service context from the filter state." />
-          <PropRow name="returnQuery" type="string?" note="Full query string (e.g. 'service=walk_checkin&minRate=200') — preserves filter state in back nav." />
+          <PropRow name="returnQuery" type="string?" note="Full query string (e.g. 'service=walks_checkins&minRate=200') — preserves filter state in back nav." />
         </PropTable>
         <PropTable>
           <PropRow name="distanceKm" type="number?" note="Shows distance chip if set." />
@@ -896,7 +896,7 @@ export default function ComponentsPage() {
                   priceUnit: "per_walk",
                   blurb: "Experienced with reactive dogs and large breeds. Daily updates with photos.",
                   avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80",
-                  services: ["walk_checkin", "inhome_sitting"],
+                  services: ["walks_checkins", "day_care"],
                   distanceKm: 1.4,
                 }}
               />
@@ -1022,7 +1022,7 @@ export default function ComponentsPage() {
             onClose={() => setBookingModalOpen(false)}
             provider={DEMO_PROVIDER}
             services={DEMO_SERVICES}
-            defaultService="walk_checkin"
+            defaultService="walks_checkins"
           />
         </Demo>
         <PropTable>
@@ -1052,7 +1052,7 @@ export default function ComponentsPage() {
           <Demo label="Accordion pattern" note="filter-accordion CSS pattern · click to toggle">
             <AccordionDemo />
           </Demo>
-          <Demo label="FilterBody (walk_checkin)" note="Full filter body — live controlled" canvas="inset">
+          <Demo label="FilterBody (walks_checkins)" note="Full filter body — live controlled" canvas="inset">
             <div style={{ height: 420, overflow: "auto", width: "100%" }}>
               <FilterBody
                 filters={filterState}

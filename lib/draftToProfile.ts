@@ -20,9 +20,9 @@
  *   draft.pet              → pets[]
  *   draft.roles            → services[]
  *   draft.prices           → services[].priceFrom (real Kč values from pricing step)
- *   draft.walkingDays/Times → services[].shortDescription (walk_checkin)
- *   draft.hostDays/Times   → services[].shortDescription (boarding / inhome_sitting)
- *   draft.walkingRadius    → services[].shortDescription (walk_checkin)
+ *   draft.walkingDays/Times → services[].shortDescription (walks_checkins)
+ *   draft.hostDays/Times   → services[].shortDescription (boarding / day_care)
+ *   draft.walkingRadius    → services[].shortDescription (walks_checkins)
  *
  *   NOT on public profile:
  *   draft.dogTemperamentsExcluded  — internal matching only
@@ -108,10 +108,19 @@ function buildServices(draft: SignupDraft): ProviderServiceOffering[] {
     services.push({
       id: `draft-service-${index++}`,
       providerId: "draft",
-      serviceType: "walk_checkin",
-      title: SERVICE_LABELS.walk_checkin,
+      serviceType: "walks_checkins",
+      title: SERVICE_LABELS.walks_checkins,
       shortDescription: `Available ${daysLabel} · ${timesLabel} · within ${draft.walkingRadius} km.`,
-      priceFrom: draft.prices.walk_checkin ?? FALLBACK_PRICE,
+      priceFrom: draft.prices.walks_checkins ?? FALLBACK_PRICE,
+      priceUnit: "per_visit" as const,
+    });
+    services.push({
+      id: `draft-service-${index++}`,
+      providerId: "draft",
+      serviceType: "house_sitting",
+      title: SERVICE_LABELS.house_sitting,
+      shortDescription: `I come to your home. Available ${daysLabel} · ${timesLabel} · within ${draft.walkingRadius} km.`,
+      priceFrom: draft.prices.house_sitting ?? FALLBACK_PRICE,
       priceUnit: "per_visit" as const,
     });
   }
@@ -121,12 +130,12 @@ function buildServices(draft: SignupDraft): ProviderServiceOffering[] {
     services.push({
       id: `draft-service-${index++}`,
       providerId: "draft",
-      serviceType: "inhome_sitting",
-      title: SERVICE_LABELS.inhome_sitting,
+      serviceType: "day_care",
+      title: SERVICE_LABELS.day_care,
       shortDescription:
-        `Overnight care in your home. Available ${daysLabel} · ${draft.homeType || ""}.`.trim(),
-      priceFrom: draft.prices.inhome_sitting ?? FALLBACK_PRICE,
-      priceUnit: "per_night" as const,
+        `Daytime care at my home. Available ${daysLabel} · ${draft.homeType || ""}.`.trim(),
+      priceFrom: draft.prices.day_care ?? FALLBACK_PRICE,
+      priceUnit: "per_visit" as const,
     });
     services.push({
       id: `draft-service-${index++}`,
@@ -134,7 +143,7 @@ function buildServices(draft: SignupDraft): ProviderServiceOffering[] {
       serviceType: "boarding",
       title: SERVICE_LABELS.boarding,
       shortDescription:
-        `Your dog stays with me. ${draft.homeType || ""} · ${draft.outdoorSpace || ""}.`.trim(),
+        `Overnight stays at my home. ${draft.homeType || ""} · ${draft.outdoorSpace || ""}.`.trim(),
       priceFrom: draft.prices.boarding ?? FALLBACK_PRICE,
       priceUnit: "per_night" as const,
     });

@@ -39,8 +39,9 @@ export const defaultSignupDraft: SignupDraft = {
   dogStayArea: "",
   // Pricing — set in /signup/pricing
   prices: {
-    walk_checkin: null,
-    inhome_sitting: null,
+    walks_checkins: null,
+    house_sitting: null,
+    day_care: null,
     boarding: null,
   },
   acceptTos: false,
@@ -121,7 +122,7 @@ export const providers: ProviderCard[] = [
     blurb: "Clean, fun & safe home for your pup",
     avatarUrl:
       "/images/generated/lucie-profile.jpeg",
-    services: ["walk_checkin", "inhome_sitting"],
+    services: ["walks_checkins", "house_sitting", "day_care"],
     availableTimes: ["6-11", "11-15"],
     distanceKm: 0.8,
     neighbourhoodMatch: true,
@@ -141,7 +142,7 @@ export const providers: ProviderCard[] = [
     priceUnit: "per_walk",
     blurb: "Force-free trainer · group sessions at Stromovka + 1-on-1s",
     avatarUrl: "/images/generated/klara-profile.jpeg",
-    services: ["walk_checkin"],
+    services: ["walks_checkins"],
     availableTimes: ["6-11", "11-15", "15-22"],
     distanceKm: 1.5,
     neighbourhoodMatch: false,
@@ -191,7 +192,7 @@ export const providers: ProviderCard[] = [
     blurb: "Structured walks and calm routines",
     avatarUrl:
       "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=200&q=80",
-    services: ["walk_checkin", "boarding"],
+    services: ["walks_checkins", "boarding"],
     availableTimes: ["11-15", "15-22"],
     distanceKm: 2.3,
     neighbourhoodMatch: false,
@@ -212,7 +213,7 @@ export const providers: ProviderCard[] = [
     blurb: "Patient care for shy and senior dogs",
     avatarUrl:
       "/images/generated/eva-profile.jpeg",
-    services: ["walk_checkin", "inhome_sitting", "boarding"],
+    services: ["walks_checkins", "house_sitting", "day_care", "boarding"],
     availableTimes: ["6-11", "15-22"],
     distanceKm: 3.7,
     neighbourhoodMatch: false,
@@ -233,7 +234,7 @@ export const providers: ProviderCard[] = [
     blurb: "Solo walks with a trainer's touch",
     avatarUrl:
       "/images/generated/shawn-profile.jpg",
-    services: ["walk_checkin"],
+    services: ["walks_checkins"],
     availableTimes: ["6-11", "15-22"],
     distanceKm: 1.5,
     neighbourhoodMatch: false,
@@ -254,7 +255,7 @@ export const providers: ProviderCard[] = [
     blurb: "Premium full-service care in the heart of Prague",
     avatarUrl:
       "/images/generated/tereza-profile.jpeg",
-    services: ["walk_checkin", "inhome_sitting", "boarding"],
+    services: ["walks_checkins", "day_care", "boarding"],
     availableTimes: ["11-15"],
     distanceKm: 3.2,
     neighbourhoodMatch: false,
@@ -275,7 +276,7 @@ export const providers: ProviderCard[] = [
     blurb: "Family home, sociable dogs very welcome",
     avatarUrl:
       "/images/generated/daniel-profile.jpeg",
-    services: ["walk_checkin", "boarding"],
+    services: ["walks_checkins", "boarding"],
     availableTimes: ["6-11", "11-15"],
     distanceKm: 4.1,
     neighbourhoodMatch: false,
@@ -296,7 +297,7 @@ export const providers: ProviderCard[] = [
     blurb: "Calm, attentive home sitter — always available",
     avatarUrl:
       "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=200&q=80",
-    services: ["inhome_sitting", "boarding"],
+    services: ["day_care", "boarding"],
     availableTimes: ["11-15"],
     distanceKm: 2.0,
     neighbourhoodMatch: false,
@@ -317,7 +318,7 @@ export const providers: ProviderCard[] = [
     blurb: "Active walks and reliable boarding by the river",
     avatarUrl:
       "/images/generated/martin-profile.jpeg",
-    services: ["walk_checkin", "boarding"],
+    services: ["walks_checkins", "boarding"],
     availableTimes: ["6-11", "15-22"],
     distanceKm: 1.8,
     neighbourhoodMatch: false,
@@ -338,7 +339,7 @@ export const providers: ProviderCard[] = [
     blurb: "Affordable care for all dogs — walks and overnight",
     avatarUrl:
       "/images/generated/jana-profile.jpeg",
-    services: ["walk_checkin", "inhome_sitting", "boarding"],
+    services: ["walks_checkins", "house_sitting", "day_care", "boarding"],
     availableTimes: ["6-11", "11-15"],
     distanceKm: 2.9,
     neighbourhoodMatch: false,
@@ -359,7 +360,7 @@ export const providers: ProviderCard[] = [
     blurb: "Home away from home — sitting and boarding only",
     avatarUrl:
       "/images/generated/tomas-profile.jpeg",
-    services: ["inhome_sitting", "boarding"],
+    services: ["day_care", "boarding"],
     availableTimes: ["6-11", "11-15", "15-22"],
     distanceKm: 5.2,
     neighbourhoodMatch: false,

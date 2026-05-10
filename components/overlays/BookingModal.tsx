@@ -32,7 +32,7 @@ export function BookingModal({
   defaultService,
 }: BookingModalProps) {
   const initialService: ServiceType =
-    defaultService ?? services[0]?.serviceType ?? provider.services[0] ?? "walk_checkin";
+    defaultService ?? services[0]?.serviceType ?? provider.services[0] ?? "walks_checkins";
 
   const [step, setStep] = useState<"form" | "success">("form");
   const [selectedServiceType, setSelectedServiceType] = useState<ServiceType>(initialService);

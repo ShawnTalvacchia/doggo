@@ -104,12 +104,12 @@ export const tereza: UserProfile = {
     services: [
       {
         kind: "care",
-        serviceType: "inhome_sitting",
+        serviceType: "day_care",
         enabled: true,
         pricePerUnit: 150,
         priceUnit: "per_visit",
-        subServices: ["Day sitting"],
-        notes: "Small/medium dogs only. My flat, or yours if nearby.",
+        subServices: ["Special feeding", "Medication"],
+        notes: "Small/medium dogs only at my flat in Vinohrady. Familiar dogs only.",
         modifiers: [
           { kind: "weekend", enabled: true, pct: 15 },
           { kind: "multi_pet", enabled: true, flatPerExtra: 80 },
@@ -117,7 +117,19 @@ export const tereza: UserProfile = {
       },
       {
         kind: "care",
-        serviceType: "walk_checkin",
+        serviceType: "house_sitting",
+        enabled: true,
+        pricePerUnit: 180,
+        priceUnit: "per_visit",
+        subServices: ["Drop-in visit", "Special feeding", "Medication"],
+        notes: "I can come to your home for drop-ins or longer sits — Vinohrady neighbours only.",
+        modifiers: [
+          { kind: "weekend", enabled: true, pct: 15 },
+        ],
+      },
+      {
+        kind: "care",
+        serviceType: "walks_checkins",
         enabled: true,
         pricePerUnit: 200,
         priceUnit: "per_visit",
@@ -213,7 +225,7 @@ export const klara: UserProfile = {
     services: [
       {
         kind: "care",
-        serviceType: "walk_checkin",
+        serviceType: "walks_checkins",
         enabled: true,
         pricePerUnit: 300,
         priceUnit: "per_visit",
@@ -221,7 +233,7 @@ export const klara: UserProfile = {
         notes: "Training walks — structured walk with obedience practice. Max 4 dogs per group.",
       },
       // Meet-type training catalogue (Discover & Care A4, 2026-05-02). The
-      // previous junk-drawer "inhome_sitting" entry held three training
+      // previous junk-drawer "day_care" entry held three training
       // offerings as subServices strings; they're now first-class Meet-type
       // entries — see [[Groups & Care Model]] → Services as Catalog.
       {
@@ -479,12 +491,25 @@ export const petra: UserProfile = {
     services: [
       {
         kind: "care",
-        serviceType: "inhome_sitting",
+        serviceType: "day_care",
         enabled: true,
         pricePerUnit: 120,
         priceUnit: "per_visit",
-        subServices: ["Day sitting", "Overnight"],
-        notes: "My flat in Karlín. Fenced balcony. Max 2 dogs at a time.",
+        subServices: ["Special feeding", "Medication"],
+        notes: "Daytime care at my flat in Karlín. Fenced balcony. Max 2 dogs at a time.",
+        modifiers: [
+          { kind: "weekend", enabled: true, pct: 20 },
+          { kind: "last_minute", enabled: true, pct: 10, thresholdDays: 3 },
+        ],
+      },
+      {
+        kind: "care",
+        serviceType: "boarding",
+        enabled: true,
+        pricePerUnit: 480,
+        priceUnit: "per_night",
+        subServices: ["Special feeding", "Medication"],
+        notes: "Overnight stays at my flat. Fenced balcony. Max 2 dogs at a time. People I know first.",
         modifiers: [
           { kind: "weekend", enabled: true, pct: 20 },
           { kind: "last_minute", enabled: true, pct: 10, thresholdDays: 3 },
@@ -934,7 +959,7 @@ export const shawn: UserProfile = {
     services: [
       {
         kind: "care",
-        serviceType: "walk_checkin",
+        serviceType: "walks_checkins",
         enabled: true,
         pricePerUnit: 280,
         priceUnit: "per_visit",
@@ -1076,11 +1101,11 @@ export const olgaM: UserProfile = {
     services: [
       {
         kind: "care",
-        serviceType: "walk_checkin",
+        serviceType: "walks_checkins",
         enabled: true,
         pricePerUnit: 390,
         priceUnit: "per_visit",
-        subServices: ["Solo walk", "Drop-in"],
+        subServices: ["Solo walk"],
         notes: "45–60 min walks around Smíchovský park or Petřín. Solo walks only.",
         modifiers: [
           { kind: "weekend", enabled: true, pct: 15 },
@@ -1091,12 +1116,24 @@ export const olgaM: UserProfile = {
       },
       {
         kind: "care",
-        serviceType: "inhome_sitting",
+        serviceType: "house_sitting",
+        enabled: true,
+        pricePerUnit: 350,
+        priceUnit: "per_visit",
+        subServices: ["Drop-in visit", "Special feeding", "Medication"],
+        notes: "I can come to your home for drop-in visits. Smíchov / Anděl / Malá Strana.",
+        modifiers: [
+          { kind: "weekend", enabled: true, pct: 15 },
+        ],
+      },
+      {
+        kind: "care",
+        serviceType: "day_care",
         enabled: true,
         pricePerUnit: 500,
         priceUnit: "per_visit",
-        subServices: ["Day sitting"],
-        notes: "Day sitting at my flat. Small/medium dogs only. Max 2 dogs at a time.",
+        subServices: ["Special feeding", "Medication"],
+        notes: "Daytime care at my flat. Small/medium dogs only. Max 2 dogs at a time.",
         modifiers: [
           { kind: "weekend", enabled: true, pct: 15 },
         ],
@@ -1146,7 +1183,7 @@ export const marketaH: UserProfile = {
     services: [
       {
         kind: "care",
-        serviceType: "walk_checkin",
+        serviceType: "walks_checkins",
         enabled: true,
         pricePerUnit: 600,
         priceUnit: "per_visit",
@@ -1162,12 +1199,12 @@ export const marketaH: UserProfile = {
       },
       {
         kind: "care",
-        serviceType: "inhome_sitting",
+        serviceType: "day_care",
         enabled: true,
         pricePerUnit: 700,
         priceUnit: "per_visit",
-        subServices: ["Day sitting", "Overnight"],
-        notes: "Day sitting or overnight at my home. Quiet flat, calm routine, photo updates throughout.",
+        subServices: ["Special feeding", "Medication"],
+        notes: "Daytime care at my home. Quiet flat, calm routine, photo updates throughout.",
         modifiers: [
           { kind: "holiday", enabled: true, pct: 25 },
           { kind: "multi_pet", enabled: true, flatPerExtra: 200 },
@@ -1182,7 +1219,7 @@ export const marketaH: UserProfile = {
         enabled: true,
         pricePerUnit: 850,
         priceUnit: "per_night",
-        subServices: ["Home boarding"],
+        subServices: ["Special feeding", "Medication"],
         notes: "Multi-night boarding at my home. Two daily walks, photo updates, consistent feeding schedule.",
         modifiers: [
           { kind: "holiday", enabled: true, pct: 30 },
@@ -1237,12 +1274,12 @@ export const janaK: UserProfile = {
     services: [
       {
         kind: "care",
-        serviceType: "walk_checkin",
+        serviceType: "walks_checkins",
         enabled: true,
         pricePerUnit: 330,
         priceUnit: "per_visit",
-        subServices: ["Drop-in visit", "Solo walk"],
-        notes: "45 min visits or solo walks. Great fit for shy or senior dogs who need patience.",
+        subServices: ["Solo walk"],
+        notes: "45 min solo walks. Great fit for shy or senior dogs who need patience.",
         modifiers: [
           { kind: "weekend", enabled: true, pct: 10 },
         ],
@@ -1251,12 +1288,24 @@ export const janaK: UserProfile = {
       },
       {
         kind: "care",
-        serviceType: "inhome_sitting",
+        serviceType: "house_sitting",
+        enabled: true,
+        pricePerUnit: 330,
+        priceUnit: "per_visit",
+        subServices: ["Drop-in visit", "Special feeding", "Medication"],
+        notes: "I come to your home for drop-ins or longer sits. Patient with shy and senior dogs.",
+        modifiers: [
+          { kind: "weekend", enabled: true, pct: 10 },
+        ],
+      },
+      {
+        kind: "care",
+        serviceType: "day_care",
         enabled: true,
         pricePerUnit: 430,
         priceUnit: "per_visit",
-        subServices: ["Day sitting"],
-        notes: "Day sitting at my flat — small/medium dogs only. Max 2 at once.",
+        subServices: ["Special feeding", "Medication"],
+        notes: "Daytime care at my flat — small/medium dogs only. Max 2 at once.",
         modifiers: [
           { kind: "weekend", enabled: true, pct: 10 },
         ],
@@ -1323,7 +1372,7 @@ export const tomasB: UserProfile = {
     services: [
       {
         kind: "care",
-        serviceType: "walk_checkin",
+        serviceType: "walks_checkins",
         enabled: true,
         pricePerUnit: 520,
         priceUnit: "per_visit",
@@ -1376,7 +1425,7 @@ export const pavelD: UserProfile = {
     services: [
       {
         kind: "care",
-        serviceType: "walk_checkin",
+        serviceType: "walks_checkins",
         enabled: true,
         pricePerUnit: 440,
         priceUnit: "per_visit",
@@ -1447,12 +1496,12 @@ export const simonaV: UserProfile = {
     services: [
       {
         kind: "care",
-        serviceType: "inhome_sitting",
+        serviceType: "day_care",
         enabled: true,
         pricePerUnit: 350,
         priceUnit: "per_visit",
-        subServices: ["Day sitting"],
-        notes: "Day sitting at my flat — calm, low-traffic environment. Small to medium dogs only.",
+        subServices: ["Special feeding", "Medication"],
+        notes: "Daytime care at my flat — calm, low-traffic environment. Small to medium dogs only.",
         modifiers: [
           { kind: "weekend", enabled: true, pct: 10 },
           { kind: "multi_pet", enabled: true, flatPerExtra: 100 },
@@ -1520,7 +1569,7 @@ export const martinK: UserProfile = {
     services: [
       {
         kind: "care",
-        serviceType: "walk_checkin",
+        serviceType: "walks_checkins",
         enabled: true,
         pricePerUnit: 480,
         priceUnit: "per_visit",
@@ -1590,12 +1639,12 @@ export const lenkaS: UserProfile = {
     services: [
       {
         kind: "care",
-        serviceType: "walk_checkin",
+        serviceType: "walks_checkins",
         enabled: true,
         pricePerUnit: 310,
         priceUnit: "per_visit",
-        subServices: ["Drop-in visit", "Solo walk"],
-        notes: "45 min visits or walks around Heroldovy sady or Bohemians stadium area.",
+        subServices: ["Solo walk"],
+        notes: "45 min walks around Heroldovy sady or Bohemians stadium area.",
         modifiers: [
           { kind: "weekend", enabled: true, pct: 10 },
         ],
@@ -1604,12 +1653,24 @@ export const lenkaS: UserProfile = {
       },
       {
         kind: "care",
-        serviceType: "inhome_sitting",
+        serviceType: "house_sitting",
+        enabled: true,
+        pricePerUnit: 310,
+        priceUnit: "per_visit",
+        subServices: ["Drop-in visit", "Special feeding", "Medication"],
+        notes: "Drop-in visits at your home — Vršovice and Vinohrady. Quiet handling.",
+        modifiers: [
+          { kind: "weekend", enabled: true, pct: 10 },
+        ],
+      },
+      {
+        kind: "care",
+        serviceType: "day_care",
         enabled: true,
         pricePerUnit: 410,
         priceUnit: "per_visit",
-        subServices: ["Day sitting"],
-        notes: "Day sitting at my flat. Cosy and quiet — I study from home.",
+        subServices: ["Special feeding", "Medication"],
+        notes: "Daytime care at my flat. Cosy and quiet — I study from home.",
         modifiers: [],
         homeType: "flat",
         hasOwnDogs: false,
@@ -1621,7 +1682,7 @@ export const lenkaS: UserProfile = {
         enabled: true,
         pricePerUnit: 640,
         priceUnit: "per_night",
-        subServices: ["Home boarding"],
+        subServices: ["Special feeding", "Medication"],
         notes: "Overnight stays at my flat. Mostly student schedule so dogs get plenty of attention.",
         modifiers: [
           { kind: "holiday", enabled: true, pct: 20 },
@@ -1672,12 +1733,12 @@ export const petrV: UserProfile = {
     services: [
       {
         kind: "care",
-        serviceType: "inhome_sitting",
+        serviceType: "day_care",
         enabled: true,
         pricePerUnit: 480,
         priceUnit: "per_visit",
-        subServices: ["Day sitting"],
-        notes: "Day sitting at my house. Garden access, my own dog is friendly with all sizes.",
+        subServices: ["Special feeding", "Medication"],
+        notes: "Daytime care at my house. Garden access, my own dog is friendly with all sizes.",
         modifiers: [
           { kind: "multi_pet", enabled: true, flatPerExtra: 150 },
         ],

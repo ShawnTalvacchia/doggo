@@ -35,8 +35,9 @@ const VISIBILITY_COLORS: Record<CarerVisibility, string> = {
 };
 
 const SERVICE_ICON_MAP: Record<string, React.ReactNode> = {
-  walk_checkin: <PawPrint size={22} weight="fill" />,
-  inhome_sitting: <House size={22} weight="fill" />,
+  walks_checkins: <PawPrint size={22} weight="fill" />,
+  house_sitting: <House size={22} weight="fill" />,
+  day_care: <House size={22} weight="fill" />,
   boarding: <Moon size={22} weight="fill" />,
 };
 

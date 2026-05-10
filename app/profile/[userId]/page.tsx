@@ -658,7 +658,7 @@ function UserProfileInner() {
               const careWithHome = services.find(
                 (s): s is import("@/lib/types").CarerCareServiceConfig =>
                   s.kind === "care" &&
-                  (s.serviceType === "inhome_sitting" || s.serviceType === "boarding") &&
+                  (s.serviceType === "day_care" || s.serviceType === "boarding") &&
                   (s.homeType !== undefined ||
                     s.hasOwnDogs !== undefined ||
                     s.hasYard !== undefined ||
@@ -884,7 +884,7 @@ function UserProfileInner() {
                     const unitWord =
                       svcType === "boarding"
                         ? "night"
-                        : svcType === "inhome_sitting"
+                        : svcType === "day_care" || svcType === "house_sitting"
                           ? "visit"
                           : "walk";
                     return (

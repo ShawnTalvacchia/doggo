@@ -16,17 +16,17 @@ review-trigger: When any task is completed or blocked
 
 ---
 
-## Phase decisions to settle at open
+## Phase decisions — resolved at open (2026-05-10)
 
-These are not pre-decided; the phase opens with a taxonomy discussion before any code change. The shape below is the **resolution direction surfaced during Discover Refinement walkthrough D-stream** — confirm or adjust at phase open.
+Settled at phase open. Full reasoning landed in [[Groups & Care Model]] → "Care taxonomy — the four services."
 
-1. **Four-service model.** Walks & Check-ins / Sitting (at owner's home) / Day care (carer's home, daytime) / Boarding (carer's home, overnight). Replaces today's three-service `walk_checkin | inhome_sitting | boarding`. Resolves the "Sitting" semantic ambiguity AND adds the missing "carer hosts during day" service cleanly.
+1. **Four-service model — confirmed.** `walks_checkins` / `house_sitting` / `day_care` / `boarding`. **"House sitting"** chosen over "Sitting (at your home)" because the English convention bakes the location into the noun (a house-sitter goes to your house) — no parenthetical needed. Replaces today's three-service `walk_checkin | inhome_sitting | boarding`.
 
-2. **Where Drop-in Visits live.** Today bundled into `walk_checkin` as a sub-service. With Sitting newly meaning "at owner's home," does Drop-in stay in Walks (briefly visiting owner's home for a check-in) or move to Sitting (logically a short version of the same thing)?
+2. **Drop-in visits move to House sitting.** Same shape as a longer house-sit (carer goes to owner's home, finite duration), so Drop-in becomes a House-sitting sub-service. Walks & Check-ins narrows to *outdoor activity with the dog*.
 
-3. **Sitting price unit.** Per visit, per night, both? Walks-and-check-ins is per visit; Day care per visit; Boarding per night. Sitting at owner's home could realistically be either (e.g. the carer comes for a 2-hour evening sit vs. stays the weekend).
+3. **House sitting price unit — both, default per-visit.** Carer can flip to per-night when offering overnight stays. Walks → per-visit only; Day care → per-visit only; Boarding → per-night only. No engine change — `priceUnit: "per_visit" | "per_night"` already supports either.
 
-4. **Avoid recurrence.** Whatever the resolved label, document it inline in `lib/types.ts` next to the enum so future-us doesn't drift the meaning again. Consider a longer label like "Sitting (at your home)" or "House sitting" if "Sitting" alone keeps ambiguous.
+4. **Naming + drift-prevention.** Variant names carry intent (`house_sitting` = owner's home; `day_care` = carer's home, day; `boarding` = carer's home, night). Inline doc next to the enum in `lib/types.ts` documents whose home and day-vs-overnight per variant. Drift to ambiguous "sitting" labels treated as a regression in future reviews. Czech-naming check (does "House sitting" / "Day care" map cleanly to *hlídání u vás doma* / *psí školka*?) bundled into Workstream A2 before labels lock.
 
 ---
 
@@ -34,12 +34,24 @@ These are not pre-decided; the phase opens with a taxonomy discussion before any
 
 Complete before writing any code. Mark each item done.
 
-- [ ] Read every task and its referenced docs
-- [ ] **Settle the four-service taxonomy decision** (Phase decisions §1–§4 above) — write the resolution into [[Groups & Care Model]] → Services as Catalog before code changes start
-- [ ] Review Open Questions log — confirm §4 Care service taxonomy + filter cluster maps cleanly to the workstreams below
-- [ ] Audit for conflicts between phase plan and current codebase — particularly the `ServiceType` enum (9 `Record<ServiceType, X>` consumers) and seeded carer service configs
-- [ ] Update any referenced docs with `last-reviewed` older than 2 weeks
-- [ ] Confirm scope — no tasks that belong in a different phase
+- [x] Read every task and its referenced docs
+- [x] **Settle the four-service taxonomy decision** (Phase decisions §1–§4 above) — written into [[Groups & Care Model]] → "Care taxonomy — the four services" (2026-05-10)
+- [x] Review Open Questions log — §4 Care service taxonomy + filter cluster maps cleanly: bullets 1–4 resolve in Workstream A; "Filter panel redesign" sub-bullet maps to Workstream B
+- [x] Audit for conflicts between phase plan and current codebase — see "Audit findings" below. Migration footprint is broader than the phase board's "9 consumers" estimate (~36 files referencing `ServiceType` or its string literals); seeded `inhome_sitting` drift confirmed total (every config describes carer's home, not owner's home)
+- [x] Update any referenced docs with `last-reviewed` older than 2 weeks — all referenced docs (Open Questions, Groups & Care Model, explore-and-care, CONTRIBUTING) reviewed within 2 weeks
+- [x] Confirm scope — no tasks belong in a different phase. Out-of-scope items (Carer audience-setting toggle UI, "Open to bookings" status pill P63, per-service visibility, multi-pet booking treatment, free intro session toggle) listed below. P60 (Carer sub-specifications on Identity badge) inherits cleaner vocabulary from this phase but stays on the punch list — separate work.
+
+### Audit findings (recorded at open, 2026-05-10)
+
+- **Drift confirmed total.** Every seeded `inhome_sitting` config describes carer-side day care at the carer's home — notes consistently reference "my flat" / "my home" / "Day sitting at my flat"; configs carry `homeType` / `hasOwnDogs` fields that only describe the carer's premises. One entry mixed `subServices: ["Day sitting", "Overnight"]`, conflating day care and boarding. Zero seeded configs match the original "babysitter at owner's home" intent.
+
+- **Adjacent fingerprint.** [`SUB_SERVICES.boarding`](../../lib/constants/services.ts) already encoded `["Day care", "Overnight"]` — Day care was always trying to be a peer service but got cobbled in at the sub-services layer. The migration promotes it cleanly.
+
+- **Migration scope (revised vs phase board's ~9 consumers).** Direct `ServiceType` references span ~36 files: `lib/` (types, pricing, constants/services, mockUsers, mockBookings, mockConversations, mockConnections, mockData, query, draftToProfile, notificationBuilders, useActiveSession, data/providers, data/providerContent), `app/` (discover/care, signup/pricing, profile, bookings, inbox, styleguide), `components/` (explore × 6, discover, profile, messaging × 3, bookings × 3, schedule, overlays). Most are display-chrome (icon/copy keying) — easy. The hard ones: `mockUsers.ts` (every seeded carer's services need re-keying + new `house_sitting` configs added for carers who'd plausibly offer it), `mockBookings.ts` (existing bookings reference `inhome_sitting`), `mockConversations.ts` (inquiry/proposal artifacts in seeded threads). **Realistic "build green again" effort: closer to a full day than a half-day.**
+
+- **Sub-service migration map.** Today: `walk_checkin: ["Drop-in visit", "Solo walk", "Group walk"]`, `inhome_sitting: ["Full-time care", "Special feeding", "Medication", "Walking", "Walking +30 mins"]`, `boarding: ["Day care", "Overnight"]`. After: `walks_checkins: ["Solo walk", "Group walk"]` (Drop-in moves out; Walking moves out from inhome_sitting), `house_sitting: ["Drop-in visit", "Full-time care", "Special feeding", "Medication"]` (Drop-in arrives; Full-time / Special feeding / Medication retain), `day_care: ["Special feeding", "Medication"]` (carer's-home daytime — the seeded `inhome_sitting` configs migrate here), `boarding: ["Special feeding", "Medication"]` (Day care promoted to peer; Overnight is the implicit default of boarding so removed). Final sub-service lists settle in Workstream B3 (sub-services accordion design).
+
+- **P60 alignment.** Punch list P60 (Carer sub-specifications on the Identity badge) lists candidate sub-specs as Trainer / Walker / Sitter / Boarder / Day-care. After this phase, "Sitter" / "Day-care" map cleanly to `house_sitting` / `day_care`. No action needed — P60 inherits sharper vocabulary for free.
 
 ---
 

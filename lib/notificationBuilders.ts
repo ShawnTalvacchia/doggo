@@ -20,15 +20,20 @@ function actionPhrases(
   petName: string,
 ): { started: string; finished: string } {
   switch (serviceType) {
-    case "walk_checkin":
+    case "walks_checkins":
       return {
         started: `started ${petName}'s walk`,
         finished: `finished ${petName}'s walk`,
       };
-    case "inhome_sitting":
+    case "house_sitting":
       return {
         started: `started sitting with ${petName}`,
         finished: `finished sitting with ${petName}`,
+      };
+    case "day_care":
+      return {
+        started: `started ${petName}'s day care`,
+        finished: `finished ${petName}'s day care`,
       };
     case "boarding":
       return {

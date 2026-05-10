@@ -47,8 +47,9 @@ type FilterPillKey = "all" | ServiceType | "appointment";
 
 const TYPE_TABS: { key: FilterPillKey; label: string }[] = [
   { key: "all", label: "All" },
-  { key: "walk_checkin", label: "Walks" },
-  { key: "inhome_sitting", label: "Sitting" },
+  { key: "walks_checkins", label: "Walks" },
+  { key: "house_sitting", label: "House sitting" },
+  { key: "day_care", label: "Day care" },
   { key: "boarding", label: "Boarding" },
   { key: "appointment", label: "Appointment" },
 ];
@@ -94,10 +95,37 @@ const HOME_OPTIONS: { value: HomeType; label: string }[] = [
 
 /* ── Filter state ────────────────────────────────────────────────────────── */
 
+/** Saved address — keyed entry the address picker offers. The viewer's
+ *  primary neighbourhood seeds one entry; further entries arrive from
+ *  saved-place plumbing in a future phase. */
+interface SavedAddress {
+  id: string;
+  label: string;
+  neighbourhood: string;
+}
+
 interface CareFilters {
+  /** Pet IDs from the viewer's profile that should be considered for this
+   *  booking. Drives the multi-pet capacity predicate (Day care + Boarding
+   *  gate on `config.maxDogs`). For Walks + House sitting it's informational
+   *  only — flows through to inquiry-form prefill. Care Catalog Taxonomy
+   *  & Filter Redesign B1, 2026-05-10. */
+  selectedPetIds: string[];
+  /** Active address (id of a saved address). Drives the distance signal on
+   *  cards and the `from-here` framing in result copy. Care Catalog
+   *  Taxonomy B2, 2026-05-10. */
+  addressId: string | null;
+  /** Selected sub-services per active service. Multi-select inside the
+   *  Sub-services accordion. When non-empty, gates carers whose configured
+   *  `subServices` overlap with the selection. Care Catalog Taxonomy B3,
+   *  2026-05-10. */
+  selectedSubServices: string[];
   selectedDays: DayLabel2[];
-  /** Coarse availability windows (morning/afternoon/evening). Discover
-   *  Refinement E2, 2026-05-10. */
+  /** Coarse availability windows (morning/afternoon/evening). Resolved for
+   *  good in Care Catalog Taxonomy B4 (2026-05-10) — the underlying
+   *  `CarerAvailabilitySlot.slots` field is `TimeSlot[]` keyed by
+   *  morning/afternoon/evening, so any finer-grained band would have to
+   *  invent data the carer never entered. */
   selectedSlots: TimeSlot[];
   /** Inquiry-shape preset: a one-off booking vs a repeat weekly arrangement.
    *  Doesn't restrict the carer list (most carers do both); flows through
@@ -108,7 +136,7 @@ interface CareFilters {
   // Service-aware (Walks)
   walkPace: WalkPace[];
   leashPolicy: LeashPolicy[];
-  // Service-aware (Sitting / Boarding)
+  // Service-aware (Day care / Boarding — at carer's home)
   homeType: HomeType[];
   hasOwnDogs: "any" | "yes" | "no";
   // Service-aware (Boarding only)
@@ -116,6 +144,9 @@ interface CareFilters {
 }
 
 const DEFAULT_FILTERS: CareFilters = {
+  selectedPetIds: [],
+  addressId: null,
+  selectedSubServices: [],
   selectedDays: [],
   selectedSlots: [],
   visitMode: "repeat",
@@ -209,7 +240,7 @@ function applyAllFilters(
   if (activeService) {
     const config = carerServiceConfig(provider, activeService);
 
-    if (activeService === "walk_checkin") {
+    if (activeService === "walks_checkins") {
       if (filters.walkPace.length > 0) {
         if (!config?.pace || !filters.walkPace.includes(config.pace)) return false;
       }
@@ -218,7 +249,7 @@ function applyAllFilters(
       }
     }
 
-    if (activeService === "inhome_sitting" || activeService === "boarding") {
+    if (activeService === "day_care" || activeService === "boarding") {
       if (filters.homeType.length > 0) {
         if (!config?.homeType || !filters.homeType.includes(config.homeType)) return false;
       }
@@ -284,17 +315,22 @@ function CareFilterPanel({
   filters: CareFilters;
   onFiltersChange: (update: Partial<CareFilters>) => void;
 }) {
-  // Rate bounds adapt to the active pill — Walks are 150–900, Sitting
-  // 500–1800, Boarding 450–1600. When `pill === "all"` or `"appointment"`,
-  // we widen to the full FILTER_RATE bounds so the slider doesn't clip.
+  // Rate bounds adapt to the active pill — see `getExploreRateBounds` for
+  // per-service bands. When `pill === "all"` or `"appointment"`, we widen to
+  // the full FILTER_RATE bounds so the slider doesn't clip.
   const rateBounds =
-    pill === "walk_checkin" || pill === "inhome_sitting" || pill === "boarding"
+    pill === "walks_checkins" ||
+    pill === "house_sitting" ||
+    pill === "day_care" ||
+    pill === "boarding"
       ? getExploreRateBounds(pill)
       : { min: FILTER_RATE_MIN_KC, max: FILTER_RATE_MAX_KC };
 
-  // Service-aware visibility flags — drive which field groups render.
-  const showWalkFields = pill === "walk_checkin";
-  const showHomeFields = pill === "inhome_sitting" || pill === "boarding";
+  // Service-aware visibility flags — drive which field groups render. House
+  // sitting (carer goes to OWNER's home) does NOT show carer-home fields;
+  // those live on Day care + Boarding (carer's home).
+  const showWalkFields = pill === "walks_checkins";
+  const showHomeFields = pill === "day_care" || pill === "boarding";
   const showYardField = pill === "boarding";
 
   return (
@@ -604,11 +640,11 @@ function DiscoverCareInner() {
       hasYard: "any",
       // Reset price range to the new pill's bounds (or full bounds for non-Care pills).
       minRate:
-        next === "walk_checkin" || next === "inhome_sitting" || next === "boarding"
+        next === "walks_checkins" || next === "day_care" || next === "boarding"
           ? getExploreRateBounds(next).min
           : FILTER_RATE_MIN_KC,
       maxRate:
-        next === "walk_checkin" || next === "inhome_sitting" || next === "boarding"
+        next === "walks_checkins" || next === "day_care" || next === "boarding"
           ? getExploreRateBounds(next).max
           : FILTER_RATE_MAX_KC,
     }));

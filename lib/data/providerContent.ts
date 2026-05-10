@@ -110,13 +110,13 @@ function defaultServices(provider: ProviderCard): ProviderServiceOffering[] {
   const nightBase = Math.round((provider.priceFrom * 2.5) / 10) * 10;
 
   return provider.services.map((service, index) => {
-    if (service === "walk_checkin") {
+    if (service === "walks_checkins") {
       const base = provider.priceFrom;
       return {
         id: `${provider.id}-default-service-${index + 1}`,
         providerId: provider.id,
         serviceType: service,
-        title: SERVICE_LABELS.walk_checkin,
+        title: SERVICE_LABELS.walks_checkins,
         shortDescription: "Short visits at your home",
         priceFrom: base,
         priceUnit: "per_visit" as const,
@@ -146,13 +146,13 @@ function defaultServices(provider: ProviderCard): ProviderServiceOffering[] {
       };
     }
 
-    if (service === "inhome_sitting") {
+    if (service === "day_care") {
       const base = nightBase;
       return {
         id: `${provider.id}-default-service-${index + 1}`,
         providerId: provider.id,
         serviceType: service,
-        title: SERVICE_LABELS.inhome_sitting,
+        title: SERVICE_LABELS.day_care,
         shortDescription: "Overnight care at your home",
         priceFrom: base,
         priceUnit: "per_night" as const,
@@ -335,8 +335,8 @@ const providerFallbackDetails: Record<
       {
         id: `${providerId}-svc-walk`,
         providerId,
-        serviceType: "walk_checkin",
-        title: SERVICE_LABELS.walk_checkin,
+        serviceType: "walks_checkins",
+        title: SERVICE_LABELS.walks_checkins,
         shortDescription: "Neighborhood walks, potty breaks, and photo updates.",
         priceFrom: 390,
         priceUnit: "per_visit",
@@ -346,8 +346,8 @@ const providerFallbackDetails: Record<
       {
         id: `${providerId}-svc-sitting`,
         providerId,
-        serviceType: "inhome_sitting",
-        title: SERVICE_LABELS.inhome_sitting,
+        serviceType: "day_care",
+        title: SERVICE_LABELS.day_care,
         shortDescription: "Overnight care at your home with full routine support.",
         priceFrom: 980,
         priceUnit: "per_night",
@@ -419,8 +419,8 @@ const providerFallbackDetails: Record<
       {
         id: `${providerId}-svc-walk`,
         providerId,
-        serviceType: "walk_checkin",
-        title: SERVICE_LABELS.walk_checkin,
+        serviceType: "walks_checkins",
+        title: SERVICE_LABELS.walks_checkins,
         shortDescription:
           "Purposeful, structured walks for dogs that need calm, confident handling.",
         priceFrom: 470,
@@ -513,8 +513,8 @@ const providerFallbackDetails: Record<
       {
         id: `${providerId}-svc-walk`,
         providerId,
-        serviceType: "walk_checkin",
-        title: SERVICE_LABELS.walk_checkin,
+        serviceType: "walks_checkins",
+        title: SERVICE_LABELS.walks_checkins,
         shortDescription:
           "Solo, focused walks — never grouped. Each dog gets undivided attention and a structured route.",
         priceFrom: 520,
@@ -584,8 +584,8 @@ const providerFallbackDetails: Record<
       {
         id: `${providerId}-svc-walk`,
         providerId,
-        serviceType: "walk_checkin",
-        title: SERVICE_LABELS.walk_checkin,
+        serviceType: "walks_checkins",
+        title: SERVICE_LABELS.walks_checkins,
         shortDescription: "Attentive solo walks through central Prague parks, with photo updates.",
         priceFrom: 600,
         priceUnit: "per_visit",
@@ -595,8 +595,8 @@ const providerFallbackDetails: Record<
       {
         id: `${providerId}-svc-sitting`,
         providerId,
-        serviceType: "inhome_sitting",
-        title: SERVICE_LABELS.inhome_sitting,
+        serviceType: "day_care",
+        title: SERVICE_LABELS.day_care,
         shortDescription: "Overnight care in your home — full routine, medication, and updates.",
         priceFrom: 1200,
         priceUnit: "per_night",
@@ -692,8 +692,8 @@ const providerFallbackDetails: Record<
       {
         id: `${providerId}-svc-walk`,
         providerId,
-        serviceType: "walk_checkin",
-        title: SERVICE_LABELS.walk_checkin,
+        serviceType: "walks_checkins",
+        title: SERVICE_LABELS.walks_checkins,
         shortDescription:
           "High-energy walks and potty check-ins through Karlín's parks and trails.",
         priceFrom: 440,
@@ -782,8 +782,8 @@ const providerFallbackDetails: Record<
       {
         id: `${providerId}-svc-walk`,
         providerId,
-        serviceType: "walk_checkin",
-        title: SERVICE_LABELS.walk_checkin,
+        serviceType: "walks_checkins",
+        title: SERVICE_LABELS.walks_checkins,
         shortDescription: "Gentle, patient walks suited to shy, elderly, or recovering dogs.",
         priceFrom: 330,
         priceUnit: "per_visit",
@@ -793,8 +793,8 @@ const providerFallbackDetails: Record<
       {
         id: `${providerId}-svc-sitting`,
         providerId,
-        serviceType: "inhome_sitting",
-        title: SERVICE_LABELS.inhome_sitting,
+        serviceType: "day_care",
+        title: SERVICE_LABELS.day_care,
         shortDescription:
           "Overnight care at your home. Medication, special diets, and post-surgical care welcome.",
         priceFrom: 850,
@@ -870,8 +870,8 @@ const providerFallbackDetails: Record<
       {
         id: `${providerId}-svc-sitting`,
         providerId,
-        serviceType: "inhome_sitting",
-        title: SERVICE_LABELS.inhome_sitting,
+        serviceType: "day_care",
+        title: SERVICE_LABELS.day_care,
         shortDescription: "Overnight care in your home — I follow your routines to the letter.",
         priceFrom: 990,
         priceUnit: "per_night",

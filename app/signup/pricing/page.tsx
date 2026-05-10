@@ -26,26 +26,34 @@ type ServiceConfig = {
 };
 const SERVICE_CONFIGS: ServiceConfig[] = [
   {
-    type: "walk_checkin",
-    label: SERVICE_LABELS.walk_checkin,
+    type: "walks_checkins",
+    label: SERVICE_LABELS.walks_checkins,
     unit: "per visit",
-    hint: "A single walk or drop-in visit. Owners compare this first.",
+    hint: "A single walk or check-in. Owners compare this first.",
     marketRange: "Typical in Prague: 250–700 Kč",
     Icon: PersonSimpleWalk,
   },
   {
-    type: "inhome_sitting",
-    label: SERVICE_LABELS.inhome_sitting,
-    unit: "per night",
-    hint: "You stay at the owner's home overnight.",
-    marketRange: "Typical in Prague: 700–1,400 Kč",
+    type: "house_sitting",
+    label: SERVICE_LABELS.house_sitting,
+    unit: "per visit",
+    hint: "You go to the owner's home — drop-ins through full sits.",
+    marketRange: "Typical in Prague: 300–1,200 Kč",
+    Icon: House,
+  },
+  {
+    type: "day_care",
+    label: SERVICE_LABELS.day_care,
+    unit: "per visit",
+    hint: "Daytime care at your home. Returns to owner same day.",
+    marketRange: "Typical in Prague: 400–1,000 Kč",
     Icon: House,
   },
   {
     type: "boarding",
     label: SERVICE_LABELS.boarding,
     unit: "per night",
-    hint: "The dog stays at your home.",
+    hint: "Overnight stay at your home.",
     marketRange: "Typical in Prague: 600–1,200 Kč",
     Icon: PawPrint,
   },
@@ -98,8 +106,9 @@ export default function SignupPricingPage() {
 
   // Only show services the provider actually offers
   const activeServices = SERVICE_CONFIGS.filter((cfg) => {
-    if (cfg.type === "walk_checkin") return draft.roles.includes("walker");
-    if (cfg.type === "inhome_sitting") return draft.roles.includes("host");
+    if (cfg.type === "walks_checkins") return draft.roles.includes("walker");
+    if (cfg.type === "house_sitting") return draft.roles.includes("walker");
+    if (cfg.type === "day_care") return draft.roles.includes("host");
     if (cfg.type === "boarding") return draft.roles.includes("host");
     return false;
   });

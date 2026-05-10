@@ -149,7 +149,7 @@ Care groups get a set of configuration toggles. Platform suggests defaults based
 
 ### The three offering types
 
-**Care-type offerings** — Walking, Sitting, Boarding. The provider takes the dog. The owner doesn't sign up to a specific scheduled session; they buy the service and the provider delivers it. Booking produces a **Booking** record. No meet, no calendar event the owner attends.
+**Care-type offerings** — Walks & Check-ins, House sitting, Day care, Boarding. The provider takes the dog (or in the case of House sitting, comes to the dog). The owner doesn't sign up to a specific scheduled session; they buy the service and the provider delivers it. Booking produces a **Booking** record. No meet, no calendar event the owner attends.
 
 **Meet-type offerings** — Training sessions, paid group walks, workshops. The owner signs up to a specific date/time. Booking produces an attendance on a specific **Meet**. Has a calendar instance with a roster.
 
@@ -159,16 +159,36 @@ The two test questions distinguish all three:
 - **Does someone sign up to a specific time?** No → Care. Yes → Meet *or* Appointment.
 - **Are there other dogs / a roster?** Yes → Meet. No → Appointment.
 
+### Care taxonomy — the four services (resolved Care Catalog Taxonomy & Filter Redesign, 2026-05-10)
+
+The Care offering shape splits into four services, distinguished by *whose home* and *day vs overnight*. The earlier three-service model (`walk_checkin | inhome_sitting | boarding`) drifted — `inhome_sitting` was originally intended as the babysitter-metaphor "carer comes to owner's home" but every seeded config drifted to "carer hosts dog at carer's home, daytime." This taxonomy decision separates the two cleanly and adds Day care as a peer service.
+
+| Service (`ServiceType`) | Whose home | Day / Overnight | Default price unit | Notes |
+|---|---|---|---|---|
+| **Walks & Check-ins** (`walks_checkins`) | Outdoor / public | Day | Per visit | Outdoor activity with the dog. Solo walks, group walks, walk-and-potty check-ins. Excludes home visits. |
+| **House sitting** (`house_sitting`) | **Owner's** home | Day (default) or overnight | Per visit (default), per night optional | Carer goes to the owner's home. Includes drop-in visits (short version) through to overnight stays. The babysitter metaphor — Sitting *at your house*. |
+| **Day care** (`day_care`) | **Carer's** home | Day | Per visit | Carer hosts the dog at the carer's home during the daytime. Returns to owner same day. |
+| **Boarding** (`boarding`) | **Carer's** home | Overnight | Per night | Carer hosts the dog at the carer's home overnight. |
+
+**Where Drop-in Visits live.** Drop-ins move into House sitting, not Walks. A drop-in (carer briefly visits owner's home for feeding / potty / medication / company) is a short version of House sitting — same shape, finite duration, same `homeType: owner` semantics. Walks & Check-ins narrows to *outdoor activity with the dog*; pure indoor home visits live under House sitting as a sub-service.
+
+**House sitting price unit.** Per-visit by default; per-night available when the carer offers overnight stays. Same carer can plausibly do both shapes (a 2-hour evening sit vs a weekend stay-over) so the data model supports either via the existing `priceUnit: "per_visit" | "per_night"` field — no engine change. Walks → per-visit only; Day care → per-visit only; Boarding → per-night only.
+
+**Avoiding future drift.** The enum variant names carry the intent — `house_sitting` (owner's home) vs `day_care` (carer's home, day) vs `boarding` (carer's home, night) — and the inline doc next to the enum in `lib/types.ts` documents whose home and day-vs-overnight for each variant. Future code reviews should treat any drift back toward an ambiguous "sitting" label as a regression.
+
 ### What goes where
 
 | Offering | Type | Why |
 |---|---|---|
-| Group walk (provider takes 4 dogs to the park) | Care | Drop-off; owner doesn't attend |
-| Training walk (provider walks the dog and works on recall during the walk) | Care | Drop-off; framing is "walk + training included," not a class |
+| Group walk (provider takes 4 dogs to the park) | Care · Walks & Check-ins | Drop-off; outdoor; owner doesn't attend |
+| Training walk (provider walks the dog and works on recall during the walk) | Care · Walks & Check-ins | Drop-off; framing is "walk + training included," not a class |
+| Drop-in visit (carer feeds the dog and lets them out at lunch) | Care · House sitting | Short visit to owner's home — same shape as a longer sit |
+| Pet sitter comes to owner's flat for the weekend | Care · House sitting (per night) | Owner's home, overnight |
+| Carer hosts dog at their flat 9–5 while owner works | Care · Day care | Carer's home, daytime |
+| Carer keeps dog at their flat for a week while owner travels | Care · Boarding | Carer's home, overnight |
 | Group training session (owner brings dog, joins paid class) | Meet | Specific time, owner signs up to roster |
 | 1-on-1 training session (owner books a slot at Stromovka 3pm Tues) | Meet | Specific time, owner signs up |
 | Recurring training package (8 sessions over 2 months) | Meet (series) | Generates 8 meet instances, all private to participants |
-| Day care / boarding | Care | Drop-off |
 | Vet appointment, grooming appointment | Appointment | Specific time, no roster — solo by design |
 
 **Bio-level mention is fine.** A Care provider saying "I work on basic recall during my walks" inside their walking-service description is *marketing inside a Care offering*, not a separate Training service. If they actually want to *offer* Training as a service (people sign up to a session), it's a Meet.
@@ -201,7 +221,7 @@ The Care vs Meet split is a **teaching surface**, not a labelled UI segmentation
 Onboarding copy when a provider adds an offering should ask the routing question in human terms, not data-model terms:
 
 - "How does this work?"
-  - **I take the dog** (Walking, Sitting, Boarding) — routes to Care offering shape
+  - **I take the dog** (Walks & Check-ins, House sitting at owner's home, Day care or Boarding at my home) — routes to Care offering shape
   - **I run a session people sign up for** (Training, Workshop, Group meet) — routes to Meet offering shape
 
 Provider doesn't need to know "Care vs Meet"; the routing question handles it.

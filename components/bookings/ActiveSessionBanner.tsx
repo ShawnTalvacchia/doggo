@@ -26,7 +26,8 @@ import type { ServiceType } from "@/lib/types";
 
 function serviceIcon(serviceType: ServiceType): React.ReactNode {
   if (serviceType === "boarding") return <Bed size={14} weight="fill" />;
-  if (serviceType === "inhome_sitting") return <House size={14} weight="fill" />;
+  if (serviceType === "day_care") return <House size={14} weight="fill" />;
+  if (serviceType === "house_sitting") return <House size={14} weight="fill" />;
   return <HandHeart size={14} weight="fill" />;
 }
 

@@ -145,7 +145,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
         status: "active",
         inquiry: {
           bookingType: "one_off",
-          serviceType: service ?? "walk_checkin",
+          serviceType: service ?? "walks_checkins",
           subService: null,
           pets: currentUser.pets.map((p) => p.name),
           startDate: null,
@@ -273,7 +273,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
         status: "active",
         inquiry: {
           bookingType: "one_off",
-          serviceType: "walk_checkin",
+          serviceType: "walks_checkins",
           subService: null,
           pets: [],
           startDate: null,

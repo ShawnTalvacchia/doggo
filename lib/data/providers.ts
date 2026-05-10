@@ -14,7 +14,7 @@ type ProviderRow = {
   price_unit: "per_walk" | "per_visit" | "per_night";
   blurb: string;
   avatar_url: string;
-  services: Array<"walk_checkin" | "inhome_sitting" | "boarding"> | null;
+  services: Array<"walks_checkins" | "house_sitting" | "day_care" | "boarding"> | null;
 };
 
 function rowToProviderCard(row: ProviderRow): ProviderCard {

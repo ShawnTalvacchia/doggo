@@ -146,7 +146,7 @@ const janaMessages: ChatMessage[] = [
     type: "booking_proposal",
     proposal: {
       bookingType: "ongoing",
-      serviceType: "walk_checkin",
+      serviceType: "walks_checkins",
       subService: "Solo walk",
       pets: ["Bruno"],
       startDate: "2026-09-01",
@@ -326,7 +326,7 @@ const klaraBookingMessages: ChatMessage[] = [
     text: "I've sent you a booking proposal for the session.",
     proposal: {
       bookingType: "one_off",
-      serviceType: "walk_checkin",
+      serviceType: "walks_checkins",
       subService: "Calm dog introduction",
       pets: ["Spot"],
       startDate: "2026-03-26",
@@ -432,7 +432,7 @@ const danielKlaraMessages: ChatMessage[] = [
     text: "Sending the booking proposal — recurring weekly so we have continuity, but cancel anytime.",
     proposal: {
       bookingType: "ongoing",
-      serviceType: "inhome_sitting",
+      serviceType: "day_care",
       subService: "Reactive dog session",
       pets: ["Bára"],
       startDate: "2026-02-10",
@@ -733,7 +733,7 @@ const terezaLucieMessages: ChatMessage[] = [
 
 const EMPTY_INQUIRY = {
   bookingType: "one_off" as const,
-  serviceType: "walk_checkin" as const,
+  serviceType: "walks_checkins" as const,
   subService: null,
   pets: [],
   startDate: null,
@@ -756,7 +756,7 @@ export const mockConversations: Conversation[] = [
     status: "active",
     inquiry: {
       bookingType: "ongoing",
-      serviceType: "walk_checkin",
+      serviceType: "walks_checkins",
       subService: "Solo walk",
       pets: ["Goldie"],
       startDate: "2026-09-01",
@@ -798,7 +798,7 @@ export const mockConversations: Conversation[] = [
     status: "active",
     inquiry: {
       bookingType: "one_off",
-      serviceType: "inhome_sitting",
+      serviceType: "day_care",
       subService: "Training session",
       pets: ["Spot"],
       startDate: "2026-03-26",
@@ -823,7 +823,7 @@ export const mockConversations: Conversation[] = [
     status: "active",
     inquiry: {
       bookingType: "ongoing",
-      serviceType: "walk_checkin",
+      serviceType: "walks_checkins",
       subService: "Solo walk",
       pets: ["Spot"],
       startDate: null,
@@ -890,7 +890,7 @@ export const mockConversations: Conversation[] = [
     status: "active",
     inquiry: {
       bookingType: "ongoing",
-      serviceType: "walk_checkin",
+      serviceType: "walks_checkins",
       subService: "Solo walk",
       pets: ["Molly"],
       startDate: null,
@@ -922,7 +922,7 @@ export const mockConversations: Conversation[] = [
     status: "active",
     inquiry: {
       bookingType: "ongoing",
-      serviceType: "inhome_sitting",
+      serviceType: "day_care",
       subService: "Reactive dog session",
       pets: ["Bára"],
       startDate: "2026-02-10",
@@ -949,7 +949,7 @@ export const mockConversations: Conversation[] = [
     status: "active",
     inquiry: {
       bookingType: "one_off",
-      serviceType: "inhome_sitting",
+      serviceType: "day_care",
       subService: "Emergency sitting",
       pets: ["Hugo"],
       startDate: "2026-03-15",
@@ -992,7 +992,7 @@ export const mockConversations: Conversation[] = [
     status: "active",
     inquiry: {
       bookingType: "one_off",
-      serviceType: "inhome_sitting",
+      serviceType: "day_care",
       subService: "Recall training",
       pets: ["Toby"],
       startDate: "2026-01-20",
@@ -1018,7 +1018,7 @@ export const mockConversations: Conversation[] = [
     status: "active",
     inquiry: {
       bookingType: "ongoing",
-      serviceType: "inhome_sitting",
+      serviceType: "day_care",
       subService: "Reactive dog session",
       pets: ["Runa"],
       startDate: "2026-01-15",

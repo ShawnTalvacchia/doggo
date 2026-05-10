@@ -25,7 +25,7 @@ type CardExploreResultProps = {
    * the same way `activeService` does. Discover Refinement D1, 2026-05-10.
    */
   activeFilterCategory?: "appointment" | null;
-  /** Full query string from the results page (e.g. "service=walk_checkin&minRate=200") */
+  /** Full query string from the results page (e.g. "service=walks_checkins&minRate=200") */
   returnQuery?: string;
   /**
    * Visual variant. `"marketplace"` (default) renders the standard discover
@@ -98,8 +98,9 @@ function resolveDisplayPrice(
 }
 
 const serviceLabels: Record<ServiceType, string> = {
-  walk_checkin: "Walks",
-  inhome_sitting: "Home sitting",
+  walks_checkins: "Walks",
+  house_sitting: "House sitting",
+  day_care: "Day care",
   boarding: "Boarding",
 };
 

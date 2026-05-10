@@ -67,7 +67,7 @@ export function ActiveSessionPanel({
   const latestPhoto = photos[photos.length - 1] ?? null;
   const notes = session.report?.notes ?? "";
   const gpsStartedAt = session.report?.gpsStartedAt;
-  const isWalk = serviceType === "walk_checkin";
+  const isWalk = serviceType === "walks_checkins";
   const hasRecordedWalkMetrics = !!(
     session.report?.walkDistanceKm || session.report?.walkDurationMin
   );
