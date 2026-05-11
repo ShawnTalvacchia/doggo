@@ -35,7 +35,6 @@ const CARE_LABELS: Record<CareCategory, string> = {
   boarding: "Boarding",
   rehab: "Rehab",
   venue: "Venue",
-  vet: "Vet",
   other: "Care",
 };
 
@@ -84,15 +83,16 @@ function CardGroupContent({
         {variant === "discover" && isMember && (
           <>
             <span className="flex-1" />
-            <span
-              className="card-schedule-chip"
-              style={{
-                background: "var(--surface-subtle)",
-                borderColor: "var(--surface-subtle)",
-                color: "var(--brand-main)",
-              }}
-            >
-              <Check size={13} weight="bold" />
+            {/* Status indicator — inline icon + colored text rather than a
+                chip pill. Codifies the status-as-text convention introduced
+                during Design System Cleanup (2026-05-11): `card-schedule-chip`
+                hosts categorical labels (Type pills) only, never status, so
+                the chip vocabulary can't be confused with the brand-subtle
+                pill used as an interactive control elsewhere in the app
+                (meet-detail RSVP button). Mirrors the CardMeet status
+                indicator pattern (lines ~254–267). */}
+            <span className="flex items-center gap-xs text-sm font-semibold shrink-0 text-brand-main">
+              <Check size={14} weight="bold" />
               Joined
             </span>
           </>

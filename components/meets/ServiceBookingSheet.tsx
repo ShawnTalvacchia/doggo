@@ -93,13 +93,16 @@ export function ServiceBookingSheet({
   const footer =
     step === "form" ? (
       <div className="flex items-center justify-end gap-sm w-full">
-        <ButtonAction variant="neutral" size="md" cta onClick={onClose}>
+        {/* System-primary footer pattern: no `cta`, no pill, small radius.
+            Cancel uses `tertiary` to match every other modal footer dismiss
+            (was `neutral cta` — that's the FB-toggle inactive vocabulary and
+            doesn't fit a footer dismiss role). Design System Cleanup 2026-05-11. */}
+        <ButtonAction variant="tertiary" size="md" onClick={onClose}>
           Cancel
         </ButtonAction>
         <ButtonAction
           variant="primary"
           size="md"
-          cta
           onClick={() => {
             onConfirmed?.(occurrenceDate);
             setStep("success");
@@ -110,7 +113,7 @@ export function ServiceBookingSheet({
       </div>
     ) : (
       <div className="flex items-center justify-end w-full">
-        <ButtonAction variant="primary" size="md" cta onClick={onClose}>
+        <ButtonAction variant="primary" size="md" onClick={onClose}>
           Done
         </ButtonAction>
       </div>

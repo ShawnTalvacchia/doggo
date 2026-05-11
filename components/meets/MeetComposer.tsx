@@ -361,7 +361,6 @@ export function MeetComposer() {
       <ButtonAction
         variant="primary"
         size="md"
-        cta
         onClick={handleCreate}
         disabled={!canCreate}
       >

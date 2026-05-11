@@ -141,10 +141,19 @@ export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetPro
         </span>
 
         {isCancelled && (
+          /* Status indicator — inline icon + colored text rather than a chip
+             pill. Codifies the status-as-text convention introduced during
+             Design System Cleanup (2026-05-11): `card-schedule-chip` hosts
+             categorical labels (Type pills) only, never status, so the chip
+             vocabulary can't be confused with the brand-subtle pill used as
+             an interactive control elsewhere (meet-detail RSVP button).
+             Mirrors the role-status indicator already in use below
+             (lines ~254–267). */
           <span
-            className="card-schedule-chip"
-            style={{ color: "var(--error-strong)", background: "var(--error-subtle)", borderColor: "var(--error-subtle)" }}
+            className="flex items-center gap-xs text-sm font-semibold shrink-0"
+            style={{ color: "var(--error-strong)" }}
           >
+            <Flag size={14} weight="fill" />
             Cancelled
           </span>
         )}

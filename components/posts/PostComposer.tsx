@@ -402,14 +402,21 @@ export function PostComposer() {
           </button>
         )}
       </div>
-      <button
-        type="button"
-        onClick={handleClose}
+      {/* Share = the celebratory commit of the whole photo-post flow
+          (Instagram-style). One of the rare ModalSheet footers that
+          legitimately keeps `cta` (pill shape) per the system-primary
+          carve-out — when the footer IS the celebratory moment, not
+          process navigation. Design System Cleanup 2026-05-11
+          (migrated from bespoke `.composer-share-btn` to ButtonAction). */}
+      <ButtonAction
+        variant="primary"
+        size="sm"
+        cta
         disabled={!canPost}
-        className={`composer-share-btn${canPost ? " composer-share-btn--active" : ""}`}
+        onClick={handleClose}
       >
         Share
-      </button>
+      </ButtonAction>
     </div>
   ) : undefined;
 

@@ -4335,24 +4335,10 @@ body.guest-route {
 }
 
 /* Share button */
-.composer-share-btn {
-  border-radius: var(--radius-pill);
-  padding: var(--space-xs) var(--space-lg);
-  font-size: var(--font-size-body-reg);
-  font-weight: var(--weight-semibold);
-  border: none;
-  cursor: default;
-  background: var(--surface-inset);
-  color: var(--text-tertiary);
-  opacity: 0.6;
-}
-
-.composer-share-btn--active {
-  background: var(--brand-main);
-  color: white;
-  cursor: pointer;
-  opacity: 1;
-}
+/* `.composer-share-btn` removed 2026-05-11 — PostComposer's Share button
+   migrated to `<ButtonAction variant="primary" size="sm" cta>` during the
+   Design System Cleanup phase. The new primitive renders the same pill
+   shape with the same brand-fill / disabled-state behavior. */
 
 /* ── Accordion row (tag pickers) ── */
 
