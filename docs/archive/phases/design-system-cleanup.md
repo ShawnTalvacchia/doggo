@@ -1,7 +1,7 @@
 ---
-status: open
+status: archived
 last-reviewed: 2026-05-11
-review-trigger: When opening this phase, or when adding new deferred items
+review-trigger: archived
 ---
 
 # Design System Cleanup
@@ -115,19 +115,17 @@ Footers correctly *keeping* `cta`-equivalents (the carve-out per the phase board
 
 ## Tasks
 
-Acceptance criteria to be finalized once the deferred decisions land.
-
-- [x] A. ButtonAction `destructive` modifier refactor
-- [x] B. Owner+dog avatar cascade (resolved as already-landed)
-- [ ] C. Chip vs button collision — pick approach (1/2/3) + apply
-- [ ] D. ModalSheet footer sweep — answer open questions + apply
-- [ ] Close-out: verify pass on each touched surface, update design-system.md, archive phase board
+- [x] A. ButtonAction `destructive` modifier refactor (commit 169b8de)
+- [x] B. Owner+dog avatar cascade (resolved as already-landed in 6dac451, Community & Groups Deep Pass)
+- [x] C. Chip vs button collision — status-as-text convention applied (commit 973c193); CardGroup "Joined" + CardMeet "Cancelled" migrated; `card-schedule-chip` reserved for categorical labels going forward; codified as design-system.md principle 7
+- [x] D. ModalSheet footer sweep — system-primary becomes the rule, pill (`cta`) becomes the documented exception (commit 973c193); MeetComposer / ServiceBookingSheet footers swept; PostComposer Share migrated to ButtonAction as the one celebratory-commit carve-out; codified as design-system.md principle 8
+- [x] Close-out: design-system.md updated, ROADMAP + CLAUDE.md updated, phase board + walkthrough archived
 
 ---
 
 ## Acceptance Criteria
 
-- ButtonAction `destructive` is a modifier, not a variant, in code + docs + styleguide. ✓ (landed 2026-05-11)
-- Owner+dog avatar pattern is consumed by every person-listing surface that should carry it (meet attendees, group members, booking attendee blocks). ✓ (resolved as already-landed)
-- A clear visual distinction between passive chips and active buttons exists in the codebase, with a documented convention.
-- ModalSheet footers follow a single rule (system-primary, no cta), with any deliberate carve-outs explicitly documented.
+- ButtonAction `destructive` is a modifier, not a variant, in code + docs + styleguide. ✓
+- Owner+dog avatar pattern is consumed by every person-listing surface that should carry it (meet attendees, group members, booking attendee blocks). ✓
+- A clear visual distinction between passive chips and active buttons exists in the codebase, with a documented convention. ✓ (principle 7: chips host categorical labels only; status renders as inline icon + colored text)
+- ModalSheet footers follow a single rule (system-primary, no cta), with any deliberate carve-outs explicitly documented. ✓ (principle 8: system-primary by default; PostComposer Share is the documented celebratory-pill carve-out)

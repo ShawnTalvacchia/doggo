@@ -1,7 +1,7 @@
 ---
-status: in-progress
+status: archived
 last-reviewed: 2026-05-11
-review-trigger: When closing the Design System Cleanup phase
+review-trigger: archived
 ---
 
 # Design System Cleanup — Walkthrough
@@ -117,4 +117,41 @@ Open questions written up on the phase board:
 
 ## Commits
 
-- `Design System Cleanup: ButtonAction destructive variant -> modifier` (8 files changed, +98/-42).
+- `169b8de` — `Design System Cleanup: ButtonAction destructive variant -> modifier` (8 files, +98/-42)
+- `e2e3edf` — `Design System Cleanup: open phase + overnight audit + walkthrough` (2 files, +210/-4)
+- `973c193` — `Design System Cleanup: status-as-text + ModalSheet footer sweep` (7 files, +45/-39)
+
+---
+
+## Close-out (awake session, 2026-05-11)
+
+User reviewed the overnight summary, picked option **3** for item C (status-as-text convention), and delegated item D's open questions ("explain more or decide"). Both items resolved + landed same-day.
+
+**Item C — status-as-text applied:** `card-schedule-chip` reserved for categorical labels only (Meet type, Group type). Status pills converted to inline icon + colored text — CardGroup "Joined" (line 88) and CardMeet "Cancelled" (line 145) now mirror the existing CardMeet role-status pattern. Codified as `design-system.md` principle 7.
+
+**Item D — footer sweep applied:**
+- `MeetComposer` Create meet: dropped `cta`.
+- `ServiceBookingSheet` form: Cancel switched `neutral cta` → `tertiary` (matches every other modal dismiss); Confirm dropped `cta`.
+- `ServiceBookingSheet` success: Done dropped `cta`.
+- `PostComposer` Share: migrated from bespoke `.composer-share-btn` to `<ButtonAction variant="primary" size="sm" cta>` — keeps the pill shape as the **one documented carve-out** (Instagram-style celebratory photo-post commit). `.composer-share-btn` / `--active` CSS deleted.
+
+Codified as `design-system.md` principle 8: ModalSheet footers system-primary by default; pill (`cta`) only when the commit IS the celebratory moment.
+
+**Items still on the punch list (untouched by this phase):**
+- P51 (a) Optional-field label pattern unification — pre-loaded but deferred. Stays in punch list.
+- P51 (b) Familiar/Connected chip alignment on PersonRow — stays in punch list.
+
+These were ROADMAP-described pre-loaded scope but didn't make this overnight cleanup's scope. Future design-system pass picks them up.
+
+## Visuals to eyeball
+
+- `/styleguide/components` — ButtonAction `destructive` toggle (overnight item A).
+- Any Cancel modal — destructive commit button visuals (overnight item A).
+- A group card in Discover where the viewer is a member — "Joined" indicator is now inline icon + brand-main text, no pill (item C).
+- A cancelled meet on Schedule — "Cancelled" indicator is now inline icon + error-strong text, no pill (item C).
+- `MeetComposer` Create meet footer + `ServiceBookingSheet` Cancel/Confirm/Done footers — rectangular buttons, no pill (item D).
+- `PostComposer` Share button after photo selected — should look identical to before (pill, brand fill); the migration was visual-equivalent (item D).
+
+## Phase verification
+
+All acceptance criteria met. No new TS errors (`npx tsc --noEmit` baseline matches: 2 known pre-existing errors unchanged). Files Care Catalog Taxonomy touched were never modified by this phase.

@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-05-10
+last-reviewed: 2026-05-11
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
@@ -38,6 +38,8 @@ The full product skeleton exists. Every page renders with real content and worki
 
 **Care Catalog Taxonomy & Filter Redesign** *(opens after Discover Refinement close)*. Resolve the service taxonomy that drifted (`inhome_sitting` ended up meaning carer-side day care, not the babysitter-metaphor "sitting at owner's home" originally intended) and redesign the Discover Care filter panel against the resolved model. Phase board: `phases/care-catalog-taxonomy-and-filter-redesign.md` *(to be drafted at phase open)*.
 
+Design System Cleanup closed 2026-05-11 — opened mid-Care-Catalog as a parallel mechanical-cleanup session. Full record in `archive/phases/design-system-cleanup.md`.
+
 Discover Refinement closed 2026-05-10 — full record in `archive/phases/discover-refinement.md`.
 
 Inbox & Notifications closed 2026-05-10 — full record in `archive/phases/inbox-and-notifications-deep-pass.md`.
@@ -58,7 +60,6 @@ Reorganized 2026-05-04 around the principle that **services are the core functio
 |-------|------|----------|
 | **Cross-Cutting Flow Testing** *(after Care Catalog Taxonomy)* | Every persona journey works end-to-end with the now-solid services core. Trust signals accumulate. No dead ends. Pre-loaded with mock-world edge-case seeding + People-tab disclosure model + mock-data hygiene items. | `phases/cross-cutting-flow-testing.md`, `User Journeys.pptx`, `Trust & Connection Model.md` |
 | **Onboarding & In-Product Communication** | Trust model + Carer audience + privacy mechanics + Carer pricing setup tutorials. Multiple touchpoints (locked profile lock card, Familiar asymmetry, Carer audience setting, privacy explainer, share-link bypass, group visibility chip, pricing setup walkthrough) share the same root: users need to understand mechanics without being lectured. | `phases/onboarding-and-communication.md`, `Trust & Connection Model.md`, `Open Questions §2 + §3 + §4` |
-| **Design System Cleanup** | Resolve accumulated design-system inconsistencies — chip vs button visual collision, ButtonAction variant overlap, ModalSheet footer pattern drift, owner+dog avatar pattern cascade, optional-field label conventions (P51). Audits existing components into a coherent vocabulary; doesn't add new ones. Can run any time; best opened after a content phase. | `phases/design-system-cleanup.md`, `implementation/design-system.md`, Punch List P51 |
 | **Demo Presentation** | Landing page redesign, persona selection presentation, guided tours. Free exploration also rewarding. The `/demo` route from Persona Wiring is the technical foundation; presentation framing is the open work. | `Product Vision.md`, `User Archetypes.md`, `features/demo-mode.md` |
 
 Phase boards are created when a phase opens — that's where detailed tasks live. The research docs referenced above contain specific action items and open questions that feed into each phase's board.
