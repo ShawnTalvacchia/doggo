@@ -224,7 +224,7 @@ function MeetsResultsList({ results }: { results: Meet[] }) {
     <>
       {showSplit && (
         <>
-          <ResultsSectionHeader label="Meets from your circle" count={inCircle.length} />
+          <ResultsSectionHeader label="Meets from your circle" count={inCircle.length} variant="in-circle" />
           {inCircle.map((meet) => (
             <CardMeet
               key={meet.id}

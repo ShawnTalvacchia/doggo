@@ -5093,6 +5093,21 @@ body.guest-route {
   color: var(--text-tertiary);
 }
 
+/* In-circle variant — matches the brand-subtle / brand-main-stripe
+   treatment on `.result-card--in-circle` + `.card-schedule-meet--in-circle`
+   so the section header reads as a single elevated block with the cards
+   below. CCFT walkthrough 2026-05-11. */
+.results-section-header--in-circle {
+  background: var(--brand-subtle);
+  border-left: 3px solid var(--brand-main);
+  padding-left: calc(var(--space-md) - 3px);
+  color: var(--brand-strong);
+}
+
+.results-section-header--in-circle .results-section-header-count {
+  color: var(--brand-main);
+}
+
 .result-head {
   display: grid;
   grid-template-columns: 64px 1fr auto;
@@ -5418,6 +5433,13 @@ body.guest-route {
   border: 1px solid var(--border-regular);
   border-radius: var(--radius-panel);
   padding: 20px;
+  /* Card itself stacks its children with a uniform gap so headers
+     don't need their own margin-bottom. Pairs with the
+     `.profile-card-subtitle` margin: 0 + height: 32px treatment
+     2026-05-11. */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
 }
 
 /* Profile-tab content stack — sections sit on the page surface with thin
@@ -5434,6 +5456,16 @@ body.guest-route {
   padding-top: var(--space-xxl);
 }
 
+/* Sections inside the stack stack their own children with a uniform gap
+   so headers don't need their own margin-bottom. The h3 inside (see
+   `.profile-card-subtitle`) is margin: 0 + height: 32px; the natural
+   header-to-content gap is provided here. 2026-05-11. */
+.profile-tab-stack > section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
 .profile-card-title {
   margin: 0 0 24px;
   font-size: var(--font-size-body-xl);
@@ -5441,8 +5473,19 @@ body.guest-route {
   line-height: 1.35;
 }
 
+/* Section subtitle — 32px flex row, text centered, margin: 0.
+   The fixed height lets a bare h3 and a [h3 + button] flex row read
+   at the same vertical weight (the previous default-margin-bottom +
+   bare-h3 pattern produced ~21.59px tall headers next to ~33.59px
+   wrapped flex rows, an inconsistency the SectionHeader component
+   plus this CSS update closes). Container parents (`.profile-info-card`,
+   `.profile-tab-stack > section`) supply the header-to-content gap
+   via flex-column gap. 2026-05-11. */
 .profile-card-subtitle {
-  margin: 0 0 12px;
+  margin: 0;
+  height: 32px;
+  display: flex;
+  align-items: center;
   font-size: var(--font-size-body-md);
   font-weight: var(--weight-bold);
   line-height: 1.35;

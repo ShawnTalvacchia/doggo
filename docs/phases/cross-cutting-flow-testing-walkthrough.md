@@ -44,7 +44,7 @@ D1 + D2 + D3 attendees all surface in **Other attendees**. D3 additionally rende
   - **Connected:** Marek.
   - **Familiar:** Shawn (Tereza's outbound `state: "familiar"` on Shawn).
   - **Other attendees:** Nikola (D1 — Open), Filip (D2 — *no pill; promoted by inbound Familiar*), Jakub (D3 — Pending pill on the row).
-- [ ] **A1.2 — Discover Meets "your circle" (D4).** *Surface moved 2026-05-11 — Schedule's Interested lane retired; followed series + group-meets now elevated on Discover Meets via the "Meets from your circle" section.* Go to `/discover/meets?as=tereza`. **"Meets from your circle"** section at top should include **"Morning walk — Riegrovy sady"** (the Vinohrady Morning Crew weekly Tereza follows). Visual: same `CardMeet` shape, under a section header above the broader marketplace.
+- [x] **A1.2 — Discover Meets "your circle" (D4).** *Surface moved 2026-05-11 — Schedule's Interested lane retired; followed series + group-meets now elevated on Discover Meets via the "Meets from your circle" section.* Go to `/discover/meets?as=tereza`. **"Meets from your circle"** section at top should include **"Morning walk — Riegrovy sady"** (the Vinohrady Morning Crew weekly Tereza follows). Visual: same `CardMeet` shape, under a section header above the broader marketplace.
 
 ### A2 — Daniel
 
@@ -52,7 +52,7 @@ D1 + D2 + D3 attendees all surface in **Other attendees**. D3 additionally rende
   - **Connected:** Hana.
   - **Familiar:** Vítek (Daniel's outbound `state: "familiar"` on Vítek).
   - **Other attendees:** Petra (D1 — Open), Marek (D2 — *no pill; inbound Familiar*), Lucie (D3 — Pending pill on the row).
-- [ ] **A2.2 — Discover Meets "your circle" (D4).** Go to `/discover/meets?as=daniel`. **"Meets from your circle"** section should include both **"Evening stroll — Vítkov"** and **"Thursday morning walk — Riegrovy sady"** (Daniel follows both). Plus any reactive-dog group meets he's eligible for (group-member inclusion).
+- [x] **A2.2 — Discover Meets "your circle" (D4).** Go to `/discover/meets?as=daniel`. **"Meets from your circle"** section should include both **"Evening stroll — Vítkov"** and **"Thursday morning walk — Riegrovy sady"** (Daniel follows both). Plus any reactive-dog group meets he's eligible for (group-member inclusion).
 
 ### A3 — Klára
 

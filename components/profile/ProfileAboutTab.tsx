@@ -18,6 +18,7 @@ import { ButtonAction } from "@/components/ui/ButtonAction";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { PetCard } from "./PetCard";
 import { PetEditCard } from "./PetEditCard";
+import { SectionHeader } from "./SectionHeader";
 import { TagApprovalSetting } from "./TagApprovalSetting";
 import { ProfileNameDropdown } from "./ProfileNameDropdown";
 import { ProfileVisibilityChip } from "./ProfileVisibilityChip";
@@ -326,7 +327,7 @@ export function ProfileAboutTab({
 
       {/* Bio */}
       <section>
-        <h3 className="profile-card-subtitle">About me</h3>
+        <SectionHeader title="About me" />
         {editing ? (
           <textarea
             className="textarea"
@@ -340,35 +341,36 @@ export function ProfileAboutTab({
         )}
       </section>
 
-      {/* Dogs */}
+      {/* Dogs — bare or with-button via SectionHeader; section's
+          flex-column gap (from `.profile-tab-stack > section`) handles
+          header → cards spacing. 2026-05-11. */}
       <section>
-        <div
-          className="flex items-center justify-between"
-          style={{ marginBottom: editing ? 16 : 0 }}
-        >
-          <h3 className="profile-card-subtitle m-0">My dogs</h3>
-          {editing && (
-            <ButtonAction
-              variant="outline"
-              size="sm"
-              leftIcon={<Plus size={13} weight="bold" />}
-              onClick={() => {
-                const newPet: PetProfile = {
-                  id: `pet-${Date.now()}`,
-                  name: "",
-                  breed: "",
-                  weightLabel: "",
-                  ageLabel: "",
-                  imageUrl: "",
-                  notes: "",
-                };
-                onEditChange({ pets: [...editState.pets, newPet] });
-              }}
-            >
-              Add dog
-            </ButtonAction>
-          )}
-        </div>
+        <SectionHeader
+          title="My dogs"
+          action={
+            editing ? (
+              <ButtonAction
+                variant="tertiary"
+                size="sm"
+                leftIcon={<Plus size={13} weight="bold" />}
+                onClick={() => {
+                  const newPet: PetProfile = {
+                    id: `pet-${Date.now()}`,
+                    name: "",
+                    breed: "",
+                    weightLabel: "",
+                    ageLabel: "",
+                    imageUrl: "",
+                    notes: "",
+                  };
+                  onEditChange({ pets: [...editState.pets, newPet] });
+                }}
+              >
+                Add dog
+              </ButtonAction>
+            ) : undefined
+          }
+        />
         {editing ? (
           <div className="flex flex-col gap-md">
             {editState.pets.map((pet, i) => (
@@ -389,7 +391,7 @@ export function ProfileAboutTab({
             ))}
           </div>
         ) : user.pets.length > 0 ? (
-          <div className="flex flex-col gap-md" style={{ marginTop: 12 }}>
+          <div className="flex flex-col gap-md">
             {user.pets.map((pet) => (
               <PetCard key={pet.id} pet={pet} />
             ))}
@@ -417,7 +419,7 @@ export function ProfileAboutTab({
           appear when the user enters edit. Companion read-only signal
           lives on the hero (ProfileVisibilityChip). */}
       <section>
-        <h3 className="profile-card-subtitle">Profile visibility</h3>
+        <SectionHeader title="Profile visibility" />
         {editing && (
           <p
             className="text-xs text-fg-tertiary"
@@ -438,7 +440,7 @@ export function ProfileAboutTab({
 
       {/* Tagging preferences — same view/edit split as Profile visibility. */}
       <section>
-        <h3 className="profile-card-subtitle">Tagging preferences</h3>
+        <SectionHeader title="Tagging preferences" />
         {editing && (
           <p
             className="text-xs text-fg-tertiary"
@@ -463,7 +465,7 @@ export function ProfileAboutTab({
           fix 2026-05-11: the standalone section produced an unwanted
           divider via `.profile-tab-stack > * + *`. */}
       <section>
-        <h3 className="profile-card-subtitle">Connections</h3>
+        <SectionHeader title="Connections" />
         <ConnectionsList viewerId={user.id} />
 
         {/* Familiar asymmetry explainer — persistent, low-key card teaching
@@ -521,7 +523,7 @@ export function ProfileAboutTab({
           flex-wrap drops them to full-width on narrow viewports.
           Reframed 2026-05-11 (CCFT walkthrough). */}
       <section>
-        <h3 className="profile-card-subtitle">Care</h3>
+        <SectionHeader title="Care" />
         <p
           className="text-xs text-fg-tertiary"
           style={{

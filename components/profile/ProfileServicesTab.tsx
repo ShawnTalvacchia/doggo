@@ -512,7 +512,7 @@ export function ProfileServicesTab({
                   return (
                     <div
                       key={idx}
-                      className="rounded-panel border border-edge-regular p-md flex flex-col gap-sm relative"
+                      className="profile-service-card relative"
                     >
                       <div
                         className="absolute"

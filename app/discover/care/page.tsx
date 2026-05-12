@@ -962,7 +962,7 @@ function CareResultsList({
     <>
       {showSplit && (
         <>
-          <ResultsSectionHeader label="Carers in your circle" count={inCircle.length} />
+          <ResultsSectionHeader label="Carers in your circle" count={inCircle.length} variant="in-circle" />
           {inCircle.map((p) => (
             <CardExploreResult
               key={p.id}
