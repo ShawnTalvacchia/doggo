@@ -1,12 +1,18 @@
 ---
-status: paused
-last-reviewed: 2026-05-05
+status: active
+last-reviewed: 2026-05-11
 review-trigger: When any task is completed or blocked
 ---
 
 # Profiles Deep Pass
 
-> **Paused 2026-04-14.** Trust signals (A3), composer rebuild (C1–C3), and post header attribution (B2/B3) shipped. Remaining work is content/personality enrichment that overlaps heavily with **Mock World Building** — it's more efficient to do it once, with a coherent four-persona world, than to enrich profiles in isolation now. The remaining About/Posts/Services tasks will be folded into Mock World Building (or revisited as a polish pass after the next deep passes). Moving to Meets Deep Pass next.
+> **Reopened 2026-05-11** in parallel with separate demo work in another chat. File overlap is low — profile work lives in `app/profile/*` + `components/profile/*`; demo work touches `app/page.tsx` + `app/demo/*` + `lib/tourSteps.ts` + `components/landing/*`.
+>
+> **2026-05-11 run shipped:** B5 (Posts header refactor + AppNav slot foundation), A5 (PetCard polish + persona-dog vet info), B1 (P8 verified resolved + removed from punch list), **A6 (edit-mode rework via AppNav page-action slot — the structural thesis of the round)**, D7 (Carer audience Toggle), D6 (locked-provider banner wired), A1 (thin-bio enrichment for Marek/Jakub/Marie), B4 (post-content audit — left as-is, four lurker personas with zero posts is intentional). Walkthrough: `profiles-deep-pass-walkthrough.md`.
+>
+> **Deferred:** **D4** ("Open to helping" badge prominence) and **E3** (Care CTAs) pending PO-meeting outcomes that may reshape trust signals and the community↔marketplace fork. **A2** (About subsection structure) not pursued — current bio + dogs + connections + tagging + care section reads coherent enough. **A4/A7/E1/E2/E4** (display polish) not pursued this round — most surfaces unchanged, kept for a polish-only sweep. **D1/D2/D3/D5** (services content + flow review) — content looks adequate from data inspection; live-preview review folded into the walkthrough.
+>
+> **Original pause 2026-04-14.** Trust signals (A3), composer rebuild (C1–C3), and post header attribution (B2/B3) shipped before the pause.
 
 **Goal:** Make profiles feel like real people with real lives. The profile is the relationship hub — About, Posts, Services, Chat — it needs to be the strongest page in the app. When a tester views a profile, they should think: "I'd trust this person with my dog."
 
@@ -41,23 +47,23 @@ The About tab is the first thing a visitor sees. It needs to tell a story — no
 
 | # | Description | Status |
 |---|-------------|--------|
-| A1 | Review and enrich mock user bios — every user should have a distinct, personality-rich bio (2-4 sentences). Currently most are one-liners or fallback text | todo |
+| A1 | Review and enrich mock user bios — every user should have a distinct, personality-rich bio (2-4 sentences). Currently most are one-liners or fallback text. **2026-05-11 audit:** majority of bios are now personality-rich. Enriched the three thinnest ones (Marek, Jakub, Marie) to match the rest. Remaining one-liners (Lucie, Zuzana, Ondrej, Adela, Martin, Filip, Hana, Vitek, Anezka, Jana) all have specific personality hooks — leaving as-is unless they read as thin in walkthrough. | done |
 | A2 | "About" section structure — consider splitting into subsections: bio, interests/lifestyle, neighbourhood context. What would make someone feel they *know* this person? | todo |
 | A3 | Trust signals review — added mutual connections ("You both know X") and shared groups ("Both in X") badges. Centered badge layout. Now 5 badge types: walks, known since, met at, mutual connections, shared groups | done |
 | A4 | Connection state display — review how None/Familiar/Pending/Connected render. Is the badge clear? Is the gate understandable? | todo |
-| A5 | Dogs section — PetCards are feature-complete but review the content. Do mock dogs have enough personality (socialisation notes, play styles, vet info)? Expand where thin | todo |
-| A6 | Own profile About tab — review the edit experience. Is the flow smooth? Does it feel like a real profile editor? | todo |
+| A5 | Dogs section — two parts. (a) **Content review:** vet info added to Franta + Bella (Tereza's) and Eda (Klára's) so all four personas' dogs render the full Health & vet section. Supporting cast dogs have specific personality notes — leaving as-is. (b) **PetCard polish (2026-05-11):** caret now centers vertically with the identity column via `alignSelf: center` + `marginLeft: auto`; identity column gets `flex: 1; min-width: 0;`. Energy pill switched to `--{level}-50` background + `--{level}-600` text + 1px `--{level}-600` border for edge definition against the `--surface-base` card. Conditions tag (`pet-profile-health-tag--note`) text switched to `--warning-600` for readable amber on cream + `white-space: normal` so multi-sentence notes wrap cleanly. Scoped — no app-wide token changes. | done |
+| A6 | **Edit-mode rework via AppNav slot (2026-05-11).** Shipped. New `PageHeaderContext` fields (`pageAction`, `suppressCreate`, `navLockedIn`) + `setPageAction` / `clearPageAction` methods. AppNav `LoggedNavLinks` consumes them: pageAction renders in the create-icon slot, suppressCreate hides it entirely, navLockedIn hides Bell + Inbox. Profile page wires per tab + edit state: Posts → suppressCreate; About/Services view → `Edit` button (tertiary text + pencil); About/Services edit → `Cancel` + `Save` + navLockedIn. TabBar hides during edit (`isEditing = aboutEditing \|\| servicesEditing`). Hero stripped to identity-only (Edit Profile button removed). `EditChrome` deleted from both ProfileAboutTab and ProfileServicesTab (3 sites in Services). Edit handlers in `app/profile/page.tsx` converted to `useCallback` so the slot's ReactNode memoizes stably. Auto-discard on Cancel; no confirm. Reusable pattern available for future phases — first candidate is booking/meet/group detail headers. | done |
 | A7 | "Member since" and location display — are these prominent enough for trust building? | todo |
 
 ### Posts Tab — Fix & Enrich
 
 | # | Description | Status |
 |---|-------------|--------|
-| B1 | Fix corner radius on post images in profile context (P8 from punch list) | todo |
+| B1 | Fix corner radius on post images in profile context (P8 from punch list). **2026-05-11:** Verified `.post-photo-grid-img` already has `border-radius: var(--radius-md)` (Threads-style refactor resolved it). P8 was stale — removed from punch list. | done |
 | B2 | Add group/meet/care attribution to post headers — FeedCommunityPost now uses buildHeaderContext (shared with MomentCard) to show "in [Group]" / "at [Place]" / "with [Dogs]" context | done |
 | B3 | Add header link matching main feed — headerContext includes clickable Link to group. Also added isCareProvider badge. Remaining tags shown (group/place consumed by header) | done |
-| B4 | Review post content — do mock posts tell stories? Does each user have enough posts to feel real? | todo |
-| B5 | "New post" CTA on own profile — review placement and styling | todo |
+| B4 | Review post content — do mock posts tell stories? Does each user have enough posts to feel real? **2026-05-11:** 102 seeded posts across 17 authors. Personas range from 3-7 posts each (Klára 7, Tereza 5, Shawn 4, Daniel 4, Tomáš 3). Four supporting users have zero posts (zuzana, vitek, marie, nikola) — acceptable for "new/lurker" archetypes (Marie's bio explicitly says she's new). Adding posts is Mock World Building territory if it grows. | done |
+| B5 | **New post placement (2026-05-11).** Shipped. PostsTab dropped the "Posts" heading + button row; `+ New post` renders flush-right at the top of the panel, gated on `posts.length > 0` so the empty state isn't double-CTA'd. Profile page calls `setPageAction(null, { suppressCreate: true })` when on own Posts tab — AppNav Camera+ hides. Other-user Posts tabs keep Camera+ (global compose) and no in-panel button (gated on `isOwnProfile`). | done |
 
 ### Post Composer — Fix Broken Layout
 
@@ -76,8 +82,8 @@ The About tab is the first thing a visitor sees. It needs to tell a story — no
 | D3 | Availability grid review — is the day/time grid readable? Does it communicate availability clearly? | todo |
 | D4 | "Open to helping" badge and provider stats — are these trust signals prominent enough? Do they help a potential booker decide? | todo |
 | D5 | Own profile services edit — review the edit flow for adding/removing services, setting availability, toggling visibility | todo |
-| D6 | Locked provider banner — verify the "your profile is private" banner appears and the CTA works | todo |
-| D7 | **Provider-tier progression UI.** Helper-tier (`openToHelping`) and Provider-tier (`publicProfile` / search visibility) currently render as two unrelated toggles at top and bottom of the Services edit form. CLAUDE.md frames the provider role as "a dial you turn up." The UI should reflect that: (a) group both controls into one section, (b) visually communicate the ladder (Owner → Helper → Provider), (c) the "Connections only" / "Public" pseudo-button on Search visibility should be a real `Toggle` (currently raw `<button>` with inline styles — `components/profile/ProfileServicesTab.tsx:448-459`), (d) consider whether Provider-tier escalation should be actively encouraged with copy/CTA when a user has been Helper-tier for a while or has multiple bookings. Pre-loaded 2026-05-05 from Pricing & Proposals walkthrough. | todo |
+| D6 | Locked provider banner — verify the "your profile is private" banner appears and the CTA works. **2026-05-11:** Wired the previously-stub `Make profile public` button via a new `onUnlockProfile` prop on ProfileServicesTab. Page-level handler flips `profileVisibility: "locked" → "open"` in-memory via `setUser`. One-tap, no confirm modal (banner disappears immediately since it's gated on profileVisibility === "locked"). Banner copy + Info icon unchanged. | done |
+| D7 | **Carer audience toggle UI (2026-05-11).** Shipped. Raw `<button>` replaced with `Toggle` (matching the Open-to-helping pattern). Section label changed from "Search visibility" → **"Open to anyone"**. Sub-copy: *"Your services appear in Discover for anyone in Prague to find."* (on) / *"Only people you're Connected with can see and book your services."* (off). View-mode badge line under "Open to helping" pill changed from "Visible on Explore" / "Connections only" → **"Open to anyone"** / **"Connected circle only"**. `onToggleVisibility` prop signature normalized from `() => void` to `(v: boolean) => void` to match the Toggle API + Open-to-helping pattern. All ladder/tier/escalation language dropped per the Discover Refinement collapse. | done |
 
 ### Own Profile Polish
 

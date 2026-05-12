@@ -67,7 +67,8 @@ import {
   nextOccurrenceDates,
   getOccurrenceCancellation,
 } from "@/lib/meetUtils";
-import { useCurrentUser, useCurrentUserId } from "@/hooks/useCurrentUser";
+import { useCurrentUser, useCurrentUserId, useIsGuest } from "@/hooks/useCurrentUser";
+import { useAuthGate } from "@/contexts/AuthGateContext";
 import { getDogImageByOwnerAndName } from "@/lib/dogLookup";
 import { getUserById } from "@/lib/mockUsers";
 import { getGroupById } from "@/lib/mockGroups";
@@ -215,6 +216,8 @@ function MeetDetailInner() {
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
   const currentUser = useCurrentUser();
   const currentUserId = currentUser.id;
+  const isGuest = useIsGuest();
+  const { requireAuth } = useAuthGate();
 
   const meet = mockMeets.find((m) => m.id === params.id);
   const [showShare, setShowShare] = useState(false);
@@ -251,7 +254,11 @@ function MeetDetailInner() {
     );
   }
 
-  const isCreator = meet.creatorId === currentUserId;
+  // Guests have no identity on a meet — they aren't creator, attendee, or
+  // follower of anything. Forcing `isCreator` false collapses the role-aware
+  // hosting / attending / following UI to the inactive-browse variant, where
+  // every action button drops into the AuthGate handler below. D4 2026-05-11.
+  const isCreator = !isGuest && meet.creatorId === currentUserId;
   const recurring = isRecurring(meet);
 
   // Derive RSVP from mock data on first render. For one-off meets that's a
@@ -301,6 +308,10 @@ function MeetDetailInner() {
   const messages = getMessagesForMeet(meet.id);
 
   function handleRsvpDateChange(date: string, status: "none" | "going" | "interested") {
+    if (isGuest) {
+      requireAuth("RSVP to this meet");
+      return;
+    }
     setRsvpByDate((prev) => {
       const next = { ...prev };
       if (status === "none") delete next[date];
@@ -320,8 +331,36 @@ function MeetDetailInner() {
   // updates local component state; this wrapper additionally pushes to
   // `meet.attendees` so Schedule picks it up.
   function handleRsvpChange(status: "none" | "going" | "interested") {
+    if (isGuest) {
+      requireAuth("RSVP to this meet");
+      return;
+    }
     setRsvpStatus(status);
     if (meet) setMeetRsvp(meet, currentUser, meet.date, status);
+  }
+
+  function handleFollowingChange(next: boolean) {
+    if (isGuest) {
+      requireAuth("follow this series");
+      return;
+    }
+    setFollowing(next);
+  }
+
+  function handleShareClick() {
+    if (isGuest) {
+      requireAuth("share this meet");
+      return;
+    }
+    setShowShare(true);
+  }
+
+  function handleBookClick(date: string) {
+    if (isGuest) {
+      requireAuth("book this session");
+      return;
+    }
+    setBookingDate(date);
   }
 
   // Confirm-from-modal handler. Mutates `meet.cancelledDates` via the
@@ -343,24 +382,28 @@ function MeetDetailInner() {
     setMutationTick((t) => t + 1);
   }
 
-  // Right action changes per tab
-  const headerAction = activeTab === "details" ? (
+  // Right action changes per tab. Guests don't get a Share affordance in the
+  // header — every share path requires an authenticated identity.
+  const headerAction = activeTab === "details" && !isGuest ? (
     <ButtonAction
       variant="outline"
       size="sm"
       cta
       leftIcon={<ShareNetwork size={14} weight="bold" />}
-      onClick={() => setShowShare(true)}
+      onClick={handleShareClick}
     >
       Share
     </ButtonAction>
   ) : undefined;
 
-  // Feed detail header into AppNav on mobile
+  // Feed detail header into AppNav on mobile. Guests don't have a /home to
+  // fall back to — `router.back()` is fine for in-app navigation, but on a
+  // fresh entry (e.g. a copy-pasted meet link with `?guest=1`) browser history
+  // is shallow and back may exit the app. Acceptable for prototype.
   useEffect(() => {
     setDetailHeader(meet.title, () => router.back(), headerAction);
     return () => clearDetailHeader();
-  }, [meet.title, activeTab]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [meet.title, activeTab, isGuest]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTabChange = (key: string) => {
     if (key === "details") {
@@ -395,9 +438,9 @@ function MeetDetailInner() {
               rsvpByDate={rsvpByDate}
               onRsvpDateChange={handleRsvpDateChange}
               following={following}
-              onFollowingChange={setFollowing}
-              onShare={() => setShowShare(true)}
-              onBook={(date) => setBookingDate(date)}
+              onFollowingChange={handleFollowingChange}
+              onShare={handleShareClick}
+              onBook={handleBookClick}
               onCancelOccurrence={(date) => setCancelOccDate(date)}
               onRestoreOccurrence={handleRestoreOccurrence}
             />

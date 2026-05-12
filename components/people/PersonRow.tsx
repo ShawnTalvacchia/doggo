@@ -420,7 +420,7 @@ export function PersonRow(props: PersonRowProps) {
             blurring into a uniform two-row rhythm. */}
       <div
         className={`person-row-identity flex flex-col flex-1 min-w-0 ${
-          isInbox ? "gap-sm" : "h-16"
+          isInbox ? "gap-sm" : petsLine ? "h-16" : "h-16 justify-center"
         }`}
       >
         <div

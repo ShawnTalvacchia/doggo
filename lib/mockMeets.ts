@@ -1345,6 +1345,17 @@ export const mockMeets: Meet[] = [
       { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], profileOpen: true },
       { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"], rsvpStatus: "going" },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot", "Goldie"], rsvpStatus: "going", profileOpen: true },
+      // ── Cross-Cutting Flow Testing edge-case seeding (D1-D3, 2026-05-11) ──
+      // Verifies the tier-2 + Pending sections render on Tereza's People tab.
+      // D1: nikola is Open + Tereza has no relationship to her → tier 2 "Not Familiar."
+      { userId: "nikola", userName: "Nikola", avatarUrl: "/images/generated/nikola-profile.jpeg", dogNames: [], rsvpStatus: "going", profileOpen: true, neighbourhood: "Letná" },
+      // D2: filip is Locked. Tereza's connection record (conn-tereza-filip) carries
+      // theyMarkedFamiliar=true with state="none" → bumps to tier 2 with no pill
+      // (deniability: UI doesn't reveal why the row was promoted).
+      { userId: "filip", userName: "Filip", avatarUrl: "/images/generated/filip-profile.jpeg", dogNames: ["Toby"], rsvpStatus: "going" },
+      // D3: jakub is Locked. Tereza's connection record has state="pending"
+      // → Pending pill renders.
+      { userId: "jakub", userName: "Jakub", avatarUrl: "/images/generated/jakub-profile.jpeg", dogNames: ["Aron"], rsvpStatus: "going" },
     ],
     recentJoinText: "Marek joined yesterday",
     createdAt: "2026-04-03T08:00:00Z",
@@ -1425,6 +1436,17 @@ export const mockMeets: Meet[] = [
       { userId: "daniel", userName: "Daniel", avatarUrl: "/images/generated/daniel-profile.jpeg", dogNames: ["Bára"] },
       { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"] },
       { userId: "vitek", userName: "Vítek", avatarUrl: "/images/generated/vitek-profile.jpeg", dogNames: ["Sam"] },
+      // ── Cross-Cutting Flow Testing edge-case seeding (D1-D3, 2026-05-11) ──
+      // D1: petra is Open, no Daniel connection → tier 2 "Not Familiar."
+      // Petra organising a reactive-friendly walk is plausible — she's a
+      // Karlín-based carer who sometimes drives out for community walks.
+      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"], profileOpen: true },
+      // D2: marek is Locked. Daniel's connection record carries
+      // theyMarkedFamiliar=true with state="none" → tier 2 with no pill.
+      { userId: "marek", userName: "Marek", avatarUrl: "/images/generated/marek-profile.jpeg", dogNames: ["Benny"] },
+      // D3: lucie is Locked. Daniel's connection record has state="pending"
+      // → Pending pill renders on the People tab.
+      { userId: "lucie", userName: "Lucie", avatarUrl: "/images/generated/lucie-profile.jpeg", dogNames: ["Pepík"] },
     ],
     createdAt: "2026-04-07T10:00:00Z",
   },
@@ -1471,6 +1493,16 @@ export const mockMeets: Meet[] = [
       { userId: "filip", userName: "Filip", avatarUrl: "/images/generated/filip-profile.jpeg", dogNames: ["Toby"] },
       { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"], rsvpStatus: "interested" },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], rsvpStatus: "interested", profileOpen: true },
+      // ── Cross-Cutting Flow Testing edge-case seeding (D1-D3, 2026-05-11) ──
+      // D1: petra is Open + no Klára relationship → tier 2 "Not Familiar."
+      // Plausible attendee: a carer scouting socialisation training for her clients.
+      { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"], profileOpen: true },
+      // D2: jakub is Locked. Klára's connection record carries
+      // theyMarkedFamiliar=true with state="none" → tier 2 with no pill.
+      { userId: "jakub", userName: "Jakub", avatarUrl: "/images/generated/jakub-profile.jpeg", dogNames: ["Aron"] },
+      // D3: conn-klara-jana is already Pending. Adding Jana as an attendee
+      // surfaces the Pending pill on Klára's People tab.
+      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"], profileOpen: true },
     ],
     createdAt: "2026-04-09T09:30:00Z",
   },
@@ -1511,6 +1543,16 @@ export const mockMeets: Meet[] = [
       { userId: "petra", userName: "Petra", avatarUrl: "/images/generated/petra-profile.jpeg", dogNames: ["Daisy"], profileOpen: true },
       { userId: "ondrej", userName: "Ondřej", avatarUrl: "/images/generated/ondrej-profile.jpeg", dogNames: ["Rocky"] },
       { userId: "adela", userName: "Adéla", avatarUrl: "/images/generated/adela-profile.jpeg", dogNames: ["Číča"] },
+      // ── Cross-Cutting Flow Testing edge-case seeding (D1-D3, 2026-05-11) ──
+      // D1: jana is Open + no Tomáš relationship → tier 2 "Not Familiar."
+      // Plausible attendee: a Vinohrady regular trying out a Karlín hangout.
+      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"], profileOpen: true },
+      // D2: vitek is Locked. Tomáš's connection record carries
+      // theyMarkedFamiliar=true with state="none" → tier 2 with no pill.
+      { userId: "vitek", userName: "Vítek", avatarUrl: "/images/generated/vitek-profile.jpeg", dogNames: ["Sam"] },
+      // D3: conn-tomas-shawn is already Pending. Adding Shawn as an attendee
+      // surfaces the Pending pill on Tomáš's People tab.
+      { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], profileOpen: true },
     ],
     createdAt: "2026-04-06T10:00:00Z",
   },
@@ -2328,6 +2370,12 @@ const SEED_FOLLOWERS: Record<string, string[]> = {
   "meet-care-1": ["klara"],
   // meet-7: popular Thursday morning Vinohrady walk — cross-persona overlap.
   "meet-7": ["shawn", "daniel", "tereza"],
+  // meet-15: Tereza's Thursday Riegrovy walk — Klára and Tomáš follow without
+  // attending so the D4 case (following recurring series + non-attendee viewer)
+  // verifies on their /schedule?view=interested. Cross-Cutting Flow Testing
+  // 2026-05-11; complements meet-12 (Tomáš attendee) + meet-care-1 (Klára creator)
+  // which don't satisfy D4 on their own.
+  "meet-15": ["klara", "tomas"],
 };
 
 (function seedFollowers() {

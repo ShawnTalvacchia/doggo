@@ -23,7 +23,7 @@ import {
   getFollowedSeries,
 } from "@/lib/mockMeets";
 import { isMeetVisibleTo } from "@/lib/meetUtils";
-import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { useCurrentUserId, useIsGuest } from "@/hooks/useCurrentUser";
 import type { Meet, MeetType } from "@/lib/types";
 
 /* ── Constants ── */
@@ -113,11 +113,17 @@ function applyFilters(meets: Meet[], type: string, filters: MeetFilters): Meet[]
 
 function MeetsResultsList({ results }: { results: Meet[] }) {
   const currentUserId = useCurrentUserId();
-  const userMeetIds = new Set(
-    getUserMeets(currentUserId)
-      .filter((m) => m.status === "upcoming")
-      .map((m) => m.id)
-  );
+  const isGuest = useIsGuest();
+  // Guests have no committed-meets list; passing an empty Set keeps every
+  // card in browse-mode and prevents leaking the Tereza-fallback's joined
+  // meets into the preview. D4 prep 2026-05-11.
+  const userMeetIds = isGuest
+    ? new Set<string>()
+    : new Set(
+        getUserMeets(currentUserId)
+          .filter((m) => m.status === "upcoming")
+          .map((m) => m.id),
+      );
 
   if (results.length === 0) {
     return (
@@ -251,6 +257,12 @@ function DiscoverMeetsInner() {
   const [filters, setFilters] = useState<MeetFilters>(DEFAULT_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
   const currentUserId = useCurrentUserId();
+  const isGuest = useIsGuest();
+  // Guests don't follow series and have no committed-meets list — hide the
+  // Following pill outright rather than rendering it empty. D4 2026-05-11.
+  const typeTabs = isGuest
+    ? TYPE_TABS.filter((t) => t.key !== "following")
+    : TYPE_TABS;
 
   const handleFiltersChange = (update: Partial<MeetFilters>) => {
     setFilters((prev) => ({ ...prev, ...update }));
@@ -277,9 +289,10 @@ function DiscoverMeetsInner() {
   return (
     <PageColumn hideHeader abovePanel={<DetailHeader backHref="/discover" title="Meets" />}>
       <div className="page-column-panel-body" style={{ position: "relative" }}>
-        {/* Type filter pills — scrollable on mobile */}
+        {/* Type filter pills — scrollable on mobile.
+            Guests get the slim pill row (no "Following"). */}
         <FilterPillRow
-          pills={TYPE_TABS}
+          pills={typeTabs}
           activeKey={activeType}
           onChange={(key) => { setActiveType(key); setShowFilters(false); }}
         />

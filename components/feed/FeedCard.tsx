@@ -36,8 +36,7 @@ interface FeedCardProps {
 
 function formatRelativeDate(iso: string): string {
   const date = new Date(iso);
-  const now = new Date("2026-03-23T12:00:00Z");
-  const diffMs = now.getTime() - date.getTime();
+  const diffMs = Date.now() - date.getTime();
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 

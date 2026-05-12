@@ -1,13 +1,11 @@
 "use client";
 
-import { Suspense, useState, useCallback, useEffect } from "react";
+import { Suspense, useState, useCallback, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
-  MapPin,
-  CalendarBlank,
-  ShareNetwork,
-  CopySimple,
   PencilSimple,
+  Check,
+  X,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { TabBar } from "@/components/ui/TabBar";
@@ -16,7 +14,7 @@ import { Spacer } from "@/components/layout/Spacer";
 import { ProfileAboutTab } from "@/components/profile/ProfileAboutTab";
 import { ProfileServicesTab } from "@/components/profile/ProfileServicesTab";
 import { PostsTab } from "@/components/profile/PostsTab";
-import { ProfileNameDropdown } from "@/components/profile/ProfileNameDropdown";
+import { usePageHeader } from "@/contexts/PageHeaderContext";
 import type {
   PetProfile,
   CarerCareServiceConfig,
@@ -31,40 +29,6 @@ const TABS = [
   { key: "posts", label: "Posts" },
   { key: "services", label: "Services" },
 ];
-
-/* ── Helpers ── */
-
-function formatMemberSince(ym: string): string {
-  const [year, month] = ym.split("-");
-  const date = new Date(Number(year), Number(month) - 1, 1);
-  return date.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
-}
-
-function ShareProfileButton({ shareCode }: { shareCode: string }) {
-  // Every persona gets a shareable link; if the persona profile doesn't define
-  // an explicit shareCode, fall back to the user ID as the slug. Mock World
-  // Building can swap in nicer codes per persona later (`tereza-r4m2` etc.).
-  const [copied, setCopied] = useState(false);
-  const url = `${typeof window !== "undefined" ? window.location.origin : ""}/connect/${shareCode}`;
-
-  function handleCopy() {
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  }
-
-  return (
-    <ButtonAction
-      variant="outline"
-      size="md"
-      leftIcon={copied ? <CopySimple size={14} weight="bold" /> : <ShareNetwork size={14} weight="light" />}
-      onClick={handleCopy}
-    >
-      {copied ? "Copied!" : "Share Profile"}
-    </ButtonAction>
-  );
-}
 
 /* ── Page ── */
 
@@ -82,11 +46,15 @@ function ProfileInner() {
   }, [router]);
 
   // Edit state is per-tab so Save/Cancel can sit adjacent to the section being
-  // edited (in the tab content) rather than in the hero. About and Services
-  // edit independently — switching tabs does not auto-save.
+  // edited (in the AppNav page-action slot) rather than in the hero or tab
+  // body. About and Services edit independently — switching tabs while in
+  // edit mode is prevented by hiding the TabBar (full lock-in until Save
+  // or Cancel). 2026-05-11 (A6).
   const [aboutEditing, setAboutEditing] = useState(false);
   const [servicesEditing, setServicesEditing] = useState(false);
   const currentUser = useCurrentUser();
+  const { setPageAction, clearPageAction } = usePageHeader();
+  const isEditing = aboutEditing || servicesEditing;
 
   // Editable state (local, resets on refresh — prototype only)
   const [user, setUser] = useState<UserProfile>(currentUser);
@@ -136,25 +104,25 @@ function ProfileInner() {
   }, [currentUser.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── About edit lifecycle ──
-  function startAboutEdit() {
+  const startAboutEdit = useCallback(() => {
     setEditBio(user.bio);
     setEditPets(user.pets.map((p) => ({ ...p })));
     setAboutEditing(true);
-  }
-  function cancelAboutEdit() {
+  }, [user]);
+  const cancelAboutEdit = useCallback(() => {
     setAboutEditing(false);
-  }
-  function saveAboutEdit() {
+  }, []);
+  const saveAboutEdit = useCallback(() => {
     setUser((prev) => ({
       ...prev,
       bio: editBio,
       pets: editPets,
     }));
     setAboutEditing(false);
-  }
+  }, [editBio, editPets]);
 
   // ── Services edit lifecycle ──
-  function startServicesEdit() {
+  const startServicesEdit = useCallback(() => {
     setEditVisibility(user.carerProfile?.publicProfile ?? false);
     setEditOpenToHelping(user.openToHelping ?? false);
     setEditServices(
@@ -167,11 +135,11 @@ function ProfileInner() {
     );
     setEditCarerBio(user.carerProfile?.bio ?? "");
     setServicesEditing(true);
-  }
-  function cancelServicesEdit() {
+  }, [user]);
+  const cancelServicesEdit = useCallback(() => {
     setServicesEditing(false);
-  }
-  function saveServicesEdit() {
+  }, []);
+  const saveServicesEdit = useCallback(() => {
     setUser((prev) => ({
       ...prev,
       openToHelping: editOpenToHelping,
@@ -195,80 +163,103 @@ function ProfileInner() {
           : undefined,
     }));
     setServicesEditing(false);
-  }
+  }, [editOpenToHelping, editCarerBio, editAvailability, editServices, editVisibility]);
 
-  const fullName = `${user.firstName} ${user.lastName}`;
+  // ── AppNav page-action slot ──
+  //
+  // Per tab + edit state, declares the contextual primary action shown
+  // in the AppNav (in place of the default Camera+ create icon). When
+  // editing, also flips navLockedIn so Bell + Inbox hide — the user
+  // must Save or Cancel to leave the page. Posts tab suppresses the
+  // create icon entirely since "+ New post" lives in-panel. 2026-05-11.
+  const pageActionNode = useMemo(() => {
+    if (activeTab === "posts") return null;
+    const editing = activeTab === "about" ? aboutEditing : servicesEditing;
+    const onStart = activeTab === "about" ? startAboutEdit : startServicesEdit;
+    const onCancel = activeTab === "about" ? cancelAboutEdit : cancelServicesEdit;
+    const onSave = activeTab === "about" ? saveAboutEdit : saveServicesEdit;
+    if (editing) {
+      return (
+        <div className="flex items-center gap-sm">
+          <ButtonAction
+            variant="outline"
+            size="sm"
+            leftIcon={<X size={14} weight="bold" />}
+            onClick={onCancel}
+          >
+            Cancel
+          </ButtonAction>
+          <ButtonAction
+            variant="primary"
+            size="sm"
+            leftIcon={<Check size={14} weight="bold" />}
+            onClick={onSave}
+          >
+            Save
+          </ButtonAction>
+        </div>
+      );
+    }
+    return (
+      <ButtonAction
+        variant="outline"
+        size="sm"
+        leftIcon={<PencilSimple size={14} weight="bold" />}
+        onClick={onStart}
+      >
+        Edit
+      </ButtonAction>
+    );
+  }, [
+    activeTab,
+    aboutEditing,
+    servicesEditing,
+    startAboutEdit,
+    cancelAboutEdit,
+    saveAboutEdit,
+    startServicesEdit,
+    cancelServicesEdit,
+    saveServicesEdit,
+  ]);
+
+  useEffect(() => {
+    if (activeTab === "posts") {
+      setPageAction(null, { suppressCreate: true });
+    } else {
+      setPageAction(pageActionNode, { navLockedIn: isEditing });
+    }
+    return () => clearPageAction();
+  }, [activeTab, isEditing, pageActionNode, setPageAction, clearPageAction]);
 
   return (
-    <PageColumn title="Profile">
+    <PageColumn title="Profile" headerAction={pageActionNode}>
       <div className="page-column-panel-body">
-        <div className="page-column-panel-tabs">
-          <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
-        </div>
+        {/* TabBar hides during edit mode — pairs with AppNav navLockedIn
+            so the user can't tab-switch or escape mid-edit (full lock-in
+            until Save or Cancel commits). 2026-05-11 (A6). */}
+        {!isEditing && (
+          <div className="page-column-panel-tabs">
+            <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
+          </div>
+        )}
 
         {activeTab === "about" && (
-          <>
-            {/* Hero section — identity only (avatar, name, location, share).
-                Edit / Save / Cancel live inside each tab adjacent to the
-                content being edited. */}
-            <div
-              className="flex flex-col items-center gap-md"
-              style={{ padding: "var(--space-xl) var(--space-lg) var(--space-md)" }}
-            >
-              <img
-                src={user.avatarUrl}
-                alt={fullName}
-                className="rounded-full object-cover"
-                style={{ width: 96, height: 96 }}
-              />
-              <div className="flex flex-col items-center gap-xs text-center">
-                {/* Demo-only persona switcher: tap the name to swap perspectives.
-                    Wouldn't ship in the real product. */}
-                <ProfileNameDropdown name={fullName} />
-                <span className="flex items-center gap-xs text-sm text-fg-secondary">
-                  <MapPin size={13} weight="fill" className="shrink-0" />
-                  {user.location}
-                </span>
-                <span className="flex items-center gap-xs text-xs text-fg-tertiary">
-                  <CalendarBlank size={13} weight="regular" className="shrink-0" />
-                  Member since {formatMemberSince(user.memberSince)}
-                </span>
-              </div>
-
-              {/* Page-level actions — Share + Edit are paired side-by-side
-                  as the two things you can do with this profile from the
-                  hero. Edit is hidden during the editing flow (Save /
-                  Cancel take its place inside the tab body). */}
-              <div className="flex flex-wrap items-center justify-center gap-sm">
-                <ShareProfileButton shareCode={user.shareCode ?? user.id} />
-                {!aboutEditing && (
-                  <ButtonAction
-                    variant="outline"
-                    size="md"
-                    leftIcon={<PencilSimple size={14} weight="bold" />}
-                    onClick={startAboutEdit}
-                  >
-                    Edit Profile
-                  </ButtonAction>
-                )}
-              </div>
-            </div>
-
-            {/* About tab content — bio, pets, connections, tagging */}
-            <ProfileAboutTab
-              user={user}
-              editing={aboutEditing}
-              onCancel={cancelAboutEdit}
-              onSave={saveAboutEdit}
-              editState={{ bio: editBio, pets: editPets }}
-              onEditChange={(updates) => {
-                if (updates.bio !== undefined) setEditBio(updates.bio);
-                if (updates.pets !== undefined) setEditPets(updates.pets);
-              }}
-              tagApproval={tagApproval}
-              onTagApprovalChange={setTagApproval}
-            />
-          </>
+          /* About tab content — hero (avatar, name, location, member-since,
+             share button) leads the body, then bio + pets + connections +
+             tagging + care section. Hero moved into ProfileAboutTab
+             2026-05-11 (walkthrough B1) for layout parity with
+             `/profile/[userId]`. */
+          <ProfileAboutTab
+            user={user}
+            editing={aboutEditing}
+            editState={{ bio: editBio, pets: editPets }}
+            onEditChange={(updates) => {
+              if (updates.bio !== undefined) setEditBio(updates.bio);
+              if (updates.pets !== undefined) setEditPets(updates.pets);
+            }}
+            tagApproval={tagApproval}
+            onTagApprovalChange={setTagApproval}
+          />
         )}
 
         {activeTab === "posts" && (
@@ -279,17 +270,17 @@ function ProfileInner() {
           <ProfileServicesTab
             user={user}
             editing={servicesEditing}
-            onStartEdit={startServicesEdit}
-            onCancel={cancelServicesEdit}
-            onSave={saveServicesEdit}
             visibility={
               servicesEditing ? editVisibility : (user.carerProfile?.publicProfile ?? false)
             }
-            onToggleVisibility={() => setEditVisibility((v) => !v)}
+            onToggleVisibility={(v) => setEditVisibility(v)}
             openToHelping={
               servicesEditing ? editOpenToHelping : (user.openToHelping ?? false)
             }
             onToggleOpenToHelping={(v) => setEditOpenToHelping(v)}
+            onUnlockProfile={() =>
+              setUser((prev) => ({ ...prev, profileVisibility: "open" }))
+            }
             editServices={editServices}
             onEditServices={setEditServices}
             editAvailability={editAvailability}

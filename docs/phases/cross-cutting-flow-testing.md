@@ -1,6 +1,6 @@
 ---
-status: planned
-last-reviewed: 2026-05-03
+status: active
+last-reviewed: 2026-05-11
 review-trigger: When opening this phase, or when adding new deferred items
 ---
 
@@ -51,12 +51,48 @@ The relative-date pattern (`lib/mockDate.ts` → `daysAgo`/`daysFromNow`/`daysAg
 
 ---
 
+## Status at open (2026-05-11)
+
+Three of the pre-loaded data-hygiene items were already closed by earlier phases — the board language was stale:
+
+- **P21 (Group ↔ meet dedupe)** — closed in Mock World Building A2 (2026-04-30). `Group.meetIds` was removed; `Meet.groupId` is the single source of truth. `getGroupMeets` reads only from the meet side. No work needed.
+- **P28 (MeetAttendee.profileOpen auto-derive helper)** — closed in MWB A3 (2026-04-30). `buildMeetAttendee(user, overrides)` lives at the top of `lib/mockMeets.ts`. No work needed.
+- **P36 (profileVisibility distribution skew)** — substantively closed in MWB B1. Current ratio is 17 Open / 14 Locked (~55/45). The 70/30 target isn't reachable while keeping all bridged providers Open (the Discover Refinement + Care Catalog phases added 7 more bridged providers — `jana-k`, `tomas-b`, `pavel-d`, `simona-v`, `martin-k`, `lenka-s`, `petr-v`). The documented intent (Locked-by-default for everyone *except* providers + a couple of social anchors) is satisfied: the non-provider Open set is exactly `eva` + `jana`. Further rebalance would require either making providers Locked-but-discoverable (awkward demo flow) or removing bridged inventory (weakens marketplace demo). Treating as closed.
+
 ## Tasks
 
-To be defined when this phase opens. The pre-loaded scope above is the seed.
+### A — Edge-case attendee seeding (D1–D4) — **shipped 2026-05-11**
+
+Each persona's canonical upcoming meet was seeded with the three edge-case attendees plus connection records to drive tier promotion. D4 (following-without-attending) was already satisfied for Tereza + Daniel via existing `SEED_FOLLOWERS`; Klára + Tomáš were added on meet-15.
+
+- **D1 (tier-2 unmarked open):** Tereza→meet-15 (Nikola), Daniel→meet-17 (Petra), Klára→meet-18 (Petra), Tomáš→meet-19 (Jana).
+- **D2 (tier-2 inbound Familiar — deniability):** Connection records added with `state: "none"` + `theyMarkedFamiliar: true` for Tereza→Filip, Daniel→Marek, Klára→Jakub, Tomáš→Vítek; each is also seeded as a meet attendee.
+- **D3 (Pending pill):** Tereza→Jakub (existing pending), Daniel→Lucie (new pending), Klára→Jana (existing pending), Tomáš→Shawn (existing pending). All added to canonical meet attendees.
+- **D4 (follower + non-attendee):** Tereza follows meet-1 (existing), Daniel follows meet-5 + meet-7 (existing), Klára + Tomáš added to meet-15 via `SEED_FOLLOWERS`.
+
+Verification → `cross-cutting-flow-testing-walkthrough.md` Workstream A.
+
+### B — Mock-date staleness sweep (P20) — **shipped 2026-05-11**
+
+- `components/feed/FeedCard.tsx` — removed hardcoded `now = "2026-03-23T12:00:00Z"` constant; uses `Date.now()`.
+- `lib/mockPosts.ts:post-klara-community` — migrated to `daysAgoIso(0, "10:30")` so the "Great session this morning!" caption aligns regardless of when the demo opens.
+
+Verification → walkthrough Workstream C. Older static feed-post dates (deeper history) intentionally kept static; they fall through to the absolute-date branch (>7d) and read as "23 Mar" etc.
+
+### C — Cross-persona discovery walkthrough — **pending user verification**
+
+Discovery sweep checklist lives in walkthrough Workstream B. The intent is to catch dead-ends, broken cards, or persona-specific oddities not covered by the pre-loaded scope. New findings get appended to the walkthrough's *Decisions surfaced* section.
+
+### D — People tab disclosure model (P32) — **not started**
+
+Biggest design item on the board. Separates **information** (open) from **action** (gated by attendance). Touches `components/meets/ParticipantList.tsx`, `app/meets/[id]/page.tsx` PeopleTab, plus probably an `actions: false` prop on `PersonRow`. Wait for user signal before opening — the walkthrough placeholder lives in Workstream D.
 
 ---
 
 ## Acceptance Criteria
 
-To be defined when this phase opens.
+- [x] D1–D4 edge cases seeded on each persona's canonical upcoming meet (data-only).
+- [x] Mock-date staleness sweep (P20) — FeedCard relative-time bug fixed; post-klara migrated to relative.
+- [ ] Cross-persona walkthrough completed by user; emergent issues either resolved inline or filed to punch list.
+- [ ] People tab disclosure model (P32) shipped or explicitly deferred with a written rationale.
+- [ ] Typecheck clean (only the two pre-existing errors remain: `ButtonAction "ghost"` variant + duplicate photos key in `app/bookings/[bookingId]/page.tsx`).

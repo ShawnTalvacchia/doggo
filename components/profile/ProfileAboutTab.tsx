@@ -1,22 +1,133 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import {
   Plus,
   MagnifyingGlass,
   Sparkle,
   CaretRight,
   Eye,
-  PencilSimple,
-  Check,
-  X,
+  MapPin,
+  CalendarBlank,
+  PawPrint,
+  ShareNetwork,
+  CopySimple,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { PetCard } from "./PetCard";
 import { PetEditCard } from "./PetEditCard";
 import { TagApprovalSetting } from "./TagApprovalSetting";
+import { ProfileNameDropdown } from "./ProfileNameDropdown";
+import { getCarerIdentity } from "@/lib/identityBadges";
 import { getConnectionsForViewer, CONNECTION_STATE_LABELS } from "@/lib/mockConnections";
 import type { PetProfile, UserProfile, TagApproval } from "@/lib/types";
+
+// ── Helpers (used by ProfileHero below) ──────────────────────────────────────
+
+function formatMemberSince(ym: string): string {
+  const [year, month] = ym.split("-");
+  const date = new Date(Number(year), Number(month) - 1, 1);
+  return date.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+}
+
+function ShareProfileButton({ shareCode }: { shareCode: string }) {
+  // Every persona gets a shareable link; if the persona profile doesn't define
+  // an explicit shareCode, fall back to the user ID as the slug.
+  const [copied, setCopied] = useState(false);
+  const url = `${typeof window !== "undefined" ? window.location.origin : ""}/connect/${shareCode}`;
+
+  function handleCopy() {
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
+
+  return (
+    <ButtonAction
+      variant="outline"
+      size="md"
+      leftIcon={
+        copied ? (
+          <CopySimple size={14} weight="bold" />
+        ) : (
+          <ShareNetwork size={14} weight="light" />
+        )
+      }
+      onClick={handleCopy}
+    >
+      {copied ? "Copied!" : "Share Profile"}
+    </ButtonAction>
+  );
+}
+
+// ── ProfileHero (own profile) ────────────────────────────────────────────────
+//
+// Mirrors the horizontal hero used on `/profile/[userId]` for visual
+// parity between own-profile and other-profile views. Avatar left +
+// name/location/dogs/member-since/share button on the right; stacks
+// vertically on narrow viewports. The persona dropdown (demo-only) sits
+// in the name slot; the Carer identity badge surfaces alongside it when
+// the viewer has a `carerProfile`. 2026-05-11 (walkthrough B1).
+
+function ProfileHero({ user }: { user: UserProfile }) {
+  const fullName = `${user.firstName} ${user.lastName}`;
+  const dogNames = user.pets.map((p) => p.name);
+  // Self-view is always "connected" to itself for visibility — surface
+  // the Carer badge unconditionally when carerProfile exists.
+  const carerBadge = getCarerIdentity(user, true);
+
+  return (
+    <div
+      className="flex flex-col gap-md"
+      style={{ paddingBottom: "var(--space-md)" }}
+    >
+      <div className="flex flex-col sm:flex-row gap-lg sm:items-center">
+        <div
+          className="self-center sm:self-auto shrink-0"
+          style={{ padding: 12 }}
+        >
+          <img
+            src={user.avatarUrl}
+            alt={fullName}
+            className="rounded-full object-cover"
+            style={{ width: 200, height: 200 }}
+          />
+        </div>
+        <div className="w-full sm:flex-1 flex flex-col gap-xs min-w-0 items-center sm:items-start text-center sm:text-left">
+          <div className="flex items-center gap-sm flex-wrap justify-center sm:justify-start">
+            <ProfileNameDropdown name={fullName} />
+            {carerBadge && (
+              <span className="person-row-pill person-row-pill--carer">
+                {carerBadge.label}
+              </span>
+            )}
+          </div>
+          {user.location && (
+            <span className="flex items-center gap-xs text-sm text-fg-secondary">
+              <MapPin size={13} weight="fill" className="shrink-0" />
+              {user.location}
+            </span>
+          )}
+          {dogNames.length > 0 && (
+            <span className="flex items-center gap-xs text-sm text-fg-secondary">
+              <PawPrint size={13} weight="light" className="shrink-0" />
+              {dogNames.join(", ")}
+            </span>
+          )}
+          <span className="flex items-center gap-xs text-xs text-fg-tertiary">
+            <CalendarBlank size={13} weight="regular" className="shrink-0" />
+            Member since {formatMemberSince(user.memberSince)}
+          </span>
+          <div className="flex gap-sm" style={{ marginTop: "var(--space-md)" }}>
+            <ShareProfileButton shareCode={user.shareCode ?? user.id} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ── Connections list (internal) ──────────────────────────────────────────────
 
@@ -97,53 +208,11 @@ function ConnectionsList({ viewerId }: { viewerId: string }) {
   );
 }
 
-// ── Edit chrome (form actions while editing) ────────────────────────────────
-//
-// Renders only during edit mode — Save + Cancel are form-level actions tied
-// to the section being edited, so they live inside the tab body. The
-// "Edit Profile" entry-point button lives in the page hero alongside
-// "Share Profile" (page-level actions cluster). When not editing, this
-// block renders nothing.
-
-function EditChrome({
-  editing,
-  onCancel,
-  onSave,
-}: {
-  editing: boolean;
-  onCancel: () => void;
-  onSave: () => void;
-}) {
-  if (!editing) return null;
-  return (
-    <div className="flex justify-end gap-sm">
-      <ButtonAction
-        variant="outline"
-        size="md"
-        leftIcon={<X size={14} weight="bold" />}
-        onClick={onCancel}
-      >
-        Cancel
-      </ButtonAction>
-      <ButtonAction
-        variant="primary"
-        size="md"
-        leftIcon={<Check size={14} weight="bold" />}
-        onClick={onSave}
-      >
-        Save
-      </ButtonAction>
-    </div>
-  );
-}
-
 // ── Props ────────────────────────────────────────────────────────────────────
 
 interface ProfileAboutTabProps {
   user: UserProfile;
   editing: boolean;
-  onCancel: () => void;
-  onSave: () => void;
   editState: { bio: string; pets: PetProfile[] };
   onEditChange: (updates: Partial<{ bio: string; pets: PetProfile[] }>) => void;
   tagApproval: TagApproval;
@@ -155,8 +224,6 @@ interface ProfileAboutTabProps {
 export function ProfileAboutTab({
   user,
   editing,
-  onCancel,
-  onSave,
   editState,
   onEditChange,
   tagApproval,
@@ -164,11 +231,8 @@ export function ProfileAboutTab({
 }: ProfileAboutTabProps) {
   return (
     <div className="profile-tab-stack" style={{ padding: "var(--space-lg)" }}>
-      <EditChrome
-        editing={editing}
-        onCancel={onCancel}
-        onSave={onSave}
-      />
+      {/* Hero — horizontal layout for parity with /profile/[userId]. */}
+      <ProfileHero user={user} />
 
       {/* Bio */}
       <section>

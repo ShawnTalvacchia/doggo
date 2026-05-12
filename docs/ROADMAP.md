@@ -34,9 +34,11 @@ The full product skeleton exists. Every page renders with real content and worki
 
 ---
 
-## Current Phase
+## Current Phases
 
-**Care Catalog Taxonomy & Filter Redesign** *(opens after Discover Refinement close)*. Resolve the service taxonomy that drifted (`inhome_sitting` ended up meaning carer-side day care, not the babysitter-metaphor "sitting at owner's home" originally intended) and redesign the Discover Care filter panel against the resolved model. Phase board: `phases/care-catalog-taxonomy-and-filter-redesign.md` *(to be drafted at phase open)*.
+**Cross-Cutting Flow Testing + Demo Presentation (in parallel)** *(opens 2026-05-11)*. Cross-Cutting closes the end-to-end persona journeys with the data-hygiene fixes pre-loaded on its board (mock-world edge-case seeding, People-tab disclosure model, profile-visibility distribution skew, group↔meet relationship dedupe, MeetAttendee auto-derivation). Demo Presentation resumes from Workstream A/B/C shipped + D/E/F pending — the real product landing, logged-out flow previews, and Tereza-guided-tour updates needed for tester readiness. **Profiles Deep Pass may also run in parallel** on the no-regret mechanical items (Carer audience toggle UI + content enrichment); strategic items (D4 trust-signal prominence, E3 care-CTA funnel copy) wait for PO meeting outcomes. Phase boards: `phases/cross-cutting-flow-testing.md`, `phases/demo-presentation.md`, `phases/profiles-deep-pass.md`.
+
+**Care Catalog Taxonomy & Filter Redesign closed 2026-05-11.** Four-service taxonomy resolved (`walks_checkins` / `house_sitting` / `day_care` / `boarding`) with documented meanings inline + mock-data migration. Filter panel redesigned — `Filters` heading + in-panel service-type dropdown with descriptive sublines teaching where/when axes; Pets + Nearby + Sub-services functional, persisted per-viewer; service-aware fields keyed off active pill. Vet retired from `AppointmentCategory` + `CareCategory` (kept `"grooming" | "training"` going forward). Tereza gained a second pet (Bella) for multi-pet capacity demos. Workstream A residual: 9 drifted sub-service strings normalized to canonical SUB_SERVICES. Cold-Start Playbook strategy doc drafted as by-product (Prague market research + trainer-led-walks framing + credentialing-gap moat). Full record in `archive/phases/care-catalog-taxonomy-and-filter-redesign.md`.
 
 Design System Cleanup closed 2026-05-11 — opened mid-Care-Catalog as a parallel mechanical-cleanup session. Full record in `archive/phases/design-system-cleanup.md`.
 
@@ -58,9 +60,7 @@ Reorganized 2026-05-04 around the principle that **services are the core functio
 
 | Phase | Goal | Key refs |
 |-------|------|----------|
-| **Cross-Cutting Flow Testing** *(after Care Catalog Taxonomy)* | Every persona journey works end-to-end with the now-solid services core. Trust signals accumulate. No dead ends. Pre-loaded with mock-world edge-case seeding + People-tab disclosure model + mock-data hygiene items. | `phases/cross-cutting-flow-testing.md`, `User Journeys.pptx`, `Trust & Connection Model.md` |
-| **Onboarding & In-Product Communication** | Trust model + Carer audience + privacy mechanics + Carer pricing setup tutorials. Multiple touchpoints (locked profile lock card, Familiar asymmetry, Carer audience setting, privacy explainer, share-link bypass, group visibility chip, pricing setup walkthrough) share the same root: users need to understand mechanics without being lectured. | `phases/onboarding-and-communication.md`, `Trust & Connection Model.md`, `Open Questions §2 + §3 + §4` |
-| **Demo Presentation** | Landing page redesign, persona selection presentation, guided tours. Free exploration also rewarding. The `/demo` route from Persona Wiring is the technical foundation; presentation framing is the open work. | `Product Vision.md`, `User Archetypes.md`, `features/demo-mode.md` |
+| **Onboarding & In-Product Communication** *(after Cross-Cutting Flow Testing + Demo Presentation)* | Trust model + Carer audience + privacy mechanics + Carer pricing setup tutorials. Multiple touchpoints (locked profile lock card, Familiar asymmetry, Carer audience setting, privacy explainer, share-link bypass, group visibility chip, pricing setup walkthrough) share the same root: users need to understand mechanics without being lectured. Cross-Cutting Flow Testing surfaces the moments where teaching is most needed — that's the natural feeder into this phase. | `phases/onboarding-and-communication.md`, `Trust & Connection Model.md`, `Open Questions §2 + §3 + §4` |
 
 Phase boards are created when a phase opens — that's where detailed tasks live. The research docs referenced above contain specific action items and open questions that feed into each phase's board.
 

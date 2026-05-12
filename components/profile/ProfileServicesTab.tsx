@@ -7,9 +7,6 @@ import {
   Sparkle,
   PawPrint,
   Info,
-  PencilSimple,
-  Check,
-  X,
   CaretDown,
   CaretUp,
 } from "@phosphor-icons/react";
@@ -267,13 +264,15 @@ function AvailabilityGrid({ carer }: { carer: CarerProfile }) {
 interface ProfileServicesTabProps {
   user: UserProfile;
   editing: boolean;
-  onStartEdit: () => void;
-  onCancel: () => void;
-  onSave: () => void;
   visibility: boolean;
-  onToggleVisibility: () => void;
+  onToggleVisibility: (v: boolean) => void;
   openToHelping: boolean;
   onToggleOpenToHelping: (v: boolean) => void;
+  /** Flips the viewer's `profileVisibility` from "locked" → "open".
+   *  Wired from the locked-provider banner CTA. The banner only renders
+   *  when the viewer is locked AND has services, so unlocking makes the
+   *  banner go away. */
+  onUnlockProfile: () => void;
   // Edit UI is Care-only — Meet-type offerings are added through a separate
   // flow (see Onboarding & In-Product Communication phase). The save handler
   // in `app/profile/page.tsx` preserves any existing Meet entries.
@@ -285,66 +284,16 @@ interface ProfileServicesTabProps {
   onEditCarerBio: (b: string) => void;
 }
 
-// ── Edit chrome (top of tab) ─────────────────────────────────────────────────
-
-function EditChrome({
-  editing,
-  onStartEdit,
-  onCancel,
-  onSave,
-}: {
-  editing: boolean;
-  onStartEdit: () => void;
-  onCancel: () => void;
-  onSave: () => void;
-}) {
-  return (
-    <div className="flex justify-end gap-sm">
-      {editing ? (
-        <>
-          <ButtonAction
-            variant="outline"
-            size="md"
-            leftIcon={<X size={14} weight="bold" />}
-            onClick={onCancel}
-          >
-            Cancel
-          </ButtonAction>
-          <ButtonAction
-            variant="primary"
-            size="md"
-            leftIcon={<Check size={14} weight="bold" />}
-            onClick={onSave}
-          >
-            Save
-          </ButtonAction>
-        </>
-      ) : (
-        <ButtonAction
-          variant="outline"
-          size="md"
-          leftIcon={<PencilSimple size={14} weight="bold" />}
-          onClick={onStartEdit}
-        >
-          Edit Services
-        </ButtonAction>
-      )}
-    </div>
-  );
-}
-
 // ── Component ────────────────────────────────────────────────────────────────
 
 export function ProfileServicesTab({
   user,
   editing,
-  onStartEdit,
-  onCancel,
-  onSave,
   visibility,
   onToggleVisibility,
   openToHelping,
   onToggleOpenToHelping,
+  onUnlockProfile,
   editServices,
   onEditServices,
   editAvailability,
@@ -412,22 +361,25 @@ export function ProfileServicesTab({
   if (!showCareContent && !editing) {
     return (
       <div className="profile-tab-stack" style={{ padding: "var(--space-lg)" }}>
-        <EditChrome
-          editing={editing}
-          onStartEdit={onStartEdit}
-          onCancel={onCancel}
-          onSave={onSave}
-        />
-        <section className="flex flex-col items-center gap-md p-xl text-center">
+        <section
+          className="flex flex-col items-center gap-md text-center"
+          style={{ padding: "var(--space-jumbo-1) var(--space-xl)" }}
+        >
           <Sparkle size={44} weight="light" className="text-fg-tertiary" />
           <h2 className="font-heading text-lg font-semibold text-fg-primary m-0">
             Open to helping?
           </h2>
-          <p className="profile-card-copy text-fg-secondary">
+          <p className="profile-card-copy text-fg-secondary m-0">
             Turn on care offerings from your profile to help dogs in your community. Walks, sitting, boarding — you set the terms.
           </p>
-          <p className="text-sm text-fg-tertiary">
-            Tap &ldquo;Edit Services&rdquo; to get started.
+          {/* Directional hint — pushed down with deliberate gap so it
+              reads as a separate "next step" pointer rather than part of
+              the description. 2026-05-11 (empty-state airiness pass). */}
+          <p
+            className="text-sm text-fg-tertiary m-0"
+            style={{ marginTop: "var(--space-xxl)" }}
+          >
+            Tap &ldquo;Edit&rdquo; above to get started.
           </p>
         </section>
       </div>
@@ -438,13 +390,6 @@ export function ProfileServicesTab({
   if (editing) {
     return (
       <div className="profile-tab-stack" style={{ padding: "var(--space-lg)" }}>
-        <EditChrome
-          editing={editing}
-          onStartEdit={onStartEdit}
-          onCancel={onCancel}
-          onSave={onSave}
-        />
-
         {/* Open to helping toggle */}
         <section>
           <div className="flex items-center justify-between gap-md">
@@ -588,33 +533,26 @@ export function ProfileServicesTab({
               </div>
             </section>
 
-            {/* Visibility */}
+            {/* Audience — one dial, not a tier ladder. Reframed 2026-05-11
+                (D7) after Discover Refinement collapsed Helper-tier /
+                Provider-tier into a single Carer role with audience as
+                its sub-setting. Off = Connected circle only; on = anyone
+                (surfaces in /discover/care). */}
             <section>
-              <div className="profile-visibility-row">
+              <div className="flex items-center justify-between gap-md">
                 <div>
-                  <p className="profile-visibility-label">Search visibility</p>
+                  <p className="profile-visibility-label">Open to anyone</p>
                   <p className="profile-visibility-sub">
                     {visibility
-                      ? "Your profile appears in Explore search results."
-                      : "Only your connections can see you offer care."}
+                      ? "Your services appear in Discover for anyone in Prague to find."
+                      : "Only people you're Connected with can see and book your services."}
                   </p>
                 </div>
-                <button
-                  onClick={onToggleVisibility}
-                  className="flex items-center gap-xs rounded-pill px-md py-xs text-sm font-medium"
-                  style={{
-                    background: visibility
-                      ? "var(--brand-subtle)"
-                      : "var(--surface-gray)",
-                    color: visibility
-                      ? "var(--brand-strong)"
-                      : "var(--text-secondary)",
-                    border: `1px solid ${visibility ? "var(--brand-main)" : "var(--border-regular)"}`,
-                    cursor: "pointer",
-                  }}
-                >
-                  {visibility ? "Public" : "Connections only"}
-                </button>
+                <Toggle
+                  label="Open to anyone"
+                  checked={visibility}
+                  onChange={onToggleVisibility}
+                />
               </div>
             </section>
           </>
@@ -629,13 +567,6 @@ export function ProfileServicesTab({
 
   return (
     <div className="profile-tab-stack" style={{ padding: "var(--space-lg)" }}>
-      <EditChrome
-        editing={editing}
-        onStartEdit={onStartEdit}
-        onCancel={onCancel}
-        onSave={onSave}
-      />
-
       {/* Locked provider banner */}
       {isProfileLocked && hasServices && (
         <section
@@ -650,9 +581,7 @@ export function ProfileServicesTab({
             <ButtonAction
               variant="outline"
               size="sm"
-              onClick={() => {
-                /* In a real app, this would open the visibility toggle */
-              }}
+              onClick={onUnlockProfile}
             >
               Make profile public
             </ButtonAction>
@@ -670,7 +599,7 @@ export function ProfileServicesTab({
             <PawPrint size={16} weight="fill" /> Open to helping
           </span>
           <span className="text-sm text-fg-tertiary">
-            {visibility ? "Visible on Explore" : "Connections only"}
+            {visibility ? "Open to anyone" : "Connected circle only"}
           </span>
         </div>
       </section>

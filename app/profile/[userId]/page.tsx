@@ -38,7 +38,8 @@ import { getCommunityCarers } from "@/lib/mockConnections";
 import { viewerSharedMeetWith } from "@/lib/mockMeets";
 import { viewerSharedGroupWith, getSharedGroupNames } from "@/lib/mockGroups";
 import { useConnections } from "@/contexts/ConnectionsContext";
-import { useCurrentUser, useCurrentUserId } from "@/hooks/useCurrentUser";
+import { useCurrentUser, useCurrentUserId, useIsGuest } from "@/hooks/useCurrentUser";
+import { useAuthGate } from "@/contexts/AuthGateContext";
 import { resolvePersonActions } from "@/lib/personActions";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
@@ -69,7 +70,27 @@ function UserProfileInner() {
 
   const currentUserId = useCurrentUserId();
   const currentUser = useCurrentUser();
-  const isSelf = userId === currentUserId;
+  const isGuest = useIsGuest();
+  const { requireAuth } = useAuthGate();
+  // A guest's fallback `currentUserId` is Tereza — but a guest visiting their
+  // own profile (Tereza→Tereza) shouldn't get the self-edit affordance. Force
+  // isSelf false for guests so the action row renders properly. D6 2026-05-11.
+  const isSelf = !isGuest && userId === currentUserId;
+
+  // Viewing your own profile via the URL (e.g. typing `/profile/daniel`
+  // while logged in as Daniel) should bounce to `/profile`. Without this
+  // the page applies the viewer-vs-subject gate to yourself — locked
+  // personas end up seeing "this profile is private" about their own
+  // profile. Own-profile rendering lives at `/profile` and carries the
+  // right affordances (Edit slot, no connection actions, persona
+  // dropdown). Tab param is preserved only for tabs that exist on the
+  // own-profile route. 2026-05-11 (walkthrough B1).
+  useEffect(() => {
+    if (!isSelf) return;
+    const ownTabs = new Set(["about", "posts", "services"]);
+    const tab = ownTabs.has(activeTab) && activeTab !== "about" ? `?tab=${activeTab}` : "";
+    router.replace(`/profile${tab}`);
+  }, [isSelf, activeTab, router]);
 
   // Resolve user data via the unified bridge — handles directory-only
   // providers (`olga-m`, `jana-k`, etc.) by synthesizing a minimal profile
@@ -138,7 +159,9 @@ function UserProfileInner() {
   const { getConversationForUser } = useConversations();
   const existingConv = getConversationForUser(userId);
   const isProviderTier = userProfile?.carerProfile?.publicProfile === true;
-  const showChatTab = connState === "connected" || !!existingConv || isProviderTier;
+  // Guests have no real identity, so no chat tab — the conversation lookup
+  // would resolve to Tereza's existing thread (if any) and leak it. D6 2026-05-11.
+  const showChatTab = !isGuest && (connState === "connected" || !!existingConv || isProviderTier);
 
   // Inquiry modal — opened from a service card "Book a session" CTA.
   // Stays on Services tab; modal posts the InquiryCard message to the
@@ -172,7 +195,8 @@ function UserProfileInner() {
           router.back();
           return;
         }
-        router.replace("/home");
+        // Guests don't have a /home to fall back to.
+        router.replace(isGuest ? "/" : "/home");
       },
       undefined,
       headerAvatar,
@@ -183,6 +207,10 @@ function UserProfileInner() {
       document.body.classList.remove("profile-subpage");
     };
   }, [headerName, avatarUrl]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Don't paint the viewer-vs-subject UI for a brief frame while the
+  // self-redirect resolves — render nothing.
+  if (isSelf) return null;
 
   return (
     <PageColumn hideHeader abovePanel={<DetailHeader title={headerName} leadingAvatar={headerAvatar} />}>
@@ -260,11 +288,15 @@ function UserProfileInner() {
                   </p>
                   <button
                     type="button"
-                    onClick={() =>
+                    onClick={() => {
+                      if (isGuest) {
+                        requireAuth(`recognise ${firstName}`);
+                        return;
+                      }
                       isMarked
                         ? unmarkFamiliar(currentUserId, userId)
-                        : markFamiliar(currentUserId, userId)
-                    }
+                        : markFamiliar(currentUserId, userId);
+                    }}
                     className={`private-profile-row-pill${isMarked ? " is-marked" : ""}`}
                     aria-pressed={isMarked}
                     aria-label={
@@ -393,7 +425,25 @@ function UserProfileInner() {
                    *    Connected → "Message" both tiers. Pending → "Request
                    *    sent" disabled.
                    *  Pricing & Proposals walkthrough 2026-05-05. */}
-                  {!isSelf && (() => {
+                  {/* Guest viewers see a single brand-fill "Connect with X"
+                      pill — the trust matrix doesn't apply (no real identity),
+                      and every nuanced state (familiar/pending/connected)
+                      collapses to the same AuthGate prompt. D6 2026-05-11. */}
+                  {!isSelf && isGuest && (
+                    <div className="flex gap-sm w-full" style={{ marginTop: "var(--space-md)" }}>
+                      <ButtonAction
+                        variant="primary"
+                        size="md"
+                        cta
+                        className="flex-1"
+                        leftIcon={<ChatCircleDots size={16} weight="fill" />}
+                        onClick={() => requireAuth(`connect with ${firstName}`)}
+                      >
+                        Connect with {firstName}
+                      </ButtonAction>
+                    </div>
+                  )}
+                  {!isSelf && !isGuest && (() => {
                     const matrix = resolvePersonActions(
                       { userId: currentUserId, profileOpen: currentUser.profileVisibility === "open" },
                       {
@@ -764,10 +814,16 @@ function UserProfileInner() {
                           size="sm"
                           cta
                           className="self-start"
-                          onClick={() => setInquiryTarget({
-                            service: svc.serviceType,
-                            subService: svc.subServices[0] ?? null,
-                          })}
+                          onClick={() => {
+                            if (isGuest) {
+                              requireAuth(`book ${firstName}'s service`);
+                              return;
+                            }
+                            setInquiryTarget({
+                              service: svc.serviceType,
+                              subService: svc.subServices[0] ?? null,
+                            });
+                          }}
                         >
                           Book a session
                         </ButtonAction>
@@ -825,7 +881,9 @@ function UserProfileInner() {
                                 size="sm"
                                 cta
                                 className="self-start"
-                                href={ctaHref}
+                                {...(isGuest
+                                  ? { onClick: () => requireAuth(`book ${firstName}'s service`) }
+                                  : { href: ctaHref })}
                               >
                                 {ctaLabel}
                               </ButtonAction>
@@ -851,7 +909,7 @@ function UserProfileInner() {
                           </div>
                           <div className="profile-service-subs">
                             <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
-                              {svc.appointmentCategory === "vet" ? "Vet" : "Grooming"}
+                              {svc.appointmentCategory === "training" ? "Training visit" : "Grooming"}
                             </span>
                             <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
                               {svc.durationMinutes} min
@@ -866,7 +924,9 @@ function UserProfileInner() {
                               size="sm"
                               cta
                               className="self-start"
-                              href={`/profile/${userId}?tab=chat&appointment=${svc.id}`}
+                              {...(isGuest
+                                ? { onClick: () => requireAuth(`ask about ${firstName}'s appointment`) }
+                                : { href: `/profile/${userId}?tab=chat&appointment=${svc.id}` })}
                             >
                               Ask about this
                             </ButtonAction>

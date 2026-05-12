@@ -105,8 +105,8 @@ const serviceLabels: Record<ServiceType, string> = {
 };
 
 const appointmentLabels: Record<AppointmentCategory, string> = {
-  vet: "Vet",
   grooming: "Grooming",
+  training: "Training visit",
 };
 
 /**

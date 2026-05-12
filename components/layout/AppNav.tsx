@@ -6,7 +6,7 @@ import { ButtonIcon } from "@/components/ui/ButtonIcon";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
-import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { useCurrentUserId, useIsGuest } from "@/hooks/useCurrentUser";
 import { countUnreadConversations } from "@/lib/conversationUtils";
 import {
   ArrowLeft,
@@ -60,6 +60,7 @@ function LoggedNavLinks({ hideCreate = false }: { hideCreate?: boolean }) {
   const { openComposer } = usePostComposer();
   const { openComposer: openMeetComposer } = useMeetComposer();
   const currentUserId = useCurrentUserId();
+  const { pageAction, suppressCreate, navLockedIn } = usePageHeader();
 
   // Inbox badge count — viewer-aware (matches the inbox's own dot
   // rendering). Earlier formula `c.unreadCount > 0` read the
@@ -79,30 +80,41 @@ function LoggedNavLinks({ hideCreate = false }: { hideCreate?: boolean }) {
     else openComposer();
   };
 
+  // Page-action slot precedence:
+  //   pageAction set        → render it in the create-icon position
+  //   suppressCreate true   → render nothing in that position
+  //   neither               → render default Create icon (subject to route-level hideCreate)
+  // navLockedIn additionally hides Bell + Inbox for full edit-mode lock-in.
+  const showCreate = !pageAction && !suppressCreate && !hideCreate;
+
   return (
     <div className="app-nav-logged" aria-label="Logged-in navigation">
-      {/* Right icon row: Create, Notifications, Inbox */}
       <div className="app-nav-icon-row">
-        {!hideCreate && (
+        {pageAction && (
+          <div className="app-nav-page-action">{pageAction}</div>
+        )}
+        {showCreate && (
           <ButtonIcon label={createLabel} onClick={handleCreate}>
             {createIcon}
           </ButtonIcon>
         )}
-        {/* Bell now routes to the full /notifications page on every device.
-            The desktop dropdown panel was dropped during Inbox &
-            Notifications C1 (2026-05-08) — one canonical surface, less
-            code path to maintain, and mobile already used the page. */}
-        <ButtonIcon
-          label="Notifications"
-          href="/notifications"
-          showBadge={unreadCount > 0}
-          badgeCount={unreadCount}
-        >
-          <Bell size={28} weight="light" />
-        </ButtonIcon>
-        <ButtonIcon label="Messages" href="/inbox" showBadge={unreadInbox > 0} badgeCount={unreadInbox}>
-          <ChatCircleDots size={28} weight="light" />
-        </ButtonIcon>
+        {!navLockedIn && (
+          <>
+            {/* Bell routes to the full /notifications page on every device.
+                Desktop dropdown panel was dropped 2026-05-08. */}
+            <ButtonIcon
+              label="Notifications"
+              href="/notifications"
+              showBadge={unreadCount > 0}
+              badgeCount={unreadCount}
+            >
+              <Bell size={28} weight="light" />
+            </ButtonIcon>
+            <ButtonIcon label="Messages" href="/inbox" showBadge={unreadInbox > 0} badgeCount={unreadInbox}>
+              <ChatCircleDots size={28} weight="light" />
+            </ButtonIcon>
+          </>
+        )}
       </div>
     </div>
   );
@@ -128,7 +140,15 @@ function getPageTitle(pathname: string): string | null {
 export function AppNav() {
   const pathname = usePathname();
   const { detailTitle, onBack, rightAction, leadingAvatar } = usePageHeader();
-  const mode = loggedRoutes.some((r) => pathname.startsWith(r)) ? "logged" : "guest";
+  const isGuest = useIsGuest();
+  // Guest visitors on a normally-logged surface (e.g. /communities/group-1?guest=1)
+  // get the guest nav — `Try the demo` + `Sign Up`, no Bell/Inbox/Create. Without
+  // this branch, AppNav would key off the route alone and render LoggedNavLinks
+  // bound to the read-only Tereza fallback, leaking her unread counts into the
+  // guest preview. Demo Presentation F1c, 2026-05-05.
+  const mode = isGuest
+    ? "guest"
+    : loggedRoutes.some((r) => pathname.startsWith(r)) ? "logged" : "guest";
   const isSignupRoute = pathname.startsWith("/signup");
   const isStyleguideRoute = pathname.startsWith("/styleguide");
   const isDiscoverRoute = pathname.startsWith("/discover");

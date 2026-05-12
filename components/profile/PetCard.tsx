@@ -4,7 +4,7 @@ import { useState } from "react";
 import {
   Lightning,
   Heart,
-  Stethoscope,
+  FirstAidKit,
   ShieldCheck,
   Camera,
   CaretDown,
@@ -20,11 +20,38 @@ export const ENERGY_LABELS: Record<EnergyLevel, string> = {
   very_high: "Very high energy",
 };
 
-export const ENERGY_COLORS: Record<EnergyLevel, { bg: string; fg: string }> = {
-  low: { bg: "var(--status-info-light)", fg: "var(--status-info-main)" },
-  moderate: { bg: "var(--status-success-light)", fg: "var(--status-success-main)" },
-  high: { bg: "var(--status-warning-light)", fg: "var(--status-warning-main)" },
-  very_high: { bg: "var(--status-error-light)", fg: "var(--status-error-main)" },
+// Energy pill palette — `bg`/`fg`/`border` per level. Previously the
+// pill used `*-25` backgrounds with `*-500` text, which read fine in
+// isolation but blended into the `--surface-base` (#f4f4f4) PetCard
+// background. Bumped backgrounds to `*-50` for clearer pill silhouette,
+// text to `*-600` for stronger contrast on the tinted bg, and added a
+// 1px border at the same `*-600` colour to define the edge against the
+// card. Scoped to the PetCard energy pill — does not affect the
+// app-wide `--status-*` tokens. 2026-05-11 (A5b).
+export const ENERGY_COLORS: Record<
+  EnergyLevel,
+  { bg: string; fg: string; border: string }
+> = {
+  low: {
+    bg: "var(--info-50)",
+    fg: "var(--info-600)",
+    border: "var(--info-600)",
+  },
+  moderate: {
+    bg: "var(--success-50)",
+    fg: "var(--success-600)",
+    border: "var(--success-600)",
+  },
+  high: {
+    bg: "var(--warning-50)",
+    fg: "var(--warning-600)",
+    border: "var(--warning-600)",
+  },
+  very_high: {
+    bg: "var(--error-50)",
+    fg: "var(--error-600)",
+    border: "var(--error-600)",
+  },
 };
 
 export const PLAY_STYLE_LABELS: Record<PlayStyle, string> = {
@@ -79,7 +106,12 @@ export function PetCard({ pet, defaultExpanded = true }: PetCardProps) {
             size={16}
             weight="bold"
             className="text-fg-tertiary shrink-0"
-            style={{ transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.15s ease" }}
+            style={{
+              alignSelf: "center",
+              marginLeft: "auto",
+              transform: expanded ? "rotate(180deg)" : "none",
+              transition: "transform 0.15s ease",
+            }}
           />
         )}
       </button>
@@ -96,6 +128,7 @@ export function PetCard({ pet, defaultExpanded = true }: PetCardProps) {
                   style={{
                     background: ENERGY_COLORS[pet.energyLevel].bg,
                     color: ENERGY_COLORS[pet.energyLevel].fg,
+                    border: `1px solid ${ENERGY_COLORS[pet.energyLevel].border}`,
                   }}
                 >
                   <Lightning size={12} weight="fill" />
@@ -128,31 +161,46 @@ export function PetCard({ pet, defaultExpanded = true }: PetCardProps) {
           {pet.vetInfo && (
             <div className="pet-profile-section">
               <div className="pet-profile-section-header">
-                <Stethoscope size={14} weight="fill" className="text-brand-main" />
+                <FirstAidKit size={14} weight="fill" className="text-brand-main" />
                 <span>Health & vet</span>
               </div>
-              <div className="pet-profile-health-grid">
-                {pet.vetInfo.vaccinationsUpToDate && (
-                  <span className="pet-profile-health-tag pet-profile-health-tag--good">
-                    <ShieldCheck size={13} weight="fill" /> Vaccinations up to date
-                  </span>
-                )}
-                {pet.vetInfo.spayedNeutered && (
-                  <span className="pet-profile-health-tag pet-profile-health-tag--good">
-                    <ShieldCheck size={13} weight="fill" /> Spayed / neutered
-                  </span>
-                )}
-                {pet.vetInfo.conditions && (
-                  <span className="pet-profile-health-tag pet-profile-health-tag--note">
-                    {pet.vetInfo.conditions}
-                  </span>
-                )}
-              </div>
+              {/* Health checks — icon + colored text inline, no pill chrome.
+                  The pill treatment was too heavy for "yes this is a thing"
+                  affirmations; icon-and-text reads as a check at a glance.
+                  2026-05-11. */}
+              {(pet.vetInfo.vaccinationsUpToDate || pet.vetInfo.spayedNeutered) && (
+                <div className="pet-profile-health-checks">
+                  {pet.vetInfo.vaccinationsUpToDate && (
+                    <span className="pet-profile-health-check">
+                      <ShieldCheck size={13} weight="fill" /> Vaccinations up to date
+                    </span>
+                  )}
+                  {pet.vetInfo.spayedNeutered && (
+                    <span className="pet-profile-health-check">
+                      <ShieldCheck size={13} weight="fill" /> Spayed / neutered
+                    </span>
+                  )}
+                </div>
+              )}
+              {/* Conditions — plain text. Pill styling was wrong here; the
+                  content is long and open-ended ("Mild leash reactivity. No
+                  food allergies. Sensitive stomach with novel proteins.")
+                  and reads better as body copy. 2026-05-11. */}
+              {pet.vetInfo.conditions && (
+                <p className="pet-profile-conditions">{pet.vetInfo.conditions}</p>
+              )}
               {pet.vetInfo.clinicName && (
                 <p className="pet-profile-vet-line">
-                  {pet.vetInfo.clinicName}
+                  {/* Vet clinic — neutral pill. Future: when the directory
+                      of vet contacts is wired, this becomes a link to the
+                      vet's contact page. 2026-05-11. */}
+                  <span className="pet-profile-vet-pill">
+                    {pet.vetInfo.clinicName}
+                  </span>
                   {pet.vetInfo.lastCheckup && (
-                    <> · Last visit {new Date(pet.vetInfo.lastCheckup).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}</>
+                    <span className="pet-profile-vet-lastvisit">
+                      Last visit {new Date(pet.vetInfo.lastCheckup).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
+                    </span>
                   )}
                 </p>
               )}

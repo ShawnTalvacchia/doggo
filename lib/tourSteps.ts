@@ -52,13 +52,13 @@ export const tours: Record<TourId, TourStep[]> = {
     {
       title: "Tereza's profile",
       body:
-        "An Open profile (anyone can see) with her dog Franta and a Helper-tier sitting service. The same profile holds her social identity AND her care offering — no separate provider account.",
+        "An Open profile (anyone can see) with her two dogs — Franta and Bella — and a Carer offering for neighbours. The same profile holds her social identity AND her care offering — no separate provider account.",
       path: "/profile",
     },
     {
-      title: "Sitting service config",
+      title: "Her Carer services",
       body:
-        "Her Services tab shows weekend sitting — Helper-tier, modest rate, with a per-pet modifier for multi-dog visits. Pricing is structured (no haggling), and her offer is visible to her Connected network.",
+        "Tereza offers three services — day care, house sitting, and casual walks. Her audience is set to circle (Connected viewers only), not the open marketplace. Auto-pricing modifiers (weekend, multi-pet) replace haggling.",
       path: "/profile",
       query: { tab: "services" },
     },

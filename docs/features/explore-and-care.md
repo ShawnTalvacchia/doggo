@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-10
+last-reviewed: 2026-05-11
 
 tags: [discover, care, booking, carers, map, payment, trust-gating]
 review-trigger: "when modifying Discover Care tab, Carer profiles, booking flows, payment, or map"
@@ -37,9 +37,20 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 ### What's built
 
 - **Single-page discover flow:** Each door (Meets, Groups, Care) opens a results page with FilterPillRow for type/category filtering and floating Filters/View Results buttons for advanced filters. Former type picker intermediate pages removed.
-- **Service selection (post Care Catalog Taxonomy 2026-05-10):** Four-service Care taxonomy on the filter pills — Walks & Check-ins / House sitting (carer goes to owner's home) / Day care (carer's home, daytime) / Boarding (carer's home, overnight) — plus the Appointment pill for vet/grooming. Replaces the older three-service `walk_checkin | inhome_sitting | boarding` model. See [[Groups & Care Model]] → "Care taxonomy — the four services."
-- **Provider results:** Filterable list with price, distance, rating, services. Map with price-marker pins. Community carers section for connected providers.
-- **Care filter panel:** The filter panel at `/discover/care` uses **interactive UI primitives** — MultiSelectSegmentBar for day-of-week selection, dual Slider for price range, CheckboxRow for service toggles, and an accordion pattern for expanding service sub-types. All built from existing components, not custom markup.
+- **Service selection (closed in Care Catalog Taxonomy 2026-05-11):** Four-service Care taxonomy on the filter pills — Walks & Check-ins / House sitting (carer goes to owner's home) / Day care (carer's home, daytime) / Boarding (carer's home, overnight) — plus the Appointment pill (grooming / training visit; vet retired 2026-05-11). Replaces the older three-service `walk_checkin | inhome_sitting | boarding` model. Canonical labels + meanings + sub-services live in `lib/constants/services.ts`; documented inline next to the `ServiceType` enum in `lib/types.ts` to prevent re-drift. See [[Groups & Care Model]] → "Care taxonomy — the four services."
+- **Provider results:** Filterable list with price, distance, rating, services. Map with price-marker pins. Community-first ordering — Connected/Familiar carers render above broader marketplace with distinct chrome (`var(--brand-subtle)` background + 3px brand-main left stripe, viewer self-excluded). Discover Refinement 2026-05-10.
+- **Care filter panel (redesigned in Care Catalog Taxonomy 2026-05-11):** Self-contained filtering surface with five new structural moves:
+  1. **`Filters` heading + in-panel service-type dropdown** at the top of the panel. Dropdown trigger is a commanding affordance (24px icon + heading-style label + descriptive subline + caret). Tap opens a 6-row menu with title + subline per service, teaching the where/when axes (e.g. *Day care · Daytime at the carer's home* vs *Boarding · Overnight at the carer's home*). The page-level pill row hides while the panel is open (fixes mobile overflow); pills reappear when the panel closes. Selecting a service inside the panel keeps the panel open, just reshapes the fields below.
+  2. **Pets row functional + persisted.** Wired to `viewer.pets[]` via `useCurrentUser()`. Multi-select checkboxes; selection persists across reloads + persona switches via `usePersistedState` keyed by `doggo-care-filters-${viewerId}`. Drives the multi-pet capacity predicate on Day care + Boarding configs (gates carers whose `maxDogs < selectedPetIds.length`). Empty-state for users without pets: CTA link to `/profile` to add one.
+  3. **Address picker functional.** Saved-addresses dropdown derived from `viewer.neighbourhood`. Map-dropper item is a stub (logged in punch list P65); km-radius filtering deferred. Empty-state CTA for users without a neighbourhood.
+  4. **Sub-services accordion.** Per-service multi-select chip group rendered from `SUB_SERVICES` in `lib/constants/services.ts`. Sub-services are intersection-gated — picking "Solo walk" + "Group walk" widens, doesn't narrow.
+  5. **Service-aware field shapes** keyed off active service pill:
+     - **Walks & Check-ins:** Walk pace + Leash policy
+     - **House sitting:** universal context + sub-services only (no carer-home fields — sitting happens at owner's home)
+     - **Day care:** Home setting + Other dogs at home
+     - **Boarding:** Home setting + Other dogs at home + Has yard
+- **Filter primitives:** MultiSelectSegmentBar for day-of-week + time-of-day + walk pace + leash + home setting + sub-services + other-dogs-at-home, dual Slider for price range, CheckboxRow for the lone yard toggle. All built from existing components.
+- **Time-of-day granularity:** Morning / Afternoon / Evening. Decision settled at phase open (Care Catalog Taxonomy 2026-05-11): finer-grained bands would invent data the carer never entered; underlying `CarerAvailabilitySlot.slots` is `TimeSlot[]` keyed morning/afternoon/evening.
 - **Interactive map:** Leaflet with Carto Positron tiles, price markers, 3-column desktop layout
 - **Provider profiles:** Unified at `/profile/[userId]` — About/Posts/Services tabs, trust signals. Old `/discover/profile/[providerId]` redirects via `userId` bridge field on ProviderCard. `ProfileHeader` component deleted.
 - **Connection gating (Phase 11):** CTAs enforced by connection state:

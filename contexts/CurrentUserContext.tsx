@@ -43,6 +43,13 @@ import { tereza } from "@/lib/mockUsers";
 import { getPersona } from "@/lib/personas";
 
 const STORAGE_KEY_USER = "doggo-demo-user-id";
+// Guest mode mirrors to sessionStorage (not localStorage) — it survives
+// in-app navigation within a tab so a guest visitor who lands on
+// `/communities/group-1?guest=1` and clicks into `/meets/meet-1` stays in
+// guest mode, but closing the tab clears it. Without this, every internal
+// `<Link>` from a guest route loses `?guest=1` and the visitor silently
+// flips back to the Tereza fallback. Demo Presentation D4 prep 2026-05-11.
+const SESSION_KEY_GUEST = "doggo-guest";
 
 type CurrentUserContextValue = {
   /** The persona currently being viewed. */
@@ -85,12 +92,16 @@ export function CurrentUserProvider({ children }: { children: React.ReactNode })
       // Ignore — prototype, no recovery needed.
     }
 
-    // URL `?guest=1` enters guest mode. Doesn't persist — only applies to the
-    // current page lifetime, similar to `?as=` overrides.
+    // URL `?guest=1` enters guest mode; sessionStorage carries it across
+    // in-app navigation within a tab. URL wins (a fresh `?guest=1` re-asserts);
+    // otherwise we fall back to whatever sessionStorage has remembered.
     if (typeof window !== "undefined") {
       try {
         const params = new URLSearchParams(window.location.search);
         if (params.get("guest") === "1") {
+          setIsGuest(true);
+          sessionStorage.setItem(SESSION_KEY_GUEST, "1");
+        } else if (sessionStorage.getItem(SESSION_KEY_GUEST) === "1") {
           setIsGuest(true);
         }
       } catch {
@@ -110,6 +121,7 @@ export function CurrentUserProvider({ children }: { children: React.ReactNode })
       } else {
         localStorage.setItem(STORAGE_KEY_USER, persona.user.id);
       }
+      sessionStorage.removeItem(SESSION_KEY_GUEST);
       // Explicit picker action clears the sticky `?as=` preview override.
       // We have to clear THREE things in sync, because each one feeds the
       // others on re-read:
@@ -139,6 +151,7 @@ export function CurrentUserProvider({ children }: { children: React.ReactNode })
     try {
       localStorage.removeItem(STORAGE_KEY_USER);
       sessionStorage.removeItem("doggo-as-preview");
+      sessionStorage.removeItem(SESSION_KEY_GUEST);
       const url = new URL(window.location.href);
       if (url.searchParams.has("as")) {
         url.searchParams.delete("as");
@@ -152,6 +165,12 @@ export function CurrentUserProvider({ children }: { children: React.ReactNode })
 
   const setGuestMode = useCallback((next: boolean) => {
     setIsGuest(next);
+    try {
+      if (next) sessionStorage.setItem(SESSION_KEY_GUEST, "1");
+      else sessionStorage.removeItem(SESSION_KEY_GUEST);
+    } catch {
+      // Ignore.
+    }
   }, []);
 
   const value = useMemo<CurrentUserContextValue>(

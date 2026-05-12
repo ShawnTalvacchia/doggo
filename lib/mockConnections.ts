@@ -429,6 +429,30 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       neighbourhood: "Vinohrady",
       profileOpen: false,
     },
+
+    /* ─── INBOUND-ONLY FAMILIAR (state: "none" + theyMarkedFamiliar) ─── */
+    // Cross-Cutting Flow Testing D2 (2026-05-11) — deniability path:
+    // Filip marked Tereza Familiar; Tereza has not marked back. Her view
+    // shows state="none" so no outbound pill renders, but `theyMarkedFamiliar`
+    // promotes Filip to tier 2 on Tereza's meet People tab (and elsewhere).
+    // The UI never explains WHY Filip's row got promoted — that's the
+    // privacy guardrail. See `Trust & Connection Model.md` → deniability.
+    {
+      id: "conn-tereza-filip",
+      userId: "filip",
+      userName: "Filip",
+      avatarUrl: "/images/generated/filip-profile.jpeg",
+      dogNames: ["Toby"],
+      location: "Prague 7",
+      state: "none",
+      updatedAt: "2026-04-22T18:00:00Z",
+      meetsShared: 1,
+      sharedGroups: ["Klára's Calm Dog Sessions"],
+      theyMarkedFamiliar: true,
+      dogBreed: "Jack Russell Terrier",
+      neighbourhood: "Holešovice",
+      profileOpen: false,
+    },
   ],
 
   /* ═══════════════════════════════════════════════════════════════════════
@@ -559,6 +583,48 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       sharedGroups: [],
       neighbourhood: "Letná",
       profileOpen: true,
+    },
+
+    /* ─── PENDING ────────────────────────────────────────────────── */
+    // Cross-Cutting Flow Testing D3 (2026-05-11) — Pending pill verification.
+    // Daniel sent Lucie a connection request after a recent Reactive Dog Support
+    // walk; awaiting Lucie's response.
+    {
+      id: "conn-daniel-lucie",
+      userId: "lucie",
+      userName: "Lucie",
+      avatarUrl: "/images/generated/lucie-profile.jpeg",
+      dogNames: ["Pepík"],
+      location: "Prague 2",
+      state: "pending",
+      updatedAt: "2026-05-04T18:00:00Z",
+      meetsShared: 1,
+      sharedGroups: ["Prague Reactive Dog Support"],
+      dogBreed: "Dachshund",
+      neighbourhood: "Vinohrady",
+      profileOpen: false,
+    },
+
+    /* ─── INBOUND-ONLY FAMILIAR (state: "none" + theyMarkedFamiliar) ─── */
+    // Cross-Cutting Flow Testing D2 (2026-05-11) — deniability path:
+    // Marek marked Daniel Familiar after a community walk; Daniel hasn't
+    // marked back. theyMarkedFamiliar=true promotes Marek to tier 2 with
+    // no outbound pill — the UI never reveals why.
+    {
+      id: "conn-daniel-marek",
+      userId: "marek",
+      userName: "Marek",
+      avatarUrl: "/images/generated/marek-profile.jpeg",
+      dogNames: ["Benny"],
+      location: "Prague 2",
+      state: "none",
+      updatedAt: "2026-04-25T08:00:00Z",
+      meetsShared: 1,
+      sharedGroups: [],
+      theyMarkedFamiliar: true,
+      dogBreed: "Cocker Spaniel",
+      neighbourhood: "Vinohrady",
+      profileOpen: false,
     },
   ],
 
@@ -781,6 +847,28 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       neighbourhood: "Vinohrady",
       profileOpen: true,
     },
+
+    /* ─── INBOUND-ONLY FAMILIAR (state: "none" + theyMarkedFamiliar) ─── */
+    // Cross-Cutting Flow Testing D2 (2026-05-11) — deniability path:
+    // Jakub marked Klára Familiar after attending one of her training sessions.
+    // Klára hasn't marked back. theyMarkedFamiliar=true promotes him to tier 2;
+    // no outbound pill renders.
+    {
+      id: "conn-klara-jakub",
+      userId: "jakub",
+      userName: "Jakub",
+      avatarUrl: "/images/generated/jakub-profile.jpeg",
+      dogNames: ["Aron"],
+      location: "Prague 2",
+      state: "none",
+      updatedAt: "2026-04-20T11:00:00Z",
+      meetsShared: 1,
+      sharedGroups: [],
+      theyMarkedFamiliar: true,
+      dogBreed: "German Shepherd",
+      neighbourhood: "Vinohrady",
+      profileOpen: false,
+    },
   ],
 
   /* ═══════════════════════════════════════════════════════════════════════
@@ -905,6 +993,27 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       dogBreed: "Dalmatian Mix",
       neighbourhood: "Vinohrady",
       profileOpen: true,
+    },
+
+    /* ─── INBOUND-ONLY FAMILIAR (state: "none" + theyMarkedFamiliar) ─── */
+    // Cross-Cutting Flow Testing D2 (2026-05-11) — deniability path:
+    // Vítek marked Tomáš Familiar after a Karlín hangout; Tomáš hasn't
+    // marked back. theyMarkedFamiliar=true → tier 2, no outbound pill.
+    {
+      id: "conn-tomas-vitek",
+      userId: "vitek",
+      userName: "Vítek",
+      avatarUrl: "/images/generated/vitek-profile.jpeg",
+      dogNames: ["Sam"],
+      location: "Prague 5",
+      state: "none",
+      updatedAt: "2026-04-28T09:00:00Z",
+      meetsShared: 1,
+      sharedGroups: [],
+      theyMarkedFamiliar: true,
+      dogBreed: "Mixed breed",
+      neighbourhood: "Smíchov",
+      profileOpen: false,
     },
   ],
 

@@ -51,7 +51,7 @@ Newly bridged carers should now have full credentials, trust badges, and per-ser
 - [x] **B2. Tereza → tap Jana K.'s card** → routes to `/profile/jana-k` (the bridged UserProfile). Profile should render properly: avatar, bio ("Patient pet care for shy and senior dogs in Dejvice…"), location, trust badges in the hero, and a Services tab listing her three Care offerings (Walks, Sitting, Boarding) with prices.
 - [x] **B3. Tereza → tap "Book a session" on Jana K.'s Walks card.** InquiryFormModal opens pre-filled with Walks. Confirms inquiry flow works on a freshly bridged carer (B+G stream integration check).
 - [x] **B4. Tereza → `/discover/care`** → spot-check **Pavel D.** (Karlín — has own dogs + house with yard). His profile bio should mention the family home + own dog setup; his Boarding service config should now drive pricing on the Boarding pill (see Workstream D).
-- [ ] **B5. Tereza → `/profile/petr-v`.** Petr V.'s profile should render with full credentials (8 years exp, first aid, insured, identity verified). His Services tab shows Sitting (480 Kč) + Boarding (720 Kč). Pre-phase, profile-route from his Discover card hit the synthesis fallback in `getUserOrProvider` (minimal name + avatar + neighbourhood, no Services tab); post-phase, he routes to a full UserProfile with services.
+- [x] **B5. Tereza → `/profile/petr-v`.** Petr V.'s profile should render with full credentials (8 years exp, first aid, insured, identity verified). His Services tab shows Sitting (480 Kč) + Boarding (720 Kč). Pre-phase, profile-route from his Discover card hit the synthesis fallback in `getUserOrProvider` (minimal name + avatar + neighbourhood, no Services tab); post-phase, he routes to a full UserProfile with services.
 
 ---
 

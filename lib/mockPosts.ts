@@ -18,7 +18,10 @@ export const mockPosts: Post[] = [
       { type: "place", id: "riegrovy-sady", label: "Riegrovy sady" },
       { type: "community", id: "group-1", label: "Vinohrady Morning Crew" },
     ],
-    createdAt: "2026-03-23T10:30:00Z",
+    // Caption says "this morning" → keep this post fresh so the wording
+    // reads coherently regardless of when the demo is opened. Cross-Cutting
+    // Flow Testing P20 sweep 2026-05-11.
+    createdAt: daysAgoIso(0, "10:30"),
     reactions: [
       { userId: "shawn", userName: "Shawn" },
       { userId: "jana", userName: "Jana" },
@@ -31,7 +34,7 @@ export const mockPosts: Post[] = [
         authorName: "Shawn",
         authorAvatarUrl: "/images/generated/shawn-profile.jpg",
         text: "Spot could use some recall help — count us in!",
-        createdAt: "2026-03-23T11:00:00Z",
+        createdAt: daysAgoIso(0, "11:00"),
       },
     ],
   },

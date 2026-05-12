@@ -24,7 +24,6 @@ export const CARE_CONFIG_DEFAULTS: Record<CareCategory, CareGroupConfig> = {
   boarding:  { eventsEnabled: true,  bookingCTAsEnabled: true,  discussionEnabled: true,  serviceListingsVisible: true,  locationType: "fixed",  capacityEnabled: true,  galleryMode: "updates" },
   rehab:     { eventsEnabled: false, bookingCTAsEnabled: true,  discussionEnabled: true,  serviceListingsVisible: true,  locationType: "fixed",  capacityEnabled: false, galleryMode: "standard" },
   venue:     { eventsEnabled: true,  bookingCTAsEnabled: false, discussionEnabled: false, serviceListingsVisible: false, locationType: "fixed",  capacityEnabled: false, galleryMode: "standard" },
-  vet:       { eventsEnabled: false, bookingCTAsEnabled: false, discussionEnabled: true,  serviceListingsVisible: false, locationType: "fixed",  capacityEnabled: false, galleryMode: "standard" },
   other:     { eventsEnabled: true,  bookingCTAsEnabled: true,  discussionEnabled: true,  serviceListingsVisible: true,  locationType: "mobile", capacityEnabled: false, galleryMode: "standard" },
 };
 

@@ -20,7 +20,7 @@ import { MEET_TYPE_LABELS } from "@/lib/mockMeets";
 import { getGroupById } from "@/lib/mockGroups";
 import { formatMeetDateTime } from "@/lib/dateUtils";
 import { AttendeeAvatarStack } from "@/components/meets/AttendeeAvatarStack";
-import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { useCurrentUserId, useIsGuest } from "@/hooks/useCurrentUser";
 import { recurrenceLabel, getDisplayDate, isRecurring } from "@/lib/meetUtils";
 
 /* ── Constants ─────────────────────────────────────────────────── */
@@ -102,6 +102,7 @@ function deriveViewerRole(meet: Meet, viewerId: string | null): MeetRole | undef
 
 export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetProps) {
   const currentUserId = useCurrentUserId();
+  const isGuest = useIsGuest();
   const goingAttendees = meet.attendees.filter(
     (a) => (a.rsvpStatus ?? "going") === "going"
   );
@@ -114,7 +115,11 @@ export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetPro
   // Schedule variant passes `role` explicitly; other variants derive from viewer
   // so the role chip ("Going" / "Booked" / "Hosting" / "Interested") makes the
   // absence of a Book CTA self-explanatory.
-  const effectiveRole: MeetRole | undefined = role ?? deriveViewerRole(meet, currentUserId);
+  // Guests have no relationship to compute against — fall back to undefined so
+  // cards render in pure browse mode. D4 2026-05-11.
+  const effectiveRole: MeetRole | undefined = isGuest
+    ? undefined
+    : role ?? deriveViewerRole(meet, currentUserId);
 
   // Host signal: RSVP count (only for hosting + upcoming)
   const newRsvpCount =
@@ -278,12 +283,16 @@ export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetPro
       )}
 
       {/* Service CTA — care group events (hidden when user is host or already booked/going).
-          Mirrors meet-detail page: hosts see "Hosting" framing, never their own Book CTA. */}
+          Mirrors meet-detail page: hosts see "Hosting" framing, never their own Book CTA.
+          Guests always see the CTA (no role to suppress); tapping it opens the
+          meet detail where the AuthGate fires on the actual booking click. */}
       {!isCancelled
         && meet.serviceCTA
-        && meet.creatorId !== currentUserId
-        && !(variant === "schedule" && (role === "joining" || role === "hosting"))
-        && !goingAttendees.some((a) => a.userId === currentUserId) && (
+        && (isGuest || (
+          meet.creatorId !== currentUserId
+          && !(variant === "schedule" && (role === "joining" || role === "hosting"))
+          && !goingAttendees.some((a) => a.userId === currentUserId)
+        )) && (
         <div className="flex items-center justify-between rounded-sm bg-brand-subtle px-md py-sm">
           <div className="flex items-center gap-sm">
             {meet.serviceCTA.price && (

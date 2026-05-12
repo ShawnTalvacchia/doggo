@@ -1,6 +1,6 @@
 ---
 status: active
-last-reviewed: 2026-05-05
+last-reviewed: 2026-05-11
 review-trigger: When any task is completed or blocked
 ---
 
@@ -99,12 +99,13 @@ A real product landing needs working downstream. Without at least some logged-ou
 
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
-| D1 | `isGuest` viewer state. Add to `CurrentUserContext` (boolean state + `setGuestMode(boolean)` action), URL-param hydration for `?guest=1`, `useIsGuest()` hook. Default false. Setting via setter or via URL doesn't persist to localStorage (guest is ephemeral; switching to a persona writes; resetting clears). | `contexts/CurrentUserContext.tsx`, `hooks/useCurrentUser.ts` | todo |
-| D2 | `AuthGate` modal sheet — "Sign up to {action}" headline, body explaining the action requires an account, **two CTAs**: "Sign up" (stubbed — opens signup flow) + "Try the demo →" (→ `/demo`). Hook `useAuthGate()` returns `(actionLabel: string) => void` that opens the sheet. Mounted globally in `app/layout.tsx`. | new `components/auth/AuthGate.tsx`, `contexts/AuthGateContext.tsx`, `app/layout.tsx`, `app/globals.css` | todo |
-| D3 | Vinohrady Morning Crew logged-out preview. Modify `app/communities/[id]/page.tsx` (and its panel `components/groups/GroupDetailPanel.tsx`) to render in guest mode: feed visible, member list visible, but Join / Post composer / RSVP actions trigger AuthGate. Pick `group-1` as the canonical sample link target — Open group, Tereza is admin, recurring meets, healthy member count. | `app/communities/[id]/page.tsx`, `components/groups/GroupDetailPanel.tsx`, possibly `components/posts/PostComposer.tsx` (gate the composer button) | todo |
-| D4 | **DEFERRED — avoided surface.** Logged-out `/discover/meets`. Browse cards visible, RSVP triggers AuthGate. | `app/discover/meets/page.tsx`, `components/meets/CardMeet.tsx` | blocked |
-| D5 | **DEFERRED — avoided surface.** Logged-out `/discover/care`. Provider cards visible, contact/inquiry triggers AuthGate. | `app/discover/care/page.tsx`, `components/explore/CardExploreResult.tsx` | blocked |
-| D6 | **DEFERRED — avoided surface.** Logged-out `/profile/tereza`. About + Posts + Services tabs visible (she's Open profile + Helper-tier sitting). Connect / Book / Message trigger AuthGate. | `app/profile/[userId]/page.tsx` | blocked |
+| D1 | `isGuest` viewer state. Add to `CurrentUserContext` (boolean state + `setGuestMode(boolean)` action), URL-param hydration for `?guest=1`, `useIsGuest()` hook. Default false. Setting via setter or via URL doesn't persist to localStorage (guest is ephemeral; switching to a persona writes; resetting clears). | `contexts/CurrentUserContext.tsx`, `hooks/useCurrentUser.ts` | done |
+| D2 | `AuthGate` modal sheet — "Sign up to {action}" headline, body explaining the action requires an account, **two CTAs**: "Sign up" (stubbed — opens signup flow) + "Try the demo →" (→ `/demo`). Hook `useAuthGate()` returns `(actionLabel: string) => void` that opens the sheet. Mounted globally in `app/layout.tsx`. | `contexts/AuthGateContext.tsx`, `app/layout.tsx`, `app/globals.css` | done |
+| D3 | Vinohrady Morning Crew logged-out preview. Modify `app/communities/[id]/page.tsx` to render in guest mode: feed visible, member list visible, but Join / Post composer / RSVP actions trigger AuthGate. Pick `group-1` as the canonical sample link target — Open group, Tereza is admin, recurring meets, healthy member count. | `app/communities/[id]/page.tsx` | done |
+| D4 | Logged-out `/discover/meets`. Browse cards visible, RSVP / Share / Following trigger AuthGate. CardMeet's hosting/joining role chips suppress for guests; "Following" pill hidden from the pill row; meet detail's Share button absent. Shipped 2026-05-11. | `app/discover/meets/page.tsx`, `components/meets/CardMeet.tsx`, `app/meets/[id]/page.tsx` | done |
+| D5 | Logged-out `/discover/care`. Provider cards visible under a single flat list (no "Carers in your circle" — guests have no circle). Filter panel's Pets + Nearby rows route to AuthGate instead of leaking the Tereza fallback's pets + neighbourhood. Shipped 2026-05-11. | `app/discover/care/page.tsx` | done |
+| D6 | Logged-out `/profile/[userId]` — Tereza's canonical link works. About + Posts + Services tabs visible. Action row collapses to a single "Connect with Tereza" → AuthGate. Book a session / Ask about this trigger AuthGate. Chat tab hidden. Locked-profile Familiar mark routes through AuthGate. Shipped 2026-05-11. | `app/profile/[userId]/page.tsx` | done |
+| D7 | **Guest mode sessionStorage persistence** (added 2026-05-11). `?guest=1` mirrors to sessionStorage so guest state survives in-app navigation within a tab — D4 / D5 / D6 wouldn't have been usable as a continuous session without this; every in-app link would have lost the URL param and reverted to the Tereza fallback. Closing the tab clears the key. | `contexts/CurrentUserContext.tsx` | done |
 
 ---
 
@@ -129,7 +130,7 @@ Small persistent affordance on every guest-route page. Lets a tester get into th
 
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
-| F1 | "Try the demo →" button in `AppNav`'s guest links row, replacing the current "Enter Demo" link with a more visible CTA-style treatment. Stays on guest routes (`/`, `/signin`, `/signup`, logged-out previews). | `components/layout/AppNav.tsx`, `app/globals.css` | todo |
+| F1 | "Try the demo →" button in `AppNav`'s guest links row, replacing the current "Enter Demo" link with a more visible CTA-style treatment. Stays on guest routes (`/`, `/signin`, `/signup`, logged-out previews). **AppNav respects `useIsGuest()` (2026-05-11) so logged-out previews of `/communities/group-1?guest=1` swap to GuestNavLinks** — earlier the route-based mode resolution kept LoggedNavLinks rendering with Tereza's bell/inbox counts. | `components/layout/AppNav.tsx`, `app/globals.css` | done |
 | F2 | Optional one-line "Private prototype" banner above the AppNav on guest routes. Decide based on E1 visual direction — a banner may or may not fit the chosen aesthetic. Defer to E2. | `components/layout/GuestLayout.tsx` or new `components/layout/PrototypeBanner.tsx` | pending |
 
 ---
@@ -141,14 +142,18 @@ Small persistent affordance on every guest-route page. Lets a tester get into th
 - [x] `/demo` shows hybrid scenario cards + flat pills.
 - [x] Tereza guided tour walks 6 steps end-to-end with persona preserved.
 
-**To ship in this chat (workstreams D1–D3, F1):**
-- [ ] `isGuest` viewer state lives on `CurrentUserContext`. URL `?guest=1` enters guest mode. `useIsGuest()` hook returns the state.
-- [ ] `AuthGate` modal sheet renders on demand via `useAuthGate()` with two CTAs (Sign up stub + Try demo).
-- [ ] Vinohrady Morning Crew (`/communities/group-1?guest=1`) renders for guests: feed visible, members visible, action affordances (Join / Post / RSVP) trigger AuthGate.
-- [ ] AppNav has a visible "Try the demo →" CTA in the guest links row.
+**Shipped pre-2026-05-11 (workstreams D1–D3, F1):**
+- [x] `isGuest` viewer state lives on `CurrentUserContext`. URL `?guest=1` enters guest mode. `useIsGuest()` hook returns the state.
+- [x] `AuthGate` modal sheet renders on demand via `useAuthGate()` with two CTAs (Sign up stub + Try demo).
+- [x] Vinohrady Morning Crew (`/communities/group-1?guest=1`) renders for guests: feed visible, members visible, action affordances (Join / Post / RSVP) trigger AuthGate.
+- [x] AppNav has a visible "Try the demo →" CTA in the guest links row.
+- [x] **AppNav respects `useIsGuest()` (added 2026-05-11)** so logged-out previews of `/communities/group-1?guest=1` swap to GuestNavLinks — earlier the route-based mode resolution kept LoggedNavLinks rendering with Tereza's bell/inbox counts.
 
-**To ship after Pricing & Proposals closes (D4–D6):**
-- [ ] Logged-out browse meets, browse providers, sample profile preview.
+**Shipped 2026-05-11 (workstream D4–D7):**
+- [x] Logged-out `/discover/meets` — browse works; RSVP / Share / Following gated.
+- [x] Logged-out `/discover/care` — browse works; circle ordering suppressed for guests; filter panel Pets + Nearby AuthGate-routed.
+- [x] Logged-out `/profile/[userId]` — About + Posts + Services visible; action row + Book / Ask CTAs gated; chat tab hidden.
+- [x] Guest mode survives in-app navigation via sessionStorage mirror.
 
 **To ship after Claude Design exploration completes (E1–E4):**
 - [ ] Real product landing replaces demo cover. CTAs point at working logged-out flows (D3 + later D4–D6) + demo for everything else.
@@ -174,6 +179,7 @@ Complete before marking this phase done. Mark each item done.
 
 ## Notes
 
-- **Avoid surfaces:** `components/messaging/*`, `components/profile/*`, `app/profile/*`, `app/discover/*`, `lib/pricing.ts`, `lib/types.ts` — mid-edit in Pricing & Proposals.
+- **2026-05-11 update:** All D / F1 workstreams shipped. Tereza tour content swept (steps 4 + 5 dropped "Helper-tier" framing; step 4 references Tereza's two dogs Franta + Bella; step 5 reframes services around the four-service taxonomy + circle audience). AppNav now respects `useIsGuest()` so logged-out previews of normally-logged routes get GuestNavLinks. CurrentUserContext mirrors `isGuest` to sessionStorage so guest state survives in-app navigation. Phase remains open pending workstream E (real product landing, gated on PO Claude Design output).
+- **Pricing & Proposals close (2026-05-05)** unblocked the previously-deferred D4 / D5 / D6 surfaces, all shipped 2026-05-11.
 - **No git commits** during this phase per session-opening instructions.
 - **Workstream A/B/C are done** as a "first pass." Workstreams D, E, F build on top — they don't undo A/B/C, they evolve the landing to a real product page while keeping `/demo` and the tour as the side door.

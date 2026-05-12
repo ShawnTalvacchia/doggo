@@ -963,12 +963,10 @@
 }
 
 @media (max-width: 600px) {
-  /* Mobile: true bottom sheet — flush with the bottom edge. Rounded top
-     corners only; no left/right margins. Previously offset by 64px to
-     clear the BottomNav, but on guest/preview routes the nav isn't
-     rendered and the offset created a phantom gap (PO note 2026-05-05).
-     The tour's higher z-index covers any nav while open; collapse or exit
-     to access the nav. */
+  /* Mobile: true bottom sheet — flush with the bottom edge by default
+     (detail/guest routes where BottomNav isn't rendered). The tour's
+     higher z-index covers any nav while open; collapse or exit to
+     access the nav. */
   .tour-overlay {
     left: 0;
     right: 0;
@@ -985,6 +983,25 @@
   /* Bottom-sheet collapsed state stays compact — just the slim row. */
   .tour-overlay--collapsed {
     padding: var(--space-sm) var(--space-md) calc(var(--space-sm) + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* When the BottomNav is rendered (hub routes — `/home`, `/profile`,
+     `/bookings`, etc.), lift the overlay above it so the nav stays
+     reachable while the tour is visible. BottomNavInner returns null
+     on detail routes (`/communities/group-1`, `/meets/meet-1`), so
+     `:has(.bottom-nav)` doesn't match there and the overlay stays
+     flush — no phantom gap on routes without a nav. Tereza's tour
+     hits both kinds of route (steps 1/4/5/6 are hub, 2/3 are detail).
+     2026-05-11 follow-up to the 2026-05-05 PO note about phantom gaps. */
+  body:has(.bottom-nav) .tour-overlay {
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    /* Drop the bottom safe-area padding — the bottom-nav already
+       accounts for it via its own padding-bottom, so doubling here
+       would create extra slack between the overlay and the nav. */
+    padding-bottom: var(--space-lg);
+  }
+  body:has(.bottom-nav) .tour-overlay--collapsed {
+    padding-bottom: var(--space-sm);
   }
 }
 

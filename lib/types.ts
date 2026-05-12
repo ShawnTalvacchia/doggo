@@ -865,7 +865,7 @@ export interface Connection {
 export type GroupVisibility = "open" | "approval" | "private";
 
 /** Care group sub-categories for provider-hosted groups */
-export type CareCategory = "training" | "walking" | "grooming" | "boarding" | "rehab" | "venue" | "vet" | "other";
+export type CareCategory = "training" | "walking" | "grooming" | "boarding" | "rehab" | "venue" | "other";
 
 /** Gallery display mode for care groups */
 export type GalleryMode = "standard" | "portfolio" | "updates";
@@ -1180,7 +1180,17 @@ export interface CarerMeetServiceConfig {
   seriesMeetId?: string;
 }
 
-export type AppointmentCategory = "vet" | "grooming";
+/**
+ * Specialised Appointment-type sub-categories. Vet was retired 2026-05-11
+ * — not a likely user-type for the demo arc (Lenka N. + the PremiumVet
+ * group was already repurposed as Mánesova Grooming Salon during Discover
+ * Refinement). `"training"` is the forward-looking variant for facilities
+ * that offer in-house solo training visits (distinct from Klára's group
+ * training meets, which model as `kind: "meet"`); no seeded data yet, but
+ * the type carries the dimension so future arrivals don't require a
+ * follow-up migration.
+ */
+export type AppointmentCategory = "grooming" | "training";
 
 export interface CarerAppointmentServiceConfig {
   kind: "appointment";

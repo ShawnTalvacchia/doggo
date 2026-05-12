@@ -1,8 +1,9 @@
 "use client";
 
-import { Camera, Plus } from "@phosphor-icons/react";
+import { Camera } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { FeedCommunityPost } from "@/components/feed/FeedCommunityPost";
+import { ShareMomentBar } from "@/components/feed/ShareMomentBar";
 import { usePostComposer } from "@/contexts/PostComposerContext";
 import { getPostsByUser } from "@/lib/mockPosts";
 
@@ -17,36 +18,48 @@ export function PostsTab({ userId, isOwnProfile = false }: PostsTabProps) {
 
   return (
     <div className="flex flex-col">
-      {/* Header with New Post CTA */}
-      {isOwnProfile && (
-        <div className="flex items-center justify-between px-lg py-md">
-          <h3 className="profile-card-subtitle m-0">Posts</h3>
-          <ButtonAction
-            variant="primary"
-            size="sm"
-            onClick={() => openComposer()}
-            leftIcon={<Plus size={14} weight="bold" />}
-          >
-            New post
-          </ButtonAction>
+      {/* In-panel compose prompt — full-width "section strip" at the top
+          of the panel, matching the post-card rhythm below: same
+          `--surface-top` background and `--border-regular` separator
+          weight as `.feed-card`, but bookended with top + bottom borders
+          so the strip reads as its own block before the post list. The
+          ShareMomentBar pill inside uses `--surface-inset` so it reads
+          as a sunken input on the white strip. AppNav Camera+ is
+          suppressed on own-profile Posts via
+          PageHeaderContext.suppressCreate — the action lives here. 2026-05-11. */}
+      {isOwnProfile && posts.length > 0 && (
+        <div
+          className="px-md py-md"
+          style={{
+            background: "var(--surface-top)",
+            borderTop: "1px solid var(--border-regular)",
+            borderBottom: "1px solid var(--border-regular)",
+          }}
+        >
+          <ShareMomentBar />
         </div>
       )}
 
       {posts.length === 0 ? (
-        <div className="flex flex-col items-center gap-md p-xl text-center">
+        <div
+          className="flex flex-col items-center gap-lg text-center"
+          style={{ padding: "var(--space-jumbo-1) var(--space-xl)" }}
+        >
           <Camera size={48} weight="light" className="text-fg-tertiary" />
-          <p className="text-sm text-fg-secondary">
+          <p className="text-sm text-fg-secondary m-0">
             {isOwnProfile ? "Share your first dog moment" : "No posts yet"}
           </p>
           {isOwnProfile && (
-            <ButtonAction
-              variant="primary"
-              size="md"
-              onClick={() => openComposer()}
-              leftIcon={<Camera size={16} weight="light" />}
-            >
-              Share a moment
-            </ButtonAction>
+            <div style={{ marginTop: "var(--space-sm)" }}>
+              <ButtonAction
+                variant="primary"
+                size="md"
+                onClick={() => openComposer()}
+                leftIcon={<Camera size={16} weight="light" />}
+              >
+                Share a moment
+              </ButtonAction>
+            </div>
           )}
         </div>
       ) : (

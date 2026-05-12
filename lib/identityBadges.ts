@@ -23,9 +23,9 @@ import { mockGroups } from "./mockGroups";
  *      built; tracked in punch list P60.
  *   2. Care group `careCategory` — when the carer runs or co-runs a Care
  *      group, the group's category becomes the sub-spec ("training" → "Dog
- *      Trainer", "vet" → "Vet", etc.). This is how Klára gets "Dog Trainer."
- *   3. Credential cert string match — `/train/i` → "Dog Trainer", `/vet/i`
- *      → "Vet". Catches credentialed carers who don't run a Care group
+ *      Trainer", "grooming" → "Groomer", etc.). This is how Klára gets "Dog Trainer."
+ *   3. Credential cert string match — `/train/i` → "Dog Trainer", `/groom/i`
+ *      → "Groomer". Catches credentialed carers who don't run a Care group
  *      (e.g. Tomáš B.).
  *   4. Fallback to plain "Carer" when no sub-spec resolves.
  */

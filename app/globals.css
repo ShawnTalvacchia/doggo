@@ -1430,6 +1430,18 @@ a {
   margin-left: auto;
 }
 
+/* Page-action slot — a contextual text-or-text+icon button declared by
+   the active page via PageHeaderContext (Profile → Edit/Cancel/Save).
+   Sits in the AppNav icon row in place of the default Create icon, but
+   gets a bit of extra breathing room from the neighbouring icon buttons
+   so the text-button rhythm doesn't crowd them. 2026-05-11 (A6). */
+.app-nav-page-action {
+  margin-right: var(--space-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
 /* Logged-in nav: 32px between logo and links; 32px between icon group and profile */
 .app-nav.app-nav--logged {
   gap: 32px;
@@ -2935,7 +2947,10 @@ body.guest-route {
   border: 0;
   border-right: 1px solid var(--border-stronger);
   font-family: var(--font-body);
-  font-size: 15px;
+  /* Use the canonical body-text token (14px) instead of the orphan 15px
+     value — aligns with CheckboxRow + other selectors. Care Catalog
+     walkthrough 2026-05-11. */
+  font-size: var(--text-base);
   line-height: 1.2;
   color: var(--text-tertiary);
   cursor: pointer;
@@ -5273,11 +5288,6 @@ body.guest-route {
 }
 
 
-.profile-content-width {
-  width: 100%;
-  margin: 0 auto;
-}
-
 .profile-section-stack {
   display: flex;
   flex-direction: column;
@@ -5288,13 +5298,6 @@ body.guest-route {
      pattern (which uses inline `padding: var(--space-lg)` on
      `.profile-tab-stack`). Pricing & Proposals walkthrough 2026-05-05. */
   padding: 16px var(--space-lg) 0;
-}
-
-/* ExploreProfileContent: persist gap and full width for profile-content-width + profile-section-stack */
-.profile-content-width.profile-section-stack {
-  gap: 8px;
-  width: 100%;
-  padding-top: 0;
 }
 
 .profile-info-card {
@@ -5318,30 +5321,6 @@ body.guest-route {
   padding-top: var(--space-xxl);
 }
 
-.profile-about-card {
-  padding: 0;
-  overflow: hidden;
-}
-
-.profile-about-banner {
-  display: block;
-  width: 100%;
-  height: clamp(280px, 24vw, 420px);
-  object-fit: cover;
-}
-
-.profile-about-content {
-  padding: 20px 20px 24px;
-  display: flex;
-  flex-direction: column;
-}
-
-.profile-about-content .profile-read-more {
-  float: none;
-  align-self: flex-end;
-  margin-top: 12px;
-}
-
 .profile-card-title {
   margin: 0 0 24px;
   font-size: var(--font-size-body-xl);
@@ -5361,61 +5340,6 @@ body.guest-route {
   color: var(--text-secondary);
   font-size: var(--font-size-body-reg);
   line-height: 20px;
-}
-
-.profile-read-more {
-  margin-top: 8px;
-  border: none;
-  background: transparent;
-  color: var(--status-info-main);
-  font-size: var(--font-size-body-reg);
-  font-weight: var(--weight-semibold);
-  float: right;
-}
-
-.profile-photo-grid {
-  margin-top: 12px;
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  grid-template-rows: repeat(2, clamp(120px, 14vw, 180px));
-  gap: 10px;
-}
-
-.profile-photo-main,
-.profile-photo-side {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: var(--radius-xs);
-}
-
-.profile-photo-main {
-  grid-row: 1 / span 2;
-}
-
-.profile-photo-more {
-  border: none;
-  border-radius: var(--radius-sm);
-  background:
-    linear-gradient(to bottom, rgba(15, 15, 15, 0.35), rgba(15, 15, 15, 0.55)),
-    url("https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=800&q=80")
-      center / cover;
-  color: var(--text-white);
-  font-weight: var(--weight-semibold);
-  line-height: 1.2;
-  display: grid;
-  place-content: center;
-  gap: 2px;
-}
-
-.profile-photo-more span:first-child {
-  font-family: var(--font-heading);
-  font-size: var(--font-size-body-reg);
-}
-
-.profile-photo-more span:last-child {
-  font-size: var(--font-size-body-sm);
-  line-height: 1.2;
 }
 
 .profile-list {
@@ -5651,98 +5575,6 @@ body.guest-route {
   color: var(--text-secondary);
   line-height: 20px;
   padding-left: 52px;
-}
-
-/* ── Gallery bar — replaces tab bar when gallery is open ─────────────────── */
-
-.profile-gallery-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-  height: 48px;
-  flex-shrink: 0;
-  border-top: 1px solid var(--border-regular);
-  border-bottom: 1px solid var(--border-regular);
-}
-
-/* Desktop gallery: bar wraps in right column, matches tabs-wrap style */
-.profile-gallery-bar-wrap {
-  flex-shrink: 0;
-  background: var(--surface-base);
-  height: 64px;
-  display: flex;
-  align-items: center;
-  border-bottom: 1px solid var(--border-regular);
-}
-
-.profile-gallery-bar-wrap .profile-gallery-bar {
-  width: 100%;
-  border-top: none;
-  border-bottom: none;
-}
-
-.profile-desktop-right-col--gallery {
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.profile-desktop-gallery-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: clip;
-}
-
-.profile-desktop-right-col--gallery .profile-gallery-body {
-  width: 100%;
-  margin: 0;
-  padding: 12px 0 24px;
-}
-
-.profile-gallery-bar-title {
-  font-size: var(--font-size-body-md);
-  font-weight: var(--weight-bold);
-  color: var(--text-primary);
-  margin: 0;
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-
-.profile-gallery-bar-count {
-  font-size: var(--font-size-sub);
-  font-weight: var(--weight-regular);
-  color: var(--text-secondary);
-}
-
-.profile-gallery-bar-close {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-circle);
-  border: 1px solid var(--border-regular);
-  background: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-primary);
-  flex-shrink: 0;
-}
-
-/* Gallery photo grid in scroll body */
-
-.profile-gallery-body {
-  width: 100%;
-}
-
-@media (min-width: 621px) {
-  .profile-gallery-body {
-    width: min(480px, calc(100% - 48px));
-    margin: 0 auto;
-    padding-top: 8px;
-  }
 }
 
 .photo-gallery-grid {
@@ -6032,112 +5864,22 @@ body.guest-route {
 
 /* profile-menu-* classes removed — were only used by /pages Quick Nav, now uses Tailwind */
 
-/* Switch profile to one-column before squeeze range. */
+/* Mobile overrides for live profile classes. The bulk of profile-page
+   layout rules (`.profile-desktop-layout`, `.profile-page-panel`,
+   `.profile-identity`, `.profile-avatar`, `.profile-name`,
+   `.profile-header-state`, `.profile-main.*`, `.profile-location`,
+   `.profile-member-since`, `.profile-edit-actions`, `.profile-contact-btn`,
+   `.profile-back-*`, `.profile-content-width`, `.profile-about-*`,
+   `.profile-photo-grid`) were removed 2026-05-11 — they belonged to an
+   earlier provider-detail page that's since been refactored away. */
 @media (max-width: 620px) {
-  .profile-desktop-layout {
-    display: none;
-  }
-
-  .profile-page-panel {
-    height: calc(100dvh - var(--nav-height));
-  }
-
-  .profile-back-link,
-  .profile-identity {
-    width: calc(100% - 24px);
-  }
-
-  /* Cards fill full viewport width — keep all card styling */
-  .profile-content-width {
-    width: 100%;
-    margin: 0;
-  }
-
-  /* About card keeps zero padding so banner image bleeds edge-to-edge */
-  .profile-about-card {
-    padding: 0;
-  }
-
-  .profile-about-content {
-    padding: 16px 16px 20px;
-  }
-
   .profile-tabs {
     width: 100%;
-  }
-
-  .profile-identity {
-    gap: 16px;
-    padding: 16px 0 12px;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .profile-header-state.condensed .profile-identity {
-    flex-direction: row;
-    align-items: center;
-    text-align: left;
-  }
-
-  .profile-main.expanded {
-    align-items: center;
-  }
-
-  .profile-main.expanded .profile-title-wrap {
-    text-align: center;
-  }
-
-  .profile-location {
-    justify-content: center;
-  }
-
-  .profile-header-state.condensed .profile-location {
-    justify-content: flex-start;
-  }
-
-  .profile-member-since {
-    justify-content: center;
-  }
-
-  .profile-edit-actions {
-    align-self: center;
-  }
-
-  .profile-avatar {
-    width: 100px;
-    height: 100px;
-  }
-
-  .profile-header-state.condensed .profile-avatar {
-    width: 48px;
-    height: 48px;
-  }
-
-  .profile-name {
-    font-size: var(--font-size-h3);
-  }
-
-  .profile-header-state.condensed .profile-name {
-    font-size: var(--font-size-h5);
-  }
-
-  .profile-main.expanded .profile-contact-btn.btn {
-    min-height: 36px;
-  }
-
-  .profile-main.condensed .profile-contact-btn.btn {
-    min-height: 32px;
   }
 
   .profile-card-title {
     margin-bottom: 12px;
     font-size: var(--font-size-h4);
-  }
-
-  .profile-photo-grid {
-    grid-template-rows: repeat(2, clamp(104px, 24vw, 140px));
-    gap: 8px;
   }
 
   /* Services tab: adjust indentation for full-bleed layout */
@@ -6456,99 +6198,8 @@ body.guest-route {
     display: none;
   }
 
-  .profile-page-shell {
-    padding: 0;
-  }
-
-  .profile-page-panel {
-    height: calc(100dvh - var(--nav-height));
-  }
-
-  .profile-desktop-layout {
-    display: none;
-  }
-
-  .profile-back-row {
-    height: 56px;
-  }
-
-  .profile-back-link,
-  .profile-identity {
-    width: calc(100% - 24px);
-  }
-
   .profile-tabs {
     width: 100%;
-  }
-
-  .profile-identity {
-    gap: 16px;
-    padding: 16px 0 12px;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .profile-header-state.condensed .profile-identity {
-    flex-direction: row;
-    align-items: center;
-    text-align: left;
-  }
-
-  .profile-main.expanded {
-    align-items: center;
-  }
-
-  .profile-main.expanded .profile-title-wrap {
-    text-align: center;
-  }
-
-  .profile-location {
-    margin-top: 2px;
-    font-size: var(--font-size-body-reg);
-    justify-content: center;
-  }
-
-  .profile-header-state.condensed .profile-location {
-    justify-content: flex-start;
-  }
-
-  .profile-member-since {
-    justify-content: center;
-  }
-
-  .profile-edit-actions {
-    align-self: center;
-  }
-
-  .profile-avatar {
-    width: 100px;
-    height: 100px;
-  }
-
-  .profile-header-state.condensed .profile-avatar {
-    width: 48px;
-    height: 48px;
-  }
-
-  .profile-name {
-    font-size: var(--font-size-h3);
-  }
-
-  .profile-header-state.condensed .profile-name {
-    font-size: var(--font-size-h5);
-  }
-
-  .profile-rating {
-    margin-top: 4px;
-  }
-
-  .profile-main.expanded .profile-contact-btn.btn {
-    min-height: 36px;
-  }
-
-  .profile-main.condensed .profile-contact-btn.btn {
-    min-height: 32px;
   }
 
   .profile-tab {
@@ -6560,22 +6211,9 @@ body.guest-route {
     padding: 16px;
   }
 
-  .profile-about-card {
-    padding: 0;
-  }
-
-  .profile-about-content {
-    padding: 16px 16px 20px;
-  }
-
   .profile-card-title {
     margin-bottom: 12px;
     font-size: var(--font-size-h4);
-  }
-
-  .profile-photo-grid {
-    grid-template-rows: repeat(2, clamp(100px, 28vw, 136px));
-    gap: 8px;
   }
 
   .app-nav-icon-row {
@@ -6950,15 +6588,6 @@ body.guest-route {
   /* ── Hide results layout on mobile until a service is chosen ── */
   .explore-layout.explore-layout--landing {
     display: none;
-  }
-}
-
-/* Keep profile desktop layout visible between 621px and 767px.
-   The mobile profile block above hides it at <=767px, but profile page
-   rendering now switches to desktop at >=621px. */
-@media (min-width: 621px) and (max-width: 767px) {
-  .profile-desktop-layout {
-    display: grid;
   }
 }
 
@@ -11592,60 +11221,12 @@ body:has(.bottom-nav) .inbox-page {
    now puts buttons directly in the footer slot (Not yet · Sign & Book), same
    pattern as other modals. */
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   PHASE 3 — Profile page
-   ───────────────────────────────────────────────────────────────────────────── */
-
-/* ── Profile page shell ─────────────────────────────────────────────────────── */
-
-.profile-page {
-  min-height: 100%;
-  max-width: var(--app-page-max-width);
-  margin: 0 auto;
-  padding: 0 0 120px;
-  background-color: var(--surface-popout);
-}
-
-/* ── Profile header ──────────────────────────────────────────────────────────── */
-
-.profile-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 24px 16px 20px;
-}
-
-.profile-name {
-  font-size: var(--font-size-h4);
-  font-weight: var(--weight-bold);
-  color: var(--text-primary);
-  margin: 0;
-  line-height: 1.2;
-}
-
-.profile-location,
-
-/* ── Tab content ─────────────────────────────────────────────────────────────── */
-
-.profile-section {
-  padding: 20px 16px;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.profile-section:last-child {
-  border-bottom: none;
-}
-
-.profile-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-/* ── Pets grid ───────────────────────────────────────────────────────────────── */
-
-/* ── Enhanced pet profile card (Phase 5) ─────────────────────────────────────── */
+/* ── Enhanced pet profile card ─────────────────────────────────────────────────
+   Pre-2026-05-11 this section opened with the "PHASE 3 — Profile page"
+   header and an old `.profile-page` / `.profile-header` / `.profile-name`
+   / `.profile-location` / `.profile-section` / `.profile-section-header`
+   block, all from an earlier provider-detail page that's since been
+   refactored away. Removed during the design-system cleanup. */
 
 .pet-profile-card {
   display: flex;
@@ -11696,6 +11277,8 @@ body:has(.bottom-nav) .inbox-page {
   flex-direction: column;
   gap: 2px;
   padding-top: 2px;
+  flex: 1;
+  min-width: 0;
 }
 
 .pet-profile-name {
@@ -11742,11 +11325,12 @@ body:has(.bottom-nav) .inbox-page {
   border-radius: var(--radius-pill);
   font-size: 12px;
   font-weight: var(--weight-medium);
-  /* Categorical play-style pill (Energetic, Calm, etc.) — same P18
-     fix as .meet-bring-pill: --surface-gray was too dark, switched to
-     --surface-inset for the quieter categorical chip treatment. */
+  /* Neutral pill — same treatment shared with `.pet-profile-vet-pill`.
+     `--surface-inset` fill + `--border-strong` border so the silhouette
+     is defined against the `--surface-base` card. 2026-05-11. */
   background: var(--surface-inset);
   color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
   line-height: 1;
 }
 
@@ -11762,7 +11346,10 @@ body:has(.bottom-nav) .inbox-page {
   flex-direction: column;
   gap: 6px;
   padding-top: 8px;
-  border-top: 1px solid var(--border-light);
+  /* Was `--border-light` (#f4f4f4) — same colour as the card background,
+     so the divider was invisible. `--border-strong` (#e5e5e5) gives a
+     subtle but visible separator. 2026-05-11. */
+  border-top: 1px solid var(--border-strong);
 }
 
 .pet-profile-section-header {
@@ -11781,37 +11368,66 @@ body:has(.bottom-nav) .inbox-page {
   line-height: 1.5;
 }
 
-.pet-profile-health-grid {
+/* Health checks — affirmative facts (vaccinations, spayed/neutered).
+   Was pill-styled with `--status-success-light` bg + `--status-success-main`
+   text — the pale-green-on-card-base background blended into the card
+   surface. Dropped pill chrome entirely; icon + colored text reads as a
+   check at a glance with stronger visual presence. 2026-05-11. */
+.pet-profile-health-checks {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 12px 16px;
 }
 
-.pet-profile-health-tag {
+.pet-profile-health-check {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 10px;
-  border-radius: var(--radius-pill);
   font-size: 12px;
   font-weight: var(--weight-medium);
+  color: var(--success-600);
   line-height: 1;
 }
 
-.pet-profile-health-tag--good {
-  background: var(--status-success-light);
-  color: var(--status-success-main);
-}
-
-.pet-profile-health-tag--note {
-  background: var(--status-warning-light);
-  color: var(--status-warning-main);
+/* Conditions / advisory notes — plain body copy. Content is long and
+   open-ended; pill chrome was wrong (truncation, weak contrast with
+   warning palette). 2026-05-11. */
+.pet-profile-conditions {
+  font-size: var(--font-size-sub);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
 }
 
 .pet-profile-vet-line {
   font-size: 12px;
   color: var(--text-tertiary);
   margin: 4px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Vet clinic pill — shares the neutral pill treatment with
+   `.pet-profile-play-pill`. Currently passive; future-clickable when
+   the vet directory is wired (routes to the vet's contact page from
+   the pet's owner side). 2026-05-11. */
+.pet-profile-vet-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: var(--weight-medium);
+  background: var(--surface-inset);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-strong);
+  line-height: 1;
+}
+
+.pet-profile-vet-lastvisit {
+  color: var(--text-tertiary);
 }
 
 .pet-profile-gallery {
@@ -11972,13 +11588,10 @@ body:has(.bottom-nav) .inbox-page {
 }
 
 /* ── Visibility section ──────────────────────────────────────────────────────── */
-
-.profile-visibility-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
+/* `.profile-visibility-row` removed 2026-05-11 — D7 swapped both
+   audience rows to the inline `flex items-center justify-between gap-md`
+   Tailwind shorthand. The label + sub classes below still carry the
+   typography rules. */
 
 .profile-visibility-label {
   font-size: var(--font-size-body-reg);

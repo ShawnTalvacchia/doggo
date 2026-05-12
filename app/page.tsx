@@ -140,7 +140,7 @@ const PERSONA_STORIES: Record<string, string> = {
   daniel:
     "Anxious rescue owner. Locked profile, slow to trust — found his footing in one support group.",
   klara:
-    "Trainer running a Care group of regulars. Provider-tier, embedded in the community.",
+    "Trainer running a Care group of regulars. Her client community IS the trust funnel — meets become bookings.",
   tomas:
     "Karlín commuter. Leans on a small circle of trusted carers when work runs late.",
 };

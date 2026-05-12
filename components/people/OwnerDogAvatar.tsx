@@ -68,28 +68,32 @@ export function OwnerDogAvatar({ userId, name, avatarUrl, dogNames }: OwnerDogAv
       ) : (
         <DefaultAvatar name={name} size={64} />
       )}
-      {(visibleDogs.length > 0 || extraDogCount > 0) && (
-        <div className="person-avatar-dogs">
-          {visibleDogs.map((d) => (
-            <img
-              key={d.name}
-              src={d.url}
-              alt={`${d.name} (${name}'s dog)`}
-              className="person-avatar-dog"
-              style={{ width: dogSize, height: dogSize }}
-            />
-          ))}
-          {extraDogCount > 0 && (
-            <span
-              className="person-avatar-more"
-              style={{ width: dogSize, height: dogSize }}
-              aria-label={`${extraDogCount} more dogs`}
-            >
-              +{extraDogCount}
-            </span>
-          )}
-        </div>
-      )}
+      {/* Always render the dog slot so the combo's total width stays
+          constant (64px owner + 44px dog slot - 16px overlap = 92px)
+          regardless of pet count. Without this, dogless owners (e.g.
+          Nikola) collapse the cluster to 64px and the row's `-ml-3` on
+          the name pulls them visibly further left than rows with pets,
+          breaking the name-column alignment across the list. */}
+      <div className="person-avatar-dogs" aria-hidden={visibleDogs.length === 0 && extraDogCount === 0}>
+        {visibleDogs.map((d) => (
+          <img
+            key={d.name}
+            src={d.url}
+            alt={`${d.name} (${name}'s dog)`}
+            className="person-avatar-dog"
+            style={{ width: dogSize, height: dogSize }}
+          />
+        ))}
+        {extraDogCount > 0 && (
+          <span
+            className="person-avatar-more"
+            style={{ width: dogSize, height: dogSize }}
+            aria-label={`${extraDogCount} more dogs`}
+          >
+            +{extraDogCount}
+          </span>
+        )}
+      </div>
     </div>
   );
 }

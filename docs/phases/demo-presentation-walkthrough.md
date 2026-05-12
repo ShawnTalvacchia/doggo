@@ -1,6 +1,6 @@
 ---
 status: active
-last-reviewed: 2026-05-05
+last-reviewed: 2026-05-11
 review-trigger: "Update as items are walked, edit as scope adjusts"
 ---
 
@@ -58,9 +58,9 @@ Launch via either landing hero secondary CTA, landing bottom-CTA secondary, or t
 - [ ] **C1. Tour step 1 — `/home?as=tereza&tour=tereza&step=1`.** Floating card at bottom-center reads "1 of 6 · Tereza's neighbourhood feed" (or similar). Body explains what to look for. Buttons: Exit, Next. Prev disabled on step 1.
 - [ ] **C2. Tour step 2 — Vinohrady Morning Crew group.** Clicking Next from step 1 navigates to `/communities/group-1?as=tereza&tour=tereza&step=2`. Card updates to step 2 copy. Persona context preserved (avatar/data still Tereza).
 - [ ] **C3. Tour step 3 — Riegrovy morning meet.** Next from step 2 → `/meets/meet-1?as=tereza&tour=tereza&step=3`.
-- [ ] **C4. Tour step 4 — Tereza's profile.** Next from step 3 → `/profile?as=tereza&tour=tereza&step=4`. Profile page renders Tereza's full profile (bio, Franta, Helper-tier sitting).
-- [ ] **C5. Tour step 5 — Services tab.** Next from step 4 → `/profile?as=tereza&tab=services&tour=tereza&step=5`. Services tab is active; sitting-service card visible with pricing modifiers chips (from Pricing & Proposals).
-- [ ] **C6. Tour step 6 — Bookings.** Next from step 5 → `/bookings?as=tereza&tour=tereza&step=6`. Card body emphasises "care that emerged from community." Next button replaced with **"Finish"** which exits cleanly.
+- [ ] **C4. Tour step 4 — Tereza's profile.** Next from step 3 → `/profile?as=tereza&tour=tereza&step=4`. Profile page renders Tereza's full profile (bio, **both pets — Franta + Bella** per Care Catalog Taxonomy 2026-05-11, About tab default). Card body no longer says "Helper-tier sitting" — Carer-tier collapse 2026-05-10 retired the Helper/Provider noun. Hero shows the Carer Identity badge (info-blue pill, circle variant since `publicProfile: false`).
+- [ ] **C5. Tour step 5 — Services tab.** Next from step 4 → `/profile?as=tereza&tab=services&tour=tereza&step=5`. Services tab is active; **three** service cards visible — Day care, House sitting, Walks (four-service taxonomy from Care Catalog Taxonomy 2026-05-11) — each with pricing modifier chips where configured (Day care + House sitting carry the weekend modifier; Day care also carries multi-pet). Card body emphasises the **circle audience** (Connected viewers only) rather than the old Helper-tier vocabulary.
+- [ ] **C6. Tour step 6 — Bookings.** Next from step 5 → `/bookings?as=tereza&tour=tereza&step=6`. Card body emphasises "care that emerged from community." Next button replaced with **"Finish"** which exits cleanly. **Dual-tab UI** renders (Sessions & Service Execution 2026-05-08): My Care (Olga walks Franta — recurring Tue/Thu, ongoing) + My Services (Tereza sits Marek's Benny). Confirms Tereza-as-dual-role narrative reads on the surface the tour lands on.
 - [ ] **C7. Prev navigation.** From any step ≥2, Prev button takes you back one step (URL updates, persona persists, card updates).
 - [ ] **C8. Exit any step.** Exit button removes `tour` and `step` query params from the URL (keeps `as=tereza`), tour overlay disappears, the page below stays put.
 - [ ] **C9. Tour does NOT appear without `?tour`.** Visit `/home?as=tereza` without `?tour=tereza` → no overlay rendered. Visit `/home` cold → no overlay. Tour state is fully URL-driven, zero global state cost.
@@ -72,7 +72,7 @@ Launch via either landing hero secondary CTA, landing bottom-CTA secondary, or t
 
 ## Workstream D — Logged-out flows
 
-The "guest viewer" model. Open `/communities/group-1?guest=1` cold (no localStorage persona, no `?as=`). The page should render real content with action affordances gated by `AuthGate`. **Note:** D4–D6 (logged-out `/discover/meets`, `/discover/care`, `/profile/[userId]`) are blocked on Pricing & Proposals close — not yet implemented.
+The "guest viewer" model. Open `/communities/group-1?guest=1` cold (no localStorage persona, no `?as=`). The page should render real content with action affordances gated by `AuthGate`. D4 / D5 / D6 (logged-out `/discover/meets`, `/discover/care`, `/profile/[userId]`) shipped 2026-05-11 alongside guest-mode sessionStorage persistence so `?guest=1` survives in-app navigation.
 
 ### Guest viewer state
 
@@ -88,6 +88,11 @@ The "guest viewer" model. Open `/communities/group-1?guest=1` cold (no localStor
 - [ ] **D2d. Sign up button navigates.** Reopen the sheet (Join community). Click **Sign up**. Sheet closes; URL becomes `/signup/start`. (Signup flow itself is a stub — that's expected.)
 - [ ] **D2e. Close + Esc + outside-click.** Reopen the sheet. The X button in the header closes it. Pressing Escape closes it. Clicking the dimmed backdrop closes it. Underlying page state is preserved (still on `/communities/group-1?guest=1`, action row unchanged).
 
+### Guest mode survives in-app navigation
+
+- [ ] **D1d. Guest mode mirrors to sessionStorage.** From `/communities/group-1?guest=1`, click any in-app link (e.g. tap a meet card → `/meets/meet-1`). The destination renders in guest mode too — action affordances trigger AuthGate, the AppNav still shows the GuestNavLinks (no Bell / Inbox / Create). Without the sessionStorage mirror (added 2026-05-11) the destination would lose the `?guest=1` URL param and silently revert to the Tereza fallback persona.
+- [ ] **D1e. Closing the tab clears guest mode.** Open `/communities/group-1?guest=1` in a fresh tab, navigate around in guest mode, then close the tab. Open the same URL (no `?guest=1`) in a new tab. Renders normally as Tereza — guest didn't leak via localStorage.
+
 ### Vinohrady Morning Crew logged-out preview
 
 - [ ] **D3a. `/communities/group-1?guest=1` Feed tab.** Banner image, group name **"Vinohrady Morning Crew"**, description, meta row (members count, dogs, photos), action row (Join + Invite — both gated), then the post feed (3 visible posts). No "Create post" icon in the AppNav header — guests don't see the gated icon.
@@ -98,6 +103,31 @@ The "guest viewer" model. Open `/communities/group-1?guest=1` cold (no localStor
 - [ ] **D3f. Toggling out of guest mode shows logged-in view.** From `/communities/group-1?guest=1`, navigate to `/demo` and pick Tereza. Visit `/communities/group-1` (no `?guest=1`). Action row now shows **"Admin"** (disabled brand-subtle) instead of Join + Invite — guest mode cleared, real persona-as-admin renders.
 
 ---
+
+### Logged-out /discover/meets (D4)
+
+- [ ] **D4a. `/discover/meets?guest=1` cold.** Browse cards render. Pill row shows All / Walks / Hangouts / Playdates / Training — **no "Following"** pill (guest has no series to follow). No "Going" / "Hosting" / "Interested" status indicator on any card (CardMeet skips role derivation for guests).
+- [ ] **D4b. Tap a meet card.** Lands on `/meets/<id>` still in guest mode. The "Going" RSVP button is the inactive entry state (brand-outline). Clicking it opens AuthGate with headline **"Sign up to RSVP to this meet"**.
+- [ ] **D4c. Tap "Interested" inside the RSVP menu.** Same AuthGate prompt fires.
+- [ ] **D4d. Share button absent.** Detail tab's header right action (Share) is suppressed in guest mode. (Guests have no audience to share to from a real identity.)
+- [ ] **D4e. Following toggle on a recurring meet.** If shown, tapping it triggers AuthGate with headline **"Sign up to follow this series"**.
+- [ ] **D4f. Chat tab empty state.** Tap the Chat tab. Renders the "RSVP to see the conversation" empty state — guest's `isJoined` is false. Inline "Join this meet" button is presentation-only (pre-existing — out of scope for D4).
+
+### Logged-out /discover/care (D5)
+
+- [ ] **D5a. `/discover/care?guest=1` cold.** Provider cards render. **No "Carers in your circle" section** — guests have no circle, so every card renders as marketplace under a single flat list. Self-exclude check is skipped, so Tereza's card surfaces in results (the read-only fallback would otherwise be filtered out).
+- [ ] **D5b. Filter panel.** Tap Filters. Pets row reads **"Sign up to add your dog"** (button, not link); tapping it opens AuthGate with headline **"Sign up to add your dog"**. Nearby row reads **"Sign up to set your neighbourhood"**; tapping opens AuthGate. The viewer fallback's pets + neighbourhood don't leak into the panel.
+- [ ] **D5c. Service pill scope works.** Walks / House sitting / Day care / Boarding / Appointment pills still filter results in guest mode. Filters that don't depend on a viewer identity (days, time of day, price slider, leash policy) all work.
+- [ ] **D5d. Tap a provider card.** Lands on `/profile/<userId>` (e.g. `/profile/klara`) still in guest mode. Action gating per D6 below.
+
+### Logged-out /profile/[userId] (D6)
+
+- [ ] **D6a. `/profile/tereza?guest=1` cold** (open profile). About tab renders with Tereza's bio, two dogs (Franta + Bella), Carer identity badge. **Action row** shows a single brand-fill **"Connect with Tereza"** button (matrix collapsed for guests). Tapping it opens AuthGate with headline **"Sign up to connect with Tereza"**.
+- [ ] **D6b. Posts tab.** Tereza's recent posts render — read-only browsing works.
+- [ ] **D6c. Services tab.** Three service cards render (Day care + House sitting + Walks) with pricing modifier chips. Tapping any **"Book a session"** button opens AuthGate with headline **"Sign up to book Tereza's service"**. The "Ask about this" CTA on appointment-type cards (if seeded on another profile) similarly triggers AuthGate.
+- [ ] **D6d. Chat tab absent.** No Chat tab in the TabBar for guests — `showChatTab` forces false. No existing Tereza-thread leaks into the preview.
+- [ ] **D6e. `/profile/daniel?guest=1` (locked profile) cold.** Renders the locked-profile state. **"+ Familiar"** button — if rendered for guest because of shared context — opens AuthGate with headline **"Sign up to recognise Daniel"**.
+- [ ] **D6f. Back navigation.** Profile-header back arrow on a fresh tab (no in-app history) routes to `/`, not `/home`. Guests have no `/home` to fall back to.
 
 ## Workstream F — Persistent demo affordance
 
