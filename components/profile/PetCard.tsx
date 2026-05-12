@@ -197,11 +197,6 @@ export function PetCard({ pet, defaultExpanded = true }: PetCardProps) {
                   <span className="pet-profile-vet-pill">
                     {pet.vetInfo.clinicName}
                   </span>
-                  {pet.vetInfo.lastCheckup && (
-                    <span className="pet-profile-vet-lastvisit">
-                      Last visit {new Date(pet.vetInfo.lastCheckup).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
-                    </span>
-                  )}
                 </p>
               )}
             </div>

@@ -295,40 +295,43 @@ export function getSeriesAttendees(meet: Meet): MeetAttendee[] {
 }
 
 /**
- * True iff the viewer has attended this meet (or any past occurrence of it).
- * Drives the People-tab action gating per the disclosure model — the
- * "earned reward" for showing up is the deepening, not the visibility
+ * True iff the viewer has *meet-level engagement* with this meet — meaning
+ * they're part of its social fabric and therefore allowed to act on its
+ * attendees. Drives the People-tab action gating per the disclosure model
  * (`Trust & Connection Model.md` → Meet participant visibility rules).
  *
- * One-off meets: requires `meet.status === "completed"` AND viewer was Going
- *   on `meet.attendees`.
- * Recurring meets: any past occurrence (date < today, local) where viewer
- *   was Going on `attendeesByDate[date]`. For recurring meets, `meet.status`
- *   is unreliable (carries the legacy create-time value); occurrence dates
- *   are the source of truth — see Meets Deep Pass / Meet Recurrence Model
- *   notes.
+ * Returns true when ANY of:
+ * - Viewer is the meet's creator.
+ * - Viewer has an RSVP (Going or Interested) on any occurrence — past OR
+ *   future. On one-off meets, this reads `meet.attendees` directly; on
+ *   recurring meets, it walks every keyed date in `attendeesByDate`.
+ * - Viewer follows the series (`meet.followers`). Recurring meets only.
  *
- * Pure — no I/O. The companion query for "any past meet with this other
- * person" lives in `lib/mockMeets.ts:viewerSharedMeetWith` (needs access
- * to the full meets collection).
+ * **Design evolution** (Cross-Cutting Flow Testing, 2026-05-11): originally
+ * gated to past-attendance only ("earned reward for showing up = deepening").
+ * Widened during P32 resolution so RSVP'd / following / hosting viewers can
+ * also act, mirroring the Group Members tab pattern where co-membership IS
+ * the action context. Random Discover viewers with no commitment still don't
+ * act — the gate filters them out by absence from creator / roster / followers.
+ *
+ * Pure — no I/O. The companion query for "any *shared past* meet with this
+ * other person" lives in `lib/mockMeets.ts:viewerSharedMeetWith` and keeps
+ * its narrower past-shared-attendance semantics — they're no longer mirrors.
  */
 export function viewerCanAct(meet: Meet, viewerId: string): boolean {
+  if (!viewerId) return false;
+  if (meet.creatorId === viewerId) return true;
+
   if (meet.cadence === "one_off") {
-    if (meet.status !== "completed") return false;
-    return meet.attendees.some(
-      (a) => a.userId === viewerId && (a.rsvpStatus ?? "going") === "going",
-    );
+    return meet.attendees.some((a) => a.userId === viewerId);
   }
 
-  // Recurring: any past occurrence where viewer was Going.
-  const todayStart = startOfLocalDay(new Date()).getTime();
+  // Recurring: any RSVP on any occurrence (past or future, going or
+  // interested), OR series-level follow.
+  if ((meet.followers ?? []).includes(viewerId)) return true;
   const byDate = meet.attendeesByDate ?? {};
-  for (const [date, list] of Object.entries(byDate)) {
-    const dateTime = startOfLocalDay(parseLocalISODate(date)).getTime();
-    if (dateTime >= todayStart) continue;
-    if (list.some((a) => a.userId === viewerId && (a.rsvpStatus ?? "going") === "going")) {
-      return true;
-    }
+  for (const list of Object.values(byDate)) {
+    if (list.some((a) => a.userId === viewerId)) return true;
   }
   return false;
 }

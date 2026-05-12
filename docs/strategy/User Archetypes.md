@@ -47,7 +47,7 @@ This is not a career decision. It's a dial that any active user can turn up or d
 
 At **zero**, you're an owner. You use Doggo for your dog's social life and your own community.
 
-**Turned slightly** — You toggled "open to helping" on your profile. Your Connected network can see you'd be willing to lend a hand. Maybe you grab a friend's dog on the way to the park because you're going anyway.
+**Turned slightly** — You set yourself as a carer for your Connected circle. Your Connected network can see you'd be willing to lend a hand. Maybe you grab a friend's dog on the way to the park because you're going anyway.
 
 **Turned more** — You listed a service with a price. Walking, or sitting, or both. You set your own constraints — neighbourhood, availability, group size. Audience setting is "circle" — Connected viewers only can act. Maybe your listing is deliberately narrow and you rarely get requests. That's fine.
 
@@ -211,7 +211,7 @@ An active community member who'd help with someone's dog if it's convenient — 
 - Participation remains entirely optional
 
 **Product behaviour**
-Has "open to helping" toggled on. May or may not have a listed service with a price. If they do, the constraints are narrow — their neighbourhood, a few hours, dogs they already know. Audience setting is "circle" (Connected viewers only). They might accept one or two arrangements a month, or none. The platform makes this feel as lightweight as it actually is.
+Set as a carer with audience "Connected circle only" on the profile care-offering picker. May or may not have a listed service with a price. If they do, the constraints are narrow — their neighbourhood, a few hours, dogs they already know. They might accept one or two arrangements a month, or none. The platform makes this feel as lightweight as it actually is.
 
 ---
 

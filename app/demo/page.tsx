@@ -106,7 +106,11 @@ export default function DemoPage() {
   function handleReset() {
     clearDemoLocalStorage();
     resetToDefault();
-    router.refresh();
+    // Hard reload (not router.refresh) so local component state on
+    // any back-stack page also gets wiped. See the parallel comment
+    // in `ProfileNameDropdown.handleReset` for rationale. CCFT
+    // walkthrough 2026-05-11.
+    if (typeof window !== "undefined") window.location.reload();
   }
 
   return (

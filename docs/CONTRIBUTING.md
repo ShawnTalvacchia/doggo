@@ -41,6 +41,7 @@ Before writing any code for a new phase, complete the **Opening Checklist** on t
 - If you add/change a CSS variable, update **design-tokens** AND the `@theme` block.
 - If you discover an open question, add it to **Open Questions**.
 - If you make a significant product decision, record it in the relevant feature doc under a "Decisions" section.
+- **If a code change makes an active walkthrough item's description inaccurate, update the walkthrough item in the same edit.** Stale walkthrough text is worse than no walkthrough — verifiers look for behaviour that's no longer there. See `phases/_walkthrough-template.md` → "Drift rules" for the two recurring failure modes (stale item descriptions + Decisions entries that should have been revised in place rather than appended).
 
 ### Closing a Phase
 

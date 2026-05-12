@@ -67,10 +67,14 @@ interface TieredAttendee extends MeetAttendee {
  * Tier classification is delegated to `getAttendeeTier` (`lib/meetUtils.ts`).
  *
  * Action gating: information is open to any viewer; action affordances
- * (Familiar / Connect / Message pills) only render when the viewer attended
- * a past occurrence of this meet (`viewerCanAct`). The "earned reward" for
- * showing up is the deepening, not the visibility. See
- * `Trust & Connection Model.md` → Meet participant visibility rules.
+ * (Familiar / Connect / Message pills) render when the viewer has
+ * meet-level engagement — creator, any RSVP (past or future, going or
+ * interested), or series follower. Resolved this way during P32
+ * (Cross-Cutting Flow Testing, 2026-05-11): meet RSVP is opt-in to "be
+ * in this group of people," analogous to group co-membership, which
+ * already grants action affordances on the Members tab. Random Discover
+ * viewers with no commitment are still filtered out by `viewerCanAct`.
+ * See `Trust & Connection Model.md` → Meet participant visibility rules.
  */
 export function ParticipantList({
   meet,

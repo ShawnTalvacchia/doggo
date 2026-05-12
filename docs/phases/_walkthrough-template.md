@@ -66,4 +66,12 @@ Conventions:
 - Expected outcomes use sub-bullets when there are multiple things to confirm; one-line item otherwise.
 - Use `**bold**` for the things that should match, `*italic*` for trigger notes / explanatory copy.
 - DO NOT add "Findings & follow-ups" sections to individual workstreams — those belong in the phase board, Open Questions log, or a relevant feature doc. Workstreams are verification-only. The Decisions section above is the ONE place where emergent stuff is captured inline.
+
+Drift rules — the two failure modes this template is fighting:
+
+1. **Code change → update the walkthrough item in the same edit.** When you refactor or restyle something the active walkthrough already describes, edit the item's description to match the new behaviour as part of the same change. Stale walkthrough text is worse than no walkthrough — verifiers look for what isn't there, get confused, and either tick items that don't match what they see or stall mid-walk. Rule of thumb: if a code change would make an existing walkthrough item's description inaccurate, the walkthrough edit is part of finishing that code change.
+
+2. **Decisions are current-state, not an event log.** If a decision logged in "Decisions surfaced" gets superseded by a better one as the work evolves (e.g. "switched conditions text to amber" became "dropped pill chrome entirely, conditions is body copy now"), **edit the existing entry** to describe the final landing — don't append a new entry alongside the stale one. The section should describe what shipped, not the trail of intermediate calls.
+
+   The signal you got this wrong: at phase-close sweep, the same surface has multiple Decisions entries with contradictory descriptions.
 -->

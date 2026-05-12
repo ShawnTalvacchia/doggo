@@ -259,6 +259,10 @@ function ProfileInner() {
             }}
             tagApproval={tagApproval}
             onTagApprovalChange={setTagApproval}
+            profileVisibility={user.profileVisibility ?? "locked"}
+            onProfileVisibilityChange={(v) =>
+              setUser((prev) => ({ ...prev, profileVisibility: v }))
+            }
           />
         )}
 

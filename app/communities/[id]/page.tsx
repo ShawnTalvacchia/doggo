@@ -4,8 +4,6 @@ import { useState, useEffect, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { DetailHeader } from "@/components/layout/DetailHeader";
-import { AddPostIcon } from "@/components/icons/AddPostIcon";
-import { ButtonIcon } from "@/components/ui/ButtonIcon";
 import { TabBar } from "@/components/ui/TabBar";
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutSection } from "@/components/layout/LayoutSection";
@@ -37,6 +35,7 @@ import {
 } from "@/components/people/PersonSections";
 import { PrivateProfileRow } from "@/components/people/PrivateProfileRow";
 import { GroupVisibilityChip } from "@/components/groups/GroupVisibilityChip";
+import { RequestToJoinModal } from "@/components/groups/RequestToJoinModal";
 import { getGroupById, getGroupMeets } from "@/lib/mockGroups";
 import { getPostsByGroup } from "@/lib/mockPosts";
 import { getConnectionState } from "@/lib/mockConnections";
@@ -148,6 +147,7 @@ function GroupDetailInner() {
 
   const group = getGroupById(params.id as string);
   const [joinRequested, setJoinRequested] = useState(false);
+  const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [leaveMenuOpen, setLeaveMenuOpen] = useState(false);
 
   // Close leave menu on outside click + Escape (mirrors the meet RSVP menu)
@@ -189,6 +189,12 @@ function GroupDetailInner() {
   // public-info view. Demo Presentation D3, 2026-05-05.
   const isMember = !isGuest && group.members.some((m) => m.userId === currentUserId);
   const isAdmin = !isGuest && group.members.some((m) => m.userId === currentUserId && m.role === "admin");
+  // First-admin lookup for the join-request modal copy ("[Admin] will
+  // review your request"). Falls back to "the admin" so the modal still
+  // reads coherently when no admin is seeded (system-generated park
+  // groups). 2026-05-11 join-flow redesign.
+  const primaryAdmin = group.members.find((m) => m.role === "admin");
+  const adminName = primaryAdmin?.userName ?? "the admin";
   const totalDogs = group.members.reduce((sum, m) => sum + m.dogNames.length, 0);
   const isCare = group.groupType === "care";
   const tabs = getTabsForGroup(group, group.photos.length > 0);
@@ -203,25 +209,30 @@ function GroupDetailInner() {
   // Right action changes per tab. Guests see no header action — the
   // primary "Sign up to join" CTA in the action-buttons row is the single
   // entry point; cluttering the header with a gated icon would dilute it.
+  //
+  // Header-action convention (2026-05-11, Cross-Cutting Flow Testing):
+  // outline + sm + leftIcon + text, no `cta` (rectangular). Reserves
+  // brand-filled pills for row CTAs (Message, Connect, Join) so the
+  // hierarchy reads clearly. See `design-system.md` → "Header actions."
   const headerAction = (isMember && !isGuest) ? (() => {
     switch (activeTab) {
       case "meets":
         return (
-          <ButtonAction variant="primary" size="sm" cta leftIcon={<Plus size={14} weight="bold" />} onClick={() => openMeetComposer({ groupId: group.id })}>
+          <ButtonAction variant="outline" size="sm" leftIcon={<Plus size={14} weight="bold" />} onClick={() => openMeetComposer({ groupId: group.id })}>
             Create
           </ButtonAction>
         );
       case "members":
         return (
-          <ButtonAction variant="primary" size="sm" cta leftIcon={<UserPlus size={14} weight="bold" />}>
+          <ButtonAction variant="outline" size="sm" leftIcon={<UserPlus size={14} weight="bold" />}>
             Invite
           </ButtonAction>
         );
       default:
         return group.photoPolicy !== "none" ? (
-          <ButtonIcon label="Create post" onClick={() => openComposer(group.id)}>
-            <AddPostIcon size={28} />
-          </ButtonIcon>
+          <ButtonAction variant="outline" size="sm" leftIcon={<Plus size={14} weight="bold" />} onClick={() => openComposer(group.id)}>
+            Post
+          </ButtonAction>
         ) : undefined;
     }
   })() : undefined;
@@ -276,7 +287,16 @@ function GroupDetailInner() {
             isCare={isCare}
             totalDogs={totalDogs}
             joinRequested={joinRequested}
-            onJoinRequest={() => isGuest ? requireAuth("join this community") : setJoinRequested(true)}
+            adminName={adminName}
+            onJoinRequest={() => {
+              // Approval groups → modal first (capture optional context note
+              // for the admin). Open + private fall through to the original
+              // one-tap path. Guests always route through the auth gate.
+              // Join-flow redesign 2026-05-11.
+              if (isGuest) return requireAuth("join this community");
+              if (group.visibility === "approval") return setJoinModalOpen(true);
+              setJoinRequested(true);
+            }}
             leaveMenuOpen={leaveMenuOpen}
             onLeaveMenuToggle={() => setLeaveMenuOpen((v) => !v)}
             onLeave={() => setLeaveMenuOpen(false)}
@@ -305,6 +325,27 @@ function GroupDetailInner() {
       </div>
 
       </div>{/* end group-detail-panel */}
+
+      {/* Request-to-join modal — approval-only groups. The helper line under
+          the Join CTA teaches the system passively; this modal captures an
+          optional context note when the user commits, so the admin sees more
+          than a blind request. Mock-only: clicking Send flips `joinRequested`
+          locally; admin-side notification + approval queue is filed as
+          follow-up work in `features/community.md`. */}
+      <RequestToJoinModal
+        open={joinModalOpen}
+        onClose={() => setJoinModalOpen(false)}
+        groupName={group.name}
+        adminName={adminName}
+        onSubmit={() => {
+          // Note text is captured by the modal's state but not persisted
+          // anywhere yet — the demo doesn't have an admin-side queue to
+          // surface it on. The note shape lives in the modal for when that
+          // pipeline lands.
+          setJoinRequested(true);
+          setJoinModalOpen(false);
+        }}
+      />
     </div>
   );
 }
@@ -321,6 +362,10 @@ interface FeedTabProps {
   isCare: boolean;
   totalDogs: number;
   joinRequested: boolean;
+  /** First admin's display name. Powers the join-flow helper line + the
+   *  request-to-join modal copy. Resolves to "the admin" when no admin
+   *  is seeded (system-generated park groups). 2026-05-11. */
+  adminName: string;
   onJoinRequest: () => void;
   /** Membership-action menu (Joined → ▾): open state + toggle callback. */
   leaveMenuOpen: boolean;
@@ -334,7 +379,55 @@ interface FeedTabProps {
   onGuestAction: (label: string) => void;
 }
 
-function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, joinRequested, onJoinRequest, leaveMenuOpen, onLeaveMenuToggle, onLeave, isGuest, onGuestAction }: FeedTabProps) {
+/**
+ * Resolve the join-flow helper line beneath the action button row.
+ *
+ * Pairs with `GroupVisibilityChip` in the hero — the chip describes the
+ * group's privacy state at a glance; this line teaches the *behaviour* of
+ * the Join CTA in context (or, for members, gives ambient privacy
+ * reassurance about what the group means). Empty string skips the line.
+ *
+ * 2026-05-11 join-flow redesign. See `features/community.md` →
+ * "Join flow + privacy disclosure."
+ */
+function getJoinHelperText(args: {
+  visibility: Group["visibility"];
+  isMember: boolean;
+  isAdmin: boolean;
+  joinRequested: boolean;
+  adminName: string;
+}): string {
+  const { visibility, isMember, isAdmin, joinRequested, adminName } = args;
+  if (isAdmin) {
+    if (visibility === "open") return "";
+    if (visibility === "approval") return "New members reviewed by you";
+    return "Members-only — content stays in the group";
+  }
+  if (isMember) {
+    if (visibility === "open") return "";
+    if (visibility === "approval") return "New members reviewed by admin";
+    return "Members-only — content stays in the group";
+  }
+  if (visibility === "open") return "Anyone can join — no approval needed";
+  if (visibility === "approval") {
+    return joinRequested
+      ? `Awaiting ${adminName}'s response`
+      : `${adminName} will review your request`;
+  }
+  // Private + non-member: typically only reachable via invite. No data
+  // model for invited-but-not-yet-accepted state yet — leave silent until
+  // that lands.
+  return "";
+}
+
+function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, joinRequested, adminName, onJoinRequest, leaveMenuOpen, onLeaveMenuToggle, onLeave, isGuest, onGuestAction }: FeedTabProps) {
+  const joinHelperText = getJoinHelperText({
+    visibility: group.visibility,
+    isMember,
+    isAdmin,
+    joinRequested,
+    adminName,
+  });
   return (
     <>
       {/* ── Banner + info (only in Feed tab) ── */}
@@ -529,6 +622,21 @@ function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, join
             Invite
           </ButtonAction>
         </div>
+
+        {/* Join-flow helper line — teaches the system at the moment of action.
+            Pairs with GroupVisibilityChip in the hero: the chip names the
+            privacy state; this line explains what the Join CTA will do (or,
+            for members, gives ambient privacy reassurance about what the
+            group is). Empty string skips the line entirely so open groups
+            with members don't carry a redundant cue. 2026-05-11. */}
+        {joinHelperText && (
+          <p
+            className="text-xs text-fg-tertiary m-0"
+            style={{ marginTop: "var(--space-xs)" }}
+          >
+            {joinHelperText}
+          </p>
+        )}
       </div>
 
       {/* ── Posts ── */}

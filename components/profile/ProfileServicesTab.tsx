@@ -5,10 +5,11 @@ import {
   Plus,
   Trash,
   Sparkle,
-  PawPrint,
   Info,
   CaretDown,
   CaretUp,
+  UsersThree,
+  Globe,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { ButtonIcon } from "@/components/ui/ButtonIcon";
@@ -37,6 +38,43 @@ const TIME_SLOTS: { key: TimeSlot; label: string }[] = [
   { key: "afternoon", label: "Afternoon" },
   { key: "evening", label: "Evening" },
 ];
+
+// ── Care-offering picker ──────────────────────────────────────────────────────
+//
+// The "are you a Carer, and to whom?" decision is genuinely three states:
+//   - off    → not a carer (`openToHelping = false`)
+//   - circle → carer, Connected-only audience (`openToHelping + !publicProfile`)
+//   - anyone → carer, public audience (`openToHelping + publicProfile`)
+//
+// Previously this was modelled as two flat Toggles ("Open to helping" +
+// "Open to anyone") which hid the hierarchy and made the relationship
+// between them invisible. The new picker surfaces the trichotomy
+// explicitly. 2026-05-11 (walkthrough C6).
+
+type CareOption = "off" | "circle" | "anyone";
+
+const CARE_OPTIONS: { key: CareOption; title: string; desc: string }[] = [
+  {
+    key: "off",
+    title: "Not offering care",
+    desc: "I'm not a carer right now.",
+  },
+  {
+    key: "circle",
+    title: "Connected circle only",
+    desc: "Visible only to people you're Connected with. Build trust through shared meets first.",
+  },
+  {
+    key: "anyone",
+    title: "Open to anyone",
+    desc: "Discoverable by anyone in Prague through Discover. Most carers start here once they're ready.",
+  },
+];
+
+function deriveCareOption(openToHelping: boolean, visibility: boolean): CareOption {
+  if (!openToHelping) return "off";
+  return visibility ? "anyone" : "circle";
+}
 
 const SERVICE_TYPE_ORDER: ServiceType[] = [
   "walks_checkins",
@@ -367,10 +405,10 @@ export function ProfileServicesTab({
         >
           <Sparkle size={44} weight="light" className="text-fg-tertiary" />
           <h2 className="font-heading text-lg font-semibold text-fg-primary m-0">
-            Open to helping?
+            Want to offer care?
           </h2>
           <p className="profile-card-copy text-fg-secondary m-0">
-            Turn on care offerings from your profile to help dogs in your community. Walks, sitting, boarding — you set the terms.
+            Set yourself up as a carer for your community. Walks, sitting, boarding — you set the terms.
           </p>
           {/* Directional hint — pushed down with deliberate gap so it
               reads as a separate "next step" pointer rather than part of
@@ -388,24 +426,58 @@ export function ProfileServicesTab({
 
   // ── Edit mode ──
   if (editing) {
+    const careOption = deriveCareOption(openToHelping, visibility);
+
+    function handleCareOptionSelect(key: CareOption) {
+      switch (key) {
+        case "off":
+          onToggleOpenToHelping(false);
+          break;
+        case "circle":
+          onToggleOpenToHelping(true);
+          onToggleVisibility(false);
+          break;
+        case "anyone":
+          onToggleOpenToHelping(true);
+          onToggleVisibility(true);
+          break;
+      }
+    }
+
     return (
       <div className="profile-tab-stack" style={{ padding: "var(--space-lg)" }}>
-        {/* Open to helping toggle */}
+        {/* Offering care — three explicit states (off / circle / anyone).
+            Replaced the previous two-Toggle pattern that hid the
+            hierarchy. 2026-05-11 (C6). */}
         <section>
-          <div className="flex items-center justify-between gap-md">
-            <div>
-              <p className="profile-visibility-label">Open to helping</p>
-              <p className="profile-visibility-sub">
-                {openToHelping
-                  ? "Your connections can see you offer care."
-                  : "You’re not currently offering care."}
-              </p>
-            </div>
-            <Toggle
-              label="Open to helping"
-              checked={openToHelping}
-              onChange={onToggleOpenToHelping}
-            />
+          <h3 className="profile-card-subtitle">Offering care</h3>
+          <p
+            className="text-sm text-fg-secondary m-0"
+            style={{ marginBottom: 12 }}
+          >
+            How do you want to offer care to your community?
+          </p>
+          <div className="care-offering-picker">
+            {CARE_OPTIONS.map((opt) => {
+              const selected = careOption === opt.key;
+              return (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => handleCareOptionSelect(opt.key)}
+                  className={`care-offering-option${selected ? " care-offering-option--selected" : ""}`}
+                  aria-pressed={selected}
+                >
+                  <span className="care-offering-radio" aria-hidden="true">
+                    {selected && <span className="care-offering-radio-dot" />}
+                  </span>
+                  <span className="care-offering-text">
+                    <span className="care-offering-title">{opt.title}</span>
+                    <span className="care-offering-desc">{opt.desc}</span>
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </section>
 
@@ -533,28 +605,6 @@ export function ProfileServicesTab({
               </div>
             </section>
 
-            {/* Audience — one dial, not a tier ladder. Reframed 2026-05-11
-                (D7) after Discover Refinement collapsed Helper-tier /
-                Provider-tier into a single Carer role with audience as
-                its sub-setting. Off = Connected circle only; on = anyone
-                (surfaces in /discover/care). */}
-            <section>
-              <div className="flex items-center justify-between gap-md">
-                <div>
-                  <p className="profile-visibility-label">Open to anyone</p>
-                  <p className="profile-visibility-sub">
-                    {visibility
-                      ? "Your services appear in Discover for anyone in Prague to find."
-                      : "Only people you're Connected with can see and book your services."}
-                  </p>
-                </div>
-                <Toggle
-                  label="Open to anyone"
-                  checked={visibility}
-                  onChange={onToggleVisibility}
-                />
-              </div>
-            </section>
           </>
         )}
       </div>
@@ -589,18 +639,54 @@ export function ProfileServicesTab({
         </section>
       )}
 
-      {/* Open to helping badge */}
+      {/* Care offering — view-mode summary card.
+          Surfaces the current audience state (circle vs anyone) so an
+          owner can see their setting at a glance without entering edit
+          mode. The "Open to helping" pill that previously lived here
+          was removed in the C6 sweep (2026-05-11); the Carer Identity
+          badge on the hero carries the role + audience signal in the
+          page-level chrome, but that's far from the services context —
+          this card pairs the audience state with its descriptive
+          consequence right above the carer bio.
+
+          Icon: UsersThree for circle (mirrors the explainer card on
+          `/profile/[userId]` services for the same state); Globe for
+          public/discoverable. */}
       <section>
-        <div className="flex items-center gap-sm">
-          <span
-            className="flex items-center gap-xs rounded-pill px-md py-xs text-sm font-medium"
-            style={{ background: "var(--brand-subtle)", color: "var(--brand-strong)" }}
-          >
-            <PawPrint size={16} weight="fill" /> Open to helping
-          </span>
-          <span className="text-sm text-fg-tertiary">
-            {visibility ? "Open to anyone" : "Connected circle only"}
-          </span>
+        <h3 className="profile-card-subtitle">Offering care</h3>
+        <div
+          className="flex items-start gap-md rounded-form"
+          style={{
+            padding: "var(--space-md)",
+            background: "var(--surface-top)",
+            border: "1px solid var(--border-regular)",
+          }}
+        >
+          {visibility ? (
+            <Globe
+              size={20}
+              weight="fill"
+              className="shrink-0"
+              style={{ color: "var(--brand-strong)", marginTop: 2 }}
+            />
+          ) : (
+            <UsersThree
+              size={20}
+              weight="fill"
+              className="shrink-0"
+              style={{ color: "var(--brand-strong)", marginTop: 2 }}
+            />
+          )}
+          <div className="flex flex-col gap-xxs">
+            <p className="text-sm font-semibold text-fg-primary m-0">
+              {visibility ? "Open to anyone" : "Connected circle only"}
+            </p>
+            <p className="text-sm text-fg-secondary m-0 leading-snug">
+              {visibility
+                ? "Your services are discoverable in Discover by anyone in Prague."
+                : "Only people you're Connected with can see and book your services."}
+            </p>
+          </div>
         </div>
       </section>
 

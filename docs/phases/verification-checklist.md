@@ -53,7 +53,7 @@ Add to the relevant Surface section as a one-line table row with: what to check,
 | V1 | Modifier-config save flow — edits close cleanly; view-mode chips reflect new values in same session. | Pricing & Proposals walkthrough E7 | `components/profile/ProfileServicesTab.tsx` (PricingModifiersEditor) | 2026-05-05 |
 | V2 | New service defaults — "Add a service" produces all 4 modifier kinds OFF with defaults (Holiday 25%, Weekend 15%, Multi-pet 100 Kč, Last-minute 10% / 3d). | Pricing & Proposals walkthrough E8 | `lib/pricing.ts` (`defaultModifiers`), `ProfileServicesTab.tsx` | 2026-05-05 |
 | V3 | Modifier-less carer (Klára) — accordion present with "0 on", expand shows all 4 kinds in default-OFF state. | Pricing & Proposals walkthrough E9 | `ProfileServicesTab.tsx` | 2026-05-05 |
-| V4 | New User flow — toggle "Open to helping" ON → "Add a service" → modifier accordion present. | Pricing & Proposals walkthrough E10 | `ProfileServicesTab.tsx` | 2026-05-05 |
+| V4 | New User flow — pick **Connected circle only** (or **Open to anyone**) in the care-offering picker → "Add a service" → modifier accordion present. | Pricing & Proposals walkthrough E10 (updated 2026-05-11 — care-offering picker replaced the Open-to-helping Toggle) | `ProfileServicesTab.tsx` | 2026-05-05 |
 
 ### Discover
 

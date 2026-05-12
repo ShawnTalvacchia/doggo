@@ -75,6 +75,49 @@ Groups created by care providers as a community-wrapped service channel. This is
 
 ---
 
+## Group visibility + join flow
+
+Three visibility states map to three join behaviours. The disclosure pattern is two layers: a chip in the hero names the state at a glance, and a helper line under the Join CTA teaches the behaviour at the moment of action.
+
+### Visibility states
+
+| State | Discoverable? | Joining | Use cases |
+|---|---|---|---|
+| `open` | Yes | One-tap, instant | Parks, broad-interest groups, public park-anchored crews |
+| `approval` | Yes | Request → admin reviews | Privacy-sensitive interest groups (reactive dogs, first-time owners), trainer client groups |
+| `private` | No (hidden from non-members) | Invite-only in practice | Neighborhood groups, small care provider client circles |
+
+Both `approval` and `private` use admin approval; the difference is whether non-members can find the group. The chip + helper line teach this without forcing the user to read a help page.
+
+### Chip + helper line pattern (resolved 2026-05-11, Cross-Cutting Flow Testing)
+
+**Hero chip** (`GroupVisibilityChip`) — one of three with parallel icon + single-word label + tap-tooltip explainer. Tri-state treatment (including Open) so users learn the system regardless of which type of group they encounter first.
+
+**Helper line** under the Join / Joined CTA — small tertiary text, computed per (visibility × member-state × request-state). Two jobs:
+- *Non-member, action context:* Tell them what the button will do. "Anyone can join — no approval needed" / "[Admin name] will review your request" / "Awaiting [Admin name]'s response."
+- *Member, ambient reassurance:* Remind them what the group is. Open is silent (nothing to reassure). Approval renders "New members reviewed by admin." Private renders "Members-only — content stays in the group" — the privacy guarantee that makes sensitive sharing safe.
+
+### Request-to-join modal (approval only)
+
+Approval-only groups open a modal on Request to join. The modal:
+- Names the admin reviewing ("Eva will review your request and let you know.")
+- Offers an optional context note ("Tell Eva about your dog (optional)") — pre-populates a line the admin can read while approving
+- Two buttons: Cancel + Send request
+
+Open + private groups never trigger this modal. Open is one-tap join; private is one-tap accept-invite (the invite was explicit consent on the inviter's side).
+
+**Why the modal earns its keep.** The original "Request to join" tap was a blind state flip. The admin received the request with no context and no signal of fit. The optional note pre-populates context that's useful exactly when admin judgement matters — privacy-sensitive support groups where fit beats follower count.
+
+**Implementation:** `components/groups/RequestToJoinModal.tsx` + `getJoinHelperText()` in `app/communities/[id]/page.tsx`. Mock-only: the note isn't persisted yet (no admin-side approval queue surface). The note shape lives in the modal for when that pipeline lands.
+
+### Out of scope (filed as follow-ups)
+
+- Admin-side approval queue + notification when a request lands.
+- Per-request note storage + the admin-side surface that reads it.
+- Invited-but-not-yet-accepted state for `private` groups (modal copy "Invited by [admin name]" was scoped but the data model doesn't carry that state yet).
+
+---
+
 ## The Friendship-Meets-Contract Problem
 
 One of Doggo's most important strategic insights. When neighbors become friends through their dogs, informal care naturally follows — "Can you grab Max on your way to the park?" But informal favors are hard to keep balanced, and the awkwardness of raising that imbalance can poison the friendship.

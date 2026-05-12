@@ -135,12 +135,15 @@ function HomePageInner() {
     });
   }, [allFeedItems, activeCategory, userGroups]);
 
-  // Header action button changes per tab
+  // Header action button changes per tab.
+  // Header-action convention (2026-05-11, Cross-Cutting Flow Testing):
+  // outline + sm + leftIcon + text, no `cta` (rectangular). Reserves
+  // brand-filled pills for row / hero CTAs so the hierarchy reads clearly.
+  // See `design-system.md` → "Header actions."
   const headerAction = mainTab === "groups" ? (
     <ButtonAction
-      variant="primary"
+      variant="outline"
       size="sm"
-      cta
       leftIcon={<Plus size={14} weight="bold" />}
       href="/communities/create"
     >
@@ -148,9 +151,8 @@ function HomePageInner() {
     </ButtonAction>
   ) : (
     <ButtonAction
-      variant="primary"
+      variant="outline"
       size="sm"
-      cta
       leftIcon={<CameraPlusFill size={14} />}
       onClick={() => openComposer()}
     >

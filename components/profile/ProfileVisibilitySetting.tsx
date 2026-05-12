@@ -1,51 +1,59 @@
 "use client";
 
 /**
- * TagApprovalSetting — tagging-preferences surface.
+ * ProfileVisibilitySetting — profile visibility surface.
  *
- * Two render modes (matching `ProfileVisibilitySetting`):
+ * Two render modes:
  *   - **View mode** (`editing: false`): compact summary card showing the
- *     current state — icon + label + description in a bordered card.
+ *     current state — icon + label + description, in the same bordered-
+ *     card shape used by the Services tab's "Offering care" summary.
  *   - **Edit mode** (`editing: true`): full-width row picker exposing
- *     all three options (Auto-approve / Review first / Don't allow).
+ *     both options (Locked / Open) for selection.
  *
- * Originally always-visible; gated by edit mode 2026-05-11 to condense
- * the About tab in view mode.
+ * Originally the picker was always visible (no edit gating). Walked back
+ * 2026-05-11 (C-extension) so the About tab feels compact in view mode
+ * and full options only surface when the user explicitly enters edit.
+ * Mirrors the same change applied to `TagApprovalSetting`.
+ *
+ * Companion read-only signal in the hero: `ProfileVisibilityChip`.
  */
 
-import { CheckCircle, Clock, Prohibit } from "@phosphor-icons/react";
-import type { TagApproval } from "@/lib/types";
+import { Eye, Lock } from "@phosphor-icons/react";
+import type { ProfileVisibility } from "@/lib/types";
 
-interface TagApprovalSettingProps {
-  value: TagApproval;
-  onChange: (value: TagApproval) => void;
+interface ProfileVisibilitySettingProps {
+  value: ProfileVisibility;
+  onChange: (value: ProfileVisibility) => void;
   /** When false (default), render a compact summary of the current
    *  state. When true, render the full picker. */
   editing?: boolean;
 }
 
-const OPTIONS: { key: TagApproval; icon: typeof CheckCircle; label: string; desc: string }[] = [
+const OPTIONS: {
+  key: ProfileVisibility;
+  icon: typeof Lock;
+  label: string;
+  desc: string;
+}[] = [
   {
-    key: "auto",
-    icon: CheckCircle,
-    label: "Auto-approve",
-    desc: "Tags appear immediately",
+    key: "locked",
+    icon: Lock,
+    label: "Locked",
+    desc: "Only Connected members see your full profile",
   },
   {
-    key: "approve",
-    icon: Clock,
-    label: "Review first",
-    desc: "You approve each tag",
-  },
-  {
-    key: "none",
-    icon: Prohibit,
-    label: "Don't allow",
-    desc: "Others can't tag you",
+    key: "open",
+    icon: Eye,
+    label: "Open",
+    desc: "Anyone using Doggo can see your full profile",
   },
 ];
 
-export function TagApprovalSetting({ value, onChange, editing = false }: TagApprovalSettingProps) {
+export function ProfileVisibilitySetting({
+  value,
+  onChange,
+  editing = false,
+}: ProfileVisibilitySettingProps) {
   const current = OPTIONS.find((o) => o.key === value) ?? OPTIONS[0];
 
   if (!editing) {
@@ -78,9 +86,7 @@ export function TagApprovalSetting({ value, onChange, editing = false }: TagAppr
     );
   }
 
-  // Edit mode — full picker. Column-stacked, icon-left, full-width rows
-  // (replaced the original 3-column tile grid 2026-05-11 — labels were
-  // truncating).
+  // Edit mode — full picker.
   return (
     <div className="flex flex-col gap-sm">
       {OPTIONS.map((opt) => {
@@ -111,7 +117,10 @@ export function TagApprovalSetting({ value, onChange, editing = false }: TagAppr
               <span className="text-sm font-semibold text-fg-primary">
                 {opt.label}
               </span>
-              <span className="text-xs text-fg-secondary" style={{ lineHeight: 1.4 }}>
+              <span
+                className="text-xs text-fg-secondary"
+                style={{ lineHeight: 1.4 }}
+              >
                 {opt.desc}
               </span>
             </div>

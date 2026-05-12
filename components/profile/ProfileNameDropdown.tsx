@@ -90,7 +90,15 @@ export function ProfileNameDropdown({ name }: ProfileNameDropdownProps) {
     clearDemoLocalStorage();
     resetToDefault();
     setOpen(false);
-    router.refresh();
+    // Hard reload (not router.refresh) — components on the current page
+    // can hold *local* state that isn't persisted to localStorage (e.g.
+    // the in-memory `user.profileVisibility` from the profile About-tab
+    // visibility toggle, edit-mode draft state, etc.). router.refresh
+    // re-fetches server data but doesn't unmount client components, so
+    // local state stays stale until a full reload. Reset is rare and
+    // expected to be a "clean slate" gesture — accepting the brief
+    // blank-flash is the right tradeoff. CCFT walkthrough 2026-05-11.
+    if (typeof window !== "undefined") window.location.reload();
   }
 
   // True when the resolved current user isn't on the picker — i.e. we're in

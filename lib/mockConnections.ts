@@ -1158,6 +1158,37 @@ export function getConnectionsByState(
 }
 
 /**
+ * Mutual Connected users between a viewer and a subject.
+ *
+ * Returns the user IDs of people who are Connected to BOTH the viewer
+ * and the subject. Used to surface a "Mutual connections" section on
+ * other-user profiles.
+ *
+ * **Privacy:** Connected-only. Familiar marks are deliberately
+ * excluded — surfacing them would break the deniability principle
+ * (viewers must never infer who marked whom Familiar). Connected is
+ * mutual + acknowledged, safe to expose. Pending is one-sided and
+ * also excluded.
+ *
+ * Self-mutuals are filtered (a viewer is not their own mutual).
+ */
+export function getMutualConnectedUserIds(
+  viewerId: string,
+  subjectId: string,
+): string[] {
+  if (viewerId === subjectId) return [];
+  const viewerConnected = getConnectionsByState("connected", viewerId)
+    .map((c) => c.userId)
+    .filter((id) => id !== subjectId);
+  const subjectConnected = new Set(
+    getConnectionsByState("connected", subjectId)
+      .map((c) => c.userId)
+      .filter((id) => id !== viewerId),
+  );
+  return viewerConnected.filter((id) => subjectConnected.has(id));
+}
+
+/**
  * Get the connections of a viewer who also offer care services. Used by
  * "people you know who can help" surfaces — the Inbox People section, the
  * Discover Care "from your network" tile, etc.

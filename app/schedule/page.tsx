@@ -429,10 +429,11 @@ function ScheduleInner() {
     <PageColumn
       title="My Schedule"
       headerAction={
+        // Header-action convention (2026-05-11): outline + sm + leftIcon +
+        // text, no `cta`. See `design-system.md` → "Header actions."
         <ButtonAction
-          variant="primary"
+          variant="outline"
           size="sm"
-          cta
           leftIcon={<Plus size={14} weight="bold" />}
           onClick={() => openMeetComposer()}
         >

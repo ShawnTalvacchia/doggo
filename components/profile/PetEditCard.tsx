@@ -1,12 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import {
   Trash,
   ImageSquare,
   MagnifyingGlass,
-  Lightning,
+  PencilSimple,
   Heart,
-  Stethoscope,
+  FirstAidKit,
+  CaretDown,
   Dog,
 } from "@phosphor-icons/react";
 import { InputField } from "@/components/ui/InputField";
@@ -30,6 +32,77 @@ export const SIZE_OPTIONS = [
   "Giant (45kg+)",
 ];
 
+// ── Section header (edit-mode specific) ────────────────────────────────────────
+//
+// Bigger than view-mode's `.pet-profile-section-header` (15px vs 13px) so
+// the section hierarchy reads in a form context. Optional icon + label on
+// the left, optional right-slot for accordion caret or section action
+// (e.g. the per-section delete button on "Basic info"). 2026-05-11 (C3).
+
+function EditSectionHeader({
+  icon,
+  label,
+  rightSlot,
+  onClick,
+  expanded,
+}: {
+  icon?: React.ReactNode;
+  label: string;
+  rightSlot?: React.ReactNode;
+  /** If provided, the header is a button — used for the Health & vet accordion. */
+  onClick?: () => void;
+  expanded?: boolean;
+}) {
+  const content = (
+    <>
+      {icon && <span className="text-brand-main">{icon}</span>}
+      <span style={{ fontSize: 15, fontWeight: "var(--weight-semibold)", color: "var(--text-primary)" }}>
+        {label}
+      </span>
+      {onClick && (
+        <CaretDown
+          size={14}
+          weight="bold"
+          className="text-fg-tertiary"
+          style={{
+            marginLeft: "auto",
+            transform: expanded ? "rotate(180deg)" : "none",
+            transition: "transform 0.15s ease",
+          }}
+        />
+      )}
+      {rightSlot && <span style={{ marginLeft: "auto" }}>{rightSlot}</span>}
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-expanded={expanded}
+        className="flex items-center gap-sm"
+        style={{
+          background: "none",
+          border: "none",
+          padding: 0,
+          cursor: "pointer",
+          width: "100%",
+          textAlign: "left",
+        }}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-sm" style={{ width: "100%" }}>
+      {content}
+    </div>
+  );
+}
+
 // ── Component ──────────────────────────────────────────────────────────────────
 
 interface PetEditCardProps {
@@ -38,11 +111,36 @@ interface PetEditCardProps {
   onDelete: () => void;
 }
 
+/**
+ * Edit form for a single pet. Structured as four distinct sections —
+ * each with its own header + visual divider — to give the form a clear
+ * hierarchy and to mirror the view-mode PetCard's section pattern.
+ *
+ *   1. Basic info — name / breed / photo / size / age / energy.
+ *      Header carries the per-pet delete button on the right.
+ *   2. Personality — play style pills + general notes.
+ *   3. Socialisation — Heart icon + textarea.
+ *   4. Health & vet — FirstAidKit icon + collapsible body (collapsed by
+ *      default for new pets; auto-expanded for pets with existing data).
+ *
+ * Field-level icons are deliberately absent — icons live on section
+ * headers only, matching view-mode treatment. 2026-05-11 (walkthrough C3).
+ */
 export function PetEditCard({ pet, onChange, onDelete }: PetEditCardProps) {
+  const hasVetData = !!(
+    pet.vetInfo &&
+    (pet.vetInfo.clinicName ||
+      pet.vetInfo.vetPhone ||
+      pet.vetInfo.vaccinationsUpToDate ||
+      pet.vetInfo.spayedNeutered ||
+      pet.vetInfo.medications ||
+      pet.vetInfo.conditions)
+  );
+  const [vetOpen, setVetOpen] = useState(hasVetData);
+
   const vetInfo = pet.vetInfo ?? {
     clinicName: "",
     vetPhone: "",
-    lastCheckup: "",
     vaccinationsUpToDate: false,
     spayedNeutered: false,
     medications: "",
@@ -53,37 +151,36 @@ export function PetEditCard({ pet, onChange, onDelete }: PetEditCardProps) {
     onChange({ ...pet, vetInfo: { ...vetInfo, ...updates } });
   }
 
+  const hasPhoto = !!(pet.imageUrl && !pet.imageUrl.includes("placeholder"));
+
+  // Inline delete button — sits in the Basic info section header's right slot.
+  const deleteAction = (
+    <button
+      type="button"
+      onClick={onDelete}
+      className="flex items-center justify-center"
+      style={{
+        background: "none",
+        border: "none",
+        cursor: "pointer",
+        color: "var(--status-error-main)",
+        padding: 4,
+      }}
+      aria-label="Remove pet"
+      title="Remove pet"
+    >
+      <Trash size={18} weight="light" />
+    </button>
+  );
+
   return (
-    <div className="pet-card relative">
-      {/* Top row: photo + name/breed */}
-      <div className="form-row">
-        <div className="form-col-sm">
-          <div className="input-block">
-            <label className="label">
-              <span className="label-primary-group">
-                <span>Pet Photo</span>
-              </span>
-            </label>
-            {pet.imageUrl && !pet.imageUrl.includes("placeholder") ? (
-              <img
-                src={pet.imageUrl}
-                alt={pet.name}
-                className="w-full rounded-form border border-edge-subtle"
-                style={{ aspectRatio: "1", objectFit: "cover" }}
-              />
-            ) : (
-              <button
-                className="pet-photo-upload"
-                type="button"
-                aria-label="Upload pet photo"
-              >
-                <ImageSquare size={56} weight="light" />
-                <span>Upload or drag here</span>
-              </button>
-            )}
-          </div>
-        </div>
-        <div className="form-col flex flex-col gap-md">
+    <div className="pet-card">
+      {/* ── Section 1: Basic info ─────────────────────────────────────── */}
+      <section className="pet-edit-section pet-edit-section--first">
+        <EditSectionHeader label="Basic info" rightSlot={deleteAction} />
+
+        {/* Name + Breed row */}
+        <div className="two-col">
           <InputField
             id={`pet-name-${pet.id}`}
             label="Dog's name"
@@ -111,123 +208,149 @@ export function PetEditCard({ pet, onChange, onDelete }: PetEditCardProps) {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Size + Age */}
-      <div className="two-col">
-        <div className="input-block">
-          <label className="label" htmlFor={`pet-size-${pet.id}`}>
-            <span className="label-primary-group">
-              <span>Size</span>
-            </span>
-          </label>
-          <select
-            id={`pet-size-${pet.id}`}
-            className="input select"
-            value={pet.weightLabel || ""}
-            onChange={(e) => onChange({ ...pet, weightLabel: e.target.value })}
-          >
-            <option value="">Select size</option>
-            {SIZE_OPTIONS.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </select>
-        </div>
-        <InputField
-          id={`pet-age-${pet.id}`}
-          label="Age"
-          value={pet.ageLabel}
-          onChange={(v) => onChange({ ...pet, ageLabel: v })}
-          placeholder="e.g. 4 years"
-        />
-      </div>
+        {/* Photo (left, 50%) + Size/Age/Energy stack (right, 50%) */}
+        <div className="two-col">
+          <div className="input-block">
+            <label className="label">
+              <span className="label-primary-group">
+                <span>Pet Photo</span>
+              </span>
+            </label>
+            <button
+              type="button"
+              className="pet-photo-edit-trigger"
+              aria-label={hasPhoto ? "Change pet photo" : "Upload pet photo"}
+            >
+              {hasPhoto ? (
+                <img src={pet.imageUrl} alt={pet.name} />
+              ) : (
+                <span className="pet-photo-edit-placeholder">
+                  <ImageSquare size={48} weight="light" />
+                  <span>Upload photo</span>
+                </span>
+              )}
+              <span className="pet-photo-edit-overlay" aria-hidden="true">
+                <PencilSimple size={14} weight="bold" />
+              </span>
+            </button>
+          </div>
 
-      {/* Energy level + Play style */}
-      <div className="two-col">
-        <div className="input-block">
-          <label className="label" htmlFor={`pet-energy-${pet.id}`}>
-            <span className="label-primary-group">
-              <Lightning size={14} weight="light" />
-              <span>Energy level</span>
-            </span>
-          </label>
-          <select
-            id={`pet-energy-${pet.id}`}
-            className="input select"
-            value={pet.energyLevel || ""}
-            onChange={(e) =>
-              onChange({ ...pet, energyLevel: (e.target.value || undefined) as EnergyLevel | undefined })
-            }
-          >
-            <option value="">Select level</option>
-            {ENERGY_OPTIONS.map((lvl) => (
-              <option key={lvl} value={lvl}>
-                {ENERGY_LABELS[lvl]}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div /> {/* spacer for alignment */}
-      </div>
-
-      {/* Play styles (multi-select pills) */}
-      <div className="input-block">
-        <label className="label">
-          <span className="label-primary-group">
-            <Dog size={14} weight="light" />
-            <span>Play style</span>
-          </span>
-        </label>
-        <div className="pill-group" style={{ flexWrap: "wrap" }}>
-          {ALL_PLAY_STYLES.map((ps) => {
-            const active = pet.playStyles?.includes(ps);
-            return (
-              <button
-                key={ps}
-                type="button"
-                className={`pill${active ? " active" : ""}`}
-                onClick={() => {
-                  const current = pet.playStyles ?? [];
-                  const next = active
-                    ? current.filter((s) => s !== ps)
-                    : [...current, ps];
-                  onChange({ ...pet, playStyles: next });
-                }}
+          <div className="flex flex-col gap-md">
+            <div className="input-block">
+              <label className="label" htmlFor={`pet-size-${pet.id}`}>
+                <span className="label-primary-group">
+                  <span>Size</span>
+                </span>
+              </label>
+              <select
+                id={`pet-size-${pet.id}`}
+                className="input select"
+                value={pet.weightLabel || ""}
+                onChange={(e) => onChange({ ...pet, weightLabel: e.target.value })}
               >
-                {PLAY_STYLE_LABELS[ps]}
-              </button>
-            );
-          })}
+                <option value="">Select size</option>
+                {SIZE_OPTIONS.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <InputField
+              id={`pet-age-${pet.id}`}
+              label="Age"
+              value={pet.ageLabel}
+              onChange={(v) => onChange({ ...pet, ageLabel: v })}
+              placeholder="e.g. 4 years"
+            />
+
+            <div className="input-block">
+              <label className="label" htmlFor={`pet-energy-${pet.id}`}>
+                <span className="label-primary-group">
+                  <span>Energy level</span>
+                </span>
+              </label>
+              <select
+                id={`pet-energy-${pet.id}`}
+                className="input select"
+                value={pet.energyLevel || ""}
+                onChange={(e) =>
+                  onChange({ ...pet, energyLevel: (e.target.value || undefined) as EnergyLevel | undefined })
+                }
+              >
+                <option value="">Select level</option>
+                {ENERGY_OPTIONS.map((lvl) => (
+                  <option key={lvl} value={lvl}>
+                    {ENERGY_LABELS[lvl]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {/* General notes */}
-      <div className="input-block">
-        <label className="label" htmlFor={`pet-notes-${pet.id}`}>
-          <span className="label-primary-group">
-            <span>General notes</span>
-          </span>
-        </label>
-        <textarea
-          id={`pet-notes-${pet.id}`}
-          className="textarea"
-          placeholder="Temperament, habits, or anything carers should know"
-          value={pet.notes || ""}
-          onChange={(e) => onChange({ ...pet, notes: e.target.value })}
-          style={{ minHeight: 60 }}
+      {/* ── Section 2: Personality ────────────────────────────────────── */}
+      <section className="pet-edit-section">
+        <EditSectionHeader
+          icon={<Dog size={16} weight="fill" />}
+          label="Personality"
         />
-      </div>
 
-      {/* Socialisation notes */}
-      <div className="input-block">
-        <label className="label" htmlFor={`pet-social-${pet.id}`}>
-          <span className="label-primary-group">
-            <Heart size={14} weight="light" />
-            <span>Socialisation notes</span>
-          </span>
-        </label>
+        <div className="input-block">
+          <label className="label">
+            <span className="label-primary-group">
+              <span>Play style</span>
+            </span>
+          </label>
+          <div className="pill-group" style={{ flexWrap: "wrap" }}>
+            {ALL_PLAY_STYLES.map((ps) => {
+              const active = pet.playStyles?.includes(ps);
+              return (
+                <button
+                  key={ps}
+                  type="button"
+                  className={`pill${active ? " active" : ""}`}
+                  onClick={() => {
+                    const current = pet.playStyles ?? [];
+                    const next = active
+                      ? current.filter((s) => s !== ps)
+                      : [...current, ps];
+                    onChange({ ...pet, playStyles: next });
+                  }}
+                >
+                  {PLAY_STYLE_LABELS[ps]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="input-block">
+          <label className="label" htmlFor={`pet-notes-${pet.id}`}>
+            <span className="label-primary-group">
+              <span>General notes</span>
+            </span>
+          </label>
+          <textarea
+            id={`pet-notes-${pet.id}`}
+            className="textarea"
+            placeholder="Temperament, habits, or anything carers should know"
+            value={pet.notes || ""}
+            onChange={(e) => onChange({ ...pet, notes: e.target.value })}
+            style={{ minHeight: 60 }}
+          />
+        </div>
+      </section>
+
+      {/* ── Section 3: Socialisation ──────────────────────────────────── */}
+      <section className="pet-edit-section">
+        <EditSectionHeader
+          icon={<Heart size={16} weight="fill" />}
+          label="Socialisation"
+        />
         <textarea
           id={`pet-social-${pet.id}`}
           className="textarea"
@@ -235,114 +358,87 @@ export function PetEditCard({ pet, onChange, onDelete }: PetEditCardProps) {
           value={pet.socialisationNotes || ""}
           onChange={(e) => onChange({ ...pet, socialisationNotes: e.target.value })}
           style={{ minHeight: 60 }}
+          aria-label="Socialisation notes"
         />
-      </div>
+      </section>
 
-      {/* Vet / Health section */}
-      <fieldset
-        className="pet-edit-health-fieldset rounded-form border border-edge-light p-sm"
-        style={{ margin: 0 }}
-      >
-        <legend
-          className="flex items-center gap-xs text-sm font-medium text-fg-primary px-xs"
-        >
-          <Stethoscope size={14} weight="light" />
-          Health & vet info
-        </legend>
+      {/* ── Section 4: Health & vet (collapsible) ─────────────────────── */}
+      <section className="pet-edit-section">
+        <EditSectionHeader
+          icon={<FirstAidKit size={16} weight="fill" />}
+          label="Health & vet info"
+          onClick={() => setVetOpen((v) => !v)}
+          expanded={vetOpen}
+        />
 
-        <div className="two-col" style={{ marginTop: 8 }}>
-          <InputField
-            id={`pet-vet-clinic-${pet.id}`}
-            label="Vet clinic"
-            value={vetInfo.clinicName || ""}
-            onChange={(v) => updateVet({ clinicName: v })}
-            placeholder="e.g. VetClinic Praha 2"
-          />
-          <InputField
-            id={`pet-vet-phone-${pet.id}`}
-            label="Vet phone"
-            value={vetInfo.vetPhone || ""}
-            onChange={(v) => updateVet({ vetPhone: v })}
-            placeholder="+420 ..."
-          />
-        </div>
+        {vetOpen && (
+          <div className="flex flex-col gap-lg">
+            <div className="two-col">
+              <InputField
+                id={`pet-vet-clinic-${pet.id}`}
+                label="Vet clinic"
+                value={vetInfo.clinicName || ""}
+                onChange={(v) => updateVet({ clinicName: v })}
+                placeholder="e.g. Veterina Vinohrady"
+              />
+              <InputField
+                id={`pet-vet-phone-${pet.id}`}
+                label="Vet phone"
+                value={vetInfo.vetPhone || ""}
+                onChange={(v) => updateVet({ vetPhone: v })}
+                placeholder="+420 ..."
+              />
+            </div>
 
-        <div className="two-col">
-          <InputField
-            id={`pet-vet-checkup-${pet.id}`}
-            label="Last checkup"
-            value={vetInfo.lastCheckup || ""}
-            onChange={(v) => updateVet({ lastCheckup: v })}
-            placeholder="YYYY-MM-DD"
-          />
-          <div /> {/* spacer */}
-        </div>
+            <div className="pet-edit-checkbox-row">
+              <CheckboxRow
+                id={`pet-vax-${pet.id}`}
+                label="Vaccinations up to date"
+                checked={vetInfo.vaccinationsUpToDate}
+                onChange={(v) => updateVet({ vaccinationsUpToDate: v })}
+              />
+              <CheckboxRow
+                id={`pet-spay-${pet.id}`}
+                label="Spayed / neutered"
+                checked={vetInfo.spayedNeutered}
+                onChange={(v) => updateVet({ spayedNeutered: v })}
+              />
+            </div>
 
-        <div className="flex flex-col gap-xs" style={{ marginTop: 4 }}>
-          <CheckboxRow
-            id={`pet-vax-${pet.id}`}
-            label="Vaccinations up to date"
-            checked={vetInfo.vaccinationsUpToDate}
-            onChange={(v) => updateVet({ vaccinationsUpToDate: v })}
-          />
-          <CheckboxRow
-            id={`pet-spay-${pet.id}`}
-            label="Spayed / neutered"
-            checked={vetInfo.spayedNeutered}
-            onChange={(v) => updateVet({ spayedNeutered: v })}
-          />
-        </div>
+            <div className="input-block">
+              <label className="label" htmlFor={`pet-meds-${pet.id}`}>
+                <span className="label-primary-group">
+                  <span>Medications</span>
+                </span>
+              </label>
+              <textarea
+                id={`pet-meds-${pet.id}`}
+                className="textarea"
+                placeholder="Current medications (if any)"
+                value={vetInfo.medications || ""}
+                onChange={(e) => updateVet({ medications: e.target.value })}
+                style={{ minHeight: 48 }}
+              />
+            </div>
 
-        <div className="input-block" style={{ marginTop: 8 }}>
-          <label className="label" htmlFor={`pet-meds-${pet.id}`}>
-            <span className="label-primary-group">
-              <span>Medications</span>
-            </span>
-          </label>
-          <textarea
-            id={`pet-meds-${pet.id}`}
-            className="textarea"
-            placeholder="Current medications (if any)"
-            value={vetInfo.medications || ""}
-            onChange={(e) => updateVet({ medications: e.target.value })}
-            style={{ minHeight: 48 }}
-          />
-        </div>
-
-        <div className="input-block" style={{ marginTop: 8 }}>
-          <label className="label" htmlFor={`pet-conditions-${pet.id}`}>
-            <span className="label-primary-group">
-              <span>Known conditions</span>
-            </span>
-          </label>
-          <textarea
-            id={`pet-conditions-${pet.id}`}
-            className="textarea"
-            placeholder="Allergies, conditions, or special care needs"
-            value={vetInfo.conditions || ""}
-            onChange={(e) => updateVet({ conditions: e.target.value })}
-            style={{ minHeight: 48 }}
-          />
-        </div>
-      </fieldset>
-
-      {/* Delete button */}
-      <button
-        onClick={onDelete}
-        className="flex items-center justify-center absolute"
-        style={{
-          top: 12,
-          right: 12,
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          color: "var(--status-error-main)",
-          padding: 4,
-        }}
-        title="Remove pet"
-      >
-        <Trash size={18} weight="light" />
-      </button>
+            <div className="input-block">
+              <label className="label" htmlFor={`pet-conditions-${pet.id}`}>
+                <span className="label-primary-group">
+                  <span>Known conditions</span>
+                </span>
+              </label>
+              <textarea
+                id={`pet-conditions-${pet.id}`}
+                className="textarea"
+                placeholder="Allergies, conditions, or special care needs"
+                value={vetInfo.conditions || ""}
+                onChange={(e) => updateVet({ conditions: e.target.value })}
+                style={{ minHeight: 48 }}
+              />
+            </div>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

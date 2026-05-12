@@ -384,11 +384,13 @@ function MeetDetailInner() {
 
   // Right action changes per tab. Guests don't get a Share affordance in the
   // header — every share path requires an authenticated identity.
+  // Header-action convention (2026-05-11, Cross-Cutting Flow Testing):
+  // outline + sm + leftIcon + text, no `cta` (rectangular). See
+  // `design-system.md` → "Header actions."
   const headerAction = activeTab === "details" && !isGuest ? (
     <ButtonAction
       variant="outline"
       size="sm"
-      cta
       leftIcon={<ShareNetwork size={14} weight="bold" />}
       onClick={handleShareClick}
     >

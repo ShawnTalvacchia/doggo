@@ -224,7 +224,13 @@ const klaraTrainingDaniel: Booking = {
   serviceType: "day_care", // using day_care as proxy for training
   subService: "Reactive dog session",
   pets: ["Bára"],
-  startDate: "2026-02-10",
+  // startDate + signedAt relativised (CCFT walkthrough 2026-05-11) — the
+  // "Since" stat on the booking detail Info tab was reading "10 Feb 2026"
+  // (static) while the session timeline (kd-1 through kd-5) was relative
+  // to today, so the booking appeared to start 3+ months before its first
+  // session. Anchor: signed 2 days before the first session, started the
+  // day after signing → coherent arc from sign → start → kd-1 (35d ago).
+  startDate: daysAgo(36),
   endDate: null,
   recurringSchedule: {
     days: ["Wed"],
@@ -267,7 +273,7 @@ const klaraTrainingDaniel: Booking = {
     billingCycle: "weekly",
   },
   status: "active",
-  signedAt: "2026-02-08T14:00:00Z",
+  signedAt: daysAgoIso(38, "14:00"),
   paymentStatus: "paid",
 };
 

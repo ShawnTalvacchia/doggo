@@ -15,13 +15,16 @@ import {
   CopySimple,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { PetCard } from "./PetCard";
 import { PetEditCard } from "./PetEditCard";
 import { TagApprovalSetting } from "./TagApprovalSetting";
 import { ProfileNameDropdown } from "./ProfileNameDropdown";
+import { ProfileVisibilityChip } from "./ProfileVisibilityChip";
+import { ProfileVisibilitySetting } from "./ProfileVisibilitySetting";
 import { getCarerIdentity } from "@/lib/identityBadges";
 import { getConnectionsForViewer, CONNECTION_STATE_LABELS } from "@/lib/mockConnections";
-import type { PetProfile, UserProfile, TagApproval } from "@/lib/types";
+import type { PetProfile, UserProfile, TagApproval, ProfileVisibility } from "@/lib/types";
 
 // ── Helpers (used by ProfileHero below) ──────────────────────────────────────
 
@@ -103,6 +106,14 @@ function ProfileHero({ user }: { user: UserProfile }) {
                 {carerBadge.label}
               </span>
             )}
+            {/* Profile visibility chip — self-view only, mirrors the
+                GroupVisibilityChip pattern so the privacy-disclosure
+                language stays consistent across the app. Defaults to
+                Locked when `profileVisibility` is undefined (the spec
+                default). Cross-Cutting Flow Testing 2026-05-11. */}
+            <ProfileVisibilityChip
+              visibility={user.profileVisibility ?? "locked"}
+            />
           </div>
           {user.location && (
             <span className="flex items-center gap-xs text-sm text-fg-secondary">
@@ -131,7 +142,79 @@ function ProfileHero({ user }: { user: UserProfile }) {
 
 // ── Connections list (internal) ──────────────────────────────────────────────
 
+// Cap per group on the compact (in-tab) view. Anything beyond rolls
+// into the "Show all" ModalSheet. 2026-05-11.
+const CONNECTION_GROUP_CAP = 5;
+
+function ConnectionRow({
+  conn,
+}: {
+  conn: ReturnType<typeof getConnectionsForViewer>[number];
+}) {
+  return (
+    <div className="flex items-center gap-md rounded-panel bg-surface-top p-sm">
+      <img
+        src={conn.avatarUrl}
+        alt={conn.userName}
+        className="rounded-full shrink-0"
+        style={{ width: 36, height: 36, objectFit: "cover" }}
+      />
+      <div className="flex flex-col flex-1 min-w-0">
+        <span className="text-sm font-medium text-fg-primary">
+          {conn.userName}
+        </span>
+        <span className="text-xs text-fg-tertiary">
+          {conn.dogNames.join(", ")} · {conn.location}
+        </span>
+      </div>
+      <span
+        className="text-xs font-medium rounded-pill px-sm py-xs"
+        style={{
+          background:
+            conn.state === "connected"
+              ? "var(--brand-subtle)"
+              : "var(--surface-gray)",
+          color:
+            conn.state === "connected"
+              ? "var(--brand-strong)"
+              : "var(--text-secondary)",
+        }}
+      >
+        {CONNECTION_STATE_LABELS[conn.state]}
+      </span>
+    </div>
+  );
+}
+
+function ConnectionGroup({
+  label,
+  items,
+  cap,
+}: {
+  label: string;
+  items: ReturnType<typeof getConnectionsForViewer>;
+  /** Render at most this many rows; pass `undefined` for unlimited. */
+  cap?: number;
+}) {
+  const shown = cap !== undefined ? items.slice(0, cap) : items;
+  return (
+    <div className="flex flex-col gap-xs">
+      <span
+        className="text-xs font-medium text-fg-tertiary uppercase"
+        style={{ letterSpacing: "0.05em" }}
+      >
+        {label} ({items.length})
+      </span>
+      {shown.map((conn) => (
+        <ConnectionRow key={conn.id} conn={conn} />
+      ))}
+    </div>
+  );
+}
+
 function ConnectionsList({ viewerId }: { viewerId: string }) {
+  const [showAll, setShowAll] = useState(false);
+
   const myConnections = getConnectionsForViewer(viewerId);
   const connected = myConnections.filter((c) => c.state === "connected");
   const familiar = myConnections.filter((c) => c.state === "familiar");
@@ -139,11 +222,11 @@ function ConnectionsList({ viewerId }: { viewerId: string }) {
 
   if (connected.length === 0 && familiar.length === 0 && pending.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-sm p-lg text-center">
-        <p className="text-sm text-fg-secondary">
+      <div className="flex flex-col items-start gap-sm">
+        <p className="text-sm text-fg-secondary m-0">
           No connections yet. Attend a meet to start building your community.
         </p>
-        <ButtonAction variant="primary" size="sm" cta href="/discover/meets">
+        <ButtonAction variant="outline" size="sm" href="/discover/meets">
           Browse Meets
         </ButtonAction>
       </div>
@@ -156,55 +239,55 @@ function ConnectionsList({ viewerId }: { viewerId: string }) {
     { label: "Pending", items: pending },
   ].filter((g) => g.items.length > 0);
 
+  const total = connected.length + familiar.length + pending.length;
+  // Show "All" footer when at least one group is truncated by the cap.
+  const hasOverflow = groups.some((g) => g.items.length > CONNECTION_GROUP_CAP);
+
   return (
-    <div className="flex flex-col gap-md">
-      {groups.map((group) => (
-        <div key={group.label} className="flex flex-col gap-xs">
-          <span
-            className="text-xs font-medium text-fg-tertiary uppercase"
-            style={{ letterSpacing: "0.05em" }}
+    <>
+      <div className="flex flex-col gap-md">
+        {groups.map((group) => (
+          <ConnectionGroup
+            key={group.label}
+            label={group.label}
+            items={group.items}
+            cap={CONNECTION_GROUP_CAP}
+          />
+        ))}
+        {hasOverflow && (
+          <button
+            type="button"
+            onClick={() => setShowAll(true)}
+            className="flex items-center justify-center gap-xs rounded-panel text-sm font-medium"
+            style={{
+              padding: "var(--space-sm) var(--space-md)",
+              background: "var(--surface-top)",
+              border: "1px solid var(--border-regular)",
+              color: "var(--text-primary)",
+              cursor: "pointer",
+            }}
           >
-            {group.label} ({group.items.length})
-          </span>
-          {group.items.map((conn) => (
-            <div
-              key={conn.id}
-              className="flex items-center gap-md rounded-panel bg-surface-top p-sm"
-            >
-              <img
-                src={conn.avatarUrl}
-                alt={conn.userName}
-                className="rounded-full shrink-0"
-                style={{ width: 36, height: 36, objectFit: "cover" }}
-              />
-              <div className="flex flex-col flex-1">
-                <span className="text-sm font-medium text-fg-primary">
-                  {conn.userName}
-                </span>
-                <span className="text-xs text-fg-tertiary">
-                  {conn.dogNames.join(", ")} · {conn.location}
-                </span>
-              </div>
-              <span
-                className="text-xs font-medium rounded-pill px-sm py-xs"
-                style={{
-                  background:
-                    conn.state === "connected"
-                      ? "var(--brand-subtle)"
-                      : "var(--surface-gray)",
-                  color:
-                    conn.state === "connected"
-                      ? "var(--brand-strong)"
-                      : "var(--text-secondary)",
-                }}
-              >
-                {CONNECTION_STATE_LABELS[conn.state]}
-              </span>
-            </div>
+            Show all ({total}) →
+          </button>
+        )}
+      </div>
+
+      <ModalSheet
+        open={showAll}
+        onClose={() => setShowAll(false)}
+        title={`Connections · ${total}`}
+      >
+        <div className="flex flex-col gap-md" style={{ padding: "var(--space-md)" }}>
+          {groups.map((group) => (
+            <ConnectionGroup
+              key={group.label}
+              label={group.label}
+              items={group.items}
+            />
           ))}
         </div>
-      ))}
-    </div>
+      </ModalSheet>
+    </>
   );
 }
 
@@ -217,6 +300,11 @@ interface ProfileAboutTabProps {
   onEditChange: (updates: Partial<{ bio: string; pets: PetProfile[] }>) => void;
   tagApproval: TagApproval;
   onTagApprovalChange: (value: TagApproval) => void;
+  /** Current profile visibility setting. Drives both the hero chip
+   *  (read-only signal) and the Privacy section's selected option
+   *  (the editable control). 2026-05-11 CCFT. */
+  profileVisibility: ProfileVisibility;
+  onProfileVisibilityChange: (value: ProfileVisibility) => void;
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -228,6 +316,8 @@ export function ProfileAboutTab({
   onEditChange,
   tagApproval,
   onTagApprovalChange,
+  profileVisibility,
+  onProfileVisibilityChange,
 }: ProfileAboutTabProps) {
   return (
     <div className="profile-tab-stack" style={{ padding: "var(--space-lg)" }}>
@@ -314,25 +404,82 @@ export function ProfileAboutTab({
         )}
       </section>
 
-      {/* Connections */}
+      {/* Privacy + Tagging surface ABOVE the Connections list so settings
+          don't sit below a scroll-heavy roster (Cross-Cutting Flow Testing
+          tactical reorder, 2026-05-11). The deeper question — does the
+          Connections list belong on the About tab at all? — is filed as
+          Profiles Deep Pass E4 and decided there. */}
+
+      {/* Profile visibility — view mode shows a compact summary card;
+          edit mode reveals the full picker with descriptive helper text.
+          Walked back from always-editable 2026-05-11 (C-extension) so
+          the About tab feels compact in view mode and full options only
+          appear when the user enters edit. Companion read-only signal
+          lives on the hero (ProfileVisibilityChip). */}
+      <section>
+        <h3 className="profile-card-subtitle">Profile visibility</h3>
+        {editing && (
+          <p
+            className="text-xs text-fg-tertiary"
+            style={{
+              marginTop: "-8px",
+              marginBottom: "var(--space-lg)",
+            }}
+          >
+            Control who can see your full profile, posts, and dogs
+          </p>
+        )}
+        <ProfileVisibilitySetting
+          value={profileVisibility}
+          onChange={onProfileVisibilityChange}
+          editing={editing}
+        />
+      </section>
+
+      {/* Tagging preferences — same view/edit split as Profile visibility. */}
+      <section>
+        <h3 className="profile-card-subtitle">Tagging preferences</h3>
+        {editing && (
+          <p
+            className="text-xs text-fg-tertiary"
+            style={{
+              marginTop: "-8px",
+              marginBottom: "var(--space-lg)",
+            }}
+          >
+            Control how others can tag you and your dogs in posts
+          </p>
+        )}
+        <TagApprovalSetting
+          value={tagApproval}
+          onChange={onTagApprovalChange}
+          editing={editing}
+        />
+      </section>
+
+      {/* Connections — with Familiar explainer nested inside as a contextual
+          aside (no top divider above the inset card; it reads as part of
+          the Connections block, not a peer-level section). Walkthrough
+          fix 2026-05-11: the standalone section produced an unwanted
+          divider via `.profile-tab-stack > * + *`. */}
       <section>
         <h3 className="profile-card-subtitle">Connections</h3>
         <ConnectionsList viewerId={user.id} />
-      </section>
 
-      {/* Familiar asymmetry explainer — persistent, low-key card on the
-          own-profile About tab. Teaches the most-misunderstood mechanic in
-          the trust model: marking Familiar opens YOUR profile to them, not
-          the other way around. Deniability-safe (only the actor sees this
-          on their own profile). Onboarding & In-Product Communication
-          phase, 2026-05-04. See [[Trust & Connection Model]] →
-          "Connection States" → Familiar. */}
-      <section className="profile-info-card">
+        {/* Familiar asymmetry explainer — persistent, low-key card teaching
+            the most-misunderstood mechanic in the trust model: marking
+            Familiar opens YOUR profile to them, not the other way around.
+            Deniability-safe (only the actor sees this on their own
+            profile). Onboarding & In-Product Communication phase,
+            2026-05-04. Nested inside Connections 2026-05-11 so it reads
+            as an aside, not a top-level section. See
+            [[Trust & Connection Model]] → "Connection States" → Familiar. */}
         <div
           className="flex flex-col gap-sm rounded-panel"
           style={{
             background: "var(--surface-inset)",
             padding: "var(--space-lg)",
+            marginTop: "var(--space-md)",
           }}
         >
           <div className="flex items-center gap-sm">
@@ -367,46 +514,51 @@ export function ProfileAboutTab({
         </div>
       </section>
 
-      {/* Tagging preferences */}
-      <section>
-        <h3 className="profile-card-subtitle">Tagging preferences</h3>
-        <p
-          className="text-xs text-fg-tertiary"
-          style={{ marginBottom: "var(--space-sm)" }}
-        >
-          Control how others can tag you and your dogs in posts
-        </p>
-        <TagApprovalSetting value={tagApproval} onChange={onTagApprovalChange} />
-      </section>
-
-      {/* Care CTAs */}
+      {/* Care CTAs — short row of paired actions. Description line under the
+          header anchors the section purpose; buttons share the outline
+          variant so they read as parallel choices, not primary-vs-link.
+          Each button takes `flex-1` so the pair splits the row evenly;
+          flex-wrap drops them to full-width on narrow viewports.
+          Reframed 2026-05-11 (CCFT walkthrough). */}
       <section>
         <h3 className="profile-card-subtitle">Care</h3>
-        <div className="flex flex-col gap-sm">
+        <p
+          className="text-xs text-fg-tertiary"
+          style={{
+            marginTop: "-8px",
+            marginBottom: "var(--space-lg)",
+          }}
+        >
+          Find care for your dog from people you know, or set up your own.
+        </p>
+        <div className="flex flex-wrap gap-sm">
           <ButtonAction
-            variant="outline"
-            size="sm"
+            variant="secondary"
+            size="md"
             href="/discover?tab=care"
-            leftIcon={<MagnifyingGlass size={14} weight="light" />}
+            leftIcon={<MagnifyingGlass size={16} weight="light" />}
+            className="flex-1"
           >
-            Find care from your network
+            Find care
           </ButtonAction>
           {!user.openToHelping && (
             <ButtonAction
-              variant="tertiary"
-              size="sm"
+              variant="outline"
+              size="md"
               href="/profile?tab=services"
-              leftIcon={<Sparkle size={14} weight="light" />}
+              leftIcon={<Sparkle size={16} weight="light" />}
+              className="flex-1"
             >
-              Want to help your neighbours? Set up care services
+              Offer care
             </ButtonAction>
           )}
           {user.openToHelping && (
             <ButtonAction
-              variant="tertiary"
-              size="sm"
+              variant="outline"
+              size="md"
               href="/profile?tab=services"
-              leftIcon={<CaretRight size={14} weight="light" />}
+              leftIcon={<CaretRight size={16} weight="light" />}
+              className="flex-1"
             >
               Manage your services
             </ButtonAction>

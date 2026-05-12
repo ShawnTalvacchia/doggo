@@ -2427,9 +2427,15 @@ export function getUserMeets(userId: string): Meet[] {
  *
  * For one-off meets, "past" means `meet.status === "completed"`. For
  * recurring meets, "past" means the occurrence date is < today (local).
- * Mirror semantics with `meetUtils.viewerCanAct` — if either user `can act`
- * via attendance, we still need a *shared* attendance to gate the other
- * direction.
+ *
+ * **Diverges from `meetUtils.viewerCanAct`** (Cross-Cutting Flow Testing,
+ * 2026-05-11). `viewerCanAct` was widened during P32 to include
+ * future-RSVP / following / hosting viewers (meet RSVP = action context).
+ * This helper keeps the narrower past-shared-attendance semantics because
+ * its consumer is the locked-profile shared-context gate — unlocking a
+ * Locked profile via a *future* RSVP both parties happened to make on a
+ * public meet would be too loose. Past shared attendance is real evidence
+ * of having met in person.
  *
  * Returns false when viewer === subject — a user can't share an attendance
  * with themselves in a way that unlocks anything.

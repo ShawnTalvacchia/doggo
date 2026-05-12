@@ -83,9 +83,13 @@ Verification → walkthrough Workstream C. Older static feed-post dates (deeper 
 
 Discovery sweep checklist lives in walkthrough Workstream B. The intent is to catch dead-ends, broken cards, or persona-specific oddities not covered by the pre-loaded scope. New findings get appended to the walkthrough's *Decisions surfaced* section.
 
-### D — People tab disclosure model (P32) — **not started**
+### D — People tab disclosure model (P32) — **shipped 2026-05-11**
 
-Biggest design item on the board. Separates **information** (open) from **action** (gated by attendance). Touches `components/meets/ParticipantList.tsx`, `app/meets/[id]/page.tsx` PeopleTab, plus probably an `actions: false` prop on `PersonRow`. Wait for user signal before opening — the walkthrough placeholder lives in Workstream D.
+Resolved during cross-persona walkthrough: tested Tomáš viewing his own upcoming `meet-19` (creator of a meet he's hosting) and the row stack was half-empty with no actions. The original past-attendance gate framed actions as the "earned reward for showing up." Walking it surfaced the inconsistency: the Group Members tab already grants actions on group co-membership, and a meet RSVP is the meet analog of group co-membership — opting into a specific gathering of people. The half-gate produced odd behaviour without preserving anything meaningful.
+
+**Resolution.** Information stays open across all viewers. Action is gated by *meet-level engagement* (not past attendance): viewers who are the creator, have any RSVP on any occurrence (past or future, going or interested), or follow the series get Familiar / Connect / Message inline. Random Discover viewers with no commitment still see info-only rows. Single code change: `viewerCanAct(meet, viewerId)` in `lib/meetUtils.ts` was widened from past-attendance-only to creator OR any-RSVP OR series-follower. `viewerSharedMeetWith` (the locked-profile shared-context gate) keeps narrower past-shared-attendance semantics — different surface, different stake.
+
+Docs updated: Trust & Connection Model → "Meet participant visibility rules"; features/meets.md → People tab; Content Visibility Model § People-tab disclosure; Open Questions log § P32 marked resolved.
 
 ---
 
@@ -94,5 +98,5 @@ Biggest design item on the board. Separates **information** (open) from **action
 - [x] D1–D4 edge cases seeded on each persona's canonical upcoming meet (data-only).
 - [x] Mock-date staleness sweep (P20) — FeedCard relative-time bug fixed; post-klara migrated to relative.
 - [ ] Cross-persona walkthrough completed by user; emergent issues either resolved inline or filed to punch list.
-- [ ] People tab disclosure model (P32) shipped or explicitly deferred with a written rationale.
+- [x] People tab disclosure model (P32) shipped — `viewerCanAct` widened to meet-level engagement (creator / any RSVP / series follower); info-vs-action separation preserved.
 - [ ] Typecheck clean (only the two pre-existing errors remain: `ButtonAction "ghost"` variant + duplicate photos key in `app/bookings/[bookingId]/page.tsx`).

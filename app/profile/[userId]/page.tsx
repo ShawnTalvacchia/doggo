@@ -25,6 +25,7 @@ import { Spacer } from "@/components/layout/Spacer";
 import { ConnectionIcon } from "@/components/ui/ConnectionIcon";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import { TrustSignalBadges } from "@/components/profile/TrustSignalBadges";
+import { SharedContextCard } from "@/components/profile/SharedContextCard";
 import { TrustBadgeStrip } from "@/components/badges/TrustBadgeStrip";
 import { getTrustBadges, userProfileToTrustSubject } from "@/lib/trustBadges";
 import { getCarerIdentity } from "@/lib/identityBadges";
@@ -34,7 +35,8 @@ import { ProfileChatTab } from "@/components/profile/ProfileChatTab";
 import { AvailabilityGrid } from "@/components/profile/AvailabilityGrid";
 import { InquiryFormModal } from "@/components/messaging/InquiryFormModal";
 import type { ServiceType } from "@/lib/types";
-import { getCommunityCarers } from "@/lib/mockConnections";
+import { getCommunityCarers, getMutualConnectedUserIds } from "@/lib/mockConnections";
+import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { viewerSharedMeetWith } from "@/lib/mockMeets";
 import { viewerSharedGroupWith, getSharedGroupNames } from "@/lib/mockGroups";
 import { useConnections } from "@/contexts/ConnectionsContext";
@@ -44,8 +46,132 @@ import { resolvePersonActions } from "@/lib/personActions";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { providers } from "@/lib/mockData";
-import { getUserOrProvider } from "@/lib/mockUsers";
+import { getUserOrProvider, getUserById } from "@/lib/mockUsers";
 import { SERVICE_LABELS } from "@/lib/constants/services";
+
+/* ── Mutual connections section (other-user profiles) ──────────────────────
+ *
+ * Surfaces Connected mutuals between the viewer and the subject. Compact
+ * row in the About tab body (avatar stack of up to 5 + count + tap-target)
+ * that opens a ModalSheet with the full list. Renders nothing when there
+ * are zero mutuals.
+ *
+ * **Privacy:** Connected-only. Familiar marks are excluded — surfacing them
+ * would break the deniability principle. See [[Trust & Connection Model]]
+ * → Familiar privacy. 2026-05-11.
+ */
+function MutualConnectionsSection({
+  viewerId,
+  subjectId,
+}: {
+  viewerId: string;
+  subjectId: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const mutualIds = getMutualConnectedUserIds(viewerId, subjectId);
+  if (mutualIds.length === 0) return null;
+
+  const users = mutualIds
+    .map((id) => getUserById(id))
+    .filter((u): u is NonNullable<ReturnType<typeof getUserById>> => Boolean(u));
+  const previewCount = 5;
+  const preview = users.slice(0, previewCount);
+  const overflow = Math.max(0, users.length - previewCount);
+
+  return (
+    <>
+      <section>
+        <h3 className="profile-card-subtitle">Mutual connections</h3>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="flex items-center gap-md w-full text-left rounded-panel"
+          style={{
+            background: "var(--surface-top)",
+            border: "1px solid var(--border-regular)",
+            padding: "var(--space-md)",
+            cursor: "pointer",
+          }}
+        >
+          <div className="flex items-center shrink-0">
+            {preview.map((u, i) => (
+              <img
+                key={u.id}
+                src={u.avatarUrl}
+                alt={`${u.firstName} ${u.lastName}`}
+                className="rounded-full border-2 border-surface-top object-cover"
+                style={{
+                  width: 32,
+                  height: 32,
+                  marginLeft: i > 0 ? -8 : 0,
+                }}
+              />
+            ))}
+            {overflow > 0 && (
+              <span
+                className="flex items-center justify-center rounded-full text-xs font-medium"
+                style={{
+                  width: 32,
+                  height: 32,
+                  marginLeft: -8,
+                  background: "var(--surface-gray)",
+                  color: "var(--text-secondary)",
+                  border: "2px solid var(--surface-top)",
+                }}
+              >
+                +{overflow}
+              </span>
+            )}
+          </div>
+          <span className="text-sm text-fg-primary flex-1">
+            {users.length === 1
+              ? "1 mutual connection"
+              : `${users.length} mutual connections`}
+          </span>
+          <span className="text-xs text-fg-tertiary">View →</span>
+        </button>
+      </section>
+
+      <ModalSheet
+        open={open}
+        onClose={() => setOpen(false)}
+        title={`You both know · ${users.length}`}
+      >
+        <div className="flex flex-col gap-sm" style={{ padding: "var(--space-md)" }}>
+          {users.map((u) => (
+            <Link
+              key={u.id}
+              href={`/profile/${u.id}`}
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-md rounded-panel"
+              style={{
+                background: "var(--surface-top)",
+                border: "1px solid var(--border-regular)",
+                padding: "var(--space-sm) var(--space-md)",
+                textDecoration: "none",
+              }}
+            >
+              <img
+                src={u.avatarUrl}
+                alt={`${u.firstName} ${u.lastName}`}
+                className="rounded-full object-cover shrink-0"
+                style={{ width: 40, height: 40 }}
+              />
+              <div className="flex flex-col flex-1 min-w-0">
+                <span className="text-sm font-medium text-fg-primary">
+                  {u.firstName} {u.lastName}
+                </span>
+                <span className="text-xs text-fg-tertiary">
+                  {u.location}
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </ModalSheet>
+    </>
+  );
+}
 
 /* ── Page ── */
 
@@ -250,93 +376,118 @@ function UserProfileInner() {
           const isMarked = connection?.state === "familiar";
           return (
             <div
-              className="flex flex-col items-center"
+              className="flex flex-col"
               style={{
-                padding: "var(--space-jumbo-1) var(--space-lg) var(--space-xxxl)",
+                padding: "var(--space-lg)",
                 gap: "var(--space-xxl)",
               }}
             >
-              {avatarUrl ? (
-                <img
-                  src={avatarUrl}
-                  alt={firstName}
-                  className="rounded-full object-cover"
-                  style={{ width: 96, height: 96, filter: "brightness(0.6) blur(1px)" }}
-                />
-              ) : (
-                <DefaultAvatar name={firstName} size={96} />
-              )}
-              <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">{firstName}</h1>
+              {/* Hero — mirrors the unlocked-profile hero shape exactly so
+                  locked vs unlocked feel like the same surface in different
+                  states. Same wrapper (`gap-md` + paddingBottom), same
+                  identity row (`flex-col sm:flex-row gap-lg sm:items-center`),
+                  same 200px avatar + 12px padding wrapper, same right-column
+                  rhythm (`gap-xs` for stacked meta, action wrapped with
+                  `marginTop: var(--space-md)` for breathing room).
+                  Aligned 2026-05-11 (CCFT walkthrough). */}
+              <div className="flex flex-col gap-md" style={{ paddingBottom: "var(--space-md)" }}>
+                <div className="flex flex-col sm:flex-row gap-lg sm:items-center">
+                  {/* Avatar wrapper — same 12px breathing room as unlocked;
+                      locked-treatment filter (slight darken + tiny blur) is
+                      the only difference. */}
+                  <div className="self-center sm:self-auto shrink-0" style={{ padding: 12 }}>
+                    {avatarUrl ? (
+                      <img
+                        src={avatarUrl}
+                        alt={firstName}
+                        className="rounded-full object-cover"
+                        style={{ width: 200, height: 200, filter: "brightness(0.6) blur(1px)" }}
+                      />
+                    ) : (
+                      <DefaultAvatar name={firstName} size={200} />
+                    )}
+                  </div>
+                  <div className="w-full sm:flex-1 flex flex-col gap-xs min-w-0 items-center sm:items-start text-center sm:text-left">
+                    <div className="flex items-center gap-sm flex-wrap justify-center sm:justify-start">
+                      <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">
+                        {firstName}
+                      </h1>
+                    </div>
 
-              {/* Familiar action surface — placed ABOVE the lock card so the
-                  call-to-action reads first and the privacy state reads as
-                  context. Pre-tap copy invites recognition; post-tap copy
-                  explains the asymmetric grant ("they can see more of YOU").
-                  Both copy variants are intentionally short and scoped to
-                  the action's effect — the deeper explainer is the
-                  "Learn how privacy works" link below the lock card.
-                  Mock World Building 2026-04-30. */}
-              {hasSharedContext && (
-                <div className="flex flex-col items-center gap-sm">
-                  <p
-                    className="text-sm text-fg-secondary m-0 text-center"
-                    style={{ maxWidth: 360 }}
-                  >
-                    {isMarked
-                      ? `${firstName} can now see your profile and tags from shared contexts.`
-                      : `Have you met ${firstName}? Mark them familiar to let them see your profile.`}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (isGuest) {
-                        requireAuth(`recognise ${firstName}`);
-                        return;
-                      }
-                      isMarked
-                        ? unmarkFamiliar(currentUserId, userId)
-                        : markFamiliar(currentUserId, userId);
-                    }}
-                    className={`private-profile-row-pill${isMarked ? " is-marked" : ""}`}
-                    aria-pressed={isMarked}
-                    aria-label={
-                      isMarked ? `Remove Familiar from ${firstName}` : `Mark ${firstName} as Familiar`
-                    }
-                  >
-                    {isMarked ? "Familiar ✓" : "+ Familiar"}
-                  </button>
+                    {/* Familiar action — outline pill (original aesthetic),
+                        bumped to the `--lg` variant for hero presence. The
+                        `marginTop: var(--space-md)` mirrors how the unlocked
+                        action row sits set apart from the meta lines above. */}
+                    {hasSharedContext && (
+                      <div
+                        className="flex flex-col gap-sm items-center sm:items-start w-full"
+                        style={{ marginTop: "var(--space-md)" }}
+                      >
+                        <p className="text-sm text-fg-secondary m-0">
+                          {isMarked
+                            ? `${firstName} can now see your profile and tags from shared contexts.`
+                            : `Have you met ${firstName}? Mark them familiar to let them see your profile.`}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (isGuest) {
+                              requireAuth(`recognise ${firstName}`);
+                              return;
+                            }
+                            isMarked
+                              ? unmarkFamiliar(currentUserId, userId)
+                              : markFamiliar(currentUserId, userId);
+                          }}
+                          className={`private-profile-row-pill private-profile-row-pill--lg${isMarked ? " is-marked" : ""}`}
+                          aria-pressed={isMarked}
+                          aria-label={
+                            isMarked ? `Remove Familiar from ${firstName}` : `Mark ${firstName} as Familiar`
+                          }
+                        >
+                          {isMarked ? "Familiar ✓" : "+ Familiar"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
+              </div>
 
+              {/* Shared context — warmth signal, full-width below the hero.
+                  Lists every shared group (not just the first). Card chrome
+                  is now no-fill + border so it reads lighter than the lock
+                  card below (which keeps its muted inset fill — the
+                  hierarchy is "warmth = clean, gate = muted"). Future-
+                  state: shared past meets when `getSharedMeetsBetween`
+                  lands (P66). */}
+              <SharedContextCard
+                firstName={firstName}
+                sharedGroupNames={sharedGroupNames}
+              />
+
+              {/* Lock card — full-width, privacy explainer + inline
+                  "Learn how privacy works" link. Keeps the inset-fill
+                  chrome (muted "this is gated" treatment). CCFT 2026-05-11. */}
               <div
                 className="flex flex-col items-center gap-sm rounded-panel bg-surface-inset w-full"
-                style={{ maxWidth: 360, padding: "var(--space-xl) var(--space-lg)" }}
+                style={{ padding: "var(--space-xl) var(--space-lg)" }}
               >
                 <LockSimple size={28} weight="light" className="text-fg-tertiary" />
                 <p className="text-sm text-fg-secondary m-0 text-center">
                   {firstName} keeps their profile private. People typically see more after meeting at a walk or community.
                 </p>
-                {sharedGroupNames.length > 0 && (
-                  <p className="text-xs text-fg-tertiary m-0 flex items-center gap-xs">
-                    <UsersThree size={14} weight="light" />
-                    You&apos;re both in {sharedGroupNames[0]}
-                  </p>
-                )}
+                <Link
+                  href="/help/privacy"
+                  className="text-sm font-semibold text-fg-primary hover:text-brand-main"
+                  style={{
+                    marginTop: "var(--space-xs)",
+                    textDecoration: "underline",
+                    textUnderlineOffset: "4px",
+                  }}
+                >
+                  Learn how privacy works
+                </Link>
               </div>
-              {/* Privacy explainer link — routes to /help/privacy.
-                  Inline `text-decoration: underline` overrides the global
-                  `a { text-decoration: none }` rule in globals.css. */}
-              <Link
-                href="/help/privacy"
-                className="text-sm font-semibold text-fg-primary hover:text-brand-main"
-                style={{
-                  marginTop: "var(--space-lg)",
-                  textDecoration: "underline",
-                  textUnderlineOffset: "4px",
-                }}
-              >
-                Learn how privacy works
-              </Link>
             </div>
           );
         })()}
@@ -637,6 +788,11 @@ function UserProfileInner() {
                 ))}
               </section>
             )}
+
+            {/* Mutual connections — Connected-only mutuals between viewer
+                and subject. Renders nothing when there are no mutuals.
+                Deniability-safe: Familiar marks excluded. 2026-05-11. */}
+            <MutualConnectionsSection viewerId={currentUserId} subjectId={userId} />
           </div>
         )}
 
@@ -647,36 +803,36 @@ function UserProfileInner() {
 
         {/* ── Services tab ── */}
         {!isLocked && activeTab === "services" && (() => {
-          // "Open to helping" is the **Helper-tier** signal — for users who
-          // casually offer care to their network without being publicly
-          // discoverable. Hide it for Provider-tier users (publicProfile:
-          // true) — they're a different tier on the same dial, the badge
-          // is redundant and reads as inconsistent on a public-Provider
-          // surface. Tier check is structural; the older `hasListedServices`
-          // heuristic missed directory-only Providers (Olga, Markéta) whose
-          // services come from the ProviderCard fallback path, not from
-          // `carerProfile.services`. Pricing & Proposals, 2026-05-04.
-          const isProviderTier = userProfile?.carerProfile?.publicProfile === true;
+          // Circle-only carer explainer — surfaces on viewers' views when
+          // the subject offers care but their audience is `circle` (not
+          // public Discover). Communicates that the services on this
+          // profile are visible to the viewer because they're in the
+          // carer's Connected circle. Hidden for public carers
+          // (`publicProfile: true`) because the broader Discover audience
+          // doesn't need the "you're seeing this because…" caveat. Tier
+          // check is structural; the older `hasListedServices` heuristic
+          // missed directory-only carers (Olga, Markéta) whose services
+          // come from the ProviderCard fallback path. Reframed 2026-05-11
+          // (walkthrough C6) — dropped "Open to helping" / "Helper-tier"
+          // labels with the broader copy sweep.
+          const isPublicCarer = userProfile?.carerProfile?.publicProfile === true;
           const isDirectoryProvider = !!provider; // listed in `/discover/care`
-          const showHelpingBadge =
-            (userProfile?.openToHelping ?? false) && !isProviderTier && !isDirectoryProvider;
+          const showCircleCarerExplainer =
+            (userProfile?.openToHelping ?? false) && !isPublicCarer && !isDirectoryProvider;
           return (
             <div className="profile-tab-stack" style={{ padding: "var(--space-lg)" }}>
-              {/* Helper-tier explainer — communicates that the services on
-                  this profile are gated to the carer's connections (not a
-                  public Provider). The small inline badge previously here
-                  surfaced "Open to helping" without explaining what that
-                  meant — the explainer card now sets expectations clearly.
-                  Pricing & Proposals walkthrough 2026-05-05. Future:
-                  Onboarding & In-Product Communication phase may layer a
-                  "what does this mean?" tooltip on top to teach the broader
-                  trust model (Helper vs Provider tier). */}
-              {showHelpingBadge && (
+              {/* Circle-only carer explainer. Sets viewer expectations:
+                  "this person is a carer for their Connected circle, and
+                  you're seeing this because you're in that circle."
+                  Future: Onboarding & In-Product Communication phase may
+                  layer a "what does this mean?" tooltip on top to teach
+                  the broader trust model. */}
+              {showCircleCarerExplainer && (
                 <section
                   className="flex items-start gap-md rounded-panel p-md border border-edge-regular"
                   style={{ background: "var(--brand-subtle)" }}
                 >
-                  <PawPrint
+                  <UsersThree
                     size={20}
                     weight="fill"
                     className="shrink-0"
@@ -684,10 +840,10 @@ function UserProfileInner() {
                   />
                   <div className="flex flex-col gap-xxs">
                     <p className="text-sm font-semibold text-fg-primary m-0">
-                      Open to helping
+                      Carer · Connected circle
                     </p>
                     <p className="text-sm text-fg-secondary m-0 leading-snug">
-                      {firstName} offers care to their connections — people they&apos;ve met through the community.
+                      {firstName} offers care to people they&apos;re Connected with — you&apos;re seeing this because you&apos;re in their circle.
                     </p>
                   </div>
                 </section>
