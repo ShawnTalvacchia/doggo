@@ -181,7 +181,7 @@ function VisitReportInline({
         />
         <div className="flex items-center justify-end gap-xs">
           <ButtonAction
-            variant="ghost"
+            variant="tertiary"
             size="sm"
             onClick={() => {
               setDraftNotes(r.notes ?? "");
@@ -351,12 +351,16 @@ function SessionRow({
               canEditReport && bookingId && onUpdate
                 ? (notes) =>
                     onUpdate(bookingId, session.id, {
-                      report: {
-                        photos: r?.photos ?? [],
-                        ...r,
-                        notes,
-                        editedAt: new Date().toISOString(),
-                      },
+                      // Branch on `r` so we never list `photos` twice in
+                      // the same object literal — TS2783 fires on the
+                      // duplicate-via-spread pattern (Vercel strict
+                      // build fails it). Existing report: preserve all
+                      // its fields, override notes + editedAt. No prior
+                      // report: synthesize a minimal one with the
+                      // required `photos: []`.
+                      report: r
+                        ? { ...r, notes, editedAt: new Date().toISOString() }
+                        : { photos: [], notes, editedAt: new Date().toISOString() },
                     })
                 : undefined
             }
