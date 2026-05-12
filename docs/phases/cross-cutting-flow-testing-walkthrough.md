@@ -260,6 +260,16 @@ Implementation: `app/schedule/page.tsx` (rewrite), `app/discover/meets/page.tsx`
 - [ ] **F3.2 — Banner skipped for fully-engaged users.** Go to `/home?as=tereza`. Tereza has many upcoming RSVPs → banner does NOT appear.
 - [ ] **F3.3 — Banner skipped for new users.** Go to `/home?as=new-user`. New-user mode renders the welcome state without the discovery banner.
 
+### F4 — Discover door pattern unification (2026-05-11)
+
+The three Discover doors (Care / Meets / Groups) now share the same filter-panel anatomy: **page-level pill row → tap Filters → panel opens → in-panel `<TypeDropdown>` takes over the scope axis (page pill row hides) → standard filter fields below → primary "Filters" / "View N results" floating button.** Pulled into parity 2026-05-11 because Care had been updated mid-flight; Meets + Groups were missed in the original Care Catalog phase. Walkthrough verification:
+
+- [ ] **F4.1 — Filters button is `primary` on all three.** `/discover/care`, `/discover/meets`, `/discover/groups` — the floating Filters button bottom-of-page is brand-filled (was `secondary` on Meets + Groups).
+- [ ] **F4.2 — Top type-input on Meets.** Open Filters on `/discover/meets`. The first field below the **"Filters"** heading is a large dropdown trigger (icon + heading-style label + sub-line + caret) — selected meet type. Page-level pill row is hidden while the panel is open. Tap the trigger → menu lists all five types with icon + label + sub-line per row. Pick "Walks" → trigger updates + panel filter context flips.
+- [ ] **F4.3 — Top type-input on Groups.** Same pattern on `/discover/groups` — large dropdown for group type (All / Parks / Neighbors / Interest / Care) with icon + sub-line per option.
+- [ ] **F4.4 — In-circle card chrome on Meets.** On `/discover/meets?as=daniel`, cards in the "Meets from your circle" section carry a 3px brand-main left stripe (mirroring `/discover/care`'s in-circle treatment). Cards in "Other meets" below have no stripe.
+- [ ] **F4.5 — Pill row hides on panel open.** All three doors: tapping Filters hides the page-level type pill row (the in-panel dropdown becomes the scope axis). Closing the panel restores the pill row.
+
 ---
 
 ## Decisions surfaced during walkthrough

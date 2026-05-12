@@ -5,8 +5,13 @@ import {
   PawPrint,
   MapPin,
   CaretUp,
+  CaretDown,
   SlidersHorizontal,
   MagnifyingGlass,
+  Path,
+  Tree,
+  GameController,
+  GraduationCap,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { DetailHeader } from "@/components/layout/DetailHeader";
@@ -43,6 +48,34 @@ const TYPE_TABS: { key: string; label: string }[] = [
   { key: "playdate", label: "Playdates" },
   { key: "training", label: "Training" },
 ];
+
+// Type dropdown content — icon + heading + sub-label per meet type.
+// Surfaces inside the filter panel (mirrors Discover Care's
+// ServiceTypeDropdown pattern). Sub-labels teach the distinction between
+// types in one line each.
+const TYPE_ICONS: Record<string, typeof Path> = {
+  all: PawPrint,
+  walk: Path,
+  park_hangout: Tree,
+  playdate: GameController,
+  training: GraduationCap,
+};
+
+const TYPE_DROPDOWN_LABELS: Record<string, string> = {
+  all: "All meets",
+  walk: "Walks",
+  park_hangout: "Park hangouts",
+  playdate: "Playdates",
+  training: "Training",
+};
+
+const TYPE_DROPDOWN_SUBLABELS: Record<string, string> = {
+  all: "Show every meet",
+  walk: "On-the-move neighbourhood walks",
+  park_hangout: "Off-leash play sessions at a park",
+  playdate: "Small-group play between matched dogs",
+  training: "Skill-focused practice with a trainer",
+};
 
 const DOG_SIZE_OPTIONS = [
   { value: "small", label: "Small" },
@@ -198,6 +231,7 @@ function MeetsResultsList({ results }: { results: Meet[] }) {
               meet={meet}
               variant="discover"
               role={userMeetIds.has(meet.id) ? "joining" : undefined}
+              inCircle
             />
           ))}
           {otherMeets.length > 0 && (
@@ -217,20 +251,102 @@ function MeetsResultsList({ results }: { results: Meet[] }) {
   );
 }
 
+/* ── Meet type dropdown — top of filter panel ──
+ * Mirrors the Discover Care ServiceTypeDropdown pattern (2026-05-11 IA
+ * refresh). The page-level pill row hides when the panel is open; this
+ * dropdown takes over the "which type am I scoping to" axis. Bigger
+ * padding + heading-style label + icon + sub-label so it reads as the
+ * panel's primary commanding control. */
+function MeetTypeDropdown({
+  selected,
+  onSelect,
+}: {
+  selected: string;
+  onSelect: (key: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const SelectedIcon = TYPE_ICONS[selected] ?? PawPrint;
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((p) => !p)}
+        aria-expanded={open}
+        className="bg-surface-top border border-edge-stronger flex items-center gap-md rounded-sm w-full text-left"
+        style={{ padding: "var(--space-md)" }}
+      >
+        <SelectedIcon size={24} weight="light" className="text-fg-primary shrink-0" />
+        <span className="flex-1 flex flex-col">
+          <span className="font-heading font-semibold text-fg-primary" style={{ fontSize: "var(--text-lg)" }}>
+            {TYPE_DROPDOWN_LABELS[selected]}
+          </span>
+          <span className="font-body text-sm text-fg-tertiary">
+            {TYPE_DROPDOWN_SUBLABELS[selected]}
+          </span>
+        </span>
+        <CaretDown size={18} weight="regular" className="text-fg-tertiary shrink-0" />
+      </button>
+      {open && (
+        <div
+          className="absolute left-0 right-0 bg-surface-top border border-edge-stronger rounded-sm shadow-md overflow-hidden flex flex-col"
+          style={{ top: "100%", marginTop: "var(--space-xs)", zIndex: 30 }}
+        >
+          {TYPE_TABS.map(({ key }) => {
+            const ItemIcon = TYPE_ICONS[key] ?? PawPrint;
+            const isActive = key === selected;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => { onSelect(key); setOpen(false); }}
+                className={`flex items-center gap-md text-left ${isActive ? "bg-surface-base" : "hover:bg-surface-base"}`}
+                style={{ padding: "var(--space-md)" }}
+              >
+                <ItemIcon size={22} weight="light" className={isActive ? "text-brand-strong shrink-0" : "text-fg-tertiary shrink-0"} />
+                <span className="flex flex-col">
+                  <span className={`font-body text-md ${isActive ? "text-brand-strong font-semibold" : "text-fg-primary"}`}>
+                    {TYPE_DROPDOWN_LABELS[key]}
+                  </span>
+                  <span className="font-body text-sm text-fg-tertiary">
+                    {TYPE_DROPDOWN_SUBLABELS[key]}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── Filter panel ── */
 
 function MeetsFilterPanel({
   filters,
   onFiltersChange,
+  activeType,
+  onActiveTypeChange,
 }: {
   filters: MeetFilters;
   onFiltersChange: (update: Partial<MeetFilters>) => void;
+  activeType: string;
+  onActiveTypeChange: (key: string) => void;
 }) {
   const toggleInArray = (arr: string[], val: string) =>
     arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val];
 
   return (
     <div className="discover-hub-body" style={{ gap: "var(--space-xxl)" }}>
+      {/* Filters heading + meet-type dropdown — mirrors Discover Care. */}
+      <div className="flex flex-col gap-md">
+        <h1 className="font-heading font-semibold text-fg-primary m-0" style={{ fontSize: "var(--text-xl)" }}>
+          Filters
+        </h1>
+        <MeetTypeDropdown selected={activeType} onSelect={onActiveTypeChange} />
+      </div>
+
       {/* Nearby */}
       <div className="filter-field">
         <div className="label">Nearby</div>
@@ -348,16 +464,25 @@ function DiscoverMeetsInner() {
   return (
     <PageColumn hideHeader abovePanel={<DetailHeader backHref="/discover" title="Meets" />}>
       <div className="page-column-panel-body" style={{ position: "relative" }}>
-        {/* Type filter pills — scrollable on mobile. */}
-        <FilterPillRow
-          pills={TYPE_TABS}
-          activeKey={activeType}
-          onChange={(key) => { setActiveType(key); setShowFilters(false); }}
-        />
+        {/* Type filter pills — scrollable on mobile. Hidden when the filter
+            panel is open (the in-panel MeetTypeDropdown takes over the
+            scope axis there). Matches the Discover Care pattern. */}
+        {!showFilters && (
+          <FilterPillRow
+            pills={TYPE_TABS}
+            activeKey={activeType}
+            onChange={(key) => { setActiveType(key); setShowFilters(false); }}
+          />
+        )}
 
         {showFilters ? (
           <>
-            <MeetsFilterPanel filters={filters} onFiltersChange={handleFiltersChange} />
+            <MeetsFilterPanel
+              filters={filters}
+              onFiltersChange={handleFiltersChange}
+              activeType={activeType}
+              onActiveTypeChange={setActiveType}
+            />
             <div className="discover-floating-btn">
               <ButtonAction
                 variant="primary"
@@ -377,7 +502,7 @@ function DiscoverMeetsInner() {
             </div>
             <div className="discover-floating-btn">
               <ButtonAction
-                variant="secondary"
+                variant="primary"
                 size="md"
                 cta
                 leftIcon={<SlidersHorizontal size={16} weight="bold" />}

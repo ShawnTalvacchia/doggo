@@ -12524,6 +12524,17 @@ body:has(.bottom-nav) .inbox-page {
   border-color: var(--brand-main);
 }
 
+/* In-circle variant — mirrors `.result-card--in-circle` on the Discover
+   Care surface (3px brand-main left stripe, content padding adjusted to
+   keep alignment). Surfaces on `/discover/meets` for cards in the
+   "Meets from your circle" section. Visual hierarchy reads "your scene"
+   vs "broader marketplace" without changing the card's silhouette.
+   Cross-Cutting Flow Testing IA refresh, 2026-05-11. */
+.card-schedule-meet--in-circle {
+  border-left: 3px solid var(--brand-main);
+  padding-left: calc(var(--space-lg) - 3px);
+}
+
 .card-schedule-chip {
   display: inline-flex;
   align-items: center;

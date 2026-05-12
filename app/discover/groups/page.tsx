@@ -5,8 +5,13 @@ import {
   UsersThree,
   MapPin,
   CaretUp,
+  CaretDown,
   SlidersHorizontal,
   MagnifyingGlass,
+  Tree,
+  House,
+  Sparkle,
+  Heart,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { DetailHeader } from "@/components/layout/DetailHeader";
@@ -30,6 +35,33 @@ const TYPE_TABS: { key: string; label: string }[] = [
   { key: "interest", label: "Interest" },
   { key: "care", label: "Care" },
 ];
+
+// Type dropdown content — icon + heading + sub-label per group type.
+// Surfaces inside the filter panel (mirrors Discover Care + Discover
+// Meets dropdowns). Sub-labels teach the four group types in one line each.
+const TYPE_ICONS: Record<string, typeof UsersThree> = {
+  all: UsersThree,
+  park: Tree,
+  neighbor: House,
+  interest: Sparkle,
+  care: Heart,
+};
+
+const TYPE_DROPDOWN_LABELS: Record<string, string> = {
+  all: "All groups",
+  park: "Parks",
+  neighbor: "Neighbors",
+  interest: "Interest",
+  care: "Care",
+};
+
+const TYPE_DROPDOWN_SUBLABELS: Record<string, string> = {
+  all: "Show every group",
+  park: "Open crews anchored to a park",
+  neighbor: "Hyperlocal groups organised around where you live",
+  interest: "Groups around a shared characteristic or activity",
+  care: "Provider-hosted communities wrapping a service",
+};
 
 const VISIBILITY_OPTIONS = [
   { value: "open", label: "Open" },
@@ -86,14 +118,86 @@ function GroupsResultsList({ results }: { results: Group[] }) {
   return <>{results.map((g) => <CardGroup key={g.id} group={g} variant="discover" />)}</>;
 }
 
+/* ── Group type dropdown — top of filter panel ──
+ * Mirrors the Discover Care + Discover Meets dropdowns. Sits under the
+ * "Filters" heading as the panel's commanding control. 2026-05-11 IA
+ * refresh. */
+function GroupTypeDropdown({
+  selected,
+  onSelect,
+}: {
+  selected: string;
+  onSelect: (key: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const SelectedIcon = TYPE_ICONS[selected] ?? UsersThree;
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((p) => !p)}
+        aria-expanded={open}
+        className="bg-surface-top border border-edge-stronger flex items-center gap-md rounded-sm w-full text-left"
+        style={{ padding: "var(--space-md)" }}
+      >
+        <SelectedIcon size={24} weight="light" className="text-fg-primary shrink-0" />
+        <span className="flex-1 flex flex-col">
+          <span className="font-heading font-semibold text-fg-primary" style={{ fontSize: "var(--text-lg)" }}>
+            {TYPE_DROPDOWN_LABELS[selected]}
+          </span>
+          <span className="font-body text-sm text-fg-tertiary">
+            {TYPE_DROPDOWN_SUBLABELS[selected]}
+          </span>
+        </span>
+        <CaretDown size={18} weight="regular" className="text-fg-tertiary shrink-0" />
+      </button>
+      {open && (
+        <div
+          className="absolute left-0 right-0 bg-surface-top border border-edge-stronger rounded-sm shadow-md overflow-hidden flex flex-col"
+          style={{ top: "100%", marginTop: "var(--space-xs)", zIndex: 30 }}
+        >
+          {TYPE_TABS.map(({ key }) => {
+            const ItemIcon = TYPE_ICONS[key] ?? UsersThree;
+            const isActive = key === selected;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => { onSelect(key); setOpen(false); }}
+                className={`flex items-center gap-md text-left ${isActive ? "bg-surface-base" : "hover:bg-surface-base"}`}
+                style={{ padding: "var(--space-md)" }}
+              >
+                <ItemIcon size={22} weight="light" className={isActive ? "text-brand-strong shrink-0" : "text-fg-tertiary shrink-0"} />
+                <span className="flex flex-col">
+                  <span className={`font-body text-md ${isActive ? "text-brand-strong font-semibold" : "text-fg-primary"}`}>
+                    {TYPE_DROPDOWN_LABELS[key]}
+                  </span>
+                  <span className="font-body text-sm text-fg-tertiary">
+                    {TYPE_DROPDOWN_SUBLABELS[key]}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── Filter panel ── */
 
 function GroupsFilterPanel({
   filters,
   onFiltersChange,
+  activeType,
+  onActiveTypeChange,
 }: {
   filters: GroupFilters;
   onFiltersChange: (update: Partial<GroupFilters>) => void;
+  activeType: string;
+  onActiveTypeChange: (key: string) => void;
 }) {
   const [selectedDogSizes, setSelectedDogSizes] = useState<string[]>([]);
   const [focusOpen, setFocusOpen] = useState(false);
@@ -108,6 +212,14 @@ function GroupsFilterPanel({
 
   return (
     <div className="discover-hub-body" style={{ gap: "var(--space-xxl)" }}>
+      {/* Filters heading + group-type dropdown — mirrors Discover Care + Meets. */}
+      <div className="flex flex-col gap-md">
+        <h1 className="font-heading font-semibold text-fg-primary m-0" style={{ fontSize: "var(--text-xl)" }}>
+          Filters
+        </h1>
+        <GroupTypeDropdown selected={activeType} onSelect={onActiveTypeChange} />
+      </div>
+
       <div className="filter-field">
         <div className="label">Nearby</div>
         <div className="bg-surface-top border border-edge-stronger flex items-center gap-sm rounded-sm" style={{ padding: "var(--space-sm) var(--space-md)" }}>
@@ -179,15 +291,25 @@ function DiscoverGroupsInner() {
   return (
     <PageColumn hideHeader abovePanel={<DetailHeader backHref="/discover" title="Groups" />}>
       <div className="page-column-panel-body" style={{ position: "relative" }}>
-        <FilterPillRow
-          pills={TYPE_TABS}
-          activeKey={activeType}
-          onChange={(key) => { setActiveType(key); setShowFilters(false); }}
-        />
+        {/* Type filter pills — hidden when the filter panel is open (the
+            in-panel GroupTypeDropdown takes over the scope axis). Matches
+            Discover Care + Discover Meets. */}
+        {!showFilters && (
+          <FilterPillRow
+            pills={TYPE_TABS}
+            activeKey={activeType}
+            onChange={(key) => { setActiveType(key); setShowFilters(false); }}
+          />
+        )}
 
         {showFilters ? (
           <>
-            <GroupsFilterPanel filters={filters} onFiltersChange={(u) => setFilters((p) => ({ ...p, ...u }))} />
+            <GroupsFilterPanel
+              filters={filters}
+              onFiltersChange={(u) => setFilters((p) => ({ ...p, ...u }))}
+              activeType={activeType}
+              onActiveTypeChange={setActiveType}
+            />
             <div className="discover-floating-btn">
               <ButtonAction variant="primary" size="md" cta leftIcon={<MagnifyingGlass size={16} weight="bold" />} onClick={() => setShowFilters(false)}>
                 View {results.length} {results.length === 1 ? "result" : "results"}
@@ -198,7 +320,7 @@ function DiscoverGroupsInner() {
           <>
             <div className="flex flex-col"><GroupsResultsList results={results} /></div>
             <div className="discover-floating-btn">
-              <ButtonAction variant="secondary" size="md" cta leftIcon={<SlidersHorizontal size={16} weight="bold" />} onClick={() => setShowFilters(true)}>
+              <ButtonAction variant="primary" size="md" cta leftIcon={<SlidersHorizontal size={16} weight="bold" />} onClick={() => setShowFilters(true)}>
                 Filters
               </ButtonAction>
             </div>

@@ -37,6 +37,11 @@ const MEET_ICONS: Record<MeetType, React.ReactNode> = {
 export type MeetRole = "hosting" | "joining" | "interested";
 
 interface CardMeetProps {
+  /** When true, applies the in-circle chrome (3px brand-main left stripe).
+   *  Used on Discover Meets' "Meets from your circle" section to visually
+   *  elevate the user's scene. Mirrors the same prop on CardExploreResult.
+   *  2026-05-11 IA refresh. */
+  inCircle?: boolean;
   meet: Meet;
   /** Controls content emphasis. "discover" = browsing; "schedule" = committed; "group" = inside a group page. */
   variant: "discover" | "schedule" | "group";
@@ -100,7 +105,7 @@ function deriveViewerRole(meet: Meet, viewerId: string | null): MeetRole | undef
 
 /* ── Component ──────────────────────────────────────────────────── */
 
-export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetProps) {
+export function CardMeet({ meet, variant, role, isHistory = false, inCircle = false }: CardMeetProps) {
   const currentUserId = useCurrentUserId();
   const isGuest = useIsGuest();
   const goingAttendees = meet.attendees.filter(
@@ -133,6 +138,7 @@ export function CardMeet({ meet, variant, role, isHistory = false }: CardMeetPro
       className={[
         "card-schedule-meet",
         isHistory ? "card-my-meet--history" : "",
+        inCircle ? "card-schedule-meet--in-circle" : "",
       ]
         .filter(Boolean)
         .join(" ")}
