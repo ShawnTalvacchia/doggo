@@ -3,12 +3,14 @@
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Plus } from "@phosphor-icons/react";
+import { Plus, MagnifyingGlass } from "@phosphor-icons/react";
 import { CameraPlusFill } from "@/components/icons/CameraPlusFill";
 import { usePostComposer } from "@/contexts/PostComposerContext";
 import { getFeedForUser, getNewUserFeed } from "@/lib/mockFeed";
 import { useCurrentUserId, useIsNewUser } from "@/hooks/useCurrentUser";
 import { DogsNearYou } from "@/components/home/DogsNearYou";
+import { DiscoveryBanner } from "@/components/home/DiscoveryBanner";
+import { getUserMeetInstances } from "@/lib/mockMeets";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { FeedMeetRecap } from "@/components/feed/FeedMeetRecap";
 import { FeedUpcomingMeet } from "@/components/feed/FeedUpcomingMeet";
@@ -107,6 +109,20 @@ function HomePageInner() {
 
   const userGroups = getUserGroups(currentUserId);
   const allFeedItems = getFeedForUser(currentUserId);
+
+  // Discovery banner trigger — user is in at least one group but has < 2
+  // upcoming meet RSVPs. The "joined groups, not currently RSVP'd" gap is
+  // the classic moment to nudge toward Discover. Trigger logic is kept
+  // intentionally simple for v1; frequency caps, dismiss memory, and
+  // variant rotation are filed as a follow-up (see strategy/Product Vision.md
+  // → Schedule + Discover IA refresh). 2026-05-11.
+  const upcomingMeetCount = useMemo(() => {
+    if (newUserMode) return 0;
+    const todayIso = new Date().toISOString().slice(0, 10);
+    return getUserMeetInstances(currentUserId).filter((occ) => occ.date >= todayIso).length;
+  }, [currentUserId, newUserMode]);
+  const showDiscoveryBanner =
+    !newUserMode && userGroups.length > 0 && upcomingMeetCount < 2;
 
   // Filter groups by selected category
   const filteredGroups = useMemo(() => {
@@ -217,8 +233,28 @@ function HomePageInner() {
                 </>
               ) : (
                 <>
-                  {feedItems.map((item) => (
-                    <FeedItemRenderer key={item.feedId} item={item} />
+                  {feedItems.map((item, idx) => (
+                    <div key={item.feedId}>
+                      <FeedItemRenderer item={item} />
+                      {/* Discovery banner — slotted between feed posts at
+                          index 2 (after the third post) so it lands in
+                          mid-scroll attention rather than competing with
+                          the first post for the top of the feed. Only
+                          renders when the trigger fires. 2026-05-11. */}
+                      {showDiscoveryBanner && idx === 2 && (
+                        <DiscoveryBanner
+                          icon={MagnifyingGlass}
+                          title="Find a meet near you"
+                          subtitle={
+                            userGroups.length === 1
+                              ? `Your group has events you haven't RSVP'd to yet.`
+                              : `Your groups have events you haven't RSVP'd to yet.`
+                          }
+                          href="/discover/meets"
+                          ctaLabel="Browse"
+                        />
+                      )}
+                    </div>
                   ))}
                 </>
               )}

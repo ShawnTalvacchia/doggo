@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { CalendarDots, Plus } from "@phosphor-icons/react";
@@ -14,9 +14,8 @@ import { ReviewRecentSection, type ReviewItem } from "@/components/schedule/Revi
 import { Spacer } from "@/components/layout/Spacer";
 import { LayoutSection } from "@/components/layout/LayoutSection";
 import { FilterPillRow } from "@/components/ui/FilterPillRow";
-import { getUserMeetInstances, getFollowedSeries, mockMeets } from "@/lib/mockMeets";
-import { getUserGroups } from "@/lib/mockGroups";
-import { getMeetRole, getMeetOccurrences, isMeetVisibleTo, isOccurrenceCancelled } from "@/lib/meetUtils";
+import { getUserMeetInstances } from "@/lib/mockMeets";
+import { getMeetRole, isOccurrenceCancelled } from "@/lib/meetUtils";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useReviews } from "@/contexts/ReviewsContext";
 import { CareReviewSheet } from "@/components/bookings/CareReviewSheet";
@@ -60,13 +59,16 @@ function formatPastDateHeader(dateStr: string): string {
 }
 
 /* ── Tab + sub-pill model ──
-   F1 + F7 restructure (2026-04-25): four top-level tabs, with sub-pills
-   under Meets and Care. Upcoming is the streamlined cross-type committed
-   view. Meets / Care are the typed deep-dives. History is the past
-   surface — pending reviews + older chronicle. */
-type ScheduleTab = "upcoming" | "meets" | "care" | "history";
-type MeetsSubFilter = "going" | "interested";
-type CareSubFilter = "all" | "getting" | "providing";
+   Schedule = commitments only (Cross-Cutting Flow Testing IA refresh,
+   2026-05-11). Two top-level tabs — Upcoming + History — with sub-pills
+   on Upcoming filtering by item type (All / Meets / Care). The earlier
+   Meets + Care tabs were dropped; the Interested concept moved to
+   Discover Meets via the "Meets from your circle" elevated section
+   (mirroring the Discover Care "Carers in your circle" pattern).
+   Followed series + soft-Interested RSVPs surface there now, not here.
+   See `strategy/Product Vision.md` → Schedule + Discover IA refresh. */
+type ScheduleTab = "upcoming" | "history";
+type UpcomingSubFilter = "all" | "meets" | "care";
 
 function getBookingNextDate(booking: Booking): string | null {
   if (booking.sessions) {
@@ -108,16 +110,22 @@ function ScheduleInner() {
   const CURRENT_USER = useCurrentUserId();
 
   // Tab + sub-pill state (URL-backed for the top tab; local for sub-pills).
-  // Old `view=interested` URLs land on Meets → Interested for backwards compat.
+  // Backwards-compat redirects: `view=meets` → upcoming/meets sub-pill;
+  // `view=care` → upcoming/care sub-pill; `view=interested` → /discover/meets
+  // (Interested-as-Schedule-concept retired 2026-05-11 — followers live on
+  // Discover now). The redirect for interested fires inside an effect below.
   const rawView = searchParams.get("view");
-  const tab: ScheduleTab =
-    rawView === "meets" || rawView === "care" || rawView === "history" ? rawView
-    : rawView === "interested" ? "meets"
-    : "upcoming";
-  const [meetsSubFilter, setMeetsSubFilter] = useState<MeetsSubFilter>(
-    rawView === "interested" ? "interested" : "going"
-  );
-  const [careSubFilter, setCareSubFilter] = useState<CareSubFilter>("all");
+  const tab: ScheduleTab = rawView === "history" ? "history" : "upcoming";
+  const initialSub: UpcomingSubFilter =
+    rawView === "meets" ? "meets" : rawView === "care" ? "care" : "all";
+  const [upcomingSubFilter, setUpcomingSubFilter] = useState<UpcomingSubFilter>(initialSub);
+
+  // Redirect legacy `?view=interested` URLs to the new home (Discover Meets).
+  useEffect(() => {
+    if (rawView === "interested") {
+      router.replace("/discover/meets", { scroll: false });
+    }
+  }, [rawView, router]);
 
   // Per-occurrence instances (one entry per (meet, date) where the user
   // has an RSVP). Drives every meet-side surface on this page so the
@@ -262,8 +270,6 @@ function ScheduleInner() {
 
   const TABS = [
     { key: "upcoming", label: "Upcoming" },
-    { key: "meets", label: "Meets" },
-    { key: "care", label: "Care" },
     { key: "history", label: "History", badge: pendingReviewCount },
   ];
 
@@ -276,133 +282,41 @@ function ScheduleInner() {
   };
 
   const filteredItems = useMemo((): ScheduleItem[] => {
-    if (tab === "care") {
-      const ownerItems = careSubFilter !== "providing" ? activeOwnerBookings.map((b) => ({
-        kind: "booking" as const,
-        booking: b,
-        perspective: "owner" as const,
-        sortKey: getBookingNextDate(b) ?? b.startDate,
-      })) : [];
-      const carerItems = careSubFilter !== "getting" ? activeCarerBookings.map((b) => ({
-        kind: "booking" as const,
-        booking: b,
-        perspective: "carer" as const,
-        sortKey: getBookingNextDate(b) ?? b.startDate,
-      })) : [];
-      return [...ownerItems, ...carerItems].sort((a, b) => a.sortKey.localeCompare(b.sortKey));
-    }
-
-    if (tab === "meets") {
-      if (meetsSubFilter === "interested") {
-        // 1. Explicitly interested per-occurrence (instance-level "maybe").
-        const interestedItems: ScheduleItem[] = upcomingInstances
-          .filter((occ) => getMeetRole(occ.meet, CURRENT_USER, occ.date) === "interested")
-          .map((occ) => ({
-            kind: "meet" as const,
-            meet: occ.meet,
-            role: "interested" as MeetRole,
-            date: occ.date,
-            sortKey: `${occ.date}T${occ.meet.time}`,
-          }));
-
-        // 2. Followed series — series-level subscription. Surfaces here as
-        // discovery aid alongside per-instance Interested. Render the next
-        // upcoming occurrence so the date is realistic; conflated under the
-        // "interested" role (the recurring pill differentiates a followed
-        // series from a one-off Interested in the card chrome).
-        const myInstanceMeetDateKeys = new Set(
-          upcomingInstances.map((occ) => `${occ.meet.id}::${occ.date}`),
-        );
-        const followingItems: ScheduleItem[] = getFollowedSeries(CURRENT_USER)
-          .flatMap((meet) => {
-            const next = getMeetOccurrences(meet, 1)[0];
-            if (!next) return [];
-            // Don't double-list a series the user is already RSVP'd to on
-            // its next occurrence — that would surface twice.
-            if (myInstanceMeetDateKeys.has(`${meet.id}::${next.date}`)) return [];
-            return [{
-              kind: "meet" as const,
-              meet,
-              role: "interested" as MeetRole,
-              date: next.date,
-              sortKey: `${next.date}T${meet.time}`,
-            }];
-          });
-
-        // 3. Auto-populated: upcoming meets from joined groups where the
-        // user has no RSVP at all. Carried forward from the pre-recurrence
-        // model — meet-level (not instance-level) since these are
-        // not-yet-on-your-radar suggestions, and de-duped against any meet
-        // the user already has an instance on.
-        const myGroupIds = new Set(getUserGroups(CURRENT_USER).map((g) => g.id));
-        const myMeetIds = new Set(upcomingInstances.map((occ) => occ.meet.id));
-        const suggestedItems: ScheduleItem[] = mockMeets
-          .filter((m) =>
-            m.status === "upcoming" &&
-            m.groupId &&
-            myGroupIds.has(m.groupId) &&
-            !myMeetIds.has(m.id) &&
-            isMeetVisibleTo(m, CURRENT_USER),
-          )
-          .map((m) => {
-            // For recurring meets, surface the next upcoming date; for one-off,
-            // the meet's own date.
-            const next = getMeetOccurrences(m, 1)[0];
-            const date = next?.date ?? m.date;
-            return {
-              kind: "meet" as const,
-              meet: m,
-              role: "interested" as MeetRole,
-              date,
-              sortKey: `${date}T${m.time}`,
-            };
-          });
-
-        return [...interestedItems, ...followingItems, ...suggestedItems]
-          .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
-      }
-
-      // Going (default): occurrences where the user is joining or hosting.
-      // One card per (meet, date) — the user goes to multiple weeks of the
-      // same series, they see multiple cards.
-      return upcomingInstances
-        .filter((occ) => {
-          const role = getMeetRole(occ.meet, CURRENT_USER, occ.date);
-          return role === "joining" || role === "hosting";
-        })
-        .map((occ) => ({
-          kind: "meet" as const,
-          meet: occ.meet,
-          role: getMeetRole(occ.meet, CURRENT_USER, occ.date),
-          date: occ.date,
-          sortKey: `${occ.date}T${occ.meet.time}`,
-        }))
-        .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
-    }
-
     if (tab === "history") {
       // History tab renders its own sections (review-recent + earlier);
       // the date-grouped list below is unused here.
       return [];
     }
 
-    // Upcoming = confirmed occurrences + individual care sessions, sorted by
-    // date — the streamlined cross-type committed view. Per-instance like
-    // Going, so a recurring weekly walk shows up as its own card per week.
-    const meetItems: ScheduleItem[] = upcomingInstances
-      .filter((occ) => {
-        const role = getMeetRole(occ.meet, CURRENT_USER, occ.date);
-        return role === "joining" || role === "hosting";
-      })
-      .map((occ) => ({
-        kind: "meet" as const,
-        meet: occ.meet,
-        role: getMeetRole(occ.meet, CURRENT_USER, occ.date),
-        date: occ.date,
-        sortKey: `${occ.date}T${occ.meet.time}`,
-      }));
+    // Upcoming = confirmed occurrences (Going / Hosting) + active care
+    // sessions, sorted chronologically. The `upcomingSubFilter` narrows
+    // the result by item type:
+    //   - "all"   → meets + care interleaved
+    //   - "meets" → meets only
+    //   - "care"  → care sessions only (both directions; getting/providing
+    //               split removed during the 2026-05-11 IA refresh — single
+    //               unified Care view; dual-role personas just see mixed)
+    // Interested + followed-series are no longer surfaced here — they live
+    // on Discover Meets' "Meets from your circle" elevated section.
+    const includeMeets = upcomingSubFilter === "all" || upcomingSubFilter === "meets";
+    const includeCare = upcomingSubFilter === "all" || upcomingSubFilter === "care";
 
-    const allActiveBookings = [...activeOwnerBookings, ...activeCarerBookings];
+    const meetItems: ScheduleItem[] = includeMeets
+      ? upcomingInstances
+          .filter((occ) => {
+            const role = getMeetRole(occ.meet, CURRENT_USER, occ.date);
+            return role === "joining" || role === "hosting";
+          })
+          .map((occ) => ({
+            kind: "meet" as const,
+            meet: occ.meet,
+            role: getMeetRole(occ.meet, CURRENT_USER, occ.date),
+            date: occ.date,
+            sortKey: `${occ.date}T${occ.meet.time}`,
+          }))
+      : [];
+
+    const allActiveBookings = includeCare ? [...activeOwnerBookings, ...activeCarerBookings] : [];
     const sessionItems: ScheduleItem[] = allActiveBookings.flatMap((b) => {
       if (!b.sessions) {
         return [{
@@ -423,7 +337,7 @@ function ScheduleInner() {
     });
 
     return [...meetItems, ...sessionItems].sort((a, b) => a.sortKey.localeCompare(b.sortKey));
-  }, [tab, meetsSubFilter, careSubFilter, upcomingInstances, activeOwnerBookings, activeCarerBookings, todayIso, CURRENT_USER]);
+  }, [tab, upcomingSubFilter, upcomingInstances, activeOwnerBookings, activeCarerBookings, todayIso, CURRENT_USER]);
 
   return (
     <PageColumn
@@ -447,26 +361,18 @@ function ScheduleInner() {
           <TabBar tabs={TABS} activeKey={tab} onChange={handleTabChange} />
         </div>
 
-        {/* Sub-pill rows — Meets gets Going/Interested, Care gets All/Getting/Providing. */}
-        {tab === "meets" && (
-          <FilterPillRow
-            pills={[
-              { key: "going", label: "Going" },
-              { key: "interested", label: "Interested" },
-            ]}
-            activeKey={meetsSubFilter}
-            onChange={(key) => setMeetsSubFilter(key as MeetsSubFilter)}
-          />
-        )}
-        {tab === "care" && (
+        {/* Upcoming sub-pills — filter by item type (All / Meets / Care).
+            Replaced the earlier Meets + Care top-level tabs during the
+            2026-05-11 IA refresh. No sub-pills on History. */}
+        {tab === "upcoming" && (
           <FilterPillRow
             pills={[
               { key: "all", label: "All" },
-              { key: "getting", label: "Getting Care" },
-              { key: "providing", label: "Providing" },
+              { key: "meets", label: "Meets" },
+              { key: "care", label: "Care" },
             ]}
-            activeKey={careSubFilter}
-            onChange={(key) => setCareSubFilter(key as CareSubFilter)}
+            activeKey={upcomingSubFilter}
+            onChange={(key) => setUpcomingSubFilter(key as UpcomingSubFilter)}
           />
         )}
 
@@ -568,15 +474,15 @@ function ScheduleInner() {
             <LayoutSection>
               <EmptyState
                 icon={<CalendarDots size={48} weight="light" />}
-                title={emptyTitle(tab, meetsSubFilter)}
-                subtitle={emptySubtitle(tab, meetsSubFilter)}
+                title={emptyTitle(upcomingSubFilter)}
+                subtitle={emptySubtitle(upcomingSubFilter)}
                 action={
                   <ButtonAction
                     variant="primary"
                     size="sm"
-                    href={tab === "care" ? "/discover/care" : "/discover/meets"}
+                    href={upcomingSubFilter === "care" ? "/discover/care" : "/discover/meets"}
                   >
-                    {tab === "care" ? "Find Care" : "Browse meets"}
+                    {upcomingSubFilter === "care" ? "Find Care" : "Browse meets"}
                   </ButtonAction>
                 }
               />
@@ -621,14 +527,14 @@ function ScheduleInner() {
 
 /* ── Empty-state copy helpers ── */
 
-function emptyTitle(tab: ScheduleTab, meetsSub: MeetsSubFilter): string {
-  if (tab === "care") return "No care bookings yet.";
-  if (tab === "meets") return meetsSub === "interested" ? "Nothing saved yet." : "No meets coming up.";
+function emptyTitle(sub: UpcomingSubFilter): string {
+  if (sub === "care") return "No care bookings yet.";
+  if (sub === "meets") return "No meets coming up.";
   return "Nothing coming up yet.";
 }
 
-function emptySubtitle(tab: ScheduleTab, meetsSub: MeetsSubFilter): string {
-  if (tab === "care") return "Find care from people you trust.";
-  if (tab === "meets") return meetsSub === "interested" ? "Meets you're interested in will show up here." : "RSVP to a meet and it'll show up here.";
+function emptySubtitle(sub: UpcomingSubFilter): string {
+  if (sub === "care") return "Find care from people you trust.";
+  if (sub === "meets") return "RSVP to a meet and it'll show up here.";
   return "Browse meets near you and RSVP.";
 }

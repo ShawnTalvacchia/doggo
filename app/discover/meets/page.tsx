@@ -17,20 +17,27 @@ import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { Slider } from "@/components/ui/Slider";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { ResultsSectionHeader } from "@/components/discover/ResultsSectionHeader";
 import {
   mockMeets,
   getUserMeets,
   getFollowedSeries,
 } from "@/lib/mockMeets";
-import { isMeetVisibleTo } from "@/lib/meetUtils";
+import { getUserGroups } from "@/lib/mockGroups";
+import { isMeetVisibleTo, getMeetOccurrences } from "@/lib/meetUtils";
 import { useCurrentUserId, useIsGuest } from "@/hooks/useCurrentUser";
 import type { Meet, MeetType } from "@/lib/types";
 
 /* ── Constants ── */
 
+// Type pills — categorical filter by meet type. The earlier "Following"
+// pill (added when Schedule's Interested lane was the canonical home for
+// soft-interest) was retired 2026-05-11 alongside the Schedule IA refresh:
+// followed series + group-member meets now surface in the elevated
+// "Meets from your circle" section at the top of this surface, mirroring
+// the Discover Care "Carers in your circle" pattern.
 const TYPE_TABS: { key: string; label: string }[] = [
   { key: "all", label: "All" },
-  { key: "following", label: "Following" },
   { key: "walk", label: "Walks" },
   { key: "park_hangout", label: "Hangouts" },
   { key: "playdate", label: "Playdates" },
@@ -82,11 +89,7 @@ const DEFAULT_FILTERS: MeetFilters = {
 
 function applyFilters(meets: Meet[], type: string, filters: MeetFilters): Meet[] {
   return meets.filter((meet) => {
-    // The "following" pill is a status filter (followed series only) rather
-    // than a meet-type filter, and it overrides the type axis. Filtering by
-    // `followers` happens upstream in the page (it needs the current userId);
-    // here we just skip the meet-type check when "following" is active.
-    if (type !== "all" && type !== "following" && meet.type !== type) return false;
+    if (type !== "all" && meet.type !== type) return false;
 
     if (filters.selectedDays.length > 0) {
       const meetDay = new Date(meet.date).getDay();
@@ -109,7 +112,34 @@ function applyFilters(meets: Meet[], type: string, filters: MeetFilters): Meet[]
   });
 }
 
-/* ── Results list ── */
+/* ── Results list ──
+ *
+ * Section split mirrors Discover Care's "Carers in your circle / Other
+ * carers" treatment (2026-05-11 IA refresh). Top section surfaces meets
+ * the viewer already has a connection to — series they follow, meets in
+ * groups they've joined — without requiring an explicit filter toggle.
+ * Bottom section is the broader marketplace.
+ *
+ * In-circle inclusion rule (deduped by meet id):
+ *   - Series the viewer is in `meet.followers`
+ *   - Meets in groups the viewer is a member of (`meet.groupId` ∈ user groups)
+ *
+ * When the viewer has no in-circle meets matching the current filter, the
+ * split collapses and renders a single flat marketplace list — section
+ * headers with one section below them are noise.
+ *
+ * Guests get the flat list (no in-circle concept exists for them).
+ */
+
+function isInCircle(
+  meet: Meet,
+  userGroupIds: Set<string>,
+  followedSeriesIds: Set<string>,
+): boolean {
+  if (followedSeriesIds.has(meet.id)) return true;
+  if (meet.groupId && userGroupIds.has(meet.groupId)) return true;
+  return false;
+}
 
 function MeetsResultsList({ results }: { results: Meet[] }) {
   const currentUserId = useCurrentUserId();
@@ -125,6 +155,27 @@ function MeetsResultsList({ results }: { results: Meet[] }) {
           .map((m) => m.id),
       );
 
+  // Partition by in-circle vs marketplace. Guests skip the split.
+  const { inCircle, otherMeets } = useMemo(() => {
+    if (isGuest) {
+      return { inCircle: [] as Meet[], otherMeets: results };
+    }
+    const userGroupIds = new Set(getUserGroups(currentUserId).map((g) => g.id));
+    const followedSeriesIds = new Set(
+      getFollowedSeries(currentUserId).map((m) => m.id),
+    );
+    const inCircle: Meet[] = [];
+    const otherMeets: Meet[] = [];
+    for (const m of results) {
+      if (isInCircle(m, userGroupIds, followedSeriesIds)) {
+        inCircle.push(m);
+      } else {
+        otherMeets.push(m);
+      }
+    }
+    return { inCircle, otherMeets };
+  }, [results, currentUserId, isGuest]);
+
   if (results.length === 0) {
     return (
       <div className="flex flex-col items-center gap-md p-xl text-center">
@@ -134,9 +185,27 @@ function MeetsResultsList({ results }: { results: Meet[] }) {
     );
   }
 
+  const showSplit = inCircle.length > 0;
+
   return (
     <>
-      {results.map((meet) => (
+      {showSplit && (
+        <>
+          <ResultsSectionHeader label="Meets from your circle" count={inCircle.length} />
+          {inCircle.map((meet) => (
+            <CardMeet
+              key={meet.id}
+              meet={meet}
+              variant="discover"
+              role={userMeetIds.has(meet.id) ? "joining" : undefined}
+            />
+          ))}
+          {otherMeets.length > 0 && (
+            <ResultsSectionHeader label="Other meets" count={otherMeets.length} />
+          )}
+        </>
+      )}
+      {otherMeets.map((meet) => (
         <CardMeet
           key={meet.id}
           meet={meet}
@@ -258,11 +327,6 @@ function DiscoverMeetsInner() {
   const [showFilters, setShowFilters] = useState(false);
   const currentUserId = useCurrentUserId();
   const isGuest = useIsGuest();
-  // Guests don't follow series and have no committed-meets list — hide the
-  // Following pill outright rather than rendering it empty. D4 2026-05-11.
-  const typeTabs = isGuest
-    ? TYPE_TABS.filter((t) => t.key !== "following")
-    : TYPE_TABS;
 
   const handleFiltersChange = (update: Partial<MeetFilters>) => {
     setFilters((prev) => ({ ...prev, ...update }));
@@ -276,23 +340,17 @@ function DiscoverMeetsInner() {
     [currentUserId]
   );
 
-  // When the "Following" pill is active, scope to series the current user
-  // follows. Followed series are inherently recurring (one-offs can't be
-  // followed). All other type pills work over the full upcoming set.
-  const baseSet = useMemo(
-    () => (activeType === "following" ? getFollowedSeries(currentUserId) : allUpcoming),
-    [activeType, currentUserId, allUpcoming],
+  const results = useMemo(
+    () => applyFilters(allUpcoming, activeType, filters),
+    [allUpcoming, activeType, filters],
   );
-
-  const results = useMemo(() => applyFilters(baseSet, activeType, filters), [baseSet, activeType, filters]);
 
   return (
     <PageColumn hideHeader abovePanel={<DetailHeader backHref="/discover" title="Meets" />}>
       <div className="page-column-panel-body" style={{ position: "relative" }}>
-        {/* Type filter pills — scrollable on mobile.
-            Guests get the slim pill row (no "Following"). */}
+        {/* Type filter pills — scrollable on mobile. */}
         <FilterPillRow
-          pills={typeTabs}
+          pills={TYPE_TABS}
           activeKey={activeType}
           onChange={(key) => { setActiveType(key); setShowFilters(false); }}
         />

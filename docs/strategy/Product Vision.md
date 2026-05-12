@@ -118,7 +118,7 @@ Community  |  Discover  |  My Schedule  |  Bookings  |  Profile
 
 - **Community** (formerly Home) — MasterDetailShell. Left panel: category tabs (All / Parks / Neighbors / Interest / Care) filter the group list. Right panel: aggregated feed (default) or selected group detail. Posts from connections appear in the "All" feed even if not posted to a group. See [[Groups & Care Model]] for full spec.
 - **Discover** — three-door hub: Meets, Groups, Dog Care. Each door links to a sub-page with browse/filter UI. Not a tabbed layout — cards with illustrations.
-- **My Schedule** — Upcoming/History toggle with unified timeline of meets + bookings. "What am I committed to?"
+- **My Schedule** — Upcoming/History toggle with unified timeline of meets + bookings. "What am I committed to?" Sub-pills on Upcoming (All / Meets / Care) filter by item type. **Soft-interest (followed series, group-meets without RSVPs) does NOT live here** — that lives on Discover Meets via the "Meets from your circle" section. Schedule is commitments + past only (2026-05-11 IA refresh).
 - **Bookings** — two tabs: My Care (owner bookings) and My Services (provider dashboard). "What care am I managing?"
 - **Profile** — your profile, dogs, settings, provider dial.
 
@@ -142,6 +142,20 @@ Profile
 ```
 
 Desktop uses a left sidebar (200px). 7 items — same top-level destinations as mobile bottom nav, plus Inbox and Notifications (which live in the mobile header instead).
+
+### Schedule + Discover IA (refresh 2026-05-11)
+
+Three surfaces split by viewer relationship to events:
+
+| Surface | Job | Soft-interest treatment |
+|---|---|---|
+| **Home** | Passive feed + occasional discovery nudge | `DiscoveryBanner` interleaved at index 2 when viewer is in groups but under-engaged on RSVPs |
+| **Discover Meets** | Active exploration + elevated "your circle" section | **"Meets from your circle"** section at top (followed series + group-member meets), broader marketplace below. Mirrors `/discover/care`'s "Carers in your circle" pattern — same card shape, distinct section header. |
+| **My Schedule** | Personal calendar of commitments | Going + booked + completed only. No Interested concept here. |
+
+**Why the split.** Earlier, soft-interest had a dedicated lane on Schedule (the Meets→Interested sub-pill), which buried followed series two clicks deep and confused the Schedule mental model ("calendar of commitments" vs "dashboard of all my relationships to events"). The 2026-05-11 refresh resolves the tension: Schedule becomes a pure commitments calendar; Discover absorbs the exploration + soft-interest role with visual elevation for the user's circle. Home stays light but actively nudges toward Discover when context warrants.
+
+**Implementation:** `app/schedule/page.tsx` (2-tab structure), `app/discover/meets/page.tsx` (in-circle partition + section), `components/home/DiscoveryBanner.tsx` (new). Backwards-compat: `/schedule?view=interested` redirects to `/discover/meets`.
 
 ### Care discovery
 

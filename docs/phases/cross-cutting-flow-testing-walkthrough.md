@@ -44,7 +44,7 @@ D1 + D2 + D3 attendees all surface in **Other attendees**. D3 additionally rende
   - **Connected:** Marek.
   - **Familiar:** Shawn (Tereza's outbound `state: "familiar"` on Shawn).
   - **Other attendees:** Nikola (D1 — Open), Filip (D2 — *no pill; promoted by inbound Familiar*), Jakub (D3 — Pending pill on the row).
-- [x] **A1.2 — Schedule Interested lane (D4).** Go to `/schedule?view=interested&as=tereza`. **"Morning walk — Riegrovy sady"** should appear in the lane (the Vinohrady Morning Crew weekly walk Tereza follows but doesn't attend). *Note: "Thursday morning walk — Riegrovy sady" also has Tereza as a follower, but she's auto-seeded as an attendee on its upcoming dates so it dedupes into the Going lane instead.*
+- [ ] **A1.2 — Discover Meets "your circle" (D4).** *Surface moved 2026-05-11 — Schedule's Interested lane retired; followed series + group-meets now elevated on Discover Meets via the "Meets from your circle" section.* Go to `/discover/meets?as=tereza`. **"Meets from your circle"** section at top should include **"Morning walk — Riegrovy sady"** (the Vinohrady Morning Crew weekly Tereza follows). Visual: same `CardMeet` shape, under a section header above the broader marketplace.
 
 ### A2 — Daniel
 
@@ -52,7 +52,7 @@ D1 + D2 + D3 attendees all surface in **Other attendees**. D3 additionally rende
   - **Connected:** Hana.
   - **Familiar:** Vítek (Daniel's outbound `state: "familiar"` on Vítek).
   - **Other attendees:** Petra (D1 — Open), Marek (D2 — *no pill; inbound Familiar*), Lucie (D3 — Pending pill on the row).
-- [x] **A2.2 — Schedule Interested lane (D4).** Go to `/schedule?view=interested&as=daniel`. Both **"Evening stroll — Vítkov"** and **"Thursday morning walk — Riegrovy sady"** should appear (Daniel is in `followers` on both, not in their attendees).
+- [ ] **A2.2 — Discover Meets "your circle" (D4).** Go to `/discover/meets?as=daniel`. **"Meets from your circle"** section should include both **"Evening stroll — Vítkov"** and **"Thursday morning walk — Riegrovy sady"** (Daniel follows both). Plus any reactive-dog group meets he's eligible for (group-member inclusion).
 
 ### A3 — Klára
 
@@ -60,7 +60,7 @@ D1 + D2 + D3 attendees all surface in **Other attendees**. D3 additionally rende
   - **Connected:** Filip, Hana, Shawn.
   - **Familiar:** *empty / not rendered* — Klára has no outbound Familiar marks on this roster.
   - **Other attendees:** Petra (D1 — Open), Jakub (D2 — *no pill; inbound Familiar*), Jana (D3 — Pending pill on the row).
-- [x] **A3.2 — Schedule Interested lane (D4).** Go to `/schedule?view=interested&as=klara`. **"Thursday morning — Riegrovy sady"** should appear (newly seeded — Klára follows Tereza's series but doesn't attend). *Klára also follows "Calm Dog Group Session — Stromovka", but she hosts/attends every occurrence so it dedupes into the Going lane — that's correct behaviour.*
+- [ ] **A3.2 — Discover Meets "your circle" (D4).** Go to `/discover/meets?as=klara`. **"Meets from your circle"** section should include **"Thursday morning — Riegrovy sady"** (newly seeded — Klára follows Tereza's series). Klára's own training series may also appear here via group-member inclusion (she runs Calm Dog Sessions).
 
 ### A4 — Tomáš
 
@@ -68,11 +68,11 @@ D1 + D2 + D3 attendees all surface in **Other attendees**. D3 additionally rende
   - **Connected:** Petra, Ondřej, Adéla.
   - **Familiar:** *empty / not rendered* — Tomáš's outbound Familiar marks (Jakub, Marek) aren't on this meet's roster.
   - **Other attendees:** Jana (D1 — Open), Vítek (D2 — *no pill; inbound Familiar*), Shawn (D3 — Pending pill on the row).
-- [x] **A4.2 — Schedule Interested lane (D4).** Go to `/schedule?view=interested&as=tomas`. **"Thursday morning — Riegrovy sady"** should appear (newly seeded — Tomáš follows but doesn't attend). *Tomáš also follows "Karlín morning coffee walk", but he RSVPs to it, so it dedupes into the Going lane — that's correct behaviour, same pattern as Klára with her own training series.*
+- [ ] **A4.2 — Discover Meets "your circle" (D4).** Go to `/discover/meets?as=tomas`. **"Meets from your circle"** section should include **"Thursday morning — Riegrovy sady"** (newly seeded — Tomáš follows) and Karlín-group meets (he's a Karlín Dog Neighbors member). "Karlín morning coffee walk" appears here once even though he's both a follower and a group-member — dedup by meet id.
 
 ### A5 — New User
 
-- [x] **A5.1 — Empty states intact.** Go to `/?as=new-user`. No connections, no attended meets, no edge-case attendees on any People tab (per the empty-state design). Then `/schedule?view=interested&as=new-user` should render the empty Interested state.
+- [ ] **A5.1 — Empty states intact.** Go to `/?as=new-user`. No connections, no attended meets, no edge-case attendees on any People tab (per the empty-state design). Then `/schedule?as=new-user` should render the empty Upcoming state. `/discover/meets?as=new-user` skips the "Meets from your circle" section entirely (no in-circle data) and renders the flat marketplace list.
 
 ---
 
@@ -101,7 +101,7 @@ Discovery sweep: switch persona, hit each top-level surface, note dead-ends. **D
 - [x] **B2.7b — Open persona.** `/profile?as=tereza` → chip reads **"Open profile"** with `Eye` icon. Tap → tooltip: *"Anyone using Doggo can see your full profile, posts, and dogs."*
 - [x] **B2.7c — New user defaults to Locked.** `/profile?as=new-user` → chip reads **"Locked profile"** (the spec default for unset `profileVisibility`).
 - [x] **B2.7d — Chip is self-view only.** Switch persona via `?as=tereza` then visit `/profile/daniel` (other-user route) — **no visibility chip** in that hero. The chip is the owner's privacy mirror; locked-vs-open communicates to others via full-card-vs-placeholder rendering.
-- [ ] **B2.7f — Locked-profile layout (CCFT 2026-05-11 redesign).** Continuing on `/profile/daniel?as=tereza` (Tereza viewing Daniel — locked, shared context via group co-membership). Verify:
+- [x] **B2.7f — Locked-profile layout (CCFT 2026-05-11 redesign).** Continuing on `/profile/daniel?as=tereza` (Tereza viewing Daniel — locked, shared context via group co-membership). Verify:
   1. **Hero (horizontal at sm+):** 160px locked-treatment avatar (slight darken + tiny blur — the privacy filter) on the left; firstName + invitation copy + Familiar pill stacked in the right column. Stacks vertically on narrow viewports. Mirrors the unlocked-profile hero shape so locked and unlocked feel like the same surface in different states.
   2. **Familiar pill:** outline aesthetic (transparent bg, border-strong, tertiary text) at the `.private-profile-row-pill--lg` size — bigger than the row-list version but still quiet. A brief brand-filled experiment was tested + reverted; locked surfaces should read as *considered invitation* not *loud commit*. Above the button: "Have you met Daniel? Mark them familiar to let them see your profile." Tap → button flips to `is-marked` state ("Familiar ✓") + copy updates to "Daniel can now see your profile and tags from shared contexts."
   3. **Shared context card (full-width, no fill, border):** UsersThree icon + "You and Daniel" heading, then a sentence listing *all* shared groups: "You're both in **Prague Reactive Dog Support** and **Klára's Calm Dog Sessions**." Card chrome is `border: 1px solid var(--border-regular)` with no background fill.
@@ -110,19 +110,20 @@ Discovery sweep: switch persona, hit each top-level surface, note dead-ends. **D
   *Future-state: shared past-meets line ("You attended 3 meets together") is filed as punch-list P66 pending a `getSharedMeetsBetween` list-returning helper.*
 - [x] **B2.7e — Edit affordance + section order + nested Familiar card.** Go to `/profile?as=daniel`. About tab section order is **Hero → Bio → Dogs → Profile visibility → Tagging preferences → Connections (with Familiar aside nested) → Care**. Privacy + Tagging now sit ABOVE the Connections list (reordered 2026-05-11 so settings aren't buried below a scroll-heavy roster). Profile visibility section has two full-width option rows (Locked + Lock icon / Open + Eye icon) — same layout as Tagging preferences. **Locked** is active by default for Daniel. Tap **Open** → row highlights brand-subtle, hero chip flips to **"Open profile"** with the `Eye` icon in real time. Tap **Locked** again → reverts. *(State doesn't persist across persona swaps in the prototype; accepted limitation.)* Scroll past the settings — Connections renders with the *About marking people Familiar* aside nested inline (no divider above; reads as part of the Connections section). *Note: whether Connections belongs on the About tab at all is a [Profiles Deep Pass E4](./profiles-deep-pass.md) decision; this reorder is tactical and doesn't preempt it.*
 - [x] **B2.4 — `/bookings/booking-klara-daniel?as=daniel`.** Recurring Wed booking, kd-1 through kd-5 sessions readable as relative dates. "Since" stat on Info tab now reads ~5 weeks ago (was a static 2026-02-10; relativised 2026-05-11).
-- [ ] **B2.5 — `/schedule?as=daniel`.** Daniel's Reactive Dog Support arc shows up across the schedule tabs (Upcoming · Meets · Care · History):
-  - **Upcoming tab (chronological roll-up):** **"Reactive dog walk — Stromovka quiet zone"** appears alongside Daniel's care booking sessions in date order. *(Upcoming has no Going/Interested filter — that split lives on the Meets tab.)*
-  - **Meets tab → Going pill:** **"Reactive dog walk — Stromovka quiet zone"** (meet-17, weekly, Daniel creator).
-  - **Meets tab → Interested pill:** **"Evening stroll — Vítkov"** and **"Thursday morning walk — Riegrovy sady"** (Daniel follows both, doesn't attend — already verified in A2.2).
+- [ ] **B2.5 — `/schedule?as=daniel` (post-IA-refresh).** Schedule now has **only two top-level tabs — Upcoming + History** (Meets + Care tabs retired 2026-05-11). Upcoming carries sub-pills **All / Meets / Care** for type filtering.
+  - **Upcoming → All:** **"Reactive dog walk — Stromovka quiet zone"** appears alongside Daniel's care booking sessions in date order.
+  - **Upcoming → Meets:** Just the meets — "Reactive dog walk — Stromovka quiet zone".
+  - **Upcoming → Care:** Just the booking sessions (Klára training sessions).
   - **History tab:** **"Reactive dog small-group walk"** (meet-10, weekly, completed ~8 days ago) and **"Spring reactive dog community walk"** (meet-reactive-spring, one-off, completed ~6 days ago).
-  - No broken cards or empty placeholders across any tab.
-- [ ] **B2.6 — `/inbox?as=daniel`.** Daniel's inbox should render **a single conversation row** for **Klára H.** — Daniel has only one seeded conversation (`daniel-klara-conv`, the recurring training booking thread). Row content: Klára avatar (circle, 44px) + "Klára H." + latest message preview (from `dk-10`) + relative timestamp + **unread dot** (`unreadCount: 1`) + booking-service label (e.g. "Reactive dog session" or similar). Tap the row → opens the thread with the full message history: inquiry → proposal → contract → session reports. *(Daniel's "thin network" persona arc shows up here as a one-row inbox; that's by design, not a missing-data bug.)*
+  - **Interested / followed series are NOT in Schedule anymore** — they live on Discover Meets' "Meets from your circle" section (verified in A2.2). Schedule = pure commitments + past.
+  - No broken cards or empty placeholders across any tab/sub-pill.
+- [x] **B2.6 — `/inbox?as=daniel`.** Daniel's inbox should render **a single conversation row** for **Klára H.** — Daniel has only one seeded conversation (`daniel-klara-conv`, the recurring training booking thread). Row content: Klára avatar (circle, 44px) + "Klára H." + latest message preview (from `dk-10`) + relative timestamp + **unread dot** (`unreadCount: 1`) + booking-service label (e.g. "Reactive dog session" or similar). Tap the row → opens the thread with the full message history: inquiry → proposal → contract → session reports. *(Daniel's "thin network" persona arc shows up here as a one-row inbox; that's by design, not a missing-data bug.)*
 
 ### B3 — Klára (`?as=klara`)
 
-- [ ] **B3.1 — `/home?as=klara`.** Provider-side feed: training recaps, client posts.
-- [ ] **B3.2 — `/communities/group-klara-training?as=klara`.** Care config (training), Hosting suppressed CTAs, multi-client members tab.
-- [ ] **B3.3 — `/profile?as=klara`.** Open profile, Carer audience = anyone (public), Services tab with full catalogue.
+- [x] **B3.1 — `/home?as=klara`.** Provider-side feed: training recaps, client posts.
+- [x] **B3.2 — `/communities/group-klara-training?as=klara`.** Care config (training), Hosting suppressed CTAs, multi-client members tab.
+- [x] **B3.3 — `/profile?as=klara`.** Open profile, Carer audience = anyone (public), Services tab with full catalogue.
 - [ ] **B3.4 — `/bookings/booking-klara-daniel?as=klara`.** Provider-side view (session check-ins visible).
 - [ ] **B3.5 — `/schedule?as=klara`.** Training meets in Upcoming; cross-cluster (Stromovka, Reactive) past meets in History.
 - [ ] **B3.6 — `/inbox?as=klara`.** Client threads (Daniel + others); proposal artifacts visible.
@@ -227,6 +228,40 @@ All against `/communities/group-reactive-dogs?as=tomas` (approval group, Tomáš
 
 ---
 
+## Workstream F — Schedule + Discover IA refresh (shipped 2026-05-11)
+
+Tactical reshape of the Schedule + Discover IA so soft-interest (followed series + group-meets you haven't RSVP'd to) lives where it naturally belongs — Discover — rather than buried two clicks deep in Schedule's Meets→Interested pill. Three pieces:
+
+1. **Schedule simplification** — `/schedule` collapses from four tabs (Upcoming · Meets · Care · History) to two (Upcoming · History) with `All / Meets / Care` type pills on Upcoming. Going/Interested distinction retires from Schedule entirely.
+2. **Discover Meets "your circle" elevation** — `/discover/meets` gains a top section *"Meets from your circle"* (mirroring the existing *"Carers in your circle"* pattern on `/discover/care`). Includes followed series + meets from groups the viewer is a member of. The earlier "Following" type pill retires (subsumed by the section).
+3. **Home discovery banner** — feed-shaped nudge card that appears at index 2 of the feed when the viewer is in groups but has < 2 upcoming meet RSVPs. Routes to `/discover/meets` with copy that mentions their group context. Trigger sophistication (frequency caps, variants, dismiss memory) is filed as a follow-up.
+
+Implementation: `app/schedule/page.tsx` (rewrite), `app/discover/meets/page.tsx` (partitioning + section), new `components/home/DiscoveryBanner.tsx`, `app/home/page.tsx` (banner insertion).
+
+### F1 — Schedule simplification
+
+- [ ] **F1.1 — Two tabs only.** Go to `/schedule?as=tereza`. Top tab bar has **Upcoming · History** — no Meets, no Care.
+- [ ] **F1.2 — Upcoming sub-pills.** Upcoming carries pill row **All · Meets · Care**. Default is All. Switching to Meets filters to just meet items; Care to just care sessions. Counts re-render per pill.
+- [ ] **F1.3 — Legacy URL redirects.** `/schedule?view=meets&as=tereza` lands on Upcoming with Meets pill active. `/schedule?view=care&as=tereza` lands on Upcoming with Care pill active. `/schedule?view=interested&as=tereza` redirects to `/discover/meets` (Interested concept retired from Schedule).
+- [ ] **F1.4 — History unchanged.** Past meets + the review-recent section render as before. Pending review badge on the tab still works.
+
+### F2 — Discover Meets "your circle" section
+
+- [ ] **F2.1 — Tereza in-circle visible.** Go to `/discover/meets?as=tereza`. Top section **"Meets from your circle"** renders above the broader list. Should include meets from Tereza's joined groups + her followed series ("Morning walk — Riegrovy sady", etc.).
+- [ ] **F2.2 — Daniel in-circle.** Go to `/discover/meets?as=daniel`. Top section includes reactive-dog-group meets + his followed series ("Evening stroll — Vítkov", "Thursday morning walk — Riegrovy sady").
+- [ ] **F2.3 — "Other meets" header renders only when split is present.** When `inCircle.length > 0` AND `otherMeets.length > 0`, both section headers render. When `inCircle.length === 0` (or guest), flat list with no headers — section headers with one section below them are noise.
+- [ ] **F2.4 — Type pills cross-cut both sections.** Pick "Walks" — circle section shrinks to in-circle walks, broader list to non-circle walks.
+- [ ] **F2.5 — Guest sees flat list.** `/discover/meets` without persona (guest mode) → no "Meets from your circle" section, just the flat marketplace.
+- [ ] **F2.6 — Following pill retired.** Type pill row reads **All · Walks · Hangouts · Playdates · Training** — no Following pill.
+
+### F3 — Home discovery banner
+
+- [ ] **F3.1 — Banner fires for under-engaged grouped users.** Go to `/home?as=daniel`. Daniel is in groups + has limited upcoming RSVPs → the **"Find a meet near you"** banner should appear at index 2 (after the third feed post), styled with brand-subtle bg + brand-main left stripe. Tap → routes to `/discover/meets`.
+- [ ] **F3.2 — Banner skipped for fully-engaged users.** Go to `/home?as=tereza`. Tereza has many upcoming RSVPs → banner does NOT appear.
+- [ ] **F3.3 — Banner skipped for new users.** Go to `/home?as=new-user`. New-user mode renders the welcome state without the discovery banner.
+
+---
+
 ## Decisions surfaced during walkthrough
 
 Emergent decisions, design changes, or rationale that surfaced during verification and need to land in their proper home docs. Append as you walk.
@@ -241,3 +276,4 @@ Emergent decisions, design changes, or rationale that surfaced during verificati
 - [x] **Profile visibility chip + editable setting shipped (self-view only).** Surfaced on Daniel's B2.3 — a tester opening their own Locked profile had no visual signal of the privacy state and no edit affordance to change it. Two pieces: read-only `ProfileVisibilityChip` (icon + label + tap-tooltip) in the hero next to the name + Carer badge; editable `ProfileVisibilitySetting` (full-width row picker, same layout as TagApprovalSetting) as a new "Profile visibility" section on the About tab. **Self-view only** — other-user profiles communicate locked/open via card-vs-placeholder rendering, not a chip (surfacing a "this person is Locked" badge to viewers leaks the subject's setting against the deniability rule). Two states: Open (Eye icon) / Locked (Lock icon). Also: nested the "About marking people Familiar" explainer card inside the Connections section so it no longer renders a divider line above as a peer-level section. → `components/profile/ProfileVisibilityChip.tsx`, `components/profile/ProfileVisibilitySetting.tsx`, `ProfileAboutTab.tsx` (new section + nested aside), `app/profile/page.tsx` (state wiring via `setUser`). No feature-doc update needed for this iteration — fits naturally under existing Trust & Connection Model + design-system Principle 11 chip-rhythm conventions.
 - [x] **About-tab section reorder: settings ABOVE Connections (tactical, 2026-05-11).** Surfaced after shipping the visibility setting — settings shouldn't sit below a scroll-heavy roster. New order: Hero → Bio → Dogs → **Profile visibility → Tagging preferences** → Connections (with Familiar aside nested) → Care. This is a tactical move that doesn't preempt the structural question of whether Connections belongs on the About tab at all — that decision is filed as **Profiles Deep Pass E4** ("Connection list on own profile — review how your connections display. Useful information?"), still `todo` in that phase. → no feature-doc update; cross-referenced from CCFT walkthrough B2.7e.
 - [x] **Locked-profile layout redesign (2026-05-11).** Three changes from walkthrough B2.7 feedback: **(1)** Familiar CTA promoted from compact `.private-profile-row-pill` to `ButtonAction variant="primary" size="md" cta` — matches design-system Principle 11's hero-CTA carve-out. **(2)** "Learn how privacy works" link moved inside the lock card (was a floating standalone element below the stack). **(3)** "You're both in {first group}" inline copy pulled out of the lock card into a new `SharedContextCard` component that lists *all* shared groups, with room to grow (next: shared past-meets — filed as P66). Trust gradient on the locked-profile surface reads cleanly now: **action → warmth → privacy explainer.** → `components/profile/SharedContextCard.tsx` (new), `app/profile/[userId]/page.tsx` (layout + button promotion). Follow-up P66 captures the future shared-meets line.
+- [x] **Schedule + Discover IA refresh (2026-05-11).** Surfaced as a meta-design question while reviewing the buried "Interested" sub-pill on Schedule. Settled on a three-surface restructure that respects the existing carers-in-circle pattern: **Schedule = pure commitments** (Upcoming · History; type sub-pills All/Meets/Care on Upcoming); **Discover Meets = exploration + elevated "Meets from your circle"** section (mirrors `/discover/care`'s pattern — followed series + group-meets visually elevated, broader marketplace below); **Home = passive feed + occasional discovery banner** at index 2 when the viewer is in groups but under-engaged. The "Interested" concept retired from Schedule; the "Following" type pill retired from Discover Meets (subsumed by the elevated section). → `strategy/Product Vision.md` → new section "Schedule + Discover IA" (to be added). Code: `app/schedule/page.tsx` rewrite, `app/discover/meets/page.tsx` partitioning, new `components/home/DiscoveryBanner.tsx`. Follow-ups filed: banner trigger sophistication (frequency caps, dismiss memory, variant rotation), shared `card-meet` in-circle visual variant for tighter chrome differentiation if the section header alone doesn't carry enough signal.
