@@ -524,27 +524,42 @@ function UserProfileInner() {
                   )}
                 </div>
                 <div className="w-full sm:flex-1 flex flex-col gap-xs min-w-0 items-center sm:items-start text-center sm:text-left">
-                  <div className="flex items-center gap-sm flex-wrap justify-center sm:justify-start">
-                    <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">{name}</h1>
-                    {/* Carer identity badge — light info-blue pill with
-                     *  the Carer's sub-spec label ("Dog Trainer", "Vet
-                     *  Clinic", etc.) when one resolves; "Carer" otherwise.
-                     *  Audience signal is encoded by visibility — circle-
-                     *  Carers' badge only renders to Connected viewers (or
-                     *  self) per the privacy rule. Discover Refinement
-                     *  walkthrough decision, 2026-05-10. */}
-                    {(() => {
-                      const viewerIsConnected =
-                        userId === currentUserId || connState === "connected";
-                      const carerBadge = getCarerIdentity(userProfile, viewerIsConnected);
-                      if (!carerBadge) return null;
-                      return (
-                        <span className="person-row-pill person-row-pill--carer">
+                  <h1 className="font-heading text-2xl font-medium text-fg-primary m-0">{name}</h1>
+                  {/* Carer identity chip — light info-blue chip with the
+                   *  Carer's sub-spec label ("Dog Trainer", "Vet Clinic",
+                   *  etc.) when one resolves; "Carer" otherwise. Audience
+                   *  signal is encoded by visibility — circle-Carers'
+                   *  chip only renders to Connected viewers (or self) per
+                   *  the privacy rule. Sits on its own row UNDER the name
+                   *  (mirrors the own-profile hero shape).
+                   *
+                   *  Chip chrome matches ProfileVisibilityChip's (12px
+                   *  font, px-sm py-xs, rounded-pill) — own-profile hero
+                   *  shows visibility + carer as a sibling pair, so the
+                   *  sizes have to match there; mirroring the same chrome
+                   *  here keeps the carer chip looking the same on both
+                   *  surfaces. Sized larger than PersonRow's
+                   *  `.person-row-pill--carer` treatment (which is tuned
+                   *  for compact 36px rows). 2026-05-13 (PDP). */}
+                  {(() => {
+                    const viewerIsConnected =
+                      userId === currentUserId || connState === "connected";
+                    const carerBadge = getCarerIdentity(userProfile, viewerIsConnected);
+                    if (!carerBadge) return null;
+                    return (
+                      <div className="flex items-center gap-sm justify-center sm:justify-start">
+                        <span
+                          className="flex items-center gap-xs rounded-pill px-sm py-xs text-xs font-medium"
+                          style={{
+                            background: "var(--status-info-light)",
+                            color: "var(--status-info-strong)",
+                          }}
+                        >
                           {carerBadge.label}
                         </span>
-                      );
-                    })()}
-                  </div>
+                      </div>
+                    );
+                  })()}
 
                   {location && (
                     <span className="flex items-center gap-xs text-sm text-fg-secondary">
@@ -581,12 +596,12 @@ function UserProfileInner() {
                       and every nuanced state (familiar/pending/connected)
                       collapses to the same AuthGate prompt. D6 2026-05-11. */}
                   {!isSelf && isGuest && (
-                    <div className="flex gap-sm w-full" style={{ marginTop: "var(--space-md)" }}>
+                    <div className="flex flex-wrap gap-sm w-full" style={{ marginTop: "var(--space-md)" }}>
                       <ButtonAction
                         variant="primary"
                         size="md"
                         cta
-                        className="flex-1"
+                        className="grow basis-[140px]"
                         leftIcon={<ChatCircleDots size={16} weight="fill" />}
                         onClick={() => requireAuth(`connect with ${firstName}`)}
                       >
@@ -633,13 +648,22 @@ function UserProfileInner() {
                     if (!leftSlot && !rightSlot) return null;
 
                     return (
-                      <div className="flex gap-sm w-full" style={{ marginTop: "var(--space-md)" }}>
+                      // Row uses `flex-wrap` + `grow basis-[140px]` per
+                      // button so the pair shares the row equally when
+                      // there's space (each grows to ~50% from its 140px
+                      // basis), and wraps to stacked full-width when the
+                      // panel is too narrow to fit both labels side by
+                      // side (e.g. iPhone SE / 320px). `.btn` carries
+                      // `white-space: nowrap` so flex-1 alone couldn't
+                      // shrink the buttons below content width — they'd
+                      // overflow the panel horizontally. 2026-05-13 (PDP).
+                      <div className="flex flex-wrap gap-sm w-full" style={{ marginTop: "var(--space-md)" }}>
                         {leftSlot === "mark_familiar" && (
                           <ButtonAction
                             variant="outline"
                             size="md"
                             cta
-                            className="flex-1"
+                            className="grow basis-[140px]"
                             leftIcon={<Plus size={14} weight="bold" />}
                             onClick={() => markFamiliar(currentUserId, userId)}
                             aria-label={`Mark ${firstName} as Familiar`}
@@ -652,7 +676,7 @@ function UserProfileInner() {
                             variant="outline"
                             size="md"
                             cta
-                            className="flex-1"
+                            className="grow basis-[140px]"
                             leftIcon={<Check size={14} weight="bold" />}
                             onClick={() => unmarkFamiliar(currentUserId, userId)}
                             aria-pressed
@@ -666,7 +690,7 @@ function UserProfileInner() {
                             variant="outline"
                             size="md"
                             cta
-                            className="flex-1"
+                            className="grow basis-[140px]"
                             leftIcon={<Check size={14} weight="bold" />}
                             aria-label={`You're connected with ${firstName}`}
                           >
@@ -678,7 +702,7 @@ function UserProfileInner() {
                             variant="primary"
                             size="md"
                             cta
-                            className="flex-1"
+                            className="grow basis-[140px]"
                             leftIcon={<ChatCircleDots size={16} weight="fill" />}
                             onClick={() => handleTabChange("chat")}
                           >
@@ -690,7 +714,7 @@ function UserProfileInner() {
                             variant="primary"
                             size="md"
                             cta
-                            className="flex-1"
+                            className="grow basis-[140px]"
                             leftIcon={<CalendarDots size={16} weight="light" />}
                             onClick={() => handleTabChange("services")}
                           >
@@ -702,7 +726,7 @@ function UserProfileInner() {
                             variant="primary"
                             size="md"
                             cta
-                            className="flex-1"
+                            className="grow basis-[140px]"
                           >
                             Connect with {firstName}
                           </ButtonAction>
@@ -712,7 +736,7 @@ function UserProfileInner() {
                             variant="outline"
                             size="md"
                             cta
-                            className="flex-1"
+                            className="grow basis-[140px]"
                             disabled
                           >
                             Request sent

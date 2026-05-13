@@ -68,21 +68,36 @@ export function DogsNearYou() {
 
   return (
     <section
-      className="flex flex-col gap-sm py-lg border-edge-regular"
+      className="flex flex-col gap-md py-xl border-edge-regular"
       style={{ borderTopWidth: 1, borderBottomWidth: 1 }}
     >
-      {/* Section header — inset to match the meet/feed cards' content edge
-          (px-lg matches `.card-schedule-meet`'s padding: var(--space-lg)). */}
+      {/* Section header — promoted from quiet `uppercase tertiary` label to a
+          proper heading-scale title (CCFT walkthrough B5.1, 2026-05-11). The
+          old label-style header undersold the section; this is a real
+          neighbourhood-discovery moment for new users + low-engagement
+          viewers. `px-lg` keeps content alignment with the card-row inset. */}
       <div className="flex items-center gap-xs px-lg">
-        <Dog size={14} weight="light" className="text-fg-tertiary" />
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-fg-tertiary m-0">
+        <Dog size={18} weight="light" className="text-fg-secondary" />
+        <h2 className="font-heading text-lg font-semibold text-fg-primary m-0">
           {stats.activeDogs} dogs in {stats.neighbourhood}
         </h2>
       </div>
 
-      {/* Horizontal avatar strip — edge-to-edge for a natural scroll. */}
+      {/* Horizontal card strip — dog photo primary, owner avatar overlap
+          carries the relationship.
+          ── Layout decision (CCFT B5.1, 2026-05-11):
+          The earlier strip rendered dogs disconnected from owners (dog
+          photo + dog name, no owner cue). Felt off vs the community-
+          first thesis — people-around-you matters as much as
+          dogs-around-you. Inverted the `OwnerDogAvatar` shape: large
+          dog photo (160px rounded-square per Rule B) + small owner
+          circle (44px) overlapping bottom-right with a surface-ring to
+          pop. Two stacked labels (dog primary + owner secondary)
+          confirm the relationship for accessibility + casual scrollers.
+          Inlined for now; extract to `DogOwnerAvatar` if a second
+          consumer surfaces. */}
       <div
-        className="flex gap-sm px-lg"
+        className="flex gap-md px-lg"
         style={{ overflowX: "auto", scrollSnapType: "x mandatory" }}
       >
         {dogs.map((dog) => {
@@ -93,26 +108,51 @@ export function DogsNearYou() {
           return (
             <div
               key={`${dog.userId}-${dog.dogName}`}
-              className="flex flex-col items-center gap-xs flex-shrink-0"
+              className="flex flex-col items-start gap-sm flex-shrink-0"
               style={{ scrollSnapAlign: "start", width: 160 }}
             >
-              <img
-                src={imageUrl}
-                alt={dogImg ? `${dog.dogName} (${dog.userName}'s dog)` : dog.userName}
-                /* Rule B: dogs render as rounded squares; owner-fallback
-                   stays a circle. Discover Refinement F sweep,
-                   2026-05-10. */
-                className={dogImg ? "rounded-md" : "rounded-full"}
-                style={{
-                  width: 160,
-                  height: 160,
-                  objectFit: "cover",
-                  border: "1px solid var(--border-light)",
-                }}
-              />
-              <span className="text-sm text-fg-secondary text-center" style={{ lineHeight: 1.2 }}>
-                {dog.dogName}
-              </span>
+              <div className="relative">
+                <img
+                  src={imageUrl}
+                  alt={dogImg ? `${dog.dogName} (${dog.userName}'s dog)` : dog.userName}
+                  /* Rule B: dogs render as rounded squares; owner-fallback
+                     stays a circle. Discover Refinement F sweep,
+                     2026-05-10. */
+                  className={dogImg ? "rounded-md" : "rounded-full"}
+                  style={{
+                    width: 160,
+                    height: 160,
+                    objectFit: "cover",
+                    border: "1px solid var(--border-light)",
+                  }}
+                />
+                {/* Owner avatar overlap — only renders when the main image
+                    is the dog (else the main IS the owner and a second
+                    overlap is redundant). 3px surface-base ring pops the
+                    overlap off the dog photo edge. */}
+                {dogImg && (
+                  <img
+                    src={dog.ownerAvatarUrl}
+                    alt={dog.userName}
+                    className="rounded-full absolute object-cover"
+                    style={{
+                      width: 44,
+                      height: 44,
+                      bottom: -8,
+                      right: -8,
+                      border: "3px solid var(--surface-base)",
+                    }}
+                  />
+                )}
+              </div>
+              <div className="flex flex-col gap-tiny min-w-0">
+                <span className="text-sm font-semibold text-fg-primary truncate">
+                  {dog.dogName}
+                </span>
+                <span className="text-xs text-fg-tertiary truncate">
+                  {dog.userName}
+                </span>
+              </div>
             </div>
           );
         })}

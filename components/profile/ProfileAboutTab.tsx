@@ -51,7 +51,7 @@ function ShareProfileButton({ shareCode }: { shareCode: string }) {
   return (
     <ButtonAction
       variant="outline"
-      size="md"
+      size="sm"
       leftIcon={
         copied ? (
           <CopySimple size={14} weight="bold" />
@@ -100,21 +100,39 @@ function ProfileHero({ user }: { user: UserProfile }) {
           />
         </div>
         <div className="w-full sm:flex-1 flex flex-col gap-xs min-w-0 items-center sm:items-start text-center sm:text-left">
-          <div className="flex items-center gap-sm flex-wrap justify-center sm:justify-start">
-            <ProfileNameDropdown name={fullName} />
-            {carerBadge && (
-              <span className="person-row-pill person-row-pill--carer">
-                {carerBadge.label}
-              </span>
-            )}
-            {/* Profile visibility chip — self-view only, mirrors the
-                GroupVisibilityChip pattern so the privacy-disclosure
-                language stays consistent across the app. Defaults to
-                Locked when `profileVisibility` is undefined (the spec
-                default). Cross-Cutting Flow Testing 2026-05-11. */}
+          <ProfileNameDropdown name={fullName} />
+          {/* Pills row — Profile visibility chip + Carer identity chip
+              nest UNDER the name (was inline alongside the name). Lets
+              the name carry the heading weight without competing chrome;
+              chips line up as supporting metadata on their own row.
+              Visibility chip leads — it's the more structural fact
+              (always present, defaults to "Private") and the privacy
+              state modifies the noun "profile"; Carer role is
+              conditional supplementary metadata. No `flex-wrap` — chip
+              widths fit even on a 280px viewport.
+
+              Carer chip uses the same chip chrome as ProfileVisibilityChip
+              (12px font, px-sm py-xs, rounded-pill) — colors stay
+              distinct (info-blue vs neutral surface; different meanings
+              deserve different colors) but physical size matches so the
+              row reads as a clean sibling pair. Sized smaller than the
+              PersonRow `.person-row-pill--carer` treatment (which is
+              tuned for compact 36px rows). 2026-05-13 (PDP). */}
+          <div className="flex items-center gap-sm justify-center sm:justify-start">
             <ProfileVisibilityChip
               visibility={user.profileVisibility ?? "locked"}
             />
+            {carerBadge && (
+              <span
+                className="flex items-center gap-xs rounded-pill px-sm py-xs text-xs font-medium"
+                style={{
+                  background: "var(--status-info-light)",
+                  color: "var(--status-info-strong)",
+                }}
+              >
+                {carerBadge.label}
+              </span>
+            )}
           </div>
           {user.location && (
             <span className="flex items-center gap-xs text-sm text-fg-secondary">
@@ -618,13 +636,18 @@ export function ProfileAboutTab({
         >
           Find care for your dog from people you know, or set up your own.
         </p>
+        {/* `grow basis-[140px]` over `flex-1` so the pair wraps to stacked
+            full-width on tiny viewports (iPhone SE / 320px). With
+            `flex-1` (basis 0%) + `.btn`'s `white-space: nowrap`, the
+            buttons would compete for grow space + overflow the panel
+            horizontally instead of wrapping. 2026-05-13 (PDP). */}
         <div className="flex flex-wrap gap-sm">
           <ButtonAction
             variant="secondary"
             size="md"
             href="/discover?tab=care"
             leftIcon={<MagnifyingGlass size={16} weight="light" />}
-            className="flex-1"
+            className="grow basis-[140px]"
           >
             Find care
           </ButtonAction>
@@ -634,7 +657,7 @@ export function ProfileAboutTab({
               size="md"
               href="/profile?tab=services"
               leftIcon={<Sparkle size={16} weight="light" />}
-              className="flex-1"
+              className="grow basis-[140px]"
             >
               Offer care
             </ButtonAction>
@@ -645,7 +668,7 @@ export function ProfileAboutTab({
               size="md"
               href="/profile?tab=services"
               leftIcon={<CaretRight size={16} weight="light" />}
-              className="flex-1"
+              className="grow basis-[140px]"
             >
               Manage your services
             </ButtonAction>
