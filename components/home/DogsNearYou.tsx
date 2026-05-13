@@ -64,6 +64,19 @@ export function DogsNearYou() {
   const dogs = getNeighbourhoodDogs(neighbourhood, viewer.id);
   const stats = getNeighbourhoodStats(neighbourhood);
 
+  // Conditional subheader copy — anchors the section's intent so users
+  // don't read it as "dogs up for adoption?" or some other ambiguous
+  // frame. Speaks to the user's own pet(s) when present (more inviting),
+  // falls back to a meet-context line when there are no pets seeded.
+  // 2026-05-11 walkthrough B5.1 iteration.
+  const petNames = viewer.pets.map((p) => p.name);
+  const subheaderText =
+    petNames.length === 0
+      ? "Some of the dogs you'll see at meets near you"
+      : petNames.length === 1
+        ? `Dogs in your area for ${petNames[0]} to make friends with`
+        : `Dogs in your area for ${petNames[0]} and ${petNames[1]} to make friends with`;
+
   if (dogs.length === 0) return null;
 
   return (
@@ -76,11 +89,16 @@ export function DogsNearYou() {
           old label-style header undersold the section; this is a real
           neighbourhood-discovery moment for new users + low-engagement
           viewers. `px-lg` keeps content alignment with the card-row inset. */}
-      <div className="flex items-center gap-xs px-xl">
-        <Dog size={18} weight="light" className="text-fg-secondary" />
-        <h2 className="font-heading text-lg font-semibold text-fg-primary m-0">
-          {stats.activeDogs} dogs in {stats.neighbourhood}
-        </h2>
+      <div className="flex flex-col gap-tiny" style={{ paddingLeft: "var(--space-xxxl)", paddingRight: "var(--space-xxxl)" }}>
+        <div className="flex items-center gap-xs">
+          <Dog size={18} weight="light" className="text-fg-secondary" />
+          <h2 className="font-heading text-lg font-semibold text-fg-primary m-0">
+            {stats.activeDogs} dogs in {stats.neighbourhood}
+          </h2>
+        </div>
+        <p className="text-sm text-fg-secondary m-0">
+          {subheaderText}
+        </p>
       </div>
 
       {/* Horizontal card strip — dog photo primary, owner avatar overlap
@@ -101,16 +119,15 @@ export function DogsNearYou() {
         style={{
           overflowX: "auto",
           scrollSnapType: "x mandatory",
-          // Padding via inline so the scrollable area always starts the
-          // first card 20px from the panel edge. `px-xl` (Tailwind) was
-          // already in place but reading flush in some layouts — making
-          // it explicit eliminates any utility-collision risk. Bottom
+          // Edge inset is handled by margin-left on the first card +
+          // margin-right on the last card (CSS in globals.css under
+          // `.dogs-near-you-strip > *:first-child` / `:last-child`).
+          // Padding-left on a flex-overflow scroll container was
+          // resolving as flush in some renders — margins on the
+          // children themselves bypass that quirk entirely. Bottom
           // padding gives the owner overlap + bottom label breathing
-          // room above where the scrollbar would land (scrollbar is
-          // hidden via `.dogs-near-you-strip` CSS, but the visual
-          // alignment still wants the gap).
-          paddingLeft: "var(--space-xl)",
-          paddingRight: "var(--space-xl)",
+          // room above where the scrollbar would land (scrollbar
+          // hidden, but visual alignment still benefits).
           paddingBottom: "var(--space-xs)",
         }}
       >
