@@ -3374,6 +3374,19 @@ body.guest-route {
   display: none;                  /* Chrome/Safari */
 }
 
+/* DogsNearYou horizontal strip — hide the scrollbar so it doesn't
+   overlap the owner-name label below each card. Touch + wheel
+   scrolling still works; the chevron + card edges convey scrollability.
+   CCFT walkthrough B5.1 iteration, 2026-05-11. */
+.dogs-near-you-strip {
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE/Edge */
+}
+
+.dogs-near-you-strip::-webkit-scrollbar {
+  display: none;                  /* Chrome/Safari */
+}
+
 .filter-pill {
   display: inline-flex;
   align-items: center;

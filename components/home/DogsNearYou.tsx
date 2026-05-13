@@ -16,7 +16,7 @@
  * `mockUsers` rather than a hardcoded magic value. Closes data side of P10.
  */
 
-import { Dog } from "@phosphor-icons/react";
+import { Dog, User } from "@phosphor-icons/react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { getNeighbourhoodStats } from "@/lib/mockNeighbourhoodStats";
 import { getDogImageByOwnerAndName } from "@/lib/dogLookup";
@@ -76,7 +76,7 @@ export function DogsNearYou() {
           old label-style header undersold the section; this is a real
           neighbourhood-discovery moment for new users + low-engagement
           viewers. `px-lg` keeps content alignment with the card-row inset. */}
-      <div className="flex items-center gap-xs px-lg">
+      <div className="flex items-center gap-xs px-xl">
         <Dog size={18} weight="light" className="text-fg-secondary" />
         <h2 className="font-heading text-lg font-semibold text-fg-primary m-0">
           {stats.activeDogs} dogs in {stats.neighbourhood}
@@ -97,8 +97,22 @@ export function DogsNearYou() {
           Inlined for now; extract to `DogOwnerAvatar` if a second
           consumer surfaces. */}
       <div
-        className="flex gap-md px-lg"
-        style={{ overflowX: "auto", scrollSnapType: "x mandatory" }}
+        className="dogs-near-you-strip flex gap-xl"
+        style={{
+          overflowX: "auto",
+          scrollSnapType: "x mandatory",
+          // Padding via inline so the scrollable area always starts the
+          // first card 20px from the panel edge. `px-xl` (Tailwind) was
+          // already in place but reading flush in some layouts — making
+          // it explicit eliminates any utility-collision risk. Bottom
+          // padding gives the owner overlap + bottom label breathing
+          // room above where the scrollbar would land (scrollbar is
+          // hidden via `.dogs-near-you-strip` CSS, but the visual
+          // alignment still wants the gap).
+          paddingLeft: "var(--space-xl)",
+          paddingRight: "var(--space-xl)",
+          paddingBottom: "var(--space-xs)",
+        }}
       >
         {dogs.map((dog) => {
           // Dog-forward: prefer the dog photo, fall back to owner avatar when
@@ -108,7 +122,7 @@ export function DogsNearYou() {
           return (
             <div
               key={`${dog.userId}-${dog.dogName}`}
-              className="flex flex-col items-start gap-sm flex-shrink-0"
+              className="flex flex-col items-start gap-md flex-shrink-0"
               style={{ scrollSnapAlign: "start", width: 160 }}
             >
               <div className="relative">
@@ -129,17 +143,20 @@ export function DogsNearYou() {
                 {/* Owner avatar overlap — only renders when the main image
                     is the dog (else the main IS the owner and a second
                     overlap is redundant). 3px surface-base ring pops the
-                    overlap off the dog photo edge. */}
+                    overlap off the dog photo edge. Sized 64px (was 44px
+                    in v1) for more presence; positioned -10px on bottom
+                    + right so it breaks the dog-photo edge cleanly.
+                    Tweaked 2026-05-11 walkthrough iteration. */}
                 {dogImg && (
                   <img
                     src={dog.ownerAvatarUrl}
                     alt={dog.userName}
                     className="rounded-full absolute object-cover"
                     style={{
-                      width: 44,
-                      height: 44,
-                      bottom: -8,
-                      right: -8,
+                      width: 64,
+                      height: 64,
+                      bottom: -10,
+                      right: -10,
                       border: "3px solid var(--surface-base)",
                     }}
                   />
@@ -149,8 +166,15 @@ export function DogsNearYou() {
                 <span className="text-sm font-semibold text-fg-primary truncate">
                   {dog.dogName}
                 </span>
-                <span className="text-xs text-fg-tertiary truncate">
-                  {dog.userName}
+                {/* User icon before the owner name disambiguates the
+                    secondary label — without it, "Jana" alone reads as
+                    "another dog?" given the dog-name is right above.
+                    Asymmetric (no icon on the dog name) because the
+                    dog name is already disambiguated by the large dog
+                    photo above. 2026-05-11 walkthrough iteration. */}
+                <span className="flex items-center gap-xs text-xs text-fg-tertiary min-w-0">
+                  <User size={11} weight="light" className="shrink-0" />
+                  <span className="truncate">{dog.userName}</span>
                 </span>
               </div>
             </div>
