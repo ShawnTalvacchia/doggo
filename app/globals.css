@@ -3387,22 +3387,11 @@ body.guest-route {
   display: none;                  /* Chrome/Safari */
 }
 
-/* First/last card edge inset — margin-based instead of padding on the
-   parent scroll container. Padding-left/right on a flex-overflow
-   scroll container is supposed to work, but multiple iterations of
-   the strip still read as flush against the panel edge in some
-   renders. Margins on the children themselves bypass any
-   flex-overflow padding-collapse quirk: the first child gets pushed
-   in by margin-left; the last child gets margin-right so its edge
-   doesn't sit hard against the panel edge when scrolled all the way
-   right. CCFT walkthrough B5.1 iteration, 2026-05-11. */
-.dogs-near-you-strip > *:first-child {
-  margin-left: var(--space-xxxl);
-}
-
-.dogs-near-you-strip > *:last-child {
-  margin-right: var(--space-xxxl);
-}
+/* First/last card edge inset is applied via inline style on the JSX
+   side (`marginLeft: var(--space-xl)` on first card, `marginRight` on
+   last). The earlier global CSS rules under this comment kept failing
+   to land — likely a fast-refresh / cascade quirk. Inline styles win
+   regardless. See `components/home/DogsNearYou.tsx`. */
 
 .filter-pill {
   display: inline-flex;

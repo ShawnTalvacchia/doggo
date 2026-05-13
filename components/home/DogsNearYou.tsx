@@ -89,7 +89,7 @@ export function DogsNearYou() {
           old label-style header undersold the section; this is a real
           neighbourhood-discovery moment for new users + low-engagement
           viewers. `px-lg` keeps content alignment with the card-row inset. */}
-      <div className="flex flex-col gap-tiny" style={{ paddingLeft: "var(--space-xxxl)", paddingRight: "var(--space-xxxl)" }}>
+      <div className="flex flex-col gap-tiny" style={{ paddingLeft: "var(--space-xl)", paddingRight: "var(--space-xl)" }}>
         <div className="flex items-center gap-xs">
           <Dog size={18} weight="light" className="text-fg-secondary" />
           <h2 className="font-heading text-lg font-semibold text-fg-primary m-0">
@@ -131,16 +131,28 @@ export function DogsNearYou() {
           paddingBottom: "var(--space-xs)",
         }}
       >
-        {dogs.map((dog) => {
+        {dogs.map((dog, idx) => {
           // Dog-forward: prefer the dog photo, fall back to owner avatar when
           // the dog image can't be resolved (keeps the strip visually full).
           const dogImg = getDogImageByOwnerAndName(dog.userId, dog.dogName);
           const imageUrl = dogImg ?? dog.ownerAvatarUrl;
+          // Inline margin on the first/last card guarantees the leading
+          // and trailing edge inset matches the heading's px-xl (20px),
+          // bypassing any flex-overflow padding-collapse quirk or
+          // CSS-class fast-refresh issue from earlier passes. Most
+          // bulletproof place to put the inset.
+          const isFirst = idx === 0;
+          const isLast = idx === dogs.length - 1;
           return (
             <div
               key={`${dog.userId}-${dog.dogName}`}
               className="flex flex-col items-start gap-md flex-shrink-0"
-              style={{ scrollSnapAlign: "start", width: 160 }}
+              style={{
+                scrollSnapAlign: "start",
+                width: 160,
+                marginLeft: isFirst ? "var(--space-xl)" : undefined,
+                marginRight: isLast ? "var(--space-xl)" : undefined,
+              }}
             >
               <div className="relative">
                 <img
