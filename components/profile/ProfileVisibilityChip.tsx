@@ -32,14 +32,14 @@ interface ProfileVisibilityChipProps {
 
 const COPY: Record<ProfileVisibility, { label: string; explainer: string }> = {
   open: {
-    label: "Open profile",
+    label: "Public profile",
     explainer:
       "Anyone using Doggo can see your full profile, posts, and dogs.",
   },
   locked: {
-    label: "Locked profile",
+    label: "Private profile",
     explainer:
-      "Only Connected members see your full profile. Others see a placeholder until you mark them Familiar or accept a Connect.",
+      "Only people you've marked Familiar or are Connected with can see your full profile. Others see a placeholder.",
   },
 };
 

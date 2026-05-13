@@ -143,9 +143,10 @@ function ProfileHero({ user }: { user: UserProfile }) {
 
 // ── Connections list (internal) ──────────────────────────────────────────────
 
-// Cap per group on the compact (in-tab) view. Anything beyond rolls
-// into the "Show all" ModalSheet. 2026-05-11.
-const CONNECTION_GROUP_CAP = 5;
+// Avatar stack cap on the in-tab summary cards. Overflow rolls into a
+// "+N" chip; full lists live in the ModalSheet behind "View all".
+// 2026-05-11.
+const CONNECTION_AVATAR_CAP = 5;
 
 function ConnectionRow({
   conn,
@@ -187,17 +188,15 @@ function ConnectionRow({
   );
 }
 
+// Modal-only — used inside the ModalSheet to render the uncapped grouped
+// list. The in-tab summary uses `ConnectionGroupCard` (below) instead.
 function ConnectionGroup({
   label,
   items,
-  cap,
 }: {
   label: string;
   items: ReturnType<typeof getConnectionsForViewer>;
-  /** Render at most this many rows; pass `undefined` for unlimited. */
-  cap?: number;
 }) {
-  const shown = cap !== undefined ? items.slice(0, cap) : items;
   return (
     <div className="flex flex-col gap-xs">
       <span
@@ -206,9 +205,71 @@ function ConnectionGroup({
       >
         {label} ({items.length})
       </span>
-      {shown.map((conn) => (
+      {items.map((conn) => (
         <ConnectionRow key={conn.id} conn={conn} />
       ))}
+    </div>
+  );
+}
+
+// In-tab summary card — one per state (Connected / Familiar / Pending).
+// Avatar stack on the left, label + count on the right. Non-interactive;
+// the "View all" button below the row of cards opens the full modal.
+// 2026-05-11.
+function ConnectionGroupCard({
+  label,
+  items,
+}: {
+  label: string;
+  items: ReturnType<typeof getConnectionsForViewer>;
+}) {
+  const preview = items.slice(0, CONNECTION_AVATAR_CAP);
+  const overflow = Math.max(0, items.length - CONNECTION_AVATAR_CAP);
+  return (
+    <div
+      className="flex items-center gap-md rounded-form"
+      style={{
+        padding: "var(--space-md)",
+        background: "var(--surface-top)",
+        border: "1px solid var(--border-regular)",
+      }}
+    >
+      <div className="flex items-center shrink-0">
+        {preview.map((conn, i) => (
+          <img
+            key={conn.id}
+            src={conn.avatarUrl}
+            alt={conn.userName}
+            className="rounded-full border-2 border-surface-top object-cover"
+            style={{
+              width: 32,
+              height: 32,
+              marginLeft: i > 0 ? -8 : 0,
+            }}
+          />
+        ))}
+        {overflow > 0 && (
+          <span
+            className="flex items-center justify-center rounded-full text-xs font-medium"
+            style={{
+              width: 32,
+              height: 32,
+              marginLeft: -8,
+              background: "var(--surface-gray)",
+              color: "var(--text-secondary)",
+              border: "2px solid var(--surface-top)",
+            }}
+          >
+            +{overflow}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-col flex-1 min-w-0">
+        <p className="text-sm font-semibold text-fg-primary m-0">{label}</p>
+        <p className="text-xs text-fg-tertiary m-0">
+          {items.length} {items.length === 1 ? "person" : "people"}
+        </p>
+      </div>
     </div>
   );
 }
@@ -220,57 +281,53 @@ function ConnectionsList({ viewerId }: { viewerId: string }) {
   const connected = myConnections.filter((c) => c.state === "connected");
   const familiar = myConnections.filter((c) => c.state === "familiar");
   const pending = myConnections.filter((c) => c.state === "pending");
+  const total = connected.length + familiar.length + pending.length;
 
-  if (connected.length === 0 && familiar.length === 0 && pending.length === 0) {
+  if (total === 0) {
     return (
-      <div className="flex flex-col items-start gap-sm">
-        <p className="text-sm text-fg-secondary m-0">
-          No connections yet. Attend a meet to start building your community.
-        </p>
-        <ButtonAction variant="outline" size="sm" href="/discover/meets">
-          Browse Meets
-        </ButtonAction>
-      </div>
+      <>
+        <SectionHeader title="Connections" />
+        <div className="flex flex-col items-start gap-sm">
+          <p className="text-sm text-fg-secondary m-0">
+            No connections yet. Attend a meet to start building your community.
+          </p>
+          <ButtonAction variant="outline" size="sm" href="/discover/meets">
+            Browse Meets
+          </ButtonAction>
+        </div>
+      </>
     );
   }
 
+  // States with zero connections are hidden — keeps the summary tight.
   const groups = [
     { label: "Connected", items: connected },
     { label: "Familiar", items: familiar },
     { label: "Pending", items: pending },
   ].filter((g) => g.items.length > 0);
 
-  const total = connected.length + familiar.length + pending.length;
-  // Show "All" footer when at least one group is truncated by the cap.
-  const hasOverflow = groups.some((g) => g.items.length > CONNECTION_GROUP_CAP);
-
   return (
     <>
-      <div className="flex flex-col gap-md">
+      <SectionHeader
+        title="Connections"
+        action={
+          <ButtonAction
+            variant="tertiary"
+            size="sm"
+            onClick={() => setShowAll(true)}
+          >
+            View all ({total})
+          </ButtonAction>
+        }
+      />
+      <div className="flex flex-col gap-sm">
         {groups.map((group) => (
-          <ConnectionGroup
+          <ConnectionGroupCard
             key={group.label}
             label={group.label}
             items={group.items}
-            cap={CONNECTION_GROUP_CAP}
           />
         ))}
-        {hasOverflow && (
-          <button
-            type="button"
-            onClick={() => setShowAll(true)}
-            className="flex items-center justify-center gap-xs rounded-panel text-sm font-medium"
-            style={{
-              padding: "var(--space-sm) var(--space-md)",
-              background: "var(--surface-top)",
-              border: "1px solid var(--border-regular)",
-              color: "var(--text-primary)",
-              cursor: "pointer",
-            }}
-          >
-            Show all ({total}) →
-          </button>
-        )}
       </div>
 
       <ModalSheet
@@ -417,16 +474,20 @@ export function ProfileAboutTab({
           Walked back from always-editable 2026-05-11 (C-extension) so
           the About tab feels compact in view mode and full options only
           appear when the user enters edit. Companion read-only signal
-          lives on the hero (ProfileVisibilityChip). */}
+          lives on the hero (ProfileVisibilityChip).
+
+          For Private profiles, the "About marking people Familiar"
+          explainer card nests inside this section — Familiar is the
+          mechanism for selectively opening a private profile, so it
+          belongs with the visibility setting. Hidden for Public profiles
+          per Action matrix v3 (2026-04-27): "Open viewers skip Familiar
+          entirely (it's redundant)." */}
       <section>
         <SectionHeader title="Profile visibility" />
         {editing && (
           <p
             className="text-xs text-fg-tertiary"
-            style={{
-              marginTop: "-8px",
-              marginBottom: "var(--space-lg)",
-            }}
+            style={{ marginTop: "-8px", marginBottom: "-8px" }}
           >
             Control who can see your full profile, posts, and dogs
           </p>
@@ -436,6 +497,56 @@ export function ProfileAboutTab({
           onChange={onProfileVisibilityChange}
           editing={editing}
         />
+
+        {/* Familiar asymmetry explainer — persistent, low-key card teaching
+            the most-misunderstood mechanic in the trust model: marking
+            Familiar opens YOUR profile to them, not the other way around.
+            Deniability-safe (only the actor sees this on their own
+            profile). Moved here from the Connections section 2026-05-11
+            since Familiar IS the visibility mechanism for Private
+            profiles; gated on `profileVisibility === "locked"` so Public
+            owners don't see explanation for a mechanic that doesn't apply
+            to them. Onboarding & In-Product Communication phase will
+            layer richer teaching. */}
+        {profileVisibility === "locked" && (
+          <div
+            className="flex flex-col gap-sm rounded-panel"
+            style={{
+              background: "var(--surface-inset)",
+              padding: "var(--space-lg)",
+            }}
+          >
+            <div className="flex items-center gap-sm">
+              <Eye size={18} weight="light" className="text-fg-secondary shrink-0" />
+              <h4
+                className="font-heading font-medium text-fg-primary m-0"
+                style={{ fontSize: "var(--text-sm)" }}
+              >
+                About marking people Familiar
+              </h4>
+            </div>
+            <p
+              className="text-sm text-fg-secondary m-0"
+              style={{ lineHeight: 1.5 }}
+            >
+              Marking someone Familiar opens <strong>your</strong> profile to
+              them — not the other way around. They can see more of you next
+              time they visit. It&apos;s silent — they&apos;re never told who
+              marked them.
+            </p>
+            <Link
+              href="/help/privacy#familiar"
+              className="text-sm font-semibold text-fg-primary hover:text-brand-main"
+              style={{
+                textDecoration: "underline",
+                textUnderlineOffset: "2px",
+                alignSelf: "flex-start",
+              }}
+            >
+              Learn more about how privacy works →
+            </Link>
+          </div>
+        )}
       </section>
 
       {/* Tagging preferences — same view/edit split as Profile visibility. */}
@@ -444,10 +555,7 @@ export function ProfileAboutTab({
         {editing && (
           <p
             className="text-xs text-fg-tertiary"
-            style={{
-              marginTop: "-8px",
-              marginBottom: "var(--space-lg)",
-            }}
+            style={{ marginTop: "-8px", marginBottom: "-8px" }}
           >
             Control how others can tag you and your dogs in posts
           </p>
@@ -459,61 +567,11 @@ export function ProfileAboutTab({
         />
       </section>
 
-      {/* Connections — with Familiar explainer nested inside as a contextual
-          aside (no top divider above the inset card; it reads as part of
-          the Connections block, not a peer-level section). Walkthrough
-          fix 2026-05-11: the standalone section produced an unwanted
-          divider via `.profile-tab-stack > * + *`. */}
+      {/* Connections — Familiar explainer moved out 2026-05-11 to nest
+          inside Profile visibility (Familiar IS the visibility mechanism;
+          the teaching belongs with the setting). */}
       <section>
-        <SectionHeader title="Connections" />
         <ConnectionsList viewerId={user.id} />
-
-        {/* Familiar asymmetry explainer — persistent, low-key card teaching
-            the most-misunderstood mechanic in the trust model: marking
-            Familiar opens YOUR profile to them, not the other way around.
-            Deniability-safe (only the actor sees this on their own
-            profile). Onboarding & In-Product Communication phase,
-            2026-05-04. Nested inside Connections 2026-05-11 so it reads
-            as an aside, not a top-level section. See
-            [[Trust & Connection Model]] → "Connection States" → Familiar. */}
-        <div
-          className="flex flex-col gap-sm rounded-panel"
-          style={{
-            background: "var(--surface-inset)",
-            padding: "var(--space-lg)",
-            marginTop: "var(--space-md)",
-          }}
-        >
-          <div className="flex items-center gap-sm">
-            <Eye size={18} weight="light" className="text-fg-secondary shrink-0" />
-            <h4
-              className="font-heading font-medium text-fg-primary m-0"
-              style={{ fontSize: "var(--text-sm)" }}
-            >
-              About marking people Familiar
-            </h4>
-          </div>
-          <p
-            className="text-sm text-fg-secondary m-0"
-            style={{ lineHeight: 1.5 }}
-          >
-            Marking someone Familiar opens <strong>your</strong> profile to
-            them — not the other way around. They can see more of you next
-            time they visit. It&apos;s silent — they&apos;re never told who
-            marked them.
-          </p>
-          <Link
-            href="/help/privacy#familiar"
-            className="text-sm font-semibold text-fg-primary hover:text-brand-main"
-            style={{
-              textDecoration: "underline",
-              textUnderlineOffset: "2px",
-              alignSelf: "flex-start",
-            }}
-          >
-            Learn more about how privacy works →
-          </Link>
-        </div>
       </section>
 
       {/* Care CTAs — short row of paired actions. Description line under the

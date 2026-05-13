@@ -12,11 +12,9 @@ import {
   Globe,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
-import { ButtonIcon } from "@/components/ui/ButtonIcon";
 import { InputField } from "@/components/ui/InputField";
-import { Select } from "@/components/ui/Select";
 import { Toggle } from "@/components/ui/Toggle";
-import { SERVICE_LABELS } from "@/lib/constants/services";
+import { SERVICE_LABELS, SUB_SERVICES } from "@/lib/constants/services";
 import { defaultModifiers } from "@/lib/pricing";
 import type {
   UserProfile,
@@ -354,20 +352,17 @@ export function ProfileServicesTab({
     onEditServices(editServices.filter((_, i) => i !== idx));
   }
 
-  function addService() {
+  function addService(type: ServiceType) {
     const usedTypes = editServices.map((s) => s.serviceType);
-    const available: ServiceType[] = SERVICE_TYPE_ORDER.filter(
-      (t) => !usedTypes.includes(t),
-    );
-    if (available.length === 0) return;
+    if (usedTypes.includes(type)) return;
     onEditServices([
       ...editServices,
       {
         kind: "care",
-        serviceType: available[0],
+        serviceType: type,
         enabled: true,
         pricePerUnit: 0,
-        priceUnit: available[0] === "walks_checkins" ? "per_visit" : "per_night",
+        priceUnit: type === "walks_checkins" ? "per_visit" : "per_night",
         subServices: [],
         modifiers: defaultModifiers(),
       },
@@ -450,14 +445,16 @@ export function ProfileServicesTab({
             Replaced the previous two-Toggle pattern that hid the
             hierarchy. 2026-05-11 (C6). */}
         <section>
-          <h3 className="profile-card-subtitle">Offering care</h3>
-          <p
-            className="text-sm text-fg-secondary m-0"
-            style={{ marginBottom: 12 }}
-          >
-            How do you want to offer care to your community?
-          </p>
-          <div className="care-offering-picker">
+          {/* Inner wrapper tightens the header → sub-text → picker group
+              with `gap-xs` (6px) instead of the section's `gap-md` (12px).
+              Negative-margin approach earlier was crushing the <p> into
+              overlap with its neighbors. 2026-05-11. */}
+          <div className="flex flex-col gap-xs">
+            <h3 className="profile-card-subtitle">Offering care</h3>
+            <p className="text-sm text-fg-secondary m-0">
+              How do you want to offer care to your community?
+            </p>
+            <div className="care-offering-picker">
             {CARE_OPTIONS.map((opt) => {
               const selected = careOption === opt.key;
               return (
@@ -495,51 +492,44 @@ export function ProfileServicesTab({
               />
             </section>
 
-            {/* Services */}
+            {/* Services — each listed as its own fully-editable card.
+                Restructured 2026-05-11 (C6 walkthrough): service type is
+                set at creation (via the per-type Add buttons below) and
+                shown as the card's section header — no in-card dropdown.
+                Body fields run full-width: Price → Includes (sub-services
+                pills) → Notes → Pricing modifiers. Delete button is red,
+                top-right, aligned with the header — matches the PetEditCard
+                pattern. */}
             <section>
               <h3 className="profile-card-subtitle">Services</h3>
               <div className="flex flex-col gap-md">
                 {editServices.map((svc, idx) => {
-                  // Available service types for this row = already-selected types
-                  // elsewhere are excluded so the same service isn't listed twice.
-                  const otherUsedTypes = editServices
-                    .filter((_, i) => i !== idx)
-                    .map((s) => s.serviceType);
-                  const typeOptions = SERVICE_TYPE_ORDER.filter(
-                    (t) => !otherUsedTypes.includes(t),
-                  ).map((t) => ({ value: t, label: SERVICE_LABELS[t] }));
-
+                  const subServiceOptions = SUB_SERVICES[svc.serviceType] ?? [];
                   return (
-                    <div
-                      key={idx}
-                      className="profile-service-card relative"
-                    >
-                      <div
-                        className="absolute"
-                        style={{ top: 8, right: 8 }}
-                      >
-                        <ButtonIcon
-                          label="Remove service"
+                    <div key={idx} className="profile-service-card">
+                      {/* Header: service-type label + red trash */}
+                      <div className="flex items-center justify-between">
+                        <h3 className="profile-card-subtitle m-0">
+                          {SERVICE_LABELS[svc.serviceType]}
+                        </h3>
+                        <button
+                          type="button"
                           onClick={() => removeService(idx)}
+                          className="flex items-center justify-center"
+                          style={{
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                            color: "var(--status-error-main)",
+                            padding: 4,
+                          }}
+                          aria-label="Remove service"
+                          title="Remove service"
                         >
                           <Trash size={18} weight="light" />
-                        </ButtonIcon>
+                        </button>
                       </div>
-                      <div style={{ paddingRight: 40 }}>
-                        <Select
-                          id={`service-type-${idx}`}
-                          label="Service type"
-                          value={svc.serviceType}
-                          onChange={(val) =>
-                            updateService(idx, {
-                              serviceType: val as ServiceType,
-                              priceUnit:
-                                val === "walks_checkins" ? "per_visit" : "per_night",
-                            })
-                          }
-                          options={typeOptions}
-                        />
-                      </div>
+
                       <InputField
                         id={`price-${idx}`}
                         label="Price"
@@ -550,13 +540,57 @@ export function ProfileServicesTab({
                         }
                         trailing={`Kč / ${svc.priceUnit === "per_visit" ? "visit" : "night"}`}
                       />
-                      <InputField
-                        id={`notes-${idx}`}
-                        label="Notes"
-                        value={svc.notes ?? ""}
-                        onChange={(val) => updateService(idx, { notes: val })}
-                        helper="e.g. Max 3 dogs, 45-60 min walks"
-                      />
+
+                      {/* Sub-services — multi-select pills. Each
+                          service type carries its own allowed sub-service
+                          list (`SUB_SERVICES[type]`). 2026-05-11. */}
+                      {subServiceOptions.length > 0 && (
+                        <div className="input-block">
+                          <label className="label">
+                            <span className="label-primary-group">
+                              <span>Includes</span>
+                            </span>
+                          </label>
+                          <div className="pill-group" style={{ flexWrap: "wrap" }}>
+                            {subServiceOptions.map((sub) => {
+                              const active = svc.subServices.includes(sub);
+                              return (
+                                <button
+                                  key={sub}
+                                  type="button"
+                                  className={`pill${active ? " active" : ""}`}
+                                  onClick={() => {
+                                    const next = active
+                                      ? svc.subServices.filter((s) => s !== sub)
+                                      : [...svc.subServices, sub];
+                                    updateService(idx, { subServices: next });
+                                  }}
+                                >
+                                  {sub}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="input-block">
+                        <label className="label" htmlFor={`notes-${idx}`}>
+                          <span className="label-primary-group">
+                            <span>Notes</span>
+                          </span>
+                        </label>
+                        <textarea
+                          id={`notes-${idx}`}
+                          className="textarea"
+                          rows={2}
+                          value={svc.notes ?? ""}
+                          onChange={(e) => updateService(idx, { notes: e.target.value })}
+                          placeholder="e.g. Max 3 dogs, 45-60 min walks"
+                          style={{ minHeight: 56 }}
+                        />
+                      </div>
+
                       <PricingModifiersEditor
                         modifiers={svc.modifiers ?? []}
                         onChange={(m) => updateService(idx, { modifiers: m })}
@@ -564,16 +598,61 @@ export function ProfileServicesTab({
                     </div>
                   );
                 })}
-                {editServices.length < 3 && (
-                  <ButtonAction
-                    variant="tertiary"
-                    size="sm"
-                    leftIcon={<Plus size={14} weight="bold" />}
-                    onClick={addService}
-                  >
-                    Add a service
-                  </ButtonAction>
-                )}
+
+                {/* Per-type "Add" buttons — replaces the prior single
+                    "+ Add a service" that picked the first available type
+                    silently. Shows one button per ServiceType not yet
+                    configured. When all four are added, the row hides. */}
+                {(() => {
+                  const usedTypes = new Set(editServices.map((s) => s.serviceType));
+                  const remaining = SERVICE_TYPE_ORDER.filter(
+                    (t) => !usedTypes.has(t),
+                  );
+                  if (remaining.length === 0) return null;
+                  return (
+                    <div className="flex flex-wrap gap-sm">
+                      {remaining.map((t) => (
+                        <ButtonAction
+                          key={t}
+                          variant="tertiary"
+                          size="sm"
+                          leftIcon={<Plus size={14} weight="bold" />}
+                          onClick={() => addService(t)}
+                        >
+                          {SERVICE_LABELS[t]}
+                        </ButtonAction>
+                      ))}
+                    </div>
+                  );
+                })()}
+
+                {/* Meet-type services explainer — visible only when the
+                    carer has any meet-type offerings (training sessions,
+                    workshops, group meets). They're filtered out of edit
+                    mode here because their schema differs (cadence,
+                    durationMinutes, seriesMeetId) and they'll get a
+                    dedicated flow in the Onboarding & In-Product
+                    Communication phase. Without this note, Klára (3
+                    training sessions) would see only her 1 Care service
+                    in edit and wonder where the others went. 2026-05-11. */}
+                {(() => {
+                  const meetServices =
+                    user.carerProfile?.services?.filter(
+                      (s) => s.kind === "meet",
+                    ) ?? [];
+                  if (meetServices.length === 0) return null;
+                  return (
+                    <p
+                      className="text-xs text-fg-tertiary m-0"
+                      style={{ marginTop: 4, lineHeight: 1.5 }}
+                    >
+                      You also have {meetServices.length} training-session
+                      offering{meetServices.length === 1 ? "" : "s"} configured.
+                      Meet-type services (training sessions, workshops,
+                      group meets) are managed separately.
+                    </p>
+                  );
+                })()}
               </div>
             </section>
 

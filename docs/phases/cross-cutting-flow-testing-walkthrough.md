@@ -60,7 +60,7 @@ D1 + D2 + D3 attendees all surface in **Other attendees**. D3 additionally rende
   - **Connected:** Filip, Hana, Shawn.
   - **Familiar:** *empty / not rendered* — Klára has no outbound Familiar marks on this roster.
   - **Other attendees:** Petra (D1 — Open), Jakub (D2 — *no pill; inbound Familiar*), Jana (D3 — Pending pill on the row).
-- [ ] **A3.2 — Discover Meets "your circle" (D4).** Go to `/discover/meets?as=klara`. **"Meets from your circle"** section should include **"Thursday morning — Riegrovy sady"** (newly seeded — Klára follows Tereza's series). Klára's own training series may also appear here via group-member inclusion (she runs Calm Dog Sessions).
+- [x] **A3.2 — Discover Meets "your circle" (D4).** Go to `/discover/meets?as=klara`. **"Meets from your circle"** section should include **"Thursday morning — Riegrovy sady"** (newly seeded — Klára follows Tereza's series). Klára's own training series may also appear here via group-member inclusion (she runs Calm Dog Sessions).
 
 ### A4 — Tomáš
 
@@ -68,11 +68,11 @@ D1 + D2 + D3 attendees all surface in **Other attendees**. D3 additionally rende
   - **Connected:** Petra, Ondřej, Adéla.
   - **Familiar:** *empty / not rendered* — Tomáš's outbound Familiar marks (Jakub, Marek) aren't on this meet's roster.
   - **Other attendees:** Jana (D1 — Open), Vítek (D2 — *no pill; inbound Familiar*), Shawn (D3 — Pending pill on the row).
-- [ ] **A4.2 — Discover Meets "your circle" (D4).** Go to `/discover/meets?as=tomas`. **"Meets from your circle"** section should include **"Thursday morning — Riegrovy sady"** (newly seeded — Tomáš follows) and Karlín-group meets (he's a Karlín Dog Neighbors member). "Karlín morning coffee walk" appears here once even though he's both a follower and a group-member — dedup by meet id.
+- [x] **A4.2 — Discover Meets "your circle" (D4).** Go to `/discover/meets?as=tomas`. **"Meets from your circle"** section should include **"Thursday morning — Riegrovy sady"** (newly seeded — Tomáš follows) and Karlín-group meets (he's a Karlín Dog Neighbors member). "Karlín morning coffee walk" appears here once even though he's both a follower and a group-member — dedup by meet id.
 
 ### A5 — New User
 
-- [ ] **A5.1 — Empty states intact.** Go to `/?as=new-user`. No connections, no attended meets, no edge-case attendees on any People tab (per the empty-state design). Then `/schedule?as=new-user` should render the empty Upcoming state. `/discover/meets?as=new-user` skips the "Meets from your circle" section entirely (no in-circle data) and renders the flat marketplace list.
+- [x] **A5.1 — Empty states intact.** Go to `/?as=new-user`. No connections, no attended meets, no edge-case attendees on any People tab (per the empty-state design). Then `/schedule?as=new-user` should render the empty Upcoming state. `/discover/meets?as=new-user` skips the "Meets from your circle" section entirely (no in-circle data) and renders the flat marketplace list.
 
 ---
 
@@ -110,7 +110,7 @@ Discovery sweep: switch persona, hit each top-level surface, note dead-ends. **D
   *Future-state: shared past-meets line ("You attended 3 meets together") is filed as punch-list P66 pending a `getSharedMeetsBetween` list-returning helper.*
 - [x] **B2.7e — Edit affordance + section order + nested Familiar card.** Go to `/profile?as=daniel`. About tab section order is **Hero → Bio → Dogs → Profile visibility → Tagging preferences → Connections (with Familiar aside nested) → Care**. Privacy + Tagging now sit ABOVE the Connections list (reordered 2026-05-11 so settings aren't buried below a scroll-heavy roster). Profile visibility section has two full-width option rows (Locked + Lock icon / Open + Eye icon) — same layout as Tagging preferences. **Locked** is active by default for Daniel. Tap **Open** → row highlights brand-subtle, hero chip flips to **"Open profile"** with the `Eye` icon in real time. Tap **Locked** again → reverts. *(State doesn't persist across persona swaps in the prototype; accepted limitation.)* Scroll past the settings — Connections renders with the *About marking people Familiar* aside nested inline (no divider above; reads as part of the Connections section). *Note: whether Connections belongs on the About tab at all is a [Profiles Deep Pass E4](./profiles-deep-pass.md) decision; this reorder is tactical and doesn't preempt it.*
 - [x] **B2.4 — `/bookings/booking-klara-daniel?as=daniel`.** Recurring Wed booking, kd-1 through kd-5 sessions readable as relative dates. "Since" stat on Info tab now reads ~5 weeks ago (was a static 2026-02-10; relativised 2026-05-11).
-- [ ] **B2.5 — `/schedule?as=daniel` (post-IA-refresh).** Schedule now has **only two top-level tabs — Upcoming + History** (Meets + Care tabs retired 2026-05-11). Upcoming carries sub-pills **All / Meets / Care** for type filtering.
+- [x] **B2.5 — `/schedule?as=daniel` (post-IA-refresh).** Schedule now has **only two top-level tabs — Upcoming + History** (Meets + Care tabs retired 2026-05-11). Upcoming carries sub-pills **All / Meets / Care** for type filtering.
   - **Upcoming → All:** **"Reactive dog walk — Stromovka quiet zone"** appears alongside Daniel's care booking sessions in date order.
   - **Upcoming → Meets:** Just the meets — "Reactive dog walk — Stromovka quiet zone".
   - **Upcoming → Care:** Just the booking sessions (Klára training sessions).
@@ -124,14 +124,14 @@ Discovery sweep: switch persona, hit each top-level surface, note dead-ends. **D
 - [x] **B3.1 — `/home?as=klara`.** Provider-side feed: training recaps, client posts.
 - [x] **B3.2 — `/communities/group-klara-training?as=klara`.** Care config (training), Hosting suppressed CTAs, multi-client members tab.
 - [x] **B3.3 — `/profile?as=klara`.** Open profile, Carer audience = anyone (public), Services tab with full catalogue.
-- [ ] **B3.4 — `/bookings/booking-klara-daniel?as=klara`.** Provider-side view (session check-ins visible).
-- [ ] **B3.5 — `/schedule?as=klara`.** Training meets in Upcoming; cross-cluster (Stromovka, Reactive) past meets in History.
-- [ ] **B3.6 — `/inbox?as=klara`.** Client threads (Daniel + others); proposal artifacts visible.
+- [x] **B3.4 — `/bookings/booking-klara-daniel?as=klara`.** Provider-side view (session check-ins visible).
+- [x] **B3.5 — `/schedule?as=klara`.** Training meets in Upcoming; cross-cluster (Stromovka, Reactive) past meets in History.
+- [x] **B3.6 — `/inbox?as=klara`.** Client threads (Daniel + others); proposal artifacts visible.
 
 ### B4 — Tomáš (`?as=tomas`)
 
-- [ ] **B4.1 — `/home?as=tomas`.** Karlín-leaning feed; Petra emergency-sitting story arc.
-- [ ] **B4.2 — `/communities/group-karlin-neighbours?as=tomas`.** Petra's admin announcement, Filip/Adéla posts.
+- [x] **B4.1 — `/home?as=tomas`.** Karlín-leaning feed; Petra emergency-sitting story arc.
+- [x] **B4.2 — `/communities/group-karlin-neighbours?as=tomas`.** Petra's admin announcement, Filip/Adéla posts.
 - [ ] **B4.3 — `/profile?as=tomas`.** Locked profile, Hugo, Karlín. Low-key user, provider switch off.
 - [ ] **B4.4 — `/bookings?as=tomas`.** Past Petra emergency booking + any others; "trail of care arrangements that worked."
 - [ ] **B4.5 — `/schedule?as=tomas`.** Karlín / Riegrovy meets in Upcoming + History.
@@ -287,3 +287,4 @@ Emergent decisions, design changes, or rationale that surfaced during verificati
 - [x] **About-tab section reorder: settings ABOVE Connections (tactical, 2026-05-11).** Surfaced after shipping the visibility setting — settings shouldn't sit below a scroll-heavy roster. New order: Hero → Bio → Dogs → **Profile visibility → Tagging preferences** → Connections (with Familiar aside nested) → Care. This is a tactical move that doesn't preempt the structural question of whether Connections belongs on the About tab at all — that decision is filed as **Profiles Deep Pass E4** ("Connection list on own profile — review how your connections display. Useful information?"), still `todo` in that phase. → no feature-doc update; cross-referenced from CCFT walkthrough B2.7e.
 - [x] **Locked-profile layout redesign (2026-05-11).** Three changes from walkthrough B2.7 feedback: **(1)** Familiar CTA promoted from compact `.private-profile-row-pill` to `ButtonAction variant="primary" size="md" cta` — matches design-system Principle 11's hero-CTA carve-out. **(2)** "Learn how privacy works" link moved inside the lock card (was a floating standalone element below the stack). **(3)** "You're both in {first group}" inline copy pulled out of the lock card into a new `SharedContextCard` component that lists *all* shared groups, with room to grow (next: shared past-meets — filed as P66). Trust gradient on the locked-profile surface reads cleanly now: **action → warmth → privacy explainer.** → `components/profile/SharedContextCard.tsx` (new), `app/profile/[userId]/page.tsx` (layout + button promotion). Follow-up P66 captures the future shared-meets line.
 - [x] **Schedule + Discover IA refresh (2026-05-11).** Surfaced as a meta-design question while reviewing the buried "Interested" sub-pill on Schedule. Settled on a three-surface restructure that respects the existing carers-in-circle pattern: **Schedule = pure commitments** (Upcoming · History; type sub-pills All/Meets/Care on Upcoming); **Discover Meets = exploration + elevated "Meets from your circle"** section (mirrors `/discover/care`'s pattern — followed series + group-meets visually elevated, broader marketplace below); **Home = passive feed + occasional discovery banner** at index 2 when the viewer is in groups but under-engaged. The "Interested" concept retired from Schedule; the "Following" type pill retired from Discover Meets (subsumed by the elevated section). → `strategy/Product Vision.md` → new section "Schedule + Discover IA" (to be added). Code: `app/schedule/page.tsx` rewrite, `app/discover/meets/page.tsx` partitioning, new `components/home/DiscoveryBanner.tsx`. Follow-ups filed: banner trigger sophistication (frequency caps, dismiss memory, variant rotation), shared `card-meet` in-circle visual variant for tighter chrome differentiation if the section header alone doesn't carry enough signal.
+- [x] **P68 absorbed: outbound Familiar on Open-viewer rosters cleaned (2026-05-11).** Mock-data drift from before Action matrix v3 — Open viewers (Shawn, Tereza, Klára) had `state: "familiar"` entries that contradict the rule "Open viewers skip Familiar entirely (it's redundant)." Twelve entries audited + fixed across three viewers: outbound state flipped to `"none"`; `theyMarkedFamiliar` flags dropped where the other side was also Open (no-op in both directions) and preserved where the other side was Locked (their mark IS meaningful — they're opening up). Visible effect: Klára's, Tereza's, and Shawn's Connections lists no longer show a Familiar section on their own About tab. Interaction metadata (meetsShared, sharedGroups, firstMetDate) preserved on every entry so the locked-profile shared-context card + mutual-connection signals still resolve. → punch-list P68 removed; surfaced from Profiles Deep Pass C6 walkthrough, absorbed by CCFT per the file-overlap-risk note.

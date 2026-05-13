@@ -29,6 +29,16 @@ interface ProfileVisibilitySettingProps {
   editing?: boolean;
 }
 
+// Labels: UX copy standardises on **Private** / **Public** (gentler than
+// "Locked"/"Open" and matches IG/Threads convention — see Open Q §9 and
+// the CLAUDE.md "Private vs Locked" note). Data field stays
+// `profileVisibility: "open" | "locked"` for now; only UI strings change.
+//
+// Description for the locked state surfaces the full visibility rule:
+// you (the profile owner) opening your profile to someone via a Familiar
+// mark counts. The previous "Only Connected members" copy was incomplete
+// and conflicted with the trust model (and with the more-accurate hero
+// chip explainer). 2026-05-11.
 const OPTIONS: {
   key: ProfileVisibility;
   icon: typeof Lock;
@@ -38,13 +48,13 @@ const OPTIONS: {
   {
     key: "locked",
     icon: Lock,
-    label: "Locked",
-    desc: "Only Connected members see your full profile",
+    label: "Private",
+    desc: "Only people you've marked Familiar or are Connected with can see your full profile",
   },
   {
     key: "open",
     icon: Eye,
-    label: "Open",
+    label: "Public",
     desc: "Anyone using Doggo can see your full profile",
   },
 ];

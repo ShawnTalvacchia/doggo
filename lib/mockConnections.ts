@@ -129,6 +129,14 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
     },
 
     /* ─── FAMILIAR ───────────────────────────────────────────────── */
+    // P68 hygiene 2026-05-11: Shawn is Open — outbound Familiar is a
+    // no-op (Familiar's purpose is to open a Locked profile; Shawn's is
+    // already public). Entries below converted to `state: "none"`,
+    // preserving interaction metadata (meetsShared, sharedGroups, etc.).
+    // `theyMarkedFamiliar` flags dropped when the other side is also
+    // Open (their mark would be no-op too); preserved when the other
+    // side is Locked (their mark is meaningful — they're opening up).
+    // Per Action matrix v3 in CLAUDE.md.
     {
       id: "conn-shawn-tereza",
       userId: "tereza",
@@ -136,7 +144,7 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       avatarUrl: "/images/generated/tereza-profile.jpeg",
       dogNames: ["Franta"],
       location: "Prague 2",
-      state: "familiar",
+      state: "none",
       metAt: "meet-7",
       updatedAt: "2026-02-10T18:00:00Z",
       meetsShared: 4,
@@ -144,7 +152,6 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       lastMetDate: "2026-03-01",
       mutualConnections: ["Jana", "Marek"],
       sharedGroups: ["Vinohrady Morning Crew", "Riegrovy Sady Dog Walks", "Vinohrady Evening Walkers"],
-      theyMarkedFamiliar: true,
       dogBreed: "Beagle",
       neighbourhood: "Vinohrady",
       profileOpen: true,
@@ -156,7 +163,7 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       avatarUrl: "/images/generated/eva-profile.jpeg",
       dogNames: ["Luna", "Max"],
       location: "Prague 7",
-      state: "familiar",
+      state: "none",
       metAt: "meet-9",
       updatedAt: "2026-03-16T10:00:00Z",
       meetsShared: 3,
@@ -164,7 +171,6 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       lastMetDate: "2026-03-16",
       mutualConnections: ["Jana", "Klára"],
       sharedGroups: ["Stromovka Off-Leash Club", "Prague Reactive Dog Support"],
-      theyMarkedFamiliar: true,
       dogBreed: "Border Collie mix",
       neighbourhood: "Holešovice",
       profileOpen: true,
@@ -176,7 +182,7 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       avatarUrl: "/images/generated/lucie-profile.jpeg",
       dogNames: ["Pepík"],
       location: "Prague 2",
-      state: "familiar",
+      state: "none",
       metAt: "meet-7",
       updatedAt: "2026-02-05T08:30:00Z",
       meetsShared: 3,
@@ -195,7 +201,7 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       avatarUrl: "/images/generated/martin-profile.jpeg",
       dogNames: ["Charlie"],
       location: "Prague 7",
-      state: "familiar",
+      state: "none",
       updatedAt: "2026-03-14T09:00:00Z",
       meetsShared: 1,
       sharedGroups: ["Žižkov Dog Parents"],
@@ -336,7 +342,14 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       neighbourhood: "Vinohrady",
       profileOpen: true,
     },
-    /* ─── FAMILIAR ───────────────────────────────────────────────── */
+    /* ─── INBOUND-ONLY FAMILIAR + INTERACTION-METADATA ENTRIES ──────
+     * P68 hygiene 2026-05-11: Tereza is Open — outbound Familiar marks
+     * are no-ops. Entries below preserve meet/group interaction
+     * metadata but carry `state: "none"`. For other Open users (Klára,
+     * Shawn, Eva) the `theyMarkedFamiliar` flag drops too (no-op in
+     * both directions). For Locked others (Zuzana) the flag stays
+     * because their mark IS meaningful (they're opening up to Tereza).
+     */
     {
       id: "conn-tereza-klara",
       userId: "klara",
@@ -344,14 +357,13 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       avatarUrl: "/images/generated/klara-profile.jpeg",
       dogNames: ["Eda"],
       location: "Prague 7",
-      state: "familiar",
+      state: "none",
       updatedAt: "2026-03-08T09:00:00Z",
       meetsShared: 2,
       firstMetDate: "2026-01-10",
       lastMetDate: "2026-03-08",
       mutualConnections: ["Jana"],
       sharedGroups: ["Klára's Calm Dog Sessions"],
-      theyMarkedFamiliar: true,
       dogBreed: "Border Collie",
       neighbourhood: "Holešovice",
       profileOpen: true,
@@ -363,7 +375,7 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       avatarUrl: "/images/generated/shawn-profile.jpg",
       dogNames: ["Spot", "Goldie"],
       location: "Prague 2",
-      state: "familiar",
+      state: "none",
       metAt: "meet-7",
       updatedAt: "2026-02-10T18:00:00Z",
       meetsShared: 4,
@@ -371,7 +383,6 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       lastMetDate: "2026-03-01",
       mutualConnections: ["Jana", "Marek"],
       sharedGroups: ["Vinohrady Morning Crew", "Riegrovy Sady Dog Walks"],
-      theyMarkedFamiliar: true,
       dogBreed: "Dalmatian Mix",
       neighbourhood: "Vinohrady",
       profileOpen: true,
@@ -383,7 +394,7 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       avatarUrl: "/images/generated/eva-profile.jpeg",
       dogNames: ["Luna", "Max"],
       location: "Prague 7",
-      state: "familiar",
+      state: "none",
       updatedAt: "2026-02-22T10:00:00Z",
       meetsShared: 2,
       firstMetDate: "2026-01-15",
@@ -401,7 +412,7 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       avatarUrl: "/images/generated/zuzana-profile.jpeg",
       dogNames: ["Mia"],
       location: "Prague 2",
-      state: "familiar",
+      state: "none",
       updatedAt: "2026-03-20T15:00:00Z",
       meetsShared: 1,
       firstMetDate: "2026-03-05",
@@ -751,7 +762,14 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       profileOpen: true,
     },
 
-    /* ─── FAMILIAR ───────────────────────────────────────────────── */
+    /* ─── INBOUND-ONLY FAMILIAR + INTERACTION-METADATA ENTRIES ──────
+     * P68 hygiene 2026-05-11: Klára is Open — outbound Familiar is a
+     * no-op (her profile is already public). All entries below
+     * converted to `state: "none"`. For other Open users (Tereza,
+     * Pavel-D) the `theyMarkedFamiliar` flag drops too. For Locked
+     * users (Anežka, Vítek) the flag stays — their mark is meaningful
+     * (they're opening up to Klára).
+     */
     {
       id: "conn-klara-tereza",
       userId: "tereza",
@@ -759,14 +777,13 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       avatarUrl: "/images/generated/tereza-profile.jpeg",
       dogNames: ["Franta"],
       location: "Prague 2",
-      state: "familiar",
+      state: "none",
       updatedAt: "2026-03-08T09:00:00Z",
       meetsShared: 2,
       firstMetDate: "2026-01-10",
       lastMetDate: "2026-03-08",
       mutualConnections: ["Jana"],
       sharedGroups: ["Klára's Calm Dog Sessions"],
-      theyMarkedFamiliar: true,
       dogBreed: "Beagle",
       neighbourhood: "Vinohrady",
       profileOpen: true,
@@ -778,7 +795,7 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       avatarUrl: "/images/generated/anezka-profile.jpeg",
       dogNames: ["Nela"],
       location: "Prague 3",
-      state: "familiar",
+      state: "none",
       updatedAt: "2026-03-05T18:00:00Z",
       meetsShared: 2,
       firstMetDate: "2026-02-05",
@@ -797,7 +814,7 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       avatarUrl: "/images/generated/vitek-profile.jpeg",
       dogNames: ["Sam"],
       location: "Prague 5",
-      state: "familiar",
+      state: "none",
       updatedAt: "2026-02-28T17:00:00Z",
       meetsShared: 1,
       firstMetDate: "2026-02-19",
@@ -809,11 +826,13 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       profileOpen: false,
       theyMarkedFamiliar: true,
     },
-    // Care-side Familiar mark — Pavel D. is a Karlín family-home boarder Klára
+    // Care-side relationship — Pavel D. is a Karlín family-home boarder Klára
     // has crossed paths with at Stromovka community walks. `userId: "pavel-d"`
     // matches the directory ProviderCard ID directly (no UserProfile bridge —
-    // Pavel is directory-only). Gives `/discover/care` a visible positive case
-    // for Klára's soft Familiar avatar ring (E4). Discover & Care 2026-05-04.
+    // Pavel is directory-only). Gives `/discover/care` a connection signal
+    // (mutualConnections etc.) without the outbound Familiar that earlier
+    // seeded here as a soft-ring case — that was a P68 hygiene gap: both
+    // Klára AND Pavel-D are Open, so the mark was a no-op.
     {
       id: "conn-klara-pavel",
       userId: "pavel-d",
@@ -821,7 +840,7 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       avatarUrl: "/images/generated/daniel-profile.jpeg",
       dogNames: [],
       location: "Prague 8",
-      state: "familiar",
+      state: "none",
       updatedAt: "2026-03-22T12:00:00Z",
       meetsShared: 1,
       firstMetDate: "2026-03-08",

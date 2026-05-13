@@ -10378,7 +10378,11 @@ body:has(.bottom-nav) .inbox-page {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  margin-top: var(--space-sm);
+  /* Margin reduced from var(--space-sm) (8px) → var(--space-xs) (4px)
+     2026-05-11 — compensates for the `.profile-service-card` flex-gap
+     bump from 8px → 12px, so the total Notes → Pricing modifiers gap
+     (gap + margin-top + padding-top) stays at ~24px. */
+  margin-top: var(--space-xs);
   padding-top: var(--space-sm);
   border-top: 1px solid var(--border-light);
 }
@@ -11613,7 +11617,11 @@ body:has(.bottom-nav) .inbox-page {
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  /* Bumped 8px → 12px 2026-05-11 — gave Price / Includes / Notes a
+     bit more breathing room. The Notes → Pricing modifiers gap is
+     preserved by reducing `.profile-modifiers` margin-top by 4px to
+     compensate (the divider's total gap remains ~24px). */
+  gap: 12px;
 }
 
 .profile-service-top {
