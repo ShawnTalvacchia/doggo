@@ -245,6 +245,28 @@ The Services tab on a provider's profile lists **all** paid offerings — both C
 
 Each offering's row needs to know its own type so the tap routes correctly. This is a small data field on the offering, not a UI segmentation of the tab.
 
+### Service ↔ Meet linkage (resolved 2026-05-13, see Open Q §13 for the full model)
+
+**Services and Meets are independent entities that can be linked.** Neither owns the other. The link itself has properties (required vs optional, one service → N meets).
+
+Four canonical configurations:
+1. **Free unlinked Meet.** Tereza's Sunday park walk. No service.
+2. **Meet + optional service.** Klára's Tuesday walk is free to join. *Also* attached: her "Group walk" service (300 Kč). Free attendees show up. Paid attendees book the service to have her walk their dog specifically. Same meet, mixed roster.
+3. **Meet + required service.** Klára's "Group training session" — to RSVP you must book the service. The booking IS the RSVP.
+4. **Service with no Meet.** Pure Care (boarding, house-sitting). Booking produces a Booking record; no roster.
+
+**The Service is the monetization wrapper.** It owns: price, pricing modifiers, sub-services / what's included, notes, enabled toggle, audience (circle vs anyone). For Care-type services it also owns the structural fields (service type, price unit) since there's no Meet to delegate to. The Meet, when present, owns the operational fields — location, cadence, occurrences, attendee cap, RSVP rules.
+
+**Cardinality is one-to-many.** One service can link to multiple meets. Klára's "Group walk" service is one product offered on her Tuesday walk AND her Saturday walk — same description, same price, same modifiers, available at different scheduled times. Forcing one-service-per-meet would mean duplicating the service entry per scheduled occurrence; she's not selling four separate walk products, she's selling one product at four scheduled times. Data model: `Meet.linkedServiceIds[]` (typically 0–1 per meet in practice).
+
+**Book routes through one flow from both doorways.** Tap Book on the meet detail page OR on the carer's Services tab → same booking sheet. When the service links to multiple meets, the booking sheet shows a session picker so the owner chooses which occurrence; one-meet link defaults to next occurrence. The Booking record is created; the attendee is added to the meet's roster (when linked).
+
+**Mixed-roster meet card UX.** When a meet has an *optional* linked service, the meet card's primary CTA stays "Join free" — the meet's primary identity is "community walk, free to join." The service surfaces inline as a supplementary callout ("Have your dog walked: 300 Kč →"). When the link is *required*, the free CTA collapses; the card shows "Book session → 350 Kč" as the sole CTA.
+
+**Discovery cross-surfacing.** Meets with required services appear in both `/discover/meets` and `/discover/care` (under the appointment-type filter). Two doorways for two user intents (browsing community calendar vs shopping for paid services). Filter de-duplication and result-count semantics need deliberate design — see Open Q §13.
+
+**Current status.** The data model and view-mode rendering for Meet-type services exists (Klára has 4 seeded Meet entries). Authoring (create/edit/delete) does NOT exist in any UI — the prior "Meet-type services are managed separately" framing implied a management surface that was never built. The full model lands in a future phase (not yet opened); the Profiles Deep Pass walkthrough surfaced the gap. See Open Q §13 for build-time open questions (booking-sheet session-picker UX, lifecycle on service-delete with active bookings, auto-pricing engine extension to Meet services, edit-on-Meet redirect when fields are service-owned, multi-doorway filter dedup, privacy-on-link semantics).
+
 ### Meet-type service visibility
 
 A meet-type service can produce instances at different visibility levels:

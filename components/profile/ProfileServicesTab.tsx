@@ -645,13 +645,18 @@ export function ProfileServicesTab({
 
                 {/* Meet-type services explainer — visible only when the
                     carer has any meet-type offerings (training sessions,
-                    workshops, group meets). They're filtered out of edit
-                    mode here because their schema differs (cadence,
-                    durationMinutes, seriesMeetId) and they'll get a
-                    dedicated flow in the Onboarding & In-Product
-                    Communication phase. Without this note, Klára (3
+                    workshops, group meets). They render in view-mode
+                    further down the page from seed data but are NOT yet
+                    authorable anywhere in the product — the Service ↔
+                    Meet linkage model (Open Q §13, resolved 2026-05-13)
+                    sets the target architecture (services and meets as
+                    independent entities that can be linked; the service
+                    is the monetization wrapper) but the authoring UI
+                    lands in a future phase. Without this note, Klára (4
                     training sessions) would see only her 1 Care service
-                    in edit and wonder where the others went. 2026-05-11. */}
+                    in edit and wonder where the others went.
+                    2026-05-13 (was misleading "managed separately" prior;
+                    Open Q §13 documented the real model). */}
                 {(() => {
                   const meetServices =
                     user.carerProfile?.services?.filter(
@@ -663,10 +668,12 @@ export function ProfileServicesTab({
                       className="text-xs text-fg-tertiary m-0"
                       style={{ marginTop: 4, lineHeight: 1.5 }}
                     >
-                      You also have {meetServices.length} training-session
-                      offering{meetServices.length === 1 ? "" : "s"} configured.
-                      Meet-type services (training sessions, workshops,
-                      group meets) are managed separately.
+                      You also have {meetServices.length} session-type
+                      offering{meetServices.length === 1 ? "" : "s"}{" "}
+                      (training, workshops) visible on your profile from
+                      seed data. Authoring for Meet-linked services lands
+                      in a future phase — the model is documented but the
+                      edit UI isn&apos;t built yet.
                     </p>
                   );
                 })()}

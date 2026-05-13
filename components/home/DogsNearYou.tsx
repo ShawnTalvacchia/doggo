@@ -118,19 +118,23 @@ export function DogsNearYou() {
         className="dogs-near-you-strip flex"
         style={{
           overflowX: "auto",
-          scrollSnapType: "x mandatory",
-          // No `gap` on the flex container — spacing is handled by
-          // explicit margin-right on each card + leading/trailing
-          // spacer divs (below). Multiple earlier iterations tried
-          // padding-left on the scroll container and CSS-class
-          // first-child rules; none landed visibly. The spacer-div
-          // approach is dumb but bulletproof — there's literally an
-          // element taking up width before the first card.
+          // No `scroll-snap` here — that was the actual culprit behind
+          // every failed left-inset attempt (CCFT B5.1 saga, 2026-05-11).
+          // `scrollSnapType: "x mandatory"` + `scrollSnapAlign: "start"`
+          // on the cards caused the browser to auto-scroll the strip on
+          // layout, aligning the first snap-target (the first card) to
+          // the scroll-start position — pushing any leading padding,
+          // first-child margin, or leading spacer div INTO negative
+          // scroll offset (invisible to the user). The fix is just to
+          // drop the mandatory snap; natural horizontal scrolling works
+          // fine without it.
           paddingBottom: "var(--space-xs)",
         }}
       >
-        {/* Leading spacer — guarantees the first card sits 20px from
-            the strip's left edge regardless of any flex/overflow quirk. */}
+        {/* Leading spacer — 20px wide flex item before the first card.
+            Now that scroll-snap is gone, this actually renders at the
+            strip's visual start instead of being hidden in negative
+            scroll. */}
         <div
           aria-hidden="true"
           style={{ flexShrink: 0, width: "var(--space-xl)" }}
@@ -145,7 +149,6 @@ export function DogsNearYou() {
               key={`${dog.userId}-${dog.dogName}`}
               className="flex flex-col items-start gap-md flex-shrink-0"
               style={{
-                scrollSnapAlign: "start",
                 width: 160,
                 // `marginRight` on every card serves as the gap between
                 // cards. On the last card it doubles as the trailing
