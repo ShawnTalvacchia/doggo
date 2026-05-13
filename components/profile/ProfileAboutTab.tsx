@@ -483,25 +483,32 @@ export function ProfileAboutTab({
           per Action matrix v3 (2026-04-27): "Open viewers skip Familiar
           entirely (it's redundant)." */}
       <section>
-        {/* Inner wrapper tightens the header → sub-text → picker group
-            with an 8px gap instead of the section's 12px. Inline style
-            instead of `gap-xs` to avoid any Tailwind utility-generation
-            surprises. The Familiar explainer (below) sits as a peer of
-            the wrapper and gets the full 12px section gap above it.
-            2026-05-11. */}
-        <div className="flex flex-col" style={{ gap: 8 }}>
+        {/* Header + subheader bundle — stacked tight (no gap between
+            them); subheader has its own height (24px) so it doesn't
+            feel crammed against the h3. The section's flex-col gap
+            (12px) provides spacing from this bundle to the picker
+            below. 2026-05-11. */}
+        <div>
           <SectionHeader title="Profile visibility" />
           {editing && (
-            <p className="text-xs text-fg-tertiary m-0">
+            <p
+              className="text-xs text-fg-tertiary"
+              style={{
+                height: 24,
+                display: "flex",
+                alignItems: "center",
+                margin: 0,
+              }}
+            >
               Control who can see your full profile, posts, and dogs
             </p>
           )}
-          <ProfileVisibilitySetting
-            value={profileVisibility}
-            onChange={onProfileVisibilityChange}
-            editing={editing}
-          />
         </div>
+        <ProfileVisibilitySetting
+          value={profileVisibility}
+          onChange={onProfileVisibilityChange}
+          editing={editing}
+        />
 
         {/* Familiar asymmetry explainer — persistent, low-key card teaching
             the most-misunderstood mechanic in the trust model: marking
@@ -556,19 +563,27 @@ export function ProfileAboutTab({
 
       {/* Tagging preferences — same view/edit split as Profile visibility. */}
       <section>
-        <div className="flex flex-col" style={{ gap: 8 }}>
+        <div>
           <SectionHeader title="Tagging preferences" />
           {editing && (
-            <p className="text-xs text-fg-tertiary m-0">
+            <p
+              className="text-xs text-fg-tertiary"
+              style={{
+                height: 24,
+                display: "flex",
+                alignItems: "center",
+                margin: 0,
+              }}
+            >
               Control how others can tag you and your dogs in posts
             </p>
           )}
-          <TagApprovalSetting
-            value={tagApproval}
-            onChange={onTagApprovalChange}
-            editing={editing}
-          />
         </div>
+        <TagApprovalSetting
+          value={tagApproval}
+          onChange={onTagApprovalChange}
+          editing={editing}
+        />
       </section>
 
       {/* Connections — Familiar explainer moved out 2026-05-11 to nest

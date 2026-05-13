@@ -505,6 +505,36 @@ const tomasPetraMessages: ChatMessage[] = [
     read: true,
   },
   {
+    // Booking proposal — Petra formalises the emergency arrangement
+    // through the app so vet info, payment, and dates flow cleanly.
+    // Pre-marked `status: "accepted"` (mirrors daniel-klara dk-7) since
+    // both parties had aligned in chat before the proposal landed.
+    // Connects to `booking-petra-tomas`. Added 2026-05-11 (CCFT B4.6 —
+    // chat history was missing the formalisation artifact).
+    id: "tp-prop",
+    conversationId: "tomas-petra-conv",
+    sender: "provider",
+    type: "booking_proposal",
+    text: "Sending it through so the dates + Hugo's vet info are all in one place.",
+    proposal: {
+      bookingType: "one_off",
+      serviceType: "day_care",
+      subService: "Emergency sitting",
+      pets: ["Hugo"],
+      startDate: "2026-03-15",
+      endDate: "2026-03-17",
+      price: {
+        lineItems: [{ label: "Day sitting", amount: 120, unit: "per visit" }],
+        total: 360,
+        currency: "Kč",
+        billingCycle: "total",
+      },
+      status: "accepted",
+    },
+    sentAt: daysAgoIso(12, "22:32"),
+    read: true,
+  },
+  {
     id: "tp-3",
     conversationId: "tomas-petra-conv",
     sender: "owner",

@@ -452,16 +452,26 @@ export function ProfileServicesTab({
             Replaced the previous two-Toggle pattern that hid the
             hierarchy. 2026-05-11 (C6). */}
         <section>
-          {/* Inner wrapper tightens the header → sub-text → picker group
-              with an 8px gap instead of the section's 12px. Inline style
-              to bypass any Tailwind utility-generation surprises.
+          {/* Header + subheader bundle — stacked tight (no gap between
+              them); subheader has its own height (28px since text-sm is
+              14px) so it doesn't feel crammed against the h3. Section's
+              flex-col gap (12px) handles spacing to the picker below.
               2026-05-11. */}
-          <div className="flex flex-col" style={{ gap: 8 }}>
+          <div>
             <h3 className="profile-card-subtitle">Offering care</h3>
-            <p className="text-sm text-fg-secondary m-0">
+            <p
+              className="text-sm text-fg-secondary"
+              style={{
+                height: 28,
+                display: "flex",
+                alignItems: "center",
+                margin: 0,
+              }}
+            >
               How do you want to offer care to your community?
             </p>
-            <div className="care-offering-picker">
+          </div>
+          <div className="care-offering-picker">
             {CARE_OPTIONS.map((opt) => {
               const selected = careOption === opt.key;
               return (
@@ -482,7 +492,6 @@ export function ProfileServicesTab({
                 </button>
               );
             })}
-            </div>
           </div>
         </section>
 
