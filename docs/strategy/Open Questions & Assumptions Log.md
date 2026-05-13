@@ -239,3 +239,43 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 - **Owner moderation affordances.** Untag, hide-from-album (without deleting the post), pin-to-Highlights — what's the right action set, and where do the controls live (long-press on photo? per-post menu? settings panel under the dog?). Resolve before the phase opens.
 - **Tag approval semantics for dogs vs owner.** Today `UserProfile.tagApproval` ("auto" / "approve" / "none") governs tags on the user. For tags on the user's dog, should it inherit from the owner's setting, or be a per-dog override? Default reading: inherit (owners are the dog's authority); per-dog override is a future feature if owners ask for it. Confirm before building moderation UI.
 - **Cross-pet households.** Multi-pet households (Tereza → Franta + Bella) need per-dog albums. Trivial in the data model; surface the UI implication early (Photos tab on each PetCard, not a single combined gallery).
+
+---
+
+## 13. Service ↔ Meet Linkage Model
+
+**Assumption:** Services and Meets are **independent entities** that can be **linked**. Neither owns the other; the link itself has properties (required vs optional, one service → N meets). This model resolves the long-running ambiguity around how paid-roster offerings (training sessions, paid group walks, workshops) get authored, managed, and discovered. (Surfaced 2026-05-13 during Profiles Deep Pass walkthrough on C7a — Klára's 4 seeded Meet-type "services" exist nowhere in the edit UI; the footnote claimed they were "managed separately" but no management surface exists.)
+
+**Refs:** `Groups & Care Model.md` → Services as Catalog; `features/explore-and-care.md`; `features/meets.md`; `Cold-Start Playbook.md` (trainers are the anchor cold-start carer type and most of what they sell is Meet-type).
+
+**Resolved (Profiles Deep Pass discussion, 2026-05-13):**
+
+**The four canonical configurations:**
+
+| Configuration | Example | Service | Meet | Link |
+|---|---|---|---|---|
+| Free unlinked Meet | Tereza's Sunday park walk | — | exists, free | — |
+| Meet with optional service | Klára's Tuesday walk — free to join, "Group walk" service (300 Kč) available if you want her to walk your dog specifically | exists, monetizes attendance | exists, mixed roster | optional |
+| Meet with required service | Klára's Group training session — must book to RSVP | exists, RSVP is the booking | exists, paid-only roster | required (booking = RSVP) |
+| Service with no Meet | Boarding, house-sitting (pure Care) | exists | — | — |
+
+**Service is the "monetization wrapper."** It owns: price, pricing modifiers, sub-services / what's included, notes, enabled toggle, audience (circle vs anyone). For Care-type services it ALSO owns the structural fields (service type, price unit, etc.) since there's no Meet to delegate to. The Meet (when present) owns the operational fields — location, cadence, occurrences, attendee cap, RSVP rules.
+
+**Cardinality is one-to-many.** One service → N possible linked meets. Klára's "Group walk" service is one product (300 Kč/visit, here's what's included, here's the bio about my experience); she can offer it on her Tuesday walk AND her Saturday walk without duplicating the service entry. Data model: `Meet.linkedServiceIds[]` (a meet can advertise multiple services; in practice usually 0–1).
+
+**Book routes through the same flow from both surfaces.** Tap Book on the meet detail page OR on the carer's Services tab → same booking sheet. If the service is linked to multiple meets, the booking sheet shows a session picker (dropdown of upcoming occurrences) so the owner can pick which one. If linked to one meet, defaults to next occurrence. On commit: Booking record created; attendee added to the meet's roster (if linked).
+
+**Mixed-roster meet card UX.** When a meet has an optional linked service, the meet card's primary CTA stays "Join free" — the meet's primary identity is community walk, free to join. The linked service surfaces inline as a supplementary callout ("Have your dog walked: 300 Kč →"). When the link is required (no free path), the free CTA collapses and the card shows "Book session → 350 Kč" as the sole CTA.
+
+**Cross-surface discovery (cautious).** A meet with a required service surfaces in BOTH `/discover/meets` (filter "Training") AND `/discover/care` (filter "Training" / appointment type). Same record, two doorways — different filter frames for different user intents. This is a feature, not duplication, but it requires deliberate filter design so the result counts don't double up confusingly.
+
+**Open:**
+- **Booking sheet session-picker UX.** When the service links to N meets, does Book open a dropdown of upcoming occurrences (compact, stay-on-page), or route the owner to the meet's sessions page (full detail)? Likely depends on N — dropdown when ≤3, route when more. Resolve at build time.
+- **Lifecycle when service deletes mid-flight.** Service is deleted but the linked meet has paid attendees with active bookings. Probably: existing bookings stand; the link drops; future attendees see the meet without service-required (if it WAS required). Soft-archive the service rather than hard-delete when there are open bookings.
+- **Lifecycle when meet cancels mid-flight.** A service-linked meet occurrence cancels (carer sick) — automatic refund? Reschedule offer to attached service-bookings? Reuses existing cancellation flow but the message + refund path needs design.
+- **Auto-pricing engine extension.** Does `computeQuote(config, inquiry, today)` extend to Meet-type services (last-minute surcharge for booking a session 1h before it starts, holiday session pricing, etc.)? Probably yes — same engine, different config shape. Verify when wiring up.
+- **Edit-on-Meet redirect for service-owned fields.** When the user opens MeetComposer on a service-linked meet, the fields the service owns (price, notes, sub-services) are read-only with an "Edit on Services →" link. UI pattern needs designing — disable inputs, or hide them entirely, or show them with a lock icon and link.
+- **Multi-doorway filter counts.** A meet with a required service surfacing in both Discover/meets and Discover/care — when the user filters "Training" on one, does the result count include both? Or are they de-duplicated by record id? Resolve filter-result semantics before shipping.
+- **Free attendee → upsell flow.** Meet has optional linked service. Owner joins free, then mid-meet realizes they want the service. Can they upgrade in-context? Or only at booking time? Likely deferred — but flag the question so we don't paint into a corner.
+- **Privacy semantics on the link.** Meet visibility (public / group_only / participants-only) interacts with service audience (circle / anyone). A circle-only carer with a public meet — does the service still gate on circle? Probably yes (the service is the audience-controlled surface; the meet is the public one). Worth a deliberate decision before wiring.
+- **Where does the new phase live?** This is not Carer Portfolio (that phase is about computing a trust-signal aggregate, different concept). Likely a standalone phase — working name "Service-Meet Linkage" or similar. Not yet opened.

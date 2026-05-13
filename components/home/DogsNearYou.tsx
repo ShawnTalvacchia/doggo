@@ -115,34 +115,31 @@ export function DogsNearYou() {
           Inlined for now; extract to `DogOwnerAvatar` if a second
           consumer surfaces. */}
       <div
-        className="dogs-near-you-strip flex gap-xl"
+        className="dogs-near-you-strip flex"
         style={{
           overflowX: "auto",
           scrollSnapType: "x mandatory",
-          // Edge inset is handled by margin-left on the first card +
-          // margin-right on the last card (CSS in globals.css under
-          // `.dogs-near-you-strip > *:first-child` / `:last-child`).
-          // Padding-left on a flex-overflow scroll container was
-          // resolving as flush in some renders — margins on the
-          // children themselves bypass that quirk entirely. Bottom
-          // padding gives the owner overlap + bottom label breathing
-          // room above where the scrollbar would land (scrollbar
-          // hidden, but visual alignment still benefits).
+          // No `gap` on the flex container — spacing is handled by
+          // explicit margin-right on each card + leading/trailing
+          // spacer divs (below). Multiple earlier iterations tried
+          // padding-left on the scroll container and CSS-class
+          // first-child rules; none landed visibly. The spacer-div
+          // approach is dumb but bulletproof — there's literally an
+          // element taking up width before the first card.
           paddingBottom: "var(--space-xs)",
         }}
       >
+        {/* Leading spacer — guarantees the first card sits 20px from
+            the strip's left edge regardless of any flex/overflow quirk. */}
+        <div
+          aria-hidden="true"
+          style={{ flexShrink: 0, width: "var(--space-xl)" }}
+        />
         {dogs.map((dog, idx) => {
           // Dog-forward: prefer the dog photo, fall back to owner avatar when
           // the dog image can't be resolved (keeps the strip visually full).
           const dogImg = getDogImageByOwnerAndName(dog.userId, dog.dogName);
           const imageUrl = dogImg ?? dog.ownerAvatarUrl;
-          // Inline margin on the first/last card guarantees the leading
-          // and trailing edge inset matches the heading's px-xl (20px),
-          // bypassing any flex-overflow padding-collapse quirk or
-          // CSS-class fast-refresh issue from earlier passes. Most
-          // bulletproof place to put the inset.
-          const isFirst = idx === 0;
-          const isLast = idx === dogs.length - 1;
           return (
             <div
               key={`${dog.userId}-${dog.dogName}`}
@@ -150,8 +147,11 @@ export function DogsNearYou() {
               style={{
                 scrollSnapAlign: "start",
                 width: 160,
-                marginLeft: isFirst ? "var(--space-xl)" : undefined,
-                marginRight: isLast ? "var(--space-xl)" : undefined,
+                // `marginRight` on every card serves as the gap between
+                // cards. On the last card it doubles as the trailing
+                // inset so the rightmost card doesn't sit hard against
+                // the panel edge when scrolled all the way right.
+                marginRight: "var(--space-xl)",
               }}
             >
               <div className="relative">
