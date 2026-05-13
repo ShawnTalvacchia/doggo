@@ -318,6 +318,11 @@ interface ProfileServicesTabProps {
   onEditAvailability: (a: CarerAvailabilitySlot[]) => void;
   editCarerBio: string;
   onEditCarerBio: (b: string) => void;
+  /** Flips the page into edit mode from the empty-state CTA. Wired to
+   *  the parent's `startServicesEdit` callback (same trigger as the
+   *  header Edit button). Lets the empty-state surface invite users
+   *  directly without forcing a "tap Edit above" pointer. 2026-05-11. */
+  onStartEdit: () => void;
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -336,6 +341,7 @@ export function ProfileServicesTab({
   onEditAvailability,
   editCarerBio,
   onEditCarerBio,
+  onStartEdit,
 }: ProfileServicesTabProps) {
   const carer = user.carerProfile;
   const showCareContent = editing
@@ -405,15 +411,16 @@ export function ProfileServicesTab({
           <p className="profile-card-copy text-fg-secondary m-0">
             Set yourself up as a carer for your community. Walks, sitting, boarding — you set the terms.
           </p>
-          {/* Directional hint — pushed down with deliberate gap so it
-              reads as a separate "next step" pointer rather than part of
-              the description. 2026-05-11 (empty-state airiness pass). */}
-          <p
-            className="text-sm text-fg-tertiary m-0"
-            style={{ marginTop: "var(--space-xxl)" }}
-          >
-            Tap &ldquo;Edit&rdquo; above to get started.
-          </p>
+          {/* Get started CTA — replaces the earlier "Tap Edit above" pointer.
+              Same callback as the header Edit button so the empty state
+              invites without inventing a second affordance; the header
+              Edit stays as the persistent re-entry once a user has been
+              here before. 2026-05-11 walkthrough B4.3 fix. */}
+          <div style={{ marginTop: "var(--space-xl)" }}>
+            <ButtonAction variant="primary" size="md" cta onClick={onStartEdit}>
+              Get started
+            </ButtonAction>
+          </div>
         </section>
       </div>
     );
@@ -446,10 +453,10 @@ export function ProfileServicesTab({
             hierarchy. 2026-05-11 (C6). */}
         <section>
           {/* Inner wrapper tightens the header → sub-text → picker group
-              with `gap-xs` (6px) instead of the section's `gap-md` (12px).
-              Negative-margin approach earlier was crushing the <p> into
-              overlap with its neighbors. 2026-05-11. */}
-          <div className="flex flex-col gap-xs">
+              with an 8px gap instead of the section's 12px. Inline style
+              to bypass any Tailwind utility-generation surprises.
+              2026-05-11. */}
+          <div className="flex flex-col" style={{ gap: 8 }}>
             <h3 className="profile-card-subtitle">Offering care</h3>
             <p className="text-sm text-fg-secondary m-0">
               How do you want to offer care to your community?
@@ -475,6 +482,7 @@ export function ProfileServicesTab({
                 </button>
               );
             })}
+            </div>
           </div>
         </section>
 

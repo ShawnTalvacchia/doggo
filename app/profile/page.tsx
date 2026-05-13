@@ -291,6 +291,7 @@ function ProfileInner() {
             onEditAvailability={setEditAvailability}
             editCarerBio={editCarerBio}
             onEditCarerBio={setEditCarerBio}
+            onStartEdit={startServicesEdit}
           />
         )}
 

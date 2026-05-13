@@ -483,20 +483,25 @@ export function ProfileAboutTab({
           per Action matrix v3 (2026-04-27): "Open viewers skip Familiar
           entirely (it's redundant)." */}
       <section>
-        <SectionHeader title="Profile visibility" />
-        {editing && (
-          <p
-            className="text-xs text-fg-tertiary"
-            style={{ marginTop: "-8px", marginBottom: "-8px" }}
-          >
-            Control who can see your full profile, posts, and dogs
-          </p>
-        )}
-        <ProfileVisibilitySetting
-          value={profileVisibility}
-          onChange={onProfileVisibilityChange}
-          editing={editing}
-        />
+        {/* Inner wrapper tightens the header → sub-text → picker group
+            with an 8px gap instead of the section's 12px. Inline style
+            instead of `gap-xs` to avoid any Tailwind utility-generation
+            surprises. The Familiar explainer (below) sits as a peer of
+            the wrapper and gets the full 12px section gap above it.
+            2026-05-11. */}
+        <div className="flex flex-col" style={{ gap: 8 }}>
+          <SectionHeader title="Profile visibility" />
+          {editing && (
+            <p className="text-xs text-fg-tertiary m-0">
+              Control who can see your full profile, posts, and dogs
+            </p>
+          )}
+          <ProfileVisibilitySetting
+            value={profileVisibility}
+            onChange={onProfileVisibilityChange}
+            editing={editing}
+          />
+        </div>
 
         {/* Familiar asymmetry explainer — persistent, low-key card teaching
             the most-misunderstood mechanic in the trust model: marking
@@ -551,20 +556,19 @@ export function ProfileAboutTab({
 
       {/* Tagging preferences — same view/edit split as Profile visibility. */}
       <section>
-        <SectionHeader title="Tagging preferences" />
-        {editing && (
-          <p
-            className="text-xs text-fg-tertiary"
-            style={{ marginTop: "-8px", marginBottom: "-8px" }}
-          >
-            Control how others can tag you and your dogs in posts
-          </p>
-        )}
-        <TagApprovalSetting
-          value={tagApproval}
-          onChange={onTagApprovalChange}
-          editing={editing}
-        />
+        <div className="flex flex-col" style={{ gap: 8 }}>
+          <SectionHeader title="Tagging preferences" />
+          {editing && (
+            <p className="text-xs text-fg-tertiary m-0">
+              Control how others can tag you and your dogs in posts
+            </p>
+          )}
+          <TagApprovalSetting
+            value={tagApproval}
+            onChange={onTagApprovalChange}
+            editing={editing}
+          />
+        </div>
       </section>
 
       {/* Connections — Familiar explainer moved out 2026-05-11 to nest

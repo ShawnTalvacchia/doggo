@@ -132,7 +132,7 @@ Discovery sweep: switch persona, hit each top-level surface, note dead-ends. **D
 
 - [x] **B4.1 — `/home?as=tomas`.** Karlín-leaning feed; Petra emergency-sitting story arc.
 - [x] **B4.2 — `/communities/group-karlin-neighbours?as=tomas`.** Petra's admin announcement, Filip/Adéla posts.
-- [ ] **B4.3 — `/profile?as=tomas`.** Locked profile, Hugo, Karlín. Low-key user, provider switch off.
+- [ ] **B4.3 — `/profile?as=tomas`.** Locked profile, Hugo, Karlín. Low-key user, provider switch off. **Services tab empty-state now carries a "Get started" CTA** (primary brand pill) below the description; tapping it flips the page into edit mode — same callback as the header Edit button. The earlier "Tap Edit above" directional pointer was removed 2026-05-11; the header Edit button stays for re-entry once the user has set up services. → `components/profile/ProfileServicesTab.tsx` (empty-state surface), `app/profile/page.tsx` (`onStartEdit={startServicesEdit}` wire-up).
 - [ ] **B4.4 — `/bookings?as=tomas`.** Past Petra emergency booking + any others; "trail of care arrangements that worked."
 - [ ] **B4.5 — `/schedule?as=tomas`.** Karlín / Riegrovy meets in Upcoming + History.
 - [ ] **B4.6 — `/inbox?as=tomas`.** Petra emergency thread surfaces with booking context on the row.
