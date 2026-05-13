@@ -2387,6 +2387,69 @@ body.guest-route {
   font-weight: var(--weight-semibold);
 }
 
+/* PetEditCard collapsed summary row — always visible at the top of the
+   card. Photo thumb + name + breed + caret toggle (whole row is the
+   toggle button) + delete (separate sibling so it doesn't double as the
+   expand trigger). When expanded the form sections render below; when
+   collapsed only this row stays. 2026-05-11 (C7b).                       */
+.pet-edit-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pet-edit-summary-toggle {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+}
+
+.pet-edit-summary-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-panel);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.pet-edit-summary-thumb--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-inset);
+  border: 1px dashed var(--border-regular);
+  color: var(--text-tertiary);
+}
+
+.pet-edit-summary-delete {
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: var(--status-error-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.pet-edit-summary-delete:hover {
+  background: var(--on-hover-light);
+}
+
+/* When the form body follows the summary row (expanded state), the
+   `.pet-card` flex gap (16px) handles spacing. When collapsed, the
+   summary row is the only child and `gap` has nothing to act on. */
+
 /* PetEditCard section wrapper — gives each named section its own divider
    + breathing room. The first section drops the top divider so the card
    doesn't open with a line right under nothing. 2026-05-11 (C3).        */
@@ -2396,11 +2459,6 @@ body.guest-route {
   gap: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--border-strong);
-}
-
-.pet-edit-section--first {
-  padding-top: 0;
-  border-top: none;
 }
 
 /* Pet photo edit trigger — square framed photo with an edit-pencil
@@ -10863,7 +10921,14 @@ body:has(.bottom-nav) .inbox-page {
 }
 
 .inbox-proposal-status--accepted {
-  color: var(--success-500);
+  /* Brand-main (was --success-500 / #2e8b57 sea green) — the accepted
+     footer is a tappable Link to the live booking, not a one-shot
+     success notification. Brand-main reads as "navigate to" rather
+     than "this succeeded just now"; the inline "Signed HH:MM" stamp
+     carries the success-moment. Also resolves the color mismatch with
+     the rest of the app — sea-green next to brand-teal read off.
+     CCFT walkthrough B4.6, 2026-05-11. */
+  color: var(--brand-main);
 }
 
 .inbox-proposal-status--declined {

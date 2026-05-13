@@ -430,22 +430,30 @@ export function ProfileAboutTab({
         />
         {editing ? (
           <div className="flex flex-col gap-md">
-            {editState.pets.map((pet, i) => (
-              <PetEditCard
-                key={pet.id}
-                pet={pet}
-                onChange={(updated) => {
-                  const next = [...editState.pets];
-                  next[i] = updated;
-                  onEditChange({ pets: next });
-                }}
-                onDelete={() => {
-                  onEditChange({
-                    pets: editState.pets.filter((_, j) => j !== i),
-                  });
-                }}
-              />
-            ))}
+            {editState.pets.map((pet, i) => {
+              // Newly added pets (only in editState, not yet in user.pets)
+              // auto-expand so the user can fill them in. Existing pets
+              // stay collapsed by default — two dogs would otherwise push
+              // Profile visibility well below the fold. 2026-05-11 (C7b).
+              const isNew = !user.pets.some((p) => p.id === pet.id);
+              return (
+                <PetEditCard
+                  key={pet.id}
+                  pet={pet}
+                  defaultExpanded={isNew}
+                  onChange={(updated) => {
+                    const next = [...editState.pets];
+                    next[i] = updated;
+                    onEditChange({ pets: next });
+                  }}
+                  onDelete={() => {
+                    onEditChange({
+                      pets: editState.pets.filter((_, j) => j !== i),
+                    });
+                  }}
+                />
+              );
+            })}
           </div>
         ) : user.pets.length > 0 ? (
           <div className="flex flex-col gap-md">

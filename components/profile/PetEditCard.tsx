@@ -109,6 +109,11 @@ interface PetEditCardProps {
   pet: PetProfile;
   onChange: (updated: PetProfile) => void;
   onDelete: () => void;
+  /** Whether the card starts expanded. Existing pets collapse by default
+   *  (the edit list can grow tall fast — two pets pushes Profile
+   *  visibility well below the fold); newly added pets auto-expand so the
+   *  user can fill them in without an extra click. 2026-05-11 (C7b). */
+  defaultExpanded?: boolean;
 }
 
 /**
@@ -116,8 +121,11 @@ interface PetEditCardProps {
  * each with its own header + visual divider — to give the form a clear
  * hierarchy and to mirror the view-mode PetCard's section pattern.
  *
+ *   0. Compact summary row (always visible) — photo thumb + name + breed
+ *      + caret toggle + delete. Tapping the toggle expands/collapses the
+ *      form body below. Newly added pets auto-expand via
+ *      `defaultExpanded`. 2026-05-11 (C7b).
  *   1. Basic info — name / breed / photo / size / age / energy.
- *      Header carries the per-pet delete button on the right.
  *   2. Personality — play style pills + general notes.
  *   3. Socialisation — Heart icon + textarea.
  *   4. Health & vet — FirstAidKit icon + collapsible body (collapsed by
@@ -126,7 +134,14 @@ interface PetEditCardProps {
  * Field-level icons are deliberately absent — icons live on section
  * headers only, matching view-mode treatment. 2026-05-11 (walkthrough C3).
  */
-export function PetEditCard({ pet, onChange, onDelete }: PetEditCardProps) {
+export function PetEditCard({
+  pet,
+  onChange,
+  onDelete,
+  defaultExpanded = false,
+}: PetEditCardProps) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
+
   const hasVetData = !!(
     pet.vetInfo &&
     (pet.vetInfo.clinicName ||
@@ -153,31 +168,79 @@ export function PetEditCard({ pet, onChange, onDelete }: PetEditCardProps) {
 
   const hasPhoto = !!(pet.imageUrl && !pet.imageUrl.includes("placeholder"));
 
-  // Inline delete button — sits in the Basic info section header's right slot.
-  const deleteAction = (
-    <button
-      type="button"
-      onClick={onDelete}
-      className="flex items-center justify-center"
-      style={{
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        color: "var(--status-error-main)",
-        padding: 4,
-      }}
-      aria-label="Remove pet"
-      title="Remove pet"
-    >
-      <Trash size={18} weight="light" />
-    </button>
-  );
-
   return (
     <div className="pet-card">
-      {/* ── Section 1: Basic info ─────────────────────────────────────── */}
-      <section className="pet-edit-section pet-edit-section--first">
-        <EditSectionHeader label="Basic info" rightSlot={deleteAction} />
+      {/* ── Always-visible compact summary row ────────────────────────
+          Carries identity (photo + name + breed) + expand toggle +
+          delete. Toggle area is the button; delete sits outside so it
+          doesn't double as an expand trigger. 2026-05-11 (C7b). */}
+      <div className="pet-edit-summary-row">
+        <button
+          type="button"
+          className="pet-edit-summary-toggle"
+          onClick={() => setExpanded((e) => !e)}
+          aria-expanded={expanded}
+          aria-label={expanded ? "Collapse pet details" : "Expand pet details"}
+        >
+          {hasPhoto ? (
+            <img
+              src={pet.imageUrl}
+              alt={pet.name}
+              className="pet-edit-summary-thumb"
+            />
+          ) : (
+            <span
+              className="pet-edit-summary-thumb pet-edit-summary-thumb--empty"
+              aria-hidden="true"
+            >
+              <Dog size={20} weight="light" />
+            </span>
+          )}
+          <div className="flex flex-col flex-1 min-w-0 text-left">
+            <span
+              className="text-base font-semibold text-fg-primary truncate"
+              style={{ lineHeight: 1.3 }}
+            >
+              {pet.name || "New dog"}
+            </span>
+            {pet.breed && (
+              <span
+                className="text-sm text-fg-secondary truncate"
+                style={{ lineHeight: 1.3 }}
+              >
+                {pet.breed}
+              </span>
+            )}
+          </div>
+          <CaretDown
+            size={16}
+            weight="bold"
+            className="text-fg-tertiary shrink-0"
+            style={{
+              transform: expanded ? "rotate(180deg)" : "none",
+              transition: "transform 0.15s ease",
+            }}
+          />
+        </button>
+        <button
+          type="button"
+          onClick={onDelete}
+          className="pet-edit-summary-delete"
+          aria-label="Remove pet"
+          title="Remove pet"
+        >
+          <Trash size={18} weight="light" />
+        </button>
+      </div>
+
+      {!expanded ? null : (
+      <>
+      {/* ── Section 1: Basic info ──────────────────────────────────────
+          Top divider preserved (no `--first` modifier) so it reads as a
+          form body distinct from the always-visible summary row above.
+          2026-05-11 (C7b). */}
+      <section className="pet-edit-section">
+        <EditSectionHeader label="Basic info" />
 
         {/* Name + Breed row */}
         <div className="two-col">
@@ -439,6 +502,8 @@ export function PetEditCard({ pet, onChange, onDelete }: PetEditCardProps) {
           </div>
         )}
       </section>
+      </>
+      )}
     </div>
   );
 }
