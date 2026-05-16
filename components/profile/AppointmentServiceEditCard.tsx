@@ -131,7 +131,7 @@ export function AppointmentServiceEditCard({
             <button
               key={opt.key}
               type="button"
-              className={`pill${service.appointmentCategory === opt.key ? " active" : ""}`}
+              className={`pill pill-sm${service.appointmentCategory === opt.key ? " active" : ""}`}
               onClick={() => patch({ appointmentCategory: opt.key })}
             >
               {opt.label}
@@ -166,10 +166,10 @@ export function AppointmentServiceEditCard({
         />
       </div>
 
-      {/* Enabled toggle */}
-      <div className="flex flex-col gap-xxs">
+      {/* Published — separated footer zone (full-bleed border above). */}
+      <div className="profile-service-card-footer">
         <Toggle
-          label="Show on your profile"
+          label="Published"
           checked={service.enabled}
           onChange={(checked) => patch({ enabled: checked })}
         />

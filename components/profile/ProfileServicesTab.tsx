@@ -775,7 +775,7 @@ export function ProfileServicesTab({
                                   <button
                                     key={sub}
                                     type="button"
-                                    className={`pill${active ? " active" : ""}`}
+                                    className={`pill pill-sm${active ? " active" : ""}`}
                                     onClick={() => {
                                       const next = active
                                         ? svc.subServices.filter(

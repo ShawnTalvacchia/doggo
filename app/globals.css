@@ -3093,6 +3093,30 @@ body.guest-route {
   color: var(--brand-strong);
 }
 
+/* Compact pill variant — 14px semibold, tighter padding. Used inside
+   content-dense cards (the service edit cards) where the default pill
+   reads oversized next to 14px inputs. Service ↔ Meet Linkage, 2026-05-16.
+   Compose: `class="pill pill-sm"` (+ `active`). */
+.pill-sm {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  padding: 6px 10px;
+}
+
+/* Full-bleed footer zone inside a `.profile-service-card`. The negative
+   horizontal + bottom margins cancel the card's 14px padding so the
+   border-top spans the card edge-to-edge; the zone re-pads its own
+   content. Used for the "Published" toggle — visually separating the
+   live/hidden switch from the content fields. Service ↔ Meet Linkage. */
+.profile-service-card-footer {
+  margin: 0 -14px -14px;
+  border-top: 1.5px solid var(--border-subtle);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xxs);
+}
+
 /* ---- Multi-select segment bar (shared) ---- */
 .multi-segment {
   display: flex;

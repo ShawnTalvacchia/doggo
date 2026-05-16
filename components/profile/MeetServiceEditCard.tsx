@@ -192,7 +192,7 @@ export function MeetServiceEditCard({
             <button
               key={opt.key}
               type="button"
-              className={`pill${service.format === opt.key ? " active" : ""}`}
+              className={`pill pill-sm${service.format === opt.key ? " active" : ""}`}
               onClick={() => patch({ format: opt.key })}
             >
               {opt.label}
@@ -213,7 +213,7 @@ export function MeetServiceEditCard({
             <button
               key={opt.key}
               type="button"
-              className={`pill${service.cadence === opt.key ? " active" : ""}`}
+              className={`pill pill-sm${service.cadence === opt.key ? " active" : ""}`}
               onClick={() => patch({ cadence: opt.key })}
             >
               {opt.label}
@@ -274,9 +274,18 @@ export function MeetServiceEditCard({
               </p>
             )}
             {linkedMeets.map((meet) => (
-              <div key={meet.id} className="flex flex-col gap-xs">
+              <div
+                key={meet.id}
+                className="flex flex-col rounded-sm"
+                style={{
+                  background: "var(--surface-popout)",
+                  border: "1px solid var(--border-regular)",
+                  overflow: "hidden",
+                }}
+              >
+                {/* Meet info */}
                 <div
-                  className="flex items-start gap-sm rounded-form border border-edge-regular"
+                  className="flex items-start gap-sm"
                   style={{ padding: "var(--space-sm) var(--space-md)" }}
                 >
                   <span className="flex flex-col flex-1 min-w-0">
@@ -302,13 +311,11 @@ export function MeetServiceEditCard({
                     <X size={16} weight="bold" />
                   </button>
                 </div>
-                {/* Per-link required toggle — indented under its meet. */}
+                {/* Per-link required toggle — one line, divider above. */}
                 <div
-                  className="flex flex-col gap-xxs rounded-sm"
                   style={{
-                    marginLeft: "var(--space-sm)",
                     padding: "var(--space-xs) var(--space-md)",
-                    background: "var(--surface-inset)",
+                    borderTop: "1px solid var(--border-regular)",
                   }}
                 >
                   <Toggle
@@ -316,11 +323,6 @@ export function MeetServiceEditCard({
                     checked={requiredByMeet[meet.id] ?? false}
                     onChange={(checked) => onChangeRequired(meet.id, checked)}
                   />
-                  <span className="text-xs text-fg-tertiary">
-                    {requiredByMeet[meet.id]
-                      ? "Only paid bookings — no free RSVP for this meet."
-                      : "Free to join; booking this service is optional."}
-                  </span>
                 </div>
               </div>
             ))}
@@ -336,7 +338,7 @@ export function MeetServiceEditCard({
                   style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 0" }}
                 >
                   <Plus size={14} weight="bold" />
-                  Link a meet
+                  {linkedMeets.length > 0 ? "Link another meet" : "Link a meet"}
                 </button>
               ) : (
                 <div className="flex flex-col gap-xs">
@@ -405,10 +407,10 @@ export function MeetServiceEditCard({
         )}
       </div>
 
-      {/* Enabled toggle */}
-      <div className="flex flex-col gap-xxs">
+      {/* Published — separated footer zone (full-bleed border above). */}
+      <div className="profile-service-card-footer">
         <Toggle
-          label="Show on your profile"
+          label="Published"
           checked={service.enabled}
           onChange={(checked) => patch({ enabled: checked })}
         />
