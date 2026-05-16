@@ -322,6 +322,7 @@ export function MeetServiceEditCard({
                     label="Booking required to RSVP"
                     checked={requiredByMeet[meet.id] ?? false}
                     onChange={(checked) => onChangeRequired(meet.id, checked)}
+                    size="sm"
                   />
                 </div>
               </div>

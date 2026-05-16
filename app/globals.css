@@ -2603,6 +2603,25 @@ body.guest-route {
   transform: translateX(24px);
 }
 
+/* Small variant — lighter weight for secondary/inline card rows */
+.toggle-row--sm {
+  gap: var(--space-sm);
+}
+.toggle-row--sm .toggle-label {
+  font-size: var(--font-size-body-sm);
+}
+.toggle-track--sm {
+  width: 44px;
+  height: 24px;
+}
+.toggle-track--sm .toggle-knob {
+  width: 24px;
+  height: 20px;
+}
+.toggle-track--sm.on .toggle-knob {
+  transform: translateX(16px);
+}
+
 /* Input with trailing icon */
 .input-with-icon {
   position: relative;
