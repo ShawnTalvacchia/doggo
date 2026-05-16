@@ -18,6 +18,7 @@ import { Toggle } from "@/components/ui/Toggle";
 import { MeetServiceEditCard } from "@/components/profile/MeetServiceEditCard";
 import { AppointmentServiceEditCard } from "@/components/profile/AppointmentServiceEditCard";
 import { DeleteServiceModal } from "@/components/profile/DeleteServiceModal";
+import { ArchivedServiceStrip } from "@/components/profile/ArchivedServiceStrip";
 import { SERVICE_LABELS, SUB_SERVICES } from "@/lib/constants/services";
 import { defaultModifiers } from "@/lib/pricing";
 import { mockMeets, getHostedMeets } from "@/lib/mockMeets";
@@ -414,6 +415,10 @@ export function ProfileServicesTab({
   // anything is removed. Holds the `editServices` index of the pending delete.
   const [pendingDeleteIdx, setPendingDeleteIdx] = useState<number | null>(null);
 
+  // Bottom "Archived services" accordion — collapsed by default. Holds
+  // services archived in a *prior* edit session (walkthrough B6, 2026-05-16).
+  const [archivedOpen, setArchivedOpen] = useState(false);
+
   // ── Helpers for editing services ──
   //
   // `editServices` is the comprehensive catalogue (Care + Meet + Appointment).
@@ -512,6 +517,31 @@ export function ProfileServicesTab({
     return (user.carerProfile?.services ?? []).some(
       (s) => (s.kind === "meet" || s.kind === "appointment") && s.id === id,
     );
+  }
+
+  // True when a service was *already archived* in the saved snapshot — i.e.
+  // archived in a prior edit session, not just now. These collapse into the
+  // bottom "Archived services" accordion; a service archived *this* session
+  // stays inline (with its Undo) so the just-done action stays recoverable.
+  function wasArchivedBefore(id: string): boolean {
+    return (user.carerProfile?.services ?? []).some(
+      (s) =>
+        (s.kind === "meet" || s.kind === "appointment") &&
+        s.id === id &&
+        !!s.softDeletedAt,
+    );
+  }
+
+  function isPreviouslyArchived(svc: CarerServiceConfig): boolean {
+    if (svc.kind === "care") return false;
+    return !!svc.softDeletedAt && wasArchivedBefore(svc.id);
+  }
+
+  // Display name for a service across all three kinds.
+  function serviceDisplayTitle(svc: CarerServiceConfig): string {
+    if (svc.kind === "care") return SERVICE_LABELS[svc.serviceType];
+    if (svc.kind === "appointment") return svc.title || "Untitled appointment";
+    return svc.title || "Untitled session";
   }
 
   // True when removing `svc` soft-archives it (keeps it restorable, existing
@@ -705,6 +735,9 @@ export function ProfileServicesTab({
               <div className="flex flex-col gap-md">
                 {editServices
                   .map((svc, idx) => ({ svc, idx }))
+                  // Previously-archived services drop to the bottom accordion;
+                  // active + freshly-archived ones stay in the main list.
+                  .filter(({ svc }) => !isPreviouslyArchived(svc))
                   .sort(
                     (a, b) =>
                       SERVICE_KIND_RANK[a.svc.kind] - SERVICE_KIND_RANK[b.svc.kind],
@@ -913,6 +946,65 @@ export function ProfileServicesTab({
                     Appointment
                   </ButtonAction>
                 </div>
+
+                {/* Archived services — collapsed bin (closed by default) for
+                    services archived in a prior edit session. Services
+                    archived *this* session stay inline above with their
+                    Undo. Walkthrough B6, 2026-05-16. */}
+                {(() => {
+                  const archived = editServices
+                    .map((svc, idx) => ({ svc, idx }))
+                    .filter(({ svc }) => isPreviouslyArchived(svc));
+                  if (archived.length === 0) return null;
+                  return (
+                    <div
+                      className="flex flex-col gap-sm"
+                      style={{
+                        borderTop: "1px solid var(--border-subtle)",
+                        paddingTop: "var(--space-md)",
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setArchivedOpen((v) => !v)}
+                        className="flex items-center justify-between gap-sm text-sm font-semibold text-fg-secondary hover:text-brand-main"
+                        style={{
+                          background: "none",
+                          border: "none",
+                          cursor: "pointer",
+                          padding: "var(--space-xs) 0",
+                        }}
+                        aria-expanded={archivedOpen}
+                      >
+                        <span className="inline-flex items-center gap-xs">
+                          Archived services
+                          <span
+                            className="inline-flex items-center rounded-pill bg-surface-inset text-fg-tertiary text-xs font-semibold"
+                            style={{ padding: "1px var(--space-xs)" }}
+                          >
+                            {archived.length}
+                          </span>
+                        </span>
+                        {archivedOpen ? (
+                          <CaretUp size={14} weight="bold" />
+                        ) : (
+                          <CaretDown size={14} weight="bold" />
+                        )}
+                      </button>
+                      {archivedOpen && (
+                        <div className="flex flex-col gap-sm">
+                          {archived.map(({ svc, idx }) => (
+                            <ArchivedServiceStrip
+                              key={svc.kind === "care" ? `care-${idx}` : svc.id}
+                              title={serviceDisplayTitle(svc)}
+                              onUndo={() => undoArchiveAt(idx)}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             </section>
 
@@ -954,13 +1046,7 @@ export function ProfileServicesTab({
           editServices[pendingDeleteIdx] &&
           (() => {
             const svc = editServices[pendingDeleteIdx];
-            const serviceLabel =
-              svc.kind === "care"
-                ? SERVICE_LABELS[svc.serviceType]
-                : svc.title ||
-                  (svc.kind === "meet"
-                    ? "Untitled session"
-                    : "Untitled appointment");
+            const serviceLabel = serviceDisplayTitle(svc);
             const kindLabel =
               svc.kind === "care"
                 ? "Care service"
