@@ -10292,7 +10292,7 @@ body:has(.bottom-nav) .inbox-page {
   padding: 0;
   display: inline-flex;
   align-items: center;
-  gap: var(--space-xxs);
+  gap: var(--space-xs);
   color: var(--text-secondary);
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
@@ -10410,7 +10410,7 @@ body:has(.bottom-nav) .inbox-page {
   color: var(--text-primary);
   font-size: var(--text-sm);
   font-family: var(--font-body), sans-serif;
-  margin-top: var(--space-xxs);
+  margin-top: var(--space-xs);
 }
 
 .proposal-form-override-reason:focus {
@@ -10429,7 +10429,7 @@ body:has(.bottom-nav) .inbox-page {
   font-family: var(--font-body), sans-serif;
   text-decoration: underline;
   cursor: pointer;
-  margin-top: var(--space-xxs);
+  margin-top: var(--space-xs);
 }
 
 .proposal-form-override-reset:hover {
@@ -10491,12 +10491,6 @@ body:has(.bottom-nav) .inbox-page {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  /* Margin reduced from var(--space-sm) (8px) → var(--space-xs) (4px)
-     2026-05-11 — compensates for the `.profile-service-card` flex-gap
-     bump from 8px → 12px, so the total Notes → Pricing modifiers gap
-     (gap + margin-top + padding-top) stays at ~24px. */
-  margin-top: var(--space-xs);
-  padding-top: var(--space-sm);
   border-top: 1px solid var(--border-light);
 }
 

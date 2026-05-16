@@ -81,6 +81,9 @@ export function MeetServiceEditCard({
   // linked meet to be bookable, so a fresh card opens straight to the picker.
   const [adding, setAdding] = useState(service.linkedMeetIds.length === 0);
   const [search, setSearch] = useState("");
+  // The meets list is revealed only once the search input is focused —
+  // expanding the picker shows just the input, not a full list dump.
+  const [searchFocused, setSearchFocused] = useState(false);
 
   // ── Soft-archived state — slim muted strip with Undo ──
   if (service.softDeletedAt) {
@@ -89,7 +92,7 @@ export function MeetServiceEditCard({
         className="profile-service-card flex items-center justify-between gap-md"
         style={{ opacity: 0.7 }}
       >
-        <div className="flex flex-col gap-xxs">
+        <div className="flex flex-col gap-xs">
           <span className="text-sm font-semibold text-fg-secondary">
             {service.title || "Untitled session"}
           </span>
@@ -344,53 +347,62 @@ export function MeetServiceEditCard({
                       placeholder="Search your meets…"
                       value={search}
                       onChange={(e) => setSearch(e.target.value)}
-                      autoFocus
+                      onFocus={() => setSearchFocused(true)}
+                      onBlur={() => setSearchFocused(false)}
                     />
                     <span className="input-trailing-text" aria-hidden="true">
                       <MagnifyingGlass size={15} weight="light" />
                     </span>
                   </div>
-                  {searchResults.length === 0 ? (
-                    <p className="text-xs text-fg-tertiary m-0">
-                      No meets match &ldquo;{search}&rdquo;.
-                    </p>
-                  ) : (
-                    searchResults.map((meet) => (
-                      <button
-                        key={meet.id}
-                        type="button"
-                        onClick={() => {
-                          linkMeet(meet.id);
-                          setSearch("");
-                        }}
-                        className="flex items-center gap-sm rounded-form border border-edge-regular text-left"
-                        style={{
-                          padding: "var(--space-sm) var(--space-md)",
-                          background: "var(--surface-top)",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <span className="flex flex-col flex-1 min-w-0">
-                          <span className="text-sm text-fg-primary">
-                            {meet.title}
+                  {/* Results appear only once the input is focused —
+                      expanding the picker reveals the search field, not a
+                      full list dump. */}
+                  {searchFocused &&
+                    (searchResults.length === 0 ? (
+                      <p className="text-xs text-fg-tertiary m-0">
+                        No meets match &ldquo;{search}&rdquo;.
+                      </p>
+                    ) : (
+                      searchResults.map((meet) => (
+                        <button
+                          key={meet.id}
+                          type="button"
+                          // preventDefault keeps the input focused so the
+                          // list stays open and the click lands.
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => {
+                            linkMeet(meet.id);
+                            setSearch("");
+                          }}
+                          className="flex items-center gap-sm rounded-form border border-edge-regular text-left"
+                          style={{
+                            padding: "var(--space-sm) var(--space-md)",
+                            background: "var(--surface-top)",
+                            cursor: "pointer",
+                          }}
+                        >
+                          <span className="flex flex-col flex-1 min-w-0">
+                            <span className="text-sm text-fg-primary">
+                              {meet.title}
+                            </span>
+                            <span className="text-xs text-fg-tertiary">
+                              {meetScheduleSummary(meet)}
+                            </span>
                           </span>
-                          <span className="text-xs text-fg-tertiary">
-                            {meetScheduleSummary(meet)}
-                          </span>
-                        </span>
-                        <Plus
-                          size={16}
-                          weight="bold"
-                          className="text-brand-strong shrink-0"
-                        />
-                      </button>
-                    ))
-                  )}
+                          <Plus
+                            size={16}
+                            weight="bold"
+                            className="text-brand-strong shrink-0"
+                          />
+                        </button>
+                      ))
+                    ))}
                   <button
                     type="button"
                     onClick={() => {
                       setAdding(false);
                       setSearch("");
+                      setSearchFocused(false);
                     }}
                     className="flex items-center text-sm text-fg-secondary self-start"
                     style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 0" }}

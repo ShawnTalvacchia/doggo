@@ -878,7 +878,7 @@ function UserProfileInner() {
                     className="shrink-0"
                     style={{ color: "var(--brand-strong)", marginTop: 2 }}
                   />
-                  <div className="flex flex-col gap-xxs">
+                  <div className="flex flex-col gap-xs">
                     <p className="text-sm font-semibold text-fg-primary m-0">
                       Carer · Connected circle
                     </p>
@@ -1078,7 +1078,7 @@ function UserProfileInner() {
                             {/* B7 — linked-meet schedule grounding: when and
                                 where the sessions actually run. */}
                             {linkedMeets.length > 0 && (
-                              <div className="flex flex-col gap-xxs" style={{ marginTop: 4 }}>
+                              <div className="flex flex-col gap-xs" style={{ marginTop: 4 }}>
                                 {linkedMeets.map((meet) => (
                                   <span
                                     key={meet.id}

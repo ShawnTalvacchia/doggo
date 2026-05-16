@@ -51,7 +51,7 @@ export function AppointmentServiceEditCard({
         className="profile-service-card flex items-center justify-between gap-md"
         style={{ opacity: 0.7 }}
       >
-        <div className="flex flex-col gap-xxs">
+        <div className="flex flex-col gap-xs">
           <span className="text-sm font-semibold text-fg-secondary">
             {service.title || "Untitled appointment"}
           </span>

@@ -66,7 +66,7 @@ export function TagApprovalSetting({ value, onChange, editing = false }: TagAppr
           className="shrink-0"
           style={{ color: "var(--brand-strong)", marginTop: 2 }}
         />
-        <div className="flex flex-col gap-xxs">
+        <div className="flex flex-col gap-xs">
           <p className="text-sm font-semibold text-fg-primary m-0">
             {current.label}
           </p>

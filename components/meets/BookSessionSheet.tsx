@@ -197,7 +197,7 @@ export function BookSessionSheet({
               alt={carer.name}
               className="w-10 h-10 rounded-full object-cover shrink-0"
             />
-            <div className="flex flex-col gap-xxs flex-1 min-w-0">
+            <div className="flex flex-col gap-xs flex-1 min-w-0">
               <span className="text-sm font-semibold text-fg-primary">
                 {service.title}
               </span>
@@ -240,7 +240,7 @@ export function BookSessionSheet({
                         weight={isSelected ? "fill" : "light"}
                         className={isSelected ? "text-brand-strong shrink-0" : "text-fg-tertiary shrink-0"}
                       />
-                      <span className="flex flex-col gap-xxs min-w-0">
+                      <span className="flex flex-col gap-xs min-w-0">
                         <span className="text-sm font-semibold text-fg-primary">
                           {formatOccurrence(occ.date, occ.meet.time)}
                         </span>

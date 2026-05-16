@@ -30,7 +30,7 @@ export function CompactGreeting({ user }: { user: UserProfile }) {
             />
           ))}
         </div>
-        <div className="flex flex-col gap-xxs flex-1">
+        <div className="flex flex-col gap-xs flex-1">
           <span className="font-semibold text-fg-primary text-lg leading-normal">
             Hey, {user.firstName}!
           </span>

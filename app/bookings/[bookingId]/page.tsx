@@ -1003,7 +1003,7 @@ export default function BookingDetailPage() {
                 <div className="flex flex-col gap-xs rounded-panel p-md bg-surface-top border border-edge-regular">
                   {booking.price.lineItems.map((item, i) => (
                     <div key={i} className="flex justify-between items-start">
-                      <span className={`text-sm flex flex-col gap-xxs ${item.isModifier ? "text-fg-tertiary" : "text-fg-secondary"}`}>
+                      <span className={`text-sm flex flex-col gap-xs ${item.isModifier ? "text-fg-tertiary" : "text-fg-secondary"}`}>
                         <span>{item.isModifier ? `+ ${item.label}` : item.label}</span>
                         {item.triggerNote && (
                           <span className="text-xs text-fg-tertiary italic">{item.triggerNote}</span>
