@@ -49,6 +49,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ShareMeetModal } from "@/components/meets/ShareMeetModal";
 import { ServiceBookingSheet } from "@/components/meets/ServiceBookingSheet";
 import { BookSessionSheet } from "@/components/meets/BookSessionSheet";
+import { LinkedServiceCallout } from "@/components/meets/LinkedServiceCallout";
 import { getLinkedServicesForMeet } from "@/lib/meetUtils";
 import { CancelOccurrenceModal } from "@/components/meets/CancelOccurrenceModal";
 import { ParticipantList } from "@/components/meets/ParticipantList";
@@ -733,6 +734,29 @@ function DetailsTab({
             </span>
           </div>
         </div>
+
+        {/* Optional linked-service callout (D2) — meets that link a
+            Meet-type service but aren't legacy `serviceCTA` meets (those
+            keep their own "About this service" card lower down). The walk
+            stays free to join; the callout surfaces the paid option. */}
+        {(() => {
+          if (meet.serviceCTA) return null;
+          const link = getLinkedServicesForMeet(meet)[0];
+          if (!link) return null;
+          const carer = getUserById(meet.creatorId);
+          const svc = carer?.carerProfile?.services.find(
+            (s): s is CarerMeetServiceConfig =>
+              s.kind === "meet" && s.id === link.serviceId,
+          );
+          if (!svc || !carer) return null;
+          return (
+            <LinkedServiceCallout
+              service={svc}
+              carer={{ name: carer.firstName, avatarUrl: carer.avatarUrl }}
+              onBook={() => onBook(meet.date)}
+            />
+          );
+        })()}
 
         {/* RSVP action row.
             One-off meets: single Going/Interested dropdown + Invite (legacy).
