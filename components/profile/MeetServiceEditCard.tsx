@@ -414,18 +414,6 @@ export function MeetServiceEditCard({
           </div>
         )}
       </div>
-
-      {/* Published — separated footer zone (full-bleed border above). */}
-      <div className="profile-service-card-footer">
-        <Toggle
-          label="Published"
-          checked={service.enabled}
-          onChange={(checked) => patch({ enabled: checked })}
-        />
-        <span className="text-xs text-fg-tertiary">
-          Off keeps the service saved but hidden from owners.
-        </span>
-      </div>
     </div>
   );
 }

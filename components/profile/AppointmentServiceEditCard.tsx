@@ -2,7 +2,6 @@
 
 import { Trash, Clock, ArrowCounterClockwise } from "@phosphor-icons/react";
 import { InputField } from "@/components/ui/InputField";
-import { Toggle } from "@/components/ui/Toggle";
 import type {
   CarerAppointmentServiceConfig,
   AppointmentCategory,
@@ -164,18 +163,6 @@ export function AppointmentServiceEditCard({
           placeholder="e.g. Private session at your location or Stromovka."
           style={{ minHeight: 56 }}
         />
-      </div>
-
-      {/* Published — separated footer zone (full-bleed border above). */}
-      <div className="profile-service-card-footer">
-        <Toggle
-          label="Published"
-          checked={service.enabled}
-          onChange={(checked) => patch({ enabled: checked })}
-        />
-        <span className="text-xs text-fg-tertiary">
-          Off keeps the service saved but hidden from owners.
-        </span>
       </div>
     </div>
   );

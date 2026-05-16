@@ -3103,22 +3103,6 @@ body.guest-route {
   padding: 6px 10px;
 }
 
-/* Full-bleed footer zone inside a `.profile-service-card`. The negative
-   horizontal + bottom margins cancel the card's 14px padding so the
-   border-top spans the card edge-to-edge; the zone re-pads its own
-   content. Used for the "Published" toggle — visually separating the
-   live/hidden switch from the content fields. Service ↔ Meet Linkage. */
-.profile-service-card-footer {
-  /* Negative margins cancel the card's --space-lg padding so the
-     border-top spans edge-to-edge; the zone re-pads with --space-lg. */
-  margin: 0 calc(-1 * var(--space-lg)) calc(-1 * var(--space-lg));
-  border-top: 1.5px solid var(--border-subtle);
-  padding: var(--space-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-}
-
 /* ---- Multi-select segment bar (shared) ---- */
 .multi-segment {
   display: flex;
