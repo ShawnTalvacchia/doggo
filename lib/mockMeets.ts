@@ -1419,6 +1419,10 @@ export const mockMeets: Meet[] = [
       { userId: "jakub", userName: "Jakub", avatarUrl: "/images/generated/jakub-profile.jpeg", dogNames: ["Aron"], rsvpStatus: "going" },
     ],
     recentJoinText: "Marek joined yesterday",
+    // Service ↔ Meet Linkage A5, 2026-05-13 — optional-link / mixed-roster
+    // demo. The walk stays free to join; `required: false` means Tereza's
+    // "Group walk" service is a supplementary paid option, not an RSVP gate.
+    linkedServices: [{ serviceId: "tereza-group-walk", required: false }],
     createdAt: "2026-04-03T08:00:00Z",
   },
 

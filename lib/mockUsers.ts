@@ -165,6 +165,23 @@ export const tereza: UserProfile = {
         notes: "Casual walks for neighbours' dogs. I usually do Riegrovy sady or Havlíčkovy sady. Familiar dogs only.",
         modifiers: [],
       },
+      // Meet-type service — optional-link / mixed-roster demo case
+      // (Service ↔ Meet Linkage A5, 2026-05-13). Tereza's regular Thursday
+      // neighbourhood walk (`meet-15`) stays free to join; this service is
+      // the paid option for owners who want her actively working with their
+      // dog on the walk. `required: false` on the meet link → mixed roster.
+      {
+        kind: "meet",
+        id: "tereza-group-walk",
+        title: "Group walk",
+        enabled: true,
+        pricePerSession: 200,
+        format: "small_group",
+        cadence: "weekly",
+        durationMinutes: 60,
+        notes: "Join my regular neighbourhood walk and I'll give your dog hands-on attention — pace, manners, gentle recall practice. The walk itself is free to join; this is for owners who'd like me actively working with their dog.",
+        linkedMeetIds: ["meet-15"],
+      },
     ],
     publicProfile: false,
     visibility: "connected_only",
