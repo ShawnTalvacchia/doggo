@@ -1,9 +1,16 @@
 "use client";
 
-import { Trash, CalendarBlank, ArrowCounterClockwise } from "@phosphor-icons/react";
+import { useState } from "react";
+import {
+  Trash,
+  CalendarBlank,
+  ArrowCounterClockwise,
+  Plus,
+  X,
+  MagnifyingGlass,
+} from "@phosphor-icons/react";
 import { InputField } from "@/components/ui/InputField";
 import { Toggle } from "@/components/ui/Toggle";
-import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { meetScheduleSummary } from "@/lib/meetUtils";
 import type {
   CarerMeetServiceConfig,
@@ -52,6 +59,12 @@ interface MeetServiceEditCardProps {
  * trash + fields below — with Meet-specific fields plus the linked-meets
  * picker (B2) and per-link required toggle (B3).
  *
+ * The picker is a search-and-add pattern, not a list-all: only the *linked*
+ * meets show by default (usually 0–1), with a "Link a meet" search to add
+ * more. A carer hosting many meets would otherwise get the full list
+ * repeated on every session-type service card. (Walkthrough refinement,
+ * 2026-05-16.)
+ *
  * Service ↔ Meet Linkage, Workstream B1–B3, 2026-05-13.
  */
 export function MeetServiceEditCard({
@@ -63,6 +76,10 @@ export function MeetServiceEditCard({
   requiredByMeet,
   onChangeRequired,
 }: MeetServiceEditCardProps) {
+  // Linked-meets picker state — hooks must run before any early return.
+  const [adding, setAdding] = useState(false);
+  const [search, setSearch] = useState("");
+
   // ── Soft-archived state — slim muted strip with Undo ──
   if (service.softDeletedAt) {
     return (
@@ -94,6 +111,29 @@ export function MeetServiceEditCard({
   function patch(updates: Partial<CarerMeetServiceConfig>) {
     onChange({ ...service, ...updates });
   }
+
+  function linkMeet(meetId: string) {
+    if (service.linkedMeetIds.includes(meetId)) return;
+    patch({ linkedMeetIds: [...service.linkedMeetIds, meetId] });
+  }
+
+  function unlinkMeet(meetId: string) {
+    patch({
+      linkedMeetIds: service.linkedMeetIds.filter((id) => id !== meetId),
+    });
+  }
+
+  // Linked meets (rendered as rows) and the unlinked pool (search-to-add).
+  const linkedMeets = hostedMeets.filter((m) =>
+    service.linkedMeetIds.includes(m.id),
+  );
+  const unlinkedMeets = hostedMeets.filter(
+    (m) => !service.linkedMeetIds.includes(m.id),
+  );
+  const q = search.trim().toLowerCase();
+  const searchResults = q
+    ? unlinkedMeets.filter((m) => m.title.toLowerCase().includes(q))
+    : unlinkedMeets;
 
   return (
     <div className="profile-service-card">
@@ -208,13 +248,16 @@ export function MeetServiceEditCard({
         />
       </div>
 
-      {/* ── Linked meets picker (B2) + per-link required toggle (B3) ── */}
+      {/* ── Linked meets picker (B2) + per-link required toggle (B3) ──
+          Search-and-add: linked meets show as rows; "Link a meet" reveals a
+          searchable list of the carer's other hosted meets. */}
       <div className="input-block">
         <label className="label">
           <span className="label-primary-group">
             <span>Offered on these meets</span>
           </span>
         </label>
+
         {hostedMeets.length === 0 ? (
           <p className="text-xs text-fg-tertiary m-0" style={{ lineHeight: 1.5 }}>
             You&apos;re not hosting any meets yet. Create one from Communities —
@@ -223,52 +266,141 @@ export function MeetServiceEditCard({
           </p>
         ) : (
           <div className="flex flex-col gap-xs">
-            {hostedMeets.map((meet) => {
-              const linked = service.linkedMeetIds.includes(meet.id);
-              return (
-                <div key={meet.id} className="flex flex-col gap-xs">
-                  <CheckboxRow
-                    placement="right"
-                    checked={linked}
-                    onChange={(checked) => {
-                      const next = checked
-                        ? [...service.linkedMeetIds, meet.id]
-                        : service.linkedMeetIds.filter((id) => id !== meet.id);
-                      patch({ linkedMeetIds: next });
+            {/* Linked meets */}
+            {linkedMeets.length === 0 && (
+              <p className="text-xs text-fg-tertiary m-0">
+                Not linked to a meet yet — link one below so owners can book
+                sessions.
+              </p>
+            )}
+            {linkedMeets.map((meet) => (
+              <div key={meet.id} className="flex flex-col gap-xs">
+                <div
+                  className="flex items-start gap-sm rounded-form border border-edge-regular"
+                  style={{ padding: "var(--space-sm) var(--space-md)" }}
+                >
+                  <span className="flex flex-col flex-1 min-w-0">
+                    <span className="text-sm text-fg-primary">{meet.title}</span>
+                    <span className="text-xs text-fg-tertiary">
+                      {meetScheduleSummary(meet)}
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => unlinkMeet(meet.id)}
+                    className="flex items-center justify-center shrink-0"
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      color: "var(--text-tertiary)",
+                      padding: 2,
                     }}
-                    label={
-                      <span className="flex flex-col">
-                        <span className="text-sm text-fg-primary">{meet.title}</span>
-                        <span className="text-xs text-fg-tertiary">
-                          {meetScheduleSummary(meet)}
-                        </span>
-                      </span>
-                    }
-                  />
-                  {linked && (
-                    <div
-                      className="flex flex-col gap-xxs rounded-form"
-                      style={{
-                        marginLeft: "var(--space-md)",
-                        padding: "var(--space-xs) var(--space-md)",
-                        background: "var(--surface-inset)",
-                      }}
-                    >
-                      <Toggle
-                        label="Booking required to RSVP"
-                        checked={requiredByMeet[meet.id] ?? false}
-                        onChange={(checked) => onChangeRequired(meet.id, checked)}
-                      />
-                      <span className="text-xs text-fg-tertiary">
-                        {requiredByMeet[meet.id]
-                          ? "Only paid bookings — no free RSVP for this meet."
-                          : "Free to join; booking this service is optional."}
-                      </span>
-                    </div>
-                  )}
+                    aria-label={`Unlink ${meet.title}`}
+                    title="Unlink this meet"
+                  >
+                    <X size={16} weight="bold" />
+                  </button>
                 </div>
-              );
-            })}
+                {/* Per-link required toggle — indented under its meet. */}
+                <div
+                  className="flex flex-col gap-xxs rounded-sm"
+                  style={{
+                    marginLeft: "var(--space-sm)",
+                    padding: "var(--space-xs) var(--space-md)",
+                    background: "var(--surface-inset)",
+                  }}
+                >
+                  <Toggle
+                    label="Booking required to RSVP"
+                    checked={requiredByMeet[meet.id] ?? false}
+                    onChange={(checked) => onChangeRequired(meet.id, checked)}
+                  />
+                  <span className="text-xs text-fg-tertiary">
+                    {requiredByMeet[meet.id]
+                      ? "Only paid bookings — no free RSVP for this meet."
+                      : "Free to join; booking this service is optional."}
+                  </span>
+                </div>
+              </div>
+            ))}
+
+            {/* Add control — collapsed "Link a meet", or an expanded
+                searchable list of the carer's other hosted meets. */}
+            {unlinkedMeets.length > 0 &&
+              (!adding ? (
+                <button
+                  type="button"
+                  onClick={() => setAdding(true)}
+                  className="flex items-center gap-xs text-sm text-brand-strong self-start"
+                  style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 0" }}
+                >
+                  <Plus size={14} weight="bold" />
+                  Link a meet
+                </button>
+              ) : (
+                <div className="flex flex-col gap-xs">
+                  <div className="input-with-trailing">
+                    <input
+                      className="input"
+                      placeholder="Search your meets…"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      autoFocus
+                    />
+                    <span className="input-trailing-text" aria-hidden="true">
+                      <MagnifyingGlass size={15} weight="light" />
+                    </span>
+                  </div>
+                  {searchResults.length === 0 ? (
+                    <p className="text-xs text-fg-tertiary m-0">
+                      No meets match &ldquo;{search}&rdquo;.
+                    </p>
+                  ) : (
+                    searchResults.map((meet) => (
+                      <button
+                        key={meet.id}
+                        type="button"
+                        onClick={() => {
+                          linkMeet(meet.id);
+                          setSearch("");
+                        }}
+                        className="flex items-center gap-sm rounded-form border border-edge-regular text-left"
+                        style={{
+                          padding: "var(--space-sm) var(--space-md)",
+                          background: "var(--surface-top)",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <span className="flex flex-col flex-1 min-w-0">
+                          <span className="text-sm text-fg-primary">
+                            {meet.title}
+                          </span>
+                          <span className="text-xs text-fg-tertiary">
+                            {meetScheduleSummary(meet)}
+                          </span>
+                        </span>
+                        <Plus
+                          size={16}
+                          weight="bold"
+                          className="text-brand-strong shrink-0"
+                        />
+                      </button>
+                    ))
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAdding(false);
+                      setSearch("");
+                    }}
+                    className="flex items-center text-sm text-fg-secondary self-start"
+                    style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 0" }}
+                  >
+                    Done
+                  </button>
+                </div>
+              ))}
           </div>
         )}
       </div>
