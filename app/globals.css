@@ -1693,7 +1693,7 @@ body.guest-route {
 .textarea,
 .select {
   width: 100%;
-  border: 1px solid var(--neutral-150);
+  border: 1px solid var(--border-stronger);
   border-radius: var(--radius-sm);
   background: var(--surface-top);
   padding: 8px 12px;

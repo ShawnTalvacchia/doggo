@@ -284,6 +284,7 @@ export function MeetServiceEditCard({
                 className="flex flex-col rounded-sm"
                 style={{
                   background: "var(--surface-popout)",
+                  border: "1px solid var(--border-stronger)",
                   overflow: "hidden",
                 }}
               >
