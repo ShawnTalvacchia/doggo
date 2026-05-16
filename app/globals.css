@@ -3109,12 +3109,14 @@ body.guest-route {
    content. Used for the "Published" toggle — visually separating the
    live/hidden switch from the content fields. Service ↔ Meet Linkage. */
 .profile-service-card-footer {
-  margin: 0 -14px -14px;
+  /* Negative margins cancel the card's --space-lg padding so the
+     border-top spans edge-to-edge; the zone re-pads with --space-lg. */
+  margin: 0 calc(-1 * var(--space-lg)) calc(-1 * var(--space-lg));
   border-top: 1.5px solid var(--border-subtle);
-  padding: 14px;
+  padding: var(--space-lg);
   display: flex;
   flex-direction: column;
-  gap: var(--space-xxs);
+  gap: var(--space-xs);
 }
 
 /* ---- Multi-select segment bar (shared) ---- */
@@ -11729,17 +11731,15 @@ body:has(.bottom-nav) .inbox-page {
 }
 
 .profile-service-card {
-  padding: 14px;
+  /* Padding + gap on the space scale (--space-lg = 16px). Service ↔ Meet
+     Linkage walkthrough, 2026-05-16 — replaced hardcoded 14px / 12px. */
+  padding: var(--space-lg);
   background: var(--surface-base);
   border: 1.5px solid var(--border-subtle);
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
-  /* Bumped 8px → 12px 2026-05-11 — gave Price / Includes / Notes a
-     bit more breathing room. The Notes → Pricing modifiers gap is
-     preserved by reducing `.profile-modifiers` margin-top by 4px to
-     compensate (the divider's total gap remains ~24px). */
-  gap: 12px;
+  gap: var(--space-lg);
 }
 
 .profile-service-top {

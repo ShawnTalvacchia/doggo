@@ -77,7 +77,9 @@ export function MeetServiceEditCard({
   onChangeRequired,
 }: MeetServiceEditCardProps) {
   // Linked-meets picker state — hooks must run before any early return.
-  const [adding, setAdding] = useState(false);
+  // Start expanded when no meet is linked yet: a Meet-type service needs a
+  // linked meet to be bookable, so a fresh card opens straight to the picker.
+  const [adding, setAdding] = useState(service.linkedMeetIds.length === 0);
   const [search, setSearch] = useState("");
 
   // ── Soft-archived state — slim muted strip with Undo ──
@@ -265,7 +267,7 @@ export function MeetServiceEditCard({
             scheduled sessions.
           </p>
         ) : (
-          <div className="flex flex-col gap-xs">
+          <div className="flex flex-col gap-md">
             {/* Linked meets */}
             {linkedMeets.length === 0 && (
               <p className="text-xs text-fg-tertiary m-0">
@@ -279,14 +281,13 @@ export function MeetServiceEditCard({
                 className="flex flex-col rounded-sm"
                 style={{
                   background: "var(--surface-popout)",
-                  border: "1px solid var(--border-regular)",
                   overflow: "hidden",
                 }}
               >
                 {/* Meet info */}
                 <div
                   className="flex items-start gap-sm"
-                  style={{ padding: "var(--space-sm) var(--space-md)" }}
+                  style={{ padding: "var(--space-md)" }}
                 >
                   <span className="flex flex-col flex-1 min-w-0">
                     <span className="text-sm text-fg-primary">{meet.title}</span>
@@ -311,13 +312,8 @@ export function MeetServiceEditCard({
                     <X size={16} weight="bold" />
                   </button>
                 </div>
-                {/* Per-link required toggle — one line, divider above. */}
-                <div
-                  style={{
-                    padding: "var(--space-xs) var(--space-md)",
-                    borderTop: "1px solid var(--border-regular)",
-                  }}
-                >
+                {/* Per-link required toggle — one line, no divider. */}
+                <div style={{ padding: "var(--space-md)" }}>
                   <Toggle
                     label="Booking required to RSVP"
                     checked={requiredByMeet[meet.id] ?? false}
