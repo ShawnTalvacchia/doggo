@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useCallback, useEffect, useMemo } from "react";
+import { Suspense, useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   PencilSimple,
@@ -17,18 +17,36 @@ import { PostsTab } from "@/components/profile/PostsTab";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import type {
   PetProfile,
-  CarerCareServiceConfig,
+  CarerServiceConfig,
+  CarerMeetServiceConfig,
   UserProfile,
   CarerAvailabilitySlot,
   TagApproval,
 } from "@/lib/types";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { mockMeets, syncMeetLinksForService } from "@/lib/mockMeets";
 
 const TABS = [
   { key: "about", label: "About" },
   { key: "posts", label: "Posts" },
   { key: "services", label: "Services" },
 ];
+
+/**
+ * Snapshot the meet-side `linkedServices[].required` flags into a flat map
+ * keyed `${serviceId}::${meetId}`. The per-link `required` flag lives on the
+ * Meet (not the service), so the Services-tab editor carries it as companion
+ * edit state — see `editMeetLinks`. Service ↔ Meet Linkage, Workstream B.
+ */
+function buildMeetLinks(): Record<string, boolean> {
+  const map: Record<string, boolean> = {};
+  for (const meet of mockMeets) {
+    for (const link of meet.linkedServices ?? []) {
+      map[`${link.serviceId}::${meet.id}`] = link.required;
+    }
+  }
+  return map;
+}
 
 /* ── Page ── */
 
@@ -66,12 +84,25 @@ function ProfileInner() {
   const [editOpenToHelping, setEditOpenToHelping] = useState(
     user.openToHelping ?? false
   );
-  // Edit UI is Care-only; Meet entries pass through unchanged on save.
-  const [editServices, setEditServices] = useState<CarerCareServiceConfig[]>(
-    (user.carerProfile?.services ?? []).filter(
-      (s): s is CarerCareServiceConfig => s.kind === "care",
-    ),
+  // All carer service kinds (Care / Meet / Appointment) are editable in one
+  // place — the Services tab edit. Service ↔ Meet Linkage, Workstream B
+  // (2026-05-13). Previously this held Care only; Meet entries were a
+  // pass-through on save and Appointment entries were silently dropped.
+  const [editServices, setEditServices] = useState<CarerServiceConfig[]>(
+    user.carerProfile?.services ?? [],
   );
+  // Companion edit state for the per-link `required` flag, which lives on the
+  // Meet (`Meet.linkedServices[].required`), not the service. Keyed
+  // `${serviceId}::${meetId}`. Flushed to `mockMeets` on Save via
+  // `syncMeetLinksForService`; dropped (no flush) on Cancel.
+  const [editMeetLinks, setEditMeetLinks] = useState<Record<string, boolean>>(
+    buildMeetLinks,
+  );
+  // Meet-type service ids present when the edit session started — lets Save
+  // reconcile meet links for services that were hard-deleted mid-edit (their
+  // id is gone from `editServices` but their stale `linkedServices` entries
+  // on meets still need clearing).
+  const meetServiceIdsAtEditStart = useRef<string[]>([]);
   const [editAvailability, setEditAvailability] = useState<CarerAvailabilitySlot[]>(
     user.carerProfile?.availability ?? []
   );
@@ -91,11 +122,8 @@ function ProfileInner() {
     setEditPets(currentUser.pets);
     setEditVisibility(currentUser.carerProfile?.publicProfile ?? false);
     setEditOpenToHelping(currentUser.openToHelping ?? false);
-    setEditServices(
-      (currentUser.carerProfile?.services ?? []).filter(
-        (s): s is CarerCareServiceConfig => s.kind === "care",
-      ),
-    );
+    setEditServices(currentUser.carerProfile?.services ?? []);
+    setEditMeetLinks(buildMeetLinks());
     setEditAvailability(currentUser.carerProfile?.availability ?? []);
     setEditCarerBio(currentUser.carerProfile?.bio ?? "");
     setTagApproval(currentUser.tagApproval ?? "auto");
@@ -125,11 +153,11 @@ function ProfileInner() {
   const startServicesEdit = useCallback(() => {
     setEditVisibility(user.carerProfile?.publicProfile ?? false);
     setEditOpenToHelping(user.openToHelping ?? false);
-    setEditServices(
-      (user.carerProfile?.services ?? [])
-        .filter((s): s is CarerCareServiceConfig => s.kind === "care")
-        .map((s) => ({ ...s })),
-    );
+    setEditServices((user.carerProfile?.services ?? []).map((s) => ({ ...s })));
+    setEditMeetLinks(buildMeetLinks());
+    meetServiceIdsAtEditStart.current = (user.carerProfile?.services ?? [])
+      .filter((s) => s.kind === "meet")
+      .map((s) => s.id);
     setEditAvailability(
       user.carerProfile?.availability.map((a) => ({ ...a, slots: [...a.slots] })) ?? [],
     );
@@ -140,6 +168,35 @@ function ProfileInner() {
     setServicesEditing(false);
   }, []);
   const saveServicesEdit = useCallback(() => {
+    // Flush the two-sided Service ↔ Meet linkage into `mockMeets`. The service
+    // owns `linkedMeetIds`; the Meet owns the per-link `required` flag. Sync
+    // every Meet-type service touched this edit session:
+    //  - live service        → mirror its `linkedMeetIds` + required flags
+    //  - soft-archived        → drop all meet links (service stays for
+    //                           booking resolution but advertises nowhere)
+    //  - hard-deleted mid-edit → drop all meet links (id no longer in
+    //                           `editServices`; recovered via the snapshot)
+    const liveMeetServices = new Map<string, CarerMeetServiceConfig>();
+    for (const svc of editServices) {
+      if (svc.kind === "meet") liveMeetServices.set(svc.id, svc);
+    }
+    const touchedMeetServiceIds = new Set<string>([
+      ...meetServiceIdsAtEditStart.current,
+      ...liveMeetServices.keys(),
+    ]);
+    for (const svcId of touchedMeetServiceIds) {
+      const svc = liveMeetServices.get(svcId);
+      if (svc && !svc.softDeletedAt) {
+        const requiredByMeet: Record<string, boolean> = {};
+        for (const meetId of svc.linkedMeetIds) {
+          requiredByMeet[meetId] =
+            editMeetLinks[`${svcId}::${meetId}`] ?? false;
+        }
+        syncMeetLinksForService(svcId, svc.linkedMeetIds, requiredByMeet);
+      } else {
+        syncMeetLinksForService(svcId, [], {});
+      }
+    }
     setUser((prev) => ({
       ...prev,
       openToHelping: editOpenToHelping,
@@ -148,14 +205,9 @@ function ProfileInner() {
             bio: editCarerBio,
             location: prev.carerProfile?.location ?? prev.location,
             availability: editAvailability,
-            // Care entries from the edit UI + any existing Meet entries
-            // (managed elsewhere — see ProfileServicesTab comment).
-            services: [
-              ...editServices,
-              ...(prev.carerProfile?.services ?? []).filter(
-                (s) => s.kind === "meet",
-              ),
-            ],
+            // Comprehensive catalogue — Care, Meet, and Appointment entries
+            // all authored in one place now (Service ↔ Meet Linkage B).
+            services: editServices,
             publicProfile: editVisibility,
           }
         : prev.carerProfile
@@ -163,7 +215,7 @@ function ProfileInner() {
           : undefined,
     }));
     setServicesEditing(false);
-  }, [editOpenToHelping, editCarerBio, editAvailability, editServices, editVisibility]);
+  }, [editOpenToHelping, editCarerBio, editAvailability, editServices, editMeetLinks, editVisibility]);
 
   // ── AppNav page-action slot ──
   //
@@ -287,6 +339,8 @@ function ProfileInner() {
             }
             editServices={editServices}
             onEditServices={setEditServices}
+            editMeetLinks={editMeetLinks}
+            onEditMeetLinks={setEditMeetLinks}
             editAvailability={editAvailability}
             onEditAvailability={setEditAvailability}
             editCarerBio={editCarerBio}

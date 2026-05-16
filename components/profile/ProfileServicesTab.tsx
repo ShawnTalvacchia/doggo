@@ -10,16 +10,24 @@ import {
   CaretUp,
   UsersThree,
   Globe,
+  CalendarBlank,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { InputField } from "@/components/ui/InputField";
 import { Toggle } from "@/components/ui/Toggle";
+import { MeetServiceEditCard } from "@/components/profile/MeetServiceEditCard";
+import { AppointmentServiceEditCard } from "@/components/profile/AppointmentServiceEditCard";
 import { SERVICE_LABELS, SUB_SERVICES } from "@/lib/constants/services";
 import { defaultModifiers } from "@/lib/pricing";
+import { mockMeets, getHostedMeets } from "@/lib/mockMeets";
+import { meetScheduleSummary } from "@/lib/meetUtils";
 import type {
   UserProfile,
   CarerProfile,
+  CarerServiceConfig,
   CarerCareServiceConfig,
+  CarerMeetServiceConfig,
+  CarerAppointmentServiceConfig,
   CarerAvailabilitySlot,
   ServiceType,
   TimeSlot,
@@ -80,6 +88,33 @@ const SERVICE_TYPE_ORDER: ServiceType[] = [
   "day_care",
   "boarding",
 ];
+
+// Edit-list display order — Care cards first, then Meet, then Appointment.
+// Service ↔ Meet Linkage B6, 2026-05-13. The array index stays the source of
+// truth for update/delete; this only reorders the rendered cards.
+const SERVICE_KIND_RANK: Record<CarerServiceConfig["kind"], number> = {
+  care: 0,
+  meet: 1,
+  appointment: 2,
+};
+
+const APPOINTMENT_CATEGORY_LABEL: Record<string, string> = {
+  training: "Training visit",
+  grooming: "Grooming",
+};
+
+const MEET_FORMAT_LABEL: Record<string, string> = {
+  one_on_one: "1-on-1",
+  small_group: "Small group",
+  workshop: "Workshop",
+};
+
+const MEET_CADENCE_LABEL: Record<string, string> = {
+  weekly: "Weekly",
+  biweekly: "Every 2 weeks",
+  monthly: "Monthly",
+  ad_hoc: "By arrangement",
+};
 
 const MODIFIER_LABEL: Record<PricingModifier["kind"], string> = {
   holiday: "Holiday surcharge",
@@ -309,11 +344,16 @@ interface ProfileServicesTabProps {
    *  when the viewer is locked AND has services, so unlocking makes the
    *  banner go away. */
   onUnlockProfile: () => void;
-  // Edit UI is Care-only — Meet-type offerings are added through a separate
-  // flow (see Onboarding & In-Product Communication phase). The save handler
-  // in `app/profile/page.tsx` preserves any existing Meet entries.
-  editServices: CarerCareServiceConfig[];
-  onEditServices: (s: CarerCareServiceConfig[]) => void;
+  // The Services edit authors the whole catalogue — Care, Meet, and
+  // Appointment services in one place (Service ↔ Meet Linkage, Workstream B).
+  editServices: CarerServiceConfig[];
+  onEditServices: (s: CarerServiceConfig[]) => void;
+  /** Companion edit state for the per-link `required` flag, which lives on
+   *  the Meet (`Meet.linkedServices[].required`) not the service. Keyed
+   *  `${serviceId}::${meetId}`. Flushed to `mockMeets` on Save by the
+   *  profile page; dropped on Cancel. */
+  editMeetLinks: Record<string, boolean>;
+  onEditMeetLinks: (m: Record<string, boolean>) => void;
   editAvailability: CarerAvailabilitySlot[];
   onEditAvailability: (a: CarerAvailabilitySlot[]) => void;
   editCarerBio: string;
@@ -337,6 +377,8 @@ export function ProfileServicesTab({
   onUnlockProfile,
   editServices,
   onEditServices,
+  editMeetLinks,
+  onEditMeetLinks,
   editAvailability,
   onEditAvailability,
   editCarerBio,
@@ -348,18 +390,38 @@ export function ProfileServicesTab({
     ? openToHelping
     : carer !== undefined && (user.openToHelping ?? false);
 
+  // Meets the carer hosts — the linkable options for the Meet-service editor's
+  // linked-meets picker (Service ↔ Meet Linkage, Workstream B2).
+  const hostedMeets = getHostedMeets(user.id);
+
   // ── Helpers for editing services ──
-  function updateService(idx: number, updates: Partial<CarerCareServiceConfig>) {
-    const next = editServices.map((s, i) => (i === idx ? { ...s, ...updates } : s));
-    onEditServices(next);
+  //
+  // `editServices` is the comprehensive catalogue (Care + Meet + Appointment).
+  // The array index is the stable handle for update / delete. `updateServiceAt`
+  // replaces a whole entry; `updateCareService` is a Care-typed convenience
+  // for the inline Care card (the cast is safe — the Care branch only renders
+  // for `kind === "care"`).
+
+  function updateServiceAt(idx: number, updated: CarerServiceConfig) {
+    onEditServices(editServices.map((s, i) => (i === idx ? updated : s)));
   }
 
-  function removeService(idx: number) {
+  function updateCareService(idx: number, updates: Partial<CarerCareServiceConfig>) {
+    onEditServices(
+      editServices.map((s, i) =>
+        i === idx ? { ...(s as CarerCareServiceConfig), ...updates } : s,
+      ),
+    );
+  }
+
+  function hardRemoveAt(idx: number) {
     onEditServices(editServices.filter((_, i) => i !== idx));
   }
 
   function addService(type: ServiceType) {
-    const usedTypes = editServices.map((s) => s.serviceType);
+    const usedTypes = editServices
+      .filter((s): s is CarerCareServiceConfig => s.kind === "care")
+      .map((s) => s.serviceType);
     if (usedTypes.includes(type)) return;
     onEditServices([
       ...editServices,
@@ -373,6 +435,101 @@ export function ProfileServicesTab({
         modifiers: defaultModifiers(),
       },
     ]);
+  }
+
+  function addMeetService() {
+    const newSvc: CarerMeetServiceConfig = {
+      kind: "meet",
+      id: `svc-meet-${Date.now()}`,
+      title: "",
+      enabled: true,
+      pricePerSession: 0,
+      format: "small_group",
+      cadence: "weekly",
+      durationMinutes: 60,
+      linkedMeetIds: [],
+    };
+    onEditServices([...editServices, newSvc]);
+  }
+
+  function addAppointmentService() {
+    const newSvc: CarerAppointmentServiceConfig = {
+      kind: "appointment",
+      id: `svc-appt-${Date.now()}`,
+      title: "",
+      enabled: true,
+      pricePerAppointment: 0,
+      durationMinutes: 60,
+      appointmentCategory: "training",
+    };
+    onEditServices([...editServices, newSvc]);
+  }
+
+  // ── B5 delete decision — soft-archive vs hard-delete ──
+  //
+  // Care: hard-delete (unchanged from prior behavior — Care delete is out of
+  // this phase's scope). Meet / Appointment: a service *added this session*
+  // (no id in the un-edited `user` snapshot) never had time to accrue
+  // bookings → hard-delete. A pre-existing Meet service soft-archives when a
+  // linked meet has a roster (the roster IS the booking record for Meet-type
+  // — `Booking` carries no `serviceId` back-reference). A pre-existing
+  // Appointment soft-archives unconditionally — appointments have no roster
+  // and no detectable booking signal, so the safe assumption is "may have
+  // bookings."
+  function meetServiceHasRoster(svc: CarerMeetServiceConfig): boolean {
+    return svc.linkedMeetIds.some((meetId) => {
+      const meet = mockMeets.find((m) => m.id === meetId);
+      if (!meet) return false;
+      const lists = [meet.attendees, ...Object.values(meet.attendeesByDate ?? {})];
+      return lists.some((list) => list.some((a) => a.userId !== meet.creatorId));
+    });
+  }
+
+  function wasPreExisting(id: string): boolean {
+    return (user.carerProfile?.services ?? []).some(
+      (s) => (s.kind === "meet" || s.kind === "appointment") && s.id === id,
+    );
+  }
+
+  function deleteServiceAt(idx: number) {
+    const svc = editServices[idx];
+    if (svc.kind === "care") {
+      hardRemoveAt(idx);
+      return;
+    }
+    const fresh = !wasPreExisting(svc.id);
+    const softArchive =
+      !fresh &&
+      (svc.kind === "appointment" || meetServiceHasRoster(svc));
+    if (softArchive) {
+      updateServiceAt(idx, {
+        ...svc,
+        enabled: false,
+        softDeletedAt: new Date().toISOString(),
+      });
+    } else {
+      hardRemoveAt(idx);
+    }
+  }
+
+  function undoArchiveAt(idx: number) {
+    const svc = editServices[idx];
+    if (svc.kind === "care") return;
+    updateServiceAt(idx, { ...svc, enabled: true, softDeletedAt: undefined });
+  }
+
+  // ── Linked-meet `required` flag plumbing (companion edit state) ──
+  function requiredByMeetFor(serviceId: string): Record<string, boolean> {
+    const out: Record<string, boolean> = {};
+    const prefix = `${serviceId}::`;
+    for (const [key, val] of Object.entries(editMeetLinks)) {
+      if (key.startsWith(prefix)) out[key.slice(prefix.length)] = val;
+    }
+    return out;
+  }
+
+  function setRequiredLink(serviceId: string, meetId: string, required: boolean) {
+    onEditMeetLinks({ ...editMeetLinks, [`${serviceId}::${meetId}`]: required });
   }
 
   function toggleAvailSlot(day: DayOfWeek, slot: TimeSlot) {
@@ -509,119 +666,179 @@ export function ProfileServicesTab({
               />
             </section>
 
-            {/* Services — each listed as its own fully-editable card.
-                Restructured 2026-05-11 (C6 walkthrough): service type is
-                set at creation (via the per-type Add buttons below) and
-                shown as the card's section header — no in-card dropdown.
-                Body fields run full-width: Price → Includes (sub-services
-                pills) → Notes → Pricing modifiers. Delete button is red,
-                top-right, aligned with the header — matches the PetEditCard
-                pattern. */}
+            {/* Services — comprehensive catalogue authored in one place:
+                Care, Meet-type (training sessions, workshops, paid group
+                walks), and Appointment-type (solo scheduled visits). Care
+                cards render inline; Meet and Appointment delegate to their
+                own edit-card components. Cards group by kind (Care → Meet →
+                Appointment) for scanability; the array index stays the
+                update/delete handle. Service ↔ Meet Linkage, Workstream B
+                (2026-05-13) — replaced the Care-only list and the dishonest
+                "managed separately" footnote that pointed at a surface that
+                was never built. */}
             <section>
               <h3 className="profile-card-subtitle">Services</h3>
               <div className="flex flex-col gap-md">
-                {editServices.map((svc, idx) => {
-                  const subServiceOptions = SUB_SERVICES[svc.serviceType] ?? [];
-                  return (
-                    <div key={idx} className="profile-service-card">
-                      {/* Header: service-type label + red trash */}
-                      <div className="flex items-center justify-between">
-                        <h3 className="profile-card-subtitle m-0">
-                          {SERVICE_LABELS[svc.serviceType]}
-                        </h3>
-                        <button
-                          type="button"
-                          onClick={() => removeService(idx)}
-                          className="flex items-center justify-center"
-                          style={{
-                            background: "none",
-                            border: "none",
-                            cursor: "pointer",
-                            color: "var(--status-error-main)",
-                            padding: 4,
-                          }}
-                          aria-label="Remove service"
-                          title="Remove service"
-                        >
-                          <Trash size={18} weight="light" />
-                        </button>
-                      </div>
+                {editServices
+                  .map((svc, idx) => ({ svc, idx }))
+                  .sort(
+                    (a, b) =>
+                      SERVICE_KIND_RANK[a.svc.kind] - SERVICE_KIND_RANK[b.svc.kind],
+                  )
+                  .map(({ svc, idx }) => {
+                    if (svc.kind === "meet") {
+                      return (
+                        <MeetServiceEditCard
+                          key={svc.id}
+                          service={svc}
+                          onChange={(next) => updateServiceAt(idx, next)}
+                          onDelete={() => deleteServiceAt(idx)}
+                          onUndoArchive={() => undoArchiveAt(idx)}
+                          hostedMeets={hostedMeets}
+                          requiredByMeet={requiredByMeetFor(svc.id)}
+                          onChangeRequired={(meetId, req) =>
+                            setRequiredLink(svc.id, meetId, req)
+                          }
+                        />
+                      );
+                    }
+                    if (svc.kind === "appointment") {
+                      return (
+                        <AppointmentServiceEditCard
+                          key={svc.id}
+                          service={svc}
+                          onChange={(next) => updateServiceAt(idx, next)}
+                          onDelete={() => deleteServiceAt(idx)}
+                          onUndoArchive={() => undoArchiveAt(idx)}
+                        />
+                      );
+                    }
+                    // Care service — inline card (PetEditCard-style: header
+                    // with the fixed service-type label + red trash, then
+                    // full-width body fields).
+                    const subServiceOptions =
+                      SUB_SERVICES[svc.serviceType] ?? [];
+                    return (
+                      <div
+                        key={`care-${svc.serviceType}`}
+                        className="profile-service-card"
+                      >
+                        <div className="flex items-center justify-between">
+                          <h3 className="profile-card-subtitle m-0">
+                            {SERVICE_LABELS[svc.serviceType]}
+                          </h3>
+                          <button
+                            type="button"
+                            onClick={() => deleteServiceAt(idx)}
+                            className="flex items-center justify-center"
+                            style={{
+                              background: "none",
+                              border: "none",
+                              cursor: "pointer",
+                              color: "var(--status-error-main)",
+                              padding: 4,
+                            }}
+                            aria-label="Remove service"
+                            title="Remove service"
+                          >
+                            <Trash size={18} weight="light" />
+                          </button>
+                        </div>
 
-                      <InputField
-                        id={`price-${idx}`}
-                        label="Price"
-                        type="number"
-                        value={svc.pricePerUnit.toString()}
-                        onChange={(val) =>
-                          updateService(idx, { pricePerUnit: parseInt(val) || 0 })
-                        }
-                        trailing={`Kč / ${svc.priceUnit === "per_visit" ? "visit" : "night"}`}
-                      />
+                        <InputField
+                          id={`price-${idx}`}
+                          label="Price"
+                          type="number"
+                          value={svc.pricePerUnit.toString()}
+                          onChange={(val) =>
+                            updateCareService(idx, {
+                              pricePerUnit: parseInt(val) || 0,
+                            })
+                          }
+                          trailing={`Kč / ${svc.priceUnit === "per_visit" ? "visit" : "night"}`}
+                        />
 
-                      {/* Sub-services — multi-select pills. Each
-                          service type carries its own allowed sub-service
-                          list (`SUB_SERVICES[type]`). 2026-05-11. */}
-                      {subServiceOptions.length > 0 && (
+                        {subServiceOptions.length > 0 && (
+                          <div className="input-block">
+                            <label className="label">
+                              <span className="label-primary-group">
+                                <span>Includes</span>
+                              </span>
+                            </label>
+                            <div
+                              className="pill-group"
+                              style={{ flexWrap: "wrap" }}
+                            >
+                              {subServiceOptions.map((sub) => {
+                                const active = svc.subServices.includes(sub);
+                                return (
+                                  <button
+                                    key={sub}
+                                    type="button"
+                                    className={`pill${active ? " active" : ""}`}
+                                    onClick={() => {
+                                      const next = active
+                                        ? svc.subServices.filter(
+                                            (s) => s !== sub,
+                                          )
+                                        : [...svc.subServices, sub];
+                                      updateCareService(idx, {
+                                        subServices: next,
+                                      });
+                                    }}
+                                  >
+                                    {sub}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
                         <div className="input-block">
-                          <label className="label">
+                          <label
+                            className="label"
+                            htmlFor={`notes-${idx}`}
+                          >
                             <span className="label-primary-group">
-                              <span>Includes</span>
+                              <span>Notes</span>
                             </span>
                           </label>
-                          <div className="pill-group" style={{ flexWrap: "wrap" }}>
-                            {subServiceOptions.map((sub) => {
-                              const active = svc.subServices.includes(sub);
-                              return (
-                                <button
-                                  key={sub}
-                                  type="button"
-                                  className={`pill${active ? " active" : ""}`}
-                                  onClick={() => {
-                                    const next = active
-                                      ? svc.subServices.filter((s) => s !== sub)
-                                      : [...svc.subServices, sub];
-                                    updateService(idx, { subServices: next });
-                                  }}
-                                >
-                                  {sub}
-                                </button>
-                              );
-                            })}
-                          </div>
+                          <textarea
+                            id={`notes-${idx}`}
+                            className="textarea"
+                            rows={2}
+                            value={svc.notes ?? ""}
+                            onChange={(e) =>
+                              updateCareService(idx, {
+                                notes: e.target.value,
+                              })
+                            }
+                            placeholder="e.g. Max 3 dogs, 45-60 min walks"
+                            style={{ minHeight: 56 }}
+                          />
                         </div>
-                      )}
 
-                      <div className="input-block">
-                        <label className="label" htmlFor={`notes-${idx}`}>
-                          <span className="label-primary-group">
-                            <span>Notes</span>
-                          </span>
-                        </label>
-                        <textarea
-                          id={`notes-${idx}`}
-                          className="textarea"
-                          rows={2}
-                          value={svc.notes ?? ""}
-                          onChange={(e) => updateService(idx, { notes: e.target.value })}
-                          placeholder="e.g. Max 3 dogs, 45-60 min walks"
-                          style={{ minHeight: 56 }}
+                        <PricingModifiersEditor
+                          modifiers={svc.modifiers ?? []}
+                          onChange={(m) =>
+                            updateCareService(idx, { modifiers: m })
+                          }
                         />
                       </div>
+                    );
+                  })}
 
-                      <PricingModifiersEditor
-                        modifiers={svc.modifiers ?? []}
-                        onChange={(m) => updateService(idx, { modifiers: m })}
-                      />
-                    </div>
-                  );
-                })}
-
-                {/* Per-type "Add" buttons — replaces the prior single
-                    "+ Add a service" that picked the first available type
-                    silently. Shows one button per ServiceType not yet
-                    configured. When all four are added, the row hides. */}
+                {/* Add Care services — one button per type not yet
+                    configured. Hides once all four Care types exist. */}
                 {(() => {
-                  const usedTypes = new Set(editServices.map((s) => s.serviceType));
+                  const usedTypes = new Set(
+                    editServices
+                      .filter(
+                        (s): s is CarerCareServiceConfig => s.kind === "care",
+                      )
+                      .map((s) => s.serviceType),
+                  );
                   const remaining = SERVICE_TYPE_ORDER.filter(
                     (t) => !usedTypes.has(t),
                   );
@@ -643,40 +860,28 @@ export function ProfileServicesTab({
                   );
                 })()}
 
-                {/* Meet-type services explainer — visible only when the
-                    carer has any meet-type offerings (training sessions,
-                    workshops, group meets). They render in view-mode
-                    further down the page from seed data but are NOT yet
-                    authorable anywhere in the product — the Service ↔
-                    Meet linkage model (Open Q §13, resolved 2026-05-13)
-                    sets the target architecture (services and meets as
-                    independent entities that can be linked; the service
-                    is the monetization wrapper) but the authoring UI
-                    lands in a future phase. Without this note, Klára (4
-                    training sessions) would see only her 1 Care service
-                    in edit and wonder where the others went.
-                    2026-05-13 (was misleading "managed separately" prior;
-                    Open Q §13 documented the real model). */}
-                {(() => {
-                  const meetServices =
-                    user.carerProfile?.services?.filter(
-                      (s) => s.kind === "meet",
-                    ) ?? [];
-                  if (meetServices.length === 0) return null;
-                  return (
-                    <p
-                      className="text-xs text-fg-tertiary m-0"
-                      style={{ marginTop: 4, lineHeight: 1.5 }}
-                    >
-                      You also have {meetServices.length} session-type
-                      offering{meetServices.length === 1 ? "" : "s"}{" "}
-                      (training, workshops) visible on your profile from
-                      seed data. Authoring for Meet-linked services lands
-                      in a future phase — the model is documented but the
-                      edit UI isn&apos;t built yet.
-                    </p>
-                  );
-                })()}
+                {/* Add Meet-type / Appointment-type services. A session
+                    offering links to the carer's hosted meets (Service ↔
+                    Meet Linkage); an appointment is a solo scheduled visit
+                    with no roster. */}
+                <div className="flex flex-wrap gap-sm">
+                  <ButtonAction
+                    variant="tertiary"
+                    size="sm"
+                    leftIcon={<Plus size={14} weight="bold" />}
+                    onClick={addMeetService}
+                  >
+                    Session offering
+                  </ButtonAction>
+                  <ButtonAction
+                    variant="tertiary"
+                    size="sm"
+                    leftIcon={<Plus size={14} weight="bold" />}
+                    onClick={addAppointmentService}
+                  >
+                    Appointment
+                  </ButtonAction>
+                </div>
               </div>
             </section>
 
@@ -801,16 +1006,27 @@ export function ProfileServicesTab({
         </section>
       )}
 
-      {/* Services — comprehensive catalogue (Care + Meet). View mode on the
-          user's OWN profile is informational; tap routing for booking lives
-          on /profile/[userId] where viewers act. */}
-      {carer && carer.services.length > 0 && (
-        <section>
-          <h3 className="profile-card-subtitle">Services</h3>
-          <div className="profile-services-list">
-            {carer.services
-              .filter((s): s is CarerCareServiceConfig => s.kind === "care")
-              .map((svc) => (
+      {/* Services — comprehensive catalogue (Care + Meet + Appointment). View
+          mode is the "what owners see" preview: disabled / soft-archived
+          services are hidden. Tap routing for booking lives on
+          /profile/[userId] where viewers act. */}
+      {(() => {
+        const liveServices = (carer?.services ?? []).filter((s) => s.enabled);
+        if (!carer || liveServices.length === 0) return null;
+        const careServices = liveServices.filter(
+          (s): s is CarerCareServiceConfig => s.kind === "care",
+        );
+        const meetServices = liveServices.filter(
+          (s): s is CarerMeetServiceConfig => s.kind === "meet",
+        );
+        const appointmentServices = liveServices.filter(
+          (s): s is CarerAppointmentServiceConfig => s.kind === "appointment",
+        );
+        return (
+          <section>
+            <h3 className="profile-card-subtitle">Services</h3>
+            <div className="profile-services-list">
+              {careServices.map((svc) => (
                 <div key={svc.serviceType} className="profile-service-card">
                   <div className="profile-service-top">
                     <span className="profile-service-name">
@@ -837,20 +1053,14 @@ export function ProfileServicesTab({
                   )}
                 </div>
               ))}
-            {carer.services
-              .filter((s) => s.kind === "meet")
-              .map((svc) => {
-                const formatLabel: Record<string, string> = {
-                  one_on_one: "1-on-1",
-                  small_group: "Small group",
-                  workshop: "Workshop",
-                };
-                const cadenceLabel: Record<string, string> = {
-                  weekly: "Weekly",
-                  biweekly: "Every 2 weeks",
-                  monthly: "Monthly",
-                  ad_hoc: "By arrangement",
-                };
+              {meetServices.map((svc) => {
+                // B7 — linked-meet schedule grounding. Without this the card
+                // shows only format / cadence chips with no scheduled-time
+                // anchor; resolving `linkedMeetIds` surfaces when and where.
+                const linkedMeets = svc.linkedMeetIds.flatMap((id) => {
+                  const m = mockMeets.find((meet) => meet.id === id);
+                  return m ? [m] : [];
+                });
                 return (
                   <div key={svc.id} className="profile-service-card">
                     <div className="profile-service-top">
@@ -863,17 +1073,71 @@ export function ProfileServicesTab({
                       </div>
                     </div>
                     <div className="profile-service-subs">
-                      <span className="chip">{formatLabel[svc.format] ?? svc.format}</span>
-                      <span className="chip">{cadenceLabel[svc.cadence] ?? svc.cadence}</span>
+                      <span className="chip">
+                        {MEET_FORMAT_LABEL[svc.format] ?? svc.format}
+                      </span>
+                      <span className="chip">
+                        {MEET_CADENCE_LABEL[svc.cadence] ?? svc.cadence}
+                      </span>
                       <span className="chip">{svc.durationMinutes} min</span>
                     </div>
-                    {svc.notes && <p className="profile-service-notes">{svc.notes}</p>}
+                    {linkedMeets.length > 0 && (
+                      <div
+                        className="flex flex-col gap-xxs"
+                        style={{ marginTop: 4 }}
+                      >
+                        {linkedMeets.map((meet) => (
+                          <span
+                            key={meet.id}
+                            className="flex items-center gap-xs text-xs text-fg-tertiary"
+                          >
+                            <CalendarBlank
+                              size={13}
+                              weight="light"
+                              className="shrink-0"
+                            />
+                            <span>
+                              {meetScheduleSummary(meet)} · {meet.location}
+                            </span>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {svc.notes && (
+                      <p className="profile-service-notes">{svc.notes}</p>
+                    )}
                   </div>
                 );
               })}
-          </div>
-        </section>
-      )}
+              {appointmentServices.map((svc) => (
+                <div key={svc.id} className="profile-service-card">
+                  <div className="profile-service-top">
+                    <span className="profile-service-name">{svc.title}</span>
+                    <div className="profile-service-price-wrap">
+                      <span className="profile-service-price">
+                        {svc.pricePerAppointment.toLocaleString()} Kč
+                        <span className="profile-service-unit">
+                          {" "}/ appointment
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                  <div className="profile-service-subs">
+                    <span className="chip">
+                      {APPOINTMENT_CATEGORY_LABEL[svc.appointmentCategory] ??
+                        svc.appointmentCategory}
+                    </span>
+                    <span className="chip">{svc.durationMinutes} min</span>
+                  </div>
+                  {svc.notes && (
+                    <p className="profile-service-notes">{svc.notes}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      })()}
 
       {/* Availability */}
       {carer && (

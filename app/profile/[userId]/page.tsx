@@ -8,6 +8,7 @@ import {
   MapPin,
   Calendar,
   CalendarDots,
+  CalendarBlank,
   ChatCircleDots,
   LockSimple,
   UsersThree,
@@ -37,7 +38,8 @@ import { InquiryFormModal } from "@/components/messaging/InquiryFormModal";
 import type { ServiceType } from "@/lib/types";
 import { getCommunityCarers, getMutualConnectedUserIds } from "@/lib/mockConnections";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
-import { viewerSharedMeetWith } from "@/lib/mockMeets";
+import { viewerSharedMeetWith, mockMeets } from "@/lib/mockMeets";
+import { meetScheduleSummary } from "@/lib/meetUtils";
 import { viewerSharedGroupWith, getSharedGroupNames } from "@/lib/mockGroups";
 import { useConnections } from "@/contexts/ConnectionsContext";
 import { useCurrentUser, useCurrentUserId, useIsGuest, useIsHydrated } from "@/hooks/useCurrentUser";
@@ -1036,13 +1038,16 @@ function UserProfileInner() {
                           monthly: "Monthly",
                           ad_hoc: "By arrangement",
                         };
-                        // Service ↔ Meet Linkage A1, 2026-05-13. One-to-many
-                        // cardinality now; A1 view-mode reads the first
-                        // linked meet only (matches the previous singular
-                        // `seriesMeetId` behavior). Workstream B7 will replace
-                        // this with a multi-link-aware view (schedule chip
-                        // listing all linked meet occurrences) and C5 will
-                        // route Book through `BookSessionSheet`.
+                        // Service ↔ Meet Linkage, 2026-05-13. One-to-many
+                        // cardinality: a Meet service can run on N meets.
+                        // B7 surfaces every linked meet's schedule below;
+                        // the CTA routes to the first linked meet (C5 will
+                        // route Book through `BookSessionSheet` with a
+                        // session picker across all linked meets).
+                        const linkedMeets = svc.linkedMeetIds.flatMap((id) => {
+                          const m = mockMeets.find((meet) => meet.id === id);
+                          return m ? [m] : [];
+                        });
                         const firstLinkedMeetId = svc.linkedMeetIds[0];
                         const ctaHref = firstLinkedMeetId
                           ? `/meets/${firstLinkedMeetId}`
@@ -1070,6 +1075,23 @@ function UserProfileInner() {
                                 {svc.durationMinutes} min
                               </span>
                             </div>
+                            {/* B7 — linked-meet schedule grounding: when and
+                                where the sessions actually run. */}
+                            {linkedMeets.length > 0 && (
+                              <div className="flex flex-col gap-xxs" style={{ marginTop: 4 }}>
+                                {linkedMeets.map((meet) => (
+                                  <span
+                                    key={meet.id}
+                                    className="flex items-center gap-xs text-xs text-fg-tertiary"
+                                  >
+                                    <CalendarBlank size={13} weight="light" className="shrink-0" />
+                                    <span>
+                                      {meetScheduleSummary(meet)} · {meet.location}
+                                    </span>
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                             {svc.notes && (
                               <p className="profile-service-notes">{svc.notes}</p>
                             )}

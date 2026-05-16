@@ -1231,6 +1231,17 @@ export interface CarerMeetServiceConfig {
    * singular `seriesMeetId?: string`.
    */
   linkedMeetIds: string[];
+  /**
+   * Soft-archive marker (Service ↔ Meet Linkage, Workstream B5, 2026-05-13).
+   * When the carer deletes a service that still has active bookings, the
+   * entry is NOT hard-removed — it's archived: `enabled` flips to false and
+   * `softDeletedAt` records the ISO timestamp. The service stays in
+   * `carerProfile.services[]` so existing bookings keep resolving their
+   * service reference, but it's hidden from view-mode catalogue surfaces and
+   * Discover. Hard-delete (drop the entry entirely) is only used when no
+   * bookings reference the service. Undefined = live service.
+   */
+  softDeletedAt?: string;
 }
 
 /**
@@ -1261,6 +1272,13 @@ export interface CarerAppointmentServiceConfig {
    *  time, social roster) — they're appointment-type. */
   appointmentCategory: AppointmentCategory;
   notes?: string;
+  /**
+   * Soft-archive marker — same semantics as `CarerMeetServiceConfig.softDeletedAt`.
+   * Appointment services produce `Booking` records, so deleting one with
+   * active bookings soft-archives (enabled=false + timestamp) rather than
+   * hard-deleting. Service ↔ Meet Linkage, Workstream B5, 2026-05-13.
+   */
+  softDeletedAt?: string;
 }
 
 export type CarerVisibility = "open" | "connected_only" | "familiar_and_above";

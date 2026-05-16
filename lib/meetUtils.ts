@@ -167,6 +167,29 @@ export function getDisplayDate(meet: Meet): string {
 }
 
 /**
+ * One-line human schedule summary for a meet — "Weekly · next Sun, 17 May,
+ * 10:00" for a recurring series, "Sun, 17 May, 10:00" for a one-off.
+ *
+ * Used by Service ↔ Meet Linkage surfaces that need to ground a linked
+ * meet's timing: the linked-meets picker in the Meet-service editor and the
+ * view-mode Meet-service card (which would otherwise show only format /
+ * cadence chips with no scheduled-time anchor). Service ↔ Meet Linkage,
+ * Workstream B2/B7, 2026-05-13.
+ */
+export function meetScheduleSummary(meet: Meet): string {
+  const iso = getDisplayDate(meet);
+  const [y, m, d] = iso.split("-").map(Number);
+  const dateLabel = new Date(y, m - 1, d).toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
+  const rec = recurrenceLabel(meet);
+  const datePart = rec ? `${rec} · next ${dateLabel}` : dateLabel;
+  return meet.time ? `${datePart}, ${meet.time}` : datePart;
+}
+
+/**
  * True iff a specific occurrence of a recurring meet has been cancelled by
  * the host. Series-level cancellation (`meet.status === "cancelled"`) is a
  * separate concept — that kills the whole series.

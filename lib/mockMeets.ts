@@ -2475,6 +2475,22 @@ export function getUserMeets(userId: string): Meet[] {
 }
 
 /**
+ * Meets this user *hosts* (created), regardless of attendance — i.e.
+ * `creatorId === userId`. Distinct from `getUserMeets`, which returns meets
+ * the user *attends*.
+ *
+ * Drives the linked-meets picker in the Meet-type service editor (Service ↔
+ * Meet Linkage, Workstream B2): a carer links a Meet-type service to meets
+ * they host. Excludes series-cancelled meets — you can't sensibly link a
+ * service to a dead series.
+ */
+export function getHostedMeets(userId: string): Meet[] {
+  return mockMeets.filter(
+    (m) => m.creatorId === userId && m.status !== "cancelled",
+  );
+}
+
+/**
  * True iff `viewerId` and `subjectId` have ever both been Going on the same
  * past meet (or the same past occurrence of a recurring meet). Drives the
  * attendance-based action gating on the People tab and Group Members tab —
@@ -2674,6 +2690,51 @@ export function setOccurrenceCancellation(
     reason,
     cancelledAt: new Date().toISOString(),
   };
+}
+
+/**
+ * Demo-only runtime mutation — reconcile the meet-side `linkedServices[]`
+ * mirror against a carer-side service's authoritative `linkedMeetIds[]`.
+ *
+ * Service ↔ Meet Linkage (Workstream B3, 2026-05-13). The carer authors a
+ * Meet-type service in the profile Services edit: they pick which meets it's
+ * offered on (`linkedMeetIds`) and whether the link is `required` per meet.
+ * `linkedMeetIds` lives on the service config (persisted via the profile
+ * page's `editServices` state). The per-link `required` flag lives on the
+ * Meet — this helper flushes both sides into `mockMeets` on Save.
+ *
+ * For every meet in `mockMeets`:
+ *  - If `meet.id ∈ linkedMeetIds`: ensure `meet.linkedServices` carries
+ *    `{ serviceId, required }`, with `required` read from `requiredByMeet`
+ *    (default false — optional/mixed-roster).
+ *  - Else: strip any `{ serviceId }` entry from `meet.linkedServices`.
+ *
+ * Mutates meet records in place (same pattern as `setMeetRsvp` /
+ * `setOccurrenceCancellation`) so open meet-detail / card views pick the
+ * change up on next render. Survives navigation, not page reload.
+ */
+export function syncMeetLinksForService(
+  serviceId: string,
+  linkedMeetIds: string[],
+  requiredByMeet: Record<string, boolean>,
+): void {
+  const linkedSet = new Set(linkedMeetIds);
+  for (const meet of mockMeets) {
+    const current = meet.linkedServices ?? [];
+    if (linkedSet.has(meet.id)) {
+      const required = requiredByMeet[meet.id] ?? false;
+      const existing = current.find((l) => l.serviceId === serviceId);
+      if (existing) {
+        existing.required = required;
+      } else {
+        meet.linkedServices = [...current, { serviceId, required }];
+      }
+    } else {
+      // Meet no longer linked to this service — drop the entry.
+      const next = current.filter((l) => l.serviceId !== serviceId);
+      meet.linkedServices = next.length > 0 ? next : undefined;
+    }
+  }
 }
 
 /**
