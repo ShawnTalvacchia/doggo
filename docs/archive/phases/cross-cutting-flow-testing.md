@@ -1,6 +1,6 @@
 ---
-status: active
-last-reviewed: 2026-05-11
+status: archived
+last-reviewed: 2026-05-14
 review-trigger: When opening this phase, or when adding new deferred items
 ---
 
@@ -97,6 +97,6 @@ Docs updated: Trust & Connection Model → "Meet participant visibility rules"; 
 
 - [x] D1–D4 edge cases seeded on each persona's canonical upcoming meet (data-only).
 - [x] Mock-date staleness sweep (P20) — FeedCard relative-time bug fixed; post-klara migrated to relative.
-- [ ] Cross-persona walkthrough completed by user; emergent issues either resolved inline or filed to punch list.
+- [x] Cross-persona walkthrough completed by user; emergent issues resolved inline or filed (full record in walkthrough's *Decisions surfaced* section).
 - [x] People tab disclosure model (P32) shipped — `viewerCanAct` widened to meet-level engagement (creator / any RSVP / series follower); info-vs-action separation preserved.
-- [ ] Typecheck clean (only the two pre-existing errors remain: `ButtonAction "ghost"` variant + duplicate photos key in `app/bookings/[bookingId]/page.tsx`).
+- [x] Typecheck clean — pre-existing `ButtonAction "ghost"` + duplicate `photos` errors fixed during walkthrough.

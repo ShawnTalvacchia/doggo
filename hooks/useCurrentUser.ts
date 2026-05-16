@@ -124,3 +124,20 @@ export function useIsNewUser(): boolean {
 export function useIsGuest(): boolean {
   return useDemoState().isGuest;
 }
+
+/**
+ * True once the client-side hydration tick has run — localStorage +
+ * `?guest=1` URL param have been read. Before this flips, `useCurrentUser`
+ * returns the SSR/first-paint Tereza fallback.
+ *
+ * Use this to gate side effects that depend on persona identity. The
+ * classic bug it prevents: Tomáš (localStorage: tomas) types
+ * `/profile/tereza` — first render evaluates `currentUserId === userId`
+ * as `tereza === tereza` (because hydration hasn't happened yet) and a
+ * naive own-self-redirect fires, bouncing the viewer back to `/profile`.
+ * Wrap the redirect's gate in `if (!isHydrated) return;` and the
+ * pre-hydration false-positive disappears. 2026-05-13.
+ */
+export function useIsHydrated(): boolean {
+  return useDemoState().hydrated;
+}

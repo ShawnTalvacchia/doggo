@@ -4,8 +4,11 @@
  * Ordered list of users that the picker exposes for runtime persona switching.
  * Tereza is first (the default — selecting her is equivalent to exiting demo
  * mode), as the routine-owner / community-anchor archetype best represents
- * the happy path. The remaining three journey users follow in narrative order
+ * the happy path. The remaining journey users follow in narrative order
  * from `docs/strategy/User Journeys.pptx` and `docs/implementation/mock-data-plan.md`.
+ * Magda was added 2026-05-14 (Demo Narrative & Personas, W2.7) as the
+ * Neighborhood Hub Member archetype — she carries Beat 3 of the demo
+ * narrative (private group + peer care).
  * "New User" sits at the end as a deliberately empty profile so reviewers can
  * see what brand-new-account states look like across every surface.
  *
@@ -19,7 +22,7 @@
  */
 
 import type { UserProfile } from "@/lib/types";
-import { tereza, daniel, klara, tomas } from "@/lib/mockUsers";
+import { tereza, daniel, klara, tomas, lena, magda } from "@/lib/mockUsers";
 
 /** ID for the empty-state persona. Surfaces that gate on "new account?" check this. */
 export const NEW_USER_ID = "new-user";
@@ -90,6 +93,16 @@ export const personas: PersonaOption[] = [
     user: tomas,
     archetype: "Busy Professional",
     tagline: "Karlín commuter. Leans on care help.",
+  },
+  {
+    user: lena,
+    archetype: "Marketplace Owner",
+    tagline: "Letná tech worker. Pure care customer.",
+  },
+  {
+    user: magda,
+    archetype: "Neighborhood Hub Member",
+    tagline: "Holešovice. Anchors a tight private block.",
   },
   {
     user: newUserPersona,

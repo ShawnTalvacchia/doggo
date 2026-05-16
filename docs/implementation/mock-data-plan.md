@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-05-10
+last-reviewed: 2026-05-14
 tags: [mock-data, demo, prototype, data-model]
 review-trigger: "before creating or modifying mock data files"
 ---
@@ -18,15 +18,15 @@ Depends on: [[Groups & Care Model]], [[Content Visibility Model]], [[Trust & Con
 
 ---
 
-## Current State (as of 2026-05-08)
+## Current State (as of 2026-05-14)
 
 | Entity | Count | Notes |
 |--------|-------|-------|
-| Users (UserProfile) | 22 | 4 journey personas + Shawn + 17 supporting cast (Vinohrady, Karlín, Holešovice, Reactive support clusters) |
+| Users (UserProfile) | 25 | 6 viewer personas (Tereza, Daniel, Klára, Tomáš, Lena, Magda) + Shawn + ~18 supporting cast (Vinohrady, Karlín, Holešovice, Reactive support, Letná clusters) |
 | Providers (ProviderCard) | 10 | Directory entries in `mockData.ts`; some bridged to UserProfile via `userId` field, others directory-only (see P4 + bridge contract documented in `mockData.ts`) |
-| Connections | per-persona | Shawn 12, Tereza 8, Daniel 5, Klára 10, Tomáš 6, New User 0 (intentional empty state). Indexed via `mockConnectionsByViewer` |
+| Connections | per-persona | Shawn 12, Tereza 8, Daniel 5, Klára 10, Tomáš 6, Lena 3, Magda 5, Veronika 3, New User 0 (intentional empty state). P69 still open: most supporting-cast personas don't have inverse rosters. Indexed via `mockConnectionsByViewer` |
 | Meets | 44 | Mix of completed + upcoming, recurring + one-off, free + paid. All 4 group types represented. |
-| Groups | 24 | Park, Neighbour, Interest, Care types; canonical demo example for each |
+| Groups | 25 | Park, Neighbour, Interest, Care types; canonical demo example for each. Holešovice Dog Block added 2026-05-14 (Demo Narrative & Personas) — private neighbour group anchored by Magda. |
 | Bookings | 12 | Active recurring (Daniel↔Klára training, Klára↔Hana training, Olga↔Tereza walks), active one-off (Shawn↔Marie), completed (Tomáš↔Petra emergency, Klára↔Filip training, Tereza↔Marek sitting + walks, Shawn↔Tomáš), plus Olga↔Shawn ongoing walks. Tereza is the only dual-role persona — both owner-side (Olga walks Franta) and carer-side (Marek's Benny). |
 | Posts | 53 | Authorship spread: Klára 10, Shawn 9, Jana 9, Eva 8, Tomáš 7, Tereza 6, Daniel 6, plus supporting cast |
 | Reviews | 13 | Anchored on Klára (training), Petra (sitting), Olga / Nikola (existing providers), Tereza (one warm review from Marek) |
@@ -55,6 +55,112 @@ Use sparingly — only data that needs to track today. Static deeper history (lo
 - All `mockConversations` `sentAt` timestamps (61 strings across all threads). Per-conversation latest ages range 1d (active proposals / fresh threads) → 12d (completed bookings) so the inbox always reads as live activity, not a frozen snapshot. Inbox & Notifications, 2026-05-08.
 
 **Should remain static:** historical milestones (signed dates), long-completed bookings used for archival demonstration, posts with anchored timestamps in story copy.
+
+---
+
+## Realism standards
+
+Conventions that have accreted across phases. Read this before seeding any new persona, group, meet, booking, or content. Captured here 2026-05-14 (Demo Narrative & Personas, W3.5) so future seeding stops drifting.
+
+### People + dog naming
+
+- **Czech first names + last names** for all Prague-resident personas, with diacritics rendered correctly (`Tereza Nováková`, `Klára Horáčková`, `Vondráková`, `Krásná`). Avoid English transliterations.
+- **Dog names** mix Czech (`Pepík`, `Číča`, `Franta`, `Žofka`, `Bára`, `Kuba`) and international (`Hugo`, `Luna`, `Max`, `Charlie`, `Eda`, `Toby`). Both feel realistic for the city; favor Czech for older personas + internationals for younger / expat-leaning personas.
+- **Avatar reuse is acceptable** for new minor personas — follow the Lena precedent (`anezka-profile.jpeg`) and Pawel precedent (`marek-profile.jpeg`). Document the reuse in the persona's docstring. Avoid reuse-collision in shared surfaces (don't put two users sharing an avatar on the same group / meet roster).
+- **Pet portrait reuse** follows the same rule. Match approximate breed shape so the visual stand-in isn't jarring (a Schnauzer-mix portrait can stand in for similar small terrier-ish dogs; reusing a Husky for a Chihuahua reads wrong).
+
+### Neighbourhoods
+
+Personas live in real Prague neighbourhoods, mapped by district (see Prague Authenticity Checklist below for the full list). Each cluster has a recurring set of regulars + at least one Carer + ideally one social anchor (open profile, cross-cluster ties).
+
+| District | Neighbourhood | Anchor cluster |
+|---|---|---|
+| Prague 2 | Vinohrady | Tereza, Marek, Lucie, Jakub, Zuzana, Shawn (anchor: Tereza/Jana) |
+| Prague 3 | Žižkov | Martin (lighter cluster) |
+| Prague 5 | Smíchov | Daniel, Vítek (lighter — reactive-dog focus) |
+| Prague 7 | Holešovice | Klára, Eva, Filip, Hana, Magda, Veronika, Martin Horák (anchor: Eva/Magda) |
+| Prague 7 | Letná | Lena, Pawel, Marie, Nikola |
+| Prague 8 | Karlín | Tomáš, Petra, Ondřej, Adéla |
+
+When seeding a new persona, place them in an existing cluster + add at least one same-neighbourhood Familiar/Connected relationship.
+
+### Profile visibility distribution
+
+Per the community-first thesis (P36 rebalance, MWB B1):
+
+- **Default to `locked`.** Open is the exception, not the rule.
+- **Open is reserved for:** (1) Carers whose service visibility depends on it (Tereza, Klára, Petra, Nikola, Pawel, Veronika); (2) social anchors at most one per neighbourhood (Eva for Holešovice, Jana for Vinohrady); (3) Hub Members and other "narrow-and-deep" Connectors who are socially comfortable enough to keep their profile open (Magda).
+- Aim for ~55/45 Locked/Open at the supporting-cast level. Bridged providers tilt the ratio toward Open by necessity.
+
+### Connection density per persona
+
+Targets from MWB + ongoing seeding:
+
+| Persona | Connections | Notes |
+|---|---|---|
+| Shawn | 12 | Original full roster. |
+| Tereza | 8 | Vinohrady-anchored, cross-cluster ties to Jana + Klára. |
+| Daniel | 5 | Sparse by design — anxious new owner archetype. |
+| Klára | 10 | Trainer with broad professional network. |
+| Tomáš | 6 | Karlín-anchored, smaller social circle. |
+| Lena | 3 | Marketplace-Owner archetype — graduated to care, light community footprint. |
+| Magda | 5 | Hub Member archetype — narrow-and-deep, all in Holešovice cluster. |
+| Veronika | 3 | Casual Carer archetype — content within the block. |
+| New User | 0 | Intentional empty state. |
+
+When seeding a new persona, target a connection count that matches their archetype:
+- **Connectors** (anchor-heavy): 8–12, with cross-cluster ties.
+- **Regulars** (routine-anchored): 5–8, mostly within their cluster.
+- **Casual Carers / Hub Members**: 3–5, narrow-and-deep within one cluster.
+- **Marketplace Owners / Utility users**: 2–4, anchored on a Carer + a few residual community ties.
+- **New / Empty**: 0–2.
+
+P69 (close pending): supporting-cast personas without seeded rosters need inverses of every entry pointing at them. Demo-narrative personas (Magda, Veronika) have rosters; the broader sweep is partial — see [phases/punch-list.md](../phases/punch-list.md) → P69 for the canonical list.
+
+### Pricing realism
+
+Czech crown (Kč), realistic for Prague 2026:
+- **Walks / drop-in visits**: 120–330 Kč per visit. Casual peer rate ~150–200; professional ~250–350.
+- **Day care**: 150–400 Kč per visit.
+- **Boarding**: 480–700 Kč per night.
+- **House sitting**: 180–400 Kč per visit.
+- **Group training**: 300–400 Kč per session.
+- **1-on-1 training (mobile)**: 600–1000 Kč per session.
+- **Behaviour consultation**: 800–1500 Kč.
+
+When seeding a Carer, price within these bands and let `computeQuote` handle modifiers (weekend, holiday, multi-pet, last-minute) on top.
+
+### Bridged provider contract
+
+`ProviderCard` directory entries may exist as either:
+- **Directory-only** — no `userId`, no `UserProfile`. `getUserOrProvider` synthesises a minimal profile.
+- **Bridged** — `userId` field links to a `UserProfile` in `mockUsers.ts`. Profile renders fully; service edits write through.
+
+When seeding a new Carer:
+- If they need a real profile (services tab, posts, full About), seed as `UserProfile` AND add a bridged `ProviderCard` with matching `userId`.
+- If they're directory-fill only (background carer name in Discover), `ProviderCard`-only is fine.
+
+See `mockData.ts` top-of-file for the full bridge contract.
+
+### Date strategy
+
+Already covered above ("Date strategy: relative dates for live-feeling demo"). The summary rule:
+- **Track-today data** uses `daysAgo`, `daysFromNow`, `daysAgoIso`, `daysFromNowIso` from `lib/mockDate.ts`.
+- **Static historical data** (signed dates, milestones, deeper backstory) stays as ISO strings.
+
+### Veterinary records on dogs
+
+Pet `vetInfo` is for owner record-keeping (clinic name, vet phone, last checkup, vaccinations, medications, conditions). It is NOT a platform service — vets retired from `AppointmentCategory` + `CareCategory` 2026-05-11 (Care Catalog Taxonomy). Seed `vetInfo` with realistic Prague-area clinic names (`Veterina Vinohrady`, `Letná Veterinary Centre`, etc.) but don't expose vets as a Carer service type.
+
+### Service taxonomy
+
+Four canonical Care services (Care Catalog Taxonomy, 2026-05-11):
+- `walks_checkins` — drop-in visits + walks (carer goes to owner)
+- `house_sitting` — owner's home, finite duration
+- `day_care` — carer's home, daytime
+- `boarding` — carer's home, overnight
+
+Plus Meet-type and Appointment-type service shapes (Discover & Care, 2026-05-04 + Care Catalog Taxonomy, 2026-05-11). Use `SUB_SERVICES` from `lib/constants/services.ts` — never invent free-form sub-service strings.
 
 ---
 
@@ -150,9 +256,11 @@ These populate the groups, attend meets, and create the feeling of a living comm
 #### Holešovice / Stromovka Cluster
 | Name | Dog(s) | Groups | Role in story |
 |------|--------|--------|---------------|
-| **Martin Horák** | Charlie (French Bulldog) | Stromovka DW, Letná Dog Walks | Regular at Saturday Stromovka walks. Connected with Klára. |
-| **Eva Součková** | Luna (Border Collie mix), Max (Labrador mix) | Stromovka DW, Letná Dog Walks, Reactive Dog Support | Two dogs, very active. Helps with recall training. |
-| **Filip Novotný** | Toby (Jack Russell) | Stromovka DW, Klára's Calm Dog Sessions | Client of Klára's. Booked 3 training sessions. |
+| **Magda Vondráková** *(viewer persona, added 2026-05-14)* | Žofka (Schnauzer mix) | Holešovice Dog Block (admin), Klára training meets | Neighborhood Hub Member archetype. Anchors a tight private neighbour group of ~12. Carries Beat 3 of the demo narrative — connects with Daniel post-meet, invites him to her group, arranges peer care. Open profile, narrow-and-deep network. |
+| **Veronika Krásná** *(supporting cast, added 2026-05-14)* | Kuba (Cocker Spaniel, 12y) | Holešovice Dog Block | Casual Carer archetype. Works from home — flexible. `publicProfile: false` (circle audience only). Magda's go-to peer carer; receives the inquiry → proposal → contract booking in Beat 3 of the demo. |
+| **Martin Horák** | Charlie (French Bulldog) | Stromovka DW, Letná Dog Walks, Holešovice Dog Block | Regular at Saturday Stromovka walks. Connected with Klára. |
+| **Eva Součková** | Luna (Border Collie mix), Max (Labrador mix) | Stromovka DW, Letná Dog Walks, Reactive Dog Support, Holešovice Dog Block | Two dogs, very active. Helps with recall training. |
+| **Filip Novotný** | Toby (Jack Russell) | Stromovka DW, Klára's Calm Dog Sessions, Holešovice Dog Block | Client of Klára's. Booked 3 training sessions. |
 
 #### Reactive Dog Support Members
 | Name | Dog(s) | Groups | Role in story |

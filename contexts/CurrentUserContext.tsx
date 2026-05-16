@@ -63,6 +63,16 @@ type CurrentUserContextValue = {
    * read-only display fallback (defaults to Tereza in guest mode).
    */
   isGuest: boolean;
+  /**
+   * True once the client-side hydration tick has run — localStorage +
+   * `?guest=1` URL param have been read, and `user` / `isGuest` reflect
+   * the actual session. Before this flips, `user` is the SSR/first-paint
+   * Tereza fallback. Side effects that depend on persona identity
+   * (e.g. "is this URL my own profile?" redirects) MUST gate on this
+   * flag — otherwise pre-hydration reads see Tereza as the active user
+   * and false-positive against `/profile/tereza` URLs. 2026-05-13.
+   */
+  hydrated: boolean;
   /** Switch to a different persona by user ID. Unknown IDs are ignored. Clears guest mode. */
   setUserById: (id: string) => void;
   /** Reset to the canonical default; clears the persona storage key. Clears guest mode. */
@@ -79,6 +89,12 @@ export function CurrentUserProvider({ children }: { children: React.ReactNode })
   // SSR + first paint: render as Tereza, not guest.
   const [user, setUser] = useState<UserProfile>(tereza);
   const [isGuest, setIsGuest] = useState<boolean>(false);
+  // Hydration gate — false until the client-mount useEffect runs and
+  // localStorage / URL have been read. Persona-identity-dependent side
+  // effects (e.g. own-profile-URL → /profile redirect) must wait for
+  // this to flip true, otherwise they fire against the Tereza fallback
+  // and false-positive on `/profile/tereza` URLs. 2026-05-13.
+  const [hydrated, setHydrated] = useState<boolean>(false);
 
   // On mount, hydrate from localStorage + URL.
   useEffect(() => {
@@ -108,6 +124,8 @@ export function CurrentUserProvider({ children }: { children: React.ReactNode })
         // Ignore.
       }
     }
+
+    setHydrated(true);
   }, []);
 
   const setUserById = useCallback((id: string) => {
@@ -178,11 +196,12 @@ export function CurrentUserProvider({ children }: { children: React.ReactNode })
       user,
       isDefault: user.id === tereza.id,
       isGuest,
+      hydrated,
       setUserById,
       resetToDefault,
       setGuestMode,
     }),
-    [user, isGuest, setUserById, resetToDefault, setGuestMode],
+    [user, isGuest, hydrated, setUserById, resetToDefault, setGuestMode],
   );
 
   return (

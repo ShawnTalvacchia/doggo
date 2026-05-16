@@ -18,27 +18,14 @@ export function PostsTab({ userId, isOwnProfile = false }: PostsTabProps) {
 
   return (
     <div className="flex flex-col">
-      {/* In-panel compose prompt — full-width "section strip" at the top
-          of the panel, matching the post-card rhythm below: same
-          `--surface-top` background and `--border-regular` separator
-          weight as `.feed-card`, but bookended with top + bottom borders
-          so the strip reads as its own block before the post list. The
-          ShareMomentBar pill inside uses `--surface-inset` so it reads
-          as a sunken input on the white strip. AppNav Camera+ is
-          suppressed on own-profile Posts via
-          PageHeaderContext.suppressCreate — the action lives here. 2026-05-11. */}
-      {isOwnProfile && posts.length > 0 && (
-        <div
-          className="px-md py-md"
-          style={{
-            background: "var(--surface-top)",
-            borderTop: "1px solid var(--border-regular)",
-            borderBottom: "1px solid var(--border-regular)",
-          }}
-        >
-          <ShareMomentBar />
-        </div>
-      )}
+      {/* In-panel compose prompt — `ShareMomentBar` is self-contained
+          (avatar + input + tag shortcuts, `--surface-top` strip chrome
+          with top + bottom borders). AppNav Camera+ is suppressed on
+          own-profile Posts via `PageHeaderContext.suppressCreate` — the
+          action lives here. Redesigned 2026-05-13 from a sunken-input
+          pill to the richer 3-part strip that surfaces the tag taxonomy
+          (Photo / Dog / Location / Group) as affordances. */}
+      {isOwnProfile && posts.length > 0 && <ShareMomentBar />}
 
       {posts.length === 0 ? (
         <div

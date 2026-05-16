@@ -63,7 +63,7 @@ const AV = {
 export { AV as AVATARS };
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   JOURNEY USERS (4)
+   JOURNEY USERS (5)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export const tereza: UserProfile = {
@@ -272,6 +272,11 @@ export const klara: UserProfile = {
       // previous junk-drawer "day_care" entry held three training
       // offerings as subServices strings; they're now first-class Meet-type
       // entries — see [[Groups & Care Model]] → Services as Catalog.
+      //
+      // Service ↔ Meet Linkage (A1 + A4, 2026-05-13): `seriesMeetId?: string`
+      // migrated to `linkedMeetIds: string[]` (one-to-many). `klara-1on1`
+      // reclassified Meet → Appointment (training) — solo + scheduled + no
+      // roster = Appointment per the §13 roster test, not Meet.
       {
         kind: "meet",
         id: "klara-group-training",
@@ -282,17 +287,16 @@ export const klara: UserProfile = {
         cadence: "weekly",
         durationMinutes: 60,
         notes: "Open weekly group session — calm focus and recall practice.",
-        seriesMeetId: "meet-care-1",
+        linkedMeetIds: ["meet-care-1"],
       },
       {
-        kind: "meet",
+        kind: "appointment",
         id: "klara-1on1",
         title: "1-on-1 training session",
         enabled: true,
-        pricePerSession: 800,
-        format: "one_on_one",
-        cadence: "ad_hoc",
+        pricePerAppointment: 800,
         durationMinutes: 60,
+        appointmentCategory: "training",
         notes: "Private session at your location or Stromovka. Behaviour assessment included on the first session.",
       },
       {
@@ -305,7 +309,7 @@ export const klara: UserProfile = {
         cadence: "ad_hoc",
         durationMinutes: 90,
         notes: "Workshops and small-group sessions for reactive dogs. Threshold work, redirection, owner coaching.",
-        seriesMeetId: "meet-care-workshop-1",
+        linkedMeetIds: ["meet-care-workshop-1"],
       },
       {
         kind: "meet",
@@ -314,9 +318,10 @@ export const klara: UserProfile = {
         enabled: true,
         pricePerSession: 400,
         format: "small_group",
-        cadence: "ad_hoc",
+        cadence: "weekly",
         durationMinutes: 45,
         notes: "Foundations course for puppies under 6 months — handling, recall, socialisation.",
+        linkedMeetIds: ["meet-care-puppy-basics"],
       },
     ],
     publicProfile: true,
@@ -372,11 +377,95 @@ export const tomas: UserProfile = {
   ],
 };
 
+/**
+ * Lena Marešová — The Marketplace Owner archetype (CCFT 2026-05-13).
+ *
+ * Software engineer in Letná. Joined Doggo a few months ago when she
+ * adopted Asha, attended some meets to scout for a walker (that's how
+ * she found Pawel), and has since settled into a pure-care relationship:
+ * recurring weekday walks through Pawel's pack, the occasional Letná
+ * meet she's stayed marked Interested in but rarely attends. She has
+ * group memberships and connections from that earlier scouting phase —
+ * she's not socially isolated, just not currently engaged. The
+ * community thread served its purpose (find a trusted carer); the care
+ * thread is her ongoing relationship with the app.
+ *
+ * Why she exists: pressure-tests the community-first thesis. Doggo's
+ * pitch is "trust through community → care." Lena demonstrates the
+ * funnel *working all the way through* — past meet attendance, current
+ * care booking, no future meet engagement. The DiscoveryBanner on
+ * `/home` is the polite "have you seen this week's meets?" nudge for
+ * exactly her shape of usage — graduated, not absent. See User
+ * Archetypes → "The Marketplace Owner."
+ */
+export const lena: UserProfile = {
+  id: "lena",
+  firstName: "Lena",
+  lastName: "Marešová",
+  email: "lena.maresova@email.cz",
+  avatarUrl: "/images/generated/anezka-profile.jpeg",
+  bio: "Software engineer in Letná. Adopted Asha last year — found Pawel through a recall-training meet and never looked back. Mostly heads-down at work these days; Asha gets her social life through Pawel's pack.",
+  location: "Prague 7, Czech Republic",
+  neighbourhood: "Letná",
+  memberSince: "2026-01",
+  profileVisibility: "locked",
+  tagApproval: "approve",
+  openToHelping: false,
+  shareCode: "lena-9pt7",
+  pets: [
+    {
+      id: "asha",
+      name: "Asha",
+      breed: "Vizsla mix",
+      weightLabel: "22 kg",
+      ageLabel: "3 years",
+      imageUrl: "/images/generated/sam-portrait.jpeg",
+      energyLevel: "very_high",
+      playStyles: ["fetch", "chase"],
+      socialisationNotes: "Friendly with everyone but high-strung — needs movement, not chaos. Best with calm, focused walks.",
+      notes: "Rescue from a hunting kennel. Needs 90+ minutes of real exercise daily or she'll redecorate the apartment.",
+      vetInfo: {
+        clinicName: "Letná Veterinary Centre",
+        vetPhone: "+420 222 942 318",
+        lastCheckup: "2026-03-22",
+        vaccinationsUpToDate: true,
+        spayedNeutered: true,
+        conditions: "None.",
+      },
+    },
+  ],
+};
+
 /* ═══════════════════════════════════════════════════════════════════════════
-   SUPPORTING CAST (15)
+   SUPPORTING CAST (15+)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* ── Vinohrady / Riegrovy Sady Cluster ─────────────────────────────────── */
+
+/**
+ * Pawel Kowalski — professional group-walker, Vinohrady. Runs the open
+ * care group `group-pawel-walks` ("Pawel's Prague Pack"). Promoted from
+ * a provider-only reference to a full `UserProfile` 2026-05-13 (CCFT
+ * Marketplace-Owner persona work) so Lena's booking + conversation
+ * bridges have a real user record to resolve. No own dog seeded — he
+ * walks 30+ dogs a week, that's the lifestyle.
+ */
+export const pawel: UserProfile = {
+  id: "pawel",
+  firstName: "Pawel",
+  lastName: "Kowalski",
+  email: "pawel@pragueprack.cz",
+  avatarUrl: "/images/generated/marek-profile.jpeg",
+  bio: "Group walks across Prague's best parks. Six dogs max, GPS tracking, photo updates every walk. Booked solid most weeks — that's how I know it's working.",
+  location: "Prague 2, Czech Republic",
+  neighbourhood: "Vinohrady",
+  memberSince: "2025-12",
+  profileVisibility: "open",
+  tagApproval: "auto",
+  openToHelping: true,
+  shareCode: "pawel-walks",
+  pets: [],
+};
 
 export const marek: UserProfile = {
   id: "marek",
@@ -704,6 +793,132 @@ export const filip: UserProfile = {
       notes: "Needs a LOT of exercise. Recall is improving thanks to training.",
     },
   ],
+};
+
+/**
+ * Magda Vondráková — Neighborhood Hub Member archetype, added 2026-05-14
+ * (Demo Narrative & Personas phase, W2/W3). Anchors a tight private group
+ * of ~12 Holešovice neighbours ("Holešovice Dog Block"). Open profile —
+ * socially comfortable; her in-group reputation already vouches for her.
+ * Carries Beat 3 of the demo narrative: she connects with Daniel after
+ * meeting him at Klára's training session, invites him into her group,
+ * then arranges peer-care for the night with Veronika (a fellow group
+ * member). Reuses lucie-profile.jpeg + pepik-portrait.jpeg as visual
+ * stand-ins (no fresh portraits seeded) — same convention Lena (anezka)
+ * and Pawel (marek) follow.
+ */
+export const magda: UserProfile = {
+  id: "magda",
+  firstName: "Magda",
+  lastName: "Vondráková",
+  email: "magda.vondrakova@email.cz",
+  avatarUrl: "/images/generated/lucie-profile.jpeg",
+  bio: "Holešovice for fifteen years. Žofka and I started our block's WhatsApp group, then moved it here when half the messages were dog logistics anyway. We're a small crew but we look out for each other and each other's dogs.",
+  location: "Prague 7, Czech Republic",
+  neighbourhood: "Holešovice",
+  memberSince: "2025-09",
+  profileVisibility: "open",
+  tagApproval: "auto",
+  shareCode: "magda-h7v9",
+  pets: [
+    {
+      id: "zofka",
+      name: "Žofka",
+      breed: "Schnauzer mix",
+      weightLabel: "11 kg",
+      ageLabel: "6 years",
+      imageUrl: "/images/generated/pepik-portrait.jpeg",
+      energyLevel: "moderate",
+      playStyles: ["sniffing", "fetch"],
+      socialisationNotes: "Friendly with everyone, prefers calm dogs over rowdy ones. Knows half the dogs on the block by name (well — by smell).",
+      notes: "Easy with kids and other dogs. Good around the flat — happy to nap if no walks are happening.",
+      vetInfo: {
+        clinicName: "Veterina Holešovice",
+        vetPhone: "+420 220 879 432",
+        lastCheckup: "2026-02-18",
+        vaccinationsUpToDate: true,
+        spayedNeutered: true,
+        conditions: "Healthy. A bit of arthritis starting in the back left — easy walks only.",
+      },
+    },
+  ],
+};
+
+/**
+ * Veronika Krásná — Casual Carer archetype, added 2026-05-14 (Demo Narrative
+ * & Personas phase, W2/W3). Holešovice Dog Block member; works from home
+ * so she has flexibility. Open profile (social), Carer dial barely turned
+ * (`publicProfile: false` — circle audience only, doesn't appear in
+ * `/discover/care`). Carries the receiver side of Beat 3: Magda books her
+ * for a same-evening drop-in care visit at peer pricing, demoing the
+ * "good fences make good neighbours" thesis. Reuses marie-profile.jpeg +
+ * benny-portrait.jpeg as visual stand-ins.
+ */
+export const veronika: UserProfile = {
+  id: "veronika",
+  firstName: "Veronika",
+  lastName: "Krásná",
+  email: "veronika.krasna@email.cz",
+  avatarUrl: "/images/generated/marie-profile.jpeg",
+  bio: "Translator working from home in Holešovice. Kuba is twelve and very chill — happy to share my flat with calm dogs from the block when neighbours need a hand. I keep things small and informal.",
+  location: "Prague 7, Czech Republic",
+  neighbourhood: "Holešovice",
+  memberSince: "2025-10",
+  profileVisibility: "open",
+  tagApproval: "auto",
+  openToHelping: true,
+  shareCode: "veronika-k4x2",
+  pets: [
+    {
+      id: "kuba",
+      name: "Kuba",
+      breed: "Cocker Spaniel",
+      weightLabel: "13 kg",
+      ageLabel: "12 years",
+      imageUrl: "/images/generated/benny-portrait.jpeg",
+      energyLevel: "low",
+      playStyles: ["sniffing"],
+      socialisationNotes: "Old gentleman. Calm with every dog he meets — the kind of dog you bring around an anxious puppy.",
+      notes: "Twelve years young. Two short walks a day; otherwise a master napper.",
+    },
+  ],
+  carerProfile: {
+    bio: "Drop-ins and short walks for Holešovice Dog Block neighbours. I work from home so I can usually fit a same-day visit. Calm dogs only — Kuba's old and he sets the house tone.",
+    location: "Prague 7 – Holešovice",
+    availability: [
+      { day: "Mon", slots: ["morning", "afternoon", "evening"] },
+      { day: "Tue", slots: ["morning", "afternoon", "evening"] },
+      { day: "Wed", slots: ["morning", "afternoon", "evening"] },
+      { day: "Thu", slots: ["morning", "afternoon", "evening"] },
+      { day: "Fri", slots: ["morning", "afternoon", "evening"] },
+      { day: "Sat", slots: ["afternoon", "evening"] },
+    ],
+    services: [
+      {
+        kind: "care",
+        serviceType: "walks_checkins",
+        enabled: true,
+        pricePerUnit: 200,
+        priceUnit: "per_visit",
+        subServices: ["Drop-in visit", "Solo walk"],
+        notes: "Drop-in visits or short solo walks for neighbours' dogs. Holešovice Dog Block members only.",
+        modifiers: [],
+      },
+      {
+        kind: "care",
+        serviceType: "house_sitting",
+        enabled: true,
+        pricePerUnit: 220,
+        priceUnit: "per_visit",
+        subServices: ["Drop-in visit"],
+        notes: "I can come to your flat for an evening or overnight. Same-day is usually fine if I'm around.",
+        modifiers: [],
+      },
+    ],
+    publicProfile: false,
+    visibility: "connected_only",
+    acceptingBookings: true,
+  },
 };
 
 /* ── Reactive Dog Support Members ──────────────────────────────────────── */
@@ -1819,7 +2034,8 @@ export const petrV: UserProfile = {
    ═══════════════════════════════════════════════════════════════════════════ */
 
 export const allUsers: UserProfile[] = [
-  tereza, daniel, klara, tomas,
+  tereza, daniel, klara, tomas, lena,
+  pawel,
   marek, lucie, jakub, zuzana,
   petra, ondrej, adela,
   martin, eva, filip,

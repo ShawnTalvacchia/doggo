@@ -1037,6 +1037,527 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
   ],
 
   /* ═══════════════════════════════════════════════════════════════════════
+     LENA — Marketplace Owner archetype (CCFT 2026-05-13). "Graduated
+     from community to care" — joined Doggo while scouting for a
+     walker, attended a few Letná Recall Training meets, made a couple
+     of connections that way, found Pawel through that orbit. Her
+     ongoing engagement is the care booking with Pawel; the community
+     thread served its trust-building purpose and is now mostly
+     dormant. Compact roster reflects that: Pawel as Connected (auto
+     from contract), a couple of Familiar marks from past meets, no
+     Pending, no active deniability path.
+     ═══════════════════════════════════════════════════════════════════════ */
+  lena: [
+    /* ─── CONNECTED ──────────────────────────────────────────────── */
+    {
+      id: "conn-lena-pawel",
+      userId: "pawel",
+      userName: "Pawel",
+      avatarUrl: "/images/generated/marek-profile.jpeg",
+      dogNames: [],
+      location: "Prague 2",
+      state: "connected",
+      updatedAt: "2026-04-08T09:00:00Z",
+      meetsShared: 0,
+      firstMetDate: "2026-02-10",
+      lastMetDate: "2026-04-08",
+      mutualConnections: [],
+      sharedGroups: ["Pawel's Prague Pack"],
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+    /* ─── FAMILIAR (from past Letná Recall Training meets) ──────── */
+    {
+      id: "conn-lena-eva",
+      userId: "eva",
+      userName: "Eva",
+      avatarUrl: "/images/generated/eva-profile.jpeg",
+      dogNames: ["Luna"],
+      location: "Prague 7",
+      state: "familiar",
+      updatedAt: "2026-02-22T11:00:00Z",
+      meetsShared: 2,
+      firstMetDate: "2026-02-12",
+      lastMetDate: "2026-02-22",
+      mutualConnections: ["Klára"],
+      sharedGroups: ["Letná Recall Training"],
+      dogBreed: "Border Collie mix",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+    {
+      id: "conn-lena-klara",
+      userId: "klara",
+      userName: "Klára",
+      avatarUrl: "/images/generated/klara-profile.jpeg",
+      dogNames: ["Eda"],
+      location: "Prague 7",
+      state: "familiar",
+      updatedAt: "2026-02-22T11:00:00Z",
+      meetsShared: 2,
+      firstMetDate: "2026-02-12",
+      lastMetDate: "2026-02-22",
+      mutualConnections: ["Eva", "Pawel"],
+      sharedGroups: ["Letná Recall Training"],
+      dogBreed: "Border Collie",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+  ],
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     MAGDA — Neighborhood Hub Member (Holešovice Dog Block admin), narrow-and-
+     deep network anchored on her private neighbour group. Added 2026-05-14
+     (Demo Narrative & Personas, W3.1).
+
+     Pre-demo state: Connected with Veronika + Eva (close Holešovice
+     neighbours). Familiar with Martin / Filip / Hana (block acquaintances).
+     No connection with Daniel — Beat 3 walks them through Familiar →
+     Connected during the demo. No formal connection with Klára either —
+     she's been to a couple of training meets but hasn't acted on the row.
+     ═══════════════════════════════════════════════════════════════════════ */
+  magda: [
+    {
+      id: "conn-magda-veronika",
+      userId: "veronika",
+      userName: "Veronika",
+      avatarUrl: "/images/generated/marie-profile.jpeg",
+      dogNames: ["Kuba"],
+      location: "Prague 7",
+      state: "connected",
+      updatedAt: "2025-11-02T10:00:00Z",
+      meetsShared: 0,
+      firstMetDate: "2025-10-08",
+      lastMetDate: "2026-04-30",
+      mutualConnections: ["Eva", "Martin"],
+      sharedGroups: ["Holešovice Dog Block"],
+      dogBreed: "Cocker Spaniel",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+    {
+      id: "conn-magda-eva",
+      userId: "eva",
+      userName: "Eva",
+      avatarUrl: "/images/generated/eva-profile.jpeg",
+      dogNames: ["Luna", "Max"],
+      location: "Prague 7",
+      state: "connected",
+      updatedAt: "2025-11-15T10:00:00Z",
+      meetsShared: 3,
+      firstMetDate: "2025-10-22",
+      lastMetDate: "2026-04-12",
+      mutualConnections: ["Veronika", "Martin"],
+      sharedGroups: ["Holešovice Dog Block", "Stromovka Off-Leash Club"],
+      dogBreed: "Border Collie mix",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+    /* P68 hygiene: Magda is Open — outbound Familiar marks are no-ops.
+     * The three entries below preserve meet/group interaction metadata
+     * but carry state:"none". `theyMarkedFamiliar: true` reflects that
+     * Martin / Filip / Hana (all Locked) marked Magda Familiar — a
+     * meaningful inbound grant. Same convention as Tereza's roster.
+     */
+    {
+      id: "conn-magda-martin",
+      userId: "martin",
+      userName: "Martin",
+      avatarUrl: "/images/generated/martin-profile.jpeg",
+      dogNames: ["Charlie"],
+      location: "Prague 7",
+      state: "none",
+      updatedAt: "2025-12-04T10:00:00Z",
+      meetsShared: 2,
+      firstMetDate: "2025-11-04",
+      lastMetDate: "2026-03-21",
+      mutualConnections: ["Eva"],
+      sharedGroups: ["Holešovice Dog Block"],
+      theyMarkedFamiliar: true,
+      dogBreed: "French Bulldog",
+      neighbourhood: "Holešovice",
+      profileOpen: false,
+    },
+    {
+      id: "conn-magda-filip",
+      userId: "filip",
+      userName: "Filip",
+      avatarUrl: "/images/generated/filip-profile.jpeg",
+      dogNames: ["Toby"],
+      location: "Prague 7",
+      state: "none",
+      updatedAt: "2025-12-19T10:00:00Z",
+      meetsShared: 2,
+      firstMetDate: "2025-11-19",
+      lastMetDate: "2026-04-04",
+      mutualConnections: ["Martin"],
+      sharedGroups: ["Holešovice Dog Block"],
+      theyMarkedFamiliar: true,
+      dogBreed: "Jack Russell Terrier",
+      neighbourhood: "Holešovice",
+      profileOpen: false,
+    },
+    {
+      id: "conn-magda-hana",
+      userId: "hana",
+      userName: "Hana",
+      avatarUrl: "/images/generated/hana-profile.jpeg",
+      dogNames: ["Runa"],
+      location: "Prague 7",
+      state: "none",
+      updatedAt: "2026-01-12T10:00:00Z",
+      meetsShared: 1,
+      firstMetDate: "2026-01-12",
+      lastMetDate: "2026-03-30",
+      mutualConnections: ["Filip"],
+      sharedGroups: ["Holešovice Dog Block"],
+      theyMarkedFamiliar: true,
+      dogBreed: "Husky mix",
+      neighbourhood: "Holešovice",
+      profileOpen: false,
+    },
+  ],
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     VERONIKA — Casual Carer + Hub Member's go-to peer carer. Smaller
+     roster than Magda — she's content within the block. Added 2026-05-14
+     (Demo Narrative & Personas, W3.1).
+     ═══════════════════════════════════════════════════════════════════════ */
+  veronika: [
+    {
+      id: "conn-veronika-magda",
+      userId: "magda",
+      userName: "Magda",
+      avatarUrl: "/images/generated/lucie-profile.jpeg",
+      dogNames: ["Žofka"],
+      location: "Prague 7",
+      state: "connected",
+      updatedAt: "2025-11-02T10:00:00Z",
+      meetsShared: 0,
+      firstMetDate: "2025-10-08",
+      lastMetDate: "2026-04-30",
+      mutualConnections: ["Eva"],
+      sharedGroups: ["Holešovice Dog Block"],
+      dogBreed: "Schnauzer mix",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+    /* P68 hygiene: Veronika is Open — outbound Familiar marks no-op.
+     * Eva is Open too (no theyMarkedFamiliar flag — Eva's mark would
+     * also be a no-op). Martin is Locked, so theyMarkedFamiliar:true
+     * preserves the inbound grant (Martin opened up to her).
+     */
+    {
+      id: "conn-veronika-eva",
+      userId: "eva",
+      userName: "Eva",
+      avatarUrl: "/images/generated/eva-profile.jpeg",
+      dogNames: ["Luna", "Max"],
+      location: "Prague 7",
+      state: "none",
+      updatedAt: "2025-12-01T10:00:00Z",
+      meetsShared: 1,
+      firstMetDate: "2025-11-15",
+      lastMetDate: "2026-03-08",
+      mutualConnections: ["Magda"],
+      sharedGroups: ["Holešovice Dog Block"],
+      dogBreed: "Border Collie mix",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+    {
+      id: "conn-veronika-martin",
+      userId: "martin",
+      userName: "Martin",
+      avatarUrl: "/images/generated/martin-profile.jpeg",
+      dogNames: ["Charlie"],
+      location: "Prague 7",
+      state: "none",
+      updatedAt: "2025-12-12T10:00:00Z",
+      meetsShared: 0,
+      firstMetDate: "2025-11-25",
+      lastMetDate: "2026-03-15",
+      mutualConnections: ["Magda", "Eva"],
+      sharedGroups: ["Holešovice Dog Block"],
+      theyMarkedFamiliar: true,
+      dogBreed: "French Bulldog",
+      neighbourhood: "Holešovice",
+      profileOpen: false,
+    },
+  ],
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     SUPPORTING-CAST INVERSE ROSTERS — partial close of P69 (Demo Narrative
+     & Personas, W3.2, 2026-05-14).
+
+     Mirrors of existing seeded entries pointing AT these personas, so the
+     mutual-connection graph resolves correctly when these personas are the
+     viewer. Connected MUST be mutual; Familiar can be asymmetric (per the
+     symmetry policy at top of file). For Open viewers (Eva, Jana, Pawel,
+     Petra) the outbound Familiar mark is a no-op (P68) — inbound marks
+     surface as `theyMarkedFamiliar: true` on the entry whose target is
+     Locked. Locked viewers (Marek, Hana) carry their own outbound Familiar
+     marks normally.
+
+     Out of scope for this partial pass: rosters for the bridged providers
+     (olgaM, janaK, tomasB, etc.) and the lighter supporting cast (Lucie,
+     Jakub, Zuzana, Ondřej, Adéla, Vítek, Anežka, Marie, Filip, Martin,
+     Nikola). Track on the punch list — P69 stays open.
+     ═══════════════════════════════════════════════════════════════════════ */
+  marek: [
+    {
+      id: "conn-marek-tereza",
+      userId: "tereza",
+      userName: "Tereza",
+      avatarUrl: "/images/generated/tereza-profile.jpeg",
+      dogNames: ["Franta", "Bella"],
+      location: "Prague 2",
+      state: "connected",
+      metAt: "meet-7",
+      updatedAt: "2026-03-14T08:00:00Z",
+      meetsShared: 8,
+      firstMetDate: "2025-09-12",
+      lastMetDate: "2026-03-14",
+      mutualConnections: ["Lucie", "Jana", "Shawn"],
+      sharedGroups: ["Riegrovy Sady Dog Walks", "Vinohrady Evening Walkers"],
+      dogBreed: "Beagle",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+    {
+      id: "conn-marek-shawn",
+      userId: "shawn",
+      userName: "Shawn",
+      avatarUrl: "/images/generated/shawn-profile.jpg",
+      dogNames: ["Spot", "Goldie"],
+      location: "Prague 2",
+      state: "connected",
+      metAt: "meet-7",
+      updatedAt: "2026-02-20T08:30:00Z",
+      meetsShared: 4,
+      firstMetDate: "2026-01-22",
+      lastMetDate: "2026-03-01",
+      mutualConnections: ["Tereza", "Jana", "Lucie"],
+      sharedGroups: ["Vinohrady Morning Crew", "Riegrovy Sady Dog Walks", "Vinohrady Evening Walkers"],
+      dogBreed: "Dalmatian Mix",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+    /* Marek marked Daniel Familiar after a community walk (CCFT D2,
+     * 2026-05-11). Daniel hasn't marked back. Marek is Locked — his
+     * outbound Familiar IS meaningful (Daniel sees content Marek wouldn't
+     * otherwise share). Daniel's roster mirrors with theyMarkedFamiliar:true
+     * + state:"none" — already seeded.
+     */
+    {
+      id: "conn-marek-daniel",
+      userId: "daniel",
+      userName: "Daniel",
+      avatarUrl: "/images/generated/daniel-profile.jpeg",
+      dogNames: ["Bára"],
+      location: "Prague 5",
+      state: "familiar",
+      updatedAt: "2026-04-25T08:00:00Z",
+      meetsShared: 1,
+      sharedGroups: [],
+      dogBreed: "Mixed breed rescue",
+      neighbourhood: "Smíchov",
+      profileOpen: false,
+    },
+  ],
+
+  eva: [
+    {
+      id: "conn-eva-klara",
+      userId: "klara",
+      userName: "Klára",
+      avatarUrl: "/images/generated/klara-profile.jpeg",
+      dogNames: ["Eda"],
+      location: "Prague 7",
+      state: "connected",
+      metAt: "meet-9",
+      updatedAt: "2026-03-16T10:00:00Z",
+      meetsShared: 5,
+      firstMetDate: "2025-10-15",
+      lastMetDate: "2026-03-16",
+      mutualConnections: ["Martin", "Hana"],
+      sharedGroups: ["Stromovka Off-Leash Club", "Prague Reactive Dog Support"],
+      dogBreed: "Border Collie",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+    {
+      id: "conn-eva-magda",
+      userId: "magda",
+      userName: "Magda",
+      avatarUrl: "/images/generated/lucie-profile.jpeg",
+      dogNames: ["Žofka"],
+      location: "Prague 7",
+      state: "connected",
+      updatedAt: "2025-11-15T10:00:00Z",
+      meetsShared: 3,
+      firstMetDate: "2025-10-22",
+      lastMetDate: "2026-04-12",
+      mutualConnections: ["Veronika", "Martin"],
+      sharedGroups: ["Holešovice Dog Block", "Stromovka Off-Leash Club"],
+      dogBreed: "Schnauzer mix",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+  ],
+
+  hana: [
+    {
+      id: "conn-hana-klara",
+      userId: "klara",
+      userName: "Klára",
+      avatarUrl: "/images/generated/klara-profile.jpeg",
+      dogNames: ["Eda"],
+      location: "Prague 7",
+      state: "connected",
+      metAt: "meet-care-1",
+      updatedAt: "2026-03-08T11:00:00Z",
+      meetsShared: 6,
+      firstMetDate: "2025-11-20",
+      lastMetDate: "2026-03-08",
+      mutualConnections: ["Daniel", "Anežka"],
+      sharedGroups: ["Klára's Calm Dog Sessions", "Prague Reactive Dog Support"],
+      dogBreed: "Border Collie",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+    {
+      id: "conn-hana-daniel",
+      userId: "daniel",
+      userName: "Daniel",
+      avatarUrl: "/images/generated/daniel-profile.jpeg",
+      dogNames: ["Bára"],
+      location: "Prague 5",
+      state: "connected",
+      metAt: "group-reactive-dogs",
+      updatedAt: "2026-02-28T19:00:00Z",
+      meetsShared: 3,
+      firstMetDate: "2026-01-14",
+      lastMetDate: "2026-02-28",
+      mutualConnections: ["Klára", "Anežka"],
+      sharedGroups: ["Prague Reactive Dog Support", "Klára's Calm Dog Sessions"],
+      dogBreed: "Mixed breed rescue",
+      neighbourhood: "Smíchov",
+      profileOpen: false,
+    },
+    /* Hana is Locked. Magda is Open. Hana marking Magda Familiar would
+     * be a no-op from Magda's side (open profile already public), but
+     * Hana's outbound mark still represents her own intent. Per the
+     * symmetry policy, Familiar can be asymmetric — keep state:"familiar"
+     * on Hana's side; Magda's side carries theyMarkedFamiliar:true (which
+     * IS the no-op-but-honest record).
+     */
+    {
+      id: "conn-hana-magda",
+      userId: "magda",
+      userName: "Magda",
+      avatarUrl: "/images/generated/lucie-profile.jpeg",
+      dogNames: ["Žofka"],
+      location: "Prague 7",
+      state: "familiar",
+      updatedAt: "2026-01-12T10:00:00Z",
+      meetsShared: 1,
+      firstMetDate: "2026-01-12",
+      lastMetDate: "2026-03-30",
+      mutualConnections: ["Klára"],
+      sharedGroups: ["Holešovice Dog Block"],
+      dogBreed: "Schnauzer mix",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+    },
+  ],
+
+  jana: [
+    {
+      id: "conn-jana-shawn",
+      userId: "shawn",
+      userName: "Shawn",
+      avatarUrl: "/images/generated/shawn-profile.jpg",
+      dogNames: ["Spot", "Goldie"],
+      location: "Prague 2",
+      state: "connected",
+      metAt: "meet-1",
+      updatedAt: "2026-03-16T10:00:00Z",
+      meetsShared: 5,
+      firstMetDate: "2025-11-10",
+      lastMetDate: "2026-03-16",
+      mutualConnections: ["Eva", "Tereza"],
+      sharedGroups: ["Vinohrady Morning Crew", "Riegrovy Sady Dog Walks"],
+      dogBreed: "Dalmatian Mix",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+    {
+      id: "conn-jana-tereza",
+      userId: "tereza",
+      userName: "Tereza",
+      avatarUrl: "/images/generated/tereza-profile.jpeg",
+      dogNames: ["Franta", "Bella"],
+      location: "Prague 2",
+      state: "connected",
+      metAt: "meet-1",
+      updatedAt: "2026-03-16T10:00:00Z",
+      meetsShared: 7,
+      firstMetDate: "2025-09-30",
+      lastMetDate: "2026-03-16",
+      mutualConnections: ["Marek", "Lucie", "Eva", "Shawn"],
+      sharedGroups: ["Vinohrady Morning Crew", "Riegrovy Sady Dog Walks"],
+      dogBreed: "Beagle",
+      neighbourhood: "Vinohrady",
+      profileOpen: true,
+    },
+  ],
+
+  pawel: [
+    {
+      id: "conn-pawel-lena",
+      userId: "lena",
+      userName: "Lena",
+      avatarUrl: "/images/generated/anezka-profile.jpeg",
+      dogNames: ["Asha"],
+      location: "Prague 7",
+      state: "connected",
+      metAt: "group-pawel-walks",
+      updatedAt: "2026-02-15T10:00:00Z",
+      meetsShared: 2,
+      firstMetDate: "2026-01-25",
+      lastMetDate: "2026-04-30",
+      mutualConnections: [],
+      sharedGroups: ["Pawel's Prague Pack"],
+      dogBreed: "Vizsla mix",
+      neighbourhood: "Letná",
+      profileOpen: false,
+    },
+  ],
+
+  petra: [
+    {
+      id: "conn-petra-tomas",
+      userId: "tomas",
+      userName: "Tomáš",
+      avatarUrl: "/images/generated/tomas-profile.jpeg",
+      dogNames: ["Hugo"],
+      location: "Prague 8",
+      state: "connected",
+      metAt: "group-karlin-neighbours",
+      updatedAt: "2026-03-05T10:00:00Z",
+      meetsShared: 6,
+      firstMetDate: "2026-02-20",
+      lastMetDate: "2026-03-05",
+      mutualConnections: ["Ondřej", "Adéla"],
+      sharedGroups: ["Karlín Walks", "Karlín Dog Neighbors"],
+      dogBreed: "Labrador Retriever",
+      neighbourhood: "Karlín",
+      profileOpen: false,
+    },
+  ],
+
+  /* ═══════════════════════════════════════════════════════════════════════
      NEW USER — empty by design. Every "Connect" / "Familiar" surface should
      render its empty state gracefully when this is the active viewer.
      ═══════════════════════════════════════════════════════════════════════ */

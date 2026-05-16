@@ -40,7 +40,7 @@ import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { viewerSharedMeetWith } from "@/lib/mockMeets";
 import { viewerSharedGroupWith, getSharedGroupNames } from "@/lib/mockGroups";
 import { useConnections } from "@/contexts/ConnectionsContext";
-import { useCurrentUser, useCurrentUserId, useIsGuest } from "@/hooks/useCurrentUser";
+import { useCurrentUser, useCurrentUserId, useIsGuest, useIsHydrated } from "@/hooks/useCurrentUser";
 import { useAuthGate } from "@/contexts/AuthGateContext";
 import { resolvePersonActions } from "@/lib/personActions";
 import { useConversations } from "@/contexts/ConversationsContext";
@@ -201,7 +201,17 @@ function UserProfileInner() {
   // A guest's fallback `currentUserId` is Tereza — but a guest visiting their
   // own profile (Tereza→Tereza) shouldn't get the self-edit affordance. Force
   // isSelf false for guests so the action row renders properly. D6 2026-05-11.
-  const isSelf = !isGuest && userId === currentUserId;
+  //
+  // Also gated on `isHydrated`: pre-hydration, `currentUserId` resolves to
+  // the Tereza fallback regardless of who's actually logged in. Without the
+  // gate, Tomáš visiting `/profile/tereza` evaluates `isSelf` as
+  // `tereza === tereza` on first render — fires the redirect below, bounces
+  // the viewer back to `/profile` (which is Tomáš's own profile after
+  // hydration). Gating `isSelf` itself (rather than just the redirect)
+  // also prevents the `if (isSelf) return null` branch from flashing blank
+  // pre-hydration. 2026-05-13 (PDP C11 bugfix).
+  const isHydrated = useIsHydrated();
+  const isSelf = isHydrated && !isGuest && userId === currentUserId;
 
   // Viewing your own profile via the URL (e.g. typing `/profile/daniel`
   // while logged in as Daniel) should bounce to `/profile`. Without this
@@ -1026,10 +1036,18 @@ function UserProfileInner() {
                           monthly: "Monthly",
                           ad_hoc: "By arrangement",
                         };
-                        const ctaHref = svc.seriesMeetId
-                          ? `/meets/${svc.seriesMeetId}`
+                        // Service ↔ Meet Linkage A1, 2026-05-13. One-to-many
+                        // cardinality now; A1 view-mode reads the first
+                        // linked meet only (matches the previous singular
+                        // `seriesMeetId` behavior). Workstream B7 will replace
+                        // this with a multi-link-aware view (schedule chip
+                        // listing all linked meet occurrences) and C5 will
+                        // route Book through `BookSessionSheet`.
+                        const firstLinkedMeetId = svc.linkedMeetIds[0];
+                        const ctaHref = firstLinkedMeetId
+                          ? `/meets/${firstLinkedMeetId}`
                           : `/profile/${userId}?tab=chat`;
-                        const ctaLabel = svc.seriesMeetId ? "See upcoming sessions" : "Ask about this";
+                        const ctaLabel = firstLinkedMeetId ? "See upcoming sessions" : "Ask about this";
                         return (
                           <div key={svc.id} className="profile-service-card">
                             <div className="profile-service-top">

@@ -772,6 +772,107 @@ const EMPTY_INQUIRY = {
   message: "",
 };
 
+// ── Conversation — Lena ↔ Pawel, ongoing weekday group walks (Asha) ──
+//
+// Marketplace Owner persona anchor (CCFT 2026-05-13). Compact arc:
+// inquiry → proposal → accepted → ongoing operational chat. Mirrors
+// `daniel-klara-conv` shape but shorter because Lena's whole
+// engagement with Doggo lives inside this thread — no need for the
+// full multi-turn negotiation seen on more elaborate seeds.
+const lenaPawelMessages: ChatMessage[] = [
+  {
+    id: "lp-1",
+    conversationId: "lena-pawel-conv",
+    sender: "owner",
+    type: "text",
+    text: "Hi Pawel — found you through the Prague Pack group. I have a Vizsla, Asha, who needs serious midday exercise five days a week. I work from home but I can't break up my afternoons. Do you have room?",
+    sentAt: daysAgoIso(37, "08:42"),
+    read: true,
+  },
+  {
+    id: "lp-2",
+    conversationId: "lena-pawel-conv",
+    sender: "provider",
+    type: "text",
+    text: "Hi Lena — yes, I have a midday route through Letná/Stromovka that picks up around 12:30. Vizslas thrive on the group runs as long as the mix is calm. Want to start with a meet & greet this week so I can see how Asha does with my current pack?",
+    sentAt: daysAgoIso(37, "09:18"),
+    read: true,
+  },
+  {
+    id: "lp-3",
+    conversationId: "lena-pawel-conv",
+    sender: "owner",
+    type: "text",
+    text: "Yes please. Friday afternoon works for me — I'll be home all day. She's a rescue from a hunting kennel so she can be a bit much at first, but she settles fast.",
+    sentAt: daysAgoIso(37, "09:24"),
+    read: true,
+  },
+  {
+    id: "lp-4",
+    conversationId: "lena-pawel-conv",
+    sender: "provider",
+    type: "text",
+    text: "Perfect. Met Asha on Friday — she ran with the calm group and did great. Sending a proposal for the regular Mon–Fri slot.",
+    sentAt: daysAgoIso(36, "08:50"),
+    read: true,
+  },
+  {
+    id: "lp-5",
+    conversationId: "lena-pawel-conv",
+    sender: "provider",
+    type: "booking_proposal",
+    proposal: {
+      bookingType: "ongoing",
+      serviceType: "walks_checkins",
+      subService: "Group walk",
+      pets: ["Asha"],
+      startDate: daysAgoIso(35, "00:00").slice(0, 10),
+      endDate: null,
+      recurringSchedule: {
+        days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+        time: "12:30",
+        timeLabel: "12:30pm–1:30pm",
+      },
+      price: {
+        lineItems: [{ label: "Group walk", amount: 250, unit: "per walk" }],
+        total: 250,
+        currency: "Kč",
+        billingCycle: "per_session",
+      },
+      status: "accepted",
+    },
+    sentAt: daysAgoIso(36, "08:55"),
+    read: true,
+  },
+  {
+    id: "lp-6",
+    conversationId: "lena-pawel-conv",
+    sender: "owner",
+    type: "text",
+    text: "Signed. Thank you — this is going to make my afternoons so much better.",
+    sentAt: daysAgoIso(36, "09:00"),
+    read: true,
+  },
+  {
+    id: "lp-7",
+    conversationId: "lena-pawel-conv",
+    sender: "provider",
+    type: "text",
+    text: "Stromovka loop today — Asha did great with the puppies. Photo from the park 📷",
+    sentAt: daysAgoIso(21, "13:42"),
+    read: true,
+  },
+  {
+    id: "lp-8",
+    conversationId: "lena-pawel-conv",
+    sender: "provider",
+    type: "text",
+    text: "Tomorrow's pickup might be 12:45 instead of 12:30 — bringing in a new dog and want to give the intro a few extra minutes. Let me know if that's a problem.",
+    sentAt: daysAgoIso(0, "20:18"),
+    read: false,
+  },
+];
+
 export const mockConversations: Conversation[] = [
   // ── Jana (merged: social + booking) ──
   {
@@ -1076,6 +1177,32 @@ export const mockConversations: Conversation[] = [
     inquiry: EMPTY_INQUIRY,
     messages: terezaLucieMessages,
     lastMessageId: "tl-2",
+    unreadCount: 1,
+  },
+  // ── Lena ↔ Pawel — Marketplace Owner anchor conversation ───────────
+  {
+    id: "lena-pawel-conv",
+    conversationType: "booking",
+    providerId: "pawel",
+    providerName: "Pawel K.",
+    providerAvatarUrl: "/images/generated/marek-profile.jpeg",
+    ownerId: "lena",
+    ownerName: "Lena M.",
+    ownerAvatarUrl: "/images/generated/anezka-profile.jpeg",
+    status: "active",
+    inquiry: {
+      bookingType: "ongoing",
+      serviceType: "walks_checkins",
+      subService: "Group walk",
+      pets: ["Asha"],
+      startDate: daysAgoIso(35, "00:00").slice(0, 10),
+      endDate: null,
+      recurringSchedule: { days: ["Mon", "Tue", "Wed", "Thu", "Fri"], time: "12:30", timeLabel: "12:30pm–1:30pm" },
+      dogName: "Asha",
+      message: lenaPawelMessages[0].text!,
+    },
+    messages: lenaPawelMessages,
+    lastMessageId: "lp-8",
     unreadCount: 1,
   },
 ];

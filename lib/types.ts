@@ -819,6 +819,34 @@ export interface Meet {
     price?: string;
     spotsLeft?: number;
   };
+
+  /**
+   * Meet ↔ Service linkage (Service ↔ Meet Linkage phase, Workstream A1/A3,
+   * 2026-05-13). The inverse side of `CarerMeetServiceConfig.linkedMeetIds[]`
+   * — each entry references a carer's Meet-type service that's offered on
+   * this meet, with the per-link `required` flag.
+   *
+   * - `required: true` → booking the service IS the RSVP. Free RSVP CTA
+   *   collapses on the meet card; sole CTA is "Book session". Used for
+   *   paid-only-roster meets (e.g. Klára's Group training).
+   * - `required: false` → optional service link. Meet stays free-to-join;
+   *   service surfaces as a supplementary callout ("Have your dog walked
+   *   specifically: 300 Kč →"). Mixed roster (free attendees + paid
+   *   attendees in the same occurrence).
+   *
+   * Sparse — undefined / empty for unlinked meets. Read via
+   * `getServicesLinkedToMeet(meetId)`.
+   *
+   * Why `required` lives here and not on the service: required-ness is a
+   * meet-level RSVP-gate property — it determines whether the free CTA
+   * collapses for this meet, which is a meet concern. The same service
+   * could in principle be required on one of its linked meets and
+   * optional on another (e.g. Klára's "Group walk" service required on
+   * her premium Saturday cohort, optional on her open Tuesday walk).
+   * Storing required on the link rather than the service preserves that
+   * flexibility.
+   */
+  linkedServices?: { serviceId: string; required: boolean }[];
 }
 
 // ── Connections ───────────────────────────────────────────────────────────────
@@ -1058,6 +1086,14 @@ export interface CarerAvailabilitySlot {
  *
  * The Services tab on a profile renders all three kinds in a single catalogue;
  * tap routing differs by `kind`.
+ *
+ * **Service ↔ Meet linkage.** Only Meet-type services link to meets (via
+ * `linkedMeetIds: string[]`). Care and Appointment services have no Meet
+ * linkage — Care is drop-off without a roster, Appointment is solo + scheduled
+ * without a roster. The link is one-to-many: one Meet service can run on
+ * multiple meets (same product, different scheduled times). The inverse —
+ * which services a given meet advertises, plus the per-link `required` flag —
+ * lives on `Meet.linkedServices[]`. See Service ↔ Meet Linkage phase + OQ §13.
  */
 export type CarerServiceConfig =
   | CarerCareServiceConfig
@@ -1175,9 +1211,26 @@ export interface CarerMeetServiceConfig {
   cadence: MeetServiceCadence;
   durationMinutes: number;
   notes?: string;
-  /** Optional: when present, ties the catalogue entry to a specific recurring
-   *  meet's series so taps can route to "see my upcoming sessions." */
-  seriesMeetId?: string;
+  /**
+   * Meets this service is offered on. One-to-many — the same service can run
+   * on multiple meets (e.g. a "Group walk" service offered on the carer's
+   * Tuesday walk AND Saturday walk, same product at two scheduled times,
+   * without duplicating the service entry).
+   *
+   * The link's `required` flag (booking-is-the-RSVP vs optional/mixed-roster)
+   * lives on the **Meet** side at `Meet.linkedServices[].required` — that's
+   * a meet-level RSVP-gate property (determines whether the free CTA
+   * collapses). This array is the carer-authoritative declaration of which
+   * meets advertise this service; the Meet side mirrors with link
+   * properties. Use `getServicesLinkedToMeet(meetId)` for the inverse.
+   *
+   * Empty array = service exists but has no scheduled occurrences yet.
+   * A valid state (carer is selling the offering ad-hoc / by arrangement).
+   *
+   * Service ↔ Meet Linkage, Workstream A1, 2026-05-13. Replaces the prior
+   * singular `seriesMeetId?: string`.
+   */
+  linkedMeetIds: string[];
 }
 
 /**

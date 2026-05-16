@@ -1,10 +1,12 @@
 ---
-status: active
-last-reviewed: 2026-05-11
+status: archived
+last-reviewed: 2026-05-14
 review-trigger: When any task is completed or blocked
 ---
 
 # Demo Presentation
+
+> **Archived 2026-05-14.** Retired during the opening of **Demo Narrative & Personas** (`docs/phases/demo-narrative-and-personas.md`). The original scope here — landing redesign (A/B/C — shipped), guest viewer state + AuthGate (D — shipped), real-product landing (E — pending Claude Design output), persistent demo affordance (F — partially shipped) — was too narrow for what the demo now needs: a guided multi-persona walkthrough threaded through an anchor event, plus a persona roster expansion, plus the mock-world data those personas require. The new phase replaces this one. The shipped guest-viewer / AuthGate / `?guest=1` infrastructure (D1–D7, F1) remains in production code as scaffolding for any future logged-out flows; the Tereza-only guided tour (workstream C) is superseded by the multi-persona walkthrough being designed in the new phase. Workstream E (real-product landing) is not absorbed — landing-page polish is explicitly out of scope for the new phase and will be revisited in a follow-on build phase if relevant.
 
 **Goal:** Ship a real product landing page (with a small "private prototype · try the demo →" affordance), backed by enough working logged-out flows that landing-page CTAs aren't theatre. The demo (`/demo` + Tereza's tour) becomes the side door, reachable from anywhere.
 

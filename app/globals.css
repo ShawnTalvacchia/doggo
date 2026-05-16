@@ -6393,7 +6393,17 @@ body.guest-route {
     display: none;
   }
 
-  /* Detail action: match ButtonIcon nav style (icon-only, no border/fill) */
+  /* Detail-action affordance: icon-only on mobile with a subtle 1px outline
+     + rounded shape so it reads as "action" rather than navigation. This
+     slot is *solo* when it renders — `.app-nav-mode--detail` hides Bell +
+     Inbox in detail mode — so the chrome gives the lone action button
+     definition. We deliberately do NOT apply the same treatment to the
+     AppNav top-row Create button (`/home`, `/schedule`, etc.) — there it
+     sits alongside chromeless Bell + Inbox, and adding chrome to only one
+     of three side-by-side icons creates row-rhythm dissonance. The
+     "action vs nav" distinction is carried by icon shape + position in
+     that context, not by outline. CCFT E4 walkthrough iteration,
+     2026-05-11. */
   .app-nav-detail-action .btn {
     font-size: 0;
     line-height: 0;
@@ -6402,9 +6412,9 @@ body.guest-route {
     height: 36px;
     padding: 0;
     min-width: auto;
-    border: none;
+    border: 1px solid var(--border-strong);
     background: none;
-    border-radius: var(--radius-xxs);
+    border-radius: var(--radius-md);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -6415,8 +6425,8 @@ body.guest-route {
     background: var(--on-hover-darken);
   }
   .app-nav-detail-action .btn svg {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
   }
   .app-nav-detail-action .btn .btn-icon-left {
     margin: 0;
@@ -13976,6 +13986,11 @@ body:has(.bottom-nav) .inbox-page {
 .group-feed-list {
   display: flex;
   flex-direction: column;
+  /* Top border seals the boundary between the join-flow section and the
+     first post card. Without it, the divider rhythm starts one card late
+     — the first card reads as visually attached to the header above.
+     CCFT E2.1 walkthrough, 2026-05-11. */
+  border-top: 1px solid var(--border-regular);
 }
 
 .group-feed-list .feed-card:last-child {

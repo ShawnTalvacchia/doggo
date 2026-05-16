@@ -632,12 +632,19 @@ export const mockMeets: Meet[] = [
       price: "350 Kč",
       spotsLeft: 3,
     },
+    // Service ↔ Meet Linkage A2/A3, 2026-05-13. RSVP requires booking
+    // Klára's Group training service — paid-only roster.
+    linkedServices: [{ serviceId: "klara-group-training", required: true }],
     creatorId: "klara",
     creatorName: "Klára",
     creatorAvatarUrl: "/images/generated/klara-profile.jpeg",
+    // Demo Narrative & Personas, W3.1 (2026-05-14): Daniel removed from
+    // the pre-seeded roster so Beat 1 of the demo can walk him through
+    // the Book-session-as-RSVP flow cleanly. Magda added so Beat 1's
+    // People-tab Familiar-marking surface has the Hub Member to mark.
     attendees: [
       { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
-      { userId: "daniel", userName: "Daniel", avatarUrl: "/images/generated/daniel-profile.jpeg", dogNames: ["Bára"] },
+      { userId: "magda", userName: "Magda", avatarUrl: "/images/generated/lucie-profile.jpeg", dogNames: ["Žofka"], profileOpen: true },
       { userId: "tomas", userName: "Tomáš", avatarUrl: "/images/generated/tomas-profile.jpeg", dogNames: ["Hugo"] },
     ],
     createdAt: "2026-04-01T10:00:00Z",
@@ -765,6 +772,9 @@ export const mockMeets: Meet[] = [
       price: "850 Kč",
       spotsLeft: 2,
     },
+    // Service ↔ Meet Linkage A2/A3, 2026-05-13. RSVP requires booking
+    // Klára's Reactive dog session service — paid-only roster.
+    linkedServices: [{ serviceId: "klara-reactive", required: true }],
     creatorId: "klara",
     creatorName: "Klára",
     creatorAvatarUrl: "/images/generated/klara-profile.jpeg",
@@ -778,6 +788,57 @@ export const mockMeets: Meet[] = [
       { userId: "daniel", userName: "Daniel", avatarUrl: "/images/generated/daniel-profile.jpeg", dogNames: ["Bára"] },
     ],
     createdAt: "2026-04-15T10:00:00Z",
+  },
+  {
+    // Recurring puppy-basics cohort (Service ↔ Meet Linkage A4, 2026-05-13).
+    // Linked to Klára's `klara-puppy-basics` Meet-type service — required
+    // service link (RSVP = booking). Weekly cohort, small group, 45-min
+    // foundations curriculum for puppies under 6 months. Created so all
+    // three of Klára's remaining Meet-type services have a real linked
+    // occurrence to exercise the linkage model end-to-end.
+    id: "meet-care-puppy-basics",
+    visibility: "public",
+    type: "training",
+    groupId: "group-klara-training",
+    title: "Puppy Basics — Foundations Cohort",
+    coverPhotoUrl: "/images/generated/puppy-socialization.jpeg",
+    description:
+      "Weekly 45-minute foundations class for puppies under 6 months. Handling, recall, gentle socialisation. Small group (max 5) — calm pacing, owner coaching woven in.",
+    location: "Stromovka, Prague 7 — quiet east meadow",
+    neighbourhood: "Holešovice",
+    lat: 50.1062,
+    lng: 14.4212,
+    date: daysFromNow(4),
+    time: "09:30",
+    durationMinutes: 45,
+    cadence: "weekly",
+    maxAttendees: 5,
+    dogSizeFilter: "any",
+    leashRule: "on_leash",
+    status: "upcoming",
+    energyLevel: "calm",
+    whatToBring: ["High-value treats", "Light leash", "Water"],
+    training: {
+      skillFocus: ["socialisation", "leash_manners"],
+      experienceLevel: "beginner",
+      ledBy: "professional",
+      trainerName: "Klára",
+    },
+    serviceCTA: {
+      label: "Book this session",
+      href: "/bookings",
+      price: "400 Kč",
+      spotsLeft: 3,
+    },
+    linkedServices: [{ serviceId: "klara-puppy-basics", required: true }],
+    creatorId: "klara",
+    creatorName: "Klára",
+    creatorAvatarUrl: "/images/generated/klara-profile.jpeg",
+    attendees: [
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
+      { userId: "jana", userName: "Jana", avatarUrl: "/images/generated/jana-profile.jpeg", dogNames: ["Rex"], profileOpen: true },
+    ],
+    createdAt: "2026-04-20T10:00:00Z",
   },
 
   // ── EDGE-STATE MEETS (full + cancelled) ────────────────────────────────────

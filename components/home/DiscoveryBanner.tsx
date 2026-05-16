@@ -50,13 +50,17 @@ export function DiscoveryBanner({
   return (
     <Link
       href={href}
-      className="flex items-center gap-md rounded-panel"
+      className="flex items-center gap-md"
       style={{
         background: "var(--brand-subtle)",
         borderLeft: "3px solid var(--brand-main)",
-        padding: "var(--space-md) var(--space-lg)",
+        // Squared off (no corner radius) so the banner reads as a feed
+        // divider inserted between cards rather than a floating card on
+        // its own — sits flush with the feed-card rhythm above and below.
+        // Padding bumped to give it visual height now that it sits flush
+        // (no margin-bottom buffer). CCFT F3.1 polish, 2026-05-13.
+        padding: "var(--space-lg) var(--space-lg)",
         textDecoration: "none",
-        marginBottom: "var(--space-md)",
       }}
     >
       <Icon size={24} weight="light" className="text-brand-main shrink-0" />

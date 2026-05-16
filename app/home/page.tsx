@@ -21,6 +21,7 @@ import { FeedMilestone } from "@/components/feed/FeedMilestone";
 import { FeedDogMoment } from "@/components/feed/FeedDogMoment";
 import { FeedCareReview } from "@/components/feed/FeedCareReview";
 import { FeedShareNudge } from "@/components/feed/FeedShareNudge";
+import { ShareMomentBar } from "@/components/feed/ShareMomentBar";
 import { TabBar } from "@/components/ui/TabBar";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { PageColumn } from "@/components/layout/PageColumn";
@@ -110,19 +111,37 @@ function HomePageInner() {
   const userGroups = getUserGroups(currentUserId);
   const allFeedItems = getFeedForUser(currentUserId);
 
-  // Discovery banner trigger — user is in at least one group but has < 2
-  // upcoming meet RSVPs. The "joined groups, not currently RSVP'd" gap is
-  // the classic moment to nudge toward Discover. Trigger logic is kept
-  // intentionally simple for v1; frequency caps, dismiss memory, and
-  // variant rotation are filed as a follow-up (see strategy/Product Vision.md
-  // → Schedule + Discover IA refresh). 2026-05-11.
-  const upcomingMeetCount = useMemo(() => {
+  // Discovery banner trigger — user is in at least one group but has
+  // fewer than 2 distinct meet series in the next 7 days. The "your
+  // week is open" framing matches the product intent better than the
+  // earlier "all upcoming" count, which was easily satisfied by any
+  // recurring weekly meet seeded multiple months out. CCFT F3.1
+  // walkthrough iteration (2026-05-13): every persona is heavily
+  // engaged when counting all upcoming RSVPs (Daniel 10 series,
+  // Tereza 11, Klára 16, Tomáš 11), so the banner could never fire
+  // against seeded data — even though Daniel/Tomáš genuinely have
+  // sparse near-term calendars. Tightening to a 7-day horizon
+  // surfaces "your week is empty" without losing the "fully booked"
+  // suppression for Tereza/Klára. Trigger sophistication (frequency
+  // caps, dismiss memory, variant rotation) still filed as a
+  // follow-up — see Product Vision.md → Schedule + Discover IA.
+  const nearTermMeetSeriesCount = useMemo(() => {
     if (newUserMode) return 0;
-    const todayIso = new Date().toISOString().slice(0, 10);
-    return getUserMeetInstances(currentUserId).filter((occ) => occ.date >= todayIso).length;
+    const today = new Date();
+    const todayIso = today.toISOString().slice(0, 10);
+    const horizon = new Date(today);
+    horizon.setDate(horizon.getDate() + 7);
+    const horizonIso = horizon.toISOString().slice(0, 10);
+    const ids = new Set<string>();
+    for (const occ of getUserMeetInstances(currentUserId)) {
+      if (occ.date >= todayIso && occ.date <= horizonIso) {
+        ids.add(occ.meet.id);
+      }
+    }
+    return ids.size;
   }, [currentUserId, newUserMode]);
   const showDiscoveryBanner =
-    !newUserMode && userGroups.length > 0 && upcomingMeetCount < 2;
+    !newUserMode && userGroups.length > 0 && nearTermMeetSeriesCount < 2;
 
   // Filter groups by selected category
   const filteredGroups = useMemo(() => {
@@ -224,6 +243,15 @@ function HomePageInner() {
           {/* Feed view */}
           {mainTab === "feed" && (
             <>
+              {/* Share-moment invitation strip — same component as the
+                  own-profile Posts tab top. Surfaces the tag-taxonomy
+                  affordances (Photo / Dog / Location / Group) alongside
+                  the input prompt. The header-action "Post" button is
+                  the compact sticky equivalent for scroll-down state;
+                  the bar is the in-feed invitation. Suppressed for
+                  newUserMode where DogsNearYou leads the feed and the
+                  user hasn't built community yet. 2026-05-13. */}
+              {!newUserMode && <ShareMomentBar />}
               {newUserMode ? (
                 <>
                   <DogsNearYou />
@@ -236,12 +264,17 @@ function HomePageInner() {
                   {feedItems.map((item, idx) => (
                     <div key={item.feedId}>
                       <FeedItemRenderer item={item} />
-                      {/* Discovery banner — slotted between feed posts at
-                          index 2 (after the third post) so it lands in
-                          mid-scroll attention rather than competing with
-                          the first post for the top of the feed. Only
-                          renders when the trigger fires. 2026-05-11. */}
-                      {showDiscoveryBanner && idx === 2 && (
+                      {/* Discovery banner — slotted at index 1 (after the
+                          second post = visual position 4 with the
+                          ShareMomentBar counted as row 1). Lands above
+                          the fold on a typical viewport rather than
+                          requiring scroll. Fallback for short feeds
+                          (e.g. a Marketplace Owner whose joined groups
+                          are quiet): render after the final item instead.
+                          Moved from idx=2 → idx=1 on CCFT F3.1 polish
+                          pass (2026-05-13) — fifth-row position read as
+                          too buried. */}
+                      {showDiscoveryBanner && idx === Math.min(1, feedItems.length - 1) && (
                         <DiscoveryBanner
                           icon={MagnifyingGlass}
                           title="Find a meet near you"

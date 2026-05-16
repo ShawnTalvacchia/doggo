@@ -1,7 +1,7 @@
 ---
-status: active
-last-reviewed: 2026-05-11
-review-trigger: When any task is completed or blocked
+status: archived
+last-reviewed: 2026-05-14
+review-trigger: archived
 ---
 
 # Profiles Deep Pass

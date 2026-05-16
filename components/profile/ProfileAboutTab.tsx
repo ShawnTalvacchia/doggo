@@ -24,7 +24,9 @@ import { ProfileNameDropdown } from "./ProfileNameDropdown";
 import { ProfileVisibilityChip } from "./ProfileVisibilityChip";
 import { ProfileVisibilitySetting } from "./ProfileVisibilitySetting";
 import { getCarerIdentity } from "@/lib/identityBadges";
-import { getConnectionsForViewer, CONNECTION_STATE_LABELS } from "@/lib/mockConnections";
+import { getConnectionsForViewer } from "@/lib/mockConnections";
+import { PersonRow } from "@/components/people/PersonRow";
+import { SectionHeader as PersonSectionHeader } from "@/components/people/PersonSections";
 import type { PetProfile, UserProfile, TagApproval, ProfileVisibility } from "@/lib/types";
 
 // ── Helpers (used by ProfileHero below) ──────────────────────────────────────
@@ -166,48 +168,19 @@ function ProfileHero({ user }: { user: UserProfile }) {
 // 2026-05-11.
 const CONNECTION_AVATAR_CAP = 5;
 
-function ConnectionRow({
-  conn,
-}: {
-  conn: ReturnType<typeof getConnectionsForViewer>[number];
-}) {
-  return (
-    <div className="flex items-center gap-md rounded-panel bg-surface-top p-sm">
-      <img
-        src={conn.avatarUrl}
-        alt={conn.userName}
-        className="rounded-full shrink-0"
-        style={{ width: 36, height: 36, objectFit: "cover" }}
-      />
-      <div className="flex flex-col flex-1 min-w-0">
-        <span className="text-sm font-medium text-fg-primary">
-          {conn.userName}
-        </span>
-        <span className="text-xs text-fg-tertiary">
-          {conn.dogNames.join(", ")} · {conn.location}
-        </span>
-      </div>
-      <span
-        className="text-xs font-medium rounded-pill px-sm py-xs"
-        style={{
-          background:
-            conn.state === "connected"
-              ? "var(--brand-subtle)"
-              : "var(--surface-gray)",
-          color:
-            conn.state === "connected"
-              ? "var(--brand-strong)"
-              : "var(--text-secondary)",
-        }}
-      >
-        {CONNECTION_STATE_LABELS[conn.state]}
-      </span>
-    </div>
-  );
-}
-
-// Modal-only — used inside the ModalSheet to render the uncapped grouped
-// list. The in-tab summary uses `ConnectionGroupCard` (below) instead.
+// Modal-only — renders the uncapped grouped list inside the ModalSheet.
+// The in-tab summary uses `ConnectionGroupCard` (below) instead.
+//
+// Uses the shared `SectionHeader` + `PersonRow` primitives so the modal
+// matches the meet member-list pattern across the app — bigger entries
+// with owner+dog avatars + identity badge support, semibold uppercase
+// section dividers. The per-row state pill that the old `ConnectionRow`
+// carried is dropped: the section header already says what state these
+// rows are. Actions left at default `"auto"` (resolvePersonActions
+// matrix) — Connected rows surface a Message button; Familiar rows
+// surface a Connect button (escalation up the ladder); Pending rows
+// render the inline status pill. Same self-wiring pattern the meet
+// member list uses. 2026-05-13.
 function ConnectionGroup({
   label,
   items,
@@ -217,14 +190,19 @@ function ConnectionGroup({
 }) {
   return (
     <div className="flex flex-col gap-xs">
-      <span
-        className="text-xs font-medium text-fg-tertiary uppercase"
-        style={{ letterSpacing: "0.05em" }}
-      >
-        {label} ({items.length})
-      </span>
+      <PersonSectionHeader label={label} />
       {items.map((conn) => (
-        <ConnectionRow key={conn.id} conn={conn} />
+        <PersonRow
+          key={conn.id}
+          userId={conn.userId}
+          name={conn.userName}
+          avatarUrl={conn.avatarUrl}
+          variant="default"
+          pets={conn.dogNames.map((name) => ({ name }))}
+          connectionState={conn.state}
+          theyMarkedFamiliar={conn.theyMarkedFamiliar}
+          href={`/profile/${conn.userId}`}
+        />
       ))}
     </div>
   );
@@ -302,13 +280,21 @@ function ConnectionsList({ viewerId }: { viewerId: string }) {
   const total = connected.length + familiar.length + pending.length;
 
   if (total === 0) {
+    // Header + description bundled in a single wrapper div so they stack
+    // tight (natural text rhythm, no `gap-md` from the section flex
+    // between them). Button sits as its own section child so the
+    // section's `gap-md` provides the breathing room from description
+    // to CTA. Mirrors the Profile visibility / Tagging preferences
+    // bundle pattern used elsewhere on this tab. 2026-05-13.
     return (
       <>
-        <SectionHeader title="Connections" />
-        <div className="flex flex-col items-start gap-sm">
+        <div>
+          <SectionHeader title="Connections" />
           <p className="text-sm text-fg-secondary m-0">
             No connections yet. Attend a meet to start building your community.
           </p>
+        </div>
+        <div className="flex items-start">
           <ButtonAction variant="outline" size="sm" href="/discover/meets">
             Browse Meets
           </ButtonAction>

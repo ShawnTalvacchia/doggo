@@ -398,12 +398,18 @@ const klaraTrainingHana: Booking = {
     timeLabel: "11:00am–12:00pm",
   },
   ownerNotes: "Runa is nervous in new environments. Please give her a few minutes to settle before starting exercises.",
+  // Demo Narrative & Personas, W3.1 (2026-05-14): kh-6 added at
+  // daysFromNow(0) so Beat 2 of the demo (Klára runs an active session)
+  // has a startable today's-session. kh-5 stays as a future session for
+  // continuity. Keep kh-6 ahead of kh-5 in the array so the
+  // upcoming-list rendering surfaces it first by date.
   sessions: [
     { id: "kh-1", date: "2026-03-20", status: "completed" },
     { id: "kh-2", date: "2026-03-27", status: "completed" },
     { id: "kh-3", date: "2026-04-03", status: "completed" },
     { id: "kh-4", date: "2026-04-10", status: "completed" },
-    { id: "kh-5", date: daysFromNow(5), status: "upcoming" },
+    { id: "kh-6", date: daysFromNow(0), status: "upcoming" },
+    { id: "kh-5", date: daysFromNow(7), status: "upcoming" },
   ],
   price: {
     lineItems: [{ label: "1-on-1 reactive dog session", amount: 600, unit: "per session" }],
@@ -529,6 +535,59 @@ const olgaWalksTereza: Booking = {
   paymentStatus: "paid",
 };
 
+/**
+ * Pawel ↔ Lena — recurring weekday mid-day walks for Asha (Vizsla).
+ *
+ * Anchor booking for the Marketplace Owner persona (CCFT 2026-05-13).
+ * Lena hired Pawel through his open care group `group-pawel-walks` and
+ * never engaged with the meet/community surfaces — this booking is the
+ * shape of her entire relationship with Doggo.
+ */
+const pawelWalksLena: Booking = {
+  id: "booking-pawel-lena",
+  conversationId: "lena-pawel-conv",
+  ownerId: "lena",
+  ownerName: "Lena Marešová",
+  ownerAvatarUrl: "/images/generated/anezka-profile.jpeg",
+  carerId: "pawel",
+  carerName: "Pawel Kowalski",
+  carerAvatarUrl: "/images/generated/marek-profile.jpeg",
+  type: "ongoing",
+  serviceType: "walks_checkins",
+  subService: "Group walk",
+  pets: ["Asha"],
+  startDate: daysAgo(35),
+  endDate: null,
+  recurringSchedule: {
+    days: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+    time: "12:30",
+    timeLabel: "12:30pm–1:30pm",
+  },
+  ownerNotes: "Asha is sweet but high-energy — she needs movement, not chaos. Group walks work great as long as the other dogs are calm. Treats in the bowl by the door; harness on the hook.",
+  carerNotes: "Daily group walk, ~60 min. Asha runs with the calm group — fits well with the Letná pickup route.",
+  sessions: [
+    { id: "pl-1", date: daysAgo(35), status: "completed" },
+    { id: "pl-2", date: daysAgo(34), status: "completed" },
+    { id: "pl-3", date: daysAgo(33), status: "completed" },
+    { id: "pl-4", date: daysAgo(28), status: "completed" },
+    { id: "pl-5", date: daysAgo(21), status: "completed", note: "Stromovka loop today — Asha did great with the puppies." },
+    { id: "pl-6", date: daysAgo(14), status: "completed" },
+    { id: "pl-7", date: daysAgo(7), status: "completed" },
+    { id: "pl-8", date: daysAgo(2), status: "completed" },
+    { id: "pl-9", date: daysFromNow(1), status: "upcoming" },
+    { id: "pl-10", date: daysFromNow(2), status: "upcoming" },
+  ],
+  price: {
+    lineItems: [{ label: "Group walk", amount: 250, unit: "per walk" }],
+    total: 1250, // 5 walks/week × 250 Kč
+    currency: "Kč",
+    billingCycle: "weekly",
+  },
+  status: "active",
+  signedAt: daysAgoIso(36, "09:00"),
+  paymentStatus: "paid",
+};
+
 // ── Exports ─────────────────────────────────────────────────────────────────────
 
 export const mockBookings: Booking[] = [
@@ -544,6 +603,7 @@ export const mockBookings: Booking[] = [
   terezaWalksMarek,
   klaraTrainingHana,
   olgaWalksTereza,
+  pawelWalksLena,
 ];
 
 export function getBooking(id: string): Booking | undefined {

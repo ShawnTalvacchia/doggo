@@ -23,8 +23,10 @@ import {
   MapPinLine,
   Images,
   CalendarBlank,
+  CalendarPlus,
   CaretRight,
 } from "@phosphor-icons/react";
+import { CameraPlusFill } from "@/components/icons/CameraPlusFill";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CardMeet } from "@/components/meets/CardMeet";
@@ -187,7 +189,13 @@ function GroupDetailInner() {
   // false is what makes the FeedTab render the "Join community" action row
   // (with a guest-mode AuthGate trigger) and the MembersTab fall to the
   // public-info view. Demo Presentation D3, 2026-05-05.
-  const isMember = !isGuest && group.members.some((m) => m.userId === currentUserId);
+  // Optimistic open-group join — flips local state so "Join community"
+  // doesn't feel like a dead-end in the prototype. Approval-only groups
+  // route through `joinRequested` + the request-to-join modal; open
+  // groups have no approval step, so a single state flip is enough.
+  // Pre-existing gap — wired during CCFT E4.4 verification (2026-05-11).
+  const [joinedOpenOptimistic, setJoinedOpenOptimistic] = useState(false);
+  const isMember = !isGuest && (group.members.some((m) => m.userId === currentUserId) || joinedOpenOptimistic);
   const isAdmin = !isGuest && group.members.some((m) => m.userId === currentUserId && m.role === "admin");
   // First-admin lookup for the join-request modal copy ("[Admin] will
   // review your request"). Falls back to "the admin" so the modal still
@@ -214,11 +222,18 @@ function GroupDetailInner() {
   // outline + sm + leftIcon + text, no `cta` (rectangular). Reserves
   // brand-filled pills for row CTAs (Message, Connect, Join) so the
   // hierarchy reads clearly. See `design-system.md` → "Header actions."
+  // Per-tab leftIcon (CCFT E4 follow-up, 2026-05-11). The earlier
+  // implementation used `<Plus>` everywhere — Feed and Meets read
+  // identically on mobile (where the CSS strips chrome + text and renders
+  // icon-only), even though the actions diverge. Domain-specific icons:
+  // camera+ for Feed (matches /home Feed precedent), calendar+ for Meets,
+  // user+ for Members. Width forced to 14px to match the existing Plus
+  // sizing; mobile CSS scales the svg to 28px regardless.
   const headerAction = (isMember && !isGuest) ? (() => {
     switch (activeTab) {
       case "meets":
         return (
-          <ButtonAction variant="outline" size="sm" leftIcon={<Plus size={14} weight="bold" />} onClick={() => openMeetComposer({ groupId: group.id })}>
+          <ButtonAction variant="outline" size="sm" leftIcon={<CalendarPlus size={14} weight="bold" />} onClick={() => openMeetComposer({ groupId: group.id })}>
             Create
           </ButtonAction>
         );
@@ -230,7 +245,7 @@ function GroupDetailInner() {
         );
       default:
         return group.photoPolicy !== "none" ? (
-          <ButtonAction variant="outline" size="sm" leftIcon={<Plus size={14} weight="bold" />} onClick={() => openComposer(group.id)}>
+          <ButtonAction variant="outline" size="sm" leftIcon={<CameraPlusFill size={14} />} onClick={() => openComposer({ groupId: group.id })}>
             Post
           </ButtonAction>
         ) : undefined;
@@ -289,12 +304,22 @@ function GroupDetailInner() {
             joinRequested={joinRequested}
             adminName={adminName}
             onJoinRequest={() => {
-              // Approval groups → modal first (capture optional context note
-              // for the admin). Open + private fall through to the original
-              // one-tap path. Guests always route through the auth gate.
-              // Join-flow redesign 2026-05-11.
+              // Visibility-aware dispatch:
+              //   guest        → AuthGate (cross-visibility)
+              //   approval     → request-to-join modal (captures optional
+              //                  context note for the admin)
+              //   open         → flip `joinedOpenOptimistic` → isMember=true
+              //                  (one-tap, no approval step)
+              //   private      → keep `joinRequested` flip (existing path —
+              //                  private groups stay reachable only via
+              //                  invite in the real product, but the demo's
+              //                  visibility flip retains the optimistic
+              //                  behavior for testing).
+              // Join-flow redesign 2026-05-11; open-group flip added CCFT
+              // E4.4 walkthrough iteration.
               if (isGuest) return requireAuth("join this community");
               if (group.visibility === "approval") return setJoinModalOpen(true);
+              if (group.visibility === "open") return setJoinedOpenOptimistic(true);
               setJoinRequested(true);
             }}
             leaveMenuOpen={leaveMenuOpen}
@@ -607,7 +632,7 @@ function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, join
               variant="neutral"
               size="md"
               cta
-              onClick={isGuest ? () => onGuestAction("join this community") : undefined}
+              onClick={isGuest ? () => onGuestAction("join this community") : onJoinRequest}
             >
               Join community
             </ButtonAction>

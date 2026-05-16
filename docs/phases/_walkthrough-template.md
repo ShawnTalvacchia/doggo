@@ -10,13 +10,15 @@ Verification checklist for the Phase Name phase. **This document is primarily fo
 
 **Scope rule.** Walkthroughs verify the **phase thesis** — the structural / behavioral change the phase delivered. They are NOT for edge cases, regression checks, cross-persona permutations, or every filter/state combo. Rule of thumb: if you find yourself adding a 5th sub-scenario, or "verify the same thing from the other side," that item goes in `verification-checklist.md` instead. Aim for 8–15 items per workstream — if a workstream is sprawling, split it or trim it.
 
+**Structure rule.** Top of each workstream is verification items only — persona + URL + what to look for. Pre-loaded phase scope can have a short framing preamble if it helps the tester know what to expect ("here's what was seeded; here's what should be visible"). Emergent decisions from walkthrough discussion DO NOT belong inside workstream items or as workstream preambles — they go in the **"Decisions surfaced during walkthrough"** log at the bottom. If a discussion produces a code/design change mid-walk, update the affected verification item to describe the new behavior, and log the *why* in the bottom section.
+
 **How to use:**
 
 1. Run the dev server (`npm run dev`, port 3000).
 2. Switch personas via the profile-page name dropdown, the `/demo` route, or the `?as=<personaId>` URL param.
 3. Tick items as you go.
 
-**Status legend:** `[ ]` not yet walked · `[x]` walked, no issues.
+**Status legend:** `[ ]` not yet walked · `[x]` walked, no issues. Checkboxes apply to verification items only — the Decisions section at the bottom is a plain log.
 
 **Available personas:** Tereza (Vinohrady connector), Daniel (anxious new owner, locked profile), Klára (trainer with Care group), Tomáš (Karlín professional), New User.
 
@@ -41,12 +43,12 @@ One-line context if helpful.
 
 ## Decisions surfaced during walkthrough
 
-Emergent decisions, design changes, or rationale that surfaced during verification and need to land in their proper home docs. **Append as you walk** — don't wait until the end. **At phase close, sweep this list** — update each named doc, mark each entry `[x]`. The walkthrough should not be archived until every entry here is processed (or explicitly marked "no doc update needed").
+A running **log** (not a checklist) of decisions, design changes, or rationale that surfaced during walkthrough discussion. **Append as you walk** — don't wait until the end. Each entry carries a `→ target-doc.md` annotation indicating where the decision needs to land. The phase-close sweep (per `CONTRIBUTING.md` → "Closing a Phase") processes each entry by propagating it to the named home doc; the entries themselves stay in the archived walkthrough as the historical record of what was decided.
 
 Format:
 ```
-- [ ] **{Decision in one line.}** {Optional one-line context.} → `features/foo.md`
-- [ ] **{Implementation-only change}** {What/why.} → no feature-doc update needed
+- **{Decision in one line.}** {Optional one-line context.} → `features/foo.md`
+- **{Implementation-only change}** {What/why.} → no feature-doc update needed
 ```
 
 Examples of what belongs here:

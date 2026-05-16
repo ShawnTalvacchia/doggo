@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-11
+last-reviewed: 2026-05-14
 tags: [questions, risks, assumptions]
 review-trigger: "before starting a new phase, after any strategic discussion"
 ---
@@ -191,7 +191,7 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 **Open:**
 - **Terminology consistency sweep.** Some concepts have two names that drift in usage:
-  - **Private vs Locked** — surfaced 2026-04-30. Data model uses `profileVisibility: "open" | "locked"`. UX copy and walkthrough now standardise on **Private** / **Public** (gentler, matches Instagram/Threads conventions, doesn't carry punitive feel of "locked"). Code field rename from `"open" | "locked"` → `"public" | "private"` is deferred (mechanical rename, ~30 callsites, can land any time).
+  - **Private vs Locked** — surfaced 2026-04-30. Data model uses `profileVisibility: "open" | "locked"`. UX copy and walkthrough standardise on **Private** / **Public** (gentler, matches Instagram/Threads conventions). **Profile surfaces swept Profiles Deep Pass 2026-05-11** — visibility chip, picker setting, hero chip, Familiar-inclusive description all updated. Surface-side drift closed. **Open:** code field rename from `"open" | "locked"` → `"public" | "private"` still deferred (mechanical rename, ~30 callsites, low priority).
   - **Groups vs Communities** — `Group` is the data type and `groupType` is the schema field; "Communities" is the bottom-nav tab label and the route prefix (`/communities/[id]`). The two are used interchangeably in conversation. Open: pick one canonical user-facing word and apply consistently. Current preference (informal): keep "Communities" as the navigation/route name (it's the destination — a community of people), keep "Group" as the data noun in code (it's a record). External UI copy should pick one and stop alternating ("post in this community" vs "post in this group").
   - Pattern: make a sweep at any phase close to catch new drift. Not blocking demo; quality-of-prose issue.
 
@@ -246,7 +246,9 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 **Assumption:** Services and Meets are **independent entities** that can be **linked**. Neither owns the other; the link itself has properties (required vs optional, one service → N meets). This model resolves the long-running ambiguity around how paid-roster offerings (training sessions, paid group walks, workshops) get authored, managed, and discovered. (Surfaced 2026-05-13 during Profiles Deep Pass walkthrough on C7a — Klára's 4 seeded Meet-type "services" exist nowhere in the edit UI; the footnote claimed they were "managed separately" but no management surface exists.)
 
-**Refs:** `Groups & Care Model.md` → Services as Catalog; `features/explore-and-care.md`; `features/meets.md`; `Cold-Start Playbook.md` (trainers are the anchor cold-start carer type and most of what they sell is Meet-type).
+**Phase:** Implementation is **Service ↔ Meet Linkage phase** (`docs/phases/service-meet-linkage.md`, draft 2026-05-13). The model below is pre-decided; the build-time open questions at the bottom of this section travel with the phase.
+
+**Refs:** `phases/service-meet-linkage.md`; `Groups & Care Model.md` → Service ↔ Meet linkage; `features/explore-and-care.md`; `features/meets.md`; `Cold-Start Playbook.md` (trainers are the anchor cold-start carer type and most of what they sell is Meet-type).
 
 **Resolved (Profiles Deep Pass discussion, 2026-05-13):**
 

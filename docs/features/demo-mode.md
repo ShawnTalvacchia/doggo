@@ -1,14 +1,14 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-08
-tags: [demo, persona-switching, testing, infrastructure]
-review-trigger: "when adding a new persona, when changing persona-switching surfaces, when wiring per-persona mock data"
+last-reviewed: 2026-05-14
+tags: [demo, persona-switching, testing, infrastructure, narrative]
+review-trigger: "when adding a new persona, when changing persona-switching surfaces, when wiring per-persona mock data, when the Demo Narrative changes"
 ---
 
 # Demo Mode — Persona Switching
 
-Runtime persona switcher that lets reviewers and testers view the prototype as any of five personas without rebuilding or editing source. **Demo-only infrastructure** — none of these surfaces would ship in the real product.
+Runtime persona switcher that lets reviewers and testers view the prototype as any of six personas without rebuilding or editing source. **Demo-only infrastructure** — none of these surfaces would ship in the real product.
 
 Implementation lives behind one rule: **product code reads `useCurrentUser()`**, never `mockUser` directly. The hook resolves to the active persona; switching is a one-click affordance.
 
@@ -33,7 +33,7 @@ What it didn't ship — see "Known limitations" below.
 
 **File:** `lib/personas.ts`
 
-Five personas, ordered for the picker:
+Seven personas, ordered for the picker:
 
 | ID | Name | Archetype | Source |
 |----|------|-----------|--------|
@@ -41,6 +41,8 @@ Five personas, ordered for the picker:
 | `daniel` | Daniel Procházka | Anxious New Owner | `lib/mockUsers.ts` |
 | `klara` | Klára Horáčková | Professional Provider | `lib/mockUsers.ts` |
 | `tomas` | Tomáš Kovář | Busy Professional | `lib/mockUsers.ts` |
+| `lena` | Lena Marešová | Marketplace Owner | `lib/mockUsers.ts` |
+| `magda` | Magda Vondráková | Neighborhood Hub Member | `lib/mockUsers.ts` |
 | `new-user` | New User | Just signed up | `lib/personas.ts` (synthetic) |
 
 Shawn was removed from the picker 2026-04-26 — the actual developer's name shouldn't double as a demo character. He still exists in mock-world data as a Vinohrady regular other personas encounter; he's just no longer a "view as" option.
@@ -62,21 +64,36 @@ Each entry pairs a `UserProfile` with `archetype` + `tagline` framing copy. The 
 **Files:** `contexts/CurrentUserContext.tsx`, `hooks/useCurrentUser.ts`
 
 ```tsx
-import { useCurrentUser, useCurrentUserId, useIsNewUser } from "@/hooks/useCurrentUser";
+import { useCurrentUser, useCurrentUserId, useIsNewUser, useIsHydrated } from "@/hooks/useCurrentUser";
 
 const user = useCurrentUser();          // → UserProfile
 const id = useCurrentUserId();          // → string (shorthand)
 const onboarding = useIsNewUser();      // → true iff currentUser.id === "new-user"
+const isHydrated = useIsHydrated();     // → true once localStorage has hydrated on mount
 ```
 
 Use these in any component that needs persona-aware data. Don't import `mockUser` directly — that pattern is reserved for the persona registry itself.
 
-**SSR fallback:** server-render and first paint resolve to Tereza (the default persona). The provider's `useEffect` hydrates from `localStorage` on mount. There's a brief flash of Tereza-content during hydration when a non-default persona is active — accepted limitation.
+**SSR fallback:** server-render and first paint resolve to Tereza (the default persona). The provider's `useEffect` hydrates from `localStorage` on mount. There's a brief flash of Tereza-content during hydration when a non-default persona is active — accepted limitation for read-only display.
+
+**Hydration gate for persona-identity-dependent side effects (Profiles Deep Pass C11, 2026-05-13).** Any side effect that reads `currentUserId` and acts on it (own-self redirects, audience gates, render-null branches keyed on identity) MUST gate on `useIsHydrated()`. Pre-hydration, `currentUserId` resolves to the Tereza fallback regardless of who's actually logged in — so a naive `currentUserId === userId` check false-positives any time the URL or context happens to match Tereza. Pattern:
+
+```tsx
+const isHydrated = useIsHydrated();
+const isSelf = isHydrated && !isGuest && userId === currentUserId;
+
+useEffect(() => {
+  if (!isSelf) return;          // pre-hydration, isSelf is false → no false-fire
+  router.replace("/profile");
+}, [isSelf]);
+```
+
+First consumer: `/profile/[userId]` own-self redirect. Reusable for any future identity-dependent side effect (booking ownership checks, schedule view-mode gates, etc.).
 
 **For switcher / picker code** (writes the active persona), use `useDemoState()` from `@/contexts/CurrentUserContext`:
 
 ```tsx
-const { user, isDefault, setUserById, resetToDefault } = useDemoState();
+const { user, isDefault, hydrated, setUserById, resetToDefault } = useDemoState();
 ```
 
 ---
@@ -168,6 +185,15 @@ The utility-user archetype. Karlín commuter, Hugo the labrador, leans on care h
 3. **Petra emergency conversation** — `/inbox?as=tomas` → tap the Petra thread (`tomas-petra-conv`) — the "neighbour I trusted in a pinch" arc. Booking context (emergency sitting) shows on the row.
 4. **Hugo's bookings list** — `/bookings?as=tomas` — completed Petra emergency booking + any others. Reads as trail of "care arrangements that worked."
 
+### Magda — Neighborhood Hub Member
+
+The narrow-and-deep archetype. Holešovice resident, anchors a tight private neighbour group of 6 (will grow to ~12 as we keep seeding), barely turns the carer dial. Open profile — socially comfortable. Carries Beat 3 of the demo narrative — see [[strategy/Demo Narrative]].
+
+1. **Holešovice Dog Block** — `/communities/group-holesovice-block?as=magda` — admin role, private neighbour group, the *Find Your People* door of Three Ways In. Members tab shows the Holešovice cluster (Veronika + Eva + Martin + Filip + Hana).
+2. **Profile** — `/profile?as=magda` — Open, Žofka the Schnauzer mix, Holešovice. Reads as "settled neighbour, not looking for more, plenty of community already."
+3. **Klára's training meet (the anchor)** — `/meets/meet-care-1?as=magda` — she's a pre-seeded attendee at the recurring Calm Dog Group Session. People tab shows Daniel as a fellow attendee post-Beat-1 demo (after his RSVP commits to her view).
+4. **Veronika's profile** — `/profile/veronika?as=magda` — fellow group member, peer Carer, casual rate. Magda books her here in Beat 3 of the demo (drop-in care, 200 Kč, same evening).
+
 ### New User
 
 Empty-state preview. Use to verify graceful empty states across surfaces.
@@ -189,6 +215,103 @@ Empty state is now expressed as `currentUser.id === "new-user"`. Surfaces that n
 - Other surfaces inherit the empty state naturally because the new-user persona has empty `pets[]`, no group memberships, etc. — `getUserGroups("new-user")` returns `[]`, so the home Groups tab shows "no groups joined", `MeetComposer` hits its no-groups empty branch, and so on.
 
 Data-gap surfaces (e.g., Inbox is empty as new-user because mock conversations are Shawn-relative) are intentional empty-state previews, not bugs.
+
+---
+
+## Guided Walkthrough — UX design spec
+
+Status: **design only, build deferred.** Specified during Demo Narrative & Personas phase (W4, 2026-05-14). The follow-on build phase implements against this spec; nothing in this section is shipped code.
+
+### Two demo modes
+
+The demo runs in two modes that share the same persona infrastructure:
+
+| Mode | What it is | Infrastructure cost |
+|---|---|---|
+| **Open View** | Today's behavior. Tester picks a persona via the picker / `/demo` / `?as=` and explores freely. No scripted progression. | None new — already shipped. |
+| **Guided Walkthrough** | Auto-switching between personas at scripted beats, with a full-screen interstitial between switches that names the new persona, sets context, and tells the tester what to look at or try. Linear progression through the [[strategy/Demo Narrative]] spine. | Interstitial component, mode toggle, beat sequencer, pause/resume affordance. |
+
+Open View is unchanged; this spec is the Guided Walkthrough.
+
+### Full-screen interstitial — the handoff between beats
+
+Renders between beats. Covers the entire viewport (no peek-through to the surface beneath) so the tester never sees the persona-swap itself. Single sheet with the following structure:
+
+**Layout (top-to-bottom):**
+
+1. **Eyebrow** — "Step 3 of 5" (small, muted, top-left).
+2. **Avatar** — large (96px+, circle for people; uses persona's `avatarUrl`).
+3. **Heading** — "You're now {first name}." Persona's full name + archetype label sit below as one line of secondary text. (E.g. *"You're now Magda.* / Magda Vondráková · Neighborhood Hub Member.")
+4. **Situational context** — 1–2 sentences placing the persona in time and motivation. ("It's Saturday afternoon. Daniel just sent you a connection request from this morning's training meet — and you're going out tonight, so Žofka needs someone for a few hours.")
+5. **Tester prompt** — 1–2 sentences in a visually distinct treatment (subtle bordered box, italics, or accent stripe) telling the tester what to do or pay attention to. ("Accept Daniel's request, then invite him to your group. Then book Veronika for tonight. *Notice how the booking flow feels — does it preserve the favour-vs-transaction line?*")
+6. **Primary CTA** — "Continue as {first name} →" (brand-fill pill button, full-width on mobile).
+7. **Secondary** — "Pause walkthrough" (text-link or tertiary button, smaller).
+
+**Dismissal:**
+- Primary CTA dismisses + persona-swaps + lands on the beat's first surface.
+- "Pause walkthrough" dismisses, persona-swaps to the new beat's persona BUT keeps them in Open View on the new persona's home page (no scripted nav). Surfaces a small "Resume walkthrough" affordance (see "Pause / Resume" below).
+- No tap-anywhere-to-dismiss — the interstitial is a deliberate consent step.
+- Esc + backdrop-click are NOT bound (would risk skipping a step accidentally).
+
+**Copy authoring is build-phase work.** This spec validates the *structure*; final wording lands in the build phase against the [[strategy/Demo Narrative]] beats.
+
+### Mode toggle — entering and exiting Guided
+
+**Entry:** `/demo` route gains a "Start guided walkthrough" entry above the persona pills. Single primary card — large, brand-fill, with avatar stack of all personas in the walkthrough + "5 beats · about 25 minutes" context line. Tap → first interstitial → Beat 1 surface.
+
+**Active-walkthrough chrome:** while the walkthrough is active, a slim header bar persists across all surfaces (above AppNav, below the OS chrome on mobile). Contents:
+
+- Left: "Walkthrough · Step 3/5"
+- Right: "Pause" (returns to Open View on current persona) + "Exit" (kills walkthrough, returns to `/demo`)
+
+The bar uses a faint brand-tinted background so it reads as scaffolding, not part of the product. ~32px tall on mobile, ~28px on desktop.
+
+**End of walkthrough:** after the final beat (Lena coda), a closing interstitial fires. Same layout shape as the beat interstitials but with:
+- Heading: "End of walkthrough."
+- Body: "You've watched five personas live one weekend in Doggo. *Want to keep exploring?*"
+- Primary CTA: "Pick another persona →" (routes to `/demo` Open View)
+- Secondary: "Stay as Lena" (dismisses interstitial, keeps Lena as the active persona, Open View)
+
+### Pause / Resume
+
+Tapping "Pause" mid-walkthrough:
+- Persona stays as the current beat's persona.
+- All scripted nav stops — tester is now in Open View on that persona.
+- The persistent header bar collapses to a slim "Resume walkthrough" pill (anchored top-right, mobile bottom-left to avoid AppNav overlap).
+- Tap "Resume" → re-renders the most recent interstitial from the paused beat OR resumes the next beat (whichever was unfinished).
+
+Pause state persists in `sessionStorage` so within-tab reloads don't lose it. Closing the tab ends the walkthrough cleanly.
+
+### Persona-switch transition
+
+Engineering reality: persona change is a `setUserById` context update + a `router.push` to the next beat's surface. There's no real load. The interstitial dismissal is the visual cover for the swap.
+
+**The transition itself:**
+- Tap "Continue as {first name}" → interstitial fades (200ms) while the new persona's surface mounts beneath.
+- No spinner, no skeleton, no separate loading state — the new surface should be ready by the time the fade completes.
+- If a surface is genuinely slow (rare in this codebase), the interstitial holds until the next route's first paint signals ready (Next.js navigation event).
+
+**Inside the interstitial:**
+- Avatar enters with a subtle scale-in (95% → 100%, 200ms) so each interstitial has personality without being heavy.
+- Text content fades in sequentially (eyebrow → heading → context → prompt → CTAs, ~50ms stagger) — feels paced, not snapped.
+- Total interstitial entry animation: ~400ms. The interstitial is then static until tester taps Continue.
+
+### Open build-time questions
+
+Surfaced during W4 spec drafting; resolve during the build phase:
+
+- **Beat surface routing.** Each beat needs to land on a specific surface (Daniel → `/discover/meets`, Klára → `/bookings/booking-klara-hana/active`, etc.). Routing data lives where? — likely a `walkthroughBeats.ts` registry like `tourSteps.ts`, but with `personaId + initialUrl + interstitialCopy` per beat.
+- **Tester actions vs scripted nav.** Some beats expect the tester to perform actions (RSVP, mark Familiar, book). Others might want scripted nav between sub-steps within a beat. Decide whether beats are atomic (one interstitial → one surface, tester explores freely until they tap Continue) or stepped (multiple sub-prompts within a beat). The spec above assumes **atomic** — one interstitial per beat, tester explores the beat's surface(s) freely, taps Continue when ready. Stepped sub-prompts are a future refinement if tester research surfaces a need.
+- **State seeded between beats.** Beat 3 (Magda) needs Daniel's connection request to exist (he sent it in Beat 1). Two options: (a) the tester actually performs the action in Beat 1 and the request persists via existing `usePersistedState` to be visible in Beat 3; (b) the walkthrough sequencer fakes/seeds the state at beat-transition time so Beat 3 always lands clean even if Beat 1's tester didn't actually tap Connect. Option (a) is more honest; (b) is more reliable. Decide during build.
+- **Mid-beat exit handling.** What happens if a tester closes the tab mid-beat? Does Resume reopen on the same surface or restart the beat from its interstitial? Default: restart the beat from interstitial.
+- **Mobile vs desktop interstitial layout.** The spec assumes mobile-first (full-width sheet); desktop should probably cap at ~520px wide and center. Confirm during build.
+
+### What this spec deliberately does NOT specify
+
+- Final interstitial copy (build-phase work, authored against the [[strategy/Demo Narrative]] beats).
+- Visual mocks beyond the structural description above. Token reuse (existing brand colors, surface tokens, button components) is the expectation.
+- Accessibility specifics (focus management on interstitial open, ARIA roles, keyboard nav). Build phase responsibility, but the structure above is built to support standard modal-dialog accessibility patterns.
+- Analytics / telemetry. Out of scope.
 
 ---
 

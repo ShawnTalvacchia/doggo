@@ -1,14 +1,14 @@
 ---
 category: strategy
 status: draft
-last-reviewed: 2026-05-11
+last-reviewed: 2026-05-15
 tags: [cold-start, trainers, shelter, foster, community, account-types, credentialing, future]
 review-trigger: "before any phase touching cold-start, monetization, account types, or category strategy"
 ---
 
 # Cold-Start Playbook
 
-> **Status note (2026-05-11):** Draft thread. Not on the roadmap, not part of the demo. This doc started as "Shelter Dogs & Community Walks" (Discover Refinement, 2026-05-10) and was renamed + expanded after a sequence of strategic conversations during the Care Catalog Taxonomy phase added two more threads: paid trainer partnerships as a cold-start engine, and the credentialing-gap-as-moat insight surfaced by Prague market research (2026-05-11). The doc is an evolving essay, not a spec — it argues for keeping multiple cold-start threads alive together without committing to a phase.
+> **Status note (2026-05-11; extended 2026-05-15):** Draft thread. Not on the roadmap, not part of the demo. This doc started as "Shelter Dogs & Community Walks" (Discover Refinement, 2026-05-10) and was renamed + expanded after a sequence of strategic conversations during the Care Catalog Taxonomy phase added two more threads: paid trainer partnerships as a cold-start engine, and the credentialing-gap-as-moat insight surfaced by Prague market research (2026-05-11). Extended 2026-05-15 with a "Walker credentialing as a shelter trust layer" subsection under the shelter angle — the same credentialing-moat thesis applied to the shelter-walker domain, surfaced during the Alyssa briefing on Prague shelter walking rules. The doc is an evolving essay, not a spec — it argues for keeping multiple cold-start threads alive together without committing to a phase.
 
 **TL;DR.** Doggo has a chicken-and-egg problem: a community-first dog-care platform has no value until other dog people are on it. Three threads — paid trainer partnerships, shelter dog walks, and Doggo-as-credentialing-layer — converge on a single playbook: **seed activity with paid trainers leading public walks (with shelter dogs as always-on inventory), use those walks to onboard organic users into hosting their own meets, and accrue trust infrastructure that becomes the platform's moat in a market with no existing credentialing layer.** Not for the demo. The next concrete step is real conversations in Prague — partnerships with 2-3 anchor trainers + 1-2 shelter orgs.
 
@@ -179,6 +179,30 @@ Three shapes considered (surfaced 2026-05-11), recommendation noted:
 4. **The "I'll do it" psychology.** Shelters know that 80% of sign-ups ghost. Doggo could help with social proof ("Bára has 4 confirmed walkers this week") and commitment-light entry, but the platform can't manufacture follow-through.
 
 5. **Bilingual coordination.** Útulek Liběň's coordination is in Czech, the expat dog community is English-first. Real for any shelter integration.
+
+### Walker credentialing as a shelter trust layer
+
+The "no other dogs" rule across most Prague shelters that *do* permit public walking (Voříškov, Útulek Liběň, and others surveyed in the 2026-05-15 research) exists because shelters can't verify what's true about either side of the encounter — the walker's competence with reactive dogs, or the specific shelter dog's reactivity to other dogs. The rule is a blunt instrument because no better instrument is available.
+
+That gap is the same one the credentialing-moat thread describes for the training market: a domain with high stakes, no trusted gatekeeper, no infrastructure for differential trust. The platform's job in the training case is to surface trainer quality so owners can make informed choices. In the shelter-walker case, it's to surface walker quality so shelters can relax their blanket conservatism for verified handlers — and let some shelter dogs participate in group walks. That has real value beyond convenience: socialization is what gets shelter dogs adopted, and right now most of them are denied it by default.
+
+The architecture is mostly already in place. Visit reports document dog behavior and walker observations. Trust badges accumulate across three tiers — community-earned, credential, platform. Post-meet review already produces walker → subject documentation. What's new isn't the mechanic; it's the redirect: applying these existing patterns to shelter-walker engagements, with reputation accruing in both directions (shelters review walkers, walkers document the dogs they walk).
+
+The strategic shape this implies is **graduated walker permissions, gated by shelter-level policy.** Tier 1 — solo walks only (the default entry point; no group walks regardless of badge count). Tier 2 — group walks with dogs vetted for sociability. Tier 3 — group walks with reactive or unknown dogs. Tier movement is earned via documented engagement history; tier permissions are *also* gated per-shelter (some shelters will never permit group walks regardless of walker tier, and the system has to accommodate that as a first-class case). Per-dog overrides exist independently — a specific shelter dog can be flagged "solo only" no matter what tier walker handles them. Badges and gamification could meaningfully reinforce this (visible accumulation of documented engagements, recognized milestones, peer visibility within a shelter's walker pool) without turning the trust layer into a scoreboard.
+
+This opens a new persona ramp that doesn't exist in the current archetypes. People who enter Doggo as shelter walkers, accumulate dog-handling reputation through documented engagements, and become community anchors through that work rather than through owning a dog. Different door, same destination — particularly relevant for expat-heavy neighbourhoods where dog ownership is lower but volunteer energy is high.
+
+Risks specific to this thread:
+
+1. **Liability sits above the platform's current shape.** A Doggo-credentialed walker takes a shelter dog to a group meet; the dog bites a passerby. Reputational and legal exposure could land on the platform regardless of waivers. Shelters today carry the blanket rule precisely because they can't underwrite that risk. For Doggo to enable group walks, *someone* has to. That's insurance, legal counsel, possibly indemnification language — real operational work, not product design.
+
+2. **Reputation graphs work in aggregate, fail individuals.** Bad days happen to good walkers. Individual failures here are high-stakes (a child, another dog, a passerby). Designed-for-graceful-failure has to be a first principle — which is why graduated tiering plus per-dog overrides aren't optional, and why a "trust" badge can never function as a green light for any dog with any walker.
+
+3. **Shelter heterogeneity is permanent.** Even with perfect verification, some shelters' policy stances won't relax. The architecture has to make "this shelter doesn't permit group walks, period" a first-class case, not a fallback.
+
+4. **Strategic shape question.** Building this pulls Doggo deeper into being a *credentialing body* than the current "coordination layer" framing implies. Not necessarily bad — credentialing layers can be very defensible businesses — but a shape choice worth naming. The trainer-credentialing thread implies the same shift. Both together would make "Doggo as the trust infrastructure for Prague's dog-care ecosystem" a more accurate description of the business than "coordination platform."
+
+Surfaced 2026-05-15. Unbuilt and pre-validation. Belongs in the same conversational territory as the trainer-credentialing thread — both wait on real conversations (here, with shelters) before they become anything more concrete.
 
 ---
 

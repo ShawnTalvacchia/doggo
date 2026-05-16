@@ -277,6 +277,91 @@ export const mockNotifications: AppNotification[] = [
     createdAt: "2026-03-22T11:00:00Z",
     read: true,
   },
+  /*
+   * Narrative-bound notifications, added 2026-05-14 (Demo Narrative &
+   * Personas, W3.4 — partial close of P59). Gives Klára / Magda / Lena
+   * non-empty bells at demo session start so the notifications surface
+   * doesn't read as broken when a tester switches personas. Tomáš still
+   * runs on his existing seeded surface; broader P59 sweep across the
+   * full supporting cast remains open.
+   */
+  {
+    id: "notif-klara-1",
+    recipientId: "klara",
+    type: "meet_reminder",
+    title: "Today's session: Hana + Runa",
+    body: "Reactive-dog session at Stromovka — 11:00. Runa's been doing well with threshold work.",
+    avatarUrl: "/images/generated/runa-portrait.jpeg",
+    href: "/bookings/booking-klara-hana",
+    createdAt: daysAgoIso(0, "07:30"),
+    read: false,
+  },
+  {
+    id: "notif-klara-2",
+    recipientId: "klara",
+    type: "booking_proposal",
+    title: "Filip wants to book a follow-up",
+    body: "Toby — recall practice, 1-on-1. Asking about next Saturday.",
+    avatarUrl: "/images/generated/filip-profile.jpeg",
+    href: "/profile/filip?tab=chat",
+    createdAt: daysAgoIso(1, "18:20"),
+    read: false,
+  },
+  {
+    id: "notif-klara-3",
+    recipientId: "klara",
+    type: "meet_rsvp",
+    title: "New RSVP — Sunday training session",
+    body: "Magda + Žofka are joining Sunday's Calm Dog Group Session.",
+    avatarUrl: "/images/generated/lucie-profile.jpeg",
+    href: "/meets/meet-care-1",
+    createdAt: daysAgoIso(2, "14:05"),
+    read: true,
+  },
+  {
+    id: "notif-magda-1",
+    recipientId: "magda",
+    type: "group_activity",
+    title: "Eva posted in Holešovice Dog Block",
+    body: "\"Stromovka tomorrow morning if anyone's around — Luna needs to burn energy.\"",
+    avatarUrl: "/images/generated/eva-profile.jpeg",
+    href: "/communities/group-holesovice-block",
+    createdAt: daysAgoIso(0, "16:40"),
+    read: false,
+  },
+  {
+    id: "notif-magda-2",
+    recipientId: "magda",
+    type: "meet_reminder",
+    title: "Tomorrow: Calm Dog Group Session",
+    body: "Sunday 10:00 at Stromovka with Klára. You're going + Žofka.",
+    avatarUrl: "/images/generated/care-klara-training.jpeg",
+    href: "/meets/meet-care-1",
+    createdAt: daysAgoIso(0, "08:15"),
+    read: true,
+  },
+  {
+    id: "notif-lena-1",
+    recipientId: "lena",
+    type: "booking_message",
+    title: "Pawel: \"Asha was a star today\"",
+    body: "Sent two photos from Stromovka. See you Wednesday.",
+    avatarUrl: "/images/generated/marek-profile.jpeg",
+    href: "/inbox/lena-pawel-conv",
+    createdAt: daysAgoIso(1, "17:30"),
+    read: true,
+  },
+  {
+    id: "notif-lena-2",
+    recipientId: "lena",
+    type: "meet_reminder",
+    title: "Wednesday walk with Pawel — 9:00am",
+    body: "Pickup at your building, Letná park loop, drop-off ~10:30.",
+    avatarUrl: "/images/generated/sam-portrait.jpeg",
+    href: "/bookings/booking-pawel-lena",
+    createdAt: daysAgoIso(0, "07:00"),
+    read: false,
+  },
 ];
 
 export function getUnreadCount(): number {

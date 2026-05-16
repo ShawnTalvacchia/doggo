@@ -396,3 +396,35 @@ export function getKnownAttendees(
     return getAttendeeTier(a, currentUserId) <= 2;
   });
 }
+
+/**
+ * Service ↔ Meet linkage — canonical Meet-side accessor for the inverse
+ * of `CarerMeetServiceConfig.linkedMeetIds[]`. Returns the `{ serviceId,
+ * required }` rows declared on the meet (sparse — empty array for
+ * unlinked meets).
+ *
+ * The link is two-sided: the carer's service is the authoritative
+ * declaration of "I offer this service on these meets" (write path); the
+ * meet's `linkedServices[]` carries the per-link `required` flag (read
+ * path for meet-card chrome, RSVP gates, mixed-roster UX). When required
+ * is true, booking the service IS the RSVP — the free RSVP CTA collapses.
+ * When required is false (or the link doesn't exist), the meet stays
+ * free-to-join.
+ *
+ * Workstream A2/A3 helper. Consumers in D (meet card chrome), C (booking
+ * flow), and E (Discover cross-surfacing) read through this rather than
+ * touching the field directly so the two-sided model stays the only
+ * source of truth for required-ness.
+ *
+ * Service ↔ Meet Linkage, 2026-05-13.
+ */
+export function getLinkedServicesForMeet(
+  meet: Meet,
+): { serviceId: string; required: boolean }[] {
+  return meet.linkedServices ?? [];
+}
+
+/** Convenience: does this meet require a service booking to RSVP? */
+export function isMeetRequiringService(meet: Meet): boolean {
+  return getLinkedServicesForMeet(meet).some((link) => link.required);
+}

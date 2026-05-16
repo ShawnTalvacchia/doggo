@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-10
+last-reviewed: 2026-05-14
 tags: [users, personas, trust, funnels]
 review-trigger: "when designing user-facing flows or onboarding"
 ---
@@ -145,6 +145,46 @@ May be inactive for weeks, then highly engaged when they need care. Their engage
 
 ---
 
+### The Marketplace Owner
+
+*Ramp 1 — moved through Curious → Participant, settled into a care-led usage pattern*
+
+**Who they are**
+An owner who joined Doggo to find a trusted carer, used the community thread to scout (a few meets, a handful of Familiar marks, group memberships in their neighbourhood) and now mostly uses the app for care management. They're not socially absent — they have connections, they're in groups, they have a meet history — but their week-to-week engagement is the booking thread with their carer, not new community participation. The community served its job (build enough trust to hire someone); the care thread is the ongoing relationship.
+
+This archetype is "graduated to care," not "skipped community." That distinction matters: the funnel worked exactly as designed, and most successful Doggo users will end up here.
+
+**Primary goals**
+
+- Reliable, professional care for their dog
+- Minimal ongoing coordination overhead — the app should make booking easy and then quietly stay in the background
+- Optional re-engagement on their terms (a meet here and there if it's convenient, no pressure)
+
+**Primary fears**
+
+- Feeling pressured to keep up community participation they've moved past
+- The app shaming them (subtly or explicitly) for "outsourcing" their dog's social life
+- Losing access to the carer relationship if the platform tilts too far toward community-only signals
+
+**Trust threshold**
+
+- Platform-mediated with community-seeded trust
+  Their trust in their *current carer* came from community signals (mutuals, group co-membership, observed behaviour at past meets). Their ongoing trust is platform-mediated (contracts, visit reports, the booking flow). They no longer need the community for due diligence on their existing relationship.
+
+**What success feels like**
+
+- Their dog comes home tired and happy after every walk
+- The booking thread covers everything: schedule, photos, occasional schedule changes
+- The app surfaces relevant community moments lightly — a banner, a notification — without insisting
+
+**Product behaviour**
+Multiple group memberships (their neighbourhood + the group their carer hosts). A small Connected/Familiar set from earlier community participation. Active recurring booking with their primary carer. Zero or near-zero *future* meet RSVPs — they don't actively scout for new meets even though they still technically could. Heavy usage of `/bookings` and the booking-detail chat thread. Light usage of `/communities` and `/home` feed (they scroll occasionally). Near-zero usage of `/discover/meets`. The DiscoveryBanner on `/home` ("your week is empty — meets in your circle") is built for exactly this rhythm: polite, low-pressure, surfaces the community thread when it might be useful without insisting on participation.
+
+**Why we test against this archetype**
+Doggo's strategy bets on community-first → trust → care. The Marketplace Owner is the *successful funnel outcome*: someone who walked the path, found their carer, and graduated into a steady-state relationship. Walking through this persona verifies that **post-graduation surfaces still work** — that nothing assumes ongoing community engagement, that the care flow stands on its own once trust has been built, that "graduated" reads as success rather than failure in product copy and structure. Added to the persona roster 2026-05-13 (Lena Marešová); represents where most users will eventually live.
+
+---
+
 ### The Social Seeker
 
 *Ramp 1 — enters at Curious, high potential to reach Regular or Connector*
@@ -177,6 +217,46 @@ Someone genuinely motivated by wanting to meet people in their neighbourhood —
 
 **Product behaviour**
 High engagement with meets and group features. Likely to become a Regular quickly if early experiences are good. May become a Connector — the social reward motivates them to organise. Rarely enters Ramp 2 because their motivation isn't care-related, but may casually help Connected friends.
+
+---
+
+### The Neighborhood Hub Member
+
+*Ramp 1 — settled at Connector, narrow-and-deep*
+
+**Who they are**
+A socially comfortable owner whose primary engagement on Doggo is **one tight private group** — usually around a dozen neighbours from their block, building, or street. They probably anchor or admin that group. They know everyone in it by name, dog, and routine. Outside that group their footprint is small: maybe one or two open park groups they peek into, a handful of Familiar marks at the wider neighbourhood level, and that's it. They don't browse Discover. They don't go to events outside their crew. They have no need for the broader marketplace because their crew handles it among themselves.
+
+This archetype is what Doggo looks like as a **WhatsApp replacement for a single dense neighbour group** — and that's the entire pitch for them. The platform's value isn't "find new people"; it's "coordinate the people you already trust, with structure that informal chats lack."
+
+**Primary goals**
+
+- Keep the group active without it becoming high-effort
+- Coordinate quick logistics (walks tonight? someone going to the vet? need a dog-sitter Saturday?)
+- Have the structure for occasional peer-care arrangements without the friend-favour math
+
+**Primary fears**
+
+- The platform pressuring them outward (algorithmic recommendations, "people you may know," prompts to join more groups)
+- Their group becoming visible to non-members or outgrowing its tight character
+- The care side of the platform tilting toward strangers when they only ever wanted neighbour-help
+
+**Trust threshold**
+
+- Low within the group, high outside it
+  Their crew is already trusted (real-world neighbours). Anyone outside it gets the full ramp from scratch.
+
+**What success feels like**
+
+- The group is the first place they open the app
+- Quick exchanges land cleanly — "Žofka could use company tomorrow" gets two replies in five minutes
+- Booking a neighbour for the night feels as light as asking the favour, with the receipts that protect the friendship
+
+**Product behaviour**
+Open or locked profile (varies — many Hub Members are socially comfortable enough to keep their profile open, especially since their group already vouches for them). Anchors one private neighbour group, ~6–15 members. Heavy in-group posting — short coordination messages, photos, occasional "anyone around?" requests. Light-to-moderate Familiar marks across the wider neighbourhood from incidental park encounters. Possibly a Casual Carer (dial barely turned, circle audience) — they'd take a neighbour's dog for the night, but it isn't a service they list publicly. Near-zero `/discover/care` usage. Light `/discover/meets` usage (only to find their crew's events). Zero or near-zero attendance at events outside their group.
+
+**Why we test against this archetype**
+Doggo's "Three Ways In" model has Find Your People as the middle door — and the Hub Member is the archetype that lives there exclusively. Walking through this persona verifies that **the platform stands up as a single-private-group tool**, not just as a meets-and-care marketplace. If the in-group surfaces feel thin — feed without rhythm, member list without coordination affordances, peer-care booking that feels marketplace-shaped instead of favour-shaped — the Find Your People door doesn't pull its weight, and the Three Ways In thesis loses a third of its surface area. Added to the persona roster 2026-05-14 (Magda Vondráková) during Demo Narrative & Personas phase, where she carries Beat 3 of the demo (the *good fences make good neighbours* peer-care arrangement).
 
 ---
 

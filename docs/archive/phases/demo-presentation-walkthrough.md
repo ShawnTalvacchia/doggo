@@ -1,10 +1,12 @@
 ---
-status: active
-last-reviewed: 2026-05-11
+status: archived
+last-reviewed: 2026-05-14
 review-trigger: "Update as items are walked, edit as scope adjusts"
 ---
 
 # Demo Presentation — Walkthrough
+
+> **Archived 2026-05-14** alongside `demo-presentation.md`. The Tereza-only guided tour walkthrough items (Workstream C) are superseded by the multi-persona walkthrough infrastructure being designed in **Demo Narrative & Personas** (`docs/phases/demo-narrative-and-personas.md`). Guest-viewer / AuthGate verification items (Workstreams D / F) verify shipped infrastructure that remains in production — re-run those against the running app if guest-route behaviour ever needs re-verification.
 
 Verification checklist for the Demo Presentation phase. **This document is for checking, not record-keeping** — decisions, follow-ups, and findings belong in the phase board, Open Questions log, or feature docs.
 

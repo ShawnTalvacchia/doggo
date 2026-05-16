@@ -341,7 +341,7 @@ function FeedTab({ groupPosts, group, isMember }: { groupPosts: ReturnType<typeo
       <div className="flex flex-col gap-lg">
         {isMember && group.photoPolicy !== "none" && (
           <div className="flex justify-end">
-            <ButtonAction variant="tertiary" size="sm" onClick={() => openComposer(group.id)} leftIcon={<Camera size={14} weight="light" />}>
+            <ButtonAction variant="tertiary" size="sm" onClick={() => openComposer({ groupId: group.id })} leftIcon={<Camera size={14} weight="light" />}>
               New post
             </ButtonAction>
           </div>

@@ -335,7 +335,7 @@ function AccordionRow({
 /* ── Main composer ── */
 
 export function PostComposer() {
-  const { isOpen, preselectedGroupId, closeComposer } = usePostComposer();
+  const { isOpen, preselectedGroupId, initialTagPicker, closeComposer } = usePostComposer();
   const currentUser = useCurrentUser();
   const [photos, setPhotos] = useState<string[]>([]);
   const [caption, setCaption] = useState("");
@@ -352,6 +352,16 @@ export function PostComposer() {
     hasSetPreselected.current = true;
   }
 
+  // Auto-open the requested tag picker when the composer mounts via a
+  // ShareMomentBar shortcut (Dog / Location / Group). Same one-shot ref
+  // guard as `hasSetPreselected` so the picker stays user-controllable
+  // once open. 2026-05-13.
+  const hasSetInitialPicker = useRef(false);
+  if (isOpen && initialTagPicker && !hasSetInitialPicker.current) {
+    setActivePicker(initialTagPicker);
+    hasSetInitialPicker.current = true;
+  }
+
   const handleClose = useCallback(() => {
     closeComposer();
     setPhotos([]);
@@ -360,6 +370,7 @@ export function PostComposer() {
     setActivePicker(null);
     setPickerQuery("");
     hasSetPreselected.current = false;
+    hasSetInitialPicker.current = false;
   }, [closeComposer]);
 
   function addMockPhoto() {

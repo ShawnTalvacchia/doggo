@@ -293,6 +293,15 @@ export const mockGroups: Group[] = [
         role: "member",
         joinedAt: "2026-02-08",
       },
+      {
+        userId: "lena",
+        userName: "Lena",
+        avatarUrl:
+          "/images/generated/anezka-profile.jpeg",
+        dogNames: ["Asha"],
+        role: "member",
+        joinedAt: "2026-02-12",
+      },
     ],
     photos: [
       "/images/generated/goldie-leash.jpeg",
@@ -474,6 +483,39 @@ export const mockGroups: Group[] = [
     photoPolicy: "optional",
     createdAt: "2026-01-20T14:00:00Z",
   },
+  /*
+   * Holešovice Dog Block — private neighbour group, added 2026-05-14 (Demo
+   * Narrative & Personas, W3.1). Magda Vondráková admin (Hub Member persona).
+   * 8 seeded members spanning the Holešovice cluster: Magda + Veronika
+   * (peer-care receiver in Beat 3) + existing Holešovice neighbours
+   * (Eva, Martin, Filip, Hana). Carries the *Find Your People* door of
+   * Three Ways In on the demo's Beat 3 — Magda invites Daniel into this
+   * group post-meet, then arranges peer care with Veronika from inside it.
+   */
+  {
+    id: "group-holesovice-block",
+    name: "Holešovice Dog Block",
+    description:
+      "Our block's dog crew. Started as a WhatsApp thread, moved here when half the messages were dog logistics. We coordinate walks, swap recommendations, watch each other's dogs when one of us is out. Small, neighbourly, no drama. Request to join — we like to know who's on the block.",
+    groupType: "neighbor",
+    visibility: "private",
+    neighbourhood: "Holešovice",
+    location: "Holešovice, Prague 7",
+    coverPhotoUrl: "/images/generated/evening-walk-group.jpeg",
+    creatorId: "magda",
+    creatorName: "Magda",
+    members: [
+      { userId: "magda", userName: "Magda", avatarUrl: "/images/generated/lucie-profile.jpeg", dogNames: ["Žofka"], role: "admin", joinedAt: "2025-09-15" },
+      { userId: "veronika", userName: "Veronika", avatarUrl: "/images/generated/marie-profile.jpeg", dogNames: ["Kuba"], role: "member", joinedAt: "2025-10-08" },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"], role: "member", joinedAt: "2025-10-22" },
+      { userId: "martin", userName: "Martin", avatarUrl: "/images/generated/martin-profile.jpeg", dogNames: ["Charlie"], role: "member", joinedAt: "2025-11-04" },
+      { userId: "filip", userName: "Filip", avatarUrl: "/images/generated/filip-profile.jpeg", dogNames: ["Toby"], role: "member", joinedAt: "2025-11-19" },
+      { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"], role: "member", joinedAt: "2026-01-12" },
+    ],
+    photos: [],
+    photoPolicy: "optional",
+    createdAt: "2025-09-15T10:00:00Z",
+  },
 
   // ── Additional interest groups ─────────────────────────────────────────────
   {
@@ -549,6 +591,7 @@ export const mockGroups: Group[] = [
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot"], role: "member", joinedAt: "2026-01-10" },
       { userId: "tomas", userName: "Tomáš", avatarUrl: "/images/generated/tomas-profile.jpeg", dogNames: ["Hugo"], role: "member", joinedAt: "2026-01-15" },
       { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], role: "member", joinedAt: "2026-02-01" },
+      { userId: "lena", userName: "Lena", avatarUrl: "/images/generated/anezka-profile.jpeg", dogNames: ["Asha"], role: "member", joinedAt: "2026-02-10" },
     ],
     photos: [
       "/images/generated/group-walk-stromovka.jpeg",
