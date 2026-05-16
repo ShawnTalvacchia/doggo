@@ -23,6 +23,9 @@ interface AppointmentServiceEditCardProps {
   onDelete: () => void;
   /** Undo a soft-archive. Only invoked when `service.softDeletedAt` is set. */
   onUndoArchive: () => void;
+  /** True for a card just added this session — triggers the scroll-into-view
+   *  + flash highlight so the new card is obvious despite the kind sort. */
+  isNew?: boolean;
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -42,6 +45,7 @@ export function AppointmentServiceEditCard({
   onChange,
   onDelete,
   onUndoArchive,
+  isNew = false,
 }: AppointmentServiceEditCardProps) {
   // ── Soft-archived state — slim muted strip with Undo ──
   if (service.softDeletedAt) {
@@ -76,7 +80,10 @@ export function AppointmentServiceEditCard({
   }
 
   return (
-    <div className="profile-service-card">
+    <div
+      id={`svc-card-${service.id}`}
+      className={`profile-service-card${isNew ? " profile-service-card--new" : ""}`}
+    >
       {/* Kicker header — appointment kind marker; title is editable below. */}
       <div className="flex items-center justify-between">
         <span className="flex items-center gap-xs text-xs font-semibold text-fg-tertiary uppercase tracking-wide">

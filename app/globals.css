@@ -11739,6 +11739,25 @@ body:has(.bottom-nav) .inbox-page {
   gap: var(--space-lg);
 }
 
+/* Just-added service card — a one-shot flash so a card is obvious when it
+   lands in its sorted slot (Care → Meet → Appointment), which can be above
+   the "+" button that created it. Service ↔ Meet Linkage walkthrough B6,
+   2026-05-16. */
+@keyframes service-card-flash {
+  0%,
+  30% {
+    border-color: var(--brand-strong);
+    box-shadow: 0 0 0 3px var(--brand-subtle);
+  }
+  100% {
+    border-color: var(--border-subtle);
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
+}
+.profile-service-card--new {
+  animation: service-card-flash 2s ease-out;
+}
+
 .profile-service-top {
   display: flex;
   align-items: center;

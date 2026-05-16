@@ -49,6 +49,9 @@ interface MeetServiceEditCardProps {
   requiredByMeet: Record<string, boolean>;
   /** Toggle the `required` flag for a (this service, meet) link. */
   onChangeRequired: (meetId: string, required: boolean) => void;
+  /** True for a card just added this session — triggers the scroll-into-view
+   *  + flash highlight so the new card is obvious despite the kind sort. */
+  isNew?: boolean;
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -75,6 +78,7 @@ export function MeetServiceEditCard({
   hostedMeets,
   requiredByMeet,
   onChangeRequired,
+  isNew = false,
 }: MeetServiceEditCardProps) {
   // Linked-meets picker state — hooks must run before any early return.
   // Start expanded when no meet is linked yet: a Meet-type service needs a
@@ -141,7 +145,10 @@ export function MeetServiceEditCard({
     : unlinkedMeets;
 
   return (
-    <div className="profile-service-card">
+    <div
+      id={`svc-card-${service.id}`}
+      className={`profile-service-card${isNew ? " profile-service-card--new" : ""}`}
+    >
       {/* Kicker header — distinguishes a Meet card from a Care card (whose
           header is the fixed service-type label). The title is editable
           below, so the header carries a kind kicker, not the name. */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Plus,
   Trash,
@@ -17,6 +17,7 @@ import { InputField } from "@/components/ui/InputField";
 import { Toggle } from "@/components/ui/Toggle";
 import { MeetServiceEditCard } from "@/components/profile/MeetServiceEditCard";
 import { AppointmentServiceEditCard } from "@/components/profile/AppointmentServiceEditCard";
+import { DeleteServiceModal } from "@/components/profile/DeleteServiceModal";
 import { SERVICE_LABELS, SUB_SERVICES } from "@/lib/constants/services";
 import { defaultModifiers } from "@/lib/pricing";
 import { mockMeets, getHostedMeets } from "@/lib/mockMeets";
@@ -394,6 +395,25 @@ export function ProfileServicesTab({
   // linked-meets picker (Service ↔ Meet Linkage, Workstream B2).
   const hostedMeets = getHostedMeets(user.id);
 
+  // ── "Just added" feedback (walkthrough B6, 2026-05-16) ──
+  // Cards render sorted by kind (Care → Meet → Appointment), so a card added
+  // via "+ Session offering" / "+ Appointment" can land *above* the button
+  // that created it — looking, at a glance, like nothing happened. Track the
+  // newest card's DOM id, scroll it into view, and flash it (CSS animation).
+  const [justAddedId, setJustAddedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!justAddedId) return;
+    const el = document.getElementById(justAddedId);
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [justAddedId]);
+
+  // ── Delete-confirmation modal (walkthrough B6, 2026-05-16) ──
+  // Each service card carries its own red trash, packed close together — a
+  // confirm step lets the carer double-check they tapped the right one before
+  // anything is removed. Holds the `editServices` index of the pending delete.
+  const [pendingDeleteIdx, setPendingDeleteIdx] = useState<number | null>(null);
+
   // ── Helpers for editing services ──
   //
   // `editServices` is the comprehensive catalogue (Care + Meet + Appointment).
@@ -435,6 +455,7 @@ export function ProfileServicesTab({
         modifiers: defaultModifiers(),
       },
     ]);
+    setJustAddedId(`svc-card-care-${type}`);
   }
 
   function addMeetService() {
@@ -450,6 +471,7 @@ export function ProfileServicesTab({
       linkedMeetIds: [],
     };
     onEditServices([...editServices, newSvc]);
+    setJustAddedId(`svc-card-${newSvc.id}`);
   }
 
   function addAppointmentService() {
@@ -463,6 +485,7 @@ export function ProfileServicesTab({
       appointmentCategory: "training",
     };
     onEditServices([...editServices, newSvc]);
+    setJustAddedId(`svc-card-${newSvc.id}`);
   }
 
   // ── B5 delete decision — soft-archive vs hard-delete ──
@@ -491,17 +514,18 @@ export function ProfileServicesTab({
     );
   }
 
+  // True when removing `svc` soft-archives it (keeps it restorable, existing
+  // bookings keep running) rather than hard-deleting. Care never archives;
+  // a service added this session has no bookings → hard-delete.
+  function willSoftArchive(svc: CarerServiceConfig): boolean {
+    if (svc.kind === "care") return false;
+    const fresh = !wasPreExisting(svc.id);
+    return !fresh && (svc.kind === "appointment" || meetServiceHasRoster(svc));
+  }
+
   function deleteServiceAt(idx: number) {
     const svc = editServices[idx];
-    if (svc.kind === "care") {
-      hardRemoveAt(idx);
-      return;
-    }
-    const fresh = !wasPreExisting(svc.id);
-    const softArchive =
-      !fresh &&
-      (svc.kind === "appointment" || meetServiceHasRoster(svc));
-    if (softArchive) {
+    if (willSoftArchive(svc) && svc.kind !== "care") {
       updateServiceAt(idx, {
         ...svc,
         enabled: false,
@@ -692,13 +716,14 @@ export function ProfileServicesTab({
                           key={svc.id}
                           service={svc}
                           onChange={(next) => updateServiceAt(idx, next)}
-                          onDelete={() => deleteServiceAt(idx)}
+                          onDelete={() => setPendingDeleteIdx(idx)}
                           onUndoArchive={() => undoArchiveAt(idx)}
                           hostedMeets={hostedMeets}
                           requiredByMeet={requiredByMeetFor(svc.id)}
                           onChangeRequired={(meetId, req) =>
                             setRequiredLink(svc.id, meetId, req)
                           }
+                          isNew={justAddedId === `svc-card-${svc.id}`}
                         />
                       );
                     }
@@ -708,8 +733,9 @@ export function ProfileServicesTab({
                           key={svc.id}
                           service={svc}
                           onChange={(next) => updateServiceAt(idx, next)}
-                          onDelete={() => deleteServiceAt(idx)}
+                          onDelete={() => setPendingDeleteIdx(idx)}
                           onUndoArchive={() => undoArchiveAt(idx)}
+                          isNew={justAddedId === `svc-card-${svc.id}`}
                         />
                       );
                     }
@@ -721,7 +747,12 @@ export function ProfileServicesTab({
                     return (
                       <div
                         key={`care-${svc.serviceType}`}
-                        className="profile-service-card"
+                        id={`svc-card-care-${svc.serviceType}`}
+                        className={`profile-service-card${
+                          justAddedId === `svc-card-care-${svc.serviceType}`
+                            ? " profile-service-card--new"
+                            : ""
+                        }`}
                       >
                         <div className="flex items-center justify-between">
                           <h3 className="profile-card-subtitle m-0">
@@ -729,7 +760,7 @@ export function ProfileServicesTab({
                           </h3>
                           <button
                             type="button"
-                            onClick={() => deleteServiceAt(idx)}
+                            onClick={() => setPendingDeleteIdx(idx)}
                             className="flex items-center justify-center"
                             style={{
                               background: "none",
@@ -915,6 +946,41 @@ export function ProfileServicesTab({
 
           </>
         )}
+
+        {/* Delete-confirmation modal — names the exact service so the carer
+            can verify they tapped the right trash, and surfaces the
+            archive-vs-delete distinction. Walkthrough B6, 2026-05-16. */}
+        {pendingDeleteIdx !== null &&
+          editServices[pendingDeleteIdx] &&
+          (() => {
+            const svc = editServices[pendingDeleteIdx];
+            const serviceLabel =
+              svc.kind === "care"
+                ? SERVICE_LABELS[svc.serviceType]
+                : svc.title ||
+                  (svc.kind === "meet"
+                    ? "Untitled session"
+                    : "Untitled appointment");
+            const kindLabel =
+              svc.kind === "care"
+                ? "Care service"
+                : svc.kind === "meet"
+                  ? "Session offering"
+                  : "Appointment";
+            return (
+              <DeleteServiceModal
+                open
+                onClose={() => setPendingDeleteIdx(null)}
+                onConfirm={() => {
+                  deleteServiceAt(pendingDeleteIdx);
+                  setPendingDeleteIdx(null);
+                }}
+                serviceLabel={serviceLabel}
+                kindLabel={kindLabel}
+                willArchive={willSoftArchive(svc)}
+              />
+            );
+          })()}
       </div>
     );
   }
