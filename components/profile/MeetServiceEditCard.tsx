@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Trash,
   CalendarBlank,
@@ -62,11 +62,12 @@ interface MeetServiceEditCardProps {
  * trash + fields below — with Meet-specific fields plus the linked-meets
  * picker (B2) and per-link required toggle (B3).
  *
- * The picker is a search-and-add pattern, not a list-all: only the *linked*
- * meets show by default (usually 0–1), with a "Link a meet" search to add
- * more. A carer hosting many meets would otherwise get the full list
- * repeated on every session-type service card. (Walkthrough refinement,
- * 2026-05-16.)
+ * The picker is a popover, not a list-all: only the *linked* meets show as
+ * rows (usually 0–1); a "Link a meet" trigger opens a floating menu with a
+ * search field over the carer's other hosted meets. The menu scrolls when the
+ * list is long and closes on outside-click / Escape / after a pick — so a
+ * carer hosting many meets never gets the full list dumped inline on every
+ * session-type service card. (Walkthrough refinement, 2026-05-16.)
  *
  * Service ↔ Meet Linkage, Workstream B1–B3, 2026-05-13.
  */
@@ -81,13 +82,32 @@ export function MeetServiceEditCard({
   isNew = false,
 }: MeetServiceEditCardProps) {
   // Linked-meets picker state — hooks must run before any early return.
-  // Start expanded when no meet is linked yet: a Meet-type service needs a
-  // linked meet to be bookable, so a fresh card opens straight to the picker.
-  const [adding, setAdding] = useState(service.linkedMeetIds.length === 0);
+  // The picker is a popover anchored to the "Link a meet" trigger. It opens
+  // by default for a fresh card (a Meet-service needs a linked meet to be
+  // bookable) and closes on outside-click / Escape / after a pick.
+  const [pickerOpen, setPickerOpen] = useState(
+    service.linkedMeetIds.length === 0,
+  );
   const [search, setSearch] = useState("");
-  // The meets list is revealed only once the search input is focused —
-  // expanding the picker shows just the input, not a full list dump.
-  const [searchFocused, setSearchFocused] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
+
+  // Close the picker popover on outside-click / Escape (mirrors the
+  // ProfileNameDropdown pattern).
+  useEffect(() => {
+    if (!pickerOpen) return;
+    function onClick(e: MouseEvent) {
+      if (!pickerRef.current?.contains(e.target as Node)) setPickerOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setPickerOpen(false);
+    }
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [pickerOpen]);
 
   // ── Soft-archived state — slim muted strip with Undo ──
   if (service.softDeletedAt) {
@@ -335,91 +355,105 @@ export function MeetServiceEditCard({
               </div>
             ))}
 
-            {/* Add control — collapsed "Link a meet", or an expanded
-                searchable list of the carer's other hosted meets. */}
-            {unlinkedMeets.length > 0 &&
-              (!adding ? (
+            {/* Add control — a "Link a meet" trigger that opens a floating
+                popover menu (search + scrollable results). The menu closes
+                on outside-click / Escape / after a pick. */}
+            {unlinkedMeets.length > 0 && (
+              <div className="relative self-start w-full" ref={pickerRef}>
                 <button
                   type="button"
-                  onClick={() => setAdding(true)}
-                  className="flex items-center gap-xs text-sm text-brand-strong self-start"
+                  onClick={() => setPickerOpen((o) => !o)}
+                  className="flex items-center gap-xs text-sm text-brand-strong"
                   style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 0" }}
+                  aria-haspopup="listbox"
+                  aria-expanded={pickerOpen}
                 >
                   <Plus size={14} weight="bold" />
                   {linkedMeets.length > 0 ? "Link another meet" : "Link a meet"}
                 </button>
-              ) : (
-                <div className="flex flex-col gap-xs">
-                  <div className="input-with-trailing">
-                    <input
-                      className="input"
-                      placeholder="Search your meets…"
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      onFocus={() => setSearchFocused(true)}
-                      onBlur={() => setSearchFocused(false)}
-                    />
-                    <span className="input-trailing-text" aria-hidden="true">
-                      <MagnifyingGlass size={15} weight="light" />
-                    </span>
-                  </div>
-                  {/* Results appear only once the input is focused —
-                      expanding the picker reveals the search field, not a
-                      full list dump. */}
-                  {searchFocused &&
-                    (searchResults.length === 0 ? (
-                      <p className="text-xs text-fg-tertiary m-0">
-                        No meets match &ldquo;{search}&rdquo;.
-                      </p>
-                    ) : (
-                      searchResults.map((meet) => (
-                        <button
-                          key={meet.id}
-                          type="button"
-                          // preventDefault keeps the input focused so the
-                          // list stays open and the click lands.
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={() => {
-                            linkMeet(meet.id);
-                            setSearch("");
-                          }}
-                          className="flex items-center gap-sm rounded-form border border-edge-regular text-left"
-                          style={{
-                            padding: "var(--space-sm) var(--space-md)",
-                            background: "var(--surface-top)",
-                            cursor: "pointer",
-                          }}
-                        >
-                          <span className="flex flex-col flex-1 min-w-0">
-                            <span className="text-sm text-fg-primary">
-                              {meet.title}
-                            </span>
-                            <span className="text-xs text-fg-tertiary">
-                              {meetScheduleSummary(meet)}
-                            </span>
-                          </span>
-                          <Plus
-                            size={16}
-                            weight="bold"
-                            className="text-brand-strong shrink-0"
-                          />
-                        </button>
-                      ))
-                    ))}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAdding(false);
-                      setSearch("");
-                      setSearchFocused(false);
-                    }}
-                    className="flex items-center text-sm text-fg-secondary self-start"
-                    style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 0" }}
+
+                {pickerOpen && (
+                  <div
+                    className="absolute left-0 right-0 z-50 flex flex-col overflow-hidden bg-surface-top border border-edge-regular rounded-panel shadow-md"
+                    style={{ top: "calc(100% + 4px)" }}
+                    role="listbox"
                   >
-                    Done
-                  </button>
-                </div>
-              ))}
+                    {/* Search — fixed header of the menu */}
+                    <div
+                      style={{
+                        padding: "var(--space-sm)",
+                        borderBottom: "1px solid var(--border-subtle)",
+                      }}
+                    >
+                      <div className="input-with-trailing">
+                        <input
+                          className="input"
+                          placeholder="Search your meets…"
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          autoFocus
+                        />
+                        <span className="input-trailing-text" aria-hidden="true">
+                          <MagnifyingGlass size={15} weight="light" />
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Results — scrolls when the list is long */}
+                    <div
+                      className="flex flex-col gap-xs"
+                      style={{
+                        padding: "var(--space-sm)",
+                        maxHeight: 240,
+                        overflowY: "auto",
+                      }}
+                    >
+                      {searchResults.length === 0 ? (
+                        <p
+                          className="text-xs text-fg-tertiary m-0"
+                          style={{ padding: "var(--space-xs) var(--space-sm)" }}
+                        >
+                          No meets match &ldquo;{search}&rdquo;.
+                        </p>
+                      ) : (
+                        searchResults.map((meet) => (
+                          <button
+                            key={meet.id}
+                            type="button"
+                            onClick={() => {
+                              linkMeet(meet.id);
+                              setSearch("");
+                              setPickerOpen(false);
+                            }}
+                            className="flex items-center gap-sm rounded-form text-left hover:bg-surface-base"
+                            style={{
+                              padding: "var(--space-sm) var(--space-md)",
+                              background: "transparent",
+                              border: "none",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <span className="flex flex-col flex-1 min-w-0">
+                              <span className="text-sm text-fg-primary">
+                                {meet.title}
+                              </span>
+                              <span className="text-xs text-fg-tertiary">
+                                {meetScheduleSummary(meet)}
+                              </span>
+                            </span>
+                            <Plus
+                              size={16}
+                              weight="bold"
+                              className="text-brand-strong shrink-0"
+                            />
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
