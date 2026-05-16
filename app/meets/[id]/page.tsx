@@ -928,12 +928,17 @@ function DetailsTab({
                     {group.providers[0].name}
                     {group.providers.length > 1 && ` + ${group.providers.length - 1}`}
                   </span>
+                  {/* Links to the provider's profile — their full service
+                      catalogue. The group is already linked prominently
+                      under the meet header, so re-linking it here was
+                      redundant; "About this service" is provider context.
+                      Service ↔ Meet Linkage walkthrough A3, 2026-05-16. */}
                   <Link
-                    href={`/communities/${group.id}`}
+                    href={`/profile/${group.providers[0].userId}`}
                     className="text-xs text-fg-tertiary"
                     style={{ textDecoration: "none" }}
                   >
-                    From {group.name} →
+                    View profile →
                   </Link>
                 </div>
               </div>
