@@ -39,11 +39,12 @@ export function DeleteServiceModal({
     <ModalSheet
       open={open}
       onClose={onClose}
+      compact
       title={willArchive ? "Archive this service?" : "Remove this service?"}
       footer={
         <div className="flex gap-sm w-full">
           <ButtonAction
-            variant="tertiary"
+            variant="secondary"
             size="md"
             onClick={onClose}
             className="flex-1"

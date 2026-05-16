@@ -22,9 +22,20 @@ export type ModalSheetProps = {
   /** Optional sticky footer rendered below the scrollable body */
   footer?: React.ReactNode;
   children: React.ReactNode;
+  /** When true, the card hugs its content instead of the default
+   *  min-height (400px desktop / 72vh mobile). Use for short modals —
+   *  e.g. confirmations — that otherwise leave a lot of empty space. */
+  compact?: boolean;
 };
 
-export function ModalSheet({ open, onClose, title, footer, children }: ModalSheetProps) {
+export function ModalSheet({
+  open,
+  onClose,
+  title,
+  footer,
+  children,
+  compact = false,
+}: ModalSheetProps) {
   // Lock body scroll while open
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -44,7 +55,10 @@ export function ModalSheet({ open, onClose, title, footer, children }: ModalShee
       onClick={onClose}
     >
       {/* Stop propagation so clicks inside the card don't close the overlay */}
-      <div className="modal-sheet-card" onClick={(e) => e.stopPropagation()}>
+      <div
+        className={`modal-sheet-card${compact ? " modal-sheet-card--compact" : ""}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="modal-sheet-header">
           <span className="modal-sheet-title">{title}</span>
