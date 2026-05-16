@@ -80,6 +80,41 @@ One booking flow (`BookSessionSheet`) reached from two doorways — the carer's 
 
 ---
 
+## Workstream D — Meet card mixed-roster UX
+
+The meet detail page now reads correctly for all three configurations: free unlinked, optional service link (mixed roster), required service link.
+
+- [ ] **D1. Required-link meet → `/meets/meet-care-1`.** Reads as a paid session: "Paid session" badge, the "About this service" card with the Book CTA, no free RSVP dropdown — booking is the only path onto the roster.
+- [ ] **D2. Optional-link callout → `/meets/meet-15`** (Tereza's Thursday walk). Below the when/where card: a **"Group walk" callout** — Tereza's avatar, "Optional — book to have Tereza work with your dog on this walk", **200 Kč**, chevron. *Below it*, the free RSVP controls (Interested / per-date Join) are still present — mixed roster. Tapping the callout opens `BookSessionSheet`.
+- [ ] **D3. Free unlinked meet → any park walk with no linked service** (e.g. a `park-*` group meet). Normal Going / Skip / Interested — no service callout, no "Paid session" badge.
+- [ ] **D4. Mixed-roster People tab → `/meets/meet-15?tab=people`.** Free RSVPs and (after a paid booking) service bookers appear in one unified attendee list — no visible "free vs paid" distinction. The People-tab disclosure model is unchanged.
+
+---
+
+## Workstreams E & F — status (autonomous pass, 2026-05-16)
+
+**Workstream F — N/A.** F assumed MeetComposer renders service-owned fields that need locking. In the actual architecture there's nothing to lock: `MeetComposer` is **create-only** (no edit-existing mode) and a `Meet` carries **no price field** — price lives on `CarerMeetServiceConfig.pricePerSession`, never on the meet. Services own price / notes / modifiers; meets own location / cadence / roster; the two never share an editable field. The ownership model F sought to enforce is already structurally clean. No surface to build. *(Logged for review.)*
+
+**Workstream E — partially done, rest deferred for review.**
+- [ ] **E2 (required-link price chip) → `/discover/meets`.** Service-linked meets that carry a `serviceCTA` (all required-link meets — `meet-care-1`, `meet-care-workshop-1`, `meet-care-puppy-basics`) already show a price chip on their `CardMeet` ("350 Kč · N spots left · Book this session →"). Verify this still reads correctly.
+- **E1 (Meet services in `/discover/care`) — deferred.** `/discover/care` is a ~1100-line page built entirely around the four-service Care taxonomy (filter pills, `ServiceType`-keyed price resolution, sub-service accordions). Surfacing Meet-type services there is a substantial integration that needs deliberate filter/card design — not safe to land hastily. Deferred for a focused follow-up. Open Q §13 already flags the cross-surface filter-dedup question.
+- **E2 (optional-link chip) — deferred.** An optional-link meet with no `serviceCTA` (e.g. `meet-15`) shows no service chip on its `CardMeet`. Adding one needs carer-resolution inside `CardMeet` (a hot list component); deferred with E1.
+
+---
+
+## Things to look out for (Open Q §13 build-time questions)
+
+Per the phase board, these §13 items were watch-points during the build — note anything surprising:
+
+- **Booking-sheet session picker** — `BookSessionSheet` uses one unified occurrence list (soonest default) for both 1-link and N-link services, rather than a dropdown/route split. Watch whether the list feels long for a service on many meets.
+- **Service delete with active bookings** — soft-archive vs hard-delete uses the linked-meet **roster** as the booking proxy (`Booking` carries no `serviceId`). Watch B7/B8.
+- **Meet cancellation with attached service-bookings** — not addressed this phase; the existing cancellation flow doesn't yet handle refund/reschedule for Meet-service bookings. Deferred.
+- **Multi-doorway filter counts** — a required-service meet can appear in both `/discover/meets` and (once E1 lands) `/discover/care`. Result-count dedup is deferred — flag if it looks confusing.
+- **Free → paid upsell** — an owner who joined a meet free can't later upgrade to the paid service in-context. Deferred; flagged so the booking sheet doesn't paint into a corner.
+- **Privacy on the link** — a circle-only carer's service on a public meet: the meet stays public for free attendees; the service gates on the carer's audience. Verify on Tereza's `meet-15` (her carer profile is `connected_only`).
+
+---
+
 ## Decisions surfaced during walkthrough
 
 A running **log** of decisions, design changes, or rationale that surface during walkthrough discussion. Append as you walk; each entry carries a `→ target-doc.md` annotation for the phase-close sweep.
@@ -98,3 +133,6 @@ A running **log** of decisions, design changes, or rationale that surface during
 - **Required-toggle indent restyled.** `margin-left` `--space-md` → `--space-sm`, radius `--radius-form` → `--radius-sm` — tighter nesting under the linked-meet row. → no feature-doc update needed
 - **"Published" / per-service publish toggle deferred — removed from the edit cards.** It was on Meet + Appointment cards only (build-history artifact, not design) and the off-state had an unresolved implication for required-link meets (unpublishing the service removes the meet's only booking path). Per-service draft/publish is its own concern — defer until that model is designed (alongside the Meet-type pricing-modifier extension). The `enabled` field stays in the data model (soft-archive + view-mode filtering use it internally); only the user-facing toggle is gone. → Open Questions §13
 - **Pricing modifiers stay Care-only (confirmed intentional).** Holiday / weekend / multi-pet / last-minute surcharges are not on Meet/Appointment cards by design — the phase board's "Not in scope" defers the auto-pricing-engine extension to Meet-type services; Meet/Appointment keep flat rates. → Open Questions §13 (already logged)
+- **D2 linked-service callout (new component).** `LinkedServiceCallout` surfaces an *optional* linked Meet-type service on the meet detail page — free RSVP stays, the callout adds the paid option. Rendered for meets that link a service but have no legacy `serviceCTA`. Required-link meets keep the `serviceCTA` "About this service" card. → `features/meets.md`
+- **Workstream F is N/A.** `MeetComposer` is create-only and `Meet` carries no price field — price lives on `CarerMeetServiceConfig.pricePerSession`. Services own price/notes; meets own location/cadence/roster; no shared editable field, so nothing to render read-only. The ownership split is already structurally clean. → no feature-doc update needed
+- **Workstream E partially deferred (autonomous pass).** E2's required-link price chip on `/discover/meets` is already covered by the existing `CardMeet` `serviceCTA` chip. E1 (Meet services in `/discover/care`) + the optional-link chip are deferred — `/discover/care` is a Care-taxonomy-shaped page; surfacing Meet services there is a substantial follow-up needing deliberate filter design. → phase board (E) + Open Questions §13
