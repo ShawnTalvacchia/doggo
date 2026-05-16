@@ -1,7 +1,8 @@
 "use client";
 
-import { Trash, Clock, ArrowCounterClockwise } from "@phosphor-icons/react";
+import { Trash, Clock } from "@phosphor-icons/react";
 import { InputField } from "@/components/ui/InputField";
+import { ArchivedServiceStrip } from "@/components/profile/ArchivedServiceStrip";
 import type {
   CarerAppointmentServiceConfig,
   AppointmentCategory,
@@ -50,28 +51,10 @@ export function AppointmentServiceEditCard({
   // ── Soft-archived state — slim muted strip with Undo ──
   if (service.softDeletedAt) {
     return (
-      <div
-        className="profile-service-card flex items-center justify-between gap-md"
-        style={{ opacity: 0.7 }}
-      >
-        <div className="flex flex-col gap-xs">
-          <span className="text-sm font-semibold text-fg-secondary">
-            {service.title || "Untitled appointment"}
-          </span>
-          <span className="text-xs text-fg-tertiary">
-            Archived — existing bookings keep running.
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={onUndoArchive}
-          className="flex items-center gap-xs text-sm text-brand-strong"
-          style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
-        >
-          <ArrowCounterClockwise size={15} weight="bold" />
-          Undo
-        </button>
-      </div>
+      <ArchivedServiceStrip
+        title={service.title || "Untitled appointment"}
+        onUndo={onUndoArchive}
+      />
     );
   }
 

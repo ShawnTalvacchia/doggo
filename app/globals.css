@@ -11775,6 +11775,40 @@ body:has(.bottom-nav) .inbox-page {
   gap: 12px;
 }
 
+/* Soft-archived service strip — slim row in the Services edit list. Title +
+   status on the left, Undo compact on the right; on mobile the button wraps
+   to its own full-width row. Service ↔ Meet Linkage walkthrough, 2026-05-16. */
+.archived-service-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: var(--surface-inset);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+}
+.archived-service-strip-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-tiny);
+  min-width: 0;
+  /* Out-grows the Undo button 999:1 so the button stays compact on a shared
+     row while the text fills the remaining space. */
+  flex: 999 1 auto;
+}
+.archived-service-strip .btn {
+  /* Compact beside the text; fills the row when it wraps under. */
+  flex: 1 1 auto;
+}
+@media (max-width: 767px) {
+  /* Force the stack — the text block takes the whole row so the Undo button
+     wraps beneath it and grows to full width. */
+  .archived-service-strip-main {
+    flex-basis: 100%;
+  }
+}
+
 .profile-service-name {
   font-size: 15px;
   font-weight: var(--weight-semibold);

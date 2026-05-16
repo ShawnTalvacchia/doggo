@@ -1,16 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  Trash,
-  CalendarBlank,
-  ArrowCounterClockwise,
-  Plus,
-  X,
-  MagnifyingGlass,
-} from "@phosphor-icons/react";
+import { Trash, CalendarBlank, Plus, X, MagnifyingGlass } from "@phosphor-icons/react";
 import { InputField } from "@/components/ui/InputField";
 import { Toggle } from "@/components/ui/Toggle";
+import { ArchivedServiceStrip } from "@/components/profile/ArchivedServiceStrip";
 import { meetScheduleSummary } from "@/lib/meetUtils";
 import type {
   CarerMeetServiceConfig,
@@ -112,28 +106,10 @@ export function MeetServiceEditCard({
   // ── Soft-archived state — slim muted strip with Undo ──
   if (service.softDeletedAt) {
     return (
-      <div
-        className="profile-service-card flex items-center justify-between gap-md"
-        style={{ opacity: 0.7 }}
-      >
-        <div className="flex flex-col gap-xs">
-          <span className="text-sm font-semibold text-fg-secondary">
-            {service.title || "Untitled session"}
-          </span>
-          <span className="text-xs text-fg-tertiary">
-            Archived — existing bookings keep running.
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={onUndoArchive}
-          className="flex items-center gap-xs text-sm text-brand-strong"
-          style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
-        >
-          <ArrowCounterClockwise size={15} weight="bold" />
-          Undo
-        </button>
-      </div>
+      <ArchivedServiceStrip
+        title={service.title || "Untitled session"}
+        onUndo={onUndoArchive}
+      />
     );
   }
 
