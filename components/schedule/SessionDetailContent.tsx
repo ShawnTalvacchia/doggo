@@ -16,7 +16,7 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 import { LayoutList } from "@/components/layout/LayoutList";
 import { LayoutSection } from "@/components/layout/LayoutSection";
 import { formatMeetDate } from "@/lib/dateUtils";
-import { SERVICE_LABELS } from "@/lib/constants/services";
+import { bookingServiceLabel } from "@/lib/constants/services";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { Booking, BookingSession } from "@/lib/types";
 
@@ -51,7 +51,7 @@ export function SessionDetailContent({
           />
           <div className="flex flex-col flex-1">
             <span className="font-heading text-lg font-semibold text-fg-primary" style={{ margin: 0 }}>
-              {SERVICE_LABELS[booking.serviceType]}
+              {bookingServiceLabel(booking)}
             </span>
             <span className="text-sm text-fg-secondary">
               with {other.name}

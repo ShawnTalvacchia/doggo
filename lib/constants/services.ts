@@ -1,4 +1,4 @@
-import type { ServiceType } from "@/lib/types";
+import type { ServiceType, Booking } from "@/lib/types";
 
 /**
  * Canonical display labels for the four Care service types. Resolved
@@ -12,6 +12,17 @@ export const SERVICE_LABELS: Record<ServiceType, string> = {
   day_care: "Day care",
   boarding: "Boarding",
 };
+
+/**
+ * Display label for a booking's service. Handles Meet-type service bookings
+ * (Service ↔ Meet Linkage C2) — those have no Care `serviceType`, so the
+ * label comes from `meetBooking.serviceTitle`. Care/Appointment bookings
+ * fall back to the Care `SERVICE_LABELS`.
+ */
+export function bookingServiceLabel(booking: Booking): string {
+  if (booking.meetBooking) return booking.meetBooking.serviceTitle;
+  return booking.serviceType ? SERVICE_LABELS[booking.serviceType] : "Service";
+}
 
 /**
  * Canonical short labels for compact surfaces (filter pills, card chips).

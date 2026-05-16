@@ -48,6 +48,8 @@ import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ShareMeetModal } from "@/components/meets/ShareMeetModal";
 import { ServiceBookingSheet } from "@/components/meets/ServiceBookingSheet";
+import { BookSessionSheet } from "@/components/meets/BookSessionSheet";
+import { getLinkedServicesForMeet } from "@/lib/meetUtils";
 import { CancelOccurrenceModal } from "@/components/meets/CancelOccurrenceModal";
 import { ParticipantList } from "@/components/meets/ParticipantList";
 import { MeetPhotoGallery } from "@/components/meets/MeetPhotoGallery";
@@ -93,7 +95,7 @@ import {
   getMeetTypeSummary,
 } from "@/lib/mockMeets";
 import { getMessagesForMeet } from "@/lib/mockMeetMessages";
-import type { Meet, MeetType, MeetMessage } from "@/lib/types";
+import type { Meet, MeetType, MeetMessage, CarerMeetServiceConfig } from "@/lib/types";
 
 /* ── Constants ── */
 
@@ -260,6 +262,19 @@ function MeetDetailInner() {
   // every action button drops into the AuthGate handler below. D4 2026-05-11.
   const isCreator = !isGuest && meet.creatorId === currentUserId;
   const recurring = isRecurring(meet);
+
+  // Service ↔ Meet Linkage C4 — resolve the meet's linked Meet-type service
+  // (if any) so the Book CTA routes through `BookSessionSheet` (real Booking
+  // record + roster entry) rather than the legacy `ServiceBookingSheet`.
+  const linkedServiceRef = getLinkedServicesForMeet(meet)[0];
+  const meetCarer = getUserById(meet.creatorId);
+  const linkedService: CarerMeetServiceConfig | undefined =
+    linkedServiceRef && meetCarer
+      ? meetCarer.carerProfile?.services.find(
+          (s): s is CarerMeetServiceConfig =>
+            s.kind === "meet" && s.id === linkedServiceRef.serviceId,
+        )
+      : undefined;
 
   // Derive RSVP from mock data on first render. For one-off meets that's a
   // single status; for recurring meets it's the per-occurrence map keyed by
@@ -477,24 +492,52 @@ function MeetDetailInner() {
         dateLabel={cancelOccDate ? formatCancelDateLabel(cancelOccDate) : ""}
         meetTitle={meet.title}
       />
-      <ServiceBookingSheet
-        meet={meet}
-        occurrenceDate={bookingDate ?? meet.date}
-        open={bookingDate !== null}
-        onClose={() => setBookingDate(null)}
-        onConfirmed={(date) => {
-          // Flip the row / status to a committed (Booked / Going) state
-          // and propagate to mockMeets so the Schedule page picks up the
-          // booking. Recurring uses per-occurrence; one-off uses the
-          // single rsvpStatus. Both wrappers handle the propagation
-          // internally.
-          if (recurring) {
-            handleRsvpDateChange(date, "going");
-          } else {
-            handleRsvpChange("going");
-          }
-        }}
-      />
+      {/* Service ↔ Meet Linkage C4 — meets with a resolvable linked
+          Meet-type service book through BookSessionSheet (creates a real
+          Booking + roster entry). Legacy serviceCTA-only meets keep the
+          ServiceBookingSheet path until serviceCTA is fully retired. */}
+      {linkedService && meetCarer ? (
+        <BookSessionSheet
+          open={bookingDate !== null}
+          onClose={() => setBookingDate(null)}
+          service={linkedService}
+          carer={{
+            id: meetCarer.id,
+            name: meetCarer.firstName,
+            avatarUrl: meetCarer.avatarUrl,
+          }}
+          preselectedMeetId={meet.id}
+          preselectedDate={bookingDate ?? undefined}
+          onBooked={(_meetId, date) => {
+            // Sync the page's local RSVP state so the row flips to Going
+            // immediately (the sheet already mutated mockMeets).
+            if (recurring) {
+              handleRsvpDateChange(date, "going");
+            } else {
+              handleRsvpChange("going");
+            }
+          }}
+        />
+      ) : (
+        <ServiceBookingSheet
+          meet={meet}
+          occurrenceDate={bookingDate ?? meet.date}
+          open={bookingDate !== null}
+          onClose={() => setBookingDate(null)}
+          onConfirmed={(date) => {
+            // Flip the row / status to a committed (Booked / Going) state
+            // and propagate to mockMeets so the Schedule page picks up the
+            // booking. Recurring uses per-occurrence; one-off uses the
+            // single rsvpStatus. Both wrappers handle the propagation
+            // internally.
+            if (recurring) {
+              handleRsvpDateChange(date, "going");
+            } else {
+              handleRsvpChange("going");
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

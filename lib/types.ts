@@ -443,7 +443,39 @@ export interface Booking {
   carerAvatarUrl: string;
   // Service
   type: BookingType;
-  serviceType: ServiceType;
+  /**
+   * Care/Appointment booking's service type (the Care taxonomy enum).
+   * Optional as of Service ↔ Meet Linkage C2 (2026-05-13): a Meet-type
+   * service booking has no Care `ServiceType` — it's identified by
+   * `meetBooking` instead. Renderers that show a service label must
+   * branch on `meetBooking` first, then fall back to `serviceType`.
+   */
+  serviceType?: ServiceType;
+  /**
+   * Set when this booking was produced by a **Meet-type service** — i.e.
+   * the owner booked a scheduled session (training, workshop, paid group
+   * walk). Absent on Care and Appointment bookings.
+   *
+   * `Booking` carries no generic `serviceId`; this nested object is the
+   * Meet-service discriminator. When present:
+   *  - the booking represents one occurrence of one linked meet,
+   *  - `serviceType` / `subService` / `sessions` / the Care contract
+   *    lifecycle do not apply,
+   *  - the `/bookings` list row routes to `/meets/{meetId}` (the meet IS
+   *    the session detail — there is no separate Meet-booking detail page).
+   *
+   * Service ↔ Meet Linkage, Workstream C2, 2026-05-13.
+   */
+  meetBooking?: {
+    /** The `CarerMeetServiceConfig.id` this booking is for. */
+    serviceId: string;
+    /** Service title, denormalised so rows render without a carer lookup. */
+    serviceTitle: string;
+    /** The linked meet this session belongs to. */
+    meetId: string;
+    /** The specific occurrence booked — ISO YYYY-MM-DD. */
+    occurrenceDate: string;
+  };
   subService: string | null;
   pets: string[];
   // Dates

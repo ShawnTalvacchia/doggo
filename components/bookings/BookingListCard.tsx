@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { StatusBadge } from "@/components/ui/StatusBadge";
-import { SERVICE_LABELS } from "@/lib/constants/services";
+import { bookingServiceLabel } from "@/lib/constants/services";
 import type { Booking } from "@/lib/types";
 
 /**
@@ -32,7 +32,7 @@ export function BookingListCard({
       <div className="flex flex-col flex-1 gap-xs">
         <span className="text-sm font-medium text-fg-primary">{other.name}</span>
         <span className="text-xs text-fg-tertiary">
-          {SERVICE_LABELS[booking.serviceType]} · {booking.pets.join(", ")}
+          {bookingServiceLabel(booking)} · {booking.pets.join(", ")}
         </span>
       </div>
       <StatusBadge status={booking.status} />

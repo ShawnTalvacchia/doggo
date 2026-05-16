@@ -59,7 +59,7 @@ export function ActiveSessionBanner() {
       <div className="active-session-banner-content">
         <span className="live-pulse-dot" role="img" aria-label="Live" />
         <span className="active-session-banner-copy">
-          {serviceIcon(active.booking.serviceType)}
+          {serviceIcon(active.booking.serviceType!)}
           <span className="active-session-banner-copy-text">{active.copy}</span>
           {active.elapsed && (
             <span className="active-session-banner-elapsed"> · {active.elapsed}</span>

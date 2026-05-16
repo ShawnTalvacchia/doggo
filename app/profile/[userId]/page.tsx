@@ -35,7 +35,8 @@ import { PostsTab } from "@/components/profile/PostsTab";
 import { ProfileChatTab } from "@/components/profile/ProfileChatTab";
 import { AvailabilityGrid } from "@/components/profile/AvailabilityGrid";
 import { InquiryFormModal } from "@/components/messaging/InquiryFormModal";
-import type { ServiceType } from "@/lib/types";
+import { BookSessionSheet } from "@/components/meets/BookSessionSheet";
+import type { ServiceType, CarerMeetServiceConfig } from "@/lib/types";
 import { getCommunityCarers, getMutualConnectedUserIds } from "@/lib/mockConnections";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { viewerSharedMeetWith, mockMeets } from "@/lib/mockMeets";
@@ -307,6 +308,9 @@ function UserProfileInner() {
   const [inquiryTarget, setInquiryTarget] = useState<
     { service: ServiceType; subService: string | null } | null
   >(null);
+  // Service ↔ Meet Linkage C5 — the Meet-type service whose Book CTA was
+  // tapped on the Services tab. Drives the BookSessionSheet.
+  const [bookingService, setBookingService] = useState<CarerMeetServiceConfig | null>(null);
 
   const tabs = [
     { key: "about", label: "About" },
@@ -1041,18 +1045,14 @@ function UserProfileInner() {
                         // Service ↔ Meet Linkage, 2026-05-13. One-to-many
                         // cardinality: a Meet service can run on N meets.
                         // B7 surfaces every linked meet's schedule below;
-                        // the CTA routes to the first linked meet (C5 will
-                        // route Book through `BookSessionSheet` with a
-                        // session picker across all linked meets).
+                        // C5 routes the Book CTA through `BookSessionSheet`
+                        // (real Booking + roster entry) with a session
+                        // picker across all linked meets.
                         const linkedMeets = svc.linkedMeetIds.flatMap((id) => {
                           const m = mockMeets.find((meet) => meet.id === id);
                           return m ? [m] : [];
                         });
-                        const firstLinkedMeetId = svc.linkedMeetIds[0];
-                        const ctaHref = firstLinkedMeetId
-                          ? `/meets/${firstLinkedMeetId}`
-                          : `/profile/${userId}?tab=chat`;
-                        const ctaLabel = firstLinkedMeetId ? "See upcoming sessions" : "Ask about this";
+                        const bookable = linkedMeets.length > 0;
                         return (
                           <div key={svc.id} className="profile-service-card">
                             <div className="profile-service-top">
@@ -1096,17 +1096,33 @@ function UserProfileInner() {
                               <p className="profile-service-notes">{svc.notes}</p>
                             )}
                             {!isSelf && (
-                              <ButtonAction
-                                variant="secondary"
-                                size="sm"
-                                cta
-                                className="self-start"
-                                {...(isGuest
-                                  ? { onClick: () => requireAuth(`book ${firstName}'s service`) }
-                                  : { href: ctaHref })}
-                              >
-                                {ctaLabel}
-                              </ButtonAction>
+                              bookable ? (
+                                <ButtonAction
+                                  variant="secondary"
+                                  size="sm"
+                                  cta
+                                  className="self-start"
+                                  onClick={() =>
+                                    isGuest
+                                      ? requireAuth(`book ${firstName}'s session`)
+                                      : setBookingService(svc)
+                                  }
+                                >
+                                  Book a session
+                                </ButtonAction>
+                              ) : (
+                                <ButtonAction
+                                  variant="secondary"
+                                  size="sm"
+                                  cta
+                                  className="self-start"
+                                  {...(isGuest
+                                    ? { onClick: () => requireAuth(`book ${firstName}'s service`) }
+                                    : { href: `/profile/${userId}?tab=chat` })}
+                                >
+                                  Ask about this
+                                </ButtonAction>
+                              )
                             )}
                           </div>
                         );
@@ -1222,7 +1238,7 @@ function UserProfileInner() {
           );
         })()}
 
-        {/* InquiryFormModal — opens from a service card "Book a session"
+        {/* InquiryFormModal — opens from a Care service card "Book a session"
             CTA on the Services tab. Renders here so it sits above the
             page content and is mountable from any tab. */}
         {inquiryTarget && (
@@ -1232,6 +1248,18 @@ function UserProfileInner() {
             provider={{ id: userId, name, avatarUrl }}
             service={inquiryTarget.service}
             subService={inquiryTarget.subService}
+          />
+        )}
+
+        {/* BookSessionSheet — opens from a Meet-type service card's "Book a
+            session" CTA (Service ↔ Meet Linkage C5). Session picker spans
+            all of the service's linked meets. */}
+        {bookingService && (
+          <BookSessionSheet
+            open
+            onClose={() => setBookingService(null)}
+            service={bookingService}
+            carer={{ id: userId, name, avatarUrl }}
           />
         )}
 

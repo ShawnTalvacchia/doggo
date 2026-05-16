@@ -62,7 +62,7 @@ export function buildSessionStartedNotification(
   booking: Booking,
   session: BookingSession,
 ): NewNotification {
-  const { started } = actionPhrases(booking.serviceType, petLabel(booking));
+  const { started } = actionPhrases(booking.serviceType!, petLabel(booking));
   return {
     id: sessionLifecycleNotifId(session.id),
     type: "session_started",
@@ -84,7 +84,7 @@ export function buildSessionCompletedNotification(
   booking: Booking,
   session: BookingSession,
 ): NewNotification {
-  const { finished } = actionPhrases(booking.serviceType, petLabel(booking));
+  const { finished } = actionPhrases(booking.serviceType!, petLabel(booking));
   return {
     id: sessionLifecycleNotifId(session.id),
     type: "session_completed",

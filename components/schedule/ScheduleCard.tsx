@@ -23,7 +23,7 @@ import {
 } from "@phosphor-icons/react";
 import type { Meet, MeetType, Booking, BookingSession } from "@/lib/types";
 import { MEET_TYPE_LABELS } from "@/lib/mockMeets";
-import { SERVICE_LABELS } from "@/lib/constants/services";
+import { bookingServiceLabel } from "@/lib/constants/services";
 import { getUserById } from "@/lib/mockUsers";
 import { formatShortDate } from "@/lib/dateUtils";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
@@ -469,7 +469,7 @@ export function ScheduleCareCard({
 
       {/* Row 2: Service type + sub-service */}
       <h3 className={`sched-card-title${isCancelled ? " line-through" : ""}`}>
-        {booking.subService ?? SERVICE_LABELS[booking.serviceType]}
+        {booking.subService ?? bookingServiceLabel(booking)}
       </h3>
 
       {/* Row 3: Avatar combo + descriptive relationship text */}
@@ -608,7 +608,7 @@ export function ScheduleBookingCard({
 
       {/* Row 2: Sub-service or service type */}
       <h3 className="sched-card-title">
-        {booking.subService ?? SERVICE_LABELS[booking.serviceType]}
+        {booking.subService ?? bookingServiceLabel(booking)}
       </h3>
 
       {/* Row 3: Avatar combo + descriptive relationship text */}

@@ -97,7 +97,7 @@ export function useActiveSession(): ActiveSessionInfo | null {
   const { booking, session, isProvider } = active;
   const petText = booking.pets[0] ?? "your dog";
   const providerFirst = (isProvider ? booking.ownerName : booking.carerName).split(" ")[0];
-  const elapsed = showsTimer(booking.serviceType) ? formatElapsed(session.checkedInAt, now) : null;
+  const elapsed = showsTimer(booking.serviceType!) ? formatElapsed(session.checkedInAt, now) : null;
   const copy = copyFor(booking, isProvider, petText, providerFirst);
 
   const owner = getUserById(booking.ownerId);

@@ -3,7 +3,7 @@
 import { Briefcase } from "@phosphor-icons/react";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatMeetDate } from "@/lib/dateUtils";
-import { SERVICE_LABELS } from "@/lib/constants/services";
+import { bookingServiceLabel } from "@/lib/constants/services";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { Booking, BookingSession } from "@/lib/types";
 
@@ -45,7 +45,7 @@ export function SessionRow({
       />
       <div className="flex flex-col flex-1 gap-xs min-w-0">
         <span className="text-sm font-semibold text-fg-primary">
-          {SERVICE_LABELS[booking.serviceType]}{" "}
+          {bookingServiceLabel(booking)}{" "}
           <span className="font-normal text-fg-secondary">with {other.name}</span>
         </span>
         <span className="text-xs text-fg-tertiary truncate">

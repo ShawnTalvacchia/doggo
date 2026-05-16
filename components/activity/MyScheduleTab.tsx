@@ -18,7 +18,7 @@ import { CardMeet, type MeetRole } from "@/components/meets/CardMeet";
 import { getUserMeets } from "@/lib/mockMeets";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
-import { SERVICE_LABELS } from "@/lib/constants/services";
+import { bookingServiceLabel } from "@/lib/constants/services";
 import type { Meet, Booking } from "@/lib/types";
 import { formatMeetDate } from "@/lib/dateUtils";
 
@@ -91,7 +91,7 @@ function BookingBlock({
       />
       <div className="flex flex-col flex-1 gap-xs min-w-0">
         <span className="text-sm font-semibold text-fg-primary">
-          {SERVICE_LABELS[booking.serviceType]}{" "}
+          {bookingServiceLabel(booking)}{" "}
           <span className="font-normal text-fg-secondary">with {other.name}</span>
         </span>
         {(nextDateLabel || booking.pets.length > 0) && (

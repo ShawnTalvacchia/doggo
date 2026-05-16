@@ -44,7 +44,7 @@ export function SidebarActiveSessionLink() {
     >
       <span className="live-pulse-dot" role="img" aria-label="Live" />
       <span className="sidebar-active-session-copy">
-        {serviceIcon(active.booking.serviceType)}
+        {serviceIcon(active.booking.serviceType!)}
         <span className="sidebar-active-session-copy-text">{active.copy}</span>
         {active.elapsed && (
           <span className="sidebar-active-session-elapsed"> · {active.elapsed}</span>

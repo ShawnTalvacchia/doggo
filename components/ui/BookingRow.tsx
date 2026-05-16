@@ -11,7 +11,7 @@ import {
   Prohibit,
 } from "@phosphor-icons/react";
 import type { Booking } from "@/lib/types";
-import { SERVICE_LABELS } from "@/lib/constants/services";
+import { bookingServiceLabel } from "@/lib/constants/services";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatShortDate, formatDateRange } from "@/lib/dateUtils";
 import { getUserById } from "@/lib/mockUsers";
@@ -100,9 +100,15 @@ export function BookingRow({ booking }: { booking: Booking }) {
   // completed session. F4 walkthrough refinement, 2026-05-08.
   const recentCancellation = findRecentCancellation(booking);
   const todayIso = new Date().toISOString().slice(0, 10);
-  const cardHref = hasNewReport
-    ? `/bookings/${booking.id}?tab=sessions`
-    : `/bookings/${booking.id}`;
+  // Meet-service bookings route to the linked meet — the meet IS the
+  // session detail (Service ↔ Meet Linkage C). Care/Appointment bookings
+  // route to the booking-detail page. New-report owners deep-link to the
+  // Sessions tab.
+  const cardHref = booking.meetBooking
+    ? `/meets/${booking.meetBooking.meetId}`
+    : hasNewReport
+      ? `/bookings/${booking.id}?tab=sessions`
+      : `/bookings/${booking.id}`;
 
   return (
     <Link
@@ -140,7 +146,7 @@ export function BookingRow({ booking }: { booking: Booking }) {
 
       {/* Row 2: Service title */}
       <div className="booking-card-service">
-        {booking.subService ?? SERVICE_LABELS[booking.serviceType]}
+        {booking.subService ?? bookingServiceLabel(booking)}
       </div>
 
       {/* Row 3: Schedule + price */}

@@ -198,7 +198,9 @@ export default function ActiveSessionPage() {
             )}
             <ActiveSessionPanel
               session={activeSession}
-              serviceType={booking.serviceType}
+              // serviceType is always defined here — a Meet-service booking
+              // has no BookingSession / active-session lifecycle.
+              serviceType={booking.serviceType!}
               isProvider={isProvider}
               onUpdateReport={handleUpdateReport}
             />

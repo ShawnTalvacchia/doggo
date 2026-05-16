@@ -36,11 +36,11 @@ Verification checklist for the Service ↔ Meet Linkage phase. **This document i
 The foundation: `seriesMeetId` → `linkedMeetIds[]` (one-to-many), the inverse `Meet.linkedServices[]`, and Klára/Tereza mock data. Verified through the surfaces that read the migrated data.
 
 - [ ] **A1. Klára → `/profile?tab=services`.** Her Services tab renders without errors — the `seriesMeetId → linkedMeetIds` migration didn't break view-mode rendering. Five service cards total.
-- [ ] **A2. Klára → `/meets/meet-care-1`.** The group-training meet detail page still renders cleanly — adding the `linkedServices` field to the meet didn't break the meet-detail surface.
+- [x] **A2. Klára → `/meets/meet-care-1`.** The group-training meet detail page still renders cleanly — adding the `linkedServices` field to the meet didn't break the meet-detail surface.
 - [ ] **A3. `klara-1on1` is now an Appointment.** On Klára's Services tab, *1-on-1 training session* renders as an **Appointment** card — price reads **"800 Kč / appointment"**, a **"Training visit"** chip, *not* a session/cadence card. (It was a Meet-type entry before A4.)
-- [ ] **A4. New puppy-basics meet → `/meets/meet-care-puppy-basics`.** Renders "Puppy Basics — Foundations Cohort" — recurring weekly, hosted by Klára, at Stromovka, with upcoming dates and per-occurrence Book/Skip rows.
-- [ ] **A5. Klára's catalogue spans all three kinds.** On her Services tab: one Care service (*Walks & Check-ins*), three Meet services (*Group training*, *Reactive dog session*, *Puppy basics*), one Appointment (*1-on-1 training session*).
-- [ ] **A6. Tereza → `/profile?tab=services`.** Among Tereza's services, a Meet-type **"Group walk"** card appears (200 Kč / session) — the mixed-roster demo service — alongside her three Care services.
+- [x] **A4. New puppy-basics meet → `/meets/meet-care-puppy-basics`.** Renders "Puppy Basics — Foundations Cohort" — recurring weekly, hosted by Klára, at Stromovka, with upcoming dates and per-occurrence Book/Skip rows.
+- [x] **A5. Klára's catalogue spans all three kinds.** On her Services tab: one Care service (*Walks & Check-ins*), three Meet services (*Group training*, *Reactive dog session*, *Puppy basics*), one Appointment (*1-on-1 training session*).
+- [x] **A6. Tereza → `/profile?tab=services`.** Among Tereza's services, a Meet-type **"Group walk"** card appears (200 Kč / session) — the mixed-roster demo service — alongside her three Care services.
 
 ---
 
@@ -65,7 +65,18 @@ The thesis surface: the carer authors Care + Meet + Appointment services in one 
 
 ## Workstream C — Booking flow integration
 
-*In progress — verification items appended when C lands.*
+One booking flow (`BookSessionSheet`) reached from two doorways — the carer's Services tab and a linked meet's detail page. Booking a session creates a real `Booking` record AND adds the owner to the meet's roster. Verify as **Tomáš** (owner, no carer profile).
+
+- [ ] **C1. Tomáš → `/profile/klara?tab=services`.** Each of Klára's Meet-service cards (*Group training session*, *Reactive dog session*, *Puppy basics*) shows a **"Book a session"** CTA. Her Appointment (*1-on-1 training session*) shows "Ask about this" (no linked meets).
+- [ ] **C2. Tap "Book a session" on *Group training session*.** A `BookSessionSheet` opens — header "Book a session", a service summary (avatar · *Group training session* · with Klára · 350 Kč), a **"Pick a session"** list of upcoming occurrences (soonest selected), an optional message field, and a "Book — 350 Kč" footer.
+- [ ] **C3. Session picker.** Tap a later occurrence row — the selection moves (highlight + filled calendar icon). The list spans every linked meet's upcoming occurrences, ordered by date.
+- [ ] **C4. Confirm the booking.** Tap "Book — 350 Kč" → a "You're booked" success state names the chosen date and says it's on your bookings + the meet.
+- [ ] **C5. Tomáš → `/bookings`.** The session booking appears as a row under **Upcoming** — "Klára Horáčková · {dog} · Group training session · {date} · 350 Kč / session". It renders like a Care booking row (avatars, status badge).
+- [ ] **C6. Tap the session-booking row.** It routes to **the linked meet** (`/meets/meet-care-1`) — not a booking-detail page. The meet IS the session detail.
+- [ ] **C7. Roster updated.** On `/meets/meet-care-1`, the booked occurrence's row shows Tomáš committed (Booked) — the booking added him to the meet roster, not just a Booking record.
+- [ ] **C8. Meet-detail doorway → `/meets/meet-care-1`.** Tap "Book" on an *unbooked* upcoming-dates row → the same `BookSessionSheet` opens, scoped to this meet, with **that tapped date pre-selected**.
+- [ ] **C9. Required-link meet collapses free RSVP → `/meets/meet-care-1`.** There is no free "Going / Interested" RSVP dropdown — the service-card Book CTA is the only way onto the roster (required-service gate).
+- [ ] **C10. Optional-link meet keeps free RSVP → `/meets/meet-15`** (Tereza's "Thursday morning — Riegrovy sady" walk). The free "Going / Interested" RSVP control IS present — the optional service link does not gate joining. *(The inline service callout itself is Workstream D2.)*
 
 ---
 
@@ -78,3 +89,7 @@ A running **log** of decisions, design changes, or rationale that surface during
 - **B5 soft-archive uses the meet roster as the booking proxy.** `Booking` carries no `serviceId` back-reference, so "has active bookings" can't be matched precisely for Meet-type services. Proxy: a Meet service soft-archives if any linked meet has a roster (non-host attendees); a service added this session hard-deletes. → `features/profiles.md` + Open Questions §13
 - **A5's optional-link service is Meet-type, not Care.** The phase board's A5 wording said "Group walk *Care* service," but only Meet-type services carry `linkedMeetIds` (A1/A6). Corrected to a `kind: "meet"` service. → no feature-doc update needed (board wording, resolved)
 - **`/profile` renders a hidden 0×0 duplicate of its content under `<body>`.** Observation, not a phase decision — invisible, not a Workstream B regression (B changes were state/logic only). Flagged for a separate look; may be a dev-mode artifact. → punch list / separate investigation
+- **`Booking` type extended for Meet-service bookings (C2).** `serviceType` made optional + new `meetBooking: { serviceId, serviceTitle, meetId, occurrenceDate }`. A Meet-service booking has no Care `ServiceType`; renderers branch on `meetBooking` first (`bookingServiceLabel` helper). → `features/explore-and-care.md` + Open Questions §13
+- **Meet-service bookings show on `/bookings` as list rows that route to the linked meet (C).** No Care-lifecycle retrofit of the 1305-line booking-detail page — the meet IS the session detail, so the `/bookings` row's `href` is `/meets/{meetId}`. → `features/explore-and-care.md`
+- **C6 required-RSVP gate folded into D1.** The required-link meets already collapse free RSVP (they carry `serviceCTA`, which the meet detail already treats as RSVP-suppressing). The clean `isMeetRequiringService`-based gate — independent of the legacy `serviceCTA` field — lands with D1's meet-card three-state chrome (C6 and D1 are the same surface). → phase board (D1)
+- **Two booking sheets coexist post-C.** `BookSessionSheet` (new, linkage model) + `ServiceBookingSheet` (legacy, `serviceCTA`-bound — still used by meets that have `serviceCTA` but no resolvable linked service, e.g. Pawel's `meet-care-2`). `ServiceBookingSheet` retires when `serviceCTA` is fully removed (future cleanup, not in this phase). → no feature-doc update needed

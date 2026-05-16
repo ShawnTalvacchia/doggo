@@ -44,7 +44,7 @@ import { useNotifications } from "@/contexts/NotificationsContext";
 import { useViewedReports } from "@/lib/useViewedReports";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { getUserById } from "@/lib/mockUsers";
-import { SERVICE_LABELS } from "@/lib/constants/services";
+import { bookingServiceLabel } from "@/lib/constants/services";
 import {
   buildSessionStartedNotification,
   buildSessionCompletedNotification,
@@ -607,7 +607,7 @@ export default function BookingDetailPage() {
     const otherFirstName = isOwnerView
       ? booking.carerName.split(" ")[0]
       : booking.ownerName.split(" ")[0];
-    const serviceTitle = booking.subService ?? SERVICE_LABELS[booking.serviceType];
+    const serviceTitle = booking.subService ?? bookingServiceLabel(booking);
     const title = `${otherFirstName} · ${serviceTitle}`;
     setDetailHeader(title, () => router.push("/bookings"));
     return () => clearDetailHeader();
@@ -738,7 +738,7 @@ export default function BookingDetailPage() {
 
   // Header title carries relationship + service: "{otherFirstName} · {service}".
   // Same shape used for the mobile AppNav header above (in setDetailHeader).
-  const headerTitle = `${other.name.split(" ")[0]} · ${booking.subService ?? SERVICE_LABELS[booking.serviceType]}`;
+  const headerTitle = `${other.name.split(" ")[0]} · ${booking.subService ?? bookingServiceLabel(booking)}`;
 
   // Next upcoming session for aggregate stats
   const nextSession = [...upcomingSessions].sort((a, b) => a.date.localeCompare(b.date))[0];

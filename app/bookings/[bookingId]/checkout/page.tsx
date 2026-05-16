@@ -13,7 +13,7 @@ import { ButtonAction } from "@/components/ui/ButtonAction";
 import { DetailHeader } from "@/components/layout/DetailHeader";
 import { useBookings } from "@/contexts/BookingsContext";
 import { calculatePaymentSummary } from "@/lib/pricing";
-import { SERVICE_LABELS } from "@/lib/constants/services";
+import { bookingServiceLabel } from "@/lib/constants/services";
 
 export default function CheckoutPage() {
   const params = useParams();
@@ -76,7 +76,7 @@ export default function CheckoutPage() {
           </h1>
           <p className="text-sm text-fg-secondary">
             {payment.total.toLocaleString()} Kč paid to {booking.carerName} for{" "}
-            {SERVICE_LABELS[booking.serviceType].toLowerCase()}.
+            {bookingServiceLabel(booking).toLowerCase()}.
           </p>
         </div>
 
@@ -124,7 +124,7 @@ export default function CheckoutPage() {
               className="inline-flex items-center gap-xs rounded-pill px-sm py-xs text-xs font-medium bg-brand-subtle text-brand-strong self-start"
             >
               <PawPrint size={10} weight="fill" />
-              {SERVICE_LABELS[booking.serviceType]}
+              {bookingServiceLabel(booking)}
             </span>
           </div>
         </div>
