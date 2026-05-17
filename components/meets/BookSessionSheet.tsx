@@ -298,7 +298,10 @@ export function BookSessionSheet({
                 id="book-session-message"
                 className="textarea resize-none"
                 placeholder="Anything the host should know about your dog?"
-                rows={3}
+                rows={2}
+                // Override the global `.textarea` 120px min-height — an
+                // optional one-liner note doesn't need that much space.
+                style={{ minHeight: 56 }}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
               />
