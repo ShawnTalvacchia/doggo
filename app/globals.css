@@ -11913,21 +11913,22 @@ body:has(.bottom-nav) .inbox-page {
    split drives the two unselected treatments below. Selected (.active)
    keeps the shared brand treatment in both modes. 2026-05-16. */
 
-/* Edit, unselected — clickable but quiet: blends to the page surface with
-   a soft border, so it reads as a target without competing with selected. */
+/* Edit, unselected — a clickable outline chip: transparent fill + a defined
+   border + readable text, so it reads as a tappable target. */
 .profile-avail-slots button.pill:not(.active) {
-  background: var(--surface-base);
-  border-color: var(--border-regular);
+  background: transparent;
+  border-color: var(--border-stronger);
 }
 
-/* View, unselected — non-interactive and ghosted further, so the grid
-   clearly shows which slots are *not* offered. */
+/* View, unselected — a flat, non-interactive label: a soft filled chip with
+   muted text and no real border, so it recedes and the selected (brand)
+   slots carry the row. */
 .profile-avail-slots span.pill {
   cursor: default;
 }
 .profile-avail-slots span.pill:not(.active) {
-  background: transparent;
-  border-color: var(--border-subtle);
+  background: var(--surface-base);
+  border-color: var(--surface-base);
   color: var(--text-tertiary);
 }
 
