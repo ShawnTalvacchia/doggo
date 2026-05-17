@@ -315,16 +315,35 @@ export function BookSessionSheet({
             <span className="font-heading text-lg font-semibold text-fg-primary">
               You&apos;re booked
             </span>
-            <span className="text-sm text-fg-secondary">
-              {selected
-                ? `${service.title} — ${formatOccurrence(selected.date, selected.meet.time)}. It's on your bookings, and you'll see it on the meet.`
-                : "Your session is confirmed."}
-            </span>
+            {selected ? (
+              <>
+                {/* What + when carries the weight; the reassurance below
+                    stays lighter as supporting text. */}
+                <span className="text-sm font-semibold text-fg-primary">
+                  {service.title} —{" "}
+                  {formatOccurrence(selected.date, selected.meet.time)}
+                </span>
+                <span className="text-sm text-fg-secondary">
+                  It&apos;s on your bookings, and you&apos;ll see it on the meet.
+                </span>
+              </>
+            ) : (
+              <span className="text-sm text-fg-secondary">
+                Your session is confirmed.
+              </span>
+            )}
           </div>
           {selected && (
-            <span className="text-sm text-fg-tertiary">
-              {selected.meet.location} · {priceLabel} · paid on the day
-            </span>
+            // Location (where) on its own row; price + when-to-pay grouped
+            // on the second.
+            <div className="flex flex-col gap-tiny">
+              <span className="text-sm text-fg-tertiary">
+                {selected.meet.location}
+              </span>
+              <span className="text-sm text-fg-tertiary">
+                {priceLabel} · paid on the day
+              </span>
+            </div>
           )}
         </div>
       )}
