@@ -1027,13 +1027,22 @@ function DetailsTab({
                 <span className="text-sm font-semibold text-fg-primary">
                   {linkedService?.title ?? meet.serviceCTA.label}
                 </span>
-                {(meet.serviceCTA.price || meet.serviceCTA.spotsLeft != null) && (
-                  <span className="text-xs text-fg-tertiary">
-                    {meet.serviceCTA.price}
-                    {meet.serviceCTA.price && meet.serviceCTA.spotsLeft != null && " · "}
-                    {meet.serviceCTA.spotsLeft != null && `${meet.serviceCTA.spotsLeft} spots left`}
-                  </span>
-                )}
+                {(() => {
+                  // "Spots left" is per-occurrence — meaningless on a
+                  // recurring meet's service card (it isn't tied to one
+                  // date; the per-date rows below carry the real counts).
+                  // One-off paid meets keep it — there it IS one date.
+                  const showSpots =
+                    meet.serviceCTA.spotsLeft != null && !recurring;
+                  if (!meet.serviceCTA.price && !showSpots) return null;
+                  return (
+                    <span className="text-xs text-fg-tertiary">
+                      {meet.serviceCTA.price}
+                      {meet.serviceCTA.price && showSpots && " · "}
+                      {showSpots && `${meet.serviceCTA.spotsLeft} spots left`}
+                    </span>
+                  );
+                })()}
               </div>
               {/* One-off: inline Book CTA + Invite (the standalone action
                   row is suppressed for one-off paid meets — see the RSVP
