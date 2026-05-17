@@ -219,7 +219,13 @@ export function BookSessionSheet({
               <span className="text-sm font-medium text-fg-primary">
                 {occurrences.length === 1 ? "Session" : "Pick a session"}
               </span>
-              <div className="flex flex-col gap-xs">
+              {/* Capped + scrollable so the optional-message field below
+                  stays in view without scrolling the whole sheet — a peek
+                  of the next row signals there's more. 2026-05-16. */}
+              <div
+                className="flex flex-col gap-xs"
+                style={{ maxHeight: 244, overflowY: "auto" }}
+              >
                 {occurrences.map((occ) => {
                   const key = `${occ.meet.id}::${occ.date}`;
                   const isSelected = key === effectiveKey;
@@ -229,24 +235,46 @@ export function BookSessionSheet({
                       type="button"
                       onClick={() => setSelectedKey(key)}
                       aria-pressed={isSelected}
-                      className={`flex items-start gap-sm rounded-form border p-md text-left ${
+                      className={`flex flex-col gap-xs rounded-form border p-md text-left ${
                         isSelected
                           ? "border-brand-main bg-brand-subtle"
                           : "border-edge-regular bg-surface-top"
                       }`}
                     >
-                      <CalendarDots
-                        size={18}
-                        weight={isSelected ? "fill" : "light"}
-                        className={isSelected ? "text-brand-strong shrink-0" : "text-fg-tertiary shrink-0"}
-                      />
-                      <span className="flex flex-col gap-xs min-w-0">
+                      {/* Date row — calendar icon leads, in a fixed-width box
+                          so it aligns (centre + text start) with the location
+                          pin on the row below. */}
+                      <span className="flex items-center gap-xs">
+                        <span
+                          className="flex justify-center shrink-0"
+                          style={{ width: 16 }}
+                        >
+                          <CalendarDots
+                            size={16}
+                            weight={isSelected ? "fill" : "light"}
+                            className={
+                              isSelected ? "text-brand-strong" : "text-fg-tertiary"
+                            }
+                          />
+                        </span>
                         <span className="text-sm font-semibold text-fg-primary">
                           {formatOccurrence(occ.date, occ.meet.time)}
                         </span>
-                        <span className="flex items-center gap-xs text-xs text-fg-tertiary">
-                          <MapPin size={12} weight="light" className="shrink-0" />
-                          <span>{occ.meet.title}</span>
+                      </span>
+                      {/* Location row */}
+                      <span className="flex items-center gap-xs">
+                        <span
+                          className="flex justify-center shrink-0"
+                          style={{ width: 16 }}
+                        >
+                          <MapPin
+                            size={12}
+                            weight="light"
+                            className="text-fg-tertiary"
+                          />
+                        </span>
+                        <span className="text-xs text-fg-tertiary min-w-0">
+                          {occ.meet.title}
                         </span>
                       </span>
                     </button>
