@@ -443,6 +443,7 @@ function MeetDetailInner() {
           {activeTab === "details" && (
             <DetailsTab
               meet={meet}
+              linkedService={linkedService}
               focusAttendees={focusAttendees}
               goingAttendees={goingAttendees}
               interestedCount={interestedCount}
@@ -548,6 +549,7 @@ function MeetDetailInner() {
 
 function DetailsTab({
   meet,
+  linkedService,
   focusAttendees,
   goingAttendees,
   interestedCount,
@@ -567,6 +569,9 @@ function DetailsTab({
   onRestoreOccurrence,
 }: {
   meet: Meet;
+  /** The Meet-type service this meet links (resolved by the parent), if any.
+   *  Drives the "About this service" card heading copy. */
+  linkedService?: CarerMeetServiceConfig;
   /**
    * Attendees for the focus occurrence — i.e. the next upcoming date for
    * recurring meets, or the only date for one-off. Used to drive "Who's
@@ -945,7 +950,14 @@ function DetailsTab({
             )}
             <div className="flex items-center justify-between gap-sm">
               <div className="flex flex-col gap-xs flex-1 min-w-0">
-                <span className="text-sm font-semibold text-fg-primary">{meet.serviceCTA.label}</span>
+                {/* Name the service — the resolved linked-service title, not
+                    the legacy `serviceCTA.label` (a CTA string like "Book
+                    this session", which clashes with "Pick a date below" on
+                    a recurring meet). Falls back to the label for legacy
+                    `serviceCTA`-only meets with no resolvable linked service. */}
+                <span className="text-sm font-semibold text-fg-primary">
+                  {linkedService?.title ?? meet.serviceCTA.label}
+                </span>
                 {(meet.serviceCTA.price || meet.serviceCTA.spotsLeft != null) && (
                   <span className="text-xs text-fg-tertiary">
                     {meet.serviceCTA.price}
