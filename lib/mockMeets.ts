@@ -1419,10 +1419,12 @@ export const mockMeets: Meet[] = [
       { userId: "jakub", userName: "Jakub", avatarUrl: "/images/generated/jakub-profile.jpeg", dogNames: ["Aron"], rsvpStatus: "going" },
     ],
     recentJoinText: "Marek joined yesterday",
-    // Service ↔ Meet Linkage A5, 2026-05-13 — optional-link / mixed-roster
-    // demo. The walk stays free to join; `required: false` means Tereza's
-    // "Group walk" service is a supplementary paid option, not an RSVP gate.
-    linkedServices: [{ serviceId: "tereza-group-walk", required: false }],
+    // Plain free community walk. The earlier optional `linkedServices` link
+    // to `tereza-group-walk` was removed in the Service ↔ Meet Linkage
+    // remodel (2026-05-17): a drop-off "Group walk" is a Care service, not a
+    // Meet-type service, so it isn't linked to a meet this way. Free meets
+    // linking drop-off Care services is a scheduled follow-on — see Open
+    // Q §13 (corrected config #2).
     createdAt: "2026-04-03T08:00:00Z",
   },
 

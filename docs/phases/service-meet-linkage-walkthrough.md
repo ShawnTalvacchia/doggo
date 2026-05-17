@@ -24,7 +24,7 @@ Verification checklist for the Service ↔ Meet Linkage phase. **This document i
 - **Klára now demos all three service kinds.** Care: *Walks & Check-ins* (300 Kč). Meet: *Group training session* (350 Kč), *Reactive dog session* (600 Kč), *Puppy basics* (400 Kč). Appointment: *1-on-1 training session* (800 Kč).
 - `klara-1on1` was **reclassified** Meet → Appointment in A4 (1-on-1 = solo + scheduled + no roster = Appointment, not Meet).
 - **New seed meet** `meet-care-puppy-basics` ("Puppy Basics — Foundations Cohort") — a recurring weekly Klára cohort, linked to her *Puppy basics* service.
-- **Tereza** gained a Meet-type *Group walk* service (200 Kč) linked to `meet-15` ("Thursday morning — Riegrovy sady") with `required: false` — the optional-link / mixed-roster demo case.
+- **Tereza** offers a drop-off **"Group walk"** as a sub-service of her `walks_checkins` **Care** service. *(Config #2 was remodelled 2026-05-17 — the earlier `tereza-group-walk` Meet-type service + `meet-15` link were removed; `meet-15` is now a plain free walk. See the Decisions log + Open Q §13.)*
 - Klára's *Group training* (`meet-care-1`) and *Reactive dog session* (`meet-care-workshop-1`) are **required-link** meets (`required: true`).
 
 **Status:** Workstreams A + B + A5 walkable now. C/D/E/F/G land in later passes — their items are appended here as they ship.
@@ -40,7 +40,7 @@ The foundation: `seriesMeetId` → `linkedMeetIds[]` (one-to-many), the inverse 
 - [x] **A3. `klara-1on1` is now an Appointment.** On Klára's Services tab, *1-on-1 training session* renders as an **Appointment** card — price reads **"800 Kč / appointment"**, a **"Training visit"** chip, *not* a session/cadence card. (It was a Meet-type entry before A4.)
 - [x] **A4. New puppy-basics meet → `/meets/meet-care-puppy-basics`.** Renders "Puppy Basics — Foundations Cohort" — recurring weekly, hosted by Klára, at Stromovka, with upcoming dates and per-occurrence Book/Skip rows.
 - [x] **A5. Klára's catalogue spans all three kinds.** On her Services tab: one Care service (*Walks & Check-ins*), three Meet services (*Group training*, *Reactive dog session*, *Puppy basics*), one Appointment (*1-on-1 training session*).
-- [x] **A6. Tereza → `/profile?tab=services`.** Among Tereza's services, a Meet-type **"Group walk"** card appears (200 Kč / session) — the mixed-roster demo service — alongside her three Care services.
+- [x] **A6. Tereza → `/profile?tab=services`.** ~~A Meet-type "Group walk" card appears~~ — **revised 2026-05-17** (config #2 remodel): Tereza has **three Care services**; her `walks_checkins` ("Walks & Check-ins") card carries **"Group walk"** as a sub-service chip. There is no Meet-type "Group walk" card — a drop-off group walk is Care, not Meet-type.
 
 ---
 
@@ -75,19 +75,19 @@ One booking flow (`BookSessionSheet`) reached from two doorways — the carer's 
 - [x] **C6. Tap the session-booking row.** It routes to **the linked meet** (`/meets/meet-care-1`) — not a booking-detail page. The meet IS the session detail.
 - [x] **C7. Roster updated.** On `/meets/meet-care-1`, the booked occurrence's row shows Tomáš committed (Booked) — the booking added him to the meet roster, not just a Booking record.
 - [x] **C8. Meet-detail doorway → `/meets/meet-care-1`.** Tap "Book" on an *unbooked* upcoming-dates row → the same `BookSessionSheet` opens, scoped to this meet, with **that tapped date pre-selected**.
-- [ ] **C9. Required-link meet — booking is the only roster path → `/meets/meet-care-1`.** In the **Upcoming dates** section, each date's primary action is **Book** (opens `BookSessionSheet`) — there is no free per-occurrence "Join". Booking is the only way onto a required-link meet's roster. *(The series-level **Interested** toggle is still shown — it's a soft series-follow, identical on every recurring meet, and is deliberately **not** gated: Interested ≠ joining the roster.)*
-- [ ] **C10. Optional-link meet — free join stays → `/meets/meet-15`** (Tereza's "Thursday morning — Riegrovy sady" walk). In the **Upcoming dates** section, each date's primary action is the free **Join** (per-occurrence RSVP) — the optional link does not gate joining. The **"Group walk" callout** above the action row offers Tereza's paid service as a supplement. *(Series-level **Interested** toggle present, same as any recurring meet; the callout itself is Workstream D2.)*
+- [x] **C9. Required-link meet — booking is the only roster path → `/meets/meet-care-1`.** In the **Upcoming dates** section, each date's primary action is **Book** (opens `BookSessionSheet`) — there is no free per-occurrence "Join". Booking is the only way onto a required-link meet's roster. *(The series-level **Interested** toggle is still shown — it's a soft series-follow, identical on every recurring meet, and is deliberately **not** gated: Interested ≠ joining the roster.)*
+- [x] ~~**C10. Optional-link meet — free join stays.**~~ **Superseded 2026-05-17** (config #2 remodel — see Decisions log). `meet-15` no longer carries a linked service; it's a plain free recurring walk (covered by D3). The optional-link config (free meet + drop-off Care service, book ≠ attend) is a scheduled follow-on phase — its walkthrough items move there.
 
 ---
 
-## Workstream D — Meet card mixed-roster UX
+## Workstream D — Meet card UX
 
-The meet detail page now reads correctly for all three configurations: free unlinked, optional service link (mixed roster), required service link.
+The meet detail page reads correctly for the two configurations this phase ships: **free unlinked** and **required service link**. *(The optional-link / mixed-roster config #2 was remodelled 2026-05-17 — see the Decisions log; its walkthrough items D2/D4 are superseded and move to the follow-on phase.)*
 
 - [ ] **D1. Required-link meet → `/meets/meet-care-1`.** Reads as a paid session: "Paid session" badge, the "About this service" card with the Book CTA, no free RSVP dropdown — booking is the only path onto the roster.
-- [ ] **D2. Optional-link callout → `/meets/meet-15`** (Tereza's Thursday walk). Below the when/where card: a **"Group walk" callout** — Tereza's avatar, "Optional — book to have Tereza work with your dog on this walk", **200 Kč**, chevron. *Below it*, the free RSVP controls (Interested / per-date Join) are still present — mixed roster. Tapping the callout opens `BookSessionSheet`.
-- [ ] **D3. Free unlinked meet → any park walk with no linked service** (e.g. a `park-*` group meet). Normal Going / Skip / Interested — no service callout, no "Paid session" badge.
-- [ ] **D4. Mixed-roster People tab → `/meets/meet-15?tab=people`.** Free RSVPs and (after a paid booking) service bookers appear in one unified attendee list — no visible "free vs paid" distinction. The People-tab disclosure model is unchanged.
+- [x] ~~**D2. Optional-link callout.**~~ **Superseded 2026-05-17** — `LinkedServiceCallout` was deleted in the config #2 remodel. The optional-link callout (a *drop-off Care* service callout routing to a Care booking) is rebuilt in the follow-on phase.
+- [ ] **D3. Free unlinked meet → any park walk with no linked service** (e.g. a `park-*` group meet, or now `meet-15`). Normal Going / Skip / Interested — no service callout, no "Paid session" badge.
+- [x] ~~**D4. Mixed-roster People tab.**~~ **Superseded 2026-05-17** — the corrected config #2 has no mixed *attendee* roster (book ≠ attend; the booked owner isn't a roster entry). Follow-on phase.
 
 ---
 
@@ -119,6 +119,7 @@ Per the phase board, these §13 items were watch-points during the build — not
 
 A running **log** of decisions, design changes, or rationale that surface during walkthrough discussion. Append as you walk; each entry carries a `→ target-doc.md` annotation for the phase-close sweep.
 
+- **Config #2 remodelled — "Group walk" is a Care service, not Meet-type; mixed-roster reverted (2026-05-17).** A Workstream D finding that grew into a model correction. Config #2 ("Meet + optional service / mixed roster") was built on a miscategorisation: a drop-off "Group walk" (owner pays, doesn't attend) is a **Care** service per the Groups & Care routing test ("I take the dog → Care"), not Meet-type. The build had made `tereza-group-walk` a Meet-type service so it could carry `linkedMeetIds` and link to `meet-15`; booking it called `setMeetRsvp("going")`, faking roster attendance. **Corrected config #2:** a *free* meet linking drop-off **Care** services — two separate paths (free RSVP as a walker / book a carer to walk your dog), **book ≠ attend**, the booked owner is not a roster attendee. **Done now:** `tereza-group-walk` removed (folded into Tereza's existing `walks_checkins` Care service as a "Group walk" sub-service); `meet-15.linkedServices` dropped (plain free walk now); `LinkedServiceCallout.tsx` + its meet-detail branch/import deleted. Open Q §13 (correction note), `Groups & Care Model.md`, the phase board (remodel note + A5/G2/D1–D4), and this walkthrough were all corrected. **Scheduled:** the corrected config #2 build (Care services meet-linkable + a drop-off-from-meet booking flow + multi-service/multi-carer links) is a follow-on phase on the ROADMAP. The required-link config (#3, Klára's training) is unaffected — a paid session you attend is real. → Open Q §13 + `Groups & Care Model.md` + phase board + ROADMAP (follow-on phase)
 - **A4 reclassified `klara-1on1` Meet → Appointment.** 1-on-1 = solo + scheduled + no roster → Appointment per §13's roster test. Also gave the otherwise-empty `"training"` Appointment category its first seeded entry. → `Groups & Care Model.md` (Services as Catalog), `features/explore-and-care.md`
 - **Appointment edit card built (scope addition beyond the Care+Meet board).** A4's reclassification meant `klara-1on1` would be a new "uneditable here" gap without it; user approved building `AppointmentServiceEditCard` so the catalogue is coherent across all three kinds. → `features/profiles.md`
 - **B5 soft-archive uses the meet roster as the booking proxy.** `Booking` carries no `serviceId` back-reference, so "has active bookings" can't be matched precisely for Meet-type services. Proxy: a Meet service soft-archives if any linked meet has a roster (non-host attendees); a service added this session hard-deletes. → `features/profiles.md` + Open Questions §13

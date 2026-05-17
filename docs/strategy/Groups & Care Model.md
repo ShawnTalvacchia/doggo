@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-10
+last-reviewed: 2026-05-16
 tags: [groups, community, carers, care, navigation, demo]
 review-trigger: "when touching group features, Community tab, Care groups, care model, or demo planning"
 ---
@@ -149,11 +149,18 @@ Prague market research identified distinct provider categories, each with a diff
 | **Walking** | Mix of freelancers/services, ~755 CZK/day | Daily photo updates + schedule + capacity | Updates |
 | **Grooming** | 43+ salons in Prague, portfolio-driven | Before/after showcase + service menu + booking | Portfolio |
 | **Boarding** | 58+ facilities, trust is #1 barrier | Daily photo updates (anxiety reduction) + booking | Updates |
-| **Rehab** | Specialized niche, referral-driven, premium | Recovery progress + exercise tips + Q&A | Standard |
 | **Venue** | Dog-friendly cafés, growing segment | Event hosting + cross-promotion with park groups | Standard |
-| **Vet** *(deprioritized — see note below)* | Range of practices, high authority | Health tips + seasonal alerts + community Q&A | Standard |
 
-> **Vet category — sunset from the demo arc (2026-05-10).** Per Open Q §6 (Provider category prioritization), vets are post-MVP at best, possibly never as first-class accounts: existing PMS/billing systems (eVet, Provet, ezyVet) are sticky and compliance-integrated, and vet selection is location + reputation + emergency rather than community-shaped. The demo's seeded vet entity (Lenka N. + PremiumVet group) was repurposed as a **grooming salon** during Discover Refinement walkthrough D1 to align the demo with this strategic call. The `vet` category is retained in the data model (`AppointmentCategory` + `careCategory` enums + this category table) for forward compatibility, but no live mock data carries it. The likely landing place for vets long-term is the **Adjacent-business advertising** surface (Open Q §6) — external pointers, not first-class Doggo accounts. See also [[Shelter Dogs & Community Walks]] for the parallel non-paid-account thread.
+Vets and rehab are out of scope as first-class carer categories. Both have sticky existing systems, niche audiences, and weak community-first fit (vet selection runs on location + reputation + emergency; rehab is referral-driven and clinical). Their likely landing place long-term is an Adjacent-business advertising surface — external pointers, not first-class Doggo accounts.
+
+### Adjacent care types (non-paid)
+
+Two activity threads exist outside the paid-carer frame and don't appear in the Configuration Model or Suggested Defaults tables below:
+
+- **Shelter dog walking** — volunteer walks of non-owned dogs from partner shelters. Not a Booking, not a Service. Generates trust signals and adoption outcomes rather than revenue. Walker reputation accrues via documented engagements; per-shelter policy gates what's permitted (solo walks vs group walks, walker tier requirements). See [[Cold-Start Playbook]] → "The shelter angle" + "Walker credentialing as a shelter trust layer."
+- **Fostering** — temporary care of a shelter dog by a private home. Adjacent to but distinct from paid boarding (no fee, institutional partner).
+
+Both run on different mechanics from paid Care. Called out here so the paid-carer model isn't mistaken for the whole care surface.
 
 ### Configuration Model
 
@@ -161,7 +168,7 @@ Care groups get a set of configuration toggles. Platform suggests defaults based
 
 | Option | Description |
 |--------|------------|
-| **Category** | Training / Walking / Grooming / Boarding / Rehab / Venue / Vet / Other |
+| **Category** | Training / Walking / Grooming / Boarding / Venue / Other |
 | **Visibility** | Open or Private |
 | **Events enabled** | Can host events/meets |
 | **Booking CTAs** | Events can link to booking flow |
@@ -180,9 +187,7 @@ Care groups get a set of configuration toggles. Platform suggests defaults based
 | Walking | Yes | Yes | Light | Updates | Mobile |
 | Grooming | Optional | Yes | Light | Portfolio | Fixed |
 | Boarding | Yes | Yes | Active | Updates | Fixed |
-| Rehab | Optional | Yes | Active | Standard | Fixed |
 | Venue | Yes | Optional | Light | Standard | Fixed |
-| Vet | Optional | Optional | Active | Standard | Fixed |
 
 ---
 
@@ -196,7 +201,7 @@ Care groups get a set of configuration toggles. Platform suggests defaults based
 
 **Meet-type offerings** — Training sessions, paid group walks, workshops. The owner signs up to a specific date/time. Booking produces an attendance on a specific **Meet**. Has a calendar instance with a roster.
 
-**Appointment-type offerings** — Vet visits, grooming. The owner books a specific time slot but doesn't attend a "session" with other dogs (no roster). Booking produces a **Booking** record like Care, but is *tied to a fixed time slot* like Meet — solo. Specialised category (vet vs. grooming) influences card icon and copy. (Resolved Discover & Care C1, 2026-05-02 — see Open Questions §4.)
+**Appointment-type offerings** — grooming, training. The owner books a specific time slot but doesn't attend a "session" with other dogs (no roster). Booking produces a **Booking** record like Care, but is *tied to a fixed time slot* like Meet — solo. Specialised category (grooming vs. training) influences card icon and copy.
 
 The two test questions distinguish all three:
 - **Does someone sign up to a specific time?** No → Care. Yes → Meet *or* Appointment.
@@ -232,7 +237,7 @@ The Care offering shape splits into four services, distinguished by *whose home*
 | Group training session (owner brings dog, joins paid class) | Meet | Specific time, owner signs up to roster |
 | 1-on-1 training session (owner books a slot at Stromovka 3pm Tues) | Meet | Specific time, owner signs up |
 | Recurring training package (8 sessions over 2 months) | Meet (series) | Generates 8 meet instances, all private to participants |
-| Vet appointment, grooming appointment | Appointment | Specific time, no roster — solo by design |
+| Grooming appointment, training appointment | Appointment | Specific time, no roster — solo by design |
 
 **Bio-level mention is fine.** A Care provider saying "I work on basic recall during my walks" inside their walking-service description is *marketing inside a Care offering*, not a separate Training service. If they actually want to *offer* Training as a service (people sign up to a session), it's a Meet.
 
@@ -251,21 +256,25 @@ Each offering's row needs to know its own type so the tap routes correctly. This
 
 Four canonical configurations:
 1. **Free unlinked Meet.** Tereza's Sunday park walk. No service.
-2. **Meet + optional service.** Klára's Tuesday walk is free to join. *Also* attached: her "Group walk" service (300 Kč). Free attendees show up. Paid attendees book the service to have her walk their dog specifically. Same meet, mixed roster.
+2. **Free Meet + linked drop-off Care service.** Tereza's Thursday neighbourhood walk is free to join. *Separately*, she offers a drop-off **Walks & Check-ins Care service** — book it and she walks your dog; you don't come. Two distinct paths on the same scheduled walk: **join free as a walker**, or **book the Care service as an owner**. A user does one, never both — **booking ≠ attending**. *(Remodelled 2026-05-17 — see the §13 correction note. The earlier framing made the linked service a Meet-type service with a "mixed roster" of free + paid attendees; that was wrong — a paid walk is drop-off, the owner isn't there. The build for the corrected config is a scheduled follow-on phase.)*
 3. **Meet + required service.** Klára's "Group training session" — to RSVP you must book the service. The booking IS the RSVP.
 4. **Service with no Meet.** Pure Care (boarding, house-sitting). Booking produces a Booking record; no roster.
 
 **The Service is the monetization wrapper.** It owns: price, pricing modifiers, sub-services / what's included, notes, enabled toggle, audience (circle vs anyone). For Care-type services it also owns the structural fields (service type, price unit) since there's no Meet to delegate to. The Meet, when present, owns the operational fields — location, cadence, occurrences, attendee cap, RSVP rules.
 
-**Cardinality is one-to-many.** One service can link to multiple meets. Klára's "Group walk" service is one product offered on her Tuesday walk AND her Saturday walk — same description, same price, same modifiers, available at different scheduled times. Forcing one-service-per-meet would mean duplicating the service entry per scheduled occurrence; she's not selling four separate walk products, she's selling one product at four scheduled times. Data model: `Meet.linkedServiceIds[]` (typically 0–1 per meet in practice).
+**Cardinality is one-to-many.** One service can link to multiple meets. Klára's "Group training session" service is one product offered on her Tuesday cohort AND her Saturday cohort — same description, same price, same modifiers, available at different scheduled times. Forcing one-service-per-meet would mean duplicating the service entry per scheduled occurrence; she's not selling separate products, she's selling one product at several scheduled times. Data model: `Meet.linkedServiceIds[]` (typically 0–1 per meet in practice).
 
 **Book routes through one flow from both doorways.** Tap Book on the meet detail page OR on the carer's Services tab → same booking sheet. When the service links to multiple meets, the booking sheet shows a session picker so the owner chooses which occurrence; one-meet link defaults to next occurrence. The Booking record is created; the attendee is added to the meet's roster (when linked).
 
-**Mixed-roster meet card UX.** When a meet has an *optional* linked service, the meet card's primary CTA stays "Join free" — the meet's primary identity is "community walk, free to join." The service surfaces inline as a supplementary callout ("Have your dog walked: 300 Kč →"). When the link is *required*, the free CTA collapses; the card shows "Book session → 350 Kč" as the sole CTA.
+**Meet card UX by link type.** When a meet links an *optional* drop-off Care service (config #2), the meet card's primary CTA stays "Join free" — the meet's identity is "community walk, free to join." The Care service surfaces inline as a *separate* supplementary callout ("Have a carer walk your dog: 200 Kč →") routing to the drop-off booking flow — book and join are distinct paths, never combined. When the link is *required* (config #3), the free CTA collapses; the card shows "Book session → 350 Kč" as the sole CTA.
 
 **Discovery cross-surfacing.** Meets with required services appear in both `/discover/meets` and `/discover/care` (under the appointment-type filter). Two doorways for two user intents (browsing community calendar vs shopping for paid services). Filter de-duplication and result-count semantics need deliberate design — see Open Q §13.
 
-**Current status.** The data model and view-mode rendering for Meet-type services exists (Klára has 4 seeded Meet entries). Authoring (create/edit/delete) does NOT exist in any UI — the prior "Meet-type services are managed separately" framing implied a management surface that was never built. The full model lands in a future phase (not yet opened); the Profiles Deep Pass walkthrough surfaced the gap. See Open Q §13 for build-time open questions (booking-sheet session-picker UX, lifecycle on service-delete with active bookings, auto-pricing engine extension to Meet services, edit-on-Meet redirect when fields are service-owned, multi-doorway filter dedup, privacy-on-link semantics).
+**Current status (Service ↔ Meet Linkage phase, 2026-05-17).** Authoring UI is live. The carer authors all service kinds — Care, Meet, and Appointment — in one place (the Services tab edit): per-kind edit cards, a search-and-add linked-meets picker, the per-link required flag. Booking routes through one flow (`BookSessionSheet`) from both doorways (the carer's Services tab and a linked meet's detail page); a session booking creates a `Booking` record and adds the owner to the meet roster. The data model is the two-sided link (`CarerMeetServiceConfig.linkedMeetIds[]` ↔ `Meet.linkedServices[]` with the per-link `required` flag).
+
+The phase shipped the **required-link** config (#3 — Klára's training/workshops: a paid session you attend, booking = RSVP) and the **free unlinked** config (#1). **Config #2 was remodelled mid-phase** (see §13 correction): it isn't "a free meet + optional Meet-type service / mixed roster" — it's "a free meet + linked drop-off **Care** services, where booking ≠ attending." Its build (Care services made meet-linkable + a drop-off-from-meet booking flow + multi-carer links) is a **scheduled follow-on phase**; the miscategorised `tereza-group-walk` Meet-type service was removed in the remodel.
+
+Remaining open items live in Open Q §13 — chiefly: the auto-pricing-engine extension to Meet-type services (Meet/Appointment keep flat rates for now), `/discover/care` cross-surfacing of Meet services + multi-doorway filter dedup, meet-cancellation handling for attached service-bookings, the free→paid mid-meet upsell, and a per-service publish/draft model.
 
 ### Meet-type service visibility
 
@@ -365,7 +374,7 @@ The Care-group hero serves a double role: community attribution AND a low-fricti
 
 - **Provider avatar(s)** — single avatar for one-provider groups, small overlapping stack (≤3 visible) with "+N" tail for multi-provider.
 - **Primary attribution name(s)** — "[Name]" for single, "[Name1], [Name2]" for two, "[Name1] + N others" for 3+.
-- **Category badge** — Training, Grooming, Vet, etc.
+- **Category badge** — Training, Grooming, etc.
 - **Tagline** — first two sentences from primary provider's `carerProfile.bio`. Optional; omitted for multi-provider since one bio doesn't represent the team.
 - **Top 1-2 community-earned trust badges** — "Trusted by N in your circle," "Community Regular." Wired in Discover & Care D5/D6.
 - **"View profile" link** — handoff to the full profile (richer credentials, full services, posts).
