@@ -11906,6 +11906,31 @@ body:has(.bottom-nav) .inbox-page {
   opacity: 0.4;
 }
 
+/* Availability slot pills (ProfileServicesTab — own profile). The shared
+   `.pill` base reads too strong for unselected slots, so the *selected*
+   ones should carry the row. Edit mode renders each slot as a <button>
+   (clickable); view mode renders a <span> (static label) — that element
+   split drives the two unselected treatments below. Selected (.active)
+   keeps the shared brand treatment in both modes. 2026-05-16. */
+
+/* Edit, unselected — clickable but quiet: blends to the page surface with
+   a soft border, so it reads as a target without competing with selected. */
+.profile-avail-slots button.pill:not(.active) {
+  background: var(--surface-base);
+  border-color: var(--border-regular);
+}
+
+/* View, unselected — non-interactive and ghosted further, so the grid
+   clearly shows which slots are *not* offered. */
+.profile-avail-slots span.pill {
+  cursor: default;
+}
+.profile-avail-slots span.pill:not(.active) {
+  background: transparent;
+  border-color: var(--border-subtle);
+  color: var(--text-tertiary);
+}
+
 /* Narrow-screen compression — 320px viewports overflow the row at default
    spacing (3 pills + day label + gaps ≈ 324px). Tighten label width, row
    gap, slot gap, and slot padding so the full week fits without horizontal
