@@ -168,6 +168,29 @@ function ProfileInner() {
     setServicesEditing(false);
   }, []);
   const saveServicesEdit = useCallback(() => {
+    // Drop completely-empty Meet / Appointment cards — a "+ Session offering"
+    // or "+ Appointment" added this session that the carer never filled in
+    // (no title, no price, no notes, no linked meets) shouldn't persist as a
+    // service. A card with *any* content entered is kept. 2026-05-17.
+    const cleanedServices = editServices.filter((svc) => {
+      if (svc.kind === "meet") {
+        const empty =
+          !svc.title.trim() &&
+          svc.pricePerSession === 0 &&
+          !(svc.notes ?? "").trim() &&
+          svc.linkedMeetIds.length === 0;
+        return !empty;
+      }
+      if (svc.kind === "appointment") {
+        const empty =
+          !svc.title.trim() &&
+          svc.pricePerAppointment === 0 &&
+          !(svc.notes ?? "").trim();
+        return !empty;
+      }
+      return true;
+    });
+
     // Flush the two-sided Service ↔ Meet linkage into `mockMeets`. The service
     // owns `linkedMeetIds`; the Meet owns the per-link `required` flag. Sync
     // every Meet-type service touched this edit session:
@@ -177,7 +200,7 @@ function ProfileInner() {
     //  - hard-deleted mid-edit → drop all meet links (id no longer in
     //                           `editServices`; recovered via the snapshot)
     const liveMeetServices = new Map<string, CarerMeetServiceConfig>();
-    for (const svc of editServices) {
+    for (const svc of cleanedServices) {
       if (svc.kind === "meet") liveMeetServices.set(svc.id, svc);
     }
     const touchedMeetServiceIds = new Set<string>([
@@ -207,7 +230,8 @@ function ProfileInner() {
             availability: editAvailability,
             // Comprehensive catalogue — Care, Meet, and Appointment entries
             // all authored in one place now (Service ↔ Meet Linkage B).
-            services: editServices,
+            // Empty never-filled Meet/Appointment cards dropped above.
+            services: cleanedServices,
             publicProfile: editVisibility,
           }
         : prev.carerProfile
