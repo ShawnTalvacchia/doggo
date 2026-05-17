@@ -23,9 +23,6 @@ const PHOTOS = {
   care: "/images/generated/care-dog-walking.jpeg",
 };
 
-// ── Tour entry URL (Tereza-only guided walk) ─────────────────────────────────
-const TOUR_ENTRY = "/home?as=tereza&tour=tereza&step=1";
-
 // ── Sub-components ───────────────────────────────────────────────────────────
 
 function DoorCard({
@@ -194,8 +191,8 @@ export default function LandingPage() {
               <ButtonAction variant="primary" cta size="lg" href="/demo">
                 Choose a persona
               </ButtonAction>
-              <ButtonAction variant="secondary" cta size="lg" href={TOUR_ENTRY}>
-                Walk me through Tereza&apos;s day
+              <ButtonAction variant="secondary" cta size="lg" href="/demo">
+                Take the guided walkthrough
               </ButtonAction>
             </div>
           </div>
@@ -405,8 +402,8 @@ export default function LandingPage() {
             <ButtonAction variant="white" cta size="lg" href="/demo">
               Choose a persona
             </ButtonAction>
-            <ButtonAction variant="outline-white" cta size="lg" href={TOUR_ENTRY}>
-              Walk me through Tereza&apos;s day
+            <ButtonAction variant="outline-white" cta size="lg" href="/demo">
+              Take the guided walkthrough
             </ButtonAction>
           </div>
         </div>
