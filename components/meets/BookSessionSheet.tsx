@@ -41,7 +41,12 @@ export type BookSessionSheetProps = {
   onBooked?: (meetId: string, date: string) => void;
 };
 
-type Occurrence = { meet: Meet; date: string };
+type Occurrence = {
+  meet: Meet;
+  date: string;
+  /** Viewer is already on this occurrence's roster — can't book it twice. */
+  alreadyBooked: boolean;
+};
 
 function formatOccurrence(date: string, time: string): string {
   const [y, m, d] = date.split("-").map(Number);
@@ -92,22 +97,28 @@ export function BookSessionSheet({
       const meet = mockMeets.find((m) => m.id === id);
       if (!meet || meet.status === "cancelled") continue;
       for (const occ of getMeetOccurrences(meet, 6)) {
-        out.push({ meet: occ.meet, date: occ.date });
+        out.push({
+          meet: occ.meet,
+          date: occ.date,
+          alreadyBooked: occ.attendees.some((a) => a.userId === viewer.id),
+        });
       }
     }
     return out.sort((a, b) => a.date.localeCompare(b.date));
-  }, [service.linkedMeetIds, preselectedMeetId]);
+  }, [service.linkedMeetIds, preselectedMeetId, viewer.id]);
 
   // Default-select: the pre-tapped occurrence if one was passed, else the
-  // soonest. `selectedKey` (user picked a row) always wins once set.
+  // soonest still-bookable one — occurrences the viewer is already on are
+  // skipped. `selectedKey` (user picked a row) always wins once set.
   const defaultKey = useMemo(() => {
     if (preselectedDate) {
-      const match = occurrences.find((o) => o.date === preselectedDate);
+      const match = occurrences.find(
+        (o) => o.date === preselectedDate && !o.alreadyBooked,
+      );
       if (match) return `${match.meet.id}::${match.date}`;
     }
-    return occurrences[0]
-      ? `${occurrences[0].meet.id}::${occurrences[0].date}`
-      : null;
+    const firstOpen = occurrences.find((o) => !o.alreadyBooked);
+    return firstOpen ? `${firstOpen.meet.id}::${firstOpen.date}` : null;
   }, [occurrences, preselectedDate]);
   const effectiveKey = selectedKey ?? defaultKey;
   const selected = occurrences.find(
@@ -228,6 +239,60 @@ export function BookSessionSheet({
               >
                 {occurrences.map((occ) => {
                   const key = `${occ.meet.id}::${occ.date}`;
+
+                  // Already on this occurrence's roster — render it
+                  // non-interactive with a "Booked" tag so the viewer sees
+                  // the existing commitment but can't book it twice.
+                  if (occ.alreadyBooked) {
+                    return (
+                      <div
+                        key={key}
+                        className="flex items-center gap-sm rounded-form border border-edge-light bg-surface-base p-md"
+                      >
+                        <span className="flex flex-col gap-xs flex-1 min-w-0">
+                          <span className="flex items-center gap-xs">
+                            <span
+                              className="flex justify-center shrink-0"
+                              style={{ width: 16 }}
+                            >
+                              <CalendarDots
+                                size={16}
+                                weight="light"
+                                className="text-fg-tertiary"
+                              />
+                            </span>
+                            <span className="text-sm font-semibold text-fg-secondary">
+                              {formatOccurrence(occ.date, occ.meet.time)}
+                            </span>
+                          </span>
+                          <span className="flex items-center gap-xs">
+                            <span
+                              className="flex justify-center shrink-0"
+                              style={{ width: 16 }}
+                            >
+                              <MapPin
+                                size={12}
+                                weight="light"
+                                className="text-fg-tertiary"
+                              />
+                            </span>
+                            <span className="text-xs text-fg-tertiary min-w-0">
+                              {occ.meet.title}
+                            </span>
+                          </span>
+                        </span>
+                        <span className="flex items-center gap-xs text-xs font-semibold text-fg-tertiary shrink-0">
+                          <CheckCircle
+                            size={14}
+                            weight="fill"
+                            className="text-brand-main"
+                          />
+                          Booked
+                        </span>
+                      </div>
+                    );
+                  }
+
                   const isSelected = key === effectiveKey;
                   return (
                     <button
@@ -281,6 +346,11 @@ export function BookSessionSheet({
                   );
                 })}
               </div>
+              {occurrences.every((o) => o.alreadyBooked) && (
+                <p className="text-xs text-fg-tertiary m-0">
+                  You&apos;re already booked for every upcoming session.
+                </p>
+              )}
             </div>
           )}
 
