@@ -157,12 +157,10 @@ export const tereza: UserProfile = {
       },
       {
         kind: "care",
-        // Meet-linked (config #2): `meet-15` advertises this drop-off walk.
-        // Two-sided link — `linkedMeetIds` here (carer side) ↔
-        // `meet-15.linkedServices` (meet side). Care services only carry an
-        // `id` + `linkedMeetIds` when meet-linked — see types.ts.
+        // Meet-linked (config #2): `meet-15` advertises this drop-off walk
+        // via `meet-15.linkedServices` (meet-authoritative — the link lives
+        // on the meet side; this `id` is how `getServiceById` resolves it).
         id: "tereza-walks",
-        linkedMeetIds: ["meet-15"],
         serviceType: "walks_checkins",
         enabled: true,
         pricePerUnit: 200,

@@ -1123,13 +1123,15 @@ export interface CarerAvailabilitySlot {
  * `linkedMeetIds: string[]` (carer-authoritative, one-to-many — same product
  * at multiple scheduled times; the linked meet's roster IS the booking). A
  * Care-type service can *also* be linked — to a *free* meet (config #2: a free
- * community walk advertising a drop-off Care service); it carries its own
- * optional `linkedMeetIds` (the carer-side half). Booking a Care-linked
- * service does NOT add the owner to the meet roster (book ≠ attend).
- * Appointment services don't link to meets. The link is two-sided —
- * `Meet.linkedServices[]` is the meet-side half, carrying the per-link
- * `required` flag (always `false` for a Care link — a drop-off service can't
- * gate a free meet's RSVP). See Service ↔ Meet Linkage phase + OQ §13.
+ * community walk advertising a drop-off Care service). That link is
+ * **meet-authoritative**: it lives only on `Meet.linkedServices[]` (the Care
+ * config carries no `linkedMeetIds`), resolved back via `getServiceById`.
+ * Booking a Care-linked service does NOT add the owner to the meet roster
+ * (book ≠ attend). Appointment services don't link to meets. The per-link
+ * `required` flag on `Meet.linkedServices[]` is always `false` for a Care
+ * link — a drop-off service can't gate a free meet's RSVP. Authoring the
+ * Care↔meet link is a meet-side surface (a scheduled follow-on — see OQ §13).
+ * See Service ↔ Meet Linkage phase + OQ §13.
  */
 export type CarerServiceConfig =
   | CarerCareServiceConfig
@@ -1203,12 +1205,6 @@ export interface CarerCareServiceConfig {
    *  services are identified by `serviceType` within the carer's catalogue
    *  and don't need one. Service ↔ Meet Linkage, config #2 (2026-05-17). */
   id?: string;
-  /** Free meets this drop-off Care service is offered on (config #2). The
-   *  carer-side half of the two-sided link — `Meet.linkedServices[]` is the
-   *  meet-side half (`required` is always `false` for a Care link). Empty /
-   *  undefined for the common case (a Care service not offered on any meet).
-   *  Service ↔ Meet Linkage, Workstream H (2026-05-17). */
-  linkedMeetIds?: string[];
   serviceType: ServiceType;
   enabled: boolean;
   pricePerUnit: number;

@@ -197,16 +197,6 @@ function ProfileInner() {
         syncMeetLinksForService(svcId, [], {});
       }
     }
-    // Config #2 (Workstream H) — flush drop-off Care service ↔ meet links.
-    // A Care service carrying an `id` was meet-linked at some point; sync its
-    // current `linkedMeetIds` (an empty list clears the meet-side entries).
-    // `required` is always false for a Care link — a drop-off service can't
-    // gate a free meet's RSVP.
-    for (const svc of editServices) {
-      if (svc.kind === "care" && svc.id) {
-        syncMeetLinksForService(svc.id, svc.linkedMeetIds ?? [], {});
-      }
-    }
     setUser((prev) => ({
       ...prev,
       openToHelping: editOpenToHelping,

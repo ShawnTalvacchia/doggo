@@ -15,7 +15,6 @@ import {
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { InputField } from "@/components/ui/InputField";
 import { Toggle } from "@/components/ui/Toggle";
-import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { MeetServiceEditCard } from "@/components/profile/MeetServiceEditCard";
 import { AppointmentServiceEditCard } from "@/components/profile/AppointmentServiceEditCard";
 import { DeleteServiceModal } from "@/components/profile/DeleteServiceModal";
@@ -438,23 +437,6 @@ export function ProfileServicesTab({
         i === idx ? { ...(s as CarerCareServiceConfig), ...updates } : s,
       ),
     );
-  }
-
-  // Config #2 (Workstream H) — link / unlink a drop-off Care service to one
-  // of the carer's free walk meets. A meet-linked Care service needs a
-  // stable `id` (see types.ts); assigned lazily on first link.
-  function toggleCareLink(idx: number, meetId: string) {
-    const svc = editServices[idx];
-    if (svc.kind !== "care") return;
-    const current = svc.linkedMeetIds ?? [];
-    const next = current.includes(meetId)
-      ? current.filter((m) => m !== meetId)
-      : [...current, meetId];
-    updateServiceAt(idx, {
-      ...svc,
-      id: svc.id ?? `care-${user.id}-${svc.serviceType}`,
-      linkedMeetIds: next,
-    });
   }
 
   function hardRemoveAt(idx: number) {
@@ -907,58 +889,6 @@ export function ProfileServicesTab({
                             updateCareService(idx, { modifiers: m })
                           }
                         />
-
-                        {/* Config #2 (Workstream H) — offer this drop-off
-                            walk on the carer's free community-walk meets.
-                            Only walks_checkins maps to "performed on a
-                            meet"; other Care types happen at a home. */}
-                        {svc.serviceType === "walks_checkins" &&
-                          (() => {
-                            const freeWalkMeets = hostedMeets.filter(
-                              (m) => m.type === "walk" && !m.serviceCTA,
-                            );
-                            if (freeWalkMeets.length === 0) return null;
-                            return (
-                              <div className="input-block">
-                                <label className="label">
-                                  <span className="label-primary-group">
-                                    <span>Offered on these meets</span>
-                                  </span>
-                                </label>
-                                <p
-                                  className="text-xs text-fg-tertiary m-0"
-                                  style={{ marginBottom: "var(--space-xs)" }}
-                                >
-                                  Owners can book you to walk their dog on a
-                                  checked meet — a drop-off, they don&apos;t
-                                  come along.
-                                </p>
-                                <div className="flex flex-col gap-xs">
-                                  {freeWalkMeets.map((m) => (
-                                    <CheckboxRow
-                                      key={m.id}
-                                      placement="right"
-                                      label={
-                                        <span className="flex flex-col">
-                                          <span className="text-sm text-fg-primary">
-                                            {m.title}
-                                          </span>
-                                          <span className="text-xs text-fg-tertiary">
-                                            {meetScheduleSummary(m)}
-                                          </span>
-                                        </span>
-                                      }
-                                      checked={
-                                        svc.linkedMeetIds?.includes(m.id) ??
-                                        false
-                                      }
-                                      onChange={() => toggleCareLink(idx, m.id)}
-                                    />
-                                  ))}
-                                </div>
-                              </div>
-                            );
-                          })()}
                       </div>
                     );
                   })}
