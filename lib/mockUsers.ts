@@ -32,7 +32,7 @@
  * 2026-04-30 to match this distribution.
  */
 
-import type { UserProfile } from "./types";
+import type { UserProfile, CarerServiceConfig } from "./types";
 
 /* ── Avatar URLs (Unsplash, cropped 400×400) ──────────────────────────────── */
 
@@ -157,6 +157,10 @@ export const tereza: UserProfile = {
       },
       {
         kind: "care",
+        // Has an `id` because it's meet-linked (config #2): `meet-15`
+        // advertises this drop-off walk via `Meet.linkedServices[]`. Care
+        // services only carry an id when meet-linked — see types.ts.
+        id: "tereza-walks",
         serviceType: "walks_checkins",
         enabled: true,
         pricePerUnit: 200,
@@ -2070,6 +2074,23 @@ const userMap = new Map<string, UserProfile>(allUsers.map((u) => [u.id, u]));
  */
 export function getUserById(id: string): UserProfile | undefined {
   return userMap.get(id);
+}
+
+/**
+ * Resolve a service `id` to the service config + its owning carer, scanning
+ * every carer's catalogue. Used to resolve `Meet.linkedServices[].serviceId`
+ * back to a service — works for Meet, Appointment, and (config #2) Care
+ * services. Care services only carry an `id` when they're meet-linked, so
+ * this finds exactly the linked ones. Service ↔ Meet Linkage, config #2.
+ */
+export function getServiceById(
+  serviceId: string,
+): { service: CarerServiceConfig; carer: UserProfile } | undefined {
+  for (const u of allUsers) {
+    const service = u.carerProfile?.services.find((s) => s.id === serviceId);
+    if (service) return { service, carer: u };
+  }
+  return undefined;
 }
 
 /** Get display name for any user ID (falls back to ID if unknown). */

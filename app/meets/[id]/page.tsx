@@ -49,6 +49,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ShareMeetModal } from "@/components/meets/ShareMeetModal";
 import { ServiceBookingSheet } from "@/components/meets/ServiceBookingSheet";
 import { BookSessionSheet } from "@/components/meets/BookSessionSheet";
+import { LinkedCareCallout } from "@/components/meets/LinkedCareCallout";
+import { DropoffBookingSheet } from "@/components/meets/DropoffBookingSheet";
 import { getLinkedServicesForMeet } from "@/lib/meetUtils";
 import { CancelOccurrenceModal } from "@/components/meets/CancelOccurrenceModal";
 import { ParticipantList } from "@/components/meets/ParticipantList";
@@ -72,7 +74,7 @@ import {
 import { useCurrentUser, useCurrentUserId, useIsGuest } from "@/hooks/useCurrentUser";
 import { useAuthGate } from "@/contexts/AuthGateContext";
 import { getDogImageByOwnerAndName } from "@/lib/dogLookup";
-import { getUserById } from "@/lib/mockUsers";
+import { getUserById, getServiceById } from "@/lib/mockUsers";
 import { getGroupById } from "@/lib/mockGroups";
 import {
   mockMeets,
@@ -95,7 +97,14 @@ import {
   getMeetTypeSummary,
 } from "@/lib/mockMeets";
 import { getMessagesForMeet } from "@/lib/mockMeetMessages";
-import type { Meet, MeetType, MeetMessage, CarerMeetServiceConfig } from "@/lib/types";
+import type {
+  Meet,
+  MeetType,
+  MeetMessage,
+  CarerMeetServiceConfig,
+  CarerCareServiceConfig,
+  UserProfile,
+} from "@/lib/types";
 
 /* ── Constants ── */
 
@@ -227,6 +236,9 @@ function MeetDetailInner() {
   // For one-off care meets the date is `meet.date`; for recurring it's the
   // tapped occurrence date from the Upcoming dates row. `null` = sheet closed.
   const [bookingDate, setBookingDate] = useState<string | null>(null);
+  // Drop-off booking sheet (config #2) — open/closed. A free meet that links
+  // a drop-off Care service offers this *separate* paid path.
+  const [dropoffOpen, setDropoffOpen] = useState(false);
   // Cancel-this-occurrence modal state — host-only, recurring meets only.
   // `null` = closed; otherwise the ISO date being cancelled.
   const [cancelOccDate, setCancelOccDate] = useState<string | null>(null);
@@ -274,6 +286,24 @@ function MeetDetailInner() {
           (s): s is CarerMeetServiceConfig =>
             s.kind === "meet" && s.id === linkedServiceRef.serviceId,
         )
+      : undefined;
+
+  // Service ↔ Meet Linkage config #2 — a free meet can advertise a drop-off
+  // **Care** service (book ≠ attend). `getServiceById` scans all carers, so
+  // a host advertising another carer's service resolves too. Required-link
+  // (`serviceCTA`) meets don't use this — they're the "About this service"
+  // card path.
+  const linkedCareService: { service: CarerCareServiceConfig; carer: UserProfile } | undefined =
+    !meet.serviceCTA
+      ? (() => {
+          for (const ref of getLinkedServicesForMeet(meet)) {
+            const r = getServiceById(ref.serviceId);
+            if (r && r.service.kind === "care") {
+              return { service: r.service, carer: r.carer };
+            }
+          }
+          return undefined;
+        })()
       : undefined;
 
   // Derive RSVP from mock data on first render. For one-off meets that's a
@@ -444,6 +474,8 @@ function MeetDetailInner() {
             <DetailsTab
               meet={meet}
               linkedService={linkedService}
+              linkedCareService={linkedCareService}
+              onBookDropoff={() => setDropoffOpen(true)}
               focusAttendees={focusAttendees}
               goingAttendees={goingAttendees}
               interestedCount={interestedCount}
@@ -539,6 +571,21 @@ function MeetDetailInner() {
           }}
         />
       )}
+      {/* Config #2 — drop-off Care booking. Creates a Care Booking; the
+          owner is NOT added to the meet roster (book ≠ attend). */}
+      {linkedCareService && (
+        <DropoffBookingSheet
+          open={dropoffOpen}
+          onClose={() => setDropoffOpen(false)}
+          service={linkedCareService.service}
+          carer={{
+            id: linkedCareService.carer.id,
+            name: `${linkedCareService.carer.firstName} ${linkedCareService.carer.lastName}`,
+            avatarUrl: linkedCareService.carer.avatarUrl,
+          }}
+          meet={meet}
+        />
+      )}
     </div>
   );
 }
@@ -550,6 +597,8 @@ function MeetDetailInner() {
 function DetailsTab({
   meet,
   linkedService,
+  linkedCareService,
+  onBookDropoff,
   focusAttendees,
   goingAttendees,
   interestedCount,
@@ -572,6 +621,12 @@ function DetailsTab({
   /** The Meet-type service this meet links (resolved by the parent), if any.
    *  Drives the "About this service" card heading copy. */
   linkedService?: CarerMeetServiceConfig;
+  /** A drop-off Care service this free meet advertises (config #2), if any.
+   *  Renders the `LinkedCareCallout` — the separate "book a carer to walk
+   *  your dog" path. */
+  linkedCareService?: { service: CarerCareServiceConfig; carer: UserProfile };
+  /** Opens the drop-off booking sheet. */
+  onBookDropoff: () => void;
   /**
    * Attendees for the focus occurrence — i.e. the next upcoming date for
    * recurring meets, or the only date for one-off. Used to drive "Who's
@@ -738,6 +793,20 @@ function DetailsTab({
             </span>
           </div>
         </div>
+
+        {/* Config #2 — a free walk that also advertises a drop-off Care
+            service. The callout is the separate "book a carer to walk your
+            dog" path; the free RSVP below stays untouched (book ≠ attend). */}
+        {linkedCareService && meet.status !== "cancelled" && (
+          <LinkedCareCallout
+            service={linkedCareService.service}
+            carer={{
+              name: linkedCareService.carer.firstName,
+              avatarUrl: linkedCareService.carer.avatarUrl,
+            }}
+            onBook={onBookDropoff}
+          />
+        )}
 
         {/* RSVP action row.
             One-off meets: single Going/Interested dropdown + Invite (legacy).

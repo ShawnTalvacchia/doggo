@@ -1119,13 +1119,17 @@ export interface CarerAvailabilitySlot {
  * The Services tab on a profile renders all three kinds in a single catalogue;
  * tap routing differs by `kind`.
  *
- * **Service ↔ Meet linkage.** Only Meet-type services link to meets (via
- * `linkedMeetIds: string[]`). Care and Appointment services have no Meet
- * linkage — Care is drop-off without a roster, Appointment is solo + scheduled
- * without a roster. The link is one-to-many: one Meet service can run on
- * multiple meets (same product, different scheduled times). The inverse —
- * which services a given meet advertises, plus the per-link `required` flag —
- * lives on `Meet.linkedServices[]`. See Service ↔ Meet Linkage phase + OQ §13.
+ * **Service ↔ Meet linkage.** Meet-type services link to meets via
+ * `linkedMeetIds: string[]` (carer-authoritative, one-to-many — same product
+ * at multiple scheduled times; the linked meet's roster IS the booking). A
+ * Care-type service can *also* be linked — to a *free* meet (config #2: a free
+ * community walk advertising a drop-off Care service). That link is
+ * **meet-authoritative only**: it lives on `Meet.linkedServices[]`; the Care
+ * config carries no `linkedMeetIds`, and booking it does NOT add the owner to
+ * the meet roster (book ≠ attend). Appointment services don't link to meets.
+ * The per-link `required` flag lives on `Meet.linkedServices[]` — always
+ * `false` for a Care link (a drop-off service can't gate a free meet's RSVP).
+ * See Service ↔ Meet Linkage phase + OQ §13.
  */
 export type CarerServiceConfig =
   | CarerCareServiceConfig
@@ -1193,6 +1197,12 @@ export type HomeType = "flat" | "house" | "ground_floor_with_garden";
 
 export interface CarerCareServiceConfig {
   kind: "care";
+  /** Stable id — set **only** when this Care service is linked to a meet
+   *  (config #2: a free meet advertises a drop-off Care service via
+   *  `Meet.linkedServices[]`, resolved by `getServiceById`). Unlinked Care
+   *  services are identified by `serviceType` within the carer's catalogue
+   *  and don't need one. Service ↔ Meet Linkage, config #2 (2026-05-17). */
+  id?: string;
   serviceType: ServiceType;
   enabled: boolean;
   pricePerUnit: number;

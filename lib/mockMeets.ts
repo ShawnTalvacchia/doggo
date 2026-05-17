@@ -1419,12 +1419,14 @@ export const mockMeets: Meet[] = [
       { userId: "jakub", userName: "Jakub", avatarUrl: "/images/generated/jakub-profile.jpeg", dogNames: ["Aron"], rsvpStatus: "going" },
     ],
     recentJoinText: "Marek joined yesterday",
-    // Plain free community walk. The earlier optional `linkedServices` link
-    // to `tereza-group-walk` was removed in the Service ↔ Meet Linkage
-    // remodel (2026-05-17): a drop-off "Group walk" is a Care service, not a
-    // Meet-type service, so it isn't linked to a meet this way. Free meets
-    // linking drop-off Care services is a scheduled follow-on — see Open
-    // Q §13 (corrected config #2).
+    // Config #2 (corrected, 2026-05-17): a free community walk that *also*
+    // advertises a drop-off **Care** service. Neighbours join free as
+    // walkers (own dog); owners can separately book Tereza's "Walks &
+    // Check-ins" Care service (`tereza-walks`) to have her walk their dog —
+    // they don't attend. `required: false` (a drop-off Care service can't
+    // gate a free meet's RSVP). The link is meet-authoritative; the Care
+    // service is resolved via `getServiceById`. See Open Q §13.
+    linkedServices: [{ serviceId: "tereza-walks", required: false }],
     createdAt: "2026-04-03T08:00:00Z",
   },
 
