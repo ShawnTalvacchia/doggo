@@ -73,6 +73,7 @@ import {
 } from "@/lib/meetUtils";
 import { useCurrentUser, useCurrentUserId, useIsGuest } from "@/hooks/useCurrentUser";
 import { useAuthGate } from "@/contexts/AuthGateContext";
+import { useBookings } from "@/contexts/BookingsContext";
 import { getDogImageByOwnerAndName } from "@/lib/dogLookup";
 import { getUserById, getServiceById } from "@/lib/mockUsers";
 import { getGroupById } from "@/lib/mockGroups";
@@ -674,6 +675,19 @@ function DetailsTab({
   const currentUserId = currentUser.id;
   const recurring = isRecurring(meet);
   const group = meet.groupId ? getGroupById(meet.groupId) : null;
+
+  // Config #2 — drop-off Care bookings the viewer made on THIS meet, keyed
+  // by occurrence date → booking id. Lets the Upcoming dates rows show
+  // "Drop-off booked" in place of Join / Skip. Because book ≠ attend, the
+  // booking never touched the meet roster — the meet page surfaces it from
+  // the booking record itself (`Booking.dropoffMeetId`).
+  const { bookings } = useBookings();
+  const dropoffByDate: Record<string, string> = {};
+  for (const b of bookings) {
+    if (b.ownerId === currentUserId && b.dropoffMeetId === meet.id) {
+      dropoffByDate[b.startDate] = b.id;
+    }
+  }
   const coverUrl = meet.coverPhotoUrl || meet.photos?.[0] || TYPE_FALLBACK_COVERS[meet.type];
   // Tier helpers operate on the focus occurrence's attendee list — for
   // recurring meets that's the next upcoming date's roster; for one-off,
@@ -798,14 +812,19 @@ function DetailsTab({
             service. The callout is the separate "book a carer to walk your
             dog" path; the free RSVP below stays untouched (book ≠ attend). */}
         {linkedCareService && meet.status !== "cancelled" && (
-          <LinkedCareCallout
-            service={linkedCareService.service}
-            carer={{
-              name: linkedCareService.carer.firstName,
-              avatarUrl: linkedCareService.carer.avatarUrl,
-            }}
-            onBook={onBookDropoff}
-          />
+          /* Small extra margin-bottom — the section `gap-md` alone reads
+             tighter below the callout (against the RSVP buttons) than
+             above it, so a nudge evens the optical spacing. */
+          <div className="mb-xs">
+            <LinkedCareCallout
+              service={linkedCareService.service}
+              carer={{
+                name: linkedCareService.carer.firstName,
+                avatarUrl: linkedCareService.carer.avatarUrl,
+              }}
+              onBook={onBookDropoff}
+            />
+          </div>
         )}
 
         {/* RSVP action row.
@@ -981,88 +1000,128 @@ function DetailsTab({
           <h2 className="meet-section-title">
             {recurring ? "About this service" : "Book this session"}
           </h2>
-          <div
-            className="flex flex-col gap-sm rounded-panel p-md"
-            style={{
-              background: "var(--status-info-50, #f4f6ff)",
-              border: "1px solid var(--status-info-200, #ccd6ff)",
-            }}
-          >
-            {group?.providers && group.providers[0] && (
-              <div className="flex items-center gap-sm">
-                {group.providers[0].avatarUrl && (
-                  <img
-                    src={group.providers[0].avatarUrl}
-                    alt={group.providers[0].name}
-                    className="w-8 h-8 rounded-full object-cover shrink-0"
-                  />
-                )}
-                <div className="flex flex-col flex-1 min-w-0">
+          {recurring ? (
+            /* Recurring required-link service — one tappable card
+               (avatar · title + description · price + caret). Tapping it
+               opens BookSessionSheet, whose picker shows the full
+               occurrence list; the per-date rows below stay as the quick
+               path. Layout mirrors the config #2 LinkedCareCallout so the
+               two service surfaces read as one family. The carer's
+               profile link moved into the sheet (no nested interactive
+               element inside this button). */
+            <button
+              type="button"
+              onClick={() => onBook(meet.date)}
+              className="flex items-start gap-md rounded-panel w-full text-left"
+              style={{
+                background: "var(--status-info-50, #f4f6ff)",
+                border: "1px solid var(--status-info-200, #ccd6ff)",
+                padding: "var(--space-md)",
+                cursor: "pointer",
+              }}
+            >
+              {group?.providers?.[0]?.avatarUrl && (
+                <img
+                  src={group.providers[0].avatarUrl}
+                  alt={group.providers[0].name}
+                  className="w-10 h-10 rounded-full object-cover shrink-0"
+                />
+              )}
+              {/* Avatar is its own column; title + description and the
+                  price·caret row stack in the content column (price on
+                  its own row so it isn't squeezed by wrapping copy).
+                  Mirrors the config #2 LinkedCareCallout. */}
+              <span className="flex flex-col flex-1 min-w-0 gap-sm">
+                <span className="flex flex-col gap-tiny">
                   <span className="text-sm font-semibold text-fg-primary">
-                    {group.providers[0].name}
-                    {group.providers.length > 1 && ` + ${group.providers.length - 1}`}
+                    {linkedService?.title ?? meet.serviceCTA.label}
                   </span>
-                  {/* Links to the provider's profile — their full service
-                      catalogue. The group is already linked prominently
-                      under the meet header, so re-linking it here was
-                      redundant; "About this service" is provider context.
-                      Service ↔ Meet Linkage walkthrough A3, 2026-05-16. */}
-                  <Link
-                    href={`/profile/${group.providers[0].userId}`}
-                    className="text-xs text-fg-tertiary"
-                    style={{ textDecoration: "none" }}
-                  >
-                    View profile →
-                  </Link>
-                </div>
-              </div>
-            )}
-            <div className="flex items-center justify-between gap-sm">
-              <div className="flex flex-col gap-xs flex-1 min-w-0">
-                {/* Name the service — the resolved linked-service title, not
-                    the legacy `serviceCTA.label` (a CTA string like "Book
-                    this session", which clashes with "Pick a date below" on
-                    a recurring meet). Falls back to the label for legacy
-                    `serviceCTA`-only meets with no resolvable linked service. */}
-                <span className="text-sm font-semibold text-fg-primary">
-                  {linkedService?.title ?? meet.serviceCTA.label}
-                </span>
-                {(() => {
-                  // "Spots left" is per-occurrence — meaningless on a
-                  // recurring meet's service card (it isn't tied to one
-                  // date; the per-date rows below carry the real counts).
-                  // One-off paid meets keep it — there it IS one date.
-                  const showSpots =
-                    meet.serviceCTA.spotsLeft != null && !recurring;
-                  if (!meet.serviceCTA.price && !showSpots) return null;
-                  return (
+                  {linkedService?.notes?.trim() && (
                     <span className="text-xs text-fg-tertiary">
-                      {meet.serviceCTA.price}
-                      {meet.serviceCTA.price && showSpots && " · "}
-                      {showSpots && `${meet.serviceCTA.spotsLeft} spots left`}
+                      {linkedService.notes}
                     </span>
-                  );
-                })()}
-              </div>
-              {/* One-off: inline Book CTA + Invite (the standalone action
-                  row is suppressed for one-off paid meets — see the RSVP
-                  block guard above). Recurring: no CTAs here — booking
-                  is per-occurrence on the Upcoming dates rows; Invite
-                  lives in the recurring action row alongside the
-                  series-level Interested toggle.
-
-                  Three states for the right-hand button:
-                  - Host (`isCreator`): "Hosting" indicator (FlagBanner,
-                    disabled outline) — same treatment as the recurring
-                    series Hosting label.
-                  - Already booked (`rsvpStatus === "going"`): "Booked"
-                    indicator (secondary + Check + disabled) — matches
-                    the per-occurrence Booked treatment on recurring rows.
-                  - Otherwise: primary Book CTA. */}
-              {!recurring && (
+                  )}
+                </span>
+                <span className="flex items-center justify-between gap-xs">
+                  <span className="text-sm font-semibold text-info-strong">
+                    {meet.serviceCTA.price}
+                  </span>
+                  <CaretRight
+                    size={16}
+                    weight="bold"
+                    className="text-info-strong shrink-0"
+                  />
+                </span>
+              </span>
+            </button>
+          ) : (
+            <div
+              className="flex flex-col gap-sm rounded-panel p-md"
+              style={{
+                background: "var(--status-info-50, #f4f6ff)",
+                border: "1px solid var(--status-info-200, #ccd6ff)",
+              }}
+            >
+              {group?.providers && group.providers[0] && (
+                <div className="flex items-center gap-sm">
+                  {group.providers[0].avatarUrl && (
+                    <img
+                      src={group.providers[0].avatarUrl}
+                      alt={group.providers[0].name}
+                      className="w-8 h-8 rounded-full object-cover shrink-0"
+                    />
+                  )}
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <span className="text-sm font-semibold text-fg-primary">
+                      {group.providers[0].name}
+                      {group.providers.length > 1 && ` + ${group.providers.length - 1}`}
+                    </span>
+                    {/* Links to the provider's profile — their full service
+                        catalogue. The group is already linked prominently
+                        under the meet header, so re-linking it here was
+                        redundant; "About this service" is provider context.
+                        Service ↔ Meet Linkage walkthrough A3, 2026-05-16. */}
+                    <Link
+                      href={`/profile/${group.providers[0].userId}`}
+                      className="text-xs text-fg-tertiary"
+                      style={{ textDecoration: "none" }}
+                    >
+                      View profile →
+                    </Link>
+                  </div>
+                </div>
+              )}
+              <div className="flex items-center justify-between gap-sm">
+                <div className="flex flex-col gap-xs flex-1 min-w-0">
+                  {/* Name the service — the resolved linked-service title,
+                      not the legacy `serviceCTA.label` (a CTA string).
+                      Falls back to the label for legacy `serviceCTA`-only
+                      meets with no resolvable linked service. */}
+                  <span className="text-sm font-semibold text-fg-primary">
+                    {linkedService?.title ?? meet.serviceCTA.label}
+                  </span>
+                  {(() => {
+                    // One-off paid meet — "spots left" is meaningful here
+                    // (there IS one date). Recurring meets render the
+                    // tappable card above instead.
+                    const showSpots = meet.serviceCTA.spotsLeft != null;
+                    if (!meet.serviceCTA.price && !showSpots) return null;
+                    return (
+                      <span className="text-xs text-fg-tertiary">
+                        {meet.serviceCTA.price}
+                        {meet.serviceCTA.price && showSpots && " · "}
+                        {showSpots && `${meet.serviceCTA.spotsLeft} spots left`}
+                      </span>
+                    );
+                  })()}
+                </div>
+                {/* Inline Book CTA + Invite. Three states for the
+                    right-hand button:
+                    - Host (`isCreator`): disabled "Hosting" indicator.
+                    - Already booked (`rsvpStatus === "going"`): disabled
+                      "Booked" indicator.
+                    - Otherwise: primary Book CTA. */}
                 <div className="flex items-center gap-xs shrink-0">
-                  {/* Invite disabled when full — same logic as the
-                      standard one-off action row. */}
                   <ButtonAction
                     variant="outline"
                     size="sm"
@@ -1104,14 +1163,9 @@ function DetailsTab({
                     </ButtonAction>
                   )}
                 </div>
-              )}
+              </div>
             </div>
-            {recurring && (
-              <span className="text-xs text-fg-tertiary mt-xs">
-                Pick a date below to book a specific session.
-              </span>
-            )}
-          </div>
+          )}
         </section>
       )}
 
@@ -1134,6 +1188,7 @@ function DetailsTab({
           onRsvpDateChange={onRsvpDateChange}
           isCreator={isCreator}
           onBook={onBook}
+          dropoffByDate={dropoffByDate}
           onCancelOccurrence={onCancelOccurrence}
           onRestoreOccurrence={onRestoreOccurrence}
         />
@@ -1524,6 +1579,7 @@ function RecurringUpcomingDates({
   onRsvpDateChange,
   isCreator,
   onBook,
+  dropoffByDate,
   onCancelOccurrence,
   onRestoreOccurrence,
 }: {
@@ -1538,6 +1594,12 @@ function RecurringUpcomingDates({
    * becomes Book instead of Join in that case.
    */
   onBook: (date: string) => void;
+  /**
+   * Config #2 — occurrence date → drop-off Care booking id, for dates the
+   * viewer has booked a drop-off walk on. Those rows show "Drop-off booked"
+   * (book ≠ attend) instead of the Join / Skip RSVP controls.
+   */
+  dropoffByDate: Record<string, string>;
   /**
    * Open the host-side cancel modal for a specific date. Host-only —
    * rendered as a quiet inline link in the row's right slot when
@@ -1576,6 +1638,8 @@ function RecurringUpcomingDates({
           const isFull = occSpotsLeft <= 0 && myStatus !== "going";
           const skipped = dismissed.has(skipId(occ.date));
           const joined = myStatus === "going";
+          // Config #2 — viewer booked a drop-off Care walk for this date.
+          const dropoffBookingId = dropoffByDate[occ.date];
           const cancellation = getOccurrenceCancellation(meet, occ.date);
           const isCancelled = cancellation !== null;
           // Click handler for the primary action varies by mode. Paid
@@ -1674,6 +1738,24 @@ function RecurringUpcomingDates({
                       Cancel
                     </button>
                   </>
+                ) : dropoffBookingId ? (
+                  // Config #2 — viewer booked a drop-off walk for this date.
+                  // Book ≠ attend, so this is NOT a roster Join: the pill
+                  // states the commitment and links to the Care booking.
+                  // It supersedes Join / Skip — you can't both hand the dog
+                  // off and walk it yourself on the same occurrence.
+                  <Link
+                    href={`/bookings/${dropoffBookingId}`}
+                    className="inline-flex items-center gap-xs text-xs font-semibold rounded-pill px-sm py-xs"
+                    style={{
+                      background: "var(--status-info-light)",
+                      color: "var(--status-info-strong)",
+                      textDecoration: "none",
+                    }}
+                  >
+                    <Check size={11} weight="bold" />
+                    Drop-off booked
+                  </Link>
                 ) : skipped ? (
                   // Muted-in-place: replaces the action buttons with a label +
                   // inline Undo so the user can reverse a Skip without hunting.

@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-11
+last-reviewed: 2026-05-17
 
 tags: [discover, care, booking, carers, map, payment, trust-gating]
 review-trigger: "when modifying Discover Care tab, Carer profiles, booking flows, payment, or map"
@@ -69,7 +69,7 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 
 ### Discover & Care additions (closed 2026-05-04)
 
-- **Services-as-Catalog** (`CarerServiceConfig` discriminated union): three offering shapes — **Care** (drop-off / per-visit / per-night work; produces a Booking), **Meet** (sessions with rosters owners sign up to — training, workshops; produces an RSVP on the linked meet), **Appointment** (vet / grooming — solo, fixed time slot; produces a Booking like Care but tied to a single time). Profile Services tab renders all three first-class with shape-aware tap routing. See [[Groups & Care Model]] → Services as Catalog.
+- **Services-as-Catalog** (`CarerServiceConfig` discriminated union): three offering shapes — **Care** (drop-off / per-visit / per-night work; produces a Booking), **Meet** (sessions with rosters owners sign up to — training, workshops; produces an RSVP on the linked meet), **Appointment** (grooming / training visit — solo, fixed time slot; produces a Booking like Care but tied to a single time). Profile Services tab renders all three first-class with shape-aware tap routing. See [[Groups & Care Model]] → Services as Catalog.
 - **`participants_only` meet visibility:** contracted/private meets (e.g. a 1-on-1 generated from a package booking) are hidden from public Meets tabs — only the creator and roster see them. Shipped via `MeetVisibility` enum + `isMeetVisibleTo` helper + `getGroupMeets` filter. Discover & Care A1.
 - **Care-group multi-provider hero:** `Group.providers: GroupProviderRef[]` replaces the single `hostedBy: string` field. Groups with multiple providers render an avatar stack + "Run by X + N" tail; tagline suppressed in multi-provider mode (one bio doesn't represent the team). Discover & Care B1–B4. See [[Groups & Care Model]] → Care-group hero anatomy.
 - **Trust badges MVP** on Discover cards + provider hero. Six badges across three categories (community-earned: Community Regular, Trusted by Your Network, Repeat Clients; credential: Certified Trainer, X Years Experience; platform: Verified Identity). Priority rule: community-earned > credential > platform. Discover cards trim to top 2; profile hero shows the full earned set. Implementation: `lib/trustBadges.ts` + `components/badges/TrustBadgeStrip.tsx`. See [[implementation/badges]].
@@ -113,6 +113,16 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 - **Per-service pricing on Discover Care cards** — `ProviderCard.pricesByService` lookup keyed by active service filter. When filter is "All", falls back to single `priceFrom` + `priceUnit`. Service-tag chip row hides under specific filters (context implied).
 - **Provider modifier-config UI** — `PricingModifiersEditor` accordion in `ProfileServicesTab` (default-collapsed; "N on" badge). All four modifier kinds always render so providers can flip any on. Reasonable defaults so opt-in is one tap.
 - **Persistent persona override (`?as=...`).** `useCurrentUser` hook now mirrors `?as=<personaId>` URL param to `sessionStorage["doggo-as-preview"]` so directory-only personas (Petra, Shawn, Nikola) survive route changes during a session. Picker actions clear the sessionStorage + strip the URL param via custom event.
+
+### Service ↔ Meet Linkage additions (closed 2026-05-17)
+
+- **Carer authors all three service kinds in one place.** The Services-tab edit (`ProfileServicesTab`) now holds Care + **Meet** + **Appointment** cards — `MeetServiceEditCard` + `AppointmentServiceEditCard` joined the Care card; the dishonest "managed separately" footnote is gone. Authoring detail: [[profiles]].
+- **`klara-1on1` reclassified Meet → Appointment** (`appointmentCategory: "training"`) — 1-on-1 = solo + scheduled + no roster = Appointment per the §13 roster test. First seeded entry for the `"training"` Appointment variant.
+- **`Booking` extended for Meet-service bookings.** `serviceType` is now optional; a new `meetBooking: { serviceId, serviceTitle, meetId, occurrenceDate }` identifies a booking produced by a Meet-type service. Renderers branch on `meetBooking` first, then `serviceType` (`bookingServiceLabel` helper). These bookings show on `/bookings` as list rows routing to `/meets/{meetId}` — the meet IS the session detail, no Care-lifecycle booking-detail page.
+- **`Booking.dropoffMeetId`** — config #2 drop-off Care bookings carry a back-reference to the free meet they run on (book ≠ attend; no `meetBooking`, no roster entry). Lets the meet's Upcoming-dates row show a "Drop-off booked" pill. See [[meets]] → Service ↔ Meet linkage.
+- **Booking sheets:** `BookSessionSheet` (Meet-type — creates a `Booking` + adds to the meet roster via `setMeetRsvp`) and `DropoffBookingSheet` (config #2 drop-off Care — creates a plain Care `Booking`, no roster). Both reachable from the carer's Services tab and a linked meet's detail page.
+- **Soft-archive on service delete.** Deleting a Meet/Appointment service with active bookings soft-archives it (`enabled: false` + `softDeletedAt`) rather than hard-deleting; existing bookings keep resolving their service reference. `Booking` carries no `serviceId`, so "has active bookings" is proxied by the linked meet's roster. No-booking services hard-delete.
+- **`CarerCareServiceConfig.id?`** — set only when a Care service is meet-linked (config #2); resolved by `getServiceById`. `CarerMeetServiceConfig.seriesMeetId` (singular) retired in favour of `linkedMeetIds: string[]` (one-to-many).
 
 ---
 
@@ -221,6 +231,8 @@ Single-mode for solo-role users: owner-only personas (Daniel, Tomáš) see "My C
    - **`BookingSession.ownerNote`** *(deferred — not yet built)* = forward-looking, date-anchored note for a single session. Expires after that session. Symmetric with `BookingSession.report` (provider's backward-looking date-anchored artifact). Use case: "Today only, please skip the leash — vet said her paw needs another day."
 
    Build status: Chat + `ownerNotes` are live. Per-session `ownerNote` was sketched + decided as the right shape, but build is deferred — adopting it adds a third comms surface that warrants its own walkthrough. Today, owners use chat for "today only" messages. Revisit if the deferred third surface earns its keep. Inbox & Notifications phase resolved the principle, not the build.
+
+9. **Meet-type service bookings have no Care-lifecycle detail page (Service ↔ Meet Linkage, 2026-05-17).** A booking produced by a Meet-type service (`meetBooking` set) is one occurrence of one meet — `serviceType` / `sessions` / the Care contract lifecycle don't apply. Its `/bookings` row routes to `/meets/{meetId}`; the meet IS the session detail. A config #2 drop-off booking (`dropoffMeetId` set) is the inverse — a *Care* booking that runs on a meet but **book ≠ attend**, so it keeps the normal Care booking detail and never touches the roster. See [[meets]] → Service ↔ Meet linkage + [[Groups & Care Model]].
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 category: feature
 status: active
-last-reviewed: 2026-05-05
+last-reviewed: 2026-05-17
 tags: [meets, groups, community, social]
 review-trigger: "when modifying meets, groups, group detail tabs, or meet discovery"
 ---
@@ -151,7 +151,7 @@ The split applies only when `cadence !== "one_off"`. Per-occurrence Interested w
 Meets hosted inside care groups can carry a `serviceCTA` field — `{ label, price, spotsLeft, href }` — marking them as paid sessions. When present, the meet renders differently from a peer meet:
 
 - A "Paid session" pill appears in the badge row next to the type pill (Storefront icon, info colour).
-- A **service info card** renders near the top of the content area (above Upcoming dates / Hosted by / Who's coming). Provider avatar + "From [care group] →" link + service label + price + spots-left. Heading reads "Book this session" for one-off, "About this service" for recurring.
+- A **service info card** renders near the top of the content area (above Upcoming dates / Hosted by / Who's coming). Heading reads "Book this session" for one-off, "About this service" for recurring. The recurring "About this service" card is a single tappable card — carer avatar · service title + description · blue price + caret — opening `BookSessionSheet`; the one-off card keeps inline Book + Invite. Anatomy under *Service ↔ Meet linkage* below.
 - **Booking is the only commitment path.** The standard RSVP dropdown is suppressed for one-off paid meets — the Book CTA on the service info card carries the action. For recurring paid meets, per-occurrence Book buttons replace the per-row Join button on each Upcoming dates row.
 - The series-level "Interested" toggle still renders on recurring paid meets (subscription without committing to specific dates).
 
@@ -162,6 +162,22 @@ Triggers:
 - Recurring paid meet: each Upcoming dates row's Book button → opens sheet pre-filled with that occurrence date.
 
 Row meta line on recurring paid meets carries the price too: "10:00 · 350 Kč · 1/6 booked".
+
+### Service ↔ Meet linkage
+
+A meet can link to a carer's service. The full model — the four canonical configurations, cardinality, the carer-vs-meet authority split — lives in [[Groups & Care Model]] → "Service ↔ Meet linkage" and Open Questions §13. The meet-side surfaces:
+
+**`Meet.linkedServices: { serviceId, required }[]`** is the meet-authoritative link; the carer's `CarerMeetServiceConfig.linkedMeetIds[]` is the inverse. Helpers: `getLinkedServicesForMeet` / `isMeetRequiringService` (`meetUtils.ts`), `getServiceById` (`mockUsers.ts`).
+
+**Required-link meet (booking = RSVP).** A Meet-type service linked with `required: true` — free RSVP collapses, booking is the only path onto the roster. The "About this service" card is a single tappable card (carer avatar · service title + description · **blue** price + caret) opening `BookSessionSheet`; the per-date Upcoming-dates rows carry a per-occurrence **Book** button as the quick path. (Klára's training meets — `meet-care-1`, `meet-care-workshop-1`, `meet-care-puppy-basics` — also carry the legacy `serviceCTA` field; the meet detail suppresses free RSVP whenever `serviceCTA` is present.)
+
+**Config #2 — free meet + drop-off Care service (book ≠ attend).** A *free* community walk can also advertise a drop-off **Care** service: an owner books the carer to walk their dog *without joining the walk themselves*. Two separate paths, never both on one occurrence — join free as a walker, or book the drop-off. `LinkedCareCallout` renders the callout ("Have {carer} walk your dog" — avatar · title + subline · blue price + caret), sitting *alongside* the intact free RSVP. Tapping it opens `DropoffBookingSheet`, which creates a Care `Booking` and does **not** add the owner to the roster. The booking carries `Booking.dropoffMeetId` back to the meet, so the booked occurrence's Upcoming-dates row shows a blue "Drop-off booked" pill (linking to the Care booking) in place of Join / Skip.
+
+The required-link "About this service" card and the config #2 `LinkedCareCallout` share a layout — one family at two weights: the required card is blue-tinted (the meet's primary path), the config #2 callout is white with a blue accent (a secondary "or, instead" path).
+
+**Booking sheets** (`components/meets/`): `BookSessionSheet` (Meet-type services — creates a `Booking` with `meetBooking` set + adds to the roster) and `DropoffBookingSheet` (config #2 drop-off Care — creates a plain Care `Booking`, no roster). The legacy `ServiceBookingSheet` still serves `serviceCTA`-only meets with no resolvable linked service; it retires when `serviceCTA` is fully removed.
+
+**Config #2 link authoring** — a meet-side surface for declaring which drop-off Care services run on a meet — is a scheduled follow-on (needs a meet-edit screen; `MeetComposer` is create-only). Links are seeded for now.
 
 ### Meet-card anatomy (shared spec)
 
@@ -241,6 +257,7 @@ This remains the highest-intent moment for building relationships — connecting
 4. **Location flexibility** — meet creators set their own meeting point.
 5. **Recurring meets** — weekly / biweekly / monthly on the same day/time. RSVP is always per-occurrence: each upcoming date has its own Going + Skip controls. Series-level subscription is a separate "Interested" toggle in the top action row.
 6. **Care groups use "Events" label** for meets — same data model, different framing.
+7. **Service ↔ Meet linkage is meet-authoritative.** `Meet.linkedServices[]` owns the link + its `required` flag. A required link collapses free RSVP (booking IS the RSVP). A config #2 link is a *free* meet advertising a drop-off Care service — **book ≠ attend**, the booker is not a roster entry. See *Service ↔ Meet linkage* above + [[Groups & Care Model]].
 
 ---
 

@@ -476,6 +476,18 @@ export interface Booking {
     /** The specific occurrence booked — ISO YYYY-MM-DD. */
     occurrenceDate: string;
   };
+  /**
+   * Set when this **Care** booking is a drop-off on a linked free meet
+   * (Service ↔ Meet Linkage, config #2). The owner booked the carer to
+   * walk their dog on a community walk's schedule — but **book ≠ attend**,
+   * so unlike `meetBooking` this does NOT add the owner to the meet
+   * roster. It only lets meet surfaces show "you've booked a drop-off for
+   * this date" in place of the free Join / Skip RSVP controls. The booked
+   * occurrence is `startDate`. Absent on ordinary Care bookings.
+   *
+   * Service ↔ Meet Linkage, Workstream H3, 2026-05-17.
+   */
+  dropoffMeetId?: string;
   subService: string | null;
   pets: string[];
   // Dates

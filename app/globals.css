@@ -44,6 +44,7 @@
   --color-error-light: var(--status-error-light);
   --color-info: var(--status-info-main);
   --color-info-light: var(--status-info-light);
+  --color-info-strong: var(--status-info-strong);
 
   /* ── Spacing ── */
   --spacing-tiny: var(--space-tiny);
@@ -14258,7 +14259,7 @@ body:has(.bottom-nav) .inbox-page {
   align-self: flex-start;
   font-size: var(--font-size-body-sm);
   font-weight: var(--weight-semibold);
-  color: var(--status-info-600, #4e63b8);
+  color: var(--brand-main);
   text-decoration: none;
   transition: opacity 120ms ease;
 }
@@ -15053,11 +15054,11 @@ body:has(.bottom-nav) .inbox-page {
   color: var(--text-secondary);
 }
 
-/* Mute the type pill on past cards — the brand-subtle background reads
-   too loud against the muted card surface (opacity 0.8 + surface-base).
+/* Mute the role pill on past meet cards — a filled brand pill reads too
+   loud against the muted card surface (opacity 0.8 + surface-base).
    Switch to neutral surface-inset + tertiary text so the pill matches
    the rest of the past card's calm tone rather than competing. */
-.sched-card--past .sched-card-tag {
+.sched-card--past .sched-card-role {
   background: var(--surface-inset);
   color: var(--text-tertiary);
 }
@@ -15066,16 +15067,11 @@ body:has(.bottom-nav) .inbox-page {
   border-left-color: var(--status-info-main);
 }
 
-/* Provider/host — full border to elevate */
-.sched-card--providing.sched-card--meet {
-  border: 1px solid var(--brand-main);
-  border-left: 3px solid var(--brand-main);
-}
-
-.sched-card--providing.sched-card--care {
-  border: 1px solid var(--status-info-main);
-  border-left: 3px solid var(--status-info-main);
-}
+/* Provider-vs-owner / host-vs-attendee is NOT carried by the card border
+   anymore — every card keeps the same quiet side-accent treatment. The
+   role distinction lives entirely in the corner pill: a strong filled
+   pill for the provider/host, a lighter pill for the owner/attendee.
+   See `.sched-card-tag--providing` and `.sched-card-role--hosting`. */
 
 /* Row 1: Tag + time + recurring */
 .sched-card-top {
@@ -15096,14 +15092,17 @@ body:has(.bottom-nav) .inbox-page {
   flex-shrink: 0;
 }
 
-.sched-card-tag--meet {
-  background: var(--brand-subtle);
-  color: var(--brand-main);
-}
-
 .sched-card-tag--care {
   background: var(--status-info-light);
   color: var(--status-info-strong);
+}
+
+/* Provider-side care card — strong filled pill establishes "you're
+   providing this" without a full card outline. Owner-side keeps the
+   lighter status-info-light pill above. */
+.sched-card-tag--care.sched-card-tag--providing {
+  background: var(--status-info-main);
+  color: var(--text-white);
 }
 
 /* Note: removed `.sched-card-tag--hosting` and `.sched-card-tag--providing`
@@ -15194,17 +15193,17 @@ body:has(.bottom-nav) .inbox-page {
   border-radius: var(--radius-pill);
   white-space: nowrap;
   flex-shrink: 0;
-  background: none;
-  color: var(--text-tertiary);
-}
-
-.sched-card-role--hosting {
-  background: none;
+  /* Attendee/interested — the lighter brand pill, mirroring the
+     owner-side care pill. The strong filled variant is `--hosting`. */
+  background: var(--brand-subtle);
   color: var(--brand-strong);
 }
 
-.sched-card-role--providing {
-  background: var(--status-info-main);
+/* Host-side meet card — strong filled brand pill mirrors the care
+   card's filled provider pill. Carries the host/attendee distinction
+   that used to live on a full card outline. */
+.sched-card-role--hosting {
+  background: var(--brand-main);
   color: var(--text-white);
 }
 

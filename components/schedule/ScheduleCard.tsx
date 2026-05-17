@@ -9,9 +9,6 @@ import {
   Target,
   MapPin,
   ArrowsClockwise,
-  Flag,
-  Check,
-  Star,
   Briefcase,
   Clock,
   CalendarDots,
@@ -41,12 +38,6 @@ const MEET_ICONS: Record<MeetType, React.ReactNode> = {
   park_hangout: <Tree size={13} weight="light" />,
   playdate: <PawPrint size={13} weight="light" />,
   training: <Target size={13} weight="light" />,
-};
-
-const ROLE_ICONS: Record<MeetRole, React.ReactNode> = {
-  hosting: <Flag size={11} weight="fill" />,
-  joining: <Check size={11} weight="bold" />,
-  interested: <Star size={11} weight="light" />,
 };
 
 const ROLE_LABELS: Record<MeetRole, string> = {
@@ -261,20 +252,22 @@ export function ScheduleMeetCard({
   return (
     <Link
       href={href}
-      className={`sched-card sched-card--meet${isHosting ? " sched-card--providing" : ""}${isPast ? " sched-card--past" : ""}${isCancelled ? " sched-card--cancelled" : ""}`}
+      className={`sched-card sched-card--meet${isPast ? " sched-card--past" : ""}${isCancelled ? " sched-card--cancelled" : ""}`}
       style={{ textDecoration: "none" }}
     >
-      {/* Row 1: Time + recurring + role (left, your-perspective metadata) ·
-          type pill (right, meet's identity).
-          Role moved here from row 3 on 2026-04-27 — having it bottom-right
-          competed visually with the top-right type pill (two badges, eye
-          ricocheted between corners). Grouping time + cadence + role at
-          the top reads as one "your stake in this" cluster; the type pill
-          stands alone on the right as the meet's identity. Bottom row is
-          left as quieter location + count info.
-          For cancelled meets, the role pill flips to a "Cancelled" label
-          using error-toned styling — that becomes the most important
-          state to communicate, more than whether the user was Going. */}
+      {/* Row 1: Time + recurring (left, your-perspective metadata) ·
+          single corner pill (right).
+          The corner pill carries the viewer's role (Hosting / Joining /
+          Interested) — filled brand when hosting, lighter brand when
+          attending. The meet-type icon stays as the pill's glyph so the
+          categorical type (walk / hangout / playdate / training) is still
+          legible without a second competing badge. This collapses the old
+          two-badge row (role chip left + type pill right — the eye
+          ricocheted between corners) into one pill, mirroring the care
+          card's single Providing/Care pill.
+          For cancelled meets, the pill flips to a "Cancelled" label using
+          error-toned styling — that becomes the most important state to
+          communicate, more than whether the user was Going. */}
       <div className="sched-card-top">
         <span className="sched-card-time">
           <Clock size={14} weight="light" />
@@ -286,6 +279,7 @@ export function ScheduleMeetCard({
             {recurrenceLabel(meet)}
           </span>
         )}
+        <span className="flex-1" />
         {isCancelled ? (
           <span className="sched-card-role sched-card-role--cancelled">
             <X size={11} weight="bold" />
@@ -295,20 +289,10 @@ export function ScheduleMeetCard({
           <span
             className={`sched-card-role${isHosting ? " sched-card-role--hosting" : ""}`}
           >
-            {isHosting ? <Flag size={11} weight="fill" /> : ROLE_ICONS[role]}
+            {MEET_ICONS[meet.type]}
             {roleLabels[role]}
           </span>
         )}
-        <span className="flex-1" />
-        {/* Type badge stays consistent regardless of role — the brand left
-            border + the brand-colored role chip in the top row carry the
-            "this is yours" signal. Mixing badge treatments by role
-            conflates type (categorical) with ownership (relational) on
-            the same visual. */}
-        <span className="sched-card-tag sched-card-tag--meet">
-          {MEET_ICONS[meet.type]}
-          {MEET_TYPE_LABELS[meet.type]}
-        </span>
       </div>
 
       {/* Row 2: Title — strike-through when cancelled. */}
@@ -367,7 +351,6 @@ export function ScheduleCareCard({
     ? { name: booking.carerName, avatarUrl: booking.carerAvatarUrl }
     : { name: booking.ownerName, avatarUrl: booking.ownerAvatarUrl };
   const timeLabel = booking.recurringSchedule?.timeLabel;
-  const days = booking.recurringSchedule?.days;
   const isOneOff = !booking.recurringSchedule;
   const isLive = session.status === "in_progress";
   const isCancelled = session.status === "cancelled";
@@ -418,7 +401,7 @@ export function ScheduleCareCard({
   return (
     <Link
       href={`/bookings/${booking.id}`}
-      className={`sched-card sched-card--care${isProviding ? " sched-card--providing" : ""}${isCancelled ? " sched-card--cancelled" : ""}`}
+      className={`sched-card sched-card--care${isCancelled ? " sched-card--cancelled" : ""}`}
       style={{ textDecoration: "none" }}
     >
       {/* Row 1: Time or date range (left) · recurring days or drop-off · pill (right) */}
@@ -450,9 +433,16 @@ export function ScheduleCareCard({
             {formatShortDate(booking.startDate)}{booking.endDate ? ` – ${formatShortDate(booking.endDate)}` : ""}
           </span>
         ) : null}
-        {days && !isLive && !isCancelled && (
-          <span className="sched-card-days">
-            {days.join(" · ")}
+        {/* Recurring care — show a cadence chip ("Weekly"), NOT the series
+            weekday. This card sits inside a date-group header (TODAY /
+            TUESDAY 19 MAY / …), so a weekday label would contradict it
+            (the demo anchors upcoming sessions to today regardless of the
+            booking's seeded weekday). The weekday stays on the booking
+            summary card + detail page, where there's no date-group. */}
+        {!isOneOff && !isLive && !isCancelled && (
+          <span className="sched-card-recurring">
+            <ArrowsClockwise size={12} weight="light" />
+            Weekly
           </span>
         )}
         {isOneOff && !isLive && !isCancelled && (
@@ -461,7 +451,7 @@ export function ScheduleCareCard({
           </span>
         )}
         <span className="flex-1" />
-        <span className="sched-card-tag sched-card-tag--care">
+        <span className={`sched-card-tag sched-card-tag--care${isProviding ? " sched-card-tag--providing" : ""}`}>
           <Briefcase size={13} weight="light" />
           {isProviding ? "Providing" : "Care"}
         </span>
@@ -524,7 +514,7 @@ export function ScheduleCareCard({
         >
           <ButtonAction
             variant="primary"
-            size="md"
+            size="sm"
             leftIcon={<Play size={14} weight="fill" />}
             onClick={handleQuickStart}
           >
@@ -572,7 +562,7 @@ export function ScheduleBookingCard({
   return (
     <Link
       href={`/bookings/${booking.id}`}
-      className={`sched-card sched-card--care${isProviding ? " sched-card--providing" : ""}`}
+      className="sched-card sched-card--care"
       style={{ textDecoration: "none" }}
     >
       {/* Row 1: Time or date range (left) · recurring days or drop-off · pill (right) */}
@@ -600,7 +590,7 @@ export function ScheduleBookingCard({
           </span>
         )}
         <span className="flex-1" />
-        <span className="sched-card-tag sched-card-tag--care">
+        <span className={`sched-card-tag sched-card-tag--care${isProviding ? " sched-card-tag--providing" : ""}`}>
           <Briefcase size={13} weight="light" />
           {isProviding ? "Providing" : "Care"}
         </span>

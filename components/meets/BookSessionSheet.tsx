@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import { CheckCircle, MapPin, CalendarDots } from "@phosphor-icons/react";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { ButtonAction } from "@/components/ui/ButtonAction";
@@ -201,7 +202,8 @@ export function BookSessionSheet({
     >
       {step === "form" ? (
         <div className="flex flex-col gap-md p-md">
-          {/* Service + carer summary */}
+          {/* Service + carer summary — the carer line links through to
+              their profile (full service catalogue + trust signals). */}
           <div className="flex items-center gap-sm rounded-panel p-md bg-surface-base">
             <img
               src={carer.avatarUrl}
@@ -212,12 +214,24 @@ export function BookSessionSheet({
               <span className="text-sm font-semibold text-fg-primary">
                 {service.title}
               </span>
-              <span className="text-xs text-fg-tertiary">with {carer.name}</span>
+              <Link
+                href={`/profile/${carer.id}`}
+                className="text-xs text-fg-tertiary"
+                style={{ textDecoration: "none" }}
+              >
+                with {carer.name} →
+              </Link>
             </div>
             <span className="text-base font-semibold text-fg-primary shrink-0">
               {priceLabel}
             </span>
           </div>
+
+          {/* Service description — the carer's own copy for this offering
+              (the `notes` field shown on their profile service card). */}
+          {service.notes?.trim() && (
+            <p className="text-sm text-fg-secondary m-0">{service.notes}</p>
+          )}
 
           {/* Session picker */}
           {occurrences.length === 0 ? (

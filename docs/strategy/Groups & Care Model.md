@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-16
+last-reviewed: 2026-05-17
 tags: [groups, community, carers, care, navigation, demo]
 review-trigger: "when touching group features, Community tab, Care groups, care model, or demo planning"
 ---

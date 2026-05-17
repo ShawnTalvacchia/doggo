@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-05-14
+last-reviewed: 2026-05-17
 tags: [design-system, components, patterns, css]
 review-trigger: "when building or refactoring components, adding CSS patterns, or consolidating styles"
 ---
@@ -33,6 +33,7 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 11. **Header actions = outline rectangle, not brand pill (Cross-Cutting Flow Testing, 2026-05-11).** Header-slot actions (the `headerAction` / `setDetailHeader` / `setPageAction` slot rendered in `PageColumn` or AppNav) use **`<ButtonAction variant="outline" size="sm" leftIcon={…}>Label</ButtonAction>`** with no `cta` modifier (rectangular). Reserves brand-filled pills for *primary commits* — row CTAs (Message, Connect), hero CTAs (Join community, RSVP), and modal-footer primaries. Without this hierarchy, members-tab views like `group-reactive-dogs` end up with a brand pill in the header AND brand pills on every row, with no visual signal of which is primary. **Same render across desktop and mobile** — `headerAction` JSX flows into both surfaces, so the convention is automatic once the variant is correct. Long titles truncate with ellipsis; the action button stays put. **Canonical examples:** Profile Edit (already correct), all four detail/page actions swept 2026-05-11 (Group Invite/Create/Post, Meet Share, Home Create/Post, Schedule Create). **Carve-out:** Profile edit-mode pairs an `outline` Cancel with a `primary` Save (both rectangular, no `cta`) — the destructive/constructive contrast on a focused-edit surface earns the brand-fill on Save without breaking the rectangular convention.
 12. **Hydration gate for persona-identity-dependent side effects (Profiles Deep Pass C11 bugfix, 2026-05-13).** `useCurrentUser` resolves to the SSR/first-paint Tereza fallback until `localStorage` hydrates. Any side effect that reads `currentUserId` and acts on it (own-self redirects, audience gates, render-null branches keyed on identity) MUST gate on the hydration flag — otherwise pre-hydration code evaluates against the Tereza default and false-positives when the URL or context happens to match Tereza. **Hook:** `useIsHydrated()` from `@/hooks/useCurrentUser`. **Pattern:** `const isSelf = isHydrated && !isGuest && userId === currentUserId;`. First consumer: `/profile/[userId]` own-self redirect. Reusable for any future persona-identity-dependent decision (booking ownership checks, schedule view-mode gates, etc.).
 13. **Paired CTA row that wraps on narrow viewports (Profiles Deep Pass, 2026-05-13).** `.btn` carries `white-space: nowrap`, so `flex-1` (= `flex: 1 1 0%`, basis 0) on paired CTAs can't shrink the buttons below content width — they overflow horizontally instead of wrapping. Pattern: `<div className="flex flex-wrap gap-sm w-full">` with `className="grow basis-[140px]"` on each ButtonAction. Result: both fit on one row (each grows from 140px to fill); when panel is narrower than `2 × 140 + gap`, they wrap to stacked full-width. Used on `/profile/[userId]` relationship/action row + own-profile Care CTA row + guest viewer CTA row. Drop `flex-1`; prefer this pattern for any paired-button row that needs to gracefully wrap.
+14. **Care = blue, community = green (Service ↔ Meet Linkage, 2026-05-17).** Two semantic colour families split the app. **`--status-info` / `text-info-*` (blue) = care and paid services** — booking prices, the meet "About this service" card, the config #2 drop-off callout, Schedule care cards. **`--brand-*` (green) = community** — meets, groups, and the links to them. Group links render `--brand-main` everywhere they appear (meet hero, home + Discover feed cards). When a new surface introduces a price or a community link, colour it by this rule. `--color-info-strong` (bridges `--status-info-strong`) was added so `text-info-strong` is available as a Tailwind utility for blue text on light backgrounds.
 
 ---
 
@@ -44,7 +45,7 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 | `ButtonIcon` | Icon-only buttons (40px square) | `icon`, `badge` (notification dot) |
 | `InputField` | Text inputs with label, helper, error | `label`, `error`, `helper` |
 | `CheckboxRow` | Labeled checkbox | `checked`, `label`, `placement` |
-| `Toggle` | On/off switch for immediate settings | `checked`, `onChange` |
+| `Toggle` | On/off switch for immediate settings | `checked`, `onChange`, `size` (default / `sm`). `sm` is the compact track — used for the per-link "Booking required" toggles inside `MeetServiceEditCard`. |
 | `TabBar` | Horizontal tab row | `tabs`, `activeKey`, `onChange`. The bar itself overflows scrollably (`max-width: 100%; overflow-x: auto`) with `flex-shrink: 0; white-space: nowrap` on each tab — mirrors the `.filter-pill-row` pattern. Without this, narrow viewports bleed horizontal scroll onto the panel body. (Inbox & Notifications, 2026-05-08.) |
 | `StatusBadge` | Contract lifecycle + session state labels | `status` |
 | `SectionLabel` | Section heading in lists/panels | `label` |
@@ -90,9 +91,11 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 
 | Component | Purpose |
 |-----------|---------|
-| `ModalSheet` | Desktop centered card / mobile bottom sheet |
+| `ModalSheet` | Desktop centered card / mobile bottom sheet. `compact` prop tightens the card for short content (`modal-sheet-card--compact`). |
 | `BookingModal` | Open-ended provider booking — service picker + date range + message + success flow |
-| `ServiceBookingSheet` | Lightweight "book this scheduled session" — pre-filled date/time/provider/price, optional message, confirm. Used by paid (care-group) meet detail pages — service info card Book CTA on one-off, per-row Book on recurring. |
+| `ServiceBookingSheet` | Lightweight "book this scheduled session" — pre-filled date/time/provider/price, optional message, confirm. **Legacy** — serves `serviceCTA`-only meets with no resolvable linked service; superseded by `BookSessionSheet` for the linkage model, retires when `serviceCTA` is removed. |
+| `BookSessionSheet` | Meet-type service booking (Service ↔ Meet Linkage) — occurrence picker across the service's linked meets; on confirm creates a `Booking` with `meetBooking` set + adds the owner to the meet roster. Reached from the carer's Services tab and a linked meet's detail page. |
+| `DropoffBookingSheet` | Config #2 drop-off Care booking — pick a date on a free meet's schedule, book the carer to walk your dog. Creates a plain Care `Booking` with `dropoffMeetId` set; does **not** add the owner to the roster (book ≠ attend). |
 
 ---
 

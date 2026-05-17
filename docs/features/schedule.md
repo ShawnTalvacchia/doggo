@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-27
+last-reviewed: 2026-05-17
 tags: [schedule, meets, bookings, timeline]
 review-trigger: "when modifying the My Schedule page or unified timeline"
 ---
@@ -29,7 +29,7 @@ Meet discovery moved to `/discover` (Discover hub > Meets door). Care services/p
 - **Route:** `/schedule` (top-level page, bottom nav tab)
 - **Component:** `app/schedule/page.tsx` (imports `MyScheduleTab` from `components/activity/MyScheduleTab.tsx`)
 - **Data:** `getUserMeets("shawn")` from `lib/mockMeets.ts`, plus bookings from `BookingsContext`
-- **Card components:** `CardMyMeet` (role-badge variant), `BookingBlock` (compact booking row for timeline)
+- **Card components:** `components/schedule/ScheduleCard.tsx` — `ScheduleMeetCard`, `ScheduleCareCard`, `ScheduleBookingCard`
 
 ### Layout
 
@@ -41,13 +41,12 @@ Meet discovery moved to `/discover` (Discover hub > Meets door). Care services/p
 - **Interested tab** auto-populates from meets in the user's joined groups
 - **Unified timeline** — meets and bookings merged chronologically, grouped by date headers
 
-### Card design (CardMyMeet)
+### Card design (ScheduleCard)
 
-- **Role badge replaces CTA:** "Hosting" (brand bg, flag icon) / "Joining" (dark bg) / "Interested" (outline) instead of action buttons
-- **Card type borders:** Meet cards have 3px brand-coloured left border. Care cards where user is provider or host have full accent border (all four sides). History cards use muted border colour.
-- **Care card labels:** Action verb format — e.g. "Olga walking Spot" — showing provider, service, and dog name.
-- **Tag badge variants:** Hosting cards use solid brand background tag. Providing cards use solid info-main background with "Providing" text. Standard joining/booked tags use default styles.
-- **Care card details:** Sub-service names (e.g. "30-min walk"), recurring day chips, and provider/owner role badges ("Providing" / "Booked") on care cards.
+- **Side-accent border, app-wide (Service ↔ Meet Linkage, 2026-05-17).** Every card carries the same quiet 3px left-accent border — green (`--brand-main`) for meets, blue (`--status-info-main`) for care. There is **no** full-outline treatment; the earlier provider/host full border (all four sides) was removed. History cards render at reduced weight.
+- **Role lives in the corner pill (Service ↔ Meet Linkage, 2026-05-17).** The far-corner pill carries the viewer's relationship to the card: a strong **filled** pill (`--brand-main` for host, `--status-info-main` for provider — both with white text) when the viewer hosts / provides; the lighter pill (`--brand-subtle` / `--status-info-light`) for attendee / owner. The meet card has a *single* corner pill — the meet-type icon as its glyph + the role word (Hosting / Joining / Interested); the separate type pill was removed.
+- **Care card labels:** action-verb format — e.g. "Olga walking Spot" — showing provider, service, and dog name.
+- **Recurring care cards show a "Weekly" cadence chip**, not the seeded weekday — the card sits under a date-group header, so a weekday label would contradict it (the demo anchors upcoming sessions to today). The weekday stays on the booking-summary card + booking detail.
 - **Redundant elements removed:** "Upcoming" status badge hidden when already on Upcoming tab. "Book a spot" CTA hidden when user is already joining/hosting.
 - **5 attendee avatars** (vs 3 in Discover) — you care who's coming
 - **Stronger date emphasis** — semi-bold time formatting in upcoming view

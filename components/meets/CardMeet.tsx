@@ -219,8 +219,8 @@ export function CardMeet({ meet, variant, role, isHistory = false, inCircle = fa
           {/* Row 5: Group context + capacity (suppressed when already inside a group page) */}
           {group && variant !== "group" && (
             <div className="flex items-center gap-xs text-sm">
-              <UsersThree size={16} weight="light" className="shrink-0" style={{ color: "var(--status-info-600, #4e63b8)" }} />
-              <span className="font-semibold" style={{ color: "var(--status-info-600, #4e63b8)" }}>
+              <UsersThree size={16} weight="light" className="shrink-0 text-brand-main" />
+              <span className="font-semibold text-brand-main">
                 {group.name}
               </span>
               <span style={{ color: "var(--text-tertiary)" }}>·</span>

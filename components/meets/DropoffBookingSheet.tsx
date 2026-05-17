@@ -94,6 +94,10 @@ export function DropoffBookingSheet({
       carerName: carer.name,
       carerAvatarUrl: carer.avatarUrl,
       type: "one_off",
+      // Config #2 link — book ≠ attend, so this is the *only* trace back
+      // to the meet (no `meetBooking`, no roster entry). Meet surfaces read
+      // it to show "Drop-off booked" on the occurrence row.
+      dropoffMeetId: meet.id,
       serviceType: service.serviceType,
       subService: "Group walk",
       pets: viewer.pets.map((p) => p.name),

@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-05-10
+last-reviewed: 2026-05-17
 tags: [tokens, css, figma, design-system]
 review-trigger: "when adding or changing CSS variables"
 ---
@@ -180,6 +180,8 @@ CSS pattern: `--transparent-{dark|light|gray}-{step}`
 | Status/Info/light               | `--status-info-light`     | `#eff2fc`               |
 | Status/Info/main                | `--status-info-main`      | `#607ae1`               |
 | Status/Info/strong              | `--status-info-strong`    | `#4e63b8`               |
+
+**Tailwind utilities.** The `@theme` block maps the status colours so they're reachable as utilities: `text-info` / `bg-info` (`--status-info-main`), `text-info-light` (`--status-info-light`), `text-info-strong` (`--status-info-strong`), plus the `-light` + main variants for success / warning / error. `--color-info-strong` was added 2026-05-17 so blue text on light backgrounds has a utility — the care / paid colour family (see `design-system.md` Principle 14: care = blue, community = green).
 
 ---
 

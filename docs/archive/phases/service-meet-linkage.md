@@ -1,6 +1,6 @@
 ---
-status: active
-last-reviewed: 2026-05-14
+status: archived
+last-reviewed: 2026-05-17
 review-trigger: When opening; when build-time questions resolve mid-phase
 ---
 

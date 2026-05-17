@@ -27,7 +27,7 @@ export function LinkedCareCallout({ service, carer, onBook }: LinkedCareCalloutP
     <button
       type="button"
       onClick={onBook}
-      className="flex items-center gap-md rounded-panel border border-edge-regular w-full text-left"
+      className="flex items-start gap-md rounded-panel border border-edge-regular w-full text-left"
       style={{
         background: "var(--surface-top)",
         padding: "var(--space-md)",
@@ -39,18 +39,25 @@ export function LinkedCareCallout({ service, carer, onBook }: LinkedCareCalloutP
         alt={carer.name}
         className="w-10 h-10 rounded-full object-cover shrink-0"
       />
-      <span className="flex flex-col flex-1 min-w-0 gap-tiny">
-        <span className="text-sm font-semibold text-fg-primary">
-          Have {carerFirst} walk your dog
+      {/* Avatar is its own column; the title/subline and the price·caret
+          row stack in the content column. The price drops to its own row
+          so it isn't squeezed against wrapping copy on narrow screens. */}
+      <span className="flex flex-col flex-1 min-w-0 gap-sm">
+        <span className="flex flex-col gap-tiny">
+          <span className="text-sm font-semibold text-fg-primary">
+            Have {carerFirst} walk your dog
+          </span>
+          <span className="text-xs text-fg-tertiary">
+            Drop-off — {carerFirst} takes your dog on this walk. You don&apos;t come along.
+          </span>
         </span>
-        <span className="text-xs text-fg-tertiary">
-          Drop-off — {carerFirst} takes your dog on this walk. You don&apos;t come along.
+        <span className="flex items-center justify-between gap-xs">
+          <span className="text-sm font-semibold text-info-strong">
+            {service.pricePerUnit.toLocaleString()} Kč
+          </span>
+          <CaretRight size={16} weight="bold" className="text-info-strong shrink-0" />
         </span>
       </span>
-      <span className="text-sm font-semibold text-brand-strong shrink-0">
-        {service.pricePerUnit.toLocaleString()} Kč
-      </span>
-      <CaretRight size={16} weight="bold" className="text-fg-tertiary shrink-0" />
     </button>
   );
 }
