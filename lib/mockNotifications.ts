@@ -319,6 +319,23 @@ export const mockNotifications: AppNotification[] = [
     read: true,
   },
   {
+    // Beat 3 of the Guided Walkthrough opens on /notifications — Magda
+    // accepts Daniel's request inline here. Seeded statically so the beat
+    // works regardless of beat order or what the tester did in Beat 1
+    // (Beat 1's "Connect" is a cosmetic session-local mark, not a real
+    // send). See docs/features/demo-mode.md → "State seeded between beats".
+    id: "notif-magda-connect-daniel",
+    recipientId: "magda",
+    type: "connection_request",
+    actorId: "daniel",
+    title: "Daniel wants to connect",
+    body: "You met at the Calm Dog Group Session.",
+    avatarUrl: "/images/generated/daniel-profile.jpeg",
+    href: "/profile/daniel",
+    createdAt: daysAgoIso(0, "12:15"),
+    read: false,
+  },
+  {
     id: "notif-magda-1",
     recipientId: "magda",
     type: "group_activity",

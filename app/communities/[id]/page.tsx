@@ -38,10 +38,12 @@ import {
 import { PrivateProfileRow } from "@/components/people/PrivateProfileRow";
 import { GroupVisibilityChip } from "@/components/groups/GroupVisibilityChip";
 import { RequestToJoinModal } from "@/components/groups/RequestToJoinModal";
+import { GroupInviteSheet } from "@/components/groups/GroupInviteSheet";
 import { getGroupById, getGroupMeets } from "@/lib/mockGroups";
 import { getPostsByGroup } from "@/lib/mockPosts";
 import { getConnectionState } from "@/lib/mockConnections";
 import { useConnections } from "@/contexts/ConnectionsContext";
+import { useNotifications } from "@/contexts/NotificationsContext";
 import { getUserById } from "@/lib/mockUsers";
 import { getCarerIdentity, type CarerIdentity } from "@/lib/identityBadges";
 import { useCurrentUserId, useIsGuest } from "@/hooks/useCurrentUser";
@@ -146,11 +148,14 @@ function GroupDetailInner() {
   const currentUserId = useCurrentUserId();
   const isGuest = useIsGuest();
   const { requireAuth } = useAuthGate();
+  const { addNotification } = useNotifications();
 
   const group = getGroupById(params.id as string);
   const [joinRequested, setJoinRequested] = useState(false);
   const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [leaveMenuOpen, setLeaveMenuOpen] = useState(false);
+  const [inviteSheetOpen, setInviteSheetOpen] = useState(false);
+  const [invitedUserIds, setInvitedUserIds] = useState<Set<string>>(new Set());
 
   // Close leave menu on outside click + Escape (mirrors the meet RSVP menu)
   useEffect(() => {
@@ -183,6 +188,25 @@ function GroupDetailInner() {
 
   const groupMeets = getGroupMeets(group.id, currentUserId);
   const groupPosts = getPostsByGroup(group.id);
+
+  // Invite a connection to this group: record it for the row's "Invited"
+  // state and fire a `group_invite` notification to them. Deterministic
+  // notification id so re-inviting the same person upserts rather than
+  // stacking duplicate rows.
+  const handleInvite = (userId: string) => {
+    setInvitedUserIds((prev) => new Set(prev).add(userId));
+    const inviter = getUserById(currentUserId);
+    addNotification({
+      id: `notif-ginvite-${group.id}-${userId}`,
+      recipientId: userId,
+      type: "group_invite",
+      actorId: currentUserId,
+      title: `${inviter?.firstName ?? "Someone"} invited you to ${group.name}`,
+      body: "Tap to see the group and join.",
+      avatarUrl: inviter?.avatarUrl,
+      href: `/communities/${group.id}`,
+    });
+  };
   // Guests have no membership identity — even if `currentUserId` resolves to
   // Tereza (the read-only display fallback), a guest visitor isn't actually
   // her, so they aren't a member or admin of any group. Forcing both flags
@@ -239,7 +263,7 @@ function GroupDetailInner() {
         );
       case "members":
         return (
-          <ButtonAction variant="outline" size="sm" leftIcon={<UserPlus size={14} weight="bold" />}>
+          <ButtonAction variant="outline" size="sm" leftIcon={<UserPlus size={14} weight="bold" />} onClick={() => setInviteSheetOpen(true)}>
             Invite
           </ButtonAction>
         );
@@ -325,6 +349,7 @@ function GroupDetailInner() {
             leaveMenuOpen={leaveMenuOpen}
             onLeaveMenuToggle={() => setLeaveMenuOpen((v) => !v)}
             onLeave={() => setLeaveMenuOpen(false)}
+            onOpenInvite={() => setInviteSheetOpen(true)}
             isGuest={isGuest}
             onGuestAction={requireAuth}
           />
@@ -371,6 +396,18 @@ function GroupDetailInner() {
           setJoinModalOpen(false);
         }}
       />
+
+      {/* Invite sheet — opened from either Invite affordance (Members-tab
+          header action + the hero action row). Lists the viewer's
+          connections; inviting one fires a group_invite notification. */}
+      <GroupInviteSheet
+        open={inviteSheetOpen}
+        onClose={() => setInviteSheetOpen(false)}
+        group={group}
+        viewerId={currentUserId}
+        invitedUserIds={invitedUserIds}
+        onInvite={handleInvite}
+      />
     </div>
   );
 }
@@ -398,6 +435,8 @@ interface FeedTabProps {
   /** Stub for now — closes the menu. Real "leave community" mutation lives
    *  in the future when membership state is mutable. */
   onLeave: () => void;
+  /** Open the group invite sheet (non-guest viewers). */
+  onOpenInvite: () => void;
   /** True iff the viewer is a logged-out guest. Demo Presentation D3, 2026-05-05. */
   isGuest: boolean;
   /** Open the AuthGate prompt with a contextual action label. */
@@ -445,7 +484,7 @@ function getJoinHelperText(args: {
   return "";
 }
 
-function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, joinRequested, adminName, onJoinRequest, leaveMenuOpen, onLeaveMenuToggle, onLeave, isGuest, onGuestAction }: FeedTabProps) {
+function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, joinRequested, adminName, onJoinRequest, leaveMenuOpen, onLeaveMenuToggle, onLeave, onOpenInvite, isGuest, onGuestAction }: FeedTabProps) {
   const joinHelperText = getJoinHelperText({
     visibility: group.visibility,
     isMember,
@@ -642,7 +681,7 @@ function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, join
             size="md"
             cta
             leftIcon={<UserPlus size={16} weight="bold" />}
-            onClick={isGuest ? () => onGuestAction("invite friends") : undefined}
+            onClick={isGuest ? () => onGuestAction("invite friends") : onOpenInvite}
           >
             Invite
           </ButtonAction>

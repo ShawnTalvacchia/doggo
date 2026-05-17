@@ -75,6 +75,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
       id: n.id ?? `notif-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       type: n.type,
       recipientId: n.recipientId,
+      actorId: n.actorId,
       title: n.title,
       body: n.body,
       avatarUrl: n.avatarUrl,

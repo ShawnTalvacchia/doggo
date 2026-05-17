@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-14
+last-reviewed: 2026-05-16
 tags: [users, personas, trust, funnels]
 review-trigger: "when designing user-facing flows or onboarding"
 ---
@@ -180,9 +180,6 @@ This archetype is "graduated to care," not "skipped community." That distinction
 **Product behaviour**
 Multiple group memberships (their neighbourhood + the group their carer hosts). A small Connected/Familiar set from earlier community participation. Active recurring booking with their primary carer. Zero or near-zero *future* meet RSVPs — they don't actively scout for new meets even though they still technically could. Heavy usage of `/bookings` and the booking-detail chat thread. Light usage of `/communities` and `/home` feed (they scroll occasionally). Near-zero usage of `/discover/meets`. The DiscoveryBanner on `/home` ("your week is empty — meets in your circle") is built for exactly this rhythm: polite, low-pressure, surfaces the community thread when it might be useful without insisting on participation.
 
-**Why we test against this archetype**
-Doggo's strategy bets on community-first → trust → care. The Marketplace Owner is the *successful funnel outcome*: someone who walked the path, found their carer, and graduated into a steady-state relationship. Walking through this persona verifies that **post-graduation surfaces still work** — that nothing assumes ongoing community engagement, that the care flow stands on its own once trust has been built, that "graduated" reads as success rather than failure in product copy and structure. Added to the persona roster 2026-05-13 (Lena Marešová); represents where most users will eventually live.
-
 ---
 
 ### The Social Seeker
@@ -254,9 +251,6 @@ This archetype is what Doggo looks like as a **WhatsApp replacement for a single
 
 **Product behaviour**
 Open or locked profile (varies — many Hub Members are socially comfortable enough to keep their profile open, especially since their group already vouches for them). Anchors one private neighbour group, ~6–15 members. Heavy in-group posting — short coordination messages, photos, occasional "anyone around?" requests. Light-to-moderate Familiar marks across the wider neighbourhood from incidental park encounters. Possibly a Casual Carer (dial barely turned, circle audience) — they'd take a neighbour's dog for the night, but it isn't a service they list publicly. Near-zero `/discover/care` usage. Light `/discover/meets` usage (only to find their crew's events). Zero or near-zero attendance at events outside their group.
-
-**Why we test against this archetype**
-Doggo's "Three Ways In" model has Find Your People as the middle door — and the Hub Member is the archetype that lives there exclusively. Walking through this persona verifies that **the platform stands up as a single-private-group tool**, not just as a meets-and-care marketplace. If the in-group surfaces feel thin — feed without rhythm, member list without coordination affordances, peer-care booking that feels marketplace-shaped instead of favour-shaped — the Find Your People door doesn't pull its weight, and the Three Ways In thesis loses a third of its surface area. Added to the persona roster 2026-05-14 (Magda Vondráková) during Demo Narrative & Personas phase, where she carries Beat 3 of the demo (the *good fences make good neighbours* peer-care arrangement).
 
 ---
 

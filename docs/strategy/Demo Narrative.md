@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: draft
-last-reviewed: 2026-05-14
+last-reviewed: 2026-05-17
 tags: [demo, narrative, walkthrough, personas]
 review-trigger: "before any change to the persona roster, the anchor meet, or the walkthrough beats"
 ---
@@ -32,21 +32,23 @@ The walkthrough infrastructure (interstitial component, mode toggle, auto-switch
 
 Four POV segments, four personas (Daniel, Klára, Magda, Lena). Each beat names: **persona**, **time**, **surfaces walked**, **demo focus** (the feature loop on display), **tester actions** (what the tester does), **tester prompt** (what the walkthrough asks them to consider).
 
-### Beat 1 — Daniel discovers and books
+### Beat 1 — Daniel books into Klára's group session
 
 **Persona:** Daniel Procházka (anxious new owner, Smíchov, locked profile, rescue Bára).
 **Time:** Saturday morning, "today."
-**Surfaces walked:** `/discover/meets` → meet-care-1 detail → People tab.
-**Demo focus:** the **Find Your Help** door + the **Service ↔ Meet Linkage booking flow** + the **trust-ladder Familiar → Connect gesture**.
+**Surfaces walked:** `/discover/meets` ("Meets from your circle" section) → meet-care-1 detail → People tab.
+**Demo focus:** the **Discover Meets circle section** + the **Service ↔ Meet Linkage booking flow (required-link)** + the **trust-ladder Familiar → Connect gesture (Daniel → Magda)**.
+
+**Framing — W2.4 decision: after-picture, not rewind.** Daniel is NOT a cold stranger. He's already Klára's client — a recurring 1-on-1 reactive-dog arrangement (`klaraTrainingDaniel`), and they're already mutual Connected. Beat 1 is a *trust-progression* beat: a nervous owner who has built enough confidence through private 1-on-1s now tries Klára's **group** session for the first time. The group setting is the new thing — and it's where the community layer starts growing on top of the care relationship (he meets Magda there). **The W2.4 task asked: rewind Daniel's data to a true in-journey zero-state, or keep him as-is and frame his current state as the "after" picture? Decision: after-picture (keep as-is).** Rewinding would cascade through `klaraTrainingDaniel` (referenced in notifications, conversations, the active-session highlight reel) + his connection roster + every other persona's roster that points at him — high blast radius for a framing choice the walkthrough copy can carry instead. The after-picture framing is also *richer*: a nervous owner stepping from 1-on-1s into a group setting is a more interesting trust beat than a blank-slate first contact, and it lets the community layer (meeting Magda) grow visibly on top of an existing care relationship — which is the whole community↔care thesis in one beat.
 
 **Tester actions:**
-1. From `/discover/meets`, find Klára's Calm Dog Group Session and tap into the detail.
-2. Tap **Book session → 350 Kč** (the sole CTA — required-service collapses the free RSVP). Walk the session picker + booking confirmation. On commit, Daniel becomes mutual Connected with Klára (auto trust transition on contract sign).
-3. Tap the People tab. Find **Magda Vondráková** in the Connected/Familiar/unmarked groupings.
+1. From `/discover/meets`, find Klára's Calm Dog Group Session in the **"Meets from your circle"** elevated section (it surfaces there because Daniel is Connected to Klára). Tap into the detail.
+2. Tap **Book session → 350 Kč** (the sole CTA — required-service collapses the free RSVP). Walk the session picker + booking confirmation. On commit, a Booking is created and Daniel joins the meet roster. *(No new trust transition here — Daniel + Klára are already Connected; the booking just adds him to the session.)*
+3. Tap the People tab. Find **Magda Vondráková** in the unmarked / "other attendees" grouping — Daniel doesn't know her yet.
 4. Tap "+ Familiar" on Magda's row (her open profile means the mark grants HER visibility into Daniel's locked profile — the asymmetric grant doing its job).
-5. After Familiar lands, tap **Connect** on her row (now visible per matrix v3 — Connect appears for locked viewers after Familiar). Sends a Connect request.
+5. After Familiar lands, tap **Connect** on her row (now visible per matrix v3 — Connect appears for locked viewers after Familiar). Sends a Connect request — the genuinely new relationship this beat creates.
 
-**Tester prompt:** *Did the booking-as-RSVP flow feel comfortable? Did the trust ladder (Familiar then Connect) feel like a natural sequence, or like extra friction?*
+**Tester prompt:** *Did booking into the group session feel like a comfortable next step from 1-on-1s? Did the trust ladder (Familiar then Connect) feel like a natural sequence, or like extra friction?*
 
 ---
 
@@ -115,6 +117,7 @@ Four POV segments, four personas (Daniel, Klára, Magda, Lena). Each beat names:
 - **Tereza POV.** The Vinohrady density her surfaces would demo doesn't earn its keep against the ~25–30 min runtime. Hub Member effectively replaces her as the embedded-community-anchor archetype on display, from a fresher angle. Tereza stays in the persona registry for Open View exploration.
 - **Tomáš POV.** His utility-user emergency-care arc partially duplicates Lena's "uses the app for care management" framing, with weaker narrative payoff. Cut. Stays in registry.
 - **New User POV.** Empty-state preview is a different demo job (onboarding); Open View handles it. Not in the Guided Walkthrough.
+- **Recent-mover persona (W2.5 decision: skip).** W2.5 asked whether to add a "Day 0" persona — minimal seed, one dog, no connections, no groups, just landed in Prague — distinct from the truly-empty New User. Decision: **skip.** The four-beat narrative has no slot for it (the demo's entry point is Daniel, an established owner trying a new surface, not a fresh arrival), and New User already covers the empty-state preview job for Open View. A Recent-mover persona would only earn its keep if a future phase builds an onboarding-journey demo — revisit then. No persona seeded.
 - **Daniel → Klára 1-on-1 inquiry as a separate beat.** Daniel already has a recurring 1-on-1 booking with Klára (`klaraTrainingDaniel`) so a "first inquiry" beat doesn't read clean. The walkthrough closes Daniel's arc with the Connect-request gesture in Beat 1; the recurring 1-on-1 surface remains visible in Open View if a tester wants to explore it.
 - **Walkthrough copy.** This doc names the beats and tester prompts at the structural level. Final wording for interstitials is W4 + build-phase work; placeholder copy (in italics here) validates the structure only.
 
@@ -124,18 +127,18 @@ Four POV segments, four personas (Daniel, Klára, Magda, Lena). Each beat names:
 
 What seeded data the narrative requires (driven from this doc into W3.1 implementation):
 
-| Item | State for the demo | New seed? |
+| Item | State for the demo | Status |
 |---|---|---|
-| **Magda Vondráková** persona | Holešovice, open profile, Hub Member archetype, one dog (Žofka, Schnauzer mix) | NEW |
-| **Veronika Krásná** persona | Holešovice, open profile, Casual Carer (`publicProfile: false`, ~200 Kč walks/checkins) | NEW |
-| **`group-holesovice-block`** | Private neighbour group, Magda admin, ~12 Holešovice members incl. Veronika + existing Eva/Martin/Filip/Hana | NEW |
-| **`meet-care-1` attendees** | Add Magda; remove Daniel (so Beat 1's booking action lands cleanly) | MODIFY |
-| **`klaraTrainingHana` sessions** | Add `kh-6` dated `daysFromNow(0)` so Beat 2 has a startable session today | MODIFY |
-| **Daniel ↔ Magda connection** | Pre-demo: none. Demo walks them through Familiar → Connect → mutual Connected. | none seeded |
-| **Magda's connection roster** | Pre-demo: Connected with Veronika + a couple of Holešovice neighbours; Familiar with Eva/Martin/Klára-via-past-meets | NEW |
-| **Veronika's connection roster** | Pre-demo: Connected with Magda; Familiar with Holešovice neighbours | NEW |
+| **Magda Vondráková** persona | Holešovice, open profile, Hub Member archetype, one dog (Žofka, Schnauzer mix) | SHIPPED |
+| **Veronika Krásná** persona | Holešovice, open profile, Casual Carer (`publicProfile: false`, 200 Kč walks/checkins + 220 Kč house-sitting) | SHIPPED |
+| **`group-holesovice-block`** | Private neighbour group, Magda admin, **6 seeded members** (Magda, Veronika, Eva, Martin, Filip, Hana). Archetype calls for ~12 — a future seeding pass can grow it; 6 is enough for the demo. | SHIPPED |
+| **`meet-care-1` attendees** | Add Magda; remove Daniel — Daniel isn't pre-RSVP'd to *this* group session so Beat 1's booking action lands cleanly (he's still Klára's 1-on-1 client elsewhere). meet-care-1 stays required-link to `klara-group-training`. | SHIPPED |
+| **`klaraTrainingHana` sessions** | `kh-6` dated `daysFromNow(0)` so Beat 2 has a startable session today; `kh-5` pushed to `daysFromNow(7)`. This `daysFromNow(0)` anchor matches the Service ↔ Meet Linkage convention for recurring care bookings. | SHIPPED |
+| **Daniel ↔ Magda connection** | Pre-demo: none. Demo walks them through Familiar → Connect → mutual Connected. | none seeded (by design) |
+| **Magda's connection roster** | Connected with Veronika + Eva; inbound-Familiar from Martin/Filip/Hana (Magda is Open so her outbound marks are no-ops — P68 hygiene). No Klára relationship pre-demo. | SHIPPED |
+| **Veronika's connection roster** | Connected with Magda; inbound-Familiar from Martin (Open-viewer hygiene applied). | SHIPPED |
 
-W3.2 (P69 — full inverse-roster sweep across supporting cast) and W3.4 (P59 — non-Shawn notification enrichment) remain on the phase board for separate completion; this doc surfaces only the narrative-bound subset.
+W3.2 (P69) shipped a **partial** inverse-roster sweep — the 6 anchor supporting personas (Marek, Eva, Hana, Jana, Pawel, Petra). The broader sweep across bridged providers + lighter cast stays open on the punch list. W3.4 (P59) shipped notification enrichment for the narrative personas (Klára, Magda, Lena); non-narrative personas stay open.
 
 ---
 
@@ -144,6 +147,7 @@ W3.2 (P69 — full inverse-roster sweep across supporting cast) and W3.4 (P59 �
 These belong in the walkthrough's Decisions log if they evolve mid-build, or in `Open Questions & Assumptions Log.md` if they don't resolve in this phase.
 
 - **Connect-request acceptance surface.** Beat 3.1 has Magda accepting from `/notifications`. Today the inbox + notifications surfaces show connection requests, but the accept gesture's exact UI is uneven. Worth verifying mid-W3 that the accept flow is single-tap.
-- **Meet attendance ↔ booking record consistency.** meet-care-1 has pre-seeded attendees that don't have explicit booking records for the linked klara-group-training service. The demo doesn't surface the inconsistency, but the Service ↔ Meet Linkage phase should clean it up.
+- ~~**Meet attendance ↔ booking record consistency.**~~ **Resolved — phase task W3.6 (2026-05-17).** The required-link meets (`meet-care-1` / `meet-care-workshop-1` / `meet-care-puppy-basics`) had pre-seeded roster attendees with no backing `Booking` — so their sessions never showed on `/bookings`. The Service ↔ Meet Linkage walkthrough surfaced this (C6) and handed it to this phase as W3.6. Four `meetBooking` bookings now seed the non-creator attendees (Magda + Tomáš on meet-care-1, Daniel on the workshop, Jana on puppy-basics). Klára as creator needs none. See `lib/mockBookings.ts` → `meetCare1Magda` + siblings.
 - **Open Profile + Familiar from a locked viewer.** Beat 1.4 has Daniel mark Magda Familiar even though her profile is open. The mark is meaningful (it grants HER visibility into HIS locked profile — the asymmetric grant), but the People tab UI may render the Familiar pill as a "you marked them" affordance that reads slightly different when the target is open. Verify in walkthrough.
 - **Veronika's appearance in `/discover/care`.** With `publicProfile: false`, Veronika should NOT appear in the broader marketplace — only Connected viewers see her services. Magda is Connected to her, so Magda finds her by browsing the group's members and tapping into her profile. Tester must take that route, not `/discover/care` (which would surface no result for Veronika by design).
+- **Config #2 (drop-off Care on a community walk) is not showcased in the Guided Walkthrough.** The Service ↔ Meet Linkage phase shipped config #2 — a free community walk advertising a drop-off Care service (book a carer to walk your dog *without* joining the walk; book ≠ attend). The handover flags the **Marketplace Owner (Lena)** as the canonical config #2 persona: her recurring Pawel arrangement is conceptually exactly this (Pawel runs pack walks; Lena pays for the drop-off). But Lena's seeded booking (`booking-pawel-lena`, from CCFT) predates the config #2 model and is a plain Care booking — not linked to a Pawel pack-walk meet. **Open call for the team:** re-model Lena's Pawel arrangement as config #2 so Beat 4 passively (no extra tester prompt) shows the model accurately, OR leave config #2 to Open View exploration (Tereza's `meet-15` is the seeded config #2 example). Re-modelling is moderate seeding work (Pawel needs a Care service with an `id` + a linked pack-walk meet + `dropoffMeetId` on Lena's booking) with some cascade risk (her conversation + notifications). Recommendation: **leave it for now** — Beat 4's job is the funnel-graduate emotional note, not a feature-mechanics demo; forcing config #2 into the coda muddies it. Revisit if a demo reviewer specifically wants config #2 in the guided path.

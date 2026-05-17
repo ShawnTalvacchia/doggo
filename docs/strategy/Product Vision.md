@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-10
+last-reviewed: 2026-05-16
 tags: [vision, principles, strategy, monetization]
 review-trigger: "before any major feature decision or strategic discussion"
 ---
@@ -143,7 +143,7 @@ Profile
 
 Desktop uses a left sidebar (200px). 7 items — same top-level destinations as mobile bottom nav, plus Inbox and Notifications (which live in the mobile header instead).
 
-### Schedule + Discover IA (refresh 2026-05-11)
+### Schedule + Discover IA
 
 Three surfaces split by viewer relationship to events:
 
@@ -152,10 +152,6 @@ Three surfaces split by viewer relationship to events:
 | **Home** | Passive feed + occasional discovery nudge | `DiscoveryBanner` interleaved at index 2 when viewer is in groups but under-engaged on RSVPs |
 | **Discover Meets** | Active exploration + elevated "your circle" section | **"Meets from your circle"** section at top (followed series + group-member meets), broader marketplace below. Mirrors `/discover/care`'s "Carers in your circle" pattern — same card shape, distinct section header. |
 | **My Schedule** | Personal calendar of commitments | Going + booked + completed only. No Interested concept here. |
-
-**Why the split.** Earlier, soft-interest had a dedicated lane on Schedule (the Meets→Interested sub-pill), which buried followed series two clicks deep and confused the Schedule mental model ("calendar of commitments" vs "dashboard of all my relationships to events"). The 2026-05-11 refresh resolves the tension: Schedule becomes a pure commitments calendar; Discover absorbs the exploration + soft-interest role with visual elevation for the user's circle. Home stays light but actively nudges toward Discover when context warrants.
-
-**Implementation:** `app/schedule/page.tsx` (2-tab structure), `app/discover/meets/page.tsx` (in-circle partition + section), `components/home/DiscoveryBanner.tsx` (new). Backwards-compat: `/schedule?view=interested` redirects to `/discover/meets`.
 
 ### Care discovery
 

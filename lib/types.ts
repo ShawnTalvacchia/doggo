@@ -558,6 +558,7 @@ export type NotificationType =
   | "post_meet_review"
   | "connection_request"
   | "connection_accepted"
+  | "group_invite"
   | "group_activity"
   | "post_comment"
   | "care_review";
@@ -571,6 +572,11 @@ export interface AppNotification {
    *  Finish) would get notified about events they themselves caused.
    *  Inbox & Notifications walkthrough fix, 2026-05-08. */
   recipientId: string;
+  /** The user who triggered this notification, when there is one (e.g.
+   *  `connection_request` — the sender). Lets a surface act on that user
+   *  — accept their request, resolve their connection state — without
+   *  parsing `href`. Optional; set only where a surface needs it. */
+  actorId?: string;
   title: string;
   body: string;
   avatarUrl?: string;

@@ -2047,6 +2047,7 @@ export const allUsers: UserProfile[] = [
   marek, lucie, jakub, zuzana,
   petra, ondrej, adela,
   martin, eva, filip,
+  magda, veronika,
   hana, vitek, anezka,
   jana, nikola, marie,
   shawn,

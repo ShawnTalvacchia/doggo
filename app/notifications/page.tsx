@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Bell,
@@ -19,7 +19,10 @@ import {
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { LayoutList } from "@/components/layout/LayoutList";
+import { ButtonAction } from "@/components/ui/ButtonAction";
 import { useNotifications } from "@/contexts/NotificationsContext";
+import { useConnections } from "@/contexts/ConnectionsContext";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { AppNotification } from "@/lib/types";
 import type { NotificationType } from "@/lib/types";
 import { formatRelativeTime } from "@/lib/dateUtils";
@@ -85,6 +88,7 @@ const TYPE_ICONS: Record<NotificationType, typeof Bell> = {
   post_meet_review: Handshake,
   connection_request: Handshake,
   connection_accepted: HandsClapping,
+  group_invite: UsersThree,
   group_activity: UsersThree,
   booking_proposal: Briefcase,
   booking_confirmed: CheckCircle,
@@ -104,6 +108,7 @@ const TYPE_LABELS: Record<NotificationType, string> = {
   post_meet_review: "Meet",
   connection_request: "Connection",
   connection_accepted: "Connection",
+  group_invite: "Group",
   group_activity: "Group",
   booking_proposal: "Booking",
   booking_confirmed: "Booking",
@@ -121,12 +126,20 @@ const TYPE_LABELS: Record<NotificationType, string> = {
 function NotificationRow({
   group,
   onTap,
+  requestStatus,
+  onAccept,
+  onDecline,
 }: {
   group: NotificationGroup;
   onTap: (ids: string[]) => void;
+  /** For `connection_request` rows — the viewer's resolution, if any. */
+  requestStatus?: "accepted" | "declined";
+  onAccept?: () => void;
+  onDecline?: () => void;
 }) {
   const n = group.latest;
   const isGrouped = group.count > 1;
+  const isConnReq = n.type === "connection_request";
   const TypeIcon = TYPE_ICONS[n.type] || Bell;
   const label = TYPE_LABELS[n.type] || "Notification";
   const title = isGrouped && GROUP_TITLES[n.type]
@@ -137,6 +150,29 @@ function NotificationRow({
   const avatars = isGrouped
     ? group.notifications.slice(0, 3).map((notif) => notif.avatarUrl).filter(Boolean)
     : [];
+
+  // Connection requests carry inline Accept / Decline — or, once the
+  // viewer has acted, the resolved outcome. Rendered below the body
+  // inside the content column.
+  const connReqFooter = isConnReq ? (
+    requestStatus === "accepted" ? (
+      <span className="flex items-center gap-xs text-sm font-semibold text-brand-main mt-xs">
+        <Handshake size={14} weight="fill" aria-hidden="true" />
+        Connected
+      </span>
+    ) : requestStatus === "declined" ? (
+      <span className="text-sm text-fg-tertiary mt-xs">Request declined</span>
+    ) : (
+      <div className="flex gap-sm mt-sm">
+        <ButtonAction variant="primary" size="sm" onClick={onAccept}>
+          Accept
+        </ButtonAction>
+        <ButtonAction variant="outline" size="sm" onClick={onDecline}>
+          Decline
+        </ButtonAction>
+      </div>
+    )
+  ) : null;
 
   const inner = (
     <div
@@ -198,11 +234,19 @@ function NotificationRow({
         <span className="text-sm text-fg-tertiary leading-snug line-clamp-2">
           {n.body}
         </span>
+        {connReqFooter}
       </div>
     </div>
   );
 
   const allIds = group.notifications.map((notif) => notif.id);
+
+  // Connection-request rows host inline buttons, so they can't be wrapped
+  // in a Link — render the row as-is; the Accept / Decline buttons carry
+  // the interaction.
+  if (isConnReq) {
+    return inner;
+  }
 
   if (n.href) {
     return (
@@ -223,10 +267,35 @@ function NotificationRow({
 
 export default function NotificationsPage() {
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
+  const { getConnection, markConnected } = useConnections();
+  const viewerId = useCurrentUserId();
+  // Session-scoped record of connection requests resolved on this visit —
+  // drives each row's post-action state. Accept also writes the real
+  // Connected state through ConnectionsContext (persisted), so a reload
+  // still reads as accepted via `getConnection` below.
+  const [requestState, setRequestState] = useState<
+    Record<string, "accepted" | "declined">
+  >({});
   const groups = useMemo(() => groupNotifications(notifications), [notifications]);
 
   const handleTap = (ids: string[]) => {
     for (const id of ids) markRead(id);
+  };
+
+  // Accept — mutual Connected (both directions) + mark the row resolved.
+  const handleAccept = (n: AppNotification) => {
+    if (n.actorId) {
+      markConnected(viewerId, n.actorId);
+      markConnected(n.actorId, viewerId);
+    }
+    setRequestState((s) => ({ ...s, [n.id]: "accepted" }));
+    markRead(n.id);
+  };
+
+  // Decline — no connection change; just resolve + read the row.
+  const handleDecline = (n: AppNotification) => {
+    setRequestState((s) => ({ ...s, [n.id]: "declined" }));
+    markRead(n.id);
   };
 
   return (
@@ -250,13 +319,30 @@ export default function NotificationsPage() {
 
         {/* Notification list */}
         <LayoutList>
-          {groups.map((group) => (
-            <NotificationRow
-              key={group.key}
-              group={group}
-              onTap={handleTap}
-            />
-          ))}
+          {groups.map((group) => {
+            const n = group.latest;
+            // A connection_request resolves to "accepted" either from this
+            // session's action or — after a reload — from the persisted
+            // Connected state.
+            const requestStatus =
+              n.type === "connection_request"
+                ? requestState[n.id] ??
+                  (n.actorId &&
+                  getConnection(n.actorId, viewerId)?.state === "connected"
+                    ? "accepted"
+                    : undefined)
+                : undefined;
+            return (
+              <NotificationRow
+                key={group.key}
+                group={group}
+                onTap={handleTap}
+                requestStatus={requestStatus}
+                onAccept={() => handleAccept(n)}
+                onDecline={() => handleDecline(n)}
+              />
+            );
+          })}
         </LayoutList>
 
         {/* Empty state — narrowed column + generous top padding so the

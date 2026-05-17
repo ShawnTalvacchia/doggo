@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-14
+last-reviewed: 2026-05-17
 tags: [demo, persona-switching, testing, infrastructure, narrative]
 review-trigger: "when adding a new persona, when changing persona-switching surfaces, when wiring per-persona mock data, when the Demo Narrative changes"
 ---
@@ -104,21 +104,24 @@ const { user, isDefault, hydrated, setUserById, resetToDefault } = useDemoState(
 
 **File:** `components/profile/ProfileNameDropdown.tsx`
 
-The user's name on `/profile` is itself the dropdown trigger — `text-2xl` heading + small caret. Tap → 280px popover anchored below, listing the 6 personas with avatars, archetypes, and a checkmark on the active one. Footer links to `/demo` for the bigger surface.
+The user's name on `/profile` is itself the dropdown trigger — `text-2xl` heading + small caret. Tap → 280px popover anchored below, listing the 7 personas with avatars, archetypes, and a checkmark on the active one. Footer links to `/demo` for the bigger surface.
 
 Picking a persona writes to `localStorage` via `setUserById`, then calls `router.refresh()` so the profile page re-renders for the picked persona in place. Outside-click + Escape close the popover.
 
 **Demo-only.** Wouldn't ship in the real product — name as dropdown trigger is a "switch which persona I am" affordance, which has no equivalent in normal use.
 
-### 2. `/demo` route (alternate / shareable)
+### 2. `/demo` route (the demo front door)
 
 **Files:** `app/demo/page.tsx`, `app/demo/demo.css`
 
-Standalone picker — no AppNav, no sidebar, no bottom nav (added to `GuestLayout`'s `isStandaloneRoute` list). Six persona cards with avatar, name, archetype, tagline, neighbourhood, dog summary. Active persona shows "Active" pill; others show "Enter →".
+Standalone page — no AppNav, no sidebar, no bottom nav (added to `GuestLayout`'s `isStandaloneRoute` list). **Rebuilt 2026-05-17** (Demo Narrative & Personas — de-bloat). Two sections:
 
-Picking writes to localStorage and routes to `/home` so the data swap is immediately visible.
+1. **Guided story** — the four-beat demo narrative (see [[strategy/Demo Narrative]]) as a manually-followed path. Four numbered beat cards (Daniel → Klára → Magda → Lena), each with the persona avatar, time-of-day, a one-line situational context, a **"Do:"** action line, and a **"Start beat N as {Name}"** button that sets the persona and routes to that beat's opening surface. The tester walks the beat's steps freely, then returns to `/demo` for the next beat. This is the **manual stand-in** for the auto-switching Guided Walkthrough — that's a follow-on build phase (spec: "Guided Walkthrough — UX design spec" below).
+2. **Or explore freely** — flat persona pills (all 7 personas) for free Open View exploration. Picking writes to localStorage and routes to `/home`.
 
-**Why it exists alongside the dropdown:** the route survives any future landing-page redesign and is shareable as a URL — Slack a tester `…/demo` and they're in the picker. The dropdown is the convenient in-app switcher; `/demo` is the canonical entry surface.
+**What was removed in the rebuild:** the prior "Guided journeys" section — three scenario cards whose "Walk me through it" button launched the single-persona Tereza `TourOverlay`. That tour is superseded by the four-beat narrative; the scenario cards also duplicated personas already in the pills row. The page is now one clean front door.
+
+**Why it exists alongside the dropdown:** the route survives any future landing-page redesign and is shareable as a URL — Slack a tester `…/demo` and they're in. The dropdown is the convenient in-app switcher; `/demo` is the canonical entry surface.
 
 ### 3. `?as=<personaId>` URL param (preview, non-persistent)
 
@@ -220,7 +223,7 @@ Data-gap surfaces (e.g., Inbox is empty as new-user because mock conversations a
 
 ## Guided Walkthrough — UX design spec
 
-Status: **design only, build deferred.** Specified during Demo Narrative & Personas phase (W4, 2026-05-14). The follow-on build phase implements against this spec; nothing in this section is shipped code.
+Status: **design only, build deferred.** Specified during Demo Narrative & Personas phase (W4, 2026-05-14; on-surface step card added 2026-05-17). The follow-on build phase implements against this spec; nothing in this section is shipped code.
 
 ### Two demo modes
 
@@ -229,56 +232,91 @@ The demo runs in two modes that share the same persona infrastructure:
 | Mode | What it is | Infrastructure cost |
 |---|---|---|
 | **Open View** | Today's behavior. Tester picks a persona via the picker / `/demo` / `?as=` and explores freely. No scripted progression. | None new — already shipped. |
-| **Guided Walkthrough** | Auto-switching between personas at scripted beats, with a full-screen interstitial between switches that names the new persona, sets context, and tells the tester what to look at or try. Linear progression through the [[strategy/Demo Narrative]] spine. | Interstitial component, mode toggle, beat sequencer, pause/resume affordance. |
+| **Guided Walkthrough** | Auto-switching between personas at scripted beats — a full-screen interstitial sets the scene at each handoff, and a persistent collapsible card carries the step task while the tester works. Linear progression through the [[strategy/Demo Narrative]] spine. | Interstitial component, on-surface step card, mode toggle, beat sequencer, pause/resume affordance. |
 
 Open View is unchanged; this spec is the Guided Walkthrough.
+
+### Two guidance surfaces, two jobs
+
+The Guided Walkthrough guides with **two distinct UI elements** — keep them distinct:
+
+1. **The full-screen interstitial** — the persona *handoff*. Fires once per beat transition, covers the viewport, sets the scene ("you're now Klára…"). The dramatic, deliberate moment that makes a persona switch land and not get missed.
+2. **The on-surface step card** — the *live task reference*. Persists on every surface for the duration of a beat, collapsible. Carries the step's task so the tester can glance at "what am I doing here" anytime without losing their place.
+
+They are separate because they do separate jobs — scene-setting vs. ongoing reference. An earlier draft of this spec (2026-05-14) had only the interstitial; that meant the step task was shown once and then gone, forcing the tester to memorize a multi-step task. The on-surface card — revived from the **shipped `TourOverlay` pattern** — fixes that. The two together are the design; neither alone is sufficient.
 
 ### Full-screen interstitial — the handoff between beats
 
 Renders between beats. Covers the entire viewport (no peek-through to the surface beneath) so the tester never sees the persona-swap itself. Single sheet with the following structure:
 
-**Layout (top-to-bottom):**
+**Layout (top-to-bottom), left-aligned:**
 
-1. **Eyebrow** — "Step 3 of 5" (small, muted, top-left).
-2. **Avatar** — large (96px+, circle for people; uses persona's `avatarUrl`).
-3. **Heading** — "You're now {first name}." Persona's full name + archetype label sit below as one line of secondary text. (E.g. *"You're now Magda.* / Magda Vondráková · Neighborhood Hub Member.")
-4. **Situational context** — 1–2 sentences placing the persona in time and motivation. ("It's Saturday afternoon. Daniel just sent you a connection request from this morning's training meet — and you're going out tonight, so Žofka needs someone for a few hours.")
-5. **Tester prompt** — 1–2 sentences in a visually distinct treatment (subtle bordered box, italics, or accent stripe) telling the tester what to do or pay attention to. ("Accept Daniel's request, then invite him to your group. Then book Veronika for tonight. *Notice how the booking flow feels — does it preserve the favour-vs-transaction line?*")
-6. **Primary CTA** — "Continue as {first name} →" (brand-fill pill button, full-width on mobile).
-7. **Secondary** — "Pause walkthrough" (text-link or tertiary button, smaller).
+1. **Top row** — eyebrow ("Beat 1 of 4 · Saturday morning", small, muted) on the left; a quiet **"Skip beat →"** link on the right that jumps straight to the next beat's interstitial (skips this persona without walking the beat).
+2. **Header row** — persona avatar (64px circle, uses `avatarUrl`) on the left; **heading** "You're now {first name}." + a secondary **{full name} · {archetype}** line stacked to its right. Profile-hero arrangement.
+3. **Situational context** — 1–2 sentences placing the persona in time and motivation, left-aligned below the header row. ("Saturday afternoon. Magda anchors a tight private group of Holešovice neighbours — and she met Daniel at this morning's session. Tonight she's heading out, and Žofka needs company.") **This is the only body content — the interstitial sets the scene; it does NOT list the task.** The task lives on the on-surface step card, which walks the tester through it one step at a time once the beat begins (decision 2026-05-17 — see "atomic vs stepped" below).
+4. **Primary CTA** — "Continue as {first name} →" (brand-fill pill button, full-width on mobile).
+5. **Secondary** — "Pause walkthrough" (text-link or tertiary button, smaller).
 
 **Dismissal:**
-- Primary CTA dismisses + persona-swaps + lands on the beat's first surface.
-- "Pause walkthrough" dismisses, persona-swaps to the new beat's persona BUT keeps them in Open View on the new persona's home page (no scripted nav). Surfaces a small "Resume walkthrough" affordance (see "Pause / Resume" below).
+- Primary CTA dismisses + persona-swaps + lands on the beat's start surface, with the on-surface card already present (expanded) on step 1.
+- "Pause walkthrough" dismisses, persona-swaps to the new beat's persona BUT keeps them in Open View on the new persona's home page (no scripted nav). Surfaces a "Resume walkthrough" pill (see "Pause / Resume" below).
 - No tap-anywhere-to-dismiss — the interstitial is a deliberate consent step.
 - Esc + backdrop-click are NOT bound (would risk skipping a step accidentally).
 
 **Copy authoring is build-phase work.** This spec validates the *structure*; final wording lands in the build phase against the [[strategy/Demo Narrative]] beats.
 
+### On-surface step card — the live task reference during a beat
+
+After the interstitial dismisses, a **persistent, collapsible card** rides along on every surface for the duration of the beat. It **walks the tester through the beat's ordered steps, one at a time** — instruction + optional detail — with Prev/Next driving the sequencer. Adapted from the `TourOverlay` pattern (collapse/expand, desktop-floating-card / mobile-bottom-accordion placement, `env(safe-area-inset)` handling), reading `WalkthroughContext` instead of `?tour=` params.
+
+**Placement:**
+- **Desktop (>600px):** floating card anchored bottom-left, left edge aligned with the sidebar's padding, width capped ~440px.
+- **Mobile (≤600px):** full-width sheet flush with the screen bottom, rounded top corners only, `env(safe-area-inset-bottom)` padding.
+
+**Expanded content (top-to-bottom):**
+1. **Header row** — persona mini-identity (compass + first name) on the left; "Step 2 of 4" (the tester's position within the *current beat's* steps) + **collapse caret** + **✕** on the right.
+2. **Step instruction** — the current step's imperative; `**bold**` in the copy marks UI labels. One step on screen at a time.
+3. **Step detail** — optional supporting "why" / what-to-notice context under the instruction. Same 14px size as the instruction (a size mismatch read as off) — the tertiary colour carries the hierarchy.
+4. **Footer** — **Prev** / **Next** only (no standalone Exit row — the **✕** in the header pauses the walkthrough immediately instead). Next advances one step — and on a navigation step it also routes the tester to that step's target surface (see "Step advancement" below); past a beat's last step it lands on the next beat's interstitial. Prev steps back; from a beat's first step it re-opens the previous beat's interstitial. The card **auto-expands** on every step change so new content is always visible.
+
+**Collapsed state** — a slim pill: compass/step icon + "Step 2 of 4" + expand caret + a single **✕**. This *is* the walkthrough's persistent chrome — there is **no separate header bar**. The page beneath stays fully usable while collapsed.
+
+**Step advancement — auto for navigation, manual for actions.** A step is one of two kinds:
+- **Navigation step** ("tap into Meets", "open Klára's session") — carries an `advanceOn` pathname. The tester can reach that surface either way: by using the in-app control the step describes, or by tapping the card's **Next**, which routes there for them. On arrival the card **auto-advances** to the next step, so it never sits stale after a navigation it asked for. Verified for Beat 1 steps 1–2 and Beat 2 steps 1–2.
+- **Action step** ("book the session", "mark Familiar", "finish the session") — produces no reliable URL signal (a booking sheet doesn't change the route; marking Familiar is in-page). These advance on **manual Next**, and the step copy says so explicitly ("…then tap **Next**"). Auto-detecting arbitrary in-app actions would mean coupling the walkthrough to every feature's state (and some, like group invites, aren't even persisted) — not worth the fragility.
+
+**The ✕ pauses immediately.** Tapping the header ✕ pauses the walkthrough on the spot — no confirm step — shrinking the card to the slim **"Walkthrough"** pill. Tapping that pill opens a small menu with three full-width choices: **Resume walkthrough** (primary), **Keep paused** (secondary), **Exit walkthrough** (destructive). Resume re-expands the card; Keep paused returns to the pill; Exit ends the walkthrough. Parking the leave choice in the paused menu rather than the running card keeps the card footer a clean Prev/Next.
+
+**Why stepped (not one task per beat).** The first build had one task per beat shown whole on the card. Stepped — multiple ordered steps the card advances through — won out (decision 2026-05-17): it lets each step carry focused context and guide more precisely (e.g. Beat 1 opens on `/discover` and step 1 is just "tap into Meets"), and it keeps the interstitial clean (scene only, no task list).
+
+**Behaviour:**
+- **Auto-expands** when a new beat begins, so the new task is visible at beat start.
+- Collapse state is **local to the current beat** — collapsing doesn't carry into the next beat.
+- The card is walkthrough scaffolding — it never blocks surface interaction (the tester books, marks Familiar, etc., with the card present).
+
 ### Mode toggle — entering and exiting Guided
 
-**Entry:** `/demo` route gains a "Start guided walkthrough" entry above the persona pills. Single primary card — large, brand-fill, with avatar stack of all personas in the walkthrough + "5 beats · about 25 minutes" context line. Tap → first interstitial → Beat 1 surface.
+**Entry:** `/demo` route gains a "Start guided walkthrough" entry above the persona pills. Single primary card — large, brand-fill, with an avatar stack of the walkthrough's personas + a "4 beats · about 25 minutes" context line. Tap → first interstitial → Beat 1 surface. *(The current `/demo` already surfaces the four beats as a manual list — see "`/demo` route" above. The guided-walkthrough entry is the auto-switching upgrade of that.)*
 
-**Active-walkthrough chrome:** while the walkthrough is active, a slim header bar persists across all surfaces (above AppNav, below the OS chrome on mobile). Contents:
+**Active-walkthrough chrome:** the on-surface step card (above) IS the persistent chrome. Collapsed, it's the slim pill carrying the step counter + ✕. No separate header bar.
 
-- Left: "Walkthrough · Step 3/5"
-- Right: "Pause" (returns to Open View on current persona) + "Exit" (kills walkthrough, returns to `/demo`)
-
-The bar uses a faint brand-tinted background so it reads as scaffolding, not part of the product. ~32px tall on mobile, ~28px on desktop.
+> **Color-rule note (Service ↔ Meet Linkage, 2026-05-17).** The codebase has a care/community color convention — blue (`status-info` / `text-info-*`) = care/paid; green (brand) = community. **The walkthrough scaffolding (interstitial + on-surface step card) is not a product surface and is exempt from this rule** — it uses a neutral brand-tinted treatment regardless of which persona/surface a beat lands on. The build phase should not recolor it per-beat to match care-vs-community context.
 
 **End of walkthrough:** after the final beat (Lena coda), a closing interstitial fires. Same layout shape as the beat interstitials but with:
 - Heading: "End of walkthrough."
-- Body: "You've watched five personas live one weekend in Doggo. *Want to keep exploring?*"
+- Body: "You've watched four personas live one weekend in Doggo. *Want to keep exploring?*"
 - Primary CTA: "Pick another persona →" (routes to `/demo` Open View)
 - Secondary: "Stay as Lena" (dismisses interstitial, keeps Lena as the active persona, Open View)
 
 ### Pause / Resume
 
-Tapping "Pause" mid-walkthrough:
-- Persona stays as the current beat's persona.
-- All scripted nav stops — tester is now in Open View on that persona.
-- The persistent header bar collapses to a slim "Resume walkthrough" pill (anchored top-right, mobile bottom-left to avoid AppNav overlap).
-- Tap "Resume" → re-renders the most recent interstitial from the paused beat OR resumes the next beat (whichever was unfinished).
+**Pause** (the card's header ✕ — on the running card or its collapsed pill) stops scripted progression:
+- Persona stays as the current beat's persona; the tester drops to Open View on that surface.
+- The card shrinks to a slim **"Walkthrough"** pill (bottom-left desktop / bottom mobile anchor).
+- Tapping the pill opens a three-choice menu: **Resume walkthrough**, **Keep paused**, **Exit walkthrough**.
+- Resume → re-expands the card on the paused beat (or re-opens that beat's interstitial if the beat hadn't begun). Keep paused → collapses back to the pill.
+
+**Exit** (the paused menu's third choice) ends the walkthrough entirely → returns to `/demo`. No pill.
 
 Pause state persists in `sessionStorage` so within-tab reloads don't lose it. Closing the tab ends the walkthrough cleanly.
 
@@ -287,7 +325,7 @@ Pause state persists in `sessionStorage` so within-tab reloads don't lose it. Cl
 Engineering reality: persona change is a `setUserById` context update + a `router.push` to the next beat's surface. There's no real load. The interstitial dismissal is the visual cover for the swap.
 
 **The transition itself:**
-- Tap "Continue as {first name}" → interstitial fades (200ms) while the new persona's surface mounts beneath.
+- Tap "Continue as {first name}" → interstitial fades (200ms) while the new persona's surface mounts beneath, with the on-surface card already present (expanded) in its corner.
 - No spinner, no skeleton, no separate loading state — the new surface should be ready by the time the fade completes.
 - If a surface is genuinely slow (rare in this codebase), the interstitial holds until the next route's first paint signals ready (Next.js navigation event).
 
@@ -300,9 +338,11 @@ Engineering reality: persona change is a `setUserById` context update + a `route
 
 Surfaced during W4 spec drafting; resolve during the build phase:
 
-- **Beat surface routing.** Each beat needs to land on a specific surface (Daniel → `/discover/meets`, Klára → `/bookings/booking-klara-hana/active`, etc.). Routing data lives where? — likely a `walkthroughBeats.ts` registry like `tourSteps.ts`, but with `personaId + initialUrl + interstitialCopy` per beat.
-- **Tester actions vs scripted nav.** Some beats expect the tester to perform actions (RSVP, mark Familiar, book). Others might want scripted nav between sub-steps within a beat. Decide whether beats are atomic (one interstitial → one surface, tester explores freely until they tap Continue) or stepped (multiple sub-prompts within a beat). The spec above assumes **atomic** — one interstitial per beat, tester explores the beat's surface(s) freely, taps Continue when ready. Stepped sub-prompts are a future refinement if tester research surfaces a need.
-- **State seeded between beats.** Beat 3 (Magda) needs Daniel's connection request to exist (he sent it in Beat 1). Two options: (a) the tester actually performs the action in Beat 1 and the request persists via existing `usePersistedState` to be visible in Beat 3; (b) the walkthrough sequencer fakes/seeds the state at beat-transition time so Beat 3 always lands clean even if Beat 1's tester didn't actually tap Connect. Option (a) is more honest; (b) is more reliable. Decide during build.
+- **Beat surface routing.** Each beat needs to land on a specific surface (Daniel → `/discover/meets`, Klára → `/bookings/booking-klara-hana/active`, etc.). Routing data lives where? — likely a `walkthroughBeats.ts` registry like `tourSteps.ts`, but with `personaId + initialUrl + interstitialCopy + taskCopy` per beat (task copy feeds both the interstitial and the on-surface card).
+- ~~**On-surface card: Pause vs Exit affordance.**~~ **Resolved 2026-05-17 — ✕ = Pause, no confirm.** The header ✕ pauses immediately (reversible — Resume is always available), shrinking the card to the "Walkthrough" pill. Exit isn't on the running card at all: tapping the pill opens a three-choice paused menu (Resume walkthrough / Keep paused / Exit walkthrough).
+- **Card ↔ AppNav overlap on mobile.** The card is a bottom sheet; AppNav is the bottom nav. The shipped TourOverlay covered the nav with its z-index while expanded (collapse or pause to reach the nav). Confirm that's still the right call for the walkthrough, or whether the card should sit above the nav.
+- ~~**Tester actions vs scripted nav — atomic vs stepped beats.**~~ **Resolved 2026-05-17 — stepped.** Each beat is a sequence of ordered steps; the on-surface card shows one at a time and advances on Next (crossing into the next beat's interstitial past the last step). The tester still navigates the app themselves (a step can say "tap into Meets"); steps don't auto-route — only the beat's `startUrl` routes, on the interstitial's Continue. Beats live in `lib/walkthroughBeats.ts` as `{ ...beat, startUrl, steps: WalkthroughStep[] }`.
+- ~~**State seeded between beats.**~~ **Resolved 2026-05-17 — statically seeded.** Beat 3 (Magda) needs Daniel's connection request to exist. Beat 1's "Connect" is a cosmetic session-local mark — it sends no real request — so depending on the tester's Beat 1 action wasn't viable. Instead the `connection_request` notification is seeded statically in `mockNotifications.ts` (`notif-magda-connect-daniel`): it always exists for Magda regardless of beat order or what the tester did in Beat 1. Accepting it inline (new Accept / Decline on `connection_request` notification rows — `app/notifications/page.tsx`) writes mutual Connected via `ConnectionsContext.markConnected`. The notification carries an `actorId` (the sender) so the accept handler can resolve the connection without parsing `href`.
 - **Mid-beat exit handling.** What happens if a tester closes the tab mid-beat? Does Resume reopen on the same surface or restart the beat from its interstitial? Default: restart the beat from interstitial.
 - **Mobile vs desktop interstitial layout.** The spec assumes mobile-first (full-width sheet); desktop should probably cap at ~520px wide and center. Confirm during build.
 

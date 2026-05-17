@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-10
+last-reviewed: 2026-05-16
 tags: [trust, connections, privacy, safety]
 review-trigger: "when touching connection states, visibility, or trust signals"
 ---
@@ -91,8 +91,6 @@ Use cases: two friends who are both on the app, someone you meet at the park, a 
 
 Meet attendee lists separate **information** (open) from **action** (gated by *meet-level engagement*: creator, RSVP'd, or following the series). The community-first thesis is that opting into a meet is what gives you a seat in its social fabric — and a seat is what unlocks the ability to deepen.
 
-> **Design evolution (Cross-Cutting Flow Testing, 2026-05-11 — P32 resolution).** The original framing here gated actions on past attendance only ("earned reward for showing up = deepening, not visibility"). Walking the Tomáš-on-meet-19 case made the inconsistency visible: he was the creator of an upcoming meet with a half-empty row stack and no way to act on attendees he'd already opted to host. Group Members tab already grants actions on group co-membership; the equivalent rule on meets is meet-level engagement (RSVP, follow, or host). Random Discover viewers with no commitment still don't get actions — the gate filters them out.
-
 **Information is open.** Anyone who can see a meet can see who's attending, grouped by relationship state:
 
 1. **Connected** (header) — Connected users render as full cards. Viewer pinned to top.
@@ -108,7 +106,7 @@ The trust gradient is preserved: **the meet itself is the trust context.** What 
 **Single principle app-wide.** The same engagement-based gating applies on the Group Members tab — co-membership IS the action context there. The meet equivalent of co-membership is meet-level engagement (RSVP / follow / host). Two helpers implement the principle in different shapes:
 
 - `viewerCanAct(meet, viewerId)` (`lib/meetUtils.ts`) — single-meet check used by the People tab. True iff viewer is the creator, has any RSVP on any occurrence (past or future, going or interested), or follows the series.
-- `viewerSharedMeetWith(viewerId, subjectId)` (`lib/mockMeets.ts`) — cross-attendee check used by the locked-profile shared-context gate. True iff the two have ever both been Going on the same past meet/occurrence. **Diverges from `viewerCanAct`** (2026-05-11) — keeps the narrower past-shared-attendance semantics because unlocking a Locked profile via a *future* RSVP both parties happened to make on a public meet would be too loose. Past shared attendance is real evidence of having met in person.
+- `viewerSharedMeetWith(viewerId, subjectId)` (`lib/mockMeets.ts`) — cross-attendee check used by the locked-profile shared-context gate. True iff the two have ever both been Going on the same past meet/occurrence. **Diverges from `viewerCanAct`** — keeps the narrower past-shared-attendance semantics because unlocking a Locked profile via a *future* RSVP both parties happened to make on a public meet would be too loose. Past shared attendance is real evidence of having met in person.
 
 Both are consumed by passing `actions={[]}` to `PersonRow` for the info-only mode (PersonRow suppresses all action affordances; the Pending status pill still renders). Group-type nuance (e.g. neighbor groups where not everyone attends every meet) is a future-state question to surface only if testing flags it.
 
@@ -148,17 +146,15 @@ This principle constrains UI design in the consuming surfaces, not the underlyin
 - **No per-row visual variation by direction.** The same icon and treatment apply whether Familiar is outbound, inbound, or mutual — distinguishing them visually leaks the cause.
 - **Pill suppression on inbound.** When a row is bumped to Tier 2 because the subject marked the viewer Familiar (state still `none` from viewer's side), the connection-state pill is suppressed. The actionable card itself is the signal.
 
-Implementation references: `lib/meetUtils.ts:getAttendeeTier` (bumps on either direction), `components/people/PersonRow.tsx` (pill suppression), `components/ui/ConnectionIcon.tsx` (single rendering across directions), `lib/personActions.ts:resolvePersonActions` (matrix of action affordances). See `Trust & Visibility Pass D2` for the original decision rationale.
+Implementation references: `lib/meetUtils.ts:getAttendeeTier` (bumps on either direction), `components/people/PersonRow.tsx` (pill suppression), `components/ui/ConnectionIcon.tsx` (single rendering across directions), `lib/personActions.ts:resolvePersonActions` (matrix of action affordances).
 
 ### Inquiry-driven transitions
 
 The community-first thesis assumes Familiar is *earned* through community interaction (meets, shared groups, post-meet review). The Discover→Inquiry path bypasses this — a stranger can send a structured booking inquiry to a provider they've never met, then neither side could see the other's profile to act on it. Same gap exists on the Appointment "Ask about this" path (no structured inquiry, just a chat thread). The four rules below close it.
 
-**Resolved 2026-05-08 (Inbox & Notifications B1–B2):**
-
-1. **Inquiry send → mutual Familiar.** Two-sided because the inquiry itself is explicit and known to both parties; the deniability principle for stranger-encounter Familiar doesn't apply to a transactional handshake. *Hook: `InquiryFormModal.handleSubmit` calls `markFamiliar` both directions before posting the inquiry message. (Discover & Care, 2026-05-04.)*
-2. **Contract acceptance → mutual Connected.** Strongest possible "we're working together" milestone. *Hook: `ThreadClient.handleSign` + `app/bookings/[bookingId]/page.tsx:handleSign` both call `markConnected` both directions on sign. (Pricing & Proposals, 2026-05-05.)*
-3. **First message in any non-Connected conversation → mutual Familiar.** Covers the Appointment-flow "Ask about this" path (no structured inquiry) plus any direct first outreach. *Hook: `ThreadClient.handleSend` checks `getConnection(other, viewer)` and fires `markFamiliar` both directions if state is currently none AND `theyMarkedFamiliar` is false. Idempotent on already-Familiar pairs; no-op on already-Connected via the state-rank merge in `getConnection`. (Inbox & Notifications, 2026-05-08.)*
+1. **Inquiry send → mutual Familiar.** Two-sided because the inquiry itself is explicit and known to both parties; the deniability principle for stranger-encounter Familiar doesn't apply to a transactional handshake.
+2. **Contract acceptance → mutual Connected.** Strongest possible "we're working together" milestone.
+3. **First message in any non-Connected conversation → mutual Familiar.** Covers the Appointment-flow "Ask about this" path (no structured inquiry) plus any direct first outreach.
 4. **Withdrawn / declined inquiries don't roll back.** Awareness, once created, persists.
 
 Together these mean: any genuine outreach (inquiry, message, contract sign) leaves a Familiar/Connected mark proportional to the depth of the contact. The community trust model and the transactional path converge on the same connection states without forcing one to ape the other.

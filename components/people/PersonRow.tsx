@@ -228,10 +228,13 @@ export function PersonRow(props: PersonRowProps) {
   const viewer = useCurrentUser();
   // Default Familiar mutation handlers — fall back to ConnectionsContext
   // when the consumer doesn't pass `onAdvance`/`onUndoMark`. This makes
-  // PersonRow self-sufficient: surfaces like ParticipantList that don't
-  // track their own session marks (no undo footer needed) still get a
-  // working "+ Familiar" / "Familiar ✓" toggle. Consumers that DO pass
-  // explicit handlers (MembersTab, post-meet review) keep their behaviour.
+  // PersonRow self-sufficient: a caller that renders a row without its own
+  // session-mark ladder still gets a working "+ Familiar" / "Familiar ✓"
+  // toggle — provided it feeds `connectionState` from a context-aware
+  // source so the mark actually reflects. Consumers that wire explicit
+  // handlers — the group Members tab, the meet People tab
+  // (ParticipantList), post-meet review — keep their own ladder + undo
+  // footer.
   const { markFamiliar, unmarkFamiliar } = useConnections();
   const defaultMark = () => markFamiliar(viewer.id, userId);
   const defaultUnmark = () => unmarkFamiliar(viewer.id, userId);

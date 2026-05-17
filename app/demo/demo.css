@@ -1,7 +1,8 @@
 /* ═══════════════════════════════════════════════════════════════════
    DEMO PAGE — /demo
-   Standalone persona picker; no AppNav/Sidebar/BottomNav.
-   Two sections: guided journey cards (rich) + flat persona pills (compact).
+   Standalone demo entry; no AppNav/Sidebar/BottomNav.
+   Two sections: the Guided Walkthrough launcher + beat preview, and flat
+   persona pills (free Open View exploration).
    ═══════════════════════════════════════════════════════════════════ */
 
 .demo-page {
@@ -27,33 +28,28 @@
 .demo-header {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  align-items: center;
+  gap: 6px;
   text-align: center;
+  padding: var(--space-lg) 0 var(--space-sm);
 }
 
 .demo-brand {
   font-family: var(--font-heading);
   font-size: var(--text-xs);
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   color: var(--brand-main);
   text-transform: uppercase;
 }
 
 .demo-title {
   font-family: var(--font-heading);
-  font-size: var(--text-2xl);
+  font-size: var(--text-4xl);
   font-weight: var(--weight-semibold);
   color: var(--text-primary);
   margin: 0;
-}
-
-.demo-subtitle {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  margin: 0 auto;
-  max-width: 540px;
-  line-height: 1.55;
+  line-height: 1.1;
 }
 
 /* ── Section structure ────────────────────────────────────────────── */
@@ -80,141 +76,101 @@
   color: var(--brand-main);
 }
 
-/* ── Guided journey cards (rich) ──────────────────────────────────── */
+.demo-section-note {
+  margin: calc(-1 * var(--space-xs)) 0 0;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
 
-.demo-journeys {
+/* ── Guided walkthrough — launcher + beat preview ─────────────────── */
+
+.demo-start-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  align-self: flex-start;
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
+  background: var(--brand-main);
+  color: var(--text-white);
+  border: 1px solid var(--brand-main);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.demo-start-btn:hover {
+  background: var(--brand-strong);
+}
+
+.demo-beat-preview {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-sm);
 }
 
-.demo-journey-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  padding: var(--space-lg);
-  background: var(--surface-top);
-  border: 1px solid var(--border-regular);
-  border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-xs);
-  transition: box-shadow 0.2s, border-color 0.2s;
-}
-
-.demo-journey-card:hover {
-  box-shadow: var(--shadow-sm);
-  border-color: color-mix(in srgb, var(--brand-main) 40%, var(--border-regular));
-}
-
-.demo-journey-row {
+.demo-beat-preview-item {
   display: flex;
   align-items: flex-start;
   gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--surface-top);
+  border: 1px solid var(--border-regular);
+  border-radius: var(--radius-panel);
 }
 
-.demo-journey-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  object-fit: cover;
-  background: var(--surface-base);
+.demo-beat-num {
   flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--brand-subtle);
+  color: var(--brand-strong);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
 }
 
-.demo-journey-meta {
+.demo-beat-preview-text {
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
 }
 
-.demo-journey-archetype {
-  font-family: var(--font-heading);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-bold);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--brand-main);
-}
-
-.demo-journey-title {
-  font-family: var(--font-heading);
-  font-size: var(--text-lg);
+.demo-beat-preview-head {
+  font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   color: var(--text-primary);
-  margin: 0;
-  line-height: 1.25;
 }
 
-.demo-journey-name {
-  font-size: var(--text-xs);
+.demo-beat-preview-when {
   color: var(--text-tertiary);
 }
 
-.demo-journey-story {
-  font-size: var(--text-sm);
-  line-height: 1.55;
+.demo-beat-preview-task {
+  font-size: var(--text-xs);
+  line-height: 1.5;
   color: var(--text-secondary);
-  margin: 0;
 }
 
-.demo-journey-actions {
-  display: flex;
-  flex-wrap: wrap;
-  /* Wider gap now that buttons are text-link style — pill buttons carried
-     their own visual padding; text links need explicit horizontal breathing
-     room so "Walk me through it" and "Just enter as Tereza" don't read as
-     one continuous string. */
-  gap: var(--space-lg);
-}
+/* ── Explore-freely persona dropdown ──────────────────────────────── */
+/* `.demo-pill` is the dropdown trigger; the popover menu reuses the
+   `.profile-name-dropdown-*` classes from globals.css. `.demo-picker-menu`
+   widens that 280px popover to match the full-width trigger. */
 
-/* Text-link treatment 2026-05-05 — was pill buttons (primary fill +
-   secondary outline) but three+ pills stacked on one screen was visual
-   shouting. Cards themselves are the visual anchor; actions just need to
-   read as affordances. The `--guided` modifier prefixes a Compass icon so
-   "Walk me through it" stays distinct from the plain "Just enter as X"
-   without needing heavier chrome. Mirrors `landing-door-cta` in spirit. */
-
-.demo-journey-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 0;
-  background: none;
-  border: none;
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  color: var(--brand-main);
-  cursor: pointer;
-  transition: color 0.15s;
-}
-
-.demo-journey-btn:hover {
-  color: var(--brand-strong);
-}
-
-/* Subtle micro-interaction: arrow nudges right on hover. Honours any user
-   prefers-reduced-motion preference set higher up the cascade. */
-.demo-journey-btn svg:last-of-type {
-  transition: transform 0.15s ease;
-}
-
-.demo-journey-btn:hover svg:last-of-type {
-  transform: translateX(2px);
-}
-
-.demo-journey-btn--guided {
-  /* Same base style — the leading Compass icon is the only differentiator
-     so the curated path reads as the special action without competing for
-     visual weight against its sibling. */
-}
-
-/* ── Flat persona pills (compact) ─────────────────────────────────── */
-
-.demo-pills {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
+.demo-picker {
+  position: relative;
 }
 
 .demo-pill {
@@ -222,6 +178,7 @@
   grid-template-columns: 40px 1fr auto;
   align-items: center;
   gap: var(--space-md);
+  width: 100%;
   padding: 12px 16px;
   background: var(--surface-top);
   border: 1px solid var(--border-regular);
@@ -240,11 +197,6 @@
 
 .demo-pill:active {
   transform: translateY(1px);
-}
-
-.demo-pill--active {
-  border-color: var(--brand-main);
-  box-shadow: 0 0 0 2px var(--brand-main);
 }
 
 .demo-pill-avatar {
@@ -273,28 +225,11 @@
   color: var(--text-tertiary);
 }
 
-.demo-pill-action {
-  display: inline-flex;
-  align-items: center;
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  color: var(--brand-main);
-}
-
-.demo-pill--active .demo-pill-action {
-  color: var(--text-tertiary);
-}
-
-.demo-active-note {
-  margin: var(--space-xs) 0 0;
-  font-size: var(--text-xs);
-  color: var(--text-tertiary);
-  text-align: center;
-}
-
-.demo-active-note strong {
-  color: var(--text-secondary);
-  font-weight: var(--weight-semibold);
+/* Widen + left-align the reused profile popover to span the trigger. */
+.demo-picker-menu {
+  width: 100%;
+  left: 0;
+  transform: none;
 }
 
 /* ── Footer ──────────────────────────────────────────────────────── */
@@ -337,16 +272,5 @@
   .demo-shell {
     padding: var(--space-md) 0;
     gap: var(--space-lg);
-  }
-
-  .demo-journey-row {
-    gap: var(--space-sm);
-  }
-
-  /* Mobile: keep actions inline. The pill-button era needed full-width
-     stacking for tap targets; text-link actions are compact enough to sit
-     side by side and don't dominate the card. */
-  .demo-journey-actions {
-    gap: var(--space-md);
   }
 }

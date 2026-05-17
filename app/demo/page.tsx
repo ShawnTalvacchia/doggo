@@ -1,31 +1,24 @@
 "use client";
 
 /**
- * /demo — persona picker route.
+ * /demo — demo entry + persona picker.
  *
- * Standalone page (no AppNav, Sidebar, BottomNav — see GuestLayout). Two
- * sections:
- *   1. **Guided journeys** — 3 large scenario cards (Tereza/Daniel/Klára)
- *      with rich storytelling. Tereza's card has both a tour entry and a
- *      "just enter" entry; the others land directly on /home as that persona.
- *   2. **Just explore** — 5 compact persona pills (T/D/K/Tomáš/New User) for
- *      reviewers who already know what they want to see.
+ * Standalone page (no AppNav/Sidebar/BottomNav — see GuestLayout). Two sections:
+ *   1. **Guided story** — a "Start guided walkthrough" launcher + a preview of
+ *      the four-beat narrative (`lib/walkthroughBeats.ts`). Tapping Start opens
+ *      the first interstitial (`WalkthroughContext.start()`); the auto-switching
+ *      Guided Walkthrough takes over from there.
+ *   2. **Explore freely** — flat persona pills for free Open View exploration.
  *
- * Tour entry preserves the persona via `?as=tereza` and triggers the overlay
- * via `?tour=tereza&step=1`. Tour overlay reads those params from the URL —
- * see `components/landing/TourOverlay.tsx`.
+ * History: the stale single-persona Tereza `TourOverlay` entry was removed
+ * 2026-05-17 (Demo Narrative & Personas W5); the manual beat list that
+ * replaced it was upgraded to the real auto-switching walkthrough launcher
+ * 2026-05-17 (Guided Walkthrough Build D1).
  *
- * Placement decision (D1, persona-wiring.md): a standalone route was picked
- * over a landing-page panel/launcher because the landing page is stale and
- * due for its own redesign. A route survives any landing changes and is
- * shareable (Slack a tester `…/demo` and they're in).
- *
- * "New User" appears as a regular persona option (rather than a separate
- * checkbox) — selecting it drops you into a profile with no pets, no bio,
- * no groups, etc. so empty states surface naturally across the app.
+ * Placement decision (D1, persona-wiring.md): a standalone route was picked so
+ * it survives landing changes and is shareable (Slack a tester `…/demo`).
  */
 
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -33,12 +26,13 @@ import {
   ArrowCounterClockwise,
   Compass,
 } from "@phosphor-icons/react";
-import { personas, defaultPersona } from "@/lib/personas";
+import { getPersona } from "@/lib/personas";
 import { useDemoState } from "@/contexts/CurrentUserContext";
+import { useWalkthrough } from "@/contexts/WalkthroughContext";
+import { WALKTHROUGH_BEATS, WALKTHROUGH_BEAT_COUNT } from "@/lib/walkthroughBeats";
 import { resetPersistedState } from "@/lib/usePersistedState";
+import { DemoPersonaDropdown } from "@/components/demo/DemoPersonaDropdown";
 import "./demo.css";
-
-const TOUR_ENTRY = "/home?as=tereza&tour=tereza&step=1";
 
 /** Wipe every `doggo:*` localStorage key. Mirror of the helper in
  *  ProfileNameDropdown — both surfaces support the same reset semantics. */
@@ -57,51 +51,9 @@ function clearDemoLocalStorage() {
   resetPersistedState("doggo");
 }
 
-/** Curated journey cards — the "guided" half of the picker. Story copy is
- *  hand-tuned to read like a narrative pitch, not a feature list. Persona
- *  references stay in `lib/personas.ts` (single source of truth). */
-type Journey = {
-  personaId: "tereza" | "daniel" | "klara";
-  title: string;
-  story: string;
-  hasTour?: boolean;
-};
-
-const JOURNEYS: Journey[] = [
-  {
-    personaId: "tereza",
-    title: "A morning walking crew",
-    story:
-      "Tereza walks Riegrovy every morning with the same six people. She runs the Vinohrady Evening Walkers and sits for neighbours on weekends. The community-anchor view of how trust accrues over months.",
-    hasTour: true,
-  },
-  {
-    personaId: "daniel",
-    title: "Trust built from zero",
-    story:
-      "Daniel adopted Bára, a reactive rescue. His profile is locked, his connections are few. See how a single support group + one professional booking become the whole foundation of his confidence.",
-  },
-  {
-    personaId: "klara",
-    title: "A trainer's small business",
-    story:
-      "Klára runs a Care group for her training clients. Many joined a Saturday calm-dog session first and started booking weekday training by the third week. The community-as-funnel arc.",
-  },
-];
-
 export default function DemoPage() {
-  const router = useRouter();
-  const { user: currentUser, setUserById, resetToDefault } = useDemoState();
-
-  function pick(personaId: string) {
-    setUserById(personaId);
-    router.push("/home");
-  }
-
-  function launchTour() {
-    setUserById("tereza");
-    router.push(TOUR_ENTRY);
-  }
+  const { resetToDefault } = useDemoState();
+  const walkthrough = useWalkthrough();
 
   function handleReset() {
     clearDemoLocalStorage();
@@ -117,114 +69,58 @@ export default function DemoPage() {
     <div className="demo-page">
       <div className="demo-shell">
         <header className="demo-header">
-          <div className="demo-brand">DOGGO · Demo mode</div>
-          <h1 className="demo-title">View as&hellip;</h1>
-          <p className="demo-subtitle">
-            Pick a guided journey for a curated path through one persona&rsquo;s
-            community-to-care arc, or jump straight in as anyone. The choice
-            persists across navigation and refresh; switch back from the
-            profile page&rsquo;s &ldquo;Change user&rdquo; menu.
-          </p>
+          <div className="demo-brand">DOGGO · Prototype</div>
+          <h1 className="demo-title">Demo</h1>
         </header>
 
-        {/* ── Guided journeys ─────────────────────────────────────────── */}
+        {/* ── Guided story — launch the walkthrough ────────────────────── */}
         <section className="demo-section">
           <div className="demo-section-header">
             <Compass size={18} weight="bold" aria-hidden="true" />
-            <span>Guided journeys</span>
+            <span>Guided walkthrough</span>
           </div>
-          <div className="demo-journeys">
-            {JOURNEYS.map((j) => {
-              const persona = personas.find((p) => p.user.id === j.personaId);
-              if (!persona) return null;
-              const { user } = persona;
+          <p className="demo-section-note">
+            Four beats, four personas, one weekend in the Doggo community. The
+            walkthrough switches personas for you and keeps the current step on
+            screen the whole way — {WALKTHROUGH_BEAT_COUNT} beats, about 25 minutes.
+          </p>
+          <button
+            type="button"
+            className="demo-start-btn"
+            onClick={walkthrough.start}
+          >
+            <Compass size={16} weight="bold" aria-hidden="true" />
+            Start guided walkthrough
+            <ArrowRight size={16} weight="bold" aria-hidden="true" />
+          </button>
+          <ol className="demo-beat-preview">
+            {WALKTHROUGH_BEATS.map((beat) => {
+              const persona = getPersona(beat.personaId);
+              const name = persona?.user.firstName ?? beat.personaId;
               return (
-                <article key={j.personaId} className="demo-journey-card">
-                  <div className="demo-journey-row">
-                    <img
-                      src={user.avatarUrl}
-                      alt=""
-                      className="demo-journey-avatar"
-                      loading="lazy"
-                    />
-                    <div className="demo-journey-meta">
-                      <span className="demo-journey-archetype">
-                        {persona.archetype}
-                      </span>
-                      <h3 className="demo-journey-title">{j.title}</h3>
-                      <span className="demo-journey-name">
-                        {user.firstName} {user.lastName}
-                      </span>
-                    </div>
+                <li key={beat.n} className="demo-beat-preview-item">
+                  <span className="demo-beat-num">{beat.n}</span>
+                  <div className="demo-beat-preview-text">
+                    <span className="demo-beat-preview-head">
+                      {name} · <span className="demo-beat-preview-when">{beat.when}</span>
+                    </span>
+                    <span className="demo-beat-preview-task">{beat.summary}</span>
                   </div>
-                  <p className="demo-journey-story">{j.story}</p>
-                  <div className="demo-journey-actions">
-                    {j.hasTour && (
-                      <button
-                        type="button"
-                        className="demo-journey-btn demo-journey-btn--guided"
-                        onClick={launchTour}
-                      >
-                        <Compass size={14} weight="bold" aria-hidden="true" />
-                        Walk me through it
-                        <ArrowRight size={14} weight="bold" aria-hidden="true" />
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      className="demo-journey-btn"
-                      onClick={() => pick(j.personaId)}
-                    >
-                      {j.hasTour ? `Just enter as ${user.firstName}` : `Enter as ${user.firstName}`}
-                      <ArrowRight size={14} weight="bold" aria-hidden="true" />
-                    </button>
-                  </div>
-                </article>
+                </li>
               );
             })}
-          </div>
+          </ol>
         </section>
 
-        {/* ── Just explore — flat persona pills ────────────────────────── */}
+        {/* ── Explore freely — persona dropdown picker ─────────────────── */}
         <section className="demo-section">
           <div className="demo-section-header">
-            <span>Just explore</span>
+            <span>Or explore freely</span>
           </div>
-          <div className="demo-pills">
-            {personas.map((p) => {
-              const active = currentUser.id === p.user.id;
-              return (
-                <button
-                  key={p.user.id}
-                  type="button"
-                  className={`demo-pill${active ? " demo-pill--active" : ""}`}
-                  onClick={() => pick(p.user.id)}
-                >
-                  <img
-                    src={p.user.avatarUrl}
-                    alt=""
-                    className="demo-pill-avatar"
-                    loading="lazy"
-                  />
-                  <div className="demo-pill-body">
-                    <span className="demo-pill-name">
-                      {p.user.firstName} {p.user.lastName}
-                    </span>
-                    <span className="demo-pill-archetype">{p.archetype}</span>
-                  </div>
-                  <span className="demo-pill-action">
-                    {active ? "Active" : <ArrowRight size={14} weight="bold" />}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          {currentUser.id !== defaultPersona.user.id && (
-            <p className="demo-active-note">
-              Currently active: <strong>{currentUser.firstName}</strong>. Reset
-              below to return to the default ({defaultPersona.user.firstName}).
-            </p>
-          )}
+          <p className="demo-section-note">
+            Skip the script — drop into any persona and poke around.
+          </p>
+          <DemoPersonaDropdown />
         </section>
 
         <footer className="demo-footer">

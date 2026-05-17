@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-10
+last-reviewed: 2026-05-17
 tags: [messaging, inbox, chat, booking, notifications]
 review-trigger: "when modifying inbox, threads, conversation types, or notifications"
 ---
@@ -145,15 +145,16 @@ Group feed posts have flat comments for async discussion. This replaces the prev
 
 ### Types
 
-14 notification types, each with distinct icon, label, and action:
+15 notification types, each with distinct icon, label, and action:
 
 | Type | Icon | Label | Example action |
 |------|------|-------|---------------|
 | `meet_invite` | CalendarBlank | Meet | → `/meets/[meetId]` |
 | `meet_reminder` | CalendarBlank | Meet | → `/meets/[meetId]` |
 | `meet_rsvp` | UserPlus | Meet | → `/meets/[meetId]` |
-| `connection_request` | Handshake | Connection | → `/profile/[userId]` |
+| `connection_request` | Handshake | Connection | Inline **Accept** / **Decline** |
 | `connection_accepted` | HandsClapping | Connection | → `/profile/[userId]` |
+| `group_invite` | UsersThree | Group | → `/communities/[groupId]` |
 | `group_activity` | UsersThree | Group | → `/communities/[groupId]` |
 | `booking_proposal` | Briefcase | Booking | → `/profile/[userId]?tab=chat` |
 | `booking_confirmed` | CheckCircle | Booking | → `/bookings/[bookingId]` |
@@ -163,6 +164,10 @@ Group feed posts have flat comments for async discussion. This replaces the prev
 | `session_completed` | CheckCircle | Care | → `/bookings/[bookingId]?tab=sessions` |
 | `care_review` | Star | Review | → `/profile` |
 | `post_comment` | ChatCircle | Comment | → `/communities/[groupId]` |
+
+### Connection requests — inline accept
+
+`connection_request` notification rows host inline **Accept** / **Decline** buttons rather than navigating to a profile (there's no accept affordance on a profile — a `pending` connection renders there as a disabled "Request sent"). **Accept** calls `markConnected` in both directions via `ConnectionsContext` (mutual Connected) and the row resolves to a "Connected" confirmation; **Decline** resolves the row quietly with no connection change. The row reads its resolved state from `getConnection`, so an accepted request still reads as accepted after a reload. The request sender is carried on the notification's optional `actorId` field so the handler resolves the connection without parsing `href`. Added 2026-05-17 for the Guided Walkthrough's Beat 3 (Magda accepts Daniel's request); the request itself is seeded statically (`notif-magda-connect-daniel` in `mockNotifications.ts`).
 
 ### Recipient targeting
 

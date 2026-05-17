@@ -588,6 +588,146 @@ const pawelWalksLena: Booking = {
   paymentStatus: "paid",
 };
 
+// ── Required-link meet bookings (Demo Narrative & Personas W3.6) ─────────────
+//
+// Handed off from the Service ↔ Meet Linkage walkthrough (C6, closed
+// 2026-05-17). meet-care-1 / meet-care-workshop-1 / meet-care-puppy-basics are
+// `required`-link meets — by the linkage model, booking IS the RSVP, so every
+// non-creator roster attendee must have a backing `Booking` carrying
+// `meetBooking`. `seedRecurringAttendeesByDate` writes rosters only, never
+// Booking records, so pre-seeded attendees had no booking and their session
+// never appeared on `/bookings`. These four close that gap — one booking per
+// non-creator pre-seeded attendee, for each meet's next occurrence. Klára
+// (creator of all three) needs no booking.
+
+/** meet-care-1 (Klára's group training, required-link) — Magda's seat. */
+const meetCare1Magda: Booking = {
+  id: "booking-meet-care-1-magda",
+  conversationId: null,
+  ownerId: "magda",
+  ownerName: "Magda Vondráková",
+  ownerAvatarUrl: "/images/generated/lucie-profile.jpeg",
+  carerId: "klara",
+  carerName: "Klára Horáčková",
+  carerAvatarUrl: "/images/generated/klara-profile.jpeg",
+  type: "one_off",
+  meetBooking: {
+    serviceId: "klara-group-training",
+    serviceTitle: "Group training session",
+    meetId: "meet-care-1",
+    occurrenceDate: daysFromNow(3),
+  },
+  subService: null,
+  pets: ["Žofka"],
+  startDate: daysFromNow(3),
+  endDate: null,
+  price: {
+    lineItems: [{ label: "Group training session", amount: 350, unit: "per session" }],
+    total: 350,
+    currency: "Kč",
+    billingCycle: "per_session",
+  },
+  status: "upcoming",
+  signedAt: daysAgoIso(4, "10:00"),
+  paymentStatus: "paid",
+};
+
+/** meet-care-1 (Klára's group training, required-link) — Tomáš's seat. */
+const meetCare1Tomas: Booking = {
+  id: "booking-meet-care-1-tomas",
+  conversationId: null,
+  ownerId: "tomas",
+  ownerName: "Tomáš Kovář",
+  ownerAvatarUrl: "/images/generated/tomas-profile.jpeg",
+  carerId: "klara",
+  carerName: "Klára Horáčková",
+  carerAvatarUrl: "/images/generated/klara-profile.jpeg",
+  type: "one_off",
+  meetBooking: {
+    serviceId: "klara-group-training",
+    serviceTitle: "Group training session",
+    meetId: "meet-care-1",
+    occurrenceDate: daysFromNow(3),
+  },
+  subService: null,
+  pets: ["Hugo"],
+  startDate: daysFromNow(3),
+  endDate: null,
+  price: {
+    lineItems: [{ label: "Group training session", amount: 350, unit: "per session" }],
+    total: 350,
+    currency: "Kč",
+    billingCycle: "per_session",
+  },
+  status: "upcoming",
+  signedAt: daysAgoIso(6, "18:30"),
+  paymentStatus: "paid",
+};
+
+/** meet-care-workshop-1 (Klára's reactive workshop, required-link) — Daniel's seat. */
+const workshopDaniel: Booking = {
+  id: "booking-meet-care-workshop-1-daniel",
+  conversationId: null,
+  ownerId: "daniel",
+  ownerName: "Daniel Procházka",
+  ownerAvatarUrl: "/images/generated/daniel-profile.jpeg",
+  carerId: "klara",
+  carerName: "Klára Horáčková",
+  carerAvatarUrl: "/images/generated/klara-profile.jpeg",
+  type: "one_off",
+  meetBooking: {
+    serviceId: "klara-reactive",
+    serviceTitle: "Reactive dog session",
+    meetId: "meet-care-workshop-1",
+    occurrenceDate: daysFromNow(10),
+  },
+  subService: null,
+  pets: ["Bára"],
+  startDate: daysFromNow(10),
+  endDate: null,
+  price: {
+    lineItems: [{ label: "Reactive dog session", amount: 600, unit: "per session" }],
+    total: 600,
+    currency: "Kč",
+    billingCycle: "per_session",
+  },
+  status: "upcoming",
+  signedAt: daysAgoIso(8, "20:15"),
+  paymentStatus: "paid",
+};
+
+/** meet-care-puppy-basics (Klára's puppy cohort, required-link) — Jana's seat. */
+const puppyBasicsJana: Booking = {
+  id: "booking-meet-care-puppy-basics-jana",
+  conversationId: null,
+  ownerId: "jana",
+  ownerName: "Jana Krejčí",
+  ownerAvatarUrl: "/images/generated/jana-profile.jpeg",
+  carerId: "klara",
+  carerName: "Klára Horáčková",
+  carerAvatarUrl: "/images/generated/klara-profile.jpeg",
+  type: "one_off",
+  meetBooking: {
+    serviceId: "klara-puppy-basics",
+    serviceTitle: "Puppy basics",
+    meetId: "meet-care-puppy-basics",
+    occurrenceDate: daysFromNow(4),
+  },
+  subService: null,
+  pets: ["Rex"],
+  startDate: daysFromNow(4),
+  endDate: null,
+  price: {
+    lineItems: [{ label: "Puppy basics", amount: 400, unit: "per session" }],
+    total: 400,
+    currency: "Kč",
+    billingCycle: "per_session",
+  },
+  status: "upcoming",
+  signedAt: daysAgoIso(3, "12:00"),
+  paymentStatus: "paid",
+};
+
 // ── Exports ─────────────────────────────────────────────────────────────────────
 
 export const mockBookings: Booking[] = [
@@ -604,6 +744,10 @@ export const mockBookings: Booking[] = [
   klaraTrainingHana,
   olgaWalksTereza,
   pawelWalksLena,
+  meetCare1Magda,
+  meetCare1Tomas,
+  workshopDaniel,
+  puppyBasicsJana,
 ];
 
 export function getBooking(id: string): Booking | undefined {

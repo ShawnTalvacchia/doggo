@@ -20,7 +20,9 @@ import { BottomNav } from "@/components/layout/BottomNav";
 import { PostComposer } from "@/components/posts/PostComposer";
 import { MeetComposer } from "@/components/meets/MeetComposer";
 import { PostMeetReviewSheet } from "@/components/meets/PostMeetReviewSheet";
-import { TourOverlay } from "@/components/landing/TourOverlay";
+import { WalkthroughProvider } from "@/contexts/WalkthroughContext";
+import { WalkthroughInterstitial } from "@/components/walkthrough/WalkthroughInterstitial";
+import { WalkthroughCard } from "@/components/walkthrough/WalkthroughCard";
 
 const headingFont = Poppins({
   subsets: ["latin"],
@@ -48,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <SignupProvider>
           <CurrentUserProvider>
+            <WalkthroughProvider>
             <AuthGateProvider>
             <NotificationsProvider>
               <ReviewsProvider>
@@ -79,13 +82,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             <Suspense fallback={null}>
                               <PostMeetReviewSheet />
                             </Suspense>
-                            {/* Demo-mode guided tour overlay. Returns null
-                                unless `?tour=<id>` is in the URL — zero
-                                cost outside the tour. Same Suspense rule
-                                as above (uses useSearchParams). */}
-                            <Suspense fallback={null}>
-                              <TourOverlay />
-                            </Suspense>
+                            {/* Guided Walkthrough — full-screen handoff
+                                interstitial + persistent on-surface step
+                                card. Both return null outside an active
+                                walkthrough (WalkthroughContext). */}
+                            <WalkthroughInterstitial />
+                            <WalkthroughCard />
                           </PostMeetReviewProvider>
                         </MeetComposerProvider>
                       </PostComposerProvider>
@@ -96,6 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </ReviewsProvider>
             </NotificationsProvider>
             </AuthGateProvider>
+            </WalkthroughProvider>
           </CurrentUserProvider>
         </SignupProvider>
       </body>

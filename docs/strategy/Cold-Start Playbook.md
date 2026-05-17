@@ -1,14 +1,14 @@
 ---
 category: strategy
 status: draft
-last-reviewed: 2026-05-15
+last-reviewed: 2026-05-16
 tags: [cold-start, trainers, shelter, foster, community, account-types, credentialing, future]
 review-trigger: "before any phase touching cold-start, monetization, account types, or category strategy"
 ---
 
 # Cold-Start Playbook
 
-> **Status note (2026-05-11; extended 2026-05-15):** Draft thread. Not on the roadmap, not part of the demo. This doc started as "Shelter Dogs & Community Walks" (Discover Refinement, 2026-05-10) and was renamed + expanded after a sequence of strategic conversations during the Care Catalog Taxonomy phase added two more threads: paid trainer partnerships as a cold-start engine, and the credentialing-gap-as-moat insight surfaced by Prague market research (2026-05-11). Extended 2026-05-15 with a "Walker credentialing as a shelter trust layer" subsection under the shelter angle — the same credentialing-moat thesis applied to the shelter-walker domain, surfaced during the Alyssa briefing on Prague shelter walking rules. The doc is an evolving essay, not a spec — it argues for keeping multiple cold-start threads alive together without committing to a phase.
+> **Status.** Pre-roadmap exploration. Not active product work; not part of the demo. Documents the strategic threads that would inform a future cold-start phase, pending real conversations with Prague trainers and shelters before any product commitments.
 
 **TL;DR.** Doggo has a chicken-and-egg problem: a community-first dog-care platform has no value until other dog people are on it. Three threads — paid trainer partnerships, shelter dog walks, and Doggo-as-credentialing-layer — converge on a single playbook: **seed activity with paid trainers leading public walks (with shelter dogs as always-on inventory), use those walks to onboard organic users into hosting their own meets, and accrue trust infrastructure that becomes the platform's moat in a market with no existing credentialing layer.** Not for the demo. The next concrete step is real conversations in Prague — partnerships with 2-3 anchor trainers + 1-2 shelter orgs.
 
@@ -32,7 +32,7 @@ The question isn't whether to seed activity. It's *how* — in a way that:
 
 ## The trainer-led walks playbook
 
-The cleanest answer surfaced during a strategic session 2026-05-11: **partner with (or eventually hire) 2-5 trainers in Prague to lead public walks on the platform.** Mechanics:
+The approach: **partner with (or eventually hire) 2-5 trainers in Prague to lead public walks on the platform.** Mechanics:
 
 - **Trainers always have a dog to walk.** Either a booked client, a regular owner who's tagging along, or — when neither — a shelter dog picked up from a partner org. No empty Tuesdays.
 - **Walks are framed as community walks, not promo walks.** Same trainer, same walk, two completely different products depending on framing. The platform's job is to make the community-shaped version the natural one. (See *The framing principle* below.)
@@ -76,7 +76,7 @@ The difference is whether the paid users actively try to onboard the organic use
 
 ---
 
-## The Prague training market (research 2026-05-11)
+## The Prague training market
 
 This shapes the trainer-partnership playbook directly. Key findings:
 
@@ -95,7 +95,7 @@ This shapes the trainer-partnership playbook directly. Key findings:
 - **Mobile is modal.** Most trainers travel to owner's home or run group classes at a rented patch of field.
 - Facility-based solo training exists but is the minority case. Psí škola K9, Canikenny, goDog offer indoor 1-on-1.
 - **Vet-clinic-attached training is rare.** Searched MetropoleVet, AA-Vet, Pet Care Clinic, etc. — no on-site training surfaced.
-- **Implication for `AppointmentCategory: "training"`** (Care Catalog Taxonomy 2026-05-11): the shape exists, mostly mobile. P64 punch-list item carries the seed-and-flesh-out work.
+- **Implication for `AppointmentCategory: "training"`:** the shape exists, mostly mobile.
 
 **Certification: messy.**
 - A national qualification exists on paper (Národní soustava kvalifikací code 41-089-M, NQF Level 4) but **is not legally required**.
@@ -131,7 +131,7 @@ The deeper play: **trust signals on the platform likely outrank any single crede
 
 ## The shelter angle
 
-The original thread that started this doc. Still active, now positioned as the **supply side of trainer-led walks** (always-on inventory when no client is booked) rather than its own product.
+Still active, positioned as the **supply side of trainer-led walks** (always-on inventory when no client is booked) rather than as a standalone product.
 
 **The institutional layer is real but constrained.** 300+ registered shelters in Czech Republic. In Prague: Pes v nouzi, Útulek Liběň, BedForPet, Cool Critters, Psi bez hranic. Most run on volunteer labor and donations, coordinating through email, phone, and Facebook.
 
@@ -141,7 +141,7 @@ The original thread that started this doc. Still active, now positioned as the *
 
 ### Dog-as-unit framing
 
-The right framing for the shelter angle (surfaced 2026-05-11) is **dog-as-unit, not shelter-as-unit:**
+The right framing for the shelter angle is **dog-as-unit, not shelter-as-unit:**
 
 - Each shelter dog has a profile, stats ("4 days in kennel, last walked 3 days ago"), and people pick a *specific dog* to walk
 - A dog who develops 8 regular walkers over 6 weeks is a dog who gets adopted — and every walker is a Doggo user with a felt connection to the shelter community
@@ -160,7 +160,7 @@ This is what gets people hooked, and what makes adoption a natural endpoint inst
 
 ### How it folds into Discover
 
-Three shapes considered (surfaced 2026-05-11), recommendation noted:
+Three shapes considered, recommendation noted:
 
 1. **Fourth door alongside Meets / Groups / Dog Care.** "Help a Dog" or "Shelter Dogs." Top-level entry. Pros: discoverable; doesn't dilute paid Care. Cons: adds visual weight to the Discover hub.
 2. **Layered into Meets + Care.** Some Meets flagged "Includes shelter dogs from {shelter}." Some Care entries are "Walk Bára (Útulek Liběň)" alongside paid carers. Pros: reinforces community-first thesis; no new surface. Cons: muddles paid/free distinction in Care results.
@@ -182,7 +182,7 @@ Three shapes considered (surfaced 2026-05-11), recommendation noted:
 
 ### Walker credentialing as a shelter trust layer
 
-The "no other dogs" rule across most Prague shelters that *do* permit public walking (Voříškov, Útulek Liběň, and others surveyed in the 2026-05-15 research) exists because shelters can't verify what's true about either side of the encounter — the walker's competence with reactive dogs, or the specific shelter dog's reactivity to other dogs. The rule is a blunt instrument because no better instrument is available.
+The "no other dogs" rule across most Prague shelters that *do* permit public walking (Voříškov, Útulek Liběň, and others) exists because shelters can't verify what's true about either side of the encounter — the walker's competence with reactive dogs, or the specific shelter dog's reactivity to other dogs. The rule is a blunt instrument because no better instrument is available.
 
 That gap is the same one the credentialing-moat thread describes for the training market: a domain with high stakes, no trusted gatekeeper, no infrastructure for differential trust. The platform's job in the training case is to surface trainer quality so owners can make informed choices. In the shelter-walker case, it's to surface walker quality so shelters can relax their blanket conservatism for verified handlers — and let some shelter dogs participate in group walks. That has real value beyond convenience: socialization is what gets shelter dogs adopted, and right now most of them are denied it by default.
 
@@ -202,7 +202,7 @@ Risks specific to this thread:
 
 4. **Strategic shape question.** Building this pulls Doggo deeper into being a *credentialing body* than the current "coordination layer" framing implies. Not necessarily bad — credentialing layers can be very defensible businesses — but a shape choice worth naming. The trainer-credentialing thread implies the same shift. Both together would make "Doggo as the trust infrastructure for Prague's dog-care ecosystem" a more accurate description of the business than "coordination platform."
 
-Surfaced 2026-05-15. Unbuilt and pre-validation. Belongs in the same conversational territory as the trainer-credentialing thread — both wait on real conversations (here, with shelters) before they become anything more concrete.
+Unbuilt and pre-validation. Belongs in the same conversational territory as the trainer-credentialing thread — both wait on real shelter conversations before they become anything more concrete.
 
 ---
 
@@ -233,13 +233,7 @@ This fork is unresolved (Open Questions log §7) and shouldn't be settled in thi
 
 ---
 
-## What this isn't
-
-Not for the demo. Not on the roadmap. Not a pivot from the core thesis — if anything, it strengthens it. The doc is meant to keep three threads alive in parallel (trainer partnerships, shelter integration, credentialing layer) so when the right phase comes, the strategic groundwork is already done.
-
----
-
-## Next steps (if we take them)
+## Validation prerequisites
 
 Roughly in priority order. None are blocking; all are exploratory.
 
@@ -250,14 +244,3 @@ Roughly in priority order. None are blocking; all are exploratory.
 5. **Map the Prague shelter landscape in person.** Walk into 2-3 shelters, see how coordination actually works on the ground, understand the vouching/release process.
 
 These conversations happen before any product work, and shape what the product work would even look like. The platform's design follows what the supply side actually needs.
-
----
-
-## What I'd love from you
-
-Reactions on:
-- Does the playbook framing hold together as one playbook with three threads, or should they stay as separate strategy docs?
-- Which of the next steps feels closest to actionable for you, given you're in Prague?
-- Are there other Prague-specific cold-start angles worth exploring that this doesn't capture?
-
-No rush.

@@ -1,16 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { PersonRow } from "@/components/people/PersonRow";
 import { PrivateProfileRow } from "@/components/people/PrivateProfileRow";
 import {
   SectionHeader,
   MetaDivider,
 } from "@/components/people/PersonSections";
-import { getConnectionState } from "@/lib/mockConnections";
 import { getAttendeeTier, viewerCanAct } from "@/lib/meetUtils";
 import { getUserById } from "@/lib/mockUsers";
 import { getCarerIdentity, type CarerIdentity } from "@/lib/identityBadges";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { useConnections } from "@/contexts/ConnectionsContext";
 import type { ConnectionState, Meet, MeetAttendee } from "@/lib/types";
 import type { PersonAction } from "@/lib/personActions";
 
@@ -88,6 +89,43 @@ export function ParticipantList({
   const hookUserId = useCurrentUserId();
   const viewerId = currentUserId ?? hookUserId;
 
+  // Connection reads + mutations route through ConnectionsContext so a
+  // Familiar / Connect mark made on a row reflects immediately — the static
+  // `mockConnections` lookup can't see session overrides. `localMarks`
+  // drives the per-row mark ladder (+ "✓ Familiar | Undo" footer) for marks
+  // made on this visit. Mirrors the group Members tab pattern (Mock World
+  // Building 2026-04-30); the People tab adopted it 2026-05-17 — before
+  // that, tapping "+ Familiar" here was a silent no-op.
+  const { getConnection, markFamiliar, unmarkFamiliar } = useConnections();
+  const [localMarks, setLocalMarks] = useState<
+    Record<string, "familiar" | "connect">
+  >({});
+
+  const handleAdvance = (memberId: string) => {
+    setLocalMarks((prev) => {
+      const current = prev[memberId];
+      const next = current === "familiar" ? "connect" : "familiar";
+      // First step (no current mark) → persist the Familiar grant via
+      // context. The Connect step stays session-local for now.
+      if (!current) markFamiliar(viewerId, memberId);
+      return { ...prev, [memberId]: next };
+    });
+  };
+
+  const handleDowngrade = (memberId: string) => {
+    setLocalMarks((prev) => ({ ...prev, [memberId]: "familiar" }));
+  };
+
+  const handleUndoMark = (memberId: string) => {
+    setLocalMarks((prev) => {
+      const next = { ...prev };
+      delete next[memberId];
+      return next;
+    });
+    // Undo means undo — reverse the persisted mark too, not just the footer.
+    unmarkFamiliar(viewerId, memberId);
+  };
+
   // Single attendance gate: applies to every row in this list. Empty array
   // = info-only mode (PersonRow suppresses all action affordances).
   const rowActions: PersonAction[] | "auto" = viewerCanAct(meet, viewerId)
@@ -134,8 +172,16 @@ export function ParticipantList({
       };
     }
 
-    const conn = getConnectionState(a.userId, viewerId);
-    const state = conn?.state ?? "none";
+    // Context-aware connection — overlays session Familiar/Connected marks
+    // on the static lookup so a mark made on this tab reflects right away.
+    const conn = getConnection(a.userId, viewerId);
+    const baseState = conn?.state ?? "none";
+    // A session mark made on this visit promotes "none" → "familiar" so the
+    // matrix surfaces the Connect step (and the row moves to the Familiar
+    // subsection). Mirrors the Members tab's localMark application.
+    const localMark = localMarks[a.userId];
+    const state: ConnectionState =
+      localMark && baseState === "none" ? "familiar" : baseState;
     const theyMarkedFamiliar = conn?.theyMarkedFamiliar;
     const t = getAttendeeTier(a, viewerId);
 
@@ -193,6 +239,10 @@ export function ParticipantList({
         attendees={going}
         viewerId={viewerId}
         rowActions={rowActions}
+        marks={localMarks}
+        onAdvance={handleAdvance}
+        onDowngrade={handleDowngrade}
+        onUndoMark={handleUndoMark}
       />
 
       {locked.length > 0 && (
@@ -219,6 +269,10 @@ export function ParticipantList({
             attendees={interested}
             viewerId={viewerId}
             rowActions={rowActions}
+            marks={localMarks}
+            onAdvance={handleAdvance}
+            onDowngrade={handleDowngrade}
+            onUndoMark={handleUndoMark}
             subdued
           />
         </>
@@ -232,6 +286,10 @@ export function ParticipantList({
             attendees={followersVisible}
             viewerId={viewerId}
             rowActions={rowActions}
+            marks={localMarks}
+            onAdvance={handleAdvance}
+            onDowngrade={handleDowngrade}
+            onUndoMark={handleUndoMark}
             subdued
           />
         </>
@@ -248,12 +306,20 @@ function PeopleSection({
   viewerId,
   rowActions,
   subdued = false,
+  marks,
+  onAdvance,
+  onDowngrade,
+  onUndoMark,
 }: {
   title: string;
   attendees: TieredAttendee[];
   viewerId: string;
   rowActions: PersonAction[] | "auto";
   subdued?: boolean;
+  marks: Record<string, "familiar" | "connect">;
+  onAdvance: (userId: string) => void;
+  onDowngrade: (userId: string) => void;
+  onUndoMark: (userId: string) => void;
 }) {
   // Connected first (with viewer pinned to top of that subsection),
   // then Familiar (outbound only — labeled), then everything else flat
@@ -290,6 +356,30 @@ function PeopleSection({
   // viewer in the chip list below, just not as card-form rows.
   const total = attendees.length;
 
+  // One row renderer for all three subsections — threads the session-mark
+  // ladder (mark + advance/downgrade/undo) through to every PersonRow so
+  // "+ Familiar" → "Connect" → "Connect ✓" works consistently.
+  const renderRow = (a: TieredAttendee) => (
+    <PersonRow
+      key={a.userId}
+      variant="meet-attendee"
+      userId={a.userId}
+      name={a.userName}
+      avatarUrl={a.avatarUrl}
+      isSelf={a.userId === viewerId}
+      pets={(a.dogNames ?? []).map((name) => ({ name, breed: a.dogBreed }))}
+      connectionState={a.connectionState}
+      theyMarkedFamiliar={a.theyMarkedFamiliar}
+      profileOpen={a.profileOpen}
+      carerBadge={a.carerBadge}
+      actions={rowActions}
+      mark={marks[a.userId] ?? null}
+      onAdvance={() => onAdvance(a.userId)}
+      onDowngradeMark={() => onDowngrade(a.userId)}
+      onUndoMark={() => onUndoMark(a.userId)}
+    />
+  );
+
   return (
     <div className="flex flex-col gap-sm">
       <h2
@@ -302,45 +392,13 @@ function PeopleSection({
 
       {connected.length > 0 && <SectionHeader label="Connected" />}
       {connected.length > 0 && (
-        <div className="flex flex-col gap-sm">
-          {connected.map((a) => (
-            <PersonRow
-              key={a.userId}
-              variant="meet-attendee"
-              userId={a.userId}
-              name={a.userName}
-              avatarUrl={a.avatarUrl}
-              isSelf={a.userId === viewerId}
-              pets={(a.dogNames ?? []).map((name) => ({ name, breed: a.dogBreed }))}
-              connectionState={a.connectionState}
-              theyMarkedFamiliar={a.theyMarkedFamiliar}
-              profileOpen={a.profileOpen}
-              carerBadge={a.carerBadge}
-              actions={rowActions}
-            />
-          ))}
-        </div>
+        <div className="flex flex-col gap-sm">{connected.map(renderRow)}</div>
       )}
 
       {familiarOutbound.length > 0 && <SectionHeader label="Familiar" />}
       {familiarOutbound.length > 0 && (
         <div className="flex flex-col gap-sm">
-          {familiarOutbound.map((a) => (
-            <PersonRow
-              key={a.userId}
-              variant="meet-attendee"
-              userId={a.userId}
-              name={a.userName}
-              avatarUrl={a.avatarUrl}
-              isSelf={a.userId === viewerId}
-              pets={(a.dogNames ?? []).map((name) => ({ name, breed: a.dogBreed }))}
-              connectionState={a.connectionState}
-              theyMarkedFamiliar={a.theyMarkedFamiliar}
-              profileOpen={a.profileOpen}
-              carerBadge={a.carerBadge}
-              actions={rowActions}
-            />
-          ))}
+          {familiarOutbound.map(renderRow)}
         </div>
       )}
 
@@ -354,22 +412,7 @@ function PeopleSection({
         // World Building 2026-04-30.
         <div className="flex flex-col gap-sm">
           <SectionHeader label="Other attendees" />
-          {other.map((a) => (
-            <PersonRow
-              key={a.userId}
-              variant="meet-attendee"
-              userId={a.userId}
-              name={a.userName}
-              avatarUrl={a.avatarUrl}
-              isSelf={a.userId === viewerId}
-              pets={(a.dogNames ?? []).map((name) => ({ name, breed: a.dogBreed }))}
-              connectionState={a.connectionState}
-              theyMarkedFamiliar={a.theyMarkedFamiliar}
-              profileOpen={a.profileOpen}
-              carerBadge={a.carerBadge}
-              actions={rowActions}
-            />
-          ))}
+          {other.map(renderRow)}
         </div>
       )}
     </div>
