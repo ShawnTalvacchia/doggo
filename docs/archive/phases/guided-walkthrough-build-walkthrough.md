@@ -1,6 +1,6 @@
 ---
-status: active
-last-reviewed: 2026-05-17
+status: archived
+last-reviewed: 2026-05-18
 review-trigger: "Update as items are walked, edit as scope adjusts"
 ---
 
@@ -52,5 +52,16 @@ Each beat is a sequence of steps; the card shows one at a time and advances on N
 A running log of emergent decisions. Each entry carries a `→ target-doc.md` annotation; propagated to home docs at phase close.
 
 - **Stepped beats, not atomic (2026-05-17).** The first build had one task per beat shown whole. Changed to stepped: each beat is an ordered `WalkthroughStep[]`; the interstitial is scene-only (task removed), the on-surface card walks one step at a time with Prev/Next. Also: beats gained `startUrl` (Beat 1 opens on `/discover` so step 1 can be "tap into Meets"); `WalkthroughContext` gained `stepIndex` + step-aware `next`/`prev`. Lets each step carry focused context and guide more precisely. → `features/demo-mode.md` ("Guided Walkthrough" spec — interstitial layout, on-surface card, atomic-vs-stepped question all updated); `lib/walkthroughBeats.ts` shape
+
+### Post-build polish round (2026-05-18)
+
+A round of iterative refinement walking the built walkthrough. Logged at phase close for the historical record; feature docs were kept current as the work landed.
+
+- **Pause UX — ✕ pauses immediately to a "Walkthrough" pill + 3-choice menu (Resume / Keep paused / Exit).** The first build's ✕ opened an inline Pause/Exit confirm whose state went stale after a resume. Replaced: ✕ pauses on the spot, shrinking the card to the pill; tapping the pill opens a small menu. → `features/demo-mode.md` (on-surface card spec + Pause/Resume section; the "Pause vs Exit affordance" open question marked resolved)
+- **Card "Next" routes for navigation steps.** A nav step's `advanceOn` target is now reachable by tapping the card's Next (it routes there) as well as by the in-app control; the auto-advance effect then moves the card forward. → `features/demo-mode.md` (step-advancement spec)
+- **Interstitial warms the next beat's route while shown** — `router.prefetch` in production, a dev-only `fetch` to trigger on-demand route compilation under `next dev`. → no doc update needed (perf detail; documented in the `WalkthroughInterstitial` component)
+- **Meet People-tab Familiar/Connect ladder fixed — was a silent no-op.** `ParticipantList` read static `mockConnections` instead of `ConnectionsContext`, so marking Familiar there did nothing visible. Now reads context-aware + tracks a session-mark ladder like the group Members tab. → `components/people/PersonRow.tsx` docstring corrected; reality now matches the `meets.md` People-tab spec — no doc update needed
+- **Inline Accept/Decline on `connection_request` notifications**, a new `group_invite` notification type, and the **group-invite sheet** (`GroupInviteSheet`) wiring the group page's previously dead Invite buttons — all built because Beat 3 referenced flows (accept a request, invite to a group) that were never implemented. → `features/messaging.md` (notification types table + "Connection requests — inline accept" section)
+- **Runa hero photo replaced; landing-page CTAs repointed off the retired `?tour=` system to `/demo`; assorted beat-copy refinements.** → no doc update needed (asset swap + CTA fix + copy lives in `walkthroughBeats.ts`)
 
 <!-- Append entries as you walk. -->

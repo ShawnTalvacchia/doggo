@@ -1,6 +1,6 @@
 ---
-status: active
-last-reviewed: 2026-05-17
+status: archived
+last-reviewed: 2026-05-18
 review-trigger: When any task is completed or blocked
 ---
 
@@ -68,22 +68,22 @@ review-trigger: When any task is completed or blocked
 
 ## Acceptance Criteria
 
-- [ ] `/demo` has a "Start guided walkthrough" entry; tapping it opens the first interstitial.
-- [ ] Each interstitial → "Continue" switches persona + routes to the beat surface + shows the on-surface card.
-- [ ] The on-surface card persists across in-app navigation within a beat; collapsible; carries the beat task.
-- [ ] Next/Prev move between beats (interstitial each time); Pause drops to Open View with a Resume pill; Exit returns to `/demo`.
-- [ ] Closing interstitial fires after beat 4 with "Pick another persona" + "Stay as {persona}".
-- [ ] `TourOverlay` + `tourSteps` deleted; no dead references.
-- [ ] TypeScript compiles clean.
+- [x] `/demo` has a "Start guided walkthrough" entry; tapping it opens the first interstitial.
+- [x] Each interstitial → "Continue" switches persona + routes to the beat surface + shows the on-surface card.
+- [x] The on-surface card persists across in-app navigation within a beat; collapsible; carries the beat task.
+- [x] Next/Prev move between beats (interstitial each time); Pause drops to Open View with a Resume pill; Exit returns to `/demo`.
+- [x] Closing interstitial fires after beat 4 with "Pick another persona" + "Stay as {persona}".
+- [x] `TourOverlay` + `tourSteps` deleted; no dead references.
+- [x] TypeScript compiles clean.
 
 ---
 
 ## Closing Checklist
 
-- [ ] Walk every acceptance criterion against the running app
-- [ ] Sweep the walkthrough's Decisions log → propagate to home docs
-- [ ] Update `features/demo-mode.md` — flip the "Guided Walkthrough" section status from "design only, build deferred" to built; document the shipped components
-- [ ] Update ROADMAP.md + CLAUDE.md
-- [ ] Archive this phase board + walkthrough
-- [ ] Structural audit
-- [ ] Strategic review
+- [x] Walk every acceptance criterion against the running app
+- [x] Sweep the walkthrough's Decisions log → propagate to home docs
+- [x] Update `features/demo-mode.md` — flip the "Guided Walkthrough" section status from "design only, build deferred" to built; document the shipped components
+- [x] Update ROADMAP.md + CLAUDE.md
+- [x] Archive this phase board + walkthrough
+- [x] Structural audit
+- [x] Strategic review

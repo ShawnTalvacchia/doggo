@@ -205,9 +205,7 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 **Resolved (Mock World Building, 2026-05-02):** Per-persona highlight reels documented in `docs/features/demo-mode.md` → "Highlight reels." 3–4 surfaces per persona where their story reads strongest, mapped to URLs reviewers can click through.
 
-**Open:**
-- Should the demo entry page present scenarios ("See what it's like as a...") or user profiles? — Defer to Demo Presentation phase. The infrastructure supports either; the framing is a marketing/storytelling decision, not a technical one.
-- Should the demo include a guided tour or let users explore freely? — Defer to Demo Presentation phase.
+**Resolved (Demo Narrative & Personas + Guided Walkthrough Build, closed 2026-05-18):** Both questions answered together. The demo is **persona-led with scenario framing** — `/demo` surfaces a threaded four-beat narrative (an anchor event with per-persona POV offshoots), each beat a persona drop-in. And it offers **both modes**: a **Guided Walkthrough** (auto-switching personas through the beats, full-screen interstitials + a persistent on-surface step card) AND **Open View** (free persona-picker exploration). Specs in `docs/features/demo-mode.md`; narrative spine in `docs/strategy/Demo Narrative.md`. *A V2 demo re-author (walker-trainer framing, tighter 3-beat structure, pre-loaded content) is the next phase — it revises the narrative, not these resolved framing decisions.*
 
 ---
 

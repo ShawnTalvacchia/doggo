@@ -1,6 +1,6 @@
 ---
-status: active
-last-reviewed: 2026-05-14
+status: archived
+last-reviewed: 2026-05-18
 review-trigger: When any task is completed or blocked
 ---
 
@@ -141,11 +141,11 @@ These are deliberately excluded from this phase's commitments:
 
 ## Acceptance Criteria
 
-- [ ] **W1.** Narrative outline doc exists, names the anchor event, lists 3–5 persona POVs with per-POV action + feature + tester prompt, and states the time/place rule (strict vs anchor-as-starting-point)
-- [ ] **W2.** `lib/personas.ts` reflects the new roster (Neighborhood Hub Member added; Casual Carer + Recent-mover decisions documented in the file or User Archetypes.md). User Archetypes.md updated with any new archetypes. demo-mode.md persona table matches reality
-- [ ] **W3.** All W2 persona data seeded; P69 closed (connection rosters symmetrized); P59 closed for personas in the narrative (notifications enriched); W1-required meets / posts / bookings exist; mock-data-plan.md has a "Realism standards" section
-- [ ] **W4.** Design spec for the interstitial + on-surface step card + mode toggle + persona-switch transition lives in its chosen home doc, sufficient for a follow-on build phase to implement against
-- [ ] **W5.** `/demo` is rebuilt — stale Guided-journeys section removed, four-beat narrative surfaced as a manual path, free-explore picker kept; `features/demo-mode.md` "`/demo` route" section updated to match
+- [x] **W1.** Narrative outline doc exists, names the anchor event, lists 3–5 persona POVs with per-POV action + feature + tester prompt, and states the time/place rule (strict vs anchor-as-starting-point)
+- [x] **W2.** `lib/personas.ts` reflects the new roster (Neighborhood Hub Member added; Casual Carer + Recent-mover decisions documented in the file or User Archetypes.md). User Archetypes.md updated with any new archetypes. demo-mode.md persona table matches reality
+- [x] **W3.** All W2 persona data seeded; P69 closed *(partial — see W3.2; remainder stays on the punch list)*; P59 closed for personas in the narrative (notifications enriched); W1-required meets / posts / bookings exist; mock-data-plan.md has a "Realism standards" section
+- [x] **W4.** Design spec for the interstitial + on-surface step card + mode toggle + persona-switch transition lives in its chosen home doc, sufficient for a follow-on build phase to implement against
+- [x] **W5.** `/demo` is rebuilt — stale Guided-journeys section removed, four-beat narrative surfaced as a manual path, free-explore picker kept; `features/demo-mode.md` "`/demo` route" section updated to match
 
 ---
 
@@ -153,15 +153,15 @@ These are deliberately excluded from this phase's commitments:
 
 Complete before marking this phase done. Mark each item done.
 
-- [ ] Walk through every acceptance criterion against the running app + the produced docs
-- [ ] Walkthrough Decisions log swept — every entry propagated to the named home doc per `→` annotation, then checked off here (not in the walkthrough — entries stay as the historical record)
-- [ ] Update affected feature docs (`docs/features/demo-mode.md` at minimum; possibly `docs/features/profiles.md` if persona changes touch profile rendering)
-- [ ] Update `docs/strategy/User Archetypes.md` with any new archetypes (Neighborhood Hub Member, Casual Carer if separate, Recent-mover if included)
-- [ ] Update `docs/implementation/mock-data-plan.md` with new persona entries in The Cast + the new Realism standards section
-- [ ] Update Open Questions log — close §10 ("scenarios vs profiles?" + "guided tour or free?") with hybrid resolution; add any new questions surfaced
-- [ ] Close P69 + (P59 if narrative-bound) on the punch list
-- [ ] Update ROADMAP.md — move this phase out of Current Phases; add to archive index. Add the follow-on **Walkthrough Build** phase (or whatever it's named) to Upcoming if the spec is locked enough to reference
-- [ ] Review CLAUDE.md — update Current Phases section; add a key-decisions bullet for the threaded-narrative thesis + two-mode model + new personas if they materially shift the project's mental model
-- [ ] Archive this phase board (`status: archived`, `git mv docs/phases/demo-narrative-and-personas.md docs/archive/phases/`) and the walkthrough (same treatment)
-- [ ] **Structural audit** — see CONTRIBUTING.md → Closing a Phase step 9a
-- [ ] **Strategic review** — Read Open Questions, Roadmap, relevant strategy + competitive research, and the next phase's scope. Brief: what changed about our understanding of the demo? What surfaced about the personas that should shift the product? Is the follow-on build phase scoped right? Any research worth doing before it opens?
+- [x] Walk through every acceptance criterion against the running app + the produced docs
+- [x] Walkthrough Decisions log swept — every entry propagated to the named home doc per `→` annotation, then checked off here (not in the walkthrough — entries stay as the historical record)
+- [x] Update affected feature docs (`docs/features/demo-mode.md` at minimum; possibly `docs/features/profiles.md` if persona changes touch profile rendering)
+- [x] Update `docs/strategy/User Archetypes.md` with any new archetypes (Neighborhood Hub Member, Casual Carer if separate, Recent-mover if included)
+- [x] Update `docs/implementation/mock-data-plan.md` with new persona entries in The Cast + the new Realism standards section
+- [x] Update Open Questions log — close §10 ("scenarios vs profiles?" + "guided tour or free?") with hybrid resolution; add any new questions surfaced
+- [x] Close P69 + (P59 if narrative-bound) on the punch list
+- [x] Update ROADMAP.md — move this phase out of Current Phases; add to archive index. Add the follow-on **Walkthrough Build** phase (or whatever it's named) to Upcoming if the spec is locked enough to reference
+- [x] Review CLAUDE.md — update Current Phases section; add a key-decisions bullet for the threaded-narrative thesis + two-mode model + new personas if they materially shift the project's mental model
+- [x] Archive this phase board (`status: archived`, `git mv docs/phases/demo-narrative-and-personas.md docs/archive/phases/`) and the walkthrough (same treatment)
+- [x] **Structural audit** — see CONTRIBUTING.md → Closing a Phase step 9a
+- [x] **Strategic review** — Read Open Questions, Roadmap, relevant strategy + competitive research, and the next phase's scope. Brief: what changed about our understanding of the demo? What surfaced about the personas that should shift the product? Is the follow-on build phase scoped right? Any research worth doing before it opens?

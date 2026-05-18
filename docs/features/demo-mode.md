@@ -223,7 +223,7 @@ Data-gap surfaces (e.g., Inbox is empty as new-user because mock conversations a
 
 ## Guided Walkthrough — UX design spec
 
-Status: **design only, build deferred.** Specified during Demo Narrative & Personas phase (W4, 2026-05-14; on-surface step card added 2026-05-17). The follow-on build phase implements against this spec; nothing in this section is shipped code.
+Status: **built** (Guided Walkthrough Build phase, closed 2026-05-18). Specified during Demo Narrative & Personas (W4, 2026-05-14); shipped as `lib/walkthroughBeats.ts` (beat registry) + `contexts/WalkthroughContext.tsx` (sequencer) + `components/walkthrough/WalkthroughInterstitial.tsx` + `components/walkthrough/WalkthroughCard.tsx`, mounted globally in `app/layout.tsx`. This section is the as-built spec — it reflects shipped behaviour.
 
 ### Two demo modes
 
