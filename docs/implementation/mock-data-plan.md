@@ -258,7 +258,7 @@ These populate the groups, attend meets, and create the feeling of a living comm
 |------|--------|--------|---------------|
 | **Magda Vondráková** *(viewer persona, added 2026-05-14)* | Žofka (Schnauzer mix) | Holešovice Dog Block (admin), Klára training meets | Neighborhood Hub Member archetype. Anchors a tight private neighbour group of ~12. Carries Beat 3 of the demo narrative — connects with Daniel post-meet, invites him to her group, arranges peer care. Open profile, narrow-and-deep network. |
 | **Veronika Krásná** *(supporting cast, added 2026-05-14)* | Kuba (Cocker Spaniel, 12y) | Holešovice Dog Block | Casual Carer archetype. Works from home — flexible. `publicProfile: false` (circle audience only). Magda's go-to peer carer; receives the inquiry → proposal → contract booking in Beat 3 of the demo. |
-| **Martin Horák** | Charlie (French Bulldog) | Stromovka DW, Letná Dog Walks, Holešovice Dog Block | Regular at Saturday Stromovka walks. Connected with Klára. |
+| **Martin Horák** | Charlie (French Bulldog) | Stromovka DW, Letná Dog Walks, Holešovice Dog Block | Regular at Klára's Stromovka morning walk. Connected with Klára. |
 | **Eva Součková** | Luna (Border Collie mix), Max (Labrador mix) | Stromovka DW, Letná Dog Walks, Reactive Dog Support, Holešovice Dog Block | Two dogs, very active. Helps with recall training. |
 | **Filip Novotný** | Toby (Jack Russell) | Stromovka DW, Klára's Calm Dog Sessions, Holešovice Dog Block | Client of Klára's. Booked 3 training sessions. |
 

@@ -13,28 +13,30 @@
  * either way — by using the in-app control the step describes, or by
  * tapping the card's Next (which routes there for them). On arrival the
  * card moves itself forward, so a "go to Meets" step never sits stale once
- * the tester is on Meets.
+ * the tester is on Meets. `awaitAction` steps omit the Next button — they
+ * advance only when the in-app action navigates.
  *
- * The ✕ in the header pauses the walkthrough immediately, shrinking the
- * card to a slim "Walkthrough" pill. Tapping the pill opens a small menu
- * with three full-width choices — Resume / Keep paused / Exit.
+ * The minimise control shrinks the card to a slim "Walkthrough" pill;
+ * tapping the pill restores it. That's a card-local view toggle — the
+ * walkthrough keeps running either way, and there's no menu in between.
+ * Leaving the walkthrough is the quiet "Exit walkthrough" link in the
+ * footer. Minimised state resets on every step change so a new
+ * instruction is always shown.
  *
- * Adapted from the retired `TourOverlay`: same desktop-bottom-left-float /
- * mobile-bottom-accordion placement + collapse behaviour, reusing the
- * `.tour-overlay*` CSS. Reads `WalkthroughContext` (not URL params).
+ * Dark "system chrome" treatment (card + interstitial share it) so the
+ * walkthrough reads as a guide layer, distinct from the platform UI.
  *
  * Spec: `docs/features/demo-mode.md` → "On-surface step card".
  */
 
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
-  X,
+  PaperPlaneTilt,
+  Minus,
   Compass,
-  CaretDown,
-  CaretUp,
 } from "@phosphor-icons/react";
 import { useWalkthrough } from "@/contexts/WalkthroughContext";
 import { WALKTHROUGH_BEATS, WALKTHROUGH_BEAT_COUNT } from "@/lib/walkthroughBeats";
@@ -51,93 +53,72 @@ export function WalkthroughCard() {
   const wt = useWalkthrough();
   const pathname = usePathname();
   const router = useRouter();
-  const [collapsed, setCollapsed] = useState(false);
-  const [pausedMenuOpen, setPausedMenuOpen] = useState(false);
+  const [minimized, setMinimized] = useState(false);
 
-  // Auto-expand the card whenever the beat OR step changes.
+  // Restore the card whenever the beat OR step changes — a new step means a
+  // new instruction the tester needs to see.
   useEffect(() => {
-    setCollapsed(false);
+    setMinimized(false);
   }, [wt.beatIndex, wt.stepIndex]);
 
-  // Once the walkthrough is no longer paused, reset the paused menu to its
-  // collapsed pill — so the next pause opens to the pill, not the menu.
-  useEffect(() => {
-    if (!wt.paused) setPausedMenuOpen(false);
-  }, [wt.paused]);
-
-  // Auto-advance: when the tester navigates to a navigation step's target
+  // Auto-advance: when the tester *navigates* to a navigation step's target
   // surface, move the card forward so it never shows a step already done.
+  // Gated on an actual pathname change — without that guard, stepping back
+  // (Prev) onto a nav step whose `advanceOn` equals the page you're already
+  // on would instantly bounce forward again.
+  const lastPathRef = useRef(pathname);
   useEffect(() => {
-    if (!wt.active || wt.phase !== "running" || wt.paused) return;
+    if (!wt.active || wt.phase !== "running") {
+      lastPathRef.current = pathname;
+      return;
+    }
+    const navigated = pathname !== lastPathRef.current;
+    lastPathRef.current = pathname;
+    if (!navigated) return;
     const b = WALKTHROUGH_BEATS[wt.beatIndex];
     const s = b?.steps[wt.stepIndex];
-    if (s?.advanceOn && s.advanceOn === pathname) {
+    if (s && s.kind === "card" && s.advanceOn && s.advanceOn === pathname) {
       wt.next();
     }
   }, [pathname, wt]);
 
-  if (!wt.hydrated || !wt.active) return null;
-
-  // ── Paused: collapsed pill, or the expanded three-choice menu ──────────
-  if (wt.paused) {
-    if (!pausedMenuOpen) {
-      return (
-        <button
-          type="button"
-          className="wt-paused-pill"
-          onClick={() => setPausedMenuOpen(true)}
-          aria-label="Open walkthrough menu"
-        >
-          <Compass size={16} weight="bold" aria-hidden="true" />
-          Walkthrough
-        </button>
-      );
-    }
-    return (
-      <div className="wt-paused-menu" role="dialog" aria-label="Walkthrough paused">
-        <div className="wt-paused-menu-head">
-          <span className="tour-overlay-tag">
-            <Compass size={12} weight="bold" aria-hidden="true" />
-            Walkthrough paused
-          </span>
-        </div>
-        <button
-          type="button"
-          className="wt-paused-btn wt-paused-btn--primary"
-          onClick={wt.resume}
-        >
-          Resume walkthrough
-        </button>
-        <button
-          type="button"
-          className="wt-paused-btn wt-paused-btn--secondary"
-          onClick={() => setPausedMenuOpen(false)}
-        >
-          Keep paused
-        </button>
-        <button
-          type="button"
-          className="wt-paused-btn wt-paused-btn--danger"
-          onClick={wt.exit}
-        >
-          Exit walkthrough
-        </button>
-      </div>
-    );
-  }
-
-  if (wt.phase !== "running") return null;
+  if (!wt.hydrated || !wt.active || wt.phase !== "running") return null;
 
   const beat = WALKTHROUGH_BEATS[wt.beatIndex];
   if (!beat) return null;
   const step = beat.steps[wt.stepIndex];
   if (!step) return null;
+  // Mid-beat interstitial steps render full-screen via WalkthroughInterstitial —
+  // the card stands down while one is showing.
+  if (step.kind === "interstitial") return null;
+
   const persona = getPersona(beat.personaId);
   const personaName = persona?.user.firstName ?? beat.personaId;
-  const stepCount = beat.steps.length;
   const isFirst = wt.beatIndex <= 0 && wt.stepIndex <= 0;
   const isLast =
-    wt.beatIndex >= WALKTHROUGH_BEAT_COUNT - 1 && wt.stepIndex >= stepCount - 1;
+    wt.beatIndex >= WALKTHROUGH_BEAT_COUNT - 1 &&
+    wt.stepIndex >= beat.steps.length - 1;
+  // The counter numbers card steps only — mid-beat interstitials don't count.
+  const cardSteps = beat.steps.filter((s) => s.kind === "card");
+  const cardNumber = cardSteps.indexOf(step) + 1;
+
+  // ── Minimised: a slim pill, tap to restore ─────────────────────────────
+  if (minimized) {
+    return (
+      <button
+        type="button"
+        className="wt-pill"
+        onClick={() => setMinimized(false)}
+        aria-label="Expand walkthrough"
+      >
+        <Compass size={15} weight="bold" aria-hidden="true" />
+        <span className="wt-pill-label">Walkthrough</span>
+        <span className="wt-pill-counter">
+          {cardNumber}/{cardSteps.length}
+        </span>
+      </button>
+    );
+  }
 
   // "Next" on a navigation step routes the tester to the step's target
   // surface — the same place the in-app control the step describes would
@@ -154,66 +135,80 @@ export function WalkthroughCard() {
 
   return (
     <div
-      className={`tour-overlay${collapsed ? " tour-overlay--collapsed" : ""}`}
+      className="wt-card"
       role="dialog"
-      aria-label={`Walkthrough — beat ${beat.n}, step ${wt.stepIndex + 1} of ${stepCount}`}
+      aria-label={`Walkthrough — beat ${beat.n}, step ${cardNumber} of ${cardSteps.length}`}
     >
-      <div className="tour-overlay-meta">
-        <span className="tour-overlay-tag">
+      <div className="wt-card-head">
+        <span className="wt-card-tag">
           <Compass size={12} weight="bold" aria-hidden="true" />
           {personaName}
         </span>
-        <span className="tour-overlay-counter">
-          Step {wt.stepIndex + 1} of {stepCount}
+        <span className="wt-card-counter">
+          Step {cardNumber} of {cardSteps.length}
         </span>
         <button
           type="button"
-          className="tour-overlay-collapse"
-          onClick={() => setCollapsed((v) => !v)}
-          aria-label={collapsed ? "Expand walkthrough card" : "Collapse walkthrough card"}
-          aria-expanded={!collapsed}
+          className="wt-card-min"
+          onClick={() => setMinimized(true)}
+          aria-label="Minimize walkthrough"
         >
-          {collapsed
-            ? <CaretUp size={14} weight="bold" aria-hidden="true" />
-            : <CaretDown size={14} weight="bold" aria-hidden="true" />}
-        </button>
-        <button
-          type="button"
-          className="tour-overlay-exit"
-          onClick={wt.pause}
-          aria-label="Pause walkthrough"
-        >
-          <X size={14} weight="bold" aria-hidden="true" />
+          <Minus size={16} weight="bold" aria-hidden="true" />
         </button>
       </div>
 
-      {!collapsed && (
-        <>
-          <p className="tour-overlay-body">{renderEmphasis(step.instruction)}</p>
-          {step.detail && (
-            <p className="wt-card-detail">{renderEmphasis(step.detail)}</p>
-          )}
-          <div className="tour-overlay-actions">
-            <button
-              type="button"
-              className="tour-overlay-btn tour-overlay-btn--secondary"
-              onClick={wt.prev}
-              disabled={isFirst}
-            >
-              <ArrowLeft size={14} weight="bold" aria-hidden="true" />
-              Prev
-            </button>
-            <button
-              type="button"
-              className="tour-overlay-btn tour-overlay-btn--primary"
-              onClick={handleNext}
-            >
-              {isLast ? "Finish" : "Next"}
-              {!isLast && <ArrowRight size={14} weight="bold" aria-hidden="true" />}
-            </button>
-          </div>
-        </>
+      <p className="wt-card-instruction">{renderEmphasis(step.instruction)}</p>
+
+      {step.fireOff && (
+        <div className="wt-card-fireoff">
+          <img
+            src={step.fireOff.imageUrl}
+            alt=""
+            className="wt-card-fireoff-img"
+          />
+          <p className="wt-card-fireoff-caption">{step.fireOff.caption}</p>
+        </div>
       )}
+
+      {step.detail && (
+        <p className="wt-card-detail">{renderEmphasis(step.detail)}</p>
+      )}
+
+      <div className="wt-card-footer">
+        <button
+          type="button"
+          className="wt-card-prev"
+          onClick={wt.prev}
+          disabled={isFirst}
+        >
+          <ArrowLeft size={13} weight="bold" aria-hidden="true" />
+          Back
+        </button>
+        {step.awaitAction ? (
+          // No "Next" — the step advances only when the tester performs the
+          // in-app action and the resulting navigation arrives at `advanceOn`.
+          <span className="wt-card-await">Do this step to continue</span>
+        ) : (
+          <button
+            type="button"
+            className="wt-card-next"
+            onClick={handleNext}
+          >
+            {step.fireOff ? "Share" : isLast ? "Finish" : "Next"}
+            {step.fireOff ? (
+              <PaperPlaneTilt size={14} weight="bold" aria-hidden="true" />
+            ) : (
+              !isLast && (
+                <ArrowRight size={14} weight="bold" aria-hidden="true" />
+              )
+            )}
+          </button>
+        )}
+      </div>
+
+      <button type="button" className="wt-card-exit" onClick={wt.exit}>
+        Exit walkthrough
+      </button>
     </div>
   );
 }

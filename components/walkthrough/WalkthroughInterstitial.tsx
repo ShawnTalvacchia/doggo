@@ -3,9 +3,9 @@
 /**
  * WalkthroughInterstitial — the full-screen persona-handoff screen.
  *
- * Renders between beats when the Guided Walkthrough is `active`, in
- * `interstitial` phase, and not paused. Covers the viewport so the tester
- * never sees the persona swap. Two variants:
+ * Renders between beats when the Guided Walkthrough is `active` and in
+ * `interstitial` phase. Covers the viewport so the tester never sees the
+ * persona swap. Two variants:
  *   - beat interstitial (`beatIndex < WALKTHROUGH_BEAT_COUNT`) — "you're now
  *     {persona}", situational context, the task, Continue / Pause.
  *   - closing interstitial (`beatIndex === WALKTHROUGH_BEAT_COUNT`) — end of
@@ -36,7 +36,7 @@ export function WalkthroughInterstitial() {
   // on it then. Hooks run unconditionally (before the early returns
   // below); the warm only fires for a live beat interstitial.
   const prefetchUrl =
-    wt.active && wt.phase === "interstitial" && !wt.paused
+    wt.active && wt.phase === "interstitial"
       ? WALKTHROUGH_BEATS[wt.beatIndex]?.startUrl
       : undefined;
   useEffect(() => {
@@ -53,8 +53,39 @@ export function WalkthroughInterstitial() {
     }
   }, [prefetchUrl, router]);
 
-  if (!wt.hydrated || !wt.active || wt.phase !== "interstitial" || wt.paused) {
-    return null;
+  if (!wt.hydrated || !wt.active) return null;
+
+  // ── Mid-beat interstitial step (time-passage / explainer) ──────────────
+  // During a running beat, a step of kind "interstitial" renders full-screen
+  // here; the on-surface card stands down until it's dismissed.
+  if (wt.phase === "running") {
+    const beat = WALKTHROUGH_BEATS[wt.beatIndex];
+    const step = beat?.steps[wt.stepIndex];
+    if (!step || step.kind !== "interstitial") return null;
+    return (
+      <div
+        className="wt-interstitial"
+        role="dialog"
+        aria-modal="true"
+        aria-label={step.heading}
+      >
+        <div className="wt-interstitial-sheet">
+          <span className="wt-interstitial-eyebrow">{step.eyebrow}</span>
+          <h2 className="wt-interstitial-heading">{step.heading}</h2>
+          <p className="wt-interstitial-context">{step.body}</p>
+          <div className="wt-interstitial-actions">
+            <button
+              type="button"
+              className="wt-interstitial-btn wt-interstitial-btn--primary"
+              onClick={wt.next}
+            >
+              Continue
+              <ArrowRight size={16} weight="bold" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // ── Closing interstitial ───────────────────────────────────────────────
@@ -68,9 +99,10 @@ export function WalkthroughInterstitial() {
           <span className="wt-interstitial-eyebrow">Demo walkthrough</span>
           <h2 className="wt-interstitial-heading">End of walkthrough.</h2>
           <p className="wt-interstitial-context">
-            You&rsquo;ve followed four personas through one weekend in the Doggo
-            community — from a first group session to a neighbour&rsquo;s
-            evening favour to a steady weekly routine. Want to keep exploring?
+            One free walk at Stromovka. From it, Daniel found a trainer for
+            nervous Bára, a neighbour to lean on, and a community to belong
+            to. For Klára, that same morning was her work and her livelihood.
+            Want to keep exploring?
           </p>
           <div className="wt-interstitial-actions">
             <button
@@ -150,9 +182,9 @@ export function WalkthroughInterstitial() {
           <button
             type="button"
             className="wt-interstitial-btn wt-interstitial-btn--secondary"
-            onClick={wt.pause}
+            onClick={wt.exit}
           >
-            Pause walkthrough
+            Exit walkthrough
           </button>
         </div>
       </div>

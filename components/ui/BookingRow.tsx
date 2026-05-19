@@ -22,8 +22,9 @@ import { useViewedReports } from "@/lib/useViewedReports";
 
 function scheduleLabel(booking: Booking): string {
   if (booking.recurringSchedule) {
-    const { days, timeLabel } = booking.recurringSchedule;
-    return `${days.join(" · ")} · ${timeLabel}`;
+    // Cadence, not the seeded weekday — the demo anchors upcoming sessions
+    // to today regardless of the booking's stored day. Mirrors ScheduleCard.
+    return `Every week · ${booking.recurringSchedule.timeLabel}`;
   }
   return formatDateRange(booking.startDate, booking.endDate);
 }

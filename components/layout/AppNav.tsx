@@ -23,19 +23,16 @@ function GuestNavLinks() {
   return (
     <div className="app-nav-right" aria-label="Guest navigation">
       {/* Persistent demo affordance (Demo Presentation F1, 2026-05-05).
-          Replaces the prior text-only "Enter Demo" link — testers absorb
-          the value prop through the landing page and need a one-click
-          door into the prototype from any guest route. The "..." → /pages
-          dev menu was removed 2026-04-29; /pages stays reachable via
-          direct URL but isn't pinned to the chrome. Sign Up can flip back
-          to primary when real signup flows wire up. */}
+          A one-click door back to the landing page — the demo launcher —
+          from any guest route. (The standalone `/demo` route was folded
+          into the landing page 2026-05-19.) */}
       <Link
-        href="/demo"
+        href="/"
         className="app-nav-link app-nav-link--demo"
-        aria-label="Try the prototype demo"
+        aria-label="Go to the demo launcher"
       >
         <Compass size={16} weight="bold" aria-hidden="true" />
-        <span className="app-nav-link-label">Try the demo</span>
+        <span className="app-nav-link-label">Demo home</span>
       </Link>
       <Link href="/signup/start" className="app-nav-link app-nav-link--primary app-nav-link--hide-mobile">
         Sign Up
@@ -164,7 +161,7 @@ export function AppNav() {
     <>
       <div className="app-nav-brand-wrap">
         <Link href={mode === "logged" ? "/home" : "/"} className={`app-nav-brand${pageTitle || showDetailHeader ? " app-nav-brand--hide-mobile" : ""}`}>
-          DOGGO
+          <img src="/logo.svg" alt="Doggo" />
         </Link>
         {/* Detail header (back + title) — shown on mobile when a page sets it */}
         {showDetailHeader && (

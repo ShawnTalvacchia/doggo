@@ -1,13 +1,13 @@
 "use client";
 
 /**
- * DemoPersonaDropdown — the "Explore freely" persona picker on `/demo`.
+ * DemoPersonaDropdown — the "Explore freely" persona picker on the landing page.
  *
  * Replaces the old flat 7-pill list with a single dropdown control, mirroring
  * the profile-page `ProfileNameDropdown` pattern: a trigger showing the
  * active persona, tap to open a popover of all personas with a checkmark on
- * the active one. Picking switches persona and routes to `/home` so the data
- * swap is immediately visible.
+ * the active one. Picking ends any in-progress guided walkthrough, switches
+ * persona, and routes to `/home` so the data swap is immediately visible.
  *
  * Reuses the `.profile-name-dropdown-*` menu CSS (popover rows) + the
  * `.demo-pill` trigger styling; `.demo-picker*` are the only additions.
@@ -18,10 +18,12 @@ import { useRouter } from "next/navigation";
 import { CaretDown, Check } from "@phosphor-icons/react";
 import { personas } from "@/lib/personas";
 import { useDemoState } from "@/contexts/CurrentUserContext";
+import { useWalkthrough } from "@/contexts/WalkthroughContext";
 
 export function DemoPersonaDropdown() {
   const router = useRouter();
   const { user, setUserById } = useDemoState();
+  const walkthrough = useWalkthrough();
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
@@ -43,6 +45,9 @@ export function DemoPersonaDropdown() {
   }, [open]);
 
   function pick(personaId: string) {
+    // "Explore freely" is a clean exit — end any in-progress walkthrough so
+    // its on-surface card / pill doesn't follow the tester into free mode.
+    walkthrough.endAndStay();
     setUserById(personaId);
     setOpen(false);
     router.push("/home");

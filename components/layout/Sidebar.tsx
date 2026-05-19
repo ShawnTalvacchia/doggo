@@ -51,7 +51,7 @@ export function Sidebar() {
   return (
     <aside className="sidebar">
       <Link href="/home" className="sidebar-brand">
-        DOGGO
+        <img src="/logo.svg" alt="Doggo" />
       </Link>
 
       <nav className="sidebar-nav" aria-label="Main navigation">

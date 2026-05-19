@@ -209,74 +209,6 @@ const shawnCarerActiveBooking: Booking = {
   paymentStatus: "paid",
 };
 
-// ── Klára training — Daniel, recurring sessions ──────────────────────────────
-
-const klaraTrainingDaniel: Booking = {
-  id: "booking-klara-daniel",
-  conversationId: "daniel-klara-conv",
-  ownerId: "daniel",
-  ownerName: "Daniel Procházka",
-  ownerAvatarUrl: "/images/generated/daniel-profile.jpeg",
-  carerId: "klara",
-  carerName: "Klára Horáčková",
-  carerAvatarUrl: "/images/generated/klara-profile.jpeg",
-  type: "ongoing",
-  serviceType: "day_care", // using day_care as proxy for training
-  subService: "Reactive dog session",
-  pets: ["Bára"],
-  // startDate + signedAt relativised (CCFT walkthrough 2026-05-11) — the
-  // "Since" stat on the booking detail Info tab was reading "10 Feb 2026"
-  // (static) while the session timeline (kd-1 through kd-5) was relative
-  // to today, so the booking appeared to start 3+ months before its first
-  // session. Anchor: signed 2 days before the first session, started the
-  // day after signing → coherent arc from sign → start → kd-1 (35d ago).
-  startDate: daysAgo(36),
-  endDate: null,
-  recurringSchedule: {
-    days: ["Wed"],
-    time: "10:00",
-    timeLabel: "10:00–11:00am",
-  },
-  ownerNotes: "Bára is reactive to other dogs, especially on-leash. She's fine with people. Please meet us at the park entrance, not the car park — too many dogs there.",
-  carerNotes: "We're working on threshold training. Current distance is 5m from trigger dogs. Don't push closer than 4m yet.",
-  // Weekly Wed cadence anchored to today: kd-6 (today, upcoming) is
-  // preceded by 5 completed sessions one week apart. Dates are relative
-  // (`daysAgo`) so the booking always reads as a live, ongoing
-  // arrangement regardless of when the demo is opened. kd-5's report
-  // sits a week in the past — outside the `findNewReport` recency
-  // window, so it doesn't false-trigger the "new visit report"
-  // indicator after demo reset. The indicator only fires when kd-6
-  // gets sealed during the walkthrough. 2026-05-08.
-  sessions: [
-    { id: "kd-1", date: daysAgo(35), status: "completed", note: "Good session. Bára responded well to the threshold exercises." },
-    { id: "kd-2", date: daysAgo(28), status: "completed", note: "Bára stayed under threshold with Eda at 5m. Big progress." },
-    { id: "kd-3", date: daysAgo(21), status: "completed" },
-    { id: "kd-4", date: daysAgo(14), status: "completed" },
-    {
-      id: "kd-5",
-      date: daysAgo(7),
-      status: "completed",
-      report: {
-        photos: ["/images/generated/bara-portrait.jpeg"],
-        notes:
-          "Threshold work at Stromovka. Bára held under-threshold at 4m today — first time we've closed the distance. We worked on the look-at-that game with three trigger dogs across the field. She was visibly tired by the end (good tired). I'd hold here for the next two sessions before stepping closer.",
-        walkDurationMin: 60,
-        completedAt: daysAgoIso(7, "11:08"),
-      },
-    },
-    { id: "kd-6", date: daysFromNow(0), status: "upcoming" },
-  ],
-  price: {
-    lineItems: [{ label: "1-on-1 reactive dog session", amount: 600, unit: "per session" }],
-    total: 600,
-    currency: "Kč",
-    billingCycle: "weekly",
-  },
-  status: "active",
-  signedAt: daysAgoIso(38, "14:00"),
-  paymentStatus: "paid",
-};
-
 // ── Klára training — Filip, one-off sessions ─────────────────────────────────
 
 const klaraTrainingFilip: Booking = {
@@ -307,6 +239,51 @@ const klaraTrainingFilip: Booking = {
   },
   status: "completed",
   signedAt: "2026-01-18T11:00:00Z",
+  paymentStatus: "paid",
+};
+
+// ── Klára drop-off — Filip's Toby on the Stromovka walk (config #2) ──────────
+// Demo Narrative V2, Beat 2. Filip books Klára to bring Toby on her free
+// Stromovka walk — a drop-off Care booking (`dropoffMeetId`), so Filip is NOT
+// a meet-roster attendee (book ≠ attend). `kt-3` is dated today so Beat 2 has
+// a startable session; the walkthrough's Start/Finish runs against it.
+
+const klaraDropoffToby: Booking = {
+  id: "booking-klara-toby",
+  conversationId: null,
+  ownerId: "filip",
+  ownerName: "Filip Novotný",
+  ownerAvatarUrl: "/images/generated/filip-profile.jpeg",
+  carerId: "klara",
+  carerName: "Klára Horáčková",
+  carerAvatarUrl: "/images/generated/klara-profile.jpeg",
+  type: "ongoing",
+  serviceType: "walks_checkins",
+  subService: "Group walk",
+  pets: ["Toby"],
+  dropoffMeetId: "meet-klara-stromovka",
+  startDate: daysAgo(14),
+  endDate: null,
+  recurringSchedule: {
+    days: ["Sat"],
+    time: "09:40",
+    timeLabel: "9:40–11:15am",
+  },
+  ownerNotes: "Toby has loads of energy and needs the exercise — recall's a work in progress but he's friendly with everyone. He can pull on the leash near other dogs.",
+  carerNotes: "Toby walks with the morning group — good socialisation, and we practise loose-leash as we go.",
+  sessions: [
+    { id: "kt-1", date: daysAgo(14), status: "completed", note: "Toby did great with the group — tired and happy." },
+    { id: "kt-2", date: daysAgo(7), status: "completed" },
+    { id: "kt-3", date: daysFromNow(0), status: "upcoming" },
+  ],
+  price: {
+    lineItems: [{ label: "Group walk", amount: 300, unit: "per session" }],
+    total: 300,
+    currency: "Kč",
+    billingCycle: "weekly",
+  },
+  status: "active",
+  signedAt: daysAgoIso(16, "14:00"),
   paymentStatus: "paid",
 };
 
@@ -394,8 +371,8 @@ const klaraTrainingHana: Booking = {
   endDate: null,
   recurringSchedule: {
     days: ["Thu"],
-    time: "11:00",
-    timeLabel: "11:00am–12:00pm",
+    time: "12:00",
+    timeLabel: "12:00pm–1:00pm",
   },
   ownerNotes: "Runa is nervous in new environments. Please give her a few minutes to settle before starting exercises.",
   // Demo Narrative & Personas, W3.1 (2026-05-14): kh-6 added at
@@ -736,8 +713,8 @@ export const mockBookings: Booking[] = [
   petraBooking,
   shawnCarerCompletedBooking,
   shawnCarerActiveBooking,
-  klaraTrainingDaniel,
   klaraTrainingFilip,
+  klaraDropoffToby,
   petraSittingTomas,
   terezaSittingMarek,
   terezaWalksMarek,

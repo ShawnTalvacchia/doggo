@@ -313,26 +313,44 @@ export const mockNotifications: AppNotification[] = [
     type: "meet_rsvp",
     title: "New RSVP — Sunday training session",
     body: "Magda + Žofka are joining Sunday's Calm Dog Group Session.",
-    avatarUrl: "/images/generated/lucie-profile.jpeg",
+    avatarUrl: "/images/generated/magda-profile.jpeg",
     href: "/meets/meet-care-1",
     createdAt: daysAgoIso(2, "14:05"),
     read: true,
   },
   {
-    // Beat 3 of the Guided Walkthrough opens on /notifications — Magda
-    // accepts Daniel's request inline here. Seeded statically so the beat
-    // works regardless of beat order or what the tester did in Beat 1
-    // (Beat 1's "Connect" is a cosmetic session-local mark, not a real
-    // send). See docs/features/demo-mode.md → "State seeded between beats".
+    // Demo Narrative V2, Beat 3 — Daniel accepts Magda's connection request
+    // inline on /notifications. Reversed from V1 (was Daniel→Magda; V2's Beat
+    // 3 is Daniel's POV, so it's Magda→Daniel). Seeded statically so the beat
+    // works regardless of what the tester did earlier — the Familiar mark in
+    // Beat 3 is a session-local mark, not a real send. The accept handler
+    // resolves the connection from `actorId`. See demo-mode.md → "State
+    // seeded between beats".
     id: "notif-magda-connect-daniel",
-    recipientId: "magda",
+    recipientId: "daniel",
     type: "connection_request",
-    actorId: "daniel",
-    title: "Daniel wants to connect",
-    body: "You met at the Calm Dog Group Session.",
-    avatarUrl: "/images/generated/daniel-profile.jpeg",
-    href: "/profile/daniel",
+    actorId: "magda",
+    title: "Magda wants to connect",
+    body: "You met on the Stromovka walk.",
+    avatarUrl: "/images/generated/magda-profile.jpeg",
+    href: "/profile/magda",
     createdAt: daysAgoIso(0, "12:15"),
+    read: false,
+  },
+  {
+    // Demo Narrative V2, Beat 3 — Magda's group invite, the "message" half of
+    // "Magda's reached out." Daniel taps through to Holešovice Dog Block.
+    // Deterministic id matches the runtime invite-flow pattern (`handleInvite`
+    // in app/communities/[id]/page.tsx) so a live invite would upsert.
+    id: "notif-ginvite-group-holesovice-block-daniel",
+    recipientId: "daniel",
+    type: "group_invite",
+    actorId: "magda",
+    title: "Magda invited you to Holešovice Dog Block",
+    body: "Lovely to meet you and Bára on the walk — come join our block's little group.",
+    avatarUrl: "/images/generated/magda-profile.jpeg",
+    href: "/communities/group-holesovice-block",
+    createdAt: daysAgoIso(0, "12:16"),
     read: false,
   },
   {

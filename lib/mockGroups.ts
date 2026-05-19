@@ -423,7 +423,7 @@ export const mockGroups: Group[] = [
     id: "group-klara-training",
     name: "Klára's Calm Dog Sessions",
     description:
-      "Small-group training sessions focused on calm behaviour, recall, and socialisation. I'm a certified trainer (8 years) — sessions run at Stromovka and 1-on-1 at your location. Check upcoming sessions and book your spot.",
+      "Walks and training at Stromovka with Klára, a certified trainer (8 years). Start with the free Saturday community walk, step up to small-group training, or book a 1-on-1 for a reactive or anxious dog. It's all about getting dogs social, settled, and part of the neighbourhood.",
     groupType: "care",
     careCategory: "training",
     visibility: "open",
@@ -484,13 +484,13 @@ export const mockGroups: Group[] = [
     createdAt: "2026-01-20T14:00:00Z",
   },
   /*
-   * Holešovice Dog Block — private neighbour group, added 2026-05-14 (Demo
-   * Narrative & Personas, W3.1). Magda Vondráková admin (Hub Member persona).
-   * 8 seeded members spanning the Holešovice cluster: Magda + Veronika
-   * (peer-care receiver in Beat 3) + existing Holešovice neighbours
-   * (Eva, Martin, Filip, Hana). Carries the *Find Your People* door of
-   * Three Ways In on the demo's Beat 3 — Magda invites Daniel into this
-   * group post-meet, then arranges peer care with Veronika from inside it.
+   * Holešovice Dog Block — private neighbour group, added 2026-05-14.
+   * Magda Vondráková admin. 7 seeded members of the Holešovice cluster:
+   * Magda, Veronika, Eva, Martin, Filip, Hana, Daniel. Carries the *Find
+   * Your People* door on Demo Narrative V2's Beat 3 — the walkthrough
+   * narrates Magda inviting Daniel after Klára's walk, but he's seeded as
+   * a member so the private group's surfaces work; from inside it he books
+   * Veronika's circle-scoped care via the "Care from neighbours" section.
    */
   {
     id: "group-holesovice-block",
@@ -505,12 +505,13 @@ export const mockGroups: Group[] = [
     creatorId: "magda",
     creatorName: "Magda",
     members: [
-      { userId: "magda", userName: "Magda", avatarUrl: "/images/generated/lucie-profile.jpeg", dogNames: ["Žofka"], role: "admin", joinedAt: "2025-09-15" },
-      { userId: "veronika", userName: "Veronika", avatarUrl: "/images/generated/marie-profile.jpeg", dogNames: ["Kuba"], role: "member", joinedAt: "2025-10-08" },
+      { userId: "magda", userName: "Magda", avatarUrl: "/images/generated/magda-profile.jpeg", dogNames: ["Žofka"], role: "admin", joinedAt: "2025-09-15" },
+      { userId: "veronika", userName: "Veronika", avatarUrl: "/images/generated/veronika-profile.jpeg", dogNames: ["Kuba"], role: "member", joinedAt: "2025-10-08" },
       { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"], role: "member", joinedAt: "2025-10-22" },
       { userId: "martin", userName: "Martin", avatarUrl: "/images/generated/martin-profile.jpeg", dogNames: ["Charlie"], role: "member", joinedAt: "2025-11-04" },
       { userId: "filip", userName: "Filip", avatarUrl: "/images/generated/filip-profile.jpeg", dogNames: ["Toby"], role: "member", joinedAt: "2025-11-19" },
       { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"], role: "member", joinedAt: "2026-01-12" },
+      { userId: "daniel", userName: "Daniel", avatarUrl: "/images/generated/daniel-profile.jpeg", dogNames: ["Bára"], role: "member", joinedAt: "2026-05-16" },
     ],
     photos: [],
     photoPolicy: "optional",

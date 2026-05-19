@@ -186,9 +186,9 @@ export const daniel: UserProfile = {
   lastName: "Procházka",
   email: "daniel.prochazka@email.cz",
   avatarUrl: AV.daniel,
-  bio: "New-ish owner figuring things out with my rescue Bára. She's reactive with unfamiliar dogs, so we take things slow. The reactive dog support group has been a lifeline.",
-  location: "Prague 5, Czech Republic",
-  neighbourhood: "Smíchov",
+  bio: "New to Prague, finding our footing with my rescue Bára. She's reactive with unfamiliar dogs, so we take things slow — I'm trying to get her out more and meet other owners. The reactive dog support group has been a lifeline.",
+  location: "Prague 7, Czech Republic",
+  neighbourhood: "Holešovice",
   memberSince: "2026-01",
   profileVisibility: "locked",
   tagApproval: "approve",
@@ -205,7 +205,7 @@ export const daniel: UserProfile = {
       energyLevel: "moderate",
       playStyles: ["sniffing", "fetch"],
       socialisationNotes: "Reactive with unfamiliar dogs — needs slow, controlled introductions. Fine once she knows them. Nervous in large groups. Best with 1-2 calm dogs.",
-      notes: "Working on leash reactivity with a trainer (Klára). Improving steadily.",
+      notes: "Working on her leash reactivity — slow and steady. Looking for the right training help.",
       vetInfo: {
         clinicName: "Veterina Smíchov",
         vetPhone: "+420 257 311 458",
@@ -225,7 +225,7 @@ export const klara: UserProfile = {
   lastName: "Horáčková",
   email: "klara.horackova@email.cz",
   avatarUrl: AV.klara,
-  bio: "Certified dog trainer based in Holešovice. I run group training sessions at Stromovka and 1-on-1 sessions for reactive and anxious dogs. Also just a dog mum — Eda and I do the Saturday park walks like everyone else.",
+  bio: "Dog trainer and walker in Holešovice — eight years helping dogs and their people feel easier in the world. I host a free weekly walk at Stromovka for the whole neighbourhood, run small-group training sessions, and work 1-on-1 with reactive and anxious dogs. My own dog Eda comes along to most of it. The best part of the job is watching a nervous dog go from avoiding the park to being part of the crew.",
   location: "Prague 7, Czech Republic",
   neighbourhood: "Holešovice",
   memberSince: "2025-06",
@@ -256,7 +256,7 @@ export const klara: UserProfile = {
     },
   ],
   carerProfile: {
-    bio: "Professional trainer with 8 years experience. Specialising in recall, reactivity, and socialisation. I work outdoors at Stromovka and Letná, or at your location for 1-on-1 sessions.",
+    bio: "Walker-trainer, eight years in. I run a free community walk at Stromovka and paid training — small-group sessions and 1-on-1 work for reactive and anxious dogs. My approach is force-free, and I coach owners as much as dogs: leash skills, reading other dogs, the confidence to enjoy company instead of avoiding it.",
     location: "Prague 7 – Holešovice / Stromovka",
     availability: [
       { day: "Mon", slots: ["morning", "afternoon"] },
@@ -269,6 +269,10 @@ export const klara: UserProfile = {
     services: [
       {
         kind: "care",
+        // `id` set because this Care service is meet-linked (config #2) — it's
+        // the drop-off service advertised on the free Stromovka walk
+        // (`meet-klara-stromovka.linkedServices`). Service ↔ Meet Linkage.
+        id: "klara-walks",
         serviceType: "walks_checkins",
         enabled: true,
         pricePerUnit: 300,
@@ -717,7 +721,7 @@ export const martin: UserProfile = {
   lastName: "Horák",
   email: "martin.horak@email.cz",
   avatarUrl: AV.martin,
-  bio: "Saturday morning regular at Stromovka with Charlie. Also pop over to Letná during the week.",
+  bio: "Regular at the Stromovka morning walk with Charlie. Also pop over to Letná during the week.",
   location: "Prague 7, Czech Republic",
   neighbourhood: "Holešovice",
   memberSince: "2025-09",
@@ -798,29 +802,26 @@ export const filip: UserProfile = {
       imageUrl: "/images/generated/toby-portrait.jpeg",
       energyLevel: "very_high",
       playStyles: ["chase", "tug", "fetch"],
+      socialisationNotes: "Bombproof with other dogs — confident and friendly, plays well in a group. Just needs to burn energy.",
       notes: "Needs a LOT of exercise. Recall is improving thanks to training.",
     },
   ],
 };
 
 /**
- * Magda Vondráková — Neighborhood Hub Member archetype, added 2026-05-14
- * (Demo Narrative & Personas phase, W2/W3). Anchors a tight private group
- * of ~12 Holešovice neighbours ("Holešovice Dog Block"). Open profile —
- * socially comfortable; her in-group reputation already vouches for her.
- * Carries Beat 3 of the demo narrative: she connects with Daniel after
- * meeting him at Klára's training session, invites him into her group,
- * then arranges peer-care for the night with Veronika (a fellow group
- * member). Reuses lucie-profile.jpeg + pepik-portrait.jpeg as visual
- * stand-ins (no fresh portraits seeded) — same convention Lena (anezka)
- * and Pawel (marek) follow.
+ * Magda Vondráková — Neighborhood Hub Member archetype, added 2026-05-14.
+ * Admin of "Holešovice Dog Block", a tight private neighbour group. Open
+ * profile — socially comfortable. In Demo Narrative V2 she is a *supporting
+ * character*, not a POV persona: Daniel meets her on Klára's Stromovka walk
+ * and marks her Familiar; she sends him a connection request + a message
+ * inviting him into her group. See [[Demo Narrative]] Beat 3.
  */
 export const magda: UserProfile = {
   id: "magda",
   firstName: "Magda",
   lastName: "Vondráková",
   email: "magda.vondrakova@email.cz",
-  avatarUrl: "/images/generated/lucie-profile.jpeg",
+  avatarUrl: "/images/generated/magda-profile.jpeg",
   bio: "Holešovice for fifteen years. Žofka and I started our block's WhatsApp group, then moved it here when half the messages were dog logistics anyway. We're a small crew but we look out for each other and each other's dogs.",
   location: "Prague 7, Czech Republic",
   neighbourhood: "Holešovice",
@@ -835,7 +836,7 @@ export const magda: UserProfile = {
       breed: "Schnauzer mix",
       weightLabel: "11 kg",
       ageLabel: "6 years",
-      imageUrl: "/images/generated/pepik-portrait.jpeg",
+      imageUrl: "/images/generated/zofka-portrait.jpeg",
       energyLevel: "moderate",
       playStyles: ["sniffing", "fetch"],
       socialisationNotes: "Friendly with everyone, prefers calm dogs over rowdy ones. Knows half the dogs on the block by name (well — by smell).",
@@ -853,21 +854,20 @@ export const magda: UserProfile = {
 };
 
 /**
- * Veronika Krásná — Casual Carer archetype, added 2026-05-14 (Demo Narrative
- * & Personas phase, W2/W3). Holešovice Dog Block member; works from home
- * so she has flexibility. Open profile (social), Carer dial barely turned
- * (`publicProfile: false` — circle audience only, doesn't appear in
- * `/discover/care`). Carries the receiver side of Beat 3: Magda books her
- * for a same-evening drop-in care visit at peer pricing, demoing the
- * "good fences make good neighbours" thesis. Reuses marie-profile.jpeg +
- * benny-portrait.jpeg as visual stand-ins.
+ * Veronika Krásná — Casual Carer archetype, added 2026-05-14. Holešovice
+ * Dog Block member; works from home, so she has flexibility. Open profile,
+ * Carer dial barely turned (`publicProfile: false` — circle audience only,
+ * doesn't appear in `/discover/care`). In Demo Narrative V2 she is the
+ * circle-care moment of Beat 3: Daniel, newly in the group, books her for a
+ * routine neighbourhood walk — the "good fences make good neighbours"
+ * thesis.
  */
 export const veronika: UserProfile = {
   id: "veronika",
   firstName: "Veronika",
   lastName: "Krásná",
   email: "veronika.krasna@email.cz",
-  avatarUrl: "/images/generated/marie-profile.jpeg",
+  avatarUrl: "/images/generated/veronika-profile.jpeg",
   bio: "Translator working from home in Holešovice. Kuba is twelve and very chill — happy to share my flat with calm dogs from the block when neighbours need a hand. I keep things small and informal.",
   location: "Prague 7, Czech Republic",
   neighbourhood: "Holešovice",
@@ -883,7 +883,7 @@ export const veronika: UserProfile = {
       breed: "Cocker Spaniel",
       weightLabel: "13 kg",
       ageLabel: "12 years",
-      imageUrl: "/images/generated/benny-portrait.jpeg",
+      imageUrl: "/images/generated/kuba-portrait.jpeg",
       energyLevel: "low",
       playStyles: ["sniffing"],
       socialisationNotes: "Old gentleman. Calm with every dog he meets — the kind of dog you bring around an anxious puppy.",

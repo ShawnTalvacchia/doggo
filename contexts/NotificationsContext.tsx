@@ -36,9 +36,9 @@ const NotificationsContext = createContext<NotificationsContextValue | undefined
 
 // ── Provider ───────────────────────────────────────────────────────────────────
 
-/** localStorage key. Prefixed `doggo-` so the existing demo-reset path
- *  (`clearDemoLocalStorage` + `resetPersistedState("doggo")`) wipes it
- *  alongside other persisted demo state — no extra wiring needed. */
+/** localStorage key. Prefixed `doggo-` so the shared demo-reset helper
+ *  (`clearDemoStorage` in `lib/demoReset.ts`) wipes it alongside other
+ *  persisted demo state — no extra wiring needed. */
 const STORAGE_KEY = "doggo-notifications";
 
 export function NotificationsProvider({ children }: { children: React.ReactNode }) {

@@ -7,7 +7,7 @@ import "./unlock.css";
 function UnlockForm() {
   const params = useSearchParams();
   const router = useRouter();
-  const next = params.get("next") || "/pages";
+  const next = params.get("next") || "/";
 
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -67,10 +67,6 @@ function UnlockForm() {
           {busy ? "Unlocking…" : "Unlock"}
         </button>
 
-        <p className="unlock-footnote">
-          The landing page and signup flow are publicly shareable without this
-          gate.
-        </p>
       </form>
     </div>
   );

@@ -155,7 +155,7 @@ const PERSONAS: Persona[] = [
         title: "Use shared content as social proof",
         narrative:
           "15 members, two sessions a week. Members share photos from training — real dogs in real sessions. New visitors see the value and book.",
-        cta: { label: "A training session", href: "/bookings/booking-klara-daniel" },
+        cta: { label: "A training session", href: "/bookings/booking-klara-hana" },
       },
       {
         title: "Scale the practice through the platform",
@@ -409,7 +409,7 @@ const FAMILIES: Family[] = [
         name: "Booking detail — Info / Sessions / Chat",
         status: "done",
         desc: "Owner and provider see the same booking from their respective perspectives. Rolling weekly billing with one upcoming session at a time.",
-        refs: [{ label: "Open", href: "/bookings/booking-klara-daniel" }],
+        refs: [{ label: "Open", href: "/bookings/booking-klara-hana" }],
       },
       {
         name: "Provider session actions",
@@ -656,7 +656,7 @@ const SITEMAP = [
     pages: [
       { name: "My Schedule", route: "/schedule" },
       { name: "Bookings", route: "/bookings" },
-      { name: "Booking detail", route: "/bookings/booking-klara-daniel" },
+      { name: "Booking detail", route: "/bookings/booking-klara-hana" },
       { name: "Checkout", route: "/bookings/booking-olga-walks/checkout" },
     ],
   },

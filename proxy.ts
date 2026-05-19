@@ -3,14 +3,15 @@ import { NextRequest, NextResponse } from "next/server";
 /**
  * Password gate for the prototype.
  *
- * Public (outside the gate):
- *   - Landing (/), Sign In (/signin), Signup flow (/signup/*)
+ * The whole prototype is gated — the landing page (the demo launcher)
+ * included. Public (outside the gate) is only:
  *   - The unlock page itself (/unlock) and its API (/api/unlock)
  *   - Next internals (_next/*), favicon, images/fonts, static assets
  *
- * Everything else (the logged-in app + the /pages demo hub) requires the
- * `doggo-demo-auth=unlocked` cookie, set by POST /api/unlock with the
- * correct password.
+ * Everything else requires the `doggo-demo-auth=unlocked` cookie, set by
+ * POST /api/unlock with the correct password. (Gated everything 2026-05-19:
+ * the landing page became the demo's front door, so there's nothing left
+ * to keep public.)
  *
  * Note: this file replaces the old `middleware.ts` per Next.js 16's
  * middleware → proxy migration. The function is named `proxy` instead
@@ -21,14 +22,11 @@ const AUTH_COOKIE = "doggo-demo-auth";
 const AUTH_TOKEN = "unlocked";
 
 const PUBLIC_PATHS = new Set<string>([
-  "/",
-  "/signin",
   "/unlock",
   "/favicon.ico",
 ]);
 
 const PUBLIC_PREFIXES = [
-  "/signup/",
   "/api/unlock",
   "/_next/",
   "/images/",

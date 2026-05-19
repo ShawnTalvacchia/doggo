@@ -802,35 +802,35 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   GUIDED TOUR OVERLAY — URL-driven floating card.
-   Desktop: anchored bottom-left, sharing the sidebar's left padding
-            (12px from screen edge) so it lines up with the sidebar nav.
-   Mobile: full-width bottom sheet sitting above the BottomNav (64px tall).
-   Collapse: slim header pill (compass · counter · expand · exit) so the
-             user can peek at the page beneath without exiting the tour.
+   GUIDED WALKTHROUGH — on-surface card + minimised pill.
+   Dark "system chrome" treatment so the walkthrough reads as a guide
+   layer, distinct from the (light) platform UI — the interstitial below
+   shares it. Desktop: anchored bottom-left on the sidebar's 12px left
+   padding. Mobile: full-width bottom sheet above the BottomNav.
+   Minimise shrinks the card to the "Walkthrough" pill; tap to restore.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-.tour-overlay {
+.wt-card {
   position: fixed;
   /* Sidebar uses `padding: 20px 12px 16px;` — match the 12px left so the
-     overlay's left edge aligns with the sidebar nav items above it. */
+     card's left edge aligns with the sidebar nav items above it. */
   left: 12px;
   bottom: 24px;
   width: min(440px, calc(100vw - 24px));
   max-width: 440px;
-  background: var(--surface-top);
-  border: 1px solid var(--border-regular);
+  background: var(--neutral-850);
+  border: 1px solid var(--transparent-light-16);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-lg);
-  padding: var(--space-lg);
+  padding: var(--space-md) var(--space-lg) var(--space-sm);
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
   z-index: 9000;
-  animation: tour-overlay-in 0.2s ease both;
+  animation: wt-card-in 0.2s ease both;
 }
 
-@keyframes tour-overlay-in {
+@keyframes wt-card-in {
   from {
     opacity: 0;
     transform: translateY(12px);
@@ -841,22 +841,15 @@
   }
 }
 
-/* Collapsed: just the meta row (compass · counter · expand · exit). The
-   gap drops since there's no body content below the row, and padding
-   tightens for a slim pill silhouette. */
-.tour-overlay--collapsed {
-  gap: 0;
-  padding: var(--space-sm) var(--space-md);
-  animation: none; /* don't re-trigger entry animation when collapsing */
-}
+/* ── Head — persona tag · step counter · minimise ─────────────────────── */
 
-.tour-overlay-meta {
+.wt-card-head {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
 }
 
-.tour-overlay-tag {
+.wt-card-tag {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -865,109 +858,225 @@
   font-weight: var(--weight-bold);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--brand-main);
+  color: var(--brand-300);
 }
 
-.tour-overlay-counter {
+.wt-card-counter {
   margin-left: auto;
   font-size: var(--text-xs);
-  color: var(--text-tertiary);
+  color: var(--neutral-400);
 }
 
-.tour-overlay-collapse,
-.tour-overlay-exit {
+/* Minimise — the single card control (replaces the old collapse caret +
+   ✕). Sized 30px and pulled to the card edge for a comfortable target. */
+.wt-card-min {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  margin-right: -6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   border: none;
-  color: var(--text-tertiary);
+  color: var(--transparent-light-64);
   cursor: pointer;
   padding: 0;
   transition: background 0.15s, color 0.15s;
 }
 
-.tour-overlay-collapse:hover,
-.tour-overlay-exit:hover {
-  background: var(--on-hover-light);
-  color: var(--text-primary);
+.wt-card-min:hover {
+  background: var(--transparent-light-8);
+  color: var(--text-white);
 }
 
-.tour-overlay-title {
-  font-family: var(--font-heading);
-  font-size: var(--text-lg);
-  font-weight: var(--weight-semibold);
-  color: var(--text-primary);
-  margin: 0;
-  line-height: 1.25;
-}
+/* ── Body ─────────────────────────────────────────────────────────────── */
 
-.tour-overlay-body {
+.wt-card-instruction {
   font-size: var(--text-sm);
   line-height: 1.55;
-  color: var(--text-secondary);
+  color: var(--neutral-12);
   margin: 0;
 }
 
-.tour-overlay-actions {
+.wt-card-instruction strong {
+  font-weight: var(--weight-semibold);
+  color: var(--text-white);
+}
+
+/* Step detail — the supporting "why" / what-to-notice line under the
+   instruction, quieter via the muted colour. */
+.wt-card-detail {
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--transparent-light-64);
+  margin: 0;
+}
+
+.wt-card-detail strong {
+  color: var(--neutral-12);
+  font-weight: var(--weight-semibold);
+}
+
+/* Fire-off step — pre-written post preview shown on the card. */
+.wt-card-fireoff {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.wt-card-fireoff-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-panel);
+}
+
+.wt-card-fireoff-caption {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--transparent-light-64);
+  margin: 0;
+}
+
+/* ── Footer — Back / Next, with a hairline divider above ──────────────── */
+
+.wt-card-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-sm);
-  margin-top: var(--space-xs);
+  margin-top: var(--space-lg);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--transparent-light-16);
 }
 
-.tour-overlay-btn {
+.wt-card-prev,
+.wt-card-next {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: var(--radius-pill);
+  gap: 5px;
   font-family: var(--font-body);
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   cursor: pointer;
-  border: 1px solid transparent;
   transition: background 0.15s, color 0.15s, border-color 0.15s, opacity 0.15s;
 }
 
-.tour-overlay-btn--primary {
-  background: var(--brand-main);
-  color: var(--text-white);
-  border-color: var(--brand-main);
-  margin-left: auto;
+/* Back — quiet ghost. */
+.wt-card-prev {
+  padding: 6px 8px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--transparent-light-64);
 }
 
-.tour-overlay-btn--primary:hover {
+.wt-card-prev:hover:not(:disabled) {
+  background: var(--transparent-light-8);
+  color: var(--text-white);
+}
+
+.wt-card-prev:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Next — the one clear primary; brand fill so advancing is never ambiguous. */
+.wt-card-next {
+  margin-left: auto;
+  padding: 7px 16px;
+  border: 1px solid var(--brand-main);
+  border-radius: var(--radius-pill);
+  background: var(--brand-main);
+  color: var(--text-white);
+}
+
+.wt-card-next:hover {
   background: var(--brand-strong);
   border-color: var(--brand-strong);
 }
 
-.tour-overlay-btn--secondary {
-  background: transparent;
-  color: var(--text-primary);
-  border-color: var(--border-regular);
+/* Shown in place of Next on an `awaitAction` step — the card advances only
+   when the tester performs the in-app action the step describes. */
+.wt-card-await {
+  margin-left: auto;
+  font-size: var(--text-xs);
+  font-style: italic;
+  color: var(--neutral-400);
+  text-align: right;
 }
 
-.tour-overlay-btn--secondary:hover:not(:disabled) {
-  border-color: var(--brand-main);
-  color: var(--brand-main);
+/* Exit — quiet + deliberate, sits under the footer. */
+.wt-card-exit {
+  align-self: center;
+  padding: 2px 6px;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--neutral-400);
+  cursor: pointer;
+  transition: color 0.15s;
 }
 
-.tour-overlay-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+.wt-card-exit:hover {
+  color: var(--transparent-light-80);
+}
+
+/* ── Minimised pill — tap to restore the card ─────────────────────────── */
+
+.wt-pill {
+  position: fixed;
+  left: 12px;
+  bottom: 24px;
+  z-index: 9000;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--neutral-850);
+  border: 1px solid var(--transparent-light-16);
+  color: var(--neutral-12);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition: background 0.15s;
+  animation: wt-card-in 0.2s ease both;
+}
+
+.wt-pill:hover {
+  background: var(--neutral-800);
+}
+
+.wt-pill svg {
+  color: var(--brand-300);
+}
+
+.wt-pill-counter {
+  font-variant-numeric: tabular-nums;
+  color: var(--neutral-400);
+}
+
+/* While the walkthrough is up, the card / pill owns the bottom-left corner.
+   Nudge the Discover results' sticky Filters button to the opposite edge so
+   the two never collide — it stays visible and usable the whole time. */
+body:has(.wt-card) .discover-floating-btn,
+body:has(.wt-pill) .discover-floating-btn {
+  justify-content: flex-end;
+  padding-right: var(--space-md);
 }
 
 @media (max-width: 600px) {
   /* Mobile: true bottom sheet — flush with the bottom edge by default
-     (detail/guest routes where BottomNav isn't rendered). The tour's
-     higher z-index covers any nav while open; collapse or exit to
-     access the nav. */
-  .tour-overlay {
+     (detail / guest routes where BottomNav isn't rendered). The card's
+     higher z-index covers any nav while open; minimise to reach it. */
+  .wt-card {
     left: 0;
     right: 0;
     bottom: 0;
@@ -977,40 +1086,31 @@
     border-left: none;
     border-right: none;
     border-bottom: none;
-    padding: var(--space-lg) var(--space-lg) calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
-  }
-
-  /* Bottom-sheet collapsed state stays compact — just the slim row. */
-  .tour-overlay--collapsed {
-    padding: var(--space-sm) var(--space-md) calc(var(--space-sm) + env(safe-area-inset-bottom, 0px));
+    padding: var(--space-md) var(--space-lg) calc(var(--space-sm) + env(safe-area-inset-bottom, 0px));
   }
 
   /* When the BottomNav is rendered (hub routes — `/home`, `/profile`,
-     `/bookings`, etc.), lift the overlay above it so the nav stays
-     reachable while the tour is visible. BottomNavInner returns null
-     on detail routes (`/communities/group-1`, `/meets/meet-1`), so
-     `:has(.bottom-nav)` doesn't match there and the overlay stays
-     flush — no phantom gap on routes without a nav. Tereza's tour
-     hits both kinds of route (steps 1/4/5/6 are hub, 2/3 are detail).
-     2026-05-11 follow-up to the 2026-05-05 PO note about phantom gaps. */
-  body:has(.bottom-nav) .tour-overlay {
+     `/bookings`, etc.), lift the card + pill above it so the nav stays
+     reachable. BottomNavInner returns null on detail routes, so
+     `:has(.bottom-nav)` doesn't match there and they stay flush. */
+  body:has(.bottom-nav) .wt-card {
     bottom: calc(64px + env(safe-area-inset-bottom, 0px));
-    /* Drop the bottom safe-area padding — the bottom-nav already
-       accounts for it via its own padding-bottom, so doubling here
-       would create extra slack between the overlay and the nav. */
-    padding-bottom: var(--space-lg);
-  }
-  body:has(.bottom-nav) .tour-overlay--collapsed {
     padding-bottom: var(--space-sm);
+  }
+
+  .wt-pill {
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+  body:has(.bottom-nav) .wt-pill {
+    bottom: calc(64px + 12px + env(safe-area-inset-bottom, 0px));
   }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   GUIDED WALKTHROUGH — interstitial + on-surface card extras
-   Guided Walkthrough Build, 2026-05-17. The on-surface card reuses the
-   `.tour-overlay*` block above; the classes here are the interstitial
-   (full-screen handoff), the paused "Resume" pill, and two small card
-   additions (notice line + exit link).
+   GUIDED WALKTHROUGH — full-screen interstitial.
+   The persona-handoff, mid-beat and closing screens. Shares the
+   on-surface card's dark "system chrome" treatment so the walkthrough
+   reads as one guide layer; the card itself lives in the block above.
    ═══════════════════════════════════════════════════════════════════ */
 
 /* ── Full-screen interstitial ──────────────────────────────────────── */
@@ -1019,7 +1119,7 @@
   position: fixed;
   inset: 0;
   z-index: 9500; /* above the on-surface card (9000) */
-  background: var(--surface-base);
+  background: var(--neutral-850);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1033,19 +1133,16 @@
   to { opacity: 1; }
 }
 
+/* The sheet carries no card chrome — on the full-screen dark field it's
+   just a max-width column. Reads as a "chapter screen", not a modal. */
 .wt-interstitial-sheet {
   width: 100%;
-  max-width: 520px;
-  background: var(--surface-top);
-  border: 1px solid var(--border-regular);
-  border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-lg);
-  padding: var(--space-xl);
+  max-width: 620px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   text-align: left;
-  gap: var(--space-md);
+  gap: var(--space-lg);
   animation: wt-interstitial-rise 0.3s ease both;
 }
 
@@ -1068,7 +1165,7 @@
   font-weight: var(--weight-bold);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--brand-main);
+  color: var(--brand-300);
 }
 
 .wt-interstitial-skip {
@@ -1082,13 +1179,13 @@
   font-family: var(--font-body);
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
-  color: var(--text-tertiary);
+  color: var(--neutral-400);
   cursor: pointer;
   transition: color 0.15s;
 }
 
 .wt-interstitial-skip:hover {
-  color: var(--text-primary);
+  color: var(--text-white);
 }
 
 /* Header row — avatar left, identity (heading + sub) stacked to the right.
@@ -1097,6 +1194,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-md);
+  margin-bottom: var(--space-lg);
 }
 
 .wt-interstitial-identity {
@@ -1107,12 +1205,12 @@
 }
 
 .wt-interstitial-avatar {
-  width: 64px;
-  height: 64px;
+  width: 76px;
+  height: 76px;
   flex-shrink: 0;
   border-radius: 50%;
   object-fit: cover;
-  background: var(--surface-base);
+  background: var(--neutral-800);
   animation: wt-avatar-pop 0.3s ease 0.1s both;
 }
 
@@ -1123,9 +1221,9 @@
 
 .wt-interstitial-heading {
   font-family: var(--font-heading);
-  font-size: var(--text-xl);
+  font-size: var(--text-2xl);
   font-weight: var(--weight-semibold);
-  color: var(--text-primary);
+  color: var(--text-white);
   margin: 0;
   line-height: 1.2;
 }
@@ -1133,24 +1231,24 @@
 .wt-interstitial-sub {
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
-  color: var(--text-tertiary);
+  color: var(--neutral-400);
   margin: 0;
 }
 
 .wt-interstitial-context {
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   line-height: 1.6;
-  color: var(--text-secondary);
+  color: var(--transparent-light-64);
   margin: 0;
 }
 
+/* Left-aligned row of content-hugging buttons — lines up with the
+   left-aligned eyebrow / heading / paragraph above. (Mobile stacks them.) */
 .wt-interstitial-actions {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: var(--space-sm);
-  width: 100%;
-  margin-top: var(--space-md);
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
 }
 
 .wt-interstitial-btn {
@@ -1166,8 +1264,7 @@
 }
 
 .wt-interstitial-btn--primary {
-  width: 100%;
-  padding: 12px 20px;
+  padding: 12px 22px;
   border-radius: var(--radius-pill);
   background: var(--brand-main);
   color: var(--text-white);
@@ -1183,153 +1280,27 @@
   padding: 6px 12px;
   background: none;
   border: none;
-  color: var(--text-tertiary);
+  color: var(--neutral-400);
 }
 
 .wt-interstitial-btn--secondary:hover {
-  color: var(--text-primary);
-}
-
-/* ── On-surface card additions (base is .tour-overlay above) ────────── */
-
-/* Step detail — the supporting "why" / what-to-notice line under the
-   step instruction. Same 14px size as the instruction (a size mismatch
-   read as off); quieter via the tertiary colour. A positive top margin
-   gives the instruction room to breathe above it. */
-.wt-card-detail {
-  font-size: var(--text-sm);
-  line-height: 1.55;
-  color: var(--text-tertiary);
-  margin: var(--space-xs) 0 0;
-}
-
-.wt-card-detail strong {
-  color: var(--text-secondary);
-  font-weight: var(--weight-semibold);
-}
-
-/* ── Paused: collapsed pill + expanded menu ────────────────────────── */
-
-/* Collapsed: a slim brand pill reading "Walkthrough". Tapping it opens
-   the menu below — the card pauses immediately when the tester hits ✕,
-   so the pill is the resting state, not a confirm step. */
-.wt-paused-pill {
-  position: fixed;
-  left: 12px;
-  bottom: 24px;
-  z-index: 9000;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
-  border-radius: var(--radius-pill);
-  background: var(--brand-main);
   color: var(--text-white);
-  border: 1px solid var(--brand-main);
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  box-shadow: var(--shadow-lg);
-  cursor: pointer;
-  transition: background 0.15s;
-  animation: tour-overlay-in 0.2s ease both;
-}
-
-.wt-paused-pill:hover {
-  background: var(--brand-strong);
-}
-
-/* Expanded: a small card anchored to the same corner, with the three
-   paused-state choices stacked full-width. */
-.wt-paused-menu {
-  position: fixed;
-  left: 12px;
-  bottom: 24px;
-  z-index: 9000;
-  width: 264px;
-  max-width: calc(100vw - 24px);
-  background: var(--surface-top);
-  border: 1px solid var(--border-regular);
-  border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-lg);
-  padding: var(--space-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  animation: tour-overlay-in 0.2s ease both;
-}
-
-.wt-paused-menu-head {
-  display: flex;
-  align-items: center;
-  margin-bottom: 2px;
-}
-
-.wt-paused-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: var(--radius-pill);
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-}
-
-.wt-paused-btn--primary {
-  background: var(--brand-main);
-  color: var(--text-white);
-  border-color: var(--brand-main);
-}
-
-.wt-paused-btn--primary:hover {
-  background: var(--brand-strong);
-  border-color: var(--brand-strong);
-}
-
-.wt-paused-btn--secondary {
-  background: transparent;
-  color: var(--text-primary);
-  border-color: var(--border-regular);
-}
-
-.wt-paused-btn--secondary:hover {
-  border-color: var(--brand-main);
-  color: var(--brand-main);
-}
-
-.wt-paused-btn--danger {
-  background: transparent;
-  color: var(--error);
-  border-color: var(--status-error-border);
-}
-
-.wt-paused-btn--danger:hover {
-  background: var(--status-error-surface);
 }
 
 @media (max-width: 600px) {
   .wt-interstitial {
-    padding: var(--space-md);
-    align-items: flex-start;
-  }
-
-  .wt-interstitial-sheet {
     padding: var(--space-lg);
   }
 
-  .wt-paused-pill,
-  .wt-paused-menu {
-    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  /* Stack the actions + full-width primary — the right thumb target at
+     this width; the desktop content-hug row would read cramped. */
+  .wt-interstitial-actions {
+    flex-direction: column;
+    align-items: center;
   }
 
-  body:has(.bottom-nav) .wt-paused-pill,
-  body:has(.bottom-nav) .wt-paused-menu {
-    bottom: calc(64px + 12px + env(safe-area-inset-bottom, 0px));
+  .wt-interstitial-btn--primary {
+    width: 100%;
   }
 }
 

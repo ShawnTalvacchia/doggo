@@ -13,7 +13,8 @@
  *
  *   - "Sign up to {action}" — stub. In the prototype this is a no-op
  *     button or routes to /signup/start (which is itself stubbed).
- *   - "Try the demo →" — routes to /demo. The realistic path for a tester.
+ *   - "Try the demo →" — routes to `/`, the landing page / demo launcher.
+ *     The realistic path for a tester.
  *
  * Mounted globally in `app/layout.tsx`. Surfaces consume via the hook;
  * they don't render the component themselves.
@@ -50,7 +51,7 @@ export function AuthGateProvider({ children }: { children: React.ReactNode }) {
 
   const handleTryDemo = useCallback(() => {
     setOpen(false);
-    router.push("/demo");
+    router.push("/");
   }, [router]);
 
   const value = useMemo<AuthGateContextValue>(() => ({ requireAuth }), [requireAuth]);

@@ -27,9 +27,9 @@
  * persists to localStorage, and broadcasts to all subscribers — every
  * mounted instance with the same key re-renders with the new value.
  *
- * Storage keys should be `doggo-*` so the existing demo-reset helper
- * in `app/demo/page.tsx` and `components/profile/ProfileNameDropdown.tsx`
- * picks them up — no need to teach those surfaces about new keys.
+ * Storage keys should be `doggo-*` so the shared demo-reset helper
+ * (`clearDemoStorage` in `lib/demoReset.ts`) picks them up — no need to
+ * teach it about new keys.
  */
 
 import {

@@ -644,7 +644,7 @@ export const mockMeets: Meet[] = [
     // People-tab Familiar-marking surface has the Hub Member to mark.
     attendees: [
       { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
-      { userId: "magda", userName: "Magda", avatarUrl: "/images/generated/lucie-profile.jpeg", dogNames: ["Žofka"], profileOpen: true },
+      { userId: "magda", userName: "Magda", avatarUrl: "/images/generated/magda-profile.jpeg", dogNames: ["Žofka"], profileOpen: true },
       { userId: "tomas", userName: "Tomáš", avatarUrl: "/images/generated/tomas-profile.jpeg", dogNames: ["Hugo"] },
     ],
     createdAt: "2026-04-01T10:00:00Z",
@@ -1428,6 +1428,56 @@ export const mockMeets: Meet[] = [
     // service is resolved via `getServiceById`. See Open Q §13.
     linkedServices: [{ serviceId: "tereza-walks", required: false }],
     createdAt: "2026-04-03T08:00:00Z",
+  },
+
+  // ── Demo Narrative V2 anchor — Klára's free Stromovka walk ────────────────
+  // The free public walk Beats 1 & 2 orbit. Config #2: a free community walk
+  // that also advertises Klára's drop-off Care service (`klara-walks`).
+  // Surfaces for Daniel under Discover's "Meets from your circle" via his
+  // membership in Klára's care group (`group-klara-training`).
+  {
+    id: "meet-klara-stromovka",
+    visibility: "public",
+    type: "walk",
+    groupId: "group-klara-training",
+    title: "Stromovka morning walk",
+    coverPhotoUrl: "/images/generated/group-walk-stromovka.jpeg",
+    description:
+      "Free weekly morning group walk through Stromovka — open to everyone, all friendly dogs welcome. I'm a trainer, so I give pointers as we go; it's a relaxed, low-pressure way for a nervous dog to get used to other dogs. Got a reactive or anxious dog? Come say hi — and if you'd like, we can talk about whether a private session would help. Can't make it but want your dog walked? You can book me to bring them along.",
+    location: "Stromovka, Prague 7",
+    neighbourhood: "Holešovice",
+    lat: 50.1066,
+    lng: 14.4172,
+    date: daysFromNow(0),
+    time: "10:00",
+    durationMinutes: 60,
+    cadence: "weekly",
+    maxAttendees: 12,
+    dogSizeFilter: "any",
+    leashRule: "mixed",
+    status: "upcoming",
+    energyLevel: "moderate",
+    whatToBring: ["Water", "Poo bags", "Treats"],
+    walk: {
+      pace: "leisurely",
+      distance: "medium",
+      terrain: "paved",
+    },
+    creatorId: "klara",
+    creatorName: "Klára",
+    creatorAvatarUrl: "/images/generated/klara-profile.jpeg",
+    attendees: [
+      { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Eda"], profileOpen: true },
+      { userId: "magda", userName: "Magda", avatarUrl: "/images/generated/magda-profile.jpeg", dogNames: ["Žofka"], rsvpStatus: "going", profileOpen: true, neighbourhood: "Holešovice" },
+      { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"], rsvpStatus: "going" },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"], rsvpStatus: "going" },
+    ],
+    // Config #2 — a free community walk advertising Klára's drop-off Care
+    // service (`klara-walks`, `required: false`). Neighbours join free as
+    // walkers; an owner can separately book Klára to walk their dog (book ≠
+    // attend). See Open Q §13 + the Demo Narrative.
+    linkedServices: [{ serviceId: "klara-walks", required: false }],
+    createdAt: "2026-04-01T10:00:00Z",
   },
 
   {

@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-16
+last-reviewed: 2026-05-18
 tags: [vision, principles, strategy, monetization]
 review-trigger: "before any major feature decision or strategic discussion"
 ---
@@ -45,6 +45,20 @@ Dogs are the gateway, not the destination. Most features start from a dog — ho
 This is deliberate. People wary of "social apps" will happily join something organised around their dog. Users who join "for their dog" and end up making friends, finding a reliable walker, or starting to offer care themselves are the highest-retention users — the social and professional rewards land harder because they weren't sold to them.
 
 This framing welcomes non-owners too. Some users join because they love dogs and want to help, not because they have one. Dog-lovers looking for gig work, hobbyists, small service providers — they enter through the community, earn trust the same way anyone does, and offer their services as part of the same fabric. The platform is a community for dog people. Dog ownership is one way in, not the only one.
+
+---
+
+## Trainer-Led Walks & the Training Value Proposition
+
+> **Draft note — added 2026-05-18 during Demo Narrative V2; to be expanded at that phase's strategic review.** A positioning thread that needs fuller treatment than this placeholder.
+
+The walker-trainer hybrid is Doggo's cold-start engine — 80–90% of Prague's paid dog professionals (see [[Cold-Start Playbook]], [[meetings/po-briefing-2026-05-15]]). Three points to formalize:
+
+- **A trainer's value to owners is teaching, not just exercise.** Dogs spend most of the day home alone; getting them out, social, and well-mannered lifts the dog's quality of life and the owner's ability to communicate with them. Dogs need to learn social, leash, and listening skills — and a good trainer teaches the *owner* as much as the dog.
+- **Controlled group walks are the method and the outcome.** A trainer helps an anxious or untrained dog build the skills to enjoy other dogs' company; once ready, the dog belongs to the community. Training is the on-ramp to belonging, not a side service. The pattern Doggo argues against is avoidance — a reactive dog that simply never gets near another dog, until one day it gets too close and there's a clash. *Resolve it, don't avoid it.*
+- **The trainer-led public walk is both funnel and mission.** Every walk is demonstration and lead-gen for the trainer's paid services — and it's the trainer doing real, visible vocational work. The platform should let trainers market that.
+
+Expand at the strategic review: how this lands across product surfaces, the landing page, and onboarding; and its relationship to the marketplace-vs-community fork ([[Open Questions & Assumptions Log]] §7).
 
 ---
 

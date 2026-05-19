@@ -47,7 +47,7 @@ export const PAGE_MENU_GROUPS: PageMenuGroup[] = [
     items: [
       { label: "My Schedule", value: "/schedule" },
       { label: "Bookings", value: "/bookings" },
-      { label: "Booking Detail", value: "/bookings/booking-klara-daniel" },
+      { label: "Booking Detail", value: "/bookings/booking-klara-hana" },
       { label: "Checkout", value: "/bookings/booking-olga-walks/checkout" },
     ],
   },

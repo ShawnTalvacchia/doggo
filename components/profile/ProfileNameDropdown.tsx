@@ -11,7 +11,7 @@
  *
  * The popover behaviour mirrors the previous `ChangeUserMenu`:
  *  - 6 persona options including "New User" (empty-state preview)
- *  - "Open full picker →" link to /demo for the bigger surface
+ *  - "Demo home →" link to the landing page (the demo launcher)
  *  - Outside-click + Escape close
  *  - Picking a persona writes to CurrentUserContext and refreshes the route
  *
@@ -26,26 +26,7 @@ import { CaretDown, ArrowSquareOut, Check, ArrowCounterClockwise } from "@phosph
 import { personas } from "@/lib/personas";
 import { useDemoState } from "@/contexts/CurrentUserContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { resetPersistedState } from "@/lib/usePersistedState";
-
-/**
- * Wipe every `doggo:*` localStorage key — clears persona override, dismissed
- * review cards, and any future demo state we add behind that prefix. Used by
- * the "Reset demo state" menu action below.
- */
-function clearDemoLocalStorage() {
-  if (typeof window === "undefined") return;
-  try {
-    Object.keys(localStorage)
-      .filter((k) => k.startsWith("doggo"))
-      .forEach((k) => localStorage.removeItem(k));
-  } catch {
-    // Ignore — private browsing / storage disabled.
-  }
-  // Also wipe the in-memory usePersistedState cache so mounted components
-  // re-read fresh defaults instead of stale post-reset state. 2026-05-08.
-  resetPersistedState("doggo");
-}
+import { clearDemoStorage } from "@/lib/demoReset";
 
 interface ProfileNameDropdownProps {
   /** The displayed name (full name string). */
@@ -87,7 +68,7 @@ export function ProfileNameDropdown({ name }: ProfileNameDropdownProps) {
   }
 
   function handleReset() {
-    clearDemoLocalStorage();
+    clearDemoStorage();
     resetToDefault();
     setOpen(false);
     // Hard reload (not router.refresh) — components on the current page
@@ -194,11 +175,11 @@ export function ProfileNameDropdown({ name }: ProfileNameDropdownProps) {
           </button>
 
           <Link
-            href="/demo"
+            href="/"
             className="profile-name-dropdown-footer"
             onClick={() => setOpen(false)}
           >
-            Open full picker
+            Demo home
             <ArrowSquareOut size={12} weight="bold" />
           </Link>
         </div>

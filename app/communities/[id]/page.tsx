@@ -39,6 +39,7 @@ import { PrivateProfileRow } from "@/components/people/PrivateProfileRow";
 import { GroupVisibilityChip } from "@/components/groups/GroupVisibilityChip";
 import { RequestToJoinModal } from "@/components/groups/RequestToJoinModal";
 import { GroupInviteSheet } from "@/components/groups/GroupInviteSheet";
+import { GroupNeighbourCare } from "@/components/groups/GroupNeighbourCare";
 import { getGroupById, getGroupMeets } from "@/lib/mockGroups";
 import { getPostsByGroup } from "@/lib/mockPosts";
 import { getConnectionState } from "@/lib/mockConnections";
@@ -364,7 +365,10 @@ function GroupDetailInner() {
         )}
 
         {activeTab === "members" && (
-          <MembersTab group={group} isGuest={isGuest} />
+          <>
+            <GroupNeighbourCare group={group} />
+            <MembersTab group={group} isGuest={isGuest} />
+          </>
         )}
 
         {activeTab === "gallery" && (

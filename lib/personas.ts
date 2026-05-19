@@ -6,9 +6,9 @@
  * mode), as the routine-owner / community-anchor archetype best represents
  * the happy path. The remaining journey users follow in narrative order
  * from `docs/strategy/User Journeys.pptx` and `docs/implementation/mock-data-plan.md`.
- * Magda was added 2026-05-14 (Demo Narrative & Personas, W2.7) as the
- * Neighborhood Hub Member archetype — she carries Beat 3 of the demo
- * narrative (private group + peer care).
+ * Magda was added 2026-05-14 as the Neighborhood Hub Member archetype. In
+ * Demo Narrative V2 she's a supporting character — the neighbour Daniel
+ * meets on Klára's Stromovka walk — not a walkthrough POV persona.
  * "New User" sits at the end as a deliberately empty profile so reviewers can
  * see what brand-new-account states look like across every surface.
  *
@@ -87,7 +87,7 @@ export const personas: PersonaOption[] = [
   {
     user: klara,
     archetype: "Professional Provider",
-    tagline: "Trainer with a Care group of regulars.",
+    tagline: "Walker-trainer. Runs a free weekly Stromovka walk.",
   },
   {
     user: tomas,

@@ -3,7 +3,7 @@
 /**
  * WalkthroughContext — Guided Walkthrough state + beat/step sequencer.
  *
- * The Guided Walkthrough auto-switches personas through the four-beat
+ * The Guided Walkthrough auto-switches personas through the three-beat
  * `lib/walkthroughBeats.ts` spine. Each beat opens with a full-screen
  * interstitial (persona handoff) and then walks the tester through ordered
  * steps via the on-surface card. This context holds the run state and drives
@@ -18,11 +18,14 @@
  *   - `active: false`                        — not in the walkthrough (default)
  *   - `active, phase "interstitial"`         — full-screen handoff for beat `beatIndex`
  *   - `active, phase "running"`               — on the beat surface, card on step `stepIndex`
- *   - `active, paused`                        — Open View on the current persona, "Walkthrough" pill
  *   - `beatIndex === WALKTHROUGH_BEAT_COUNT`  — the closing interstitial
  *
  * `next` / `prev` advance by one step, crossing beat boundaries: stepping
  * past a beat's last step lands on the next beat's interstitial.
+ *
+ * There is no "paused" state: the on-surface card minimises to a pill (a
+ * card-local view toggle in `WalkthroughCard`) while the walkthrough keeps
+ * running. Leaving the walkthrough is `exit` (clean slate) or `endAndStay`.
  *
  * Persona switching is delegated to `CurrentUserContext.setUserById`, so
  * `WalkthroughProvider` MUST sit inside `CurrentUserProvider`.
@@ -38,6 +41,7 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { useDemoState } from "@/contexts/CurrentUserContext";
+import { clearDemoStorage } from "@/lib/demoReset";
 import { WALKTHROUGH_BEATS, WALKTHROUGH_BEAT_COUNT } from "@/lib/walkthroughBeats";
 
 const SESSION_KEY = "doggo-walkthrough";
@@ -49,7 +53,6 @@ type PersistedState = {
   beatIndex: number;
   stepIndex: number;
   phase: WalkthroughPhase;
-  paused: boolean;
 };
 
 const INITIAL: PersistedState = {
@@ -57,7 +60,6 @@ const INITIAL: PersistedState = {
   beatIndex: 0,
   stepIndex: 0,
   phase: "interstitial",
-  paused: false,
 };
 
 type WalkthroughContextValue = PersistedState & {
@@ -73,11 +75,7 @@ type WalkthroughContextValue = PersistedState & {
   prev: () => void;
   /** Skip the current beat entirely — jump straight to the next beat's interstitial. */
   skipBeat: () => void;
-  /** Pause — drop to Open View on the current persona, show the "Walkthrough" pill. */
-  pause: () => void;
-  /** Resume — restore the interstitial or card for the current beat/step. */
-  resume: () => void;
-  /** End the walkthrough and return to `/demo`. */
+  /** End the walkthrough, wipe the demo state it mutated, and return to the landing page. */
   exit: () => void;
   /** End the walkthrough but stay on the current persona/surface (closing-screen "Stay"). */
   endAndStay: () => void;
@@ -106,7 +104,6 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
             beatIndex: typeof parsed.beatIndex === "number" ? parsed.beatIndex : 0,
             stepIndex: typeof parsed.stepIndex === "number" ? parsed.stepIndex : 0,
             phase: parsed.phase === "running" ? "running" : "interstitial",
-            paused: parsed.paused === true,
           });
         }
       }
@@ -136,13 +133,13 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
   // mid-render. `persist` is the only setState path.
 
   const start = useCallback(() => {
-    persist({ active: true, beatIndex: 0, stepIndex: 0, phase: "interstitial", paused: false });
+    persist({ active: true, beatIndex: 0, stepIndex: 0, phase: "interstitial" });
   }, [persist]);
 
   const continueToBeat = useCallback(() => {
     const beat = WALKTHROUGH_BEATS[state.beatIndex];
     if (!beat) return;
-    persist({ ...state, phase: "running", stepIndex: 0, paused: false });
+    persist({ ...state, phase: "running", stepIndex: 0 });
     setUserById(beat.personaId);
     router.push(beat.startUrl);
   }, [state, persist, router, setUserById]);
@@ -160,7 +157,6 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
         beatIndex: Math.min(state.beatIndex + 1, WALKTHROUGH_BEAT_COUNT),
         stepIndex: 0,
         phase: "interstitial",
-        paused: false,
       });
     }
   }, [state, persist]);
@@ -176,7 +172,6 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
         beatIndex: state.beatIndex - 1,
         stepIndex: 0,
         phase: "interstitial",
-        paused: false,
       });
     }
   }, [state, persist]);
@@ -189,32 +184,26 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
       beatIndex: Math.min(state.beatIndex + 1, WALKTHROUGH_BEAT_COUNT),
       stepIndex: 0,
       phase: "interstitial",
-      paused: false,
     });
   }, [state, persist]);
 
-  const pause = useCallback(() => {
-    // Pausing from an interstitial commits the persona swap + route first,
-    // so the tester lands on the beat's surface in Open View. Pausing from
-    // a running beat just stays put.
-    if (state.phase === "interstitial") {
-      const beat = WALKTHROUGH_BEATS[state.beatIndex];
-      if (beat) {
-        setUserById(beat.personaId);
-        router.push(beat.startUrl);
-      }
-    }
-    persist({ ...state, paused: true });
-  }, [state, persist, router, setUserById]);
-
-  const resume = useCallback(() => {
-    persist({ ...state, paused: false });
-  }, [persist, state]);
-
   const exit = useCallback(() => {
-    persist(INITIAL);
-    router.push("/demo");
-  }, [persist, router]);
+    // Exit ends the walkthrough AND wipes the demo state it mutated, for a
+    // true clean slate — pause, by contrast, suspends with state intact,
+    // and the closing screen's "Stay" (endAndStay) keeps the world as the
+    // walkthrough left it.
+    //
+    // A hard navigation to `/` (the landing page / demo launcher), not
+    // router.push: exit can fire from a page with its own redirect guard
+    // — the active-session page bounces itself the moment `clearDemoStorage`
+    // reverts its in-progress session — and a soft push races with that. A
+    // full load tears the current page down decisively, and cleared storage
+    // means the landing page (and the re-seeded contexts) load fresh.
+    clearDemoStorage();
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
+    }
+  }, []);
 
   const endAndStay = useCallback(() => {
     persist(INITIAL);
@@ -229,8 +218,6 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
       next,
       prev,
       skipBeat,
-      pause,
-      resume,
       exit,
       endAndStay,
     }),
@@ -242,8 +229,6 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
       next,
       prev,
       skipBeat,
-      pause,
-      resume,
       exit,
       endAndStay,
     ],

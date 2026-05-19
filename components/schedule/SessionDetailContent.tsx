@@ -168,9 +168,11 @@ export function SessionDetailContent({
           {booking.recurringSchedule && (
             <div className="flex items-center gap-xs text-sm text-fg-secondary">
               <ArrowsClockwise size={14} weight="light" className="text-fg-tertiary" />
-              <span>
-                Every {booking.recurringSchedule.days.join(", ")} · {booking.recurringSchedule.timeLabel}
-              </span>
+              {/* Cadence, not the seeded weekday — the demo anchors every
+                  upcoming session to today regardless of the booking's
+                  stored day, so a fixed weekday would contradict it.
+                  Mirrors the "Weekly" chip on ScheduleCard. */}
+              <span>Every week · {booking.recurringSchedule.timeLabel}</span>
             </div>
           )}
           <ButtonAction

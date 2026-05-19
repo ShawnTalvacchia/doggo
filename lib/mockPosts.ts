@@ -38,6 +38,29 @@ export const mockPosts: Post[] = [
       },
     ],
   },
+  // Demo Narrative V2 — Klára's walk post, fired off by the viewer in Beat 2's
+  // fire-off step. Pre-seeded so it's real feed content; the walkthrough card
+  // surfaces it for a one-tap Share. Image is W2.5 (to be generated).
+  {
+    id: "post-klara-stromovka-walk",
+    authorId: "klara",
+    authorName: "Klára",
+    authorAvatarUrl: "/images/generated/klara-profile.jpeg",
+    photos: ["/images/generated/post-stromovka-walk.jpeg"],
+    caption:
+      "Another morning at Stromovka with the group. A full house today — and a couple of nervous newcomers who settled in beautifully by the end. This is the part of the job I love: watching a dog who used to give the park a wide berth start to enjoy other dogs' company. We walk every week, 10am by the main gate — all friendly dogs welcome, and I'm always happy to chat if yours finds the world a bit much. 🐾",
+    tags: [
+      { type: "place", id: "stromovka", label: "Stromovka" },
+      { type: "meet", id: "meet-klara-stromovka", label: "Stromovka morning walk" },
+    ],
+    createdAt: daysAgoIso(0, "13:00"),
+    reactions: [
+      { userId: "magda", userName: "Magda" },
+      { userId: "hana", userName: "Hana" },
+      { userId: "filip", userName: "Filip" },
+    ],
+    comments: [],
+  },
   // Personal posts (no groupId)
   {
     id: "post-1",

@@ -8,14 +8,15 @@ import { LoggedInShell } from "./LoggedInShell";
 export function GuestLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isGuestRoute =
-    pathname === "/" || pathname === "/signin" || pathname.startsWith("/signup");
+    pathname === "/signin" || pathname.startsWith("/signup");
   const isSignupRoute = pathname.startsWith("/signup");
 
   // Standalone routes render without AppNav, Sidebar, or BottomNav —
-  // they're their own little world (unlock gate + demo hub + persona picker).
+  // they're their own little world: the landing page (the demo launcher),
+  // the unlock gate, and the /pages dev hub.
   const isStandaloneRoute =
+    pathname === "/" ||
     pathname === "/unlock" ||
-    pathname === "/demo" ||
     pathname.startsWith("/pages");
 
   useEffect(() => {
