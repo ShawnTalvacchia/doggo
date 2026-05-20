@@ -12,15 +12,52 @@
   min-height: 100vh;
   min-height: 100dvh;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr auto;
+  /* `minmax(0, 1fr)` enforces strict 50/50 columns — without it, the
+     right column's card could push the right half wider than the left
+     in the awkward "tablet" range where the card content has a natural
+     minimum size. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
   grid-template-areas:
-    "left right"
-    "reset reset";
+    "header-left header-right"
+    "left        right"
+    "reset       reset";
   background: var(--surface-base);
 }
 
-/* ── Left half: demo entry (logo, headline, CTA) ──────────────────── */
+/* ── Top header (two cells, matching the halves' colours) ─────────── */
+/* Split into two cells so each side's surface colour runs unbroken
+   from the page top to the reset bar — no horizontal seam in the
+   right column. The left cell holds the logo + DEMO pill on surface-
+   base; the right cell is empty and just extends surface-top up. */
+
+.demo-top-header-left {
+  grid-area: header-left;
+  background: var(--surface-base);
+  padding: clamp(20px, 3vh, 32px) clamp(24px, 5vw, 80px);
+}
+
+/* Inner mirrors the left half's inner so the logo aligns horizontally
+   with the headline, tagline, CTA, helper, and the reset button below
+   — one consistent left edge across the whole left column. */
+.demo-top-header-inner {
+  width: 100%;
+  max-width: 600px;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.demo-top-header-right {
+  grid-area: header-right;
+  background: var(--surface-top);
+}
+
+/* ── Left half: demo entry (headline, tagline, CTA, helper) ───────── */
+/* Top-aligned (justify-content: flex-start) so the headline sits near
+   the top of the half, aligning with the right half's "THE CAST"
+   eyebrow at the same Y. */
 
 .demo-left {
   grid-area: left;
@@ -33,7 +70,7 @@
 
 .demo-left-inner {
   width: 100%;
-  max-width: 520px;
+  max-width: 600px;
   margin-left: auto; /* hug the seam between halves on desktop */
   display: flex;
   flex-direction: column;
@@ -74,17 +111,18 @@
 .demo-headline {
   font-family: var(--font-heading);
   font-weight: var(--weight-semibold);
-  font-size: clamp(1.875rem, 3vw, 3rem);
-  line-height: 1.1;
+  /* Bigger than the previous 1.875–3rem; the headline carries more
+     hierarchical weight as the main hero element. */
+  font-size: clamp(2.25rem, 4.5vw, 4.5rem);
+  line-height: 1.08;
   letter-spacing: -0.02em;
   margin: 0;
 }
 
-.demo-headline-primary,
-.demo-headline-brand {
-  display: block;
-}
-
+/* The two halves of the headline flow inline as one paragraph, with
+   the brand-colour second sentence wrapping naturally with the first.
+   Previously each span was a block (forced line break between the
+   two sentences) — they now share a single typographic block. */
 .demo-headline-primary {
   color: var(--text-primary);
 }
@@ -101,8 +139,19 @@
   max-width: 52ch;
 }
 
+/* CTA + helper grouped together with a tight gap, so the helper reads
+   as meta info about the action rather than another paragraph at the
+   same hierarchy as the tagline above. Wrapping in .demo-action-block
+   gives them a shared tight gap that decouples from the inner's
+   wider gap between major elements. */
+.demo-action-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  align-items: flex-start;
+}
+
 .demo-start-btn {
-  align-self: flex-start;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -140,6 +189,8 @@
 
 /* ── Right half: cast showcase + per-card picker ──────────────────── */
 
+/* Same top-aligned padding as the left half so "THE CAST" eyebrow
+   starts at the same Y as the headline opposite. */
 .demo-right {
   grid-area: right;
   background: var(--surface-top);
@@ -151,7 +202,7 @@
 
 .demo-right-inner {
   width: 100%;
-  max-width: 520px;
+  max-width: 600px;
   margin-right: auto; /* hug the seam between halves on desktop */
   display: flex;
   flex-direction: column;
@@ -195,7 +246,11 @@
   background: var(--surface-top);
   border: 1px solid var(--border-regular);
   border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-sm);
+  /* Hard-edge offset shadow in a light brand tint — graphic / editorial
+     feel that stands the card off the surface-top half subtly. Raw
+     rgba (not a token) — the specific brand-tinted alpha here doesn't
+     map cleanly to brand-subtle. */
+  box-shadow: 6px 6px 0 rgba(120, 202, 193, 0.18);
   overflow: hidden;
 }
 
@@ -396,7 +451,7 @@
   width: 100%;
   /* Match the columns' inner max-width so the bar's content edges
      line up exactly with the logo / card content edges above. */
-  max-width: 520px;
+  max-width: 600px;
   display: flex;
   align-items: center;
 }
@@ -422,6 +477,10 @@
   color: var(--text-inverse);
 }
 
+.demo-credit strong {
+  font-weight: var(--weight-semibold);
+}
+
 /* Reset button styling on the inverse bar — outline treatment so it
    reads as a clear button distinct from the plain credit label on the
    other side. */
@@ -436,10 +495,95 @@
   color: var(--text-inverse);
 }
 
-@media (max-width: 899px) {
-  /* Mobile: stack the two bar cells. Reset on top, then a comfortable
-     gap from each cell's vertical padding, then credits. Each cell
-     centres its content and matches the halves' horizontal padding. */
+/* ─────────────────────────────────────────────────────────────────────
+   Tablet + below (≤1023px) — card flips to column.
+   Halves stay side-by-side; only the card layout changes. This avoids
+   the horizontal card getting cramped in the narrow tablet half
+   (240px photo + body in a ~400px content area is uncomfortable).
+   ───────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+  .demo-profile-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .demo-profile-card-photo {
+    width: 100%;
+    flex: 0 0 auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  .demo-profile-card-body {
+    /* Content-driven height — desktop's 240px floor (matched to the
+       photo's stretched height) doesn't apply once the photo's on top. */
+    min-height: 0;
+  }
+
+  /* Explore CTA stretches the full card-body width — clearer thumb
+     target and a natural rhythm with the photo above. */
+  .demo-profile-card-body > .btn-action {
+    align-self: stretch;
+    width: 100%;
+    margin-top: var(--space-sm);
+  }
+
+  /* Slider controls centred across a constrained width so the arrows
+     sit at thumb-reachable edges. */
+  .demo-slider-controls {
+    justify-content: space-between;
+    width: 100%;
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Phone (≤699px) — halves stack vertically, bar cells stack too.
+   Pushed down from the previous 899px so the side-by-side layout
+   survives tablet widths. The column card from the ≤1023 block
+   carries through here.
+   ───────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 699px) {
+  .demo-page {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+      "header-left"
+      "left"
+      "right"
+      "reset";
+  }
+
+  /* Empty right-header cell collapses on stacked mobile — it has no
+     content and no need to extend a surface colour anymore. */
+  .demo-top-header-right {
+    display: none;
+  }
+
+  .demo-left,
+  .demo-right {
+    /* More breathing room top/bottom — page can grow taller, the user
+       gets clearer separation between sections. */
+    padding: var(--space-jumbo-1) var(--space-xl);
+  }
+
+  .demo-left-inner,
+  .demo-right-inner {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* CTA + helper stretch full-width on phones so the action reads as
+     a clear, thumb-friendly block. */
+  .demo-action-block {
+    align-items: stretch;
+    width: 100%;
+  }
+
+  /* Bar cells stack — reset on top, comfortable gap, credits below. */
   .demo-reset-row {
     grid-template-columns: 1fr;
   }
@@ -458,67 +602,9 @@
 }
 
 @media (max-width: 599px) {
-  /* Phone: extra vertical padding so the bar reads as a substantial
-     closing zone rather than crammed. */
+  /* Extra vertical padding on each bar cell so the inverse closing
+     zone reads as substantial rather than crammed. */
   .demo-reset-cell {
     padding: var(--space-lg) var(--space-xl);
-  }
-}
-
-/* ─────────────────────────────────────────────────────────────────────
-   Mobile (≤899px) — stack the halves vertically.
-   ───────────────────────────────────────────────────────────────────── */
-
-@media (max-width: 899px) {
-  .demo-page {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-    grid-template-areas:
-      "left"
-      "right"
-      "reset";
-  }
-
-  .demo-left,
-  .demo-right {
-    padding: var(--space-xl);
-  }
-
-  .demo-left-inner,
-  .demo-right-inner {
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  /* On narrow screens drop the photo size so the horizontal card
-     still fits comfortably without crowding the body content. */
-  .demo-profile-card-photo {
-    flex: 0 0 140px;
-    width: 140px;
-  }
-
-  .demo-profile-card-body {
-    padding: var(--space-md);
-    /* Content-driven height on mobile — the desktop's 240px floor
-       crowds narrow screens once the goal sentence wraps. */
-    min-height: 0;
-  }
-
-  /* Explore CTA stretches the full card-body width on mobile so it
-     reads as a clear, thumb-friendly action. */
-  .demo-profile-card-body > .btn-action {
-    align-self: stretch;
-    width: 100%;
-    margin-top: var(--space-sm);
-  }
-
-  /* Slider controls centred and spread across a constrained width
-     so the arrows sit at thumb-reachable edges on phones. */
-  .demo-slider-controls {
-    justify-content: space-between;
-    width: 100%;
-    max-width: 280px;
-    margin-left: auto;
-    margin-right: auto;
   }
 }

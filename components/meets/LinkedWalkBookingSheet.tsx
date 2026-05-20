@@ -4,31 +4,44 @@ import { useState, useEffect, useMemo } from "react";
 import { CheckCircle, CalendarDots } from "@phosphor-icons/react";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useBookings } from "@/contexts/BookingsContext";
 import { getMeetOccurrences } from "@/lib/meetUtils";
 import { SERVICE_LABELS } from "@/lib/constants/services";
-import type { CarerCareServiceConfig, Meet } from "@/lib/types";
+import type {
+  CarerCareServiceConfig,
+  Meet,
+  WalkDeliveryMethod,
+} from "@/lib/types";
 
 /**
- * DropoffBookingSheet — booking flow for a drop-off **Care** service linked
- * to a free community-walk meet (Service ↔ Meet Linkage, config #2).
+ * LinkedWalkBookingSheet — booking flow for a *linked-care* Walks & Check-ins
+ * service that runs on a free community-walk meet (Service ↔ Meet Linkage,
+ * config #2 — see [[Groups & Care Model]] → Service ↔ Meet linkage).
  *
- * The owner picks a date from the meet's schedule and books the carer to
- * walk their dog. Crucially this is **book ≠ attend**: on confirm it creates
- * a Care `Booking` and does **NOT** add the owner to the meet roster — they
- * don't come along, only their dog does (with the carer). That's the whole
- * distinction from `BookSessionSheet` (Meet-type sessions, where booking IS
- * the RSVP). 2026-05-17.
+ * The owner picks a date from the meet's schedule + a delivery method
+ * (pickup vs drop-off, when the carer offers both) and books the carer to
+ * walk their dog. **Book ≠ attend:** on confirm this creates a Care
+ * `Booking` and does NOT add the owner to the meet roster — they don't come
+ * along, only their dog does (with the carer). That's the whole distinction
+ * from `BookSessionSheet` (Meet-type sessions, where booking IS the RSVP).
+ *
+ * Renamed from `DropoffBookingSheet` in the Walk Service Delivery phase
+ * (2026-05-20). Previously the sheet's title + copy used "drop-off" to mean
+ * the config-#2 booking shape; that collided with the literal delivery method
+ * (pickup vs drop-off — who travels for the handoff). The two are now
+ * separate concerns: this sheet is *about* the linked-care booking shape;
+ * delivery is one of the choices inside it.
  */
-export type DropoffBookingSheetProps = {
+export type LinkedWalkBookingSheetProps = {
   open: boolean;
   onClose: () => void;
-  /** The drop-off Care service being booked. */
+  /** The Walks & Check-ins Care service being booked. */
   service: CarerCareServiceConfig;
   /** The carer who owns the service. */
   carer: { id: string; name: string; avatarUrl: string };
-  /** The free meet whose schedule the drop-off walk runs on. */
+  /** The free meet whose schedule the walk runs on. */
   meet: Meet;
   /** Fired after the booking commits. */
   onBooked?: () => void;
@@ -44,19 +57,59 @@ function formatOccurrence(date: string, time: string): string {
   return `${label} · ${time}`;
 }
 
-export function DropoffBookingSheet({
+/** Resolve the available delivery options + the default selected method.
+ *  Pickup default per Walk Service Delivery Q3 (research-backed: most owners
+ *  prefer pickup; the cheaper drop-off becomes a happy surprise on
+ *  selection). When the service has no `deliveryOptions[]`, falls back to a
+ *  single drop-off at `pricePerUnit` so legacy data renders unchanged. */
+function resolveDeliveryState(service: CarerCareServiceConfig): {
+  options: { method: WalkDeliveryMethod; price: number }[];
+  defaultMethod: WalkDeliveryMethod;
+} {
+  const opts = service.deliveryOptions ?? [];
+  if (opts.length === 0) {
+    return {
+      options: [{ method: "dropoff", price: service.pricePerUnit }],
+      defaultMethod: "dropoff",
+    };
+  }
+  const hasPickup = opts.some((o) => o.method === "pickup");
+  return {
+    options: opts,
+    defaultMethod: hasPickup ? "pickup" : opts[0].method,
+  };
+}
+
+export function LinkedWalkBookingSheet({
   open,
   onClose,
   service,
   carer,
   meet,
   onBooked,
-}: DropoffBookingSheetProps) {
+}: LinkedWalkBookingSheetProps) {
   const viewer = useCurrentUser();
   const { createBooking } = useBookings();
 
+  const { options: rawOptions, defaultMethod } = useMemo(
+    () => resolveDeliveryState(service),
+    [service],
+  );
+  // Pickup-first sort so the default-selected option leads the row,
+  // matching `LinkedCareCallout`'s order. Don't mutate; copy first.
+  const deliveryOptions = useMemo(
+    () =>
+      rawOptions.slice().sort((a, b) => {
+        if (a.method === b.method) return 0;
+        return a.method === "pickup" ? -1 : 1;
+      }),
+    [rawOptions],
+  );
+
   const [step, setStep] = useState<"form" | "success">("form");
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedDelivery, setSelectedDelivery] =
+    useState<WalkDeliveryMethod>(defaultMethod);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -65,21 +118,27 @@ export function DropoffBookingSheet({
         setStep("form");
         setMessage("");
         setSelectedDate(null);
+        setSelectedDelivery(defaultMethod);
       }, 200);
       return () => clearTimeout(t);
     }
-  }, [open]);
+  }, [open, defaultMethod]);
 
-  // Dates the drop-off walk can be booked for — the meet's upcoming run.
+  // Dates the walk can be booked for — the meet's upcoming run.
   const dates = useMemo(
     () => getMeetOccurrences(meet, 6).map((o) => o.date),
     [meet],
   );
   const effectiveDate = selectedDate ?? dates[0] ?? null;
 
-  const priceLabel = `${service.pricePerUnit.toLocaleString()} Kč`;
+  const chosenOption =
+    deliveryOptions.find((d) => d.method === selectedDelivery) ??
+    deliveryOptions[0];
+  const priceLabel = `${chosenOption.price.toLocaleString()} Kč`;
   const dogLabel =
     viewer.pets.map((p) => p.name).join(" & ") || "your dog";
+  const meetSpotLabel = meet.location.split(",")[0];
+  const carerFirst = carer.name.split(" ")[0];
 
   function handleConfirm() {
     if (!effectiveDate) return;
@@ -94,11 +153,12 @@ export function DropoffBookingSheet({
       carerName: carer.name,
       carerAvatarUrl: carer.avatarUrl,
       type: "one_off",
-      // Config #2 link — book ≠ attend, so this is the *only* trace back
-      // to the meet (no `meetBooking`, no roster entry). Meet surfaces read
-      // it to show "Drop-off booked" on the occurrence row.
+      // Linked-care booking (config #2) — book ≠ attend, so this is the
+      // *only* trace back to the meet (no `meetBooking`, no roster entry).
+      // Meet surfaces read it to show "Walk booked" on the occurrence row.
       dropoffMeetId: meet.id,
       serviceType: service.serviceType,
+      delivery: selectedDelivery,
       subService: "Group walk",
       pets: viewer.pets.map((p) => p.name),
       startDate: effectiveDate,
@@ -107,12 +167,12 @@ export function DropoffBookingSheet({
       price: {
         lineItems: [
           {
-            label: "Group walk",
-            amount: service.pricePerUnit,
+            label: `Group walk (${selectedDelivery === "pickup" ? "pickup" : "drop-off"})`,
+            amount: chosenOption.price,
             unit: "per walk",
           },
         ],
-        total: service.pricePerUnit,
+        total: chosenOption.price,
         currency: "Kč",
         billingCycle: "total",
       },
@@ -149,7 +209,7 @@ export function DropoffBookingSheet({
     <ModalSheet
       open={open}
       onClose={onClose}
-      title={step === "form" ? "Book a drop-off walk" : "You're booked"}
+      title={step === "form" ? "Book a walk" : "You're booked"}
       footer={footer}
     >
       {step === "form" ? (
@@ -163,17 +223,48 @@ export function DropoffBookingSheet({
             />
             <div className="flex flex-col gap-xs flex-1 min-w-0">
               <span className="text-sm font-semibold text-fg-primary">
-                {carer.name.split(" ")[0]} walks {dogLabel}
+                {carerFirst} walks {dogLabel}
               </span>
               <span className="text-xs text-fg-tertiary">
-                {SERVICE_LABELS[service.serviceType]} · drop-off — you don&apos;t
-                come along
+                {SERVICE_LABELS[service.serviceType]} · you don&apos;t come along
               </span>
             </div>
             <span className="text-base font-semibold text-fg-primary shrink-0">
               {priceLabel}
             </span>
           </div>
+
+          {/* Delivery picker — uses the canonical `MultiSelectSegmentBar`
+              pattern (same as Available times / Repeat-weekly days in
+              FilterBody). Single-select usage: `selectedValues` always
+              carries exactly one method; `onToggle` replaces rather than
+              toggles. The "form" variant gives neutral active styling —
+              this is a commit-context picker, not exploratory filtering,
+              and stays away from the brand-tinted "filter" variant.
+              Surfaces only when the carer offers more than one method;
+              single-option services skip it. Walk Service Delivery, 2026-05-20. */}
+          {deliveryOptions.length > 1 && (
+            <div className="flex flex-col gap-xs">
+              <span className="text-sm font-medium text-fg-primary">
+                Pickup or drop-off?
+              </span>
+              <MultiSelectSegmentBar<WalkDeliveryMethod>
+                ariaLabel="Delivery method"
+                options={deliveryOptions.map((opt) => ({
+                  value: opt.method,
+                  label: opt.method === "pickup" ? "Pickup" : "Drop-off",
+                  subLabel: `${opt.price.toLocaleString()} Kč`,
+                }))}
+                selectedValues={[selectedDelivery]}
+                onToggle={(method) => setSelectedDelivery(method)}
+              />
+              <span className="text-xs text-fg-tertiary">
+                {selectedDelivery === "pickup"
+                  ? `${carerFirst} comes to ${viewer.firstName}'s address.`
+                  : `Bring ${dogLabel} to ${meetSpotLabel} at the start.`}
+              </span>
+            </div>
+          )}
 
           {/* Date picker — the meet's upcoming run */}
           {dates.length === 0 ? (
@@ -229,14 +320,14 @@ export function DropoffBookingSheet({
           {dates.length > 0 && (
             <div className="flex flex-col gap-xs">
               <label
-                htmlFor="dropoff-message"
+                htmlFor="linked-walk-message"
                 className="text-sm font-medium text-fg-primary"
               >
                 Message{" "}
                 <span className="text-fg-tertiary font-normal">(optional)</span>
               </label>
               <textarea
-                id="dropoff-message"
+                id="linked-walk-message"
                 className="textarea resize-none"
                 placeholder="Anything the carer should know about your dog?"
                 rows={2}
@@ -257,20 +348,22 @@ export function DropoffBookingSheet({
             {effectiveDate && (
               <>
                 <span className="text-sm font-semibold text-fg-primary">
-                  {carer.name.split(" ")[0]} walks {dogLabel} —{" "}
+                  {carerFirst} walks {dogLabel} —{" "}
                   {formatOccurrence(effectiveDate, meet.time)}
                 </span>
                 <span className="text-sm text-fg-secondary">
-                  It&apos;s on your bookings — you don&apos;t need to come; she&apos;ll
-                  send a report after the walk.
+                  {selectedDelivery === "pickup"
+                    ? `${carerFirst} picks ${dogLabel} up from your address.`
+                    : `Bring ${dogLabel} to ${meetSpotLabel} at the start of the walk.`}{" "}
+                  You don&apos;t come along; she&apos;ll send a report afterwards.
                 </span>
               </>
             )}
           </div>
           {effectiveDate && (
             <div className="flex flex-col gap-tiny">
-              <span className="text-sm text-fg-tertiary">{meet.location}</span>
               <span className="text-sm text-fg-tertiary">
+                {selectedDelivery === "pickup" ? "Pickup" : "Drop-off"} ·{" "}
                 {priceLabel} · paid on the day
               </span>
             </div>

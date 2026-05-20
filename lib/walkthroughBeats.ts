@@ -161,9 +161,9 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
         kind: "interstitial",
         mode: "explainer",
         eyebrow: "How this works",
-        heading: "What happens on a Klára walk",
+        heading: "More than a walk",
         body:
-          "A Klára walk is part exercise, part training. As the group moves, she coaches: leash skills, reading other dogs, owners learning to handle their own. For a nervous dog it's a calm, controlled first taste of company, and it's how a dog that used to avoid the park slowly becomes one that belongs in the group.",
+          "A Klára walk is part exercise, part training, part crew. As the group moves, she coaches: leash skills, reading other dogs, owners learning to handle their own. Not everyone's there for the training. Some regulars come for the company, and their dogs are already happy to see each other. For a nervous dog it's a calm, controlled first taste of all that, and it's how a dog that used to avoid the park slowly becomes one that belongs in the group.",
       },
       {
         kind: "card",
@@ -175,7 +175,15 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
       {
         kind: "card",
         instruction:
-          "Open the **Stromovka morning walk** to see who came along.",
+          "Head to **Community** to see how the walk's playing out.",
+        detail:
+          "Community is the feed for Klára's network — her groups, the meets, the conversations between them. After a walk wraps, this is where the recap lives.",
+        advanceOn: "/home",
+      },
+      {
+        kind: "card",
+        instruction:
+          "Open today's **Stromovka morning walk** in the feed.",
         detail:
           "Regulars and new faces, Daniel and Bára among them. The same crew turns out most weeks now.",
         advanceOn: "/meets/meet-klara-stromovka",

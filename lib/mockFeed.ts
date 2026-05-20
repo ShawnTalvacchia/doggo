@@ -164,12 +164,19 @@ export function getFeedForUser(userId: string): FeedItem[] {
   }
 
   // ── Contextual: upcoming meets within 48h that user is attending ─────────
+  // Today's meets stay in the feed all day regardless of their start time —
+  // "happening today" is a useful unit even after the start hour passes
+  // (the user might want to see the roster, today's photos, or chat with
+  // the host). Beat 2 of the demo relies on this: Klára finishes the
+  // morning walk and lands on Community expecting to see the meet card.
   const now = new Date();
   const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+  const todayIso = now.toISOString().slice(0, 10);
   const soonMeets = mockMeets
     .filter((m) => {
       if (m.status !== "upcoming") return false;
       if (!m.attendees.some((a) => a.userId === userId)) return false;
+      if (m.date === todayIso) return true;
       const meetDate = new Date(`${m.date}T${m.time}`);
       return meetDate <= in48h && meetDate >= now;
     })

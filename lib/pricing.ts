@@ -97,6 +97,47 @@ const SERVICE_BASE_LABEL: Record<ServiceType, string> = {
   boarding: "Boarding",
 };
 
+/**
+ * Walks-only: resolve the per-unit base rate against the carer's
+ * `deliveryOptions[]` when the inquiry specifies a delivery method. Falls
+ * back to `pricePerUnit` for non-walk services, for walk services without
+ * `deliveryOptions[]`, or when the inquiry's chosen method isn't offered
+ * (defensive — shouldn't happen if the UI gates correctly).
+ *
+ * Walk Service Delivery, 2026-05-20.
+ */
+function resolveBaseRate(
+  config: CarerCareServiceConfig,
+  inquiry: InquiryDetails,
+): { rate: number; deliveryLabel: string | null } {
+  if (
+    config.serviceType === "walks_checkins" &&
+    config.deliveryOptions &&
+    config.deliveryOptions.length > 0
+  ) {
+    const chosen = inquiry.delivery
+      ? config.deliveryOptions.find((d) => d.method === inquiry.delivery)
+      : null;
+    if (chosen) {
+      return {
+        rate: chosen.price,
+        deliveryLabel: chosen.method === "pickup" ? "pickup" : "drop-off",
+      };
+    }
+    // No method chosen yet — default to drop-off if offered, else first option.
+    // Used by the live-estimate path before the owner picks; the booking path
+    // always sets `inquiry.delivery` so this is a soft fallback only.
+    const fallback =
+      config.deliveryOptions.find((d) => d.method === "dropoff") ??
+      config.deliveryOptions[0];
+    return {
+      rate: fallback.price,
+      deliveryLabel: fallback.method === "pickup" ? "pickup" : "drop-off",
+    };
+  }
+  return { rate: config.pricePerUnit, deliveryLabel: null };
+}
+
 function unitsForOneOff(inquiry: InquiryDetails, priceUnit: "per_visit" | "per_night"): number {
   if (!inquiry.startDate) return 1;
   if (priceUnit === "per_visit") {
@@ -236,24 +277,32 @@ export function computeQuote(
   const lineItems: PriceLineItem[] = [];
   const modifiers = config.modifiers ?? [];
 
+  // Resolve walks delivery → per-unit rate. Non-walks fall through to
+  // `pricePerUnit`. Walk Service Delivery, 2026-05-20.
+  const { rate, deliveryLabel } = resolveBaseRate(config, inquiry);
+
+  // Base label gains a (pickup) / (drop-off) suffix on walks_checkins so
+  // the line item makes the delivery axis legible in the proposal.
+  const labelWithDelivery = deliveryLabel ? `${baseLabel} (${deliveryLabel})` : baseLabel;
+
   // 1. Base line item
   let baseAmount: number;
   let billingCycle: BookingPrice["billingCycle"];
   if (inquiry.bookingType === "one_off") {
     const units = unitsForOneOff(inquiry, config.priceUnit);
-    baseAmount = config.pricePerUnit * units;
+    baseAmount = rate * units;
     const countLabel = `${units} ${units === 1 ? unitWord : `${unitWord}s`}`;
     lineItems.push({
-      label: `${baseLabel} × ${countLabel}`,
+      label: `${labelWithDelivery} × ${countLabel}`,
       amount: baseAmount,
       unit: `per ${unitWord}`,
     });
     billingCycle = config.priceUnit === "per_night" ? "per_night" : "per_session";
   } else {
     const visitsPerWeek = inquiry.recurringSchedule?.days.length ?? 1;
-    baseAmount = config.pricePerUnit * visitsPerWeek;
+    baseAmount = rate * visitsPerWeek;
     lineItems.push({
-      label: `${baseLabel} × ${visitsPerWeek} ${visitsPerWeek === 1 ? unitWord : `${unitWord}s`}/week`,
+      label: `${labelWithDelivery} × ${visitsPerWeek} ${visitsPerWeek === 1 ? unitWord : `${unitWord}s`}/week`,
       amount: baseAmount,
       unit: "per week",
     });

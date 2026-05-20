@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-17
+last-reviewed: 2026-05-20
 tags: [groups, community, carers, care, navigation, demo]
 review-trigger: "when touching group features, Community tab, Care groups, care model, or demo planning"
 ---
@@ -256,9 +256,21 @@ Each offering's row needs to know its own type so the tap routes correctly. This
 
 Four canonical configurations:
 1. **Free unlinked Meet.** Tereza's Sunday park walk. No service.
-2. **Free Meet + linked drop-off Care service.** Tereza's Thursday neighbourhood walk is free to join. *Separately*, she offers a drop-off **Walks & Check-ins Care service** — book it and she walks your dog; you don't come. Two distinct paths on the same scheduled walk: **join free as a walker**, or **book the Care service as an owner**. A user does one, never both — **booking ≠ attending**. *(Remodelled 2026-05-17 — see the §13 correction note. The earlier framing made the linked service a Meet-type service with a "mixed roster" of free + paid attendees; that was wrong — a paid walk is drop-off, the owner isn't there. The build for the corrected config is a scheduled follow-on phase.)*
+2. **Free Meet + linked-care booking.** Tereza's Thursday neighbourhood walk is free to join. *Separately*, she offers a **Walks & Check-ins Care service** linked to that walk — book it and she walks your dog; you don't come. Two distinct paths on the same scheduled walk: **join free as a walker**, or **book the Care service as an owner**. A user does one, never both — **booking ≠ attending**. *(Remodelled 2026-05-17. Renamed from "drop-off Care service" to "linked-care booking" in the Walk Service Delivery phase, 2026-05-20 — "drop-off" was doing double duty as both the booking shape and the literal delivery method, see "Two axes" below.)*
 3. **Meet + required service.** Klára's "Group training session" — to RSVP you must book the service. The booking IS the RSVP.
 4. **Service with no Meet.** Pure Care (boarding, house-sitting). Booking produces a Booking record; no roster.
+
+### Two axes: booking shape vs delivery method (Walk Service Delivery, 2026-05-20)
+
+A walks_checkins service carries **two orthogonal axes**. Conflating them caused a long-standing copy mess; calling them out separately is the fix.
+
+**Axis 1 — booking shape (config #2 vs the rest).** Does booking the service add the owner to a meet's roster? **Linked-care booking** (config #2 above) is the shape where it doesn't — book ≠ attend; the owner books the carer to walk the dog, only the dog goes. The opposite is a required-link Meet-type service (config #3), where booking IS the RSVP. The discriminator is `Meet.linkedServices[].required` + the typed field `Booking.dropoffMeetId` (kept named for ripple reasons even though "drop-off" is no longer the user-facing copy).
+
+**Axis 2 — delivery method (pickup vs drop-off).** *Who travels* for the handoff. **Pickup** = carer comes to the owner's address. **Drop-off** = owner brings the dog to the carer / meet point. The owner picks one at booking time and the choice persists on `Booking.delivery`. Per-method pricing lives on `CarerCareServiceConfig.deliveryOptions[]`; the carer can offer one or both (Pawel is canonical pickup-only). Walks-only — boarding / house-sitting / day-care have implicit delivery semantics (whose home implies who travels).
+
+The two axes compose freely: a linked-care booking can be either pickup or drop-off; a non-linked one-off solo walk can be either; a required-link Meet-type session has neither (the owner attends, so nobody's "delivering"). Pricing for axis 2 reads from `deliveryOptions[]` via `computeQuote`; axis 1 stays a structural data discriminator with no price implication beyond the choice of service.
+
+**Copy rules.** Internal field names keep historical strings (`dropoffMeetId`) to avoid a churning rename. User-facing copy uses **"linked-care booking"** for the axis-1 shape and **"pickup" / "drop-off"** strictly for axis-2 delivery. Don't combine them: "drop-off-only" services aren't a thing — a carer can offer a linked-care service with both delivery options, neither makes it more or less linked-care.
 
 **The Service is the monetization wrapper.** It owns: price, pricing modifiers, sub-services / what's included, notes, enabled toggle, audience (circle vs anyone). For Care-type services it also owns the structural fields (service type, price unit) since there's no Meet to delegate to. The Meet, when present, owns the operational fields — location, cadence, occurrences, attendee cap, RSVP rules.
 
@@ -266,7 +278,7 @@ Four canonical configurations:
 
 **Book routes through one flow from both doorways.** Tap Book on the meet detail page OR on the carer's Services tab → same booking sheet. When the service links to multiple meets, the booking sheet shows a session picker so the owner chooses which occurrence; one-meet link defaults to next occurrence. The Booking record is created; the attendee is added to the meet's roster (when linked).
 
-**Meet card UX by link type.** When a meet links an *optional* drop-off Care service (config #2), the meet card's primary CTA stays "Join free" — the meet's identity is "community walk, free to join." The Care service surfaces inline as a *separate* supplementary callout ("Have a carer walk your dog: 200 Kč →") routing to the drop-off booking flow — book and join are distinct paths, never combined. When the link is *required* (config #3), the free CTA collapses; the card shows "Book session → 350 Kč" as the sole CTA.
+**Meet card UX by link type.** When a meet links an *optional* linked-care Walks service (config #2), the meet card's primary CTA stays "Join free" — the meet's identity is "community walk, free to join." The Care service surfaces inline as a *separate* supplementary callout ("Have a carer walk your dog") routing to the linked-walk booking flow (`LinkedWalkBookingSheet`) where the owner picks pickup or drop-off — book and join are distinct paths, never combined. When the link is *required* (config #3), the free CTA collapses; the card shows "Book session → 350 Kč" as the sole CTA.
 
 **Discovery cross-surfacing.** Meets with required services appear in both `/discover/meets` and `/discover/care` (under the appointment-type filter). Two doorways for two user intents (browsing community calendar vs shopping for paid services). Filter de-duplication and result-count semantics need deliberate design — see Open Q §13.
 

@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-17
+last-reviewed: 2026-05-20
 
 tags: [discover, care, booking, carers, map, payment, trust-gating]
 review-trigger: "when modifying Discover Care tab, Carer profiles, booking flows, payment, or map"
@@ -113,6 +113,19 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 - **Per-service pricing on Discover Care cards** — `ProviderCard.pricesByService` lookup keyed by active service filter. When filter is "All", falls back to single `priceFrom` + `priceUnit`. Service-tag chip row hides under specific filters (context implied).
 - **Provider modifier-config UI** — `PricingModifiersEditor` accordion in `ProfileServicesTab` (default-collapsed; "N on" badge). All four modifier kinds always render so providers can flip any on. Reasonable defaults so opt-in is one tap.
 - **Persistent persona override (`?as=...`).** `useCurrentUser` hook now mirrors `?as=<personaId>` URL param to `sessionStorage["doggo-as-preview"]` so directory-only personas (Petra, Shawn, Nikola) survive route changes during a session. Picker actions clear the sessionStorage + strip the URL param via custom event.
+
+### Walk Service Delivery additions (closed 2026-05-20)
+
+- **Delivery is a first-class axis on walks_checkins.** A `CarerCareServiceConfig` for walks can carry `deliveryOptions: { method: "pickup" | "dropoff"; price: number }[]`. **Pickup** = carer collects from the owner's address; **drop-off** = owner brings the dog to the carer / meet point. The owner picks one at booking time; the choice persists on `Booking.delivery`. Walks-only — boarding / day-care / house-sitting have implicit delivery semantics (whose home implies who travels) and don't carry the field.
+- **Per-method pricing.** Each option in `deliveryOptions[]` carries its own price; `computeQuote` reads `inquiry.delivery` to resolve the base rate, then stacks modifiers normally. Klára's `klara-walks`: 300 Kč drop-off / 380 Kč pickup. Pawel is canonical **pickup-only** — his `Group.serviceListings` already advertise the route (no `CarerCareServiceConfig` to extend).
+- **Default selected = pickup.** Research-backed (most owners prefer pickup); pre-selecting the expected option means owners who deviate to drop-off see the price drop, which reads as a happy surprise rather than an upsell.
+- **Linked-care booking (config #2) renamed.** Internally `Booking.dropoffMeetId` stays as a stable field name; user-facing copy retires "drop-off" as the booking-shape label, in favour of "linked-care booking" (book ≠ attend). The previous overload — "drop-off" meant both the booking shape *and* a delivery method — caused a long-standing copy mess. Two axes are now explicit (see [[Groups & Care Model]] → "Two axes").
+- **Component rename.** `DropoffBookingSheet` → **`LinkedWalkBookingSheet`** (`components/meets/`). The sheet now hosts a delivery picker (when the carer offers both) above the date picker. Single-option services skip the picker. The confirmation step names the chosen method + price.
+- **`LinkedCareCallout`** on the free meet detail surfaces both delivery options inline with their prices when the carer offers both, or the single price otherwise. The previous "Drop-off — Klára takes your dog on this walk" prefix copy was retired.
+- **Meet occurrence pill on the meet detail page** now reads **"Walk booked"** (was "Drop-off booked") for dates the viewer has a linked-care booking on. The pill names the commitment, not the delivery method.
+- **`ScheduleCard`** now reads `Booking.delivery` for the operational hint on walks ("Pick up at Holešovice" / "Drop off at Stromovka") instead of inferring from `serviceType`. Non-walk Care bookings still infer from service shape. The one-off chip ("Drop-off" for one-off Care bookings) was renamed to **"One-off"** — the chip's actual meaning was always "single discrete event," not "drop-off."
+- **Booking detail page** surfaces the chosen delivery as a row in the details list, alongside schedule / pets / price.
+- **Auto-Familiar on inquiry send and trust-related signals** unchanged. The auto-pricing engine `computeQuote` gained delivery-aware base resolution but no new modifier dimension.
 
 ### Service ↔ Meet Linkage additions (closed 2026-05-17)
 

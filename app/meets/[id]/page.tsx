@@ -50,7 +50,7 @@ import { ShareMeetModal } from "@/components/meets/ShareMeetModal";
 import { ServiceBookingSheet } from "@/components/meets/ServiceBookingSheet";
 import { BookSessionSheet } from "@/components/meets/BookSessionSheet";
 import { LinkedCareCallout } from "@/components/meets/LinkedCareCallout";
-import { DropoffBookingSheet } from "@/components/meets/DropoffBookingSheet";
+import { LinkedWalkBookingSheet } from "@/components/meets/LinkedWalkBookingSheet";
 import { getLinkedServicesForMeet } from "@/lib/meetUtils";
 import { CancelOccurrenceModal } from "@/components/meets/CancelOccurrenceModal";
 import { ParticipantList } from "@/components/meets/ParticipantList";
@@ -237,9 +237,10 @@ function MeetDetailInner() {
   // For one-off care meets the date is `meet.date`; for recurring it's the
   // tapped occurrence date from the Upcoming dates row. `null` = sheet closed.
   const [bookingDate, setBookingDate] = useState<string | null>(null);
-  // Drop-off booking sheet (config #2) — open/closed. A free meet that links
-  // a drop-off Care service offers this *separate* paid path.
-  const [dropoffOpen, setDropoffOpen] = useState(false);
+  // Linked-walk booking sheet (config #2) — open/closed. A free meet that
+  // links a Walks & Check-ins Care service offers this *separate* paid path
+  // (book ≠ attend). Walk Service Delivery rename, 2026-05-20.
+  const [linkedWalkOpen, setLinkedWalkOpen] = useState(false);
   // Cancel-this-occurrence modal state — host-only, recurring meets only.
   // `null` = closed; otherwise the ISO date being cancelled.
   const [cancelOccDate, setCancelOccDate] = useState<string | null>(null);
@@ -476,7 +477,7 @@ function MeetDetailInner() {
               meet={meet}
               linkedService={linkedService}
               linkedCareService={linkedCareService}
-              onBookDropoff={() => setDropoffOpen(true)}
+              onBookLinkedWalk={() => setLinkedWalkOpen(true)}
               focusAttendees={focusAttendees}
               goingAttendees={goingAttendees}
               interestedCount={interestedCount}
@@ -572,12 +573,13 @@ function MeetDetailInner() {
           }}
         />
       )}
-      {/* Config #2 — drop-off Care booking. Creates a Care Booking; the
-          owner is NOT added to the meet roster (book ≠ attend). */}
+      {/* Config #2 — linked-care Walk booking. Creates a Care Booking; the
+          owner is NOT added to the meet roster (book ≠ attend). The owner
+          picks delivery (pickup vs drop-off) inside the sheet. */}
       {linkedCareService && (
-        <DropoffBookingSheet
-          open={dropoffOpen}
-          onClose={() => setDropoffOpen(false)}
+        <LinkedWalkBookingSheet
+          open={linkedWalkOpen}
+          onClose={() => setLinkedWalkOpen(false)}
           service={linkedCareService.service}
           carer={{
             id: linkedCareService.carer.id,
@@ -599,7 +601,7 @@ function DetailsTab({
   meet,
   linkedService,
   linkedCareService,
-  onBookDropoff,
+  onBookLinkedWalk,
   focusAttendees,
   goingAttendees,
   interestedCount,
@@ -622,12 +624,13 @@ function DetailsTab({
   /** The Meet-type service this meet links (resolved by the parent), if any.
    *  Drives the "About this service" card heading copy. */
   linkedService?: CarerMeetServiceConfig;
-  /** A drop-off Care service this free meet advertises (config #2), if any.
-   *  Renders the `LinkedCareCallout` — the separate "book a carer to walk
-   *  your dog" path. */
+  /** A Walks & Check-ins Care service this free meet advertises
+   *  (config #2 — linked-care booking, book ≠ attend). Renders the
+   *  `LinkedCareCallout` — the separate "book a carer to walk your dog"
+   *  path. */
   linkedCareService?: { service: CarerCareServiceConfig; carer: UserProfile };
-  /** Opens the drop-off booking sheet. */
-  onBookDropoff: () => void;
+  /** Opens the linked-walk booking sheet. */
+  onBookLinkedWalk: () => void;
   /**
    * Attendees for the focus occurrence — i.e. the next upcoming date for
    * recurring meets, or the only date for one-off. Used to drive "Who's
@@ -822,7 +825,7 @@ function DetailsTab({
                 name: linkedCareService.carer.firstName,
                 avatarUrl: linkedCareService.carer.avatarUrl,
               }}
-              onBook={onBookDropoff}
+              onBook={onBookLinkedWalk}
             />
           </div>
         )}
@@ -1739,11 +1742,13 @@ function RecurringUpcomingDates({
                     </button>
                   </>
                 ) : dropoffBookingId ? (
-                  // Config #2 — viewer booked a drop-off walk for this date.
-                  // Book ≠ attend, so this is NOT a roster Join: the pill
-                  // states the commitment and links to the Care booking.
-                  // It supersedes Join / Skip — you can't both hand the dog
-                  // off and walk it yourself on the same occurrence.
+                  // Config #2 — viewer booked a linked-care walk for this
+                  // date. Book ≠ attend, so this is NOT a roster Join: the
+                  // pill states the commitment and links to the Care
+                  // booking. It supersedes Join / Skip — you can't both
+                  // hand the dog off and walk it yourself on the same
+                  // occurrence. "Walk booked" copy retired the previous
+                  // "Drop-off booked" — see Walk Service Delivery Q6.
                   <Link
                     href={`/bookings/${dropoffBookingId}`}
                     className="inline-flex items-center gap-xs text-xs font-semibold rounded-pill px-sm py-xs"
@@ -1754,7 +1759,7 @@ function RecurringUpcomingDates({
                     }}
                   >
                     <Check size={11} weight="bold" />
-                    Drop-off booked
+                    Walk booked
                   </Link>
                 ) : skipped ? (
                   // Muted-in-place: replaces the action buttons with a label +

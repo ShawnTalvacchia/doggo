@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: draft
-last-reviewed: 2026-05-19
+last-reviewed: 2026-05-20
 tags: [demo, narrative, walkthrough, personas]
 review-trigger: "before any change to the persona roster, the anchor meet, or the walkthrough beats"
 ---
@@ -12,7 +12,7 @@ The spine of Doggo's **Guided Walkthrough** — the narrated concept story the d
 
 The walkthrough infrastructure already exists (`lib/walkthroughBeats.ts`, `WalkthroughContext`, the full-screen interstitial + the on-surface step card — see [[features/demo-mode]] → "Guided Walkthrough"). V2 re-authors *what it walks through* and extends — does not rebuild — that infrastructure.
 
-**Refs:** [[meetings/po-briefing-2026-05-15]] (walker-trainer framing, meet→booking conversion); [[strategy/Product Vision]] → "Trainer-Led Walks & the Training Value Proposition"; [[strategy/Cold-Start Playbook]] (trainer-led walks as the cold-start engine); [[strategy/User Archetypes]]; [[strategy/Groups & Care Model]] (config #2 — drop-off Care on a free meet; circle-audience Carer); [[features/demo-mode]].
+**Refs:** [[meetings/po-briefing-2026-05-15]] (walker-trainer framing, meet→booking conversion); [[strategy/Product Vision]] → "Trainer-Led Walks & the Training Value Proposition"; [[strategy/Cold-Start Playbook]] (trainer-led walks as the cold-start engine); [[strategy/User Archetypes]]; [[strategy/Groups & Care Model]] (config #2 — linked-care booking on a free meet; circle-audience Carer); [[features/demo-mode]]. Walk Service Delivery (2026-05-20) renamed config #2 from "drop-off Care booking" to "linked-care booking" and made delivery (pickup vs drop-off) a separate axis — see [[Groups & Care Model]] → "Two axes."
 
 ---
 
@@ -54,9 +54,9 @@ Klára's meet description does double duty as funnel copy — it welcomes friend
 **Klára's free weekly morning walk at Stromovka.** A free public meet (config #2 — see [[Groups & Care Model]]). The whole demo orbits it: Beat 1 leads into it (Daniel joins), Beat 2 *is* it (Klára runs it), Beat 3 follows from it (Daniel's aftermath).
 
 It anchors the narrative because:
-- It's **Klára's own meet** — she hosts it, coaches on it, and is paid through it (via the drop-off, below). The Cold-Start Playbook thesis on a real surface.
+- It's **Klára's own meet** — she hosts it, coaches on it, and is paid through it (via the linked-care booking, below). The Cold-Start Playbook thesis on a real surface.
 - It's the **gravitational center** — it pulls Klára (host), Daniel (newcomer attendee), and Magda (a Holešovice neighbour Daniel meets there) into orbit.
-- It's **config #2** — the walk is free, but Klára earns by **picking up a client's dog** as a drop-off Care booking (*book ≠ attend*). She walks her own dog Eda plus the one drop-off; finishing that care session seals a visit report — the care loop, closed.
+- It's **config #2** — the walk is free, but Klára earns by **picking up a client's dog** as a linked-care booking (*book ≠ attend*). The booking carries `Booking.delivery: "pickup"` — Klára literally collects Toby on the way (one of the two delivery options; drop-off is the other). She walks her own dog Eda plus the one client dog; finishing that care session seals a visit report — the care loop, closed.
 
 ---
 
@@ -86,10 +86,10 @@ Two personas. **Daniel's journey is the spine**; the demo cuts once to Klára's 
 **Time:** morning.
 **In:** persona-handoff interstitial → Klára.
 **Mid-beat interstitial:** explainer ("what happens on a Klára walk").
-**Surfaces:** `/schedule` → `/bookings/<id>/active` → the Stromovka walk meet. (Beat 2 enters from My Schedule — its quick-start is the natural place to begin a session that's coming up; the drop-off booking appears later, after Finish, holding the sealed report. The walk post fires off from the card itself, not a composer surface — see fire-off mechanic below.)
-**Demo focus:** the public-meet-as-funnel — config #2 (the free walk + the paid drop-off), the trainer's coaching work, the care-session loop, and the walk post as content + lead-gen.
+**Surfaces:** `/schedule` → `/bookings/<id>/active` → the Stromovka walk meet. (Beat 2 enters from My Schedule — its quick-start is the natural place to begin a session that's coming up; the linked-care booking appears later, after Finish, holding the sealed report. The walk post fires off from the card itself, not a composer surface — see fire-off mechanic below.)
+**Demo focus:** the public-meet-as-funnel — config #2 (the free walk + the paid linked-care booking), the trainer's coaching work, the care-session loop, and the walk post as content + lead-gen.
 
-**Hero actions:** run the drop-off care session (Start → Finish → seal report); fire off the walk post.
+**Hero actions:** run the linked-care session (Start → Finish → seal report); fire off the walk post.
 
 **Steps:** *(final copy in `lib/walkthroughBeats.ts`)*
 1. *(nav)* Open Klára's **My Schedule** — her day at a glance. Today: the Stromovka walk she hosts, and a booked walk for Filip's dog Toby, who she picks up on the way. (Schedule is the natural opening for a working morning: you check what's on. It's also the IA-correct surface for *starting* what's coming up — Bookings is for managing the arrangements themselves.)
@@ -193,7 +193,7 @@ A nav step can also carry **`awaitAction`** — then the card shows no Next butt
 
 **The fire-off step, precisely.** The content already exists in the mock world as a pre-seeded post (`mockPosts.ts`). The walkthrough card itself surfaces it — the pre-written caption and photo shown on the card as a post preview, with a **Share** button — and the viewer taps Share. The viewer never types. Card-handled (Option 1, decided 2026-05-18): self-contained, with no dependency on the real `PostComposer`. The point is the *expressive* satisfaction of posting, without the friction (and fragility) of authoring.
 
-**The viewer's role per beat:** one or two **hero actions** plus a few single-tap progressions (nav / tap-through / fire-off). Everything else — other people's RSVPs, the inbound message and connection request, the drop-off booking — is staged, and simply *there*.
+**The viewer's role per beat:** one or two **hero actions** plus a few single-tap progressions (nav / tap-through / fire-off). Everything else — other people's RSVPs, the inbound message and connection request, the linked-care booking — is staged, and simply *there*.
 
 **V2's fire-off moment:**
 - **Beat 2 step 5 — Klára's walk post.** The canonical fire-off: the card shows the caption and `post-stromovka-walk.jpeg` as a post preview; the viewer taps **Share**. The walk-as-content-and-lead-gen payoff, in one tap.
@@ -228,7 +228,7 @@ What the V2 narrative needs seeded.
 | Item | V2 target state | Owner |
 |---|---|---|
 | Klára's **free Stromovka walk** | A free public meet (config #2), id **`meet-klara-stromovka`** — hosted by Klára, associated with her care group (`group-klara-training`) so members see it. *Not* `meet-care-1` — that paid required-link "Calm Dog Group Session" stays as Klára's middle tier. | W4 |
-| Klára's **drop-off booking** | A config #2 drop-off Care booking, id **`booking-klara-toby`** — **Filip books Klára so Toby rides along on the walk** (Filip: existing Klára client, Holešovice neighbour; Toby: high-energy Jack Russell, group-ready). `Booking.dropoffMeetId` → `meet-klara-stromovka`. Care booking → Start/Finish/visit report. | W4.4 |
+| Klára's **linked-care booking** | A config #2 linked-care booking, id **`booking-klara-toby`** — **Filip books Klára so Toby rides along on the walk** (Filip: existing Klára client, Holešovice neighbour; Toby: high-energy Jack Russell, group-ready). `Booking.dropoffMeetId` → `meet-klara-stromovka`; `Booking.delivery: "pickup"` — Klára collects Toby from Filip's place in Holešovice on the way to Stromovka. Care booking → Start/Finish/visit report. | W4.4 |
 | Klára owns **Eda** | Border Collie, already seeded — audit that she reads as friendly / good with other dogs. | W2.1 |
 | Daniel ↔ Klára | Member of Klára's group; **no care relationship; `booking-klara-daniel` removed; connection state None pre-demo.** The Beat 3 capstone *creates* his first booking with her. | W2.2, W4 |
 | "Meets from your circle" surfacing | The Discover Meets elevated section must surface Klára's free walk for Daniel via **group co-membership** — V1 relied on Connected; V2 Daniel is None to Klára. | W3 / W4 |
@@ -248,6 +248,6 @@ What the V2 narrative needs seeded.
 - **Four beats → three beats, two personas.** Daniel's journey is the spine; the demo cuts once to Klára's POV (Beat 2). Tighter, faster, and legible — and it works better for a trainer audience (the Klára beat is "this is you"; the Daniel beats are "here's how a client finds and converts to you").
 - **Magda is no longer a POV persona.** She's a supporting character — the neighbour Daniel marks Familiar, and who sends the connection request + private-group invite. The private group is still shown, from Daniel's POV. Her Neighborhood Hub Member archetype stays available in Open View. (This reframes W2.4 — Magda only needs supporting-character sharpening — and W5 — the mutual-care concept is now seen through Daniel.)
 - **Lena's beat → the closing screen.** Her "graduated to care, never engages community" end-state is a closing-screen line, not a beat. She stays in Open View and the registry.
-- **Klára's V1 standalone session-execution beat → folded into Beat 2's config #2 drop-off.** The active-session surface still appears, reframed onto the funnel mechanic rather than shown as session mechanics for their own sake.
+- **Klára's V1 standalone session-execution beat → folded into Beat 2's config #2 linked-care booking.** The active-session surface still appears, reframed onto the funnel mechanic rather than shown as session mechanics for their own sake.
 - **The chronological backflip is gone.** V2 is linear: Daniel joins → the walk happens (Klára's POV) → Daniel reviews.
 - **Tereza / Tomáš / New User POVs** — not in the guided walkthrough; Open View covers them. Tereza stays the Open View default.

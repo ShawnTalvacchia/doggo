@@ -382,12 +382,24 @@ export function ScheduleCareCard({
     router.push(`/bookings/${booking.id}/active`);
   }
 
-  // Operational location hint — boarding/sitting handover happens at the
-  // carer's neighbourhood; walks happen from the owner's. Fail gracefully
-  // when the relevant party's profile lacks a neighbourhood.
-  const handoverParty = booking.serviceType === "walks_checkins"
-    ? getUserById(booking.ownerId)
-    : getUserById(booking.carerId);
+  // Operational location hint — *who travels* depends on the booking shape.
+  // Walks now carry an explicit `Booking.delivery` (Walk Service Delivery,
+  // 2026-05-20): pickup → carer comes to the owner's neighbourhood;
+  // drop-off → owner goes to the carer's. Non-walk Care bookings still use
+  // the implicit rule (handover at the carer's home / owner's home depending
+  // on the service shape — boarding/day_care = carer, house_sitting goes to
+  // owner's). Legacy walk bookings without `delivery` default to pickup,
+  // matching the pre-2026-05-20 hard-coded rule.
+  const isWalk = booking.serviceType === "walks_checkins";
+  const walkDelivery = isWalk ? (booking.delivery ?? "pickup") : null;
+  const handoverParty =
+    isWalk
+      ? walkDelivery === "pickup"
+        ? getUserById(booking.ownerId)
+        : getUserById(booking.carerId)
+      : booking.serviceType === "house_sitting"
+        ? getUserById(booking.ownerId)
+        : getUserById(booking.carerId);
   const handoverNeighbourhood = handoverParty?.neighbourhood;
 
   // Get the first pet's avatar for the combo
@@ -404,7 +416,7 @@ export function ScheduleCareCard({
       className={`sched-card sched-card--care${isCancelled ? " sched-card--cancelled" : ""}`}
       style={{ textDecoration: "none" }}
     >
-      {/* Row 1: Time or date range (left) · recurring days or drop-off · pill (right) */}
+      {/* Row 1: Time or date range (left) · recurring days or one-off · pill (right) */}
       <div className="sched-card-top">
         {isLive ? (
           <span
@@ -445,9 +457,15 @@ export function ScheduleCareCard({
             Weekly
           </span>
         )}
+        {/* One-off booking chip. Renamed from "Drop-off" in the Walk
+            Service Delivery phase (2026-05-20) — that word now names the
+            literal delivery method on walks, so the chip had to drop it.
+            "One-off" is what the chip actually means: a single discrete
+            care event (the recurring counterpart is the Weekly chip
+            above). */}
         {isOneOff && !isLive && !isCancelled && (
           <span className="sched-card-recurring">
-            Drop-off
+            One-off
           </span>
         )}
         <span className="flex-1" />
@@ -486,14 +504,20 @@ export function ScheduleCareCard({
       </div>
 
       {/* Operational hint — where the handover happens. Skipped for
-          cancelled / active so the row can carry status-specific copy. */}
+          cancelled / active so the row can carry status-specific copy.
+          Walks read `Booking.delivery` (pickup vs drop-off); other Care
+          shapes infer from serviceType. */}
       {!isCancelled && !isLive && handoverNeighbourhood && (
         <div className="sched-card-meta">
           <MapPin size={13} weight="light" className="text-fg-tertiary" />
           <span className="sched-card-names truncate text-fg-tertiary">
-            {booking.serviceType === "walks_checkins"
-              ? `Pick up at ${handoverNeighbourhood}`
-              : `Drop off in ${handoverNeighbourhood}`}
+            {isWalk
+              ? walkDelivery === "pickup"
+                ? `Pick up at ${handoverNeighbourhood}`
+                : `Drop off at ${handoverNeighbourhood}`
+              : booking.serviceType === "house_sitting"
+                ? `Visit at ${handoverNeighbourhood}`
+                : `Drop off in ${handoverNeighbourhood}`}
           </span>
         </div>
       )}
@@ -565,7 +589,7 @@ export function ScheduleBookingCard({
       className="sched-card sched-card--care"
       style={{ textDecoration: "none" }}
     >
-      {/* Row 1: Time or date range (left) · recurring days or drop-off · pill (right) */}
+      {/* Row 1: Time or date range (left) · recurring days or one-off · pill (right) */}
       <div className="sched-card-top">
         {timeLabel && (
           <span className="sched-card-time">
@@ -586,7 +610,7 @@ export function ScheduleBookingCard({
         )}
         {isOneOff && (
           <span className="sched-card-recurring">
-            Drop-off
+            One-off
           </span>
         )}
         <span className="flex-1" />

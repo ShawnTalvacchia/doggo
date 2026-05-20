@@ -966,23 +966,43 @@ function UserProfileInner() {
               <div className="profile-services-list">
                 {userProfile?.carerProfile?.services
                   ? <>
-                    {/* Care-type — drop-off (Walking, Sitting, Boarding) */}
+                    {/* Care-type services — "I take the dog" shape (Walking,
+                        Sitting, Day care, Boarding). Booking produces a
+                        Booking record. Walks carry an additional delivery
+                        axis (pickup vs drop-off — `deliveryOptions[]`)
+                        surfaced below the price; that axis is *who travels*,
+                        not the offering shape. Walk Service Delivery,
+                        2026-05-20. */}
                     {userProfile.carerProfile.services
                       .filter((s): s is import("@/lib/types").CarerCareServiceConfig => s.kind === "care" && s.enabled)
-                      .map((svc) => (
+                      .map((svc) => {
+                        const deliveryOpts = svc.deliveryOptions ?? [];
+                        const hasMultipleDelivery = deliveryOpts.length > 1;
+                        // Catalogue price reads from the cheapest delivery
+                        // option when present (so the user sees the floor),
+                        // with a "From" prefix to telegraph the range.
+                        const priceFromDelivery = hasMultipleDelivery
+                          ? Math.min(...deliveryOpts.map((o) => o.price))
+                          : svc.pricePerUnit;
+                        const showFromPrefix =
+                          (svc.modifiers ?? []).some((m) => m.enabled) ||
+                          hasMultipleDelivery;
+                        return (
                     <div key={svc.serviceType} className="profile-service-card">
                       <div className="profile-service-top">
                         <span className="profile-service-name">{SERVICE_LABELS[svc.serviceType]}</span>
                         <div className="profile-service-price-wrap">
                           <span className="profile-service-price">
                             {/* "From" telegraphs that the final quote depends
-                                on inquiry specifics (multi-pet, holiday, etc.)
-                                — surfaced in the proposal, not the catalogue.
-                                Pricing & Proposals, 2026-05-04. */}
-                            {(svc.modifiers ?? []).some((m) => m.enabled) && (
+                                on inquiry specifics (multi-pet, holiday,
+                                delivery method, etc.) — surfaced in the
+                                proposal, not the catalogue. Pricing &
+                                Proposals 2026-05-04; delivery axis added by
+                                Walk Service Delivery 2026-05-20. */}
+                            {showFromPrefix && (
                               <span className="profile-service-price-from">From </span>
                             )}
-                            {svc.pricePerUnit.toLocaleString()} Kč
+                            {priceFromDelivery.toLocaleString()} Kč
                             <span className="profile-service-unit">
                               {" "}/ {svc.priceUnit === "per_visit" ? "visit" : "night"}
                             </span>
@@ -999,6 +1019,30 @@ function UserProfileInner() {
                               {sub}
                             </span>
                           ))}
+                        </div>
+                      )}
+                      {hasMultipleDelivery && (
+                        <div className="flex flex-col gap-tiny text-xs">
+                          {deliveryOpts
+                            .slice()
+                            .sort((a, b) =>
+                              a.method === b.method ? 0 : a.method === "pickup" ? -1 : 1,
+                            )
+                            .map((opt) => (
+                              <span
+                                key={opt.method}
+                                className="flex items-center justify-between gap-xs text-fg-secondary"
+                              >
+                                <span>
+                                  {opt.method === "pickup"
+                                    ? `Pickup — ${firstName} comes to you`
+                                    : "Drop-off — meet at the start"}
+                                </span>
+                                <span className="font-semibold text-fg-primary">
+                                  {opt.price.toLocaleString()} Kč
+                                </span>
+                              </span>
+                            ))}
                         </div>
                       )}
                       {svc.notes && (
@@ -1025,7 +1069,8 @@ function UserProfileInner() {
                         </ButtonAction>
                       )}
                     </div>
-                  ))}
+                        );
+                      })}
                     {/* Meet-type — sessions the owner signs up for. Tap routes
                         to the linked series so the viewer can pick a date. */}
                     {userProfile.carerProfile.services

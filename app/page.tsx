@@ -119,15 +119,21 @@ export default function LandingPage() {
 
   return (
     <div className="demo-page">
+      <header className="demo-top-header-left">
+        <div className="demo-top-header-inner">
+          <img src="/logo.svg" alt="Doggo" className="demo-logo" />
+          <span className="demo-eyebrow">Demo</span>
+        </div>
+      </header>
+      {/* Empty right-header cell — its job is to extend surface-top up to
+          the top of the right column so the vertical seam between halves
+          runs unbroken from the reset bar to the top of the page. */}
+      <div className="demo-top-header-right" aria-hidden="true" />
+
       <section className="demo-left">
         <div className="demo-left-inner">
-          <header className="demo-left-header">
-            <img src="/logo.svg" alt="Doggo" className="demo-logo" />
-            <span className="demo-eyebrow">Demo</span>
-          </header>
-
           <h1 className="demo-headline">
-            <span className="demo-headline-primary">Your dog finds friends.</span>
+            <span className="demo-headline-primary">Your dog finds friends.</span>{" "}
             <span className="demo-headline-brand">You find people you trust.</span>
           </h1>
 
@@ -136,19 +142,20 @@ export default function LandingPage() {
             care from people you already know.
           </p>
 
-          <button
-            type="button"
-            className="demo-start-btn"
-            onClick={handleStartWalkthrough}
-          >
-            <Compass size={18} weight="bold" aria-hidden="true" />
-            Start the walkthrough
-            <ArrowRight size={16} weight="bold" aria-hidden="true" />
-          </button>
-
-          <p className="demo-start-note">
-            Start as <strong>Daniel</strong>. About 15 minutes.
-          </p>
+          <div className="demo-action-block">
+            <button
+              type="button"
+              className="demo-start-btn"
+              onClick={handleStartWalkthrough}
+            >
+              <Compass size={18} weight="bold" aria-hidden="true" />
+              Start the walkthrough
+              <ArrowRight size={16} weight="bold" aria-hidden="true" />
+            </button>
+            <p className="demo-start-note">
+              Start as <strong>Daniel</strong>. About 15 minutes.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -235,7 +242,8 @@ export default function LandingPage() {
         <div className="demo-reset-cell">
           <div className="demo-reset-inner demo-reset-inner--right">
             <span className="demo-credit">
-              Created by Alyssa Parkhurst and Shawn Talvacchia
+              Created by <strong>Alyssa Parkhurst</strong> and{" "}
+              <strong>Shawn Talvacchia</strong>
             </span>
           </div>
         </div>

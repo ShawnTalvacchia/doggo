@@ -94,7 +94,6 @@ export function WalkthroughCard() {
 
   const persona = getPersona(beat.personaId);
   const personaName = persona?.user.firstName ?? beat.personaId;
-  const isFirst = wt.beatIndex <= 0 && wt.stepIndex <= 0;
   const isLast =
     wt.beatIndex >= WALKTHROUGH_BEAT_COUNT - 1 &&
     wt.stepIndex >= beat.steps.length - 1;
@@ -179,7 +178,6 @@ export function WalkthroughCard() {
           type="button"
           className="wt-card-prev"
           onClick={wt.prev}
-          disabled={isFirst}
         >
           <ArrowLeft size={13} weight="bold" aria-hidden="true" />
           Back

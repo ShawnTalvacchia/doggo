@@ -239,6 +239,10 @@ export interface InquiryDetails {
   startDate: string | null;       // ISO YYYY-MM-DD
   endDate: string | null;
   recurringSchedule?: RecurringSchedule;
+  /** Walks-only: chosen delivery method. Drives the base-price lookup in
+   *  `computeQuote` when the carer's service has `deliveryOptions[]`.
+   *  Walk Service Delivery, 2026-05-20. */
+  delivery?: WalkDeliveryMethod;
   /** Optional free-text from the owner (additional context, not the
    *  templated stuff that's now structured above). */
   notes?: string;
@@ -260,6 +264,9 @@ export interface BookingProposal {
   startDate: string;           // ISO YYYY-MM-DD
   endDate: string | null;      // null for open-ended ongoing
   recurringSchedule?: RecurringSchedule;
+  /** Walks-only: chosen delivery method, carried into the resulting Booking
+   *  on sign. Walk Service Delivery, 2026-05-20. */
+  delivery?: WalkDeliveryMethod;
   price: BookingPrice;
   status: BookingProposalStatus;
   /** True when the provider deviated from the auto-computed quote. Surfaced
@@ -488,6 +495,20 @@ export interface Booking {
    * Service ↔ Meet Linkage, Workstream H3, 2026-05-17.
    */
   dropoffMeetId?: string;
+  /**
+   * Delivery method on a `walks_checkins` booking — *who travels* for the
+   * handoff. Set when the owner picks at booking time. Drives the
+   * "Pick up at…" / "Drop off in…" hint on schedule + booking surfaces.
+   *
+   * Walks-only — boarding / house-sitting / day-care have implicit delivery
+   * semantics (whose home implies who travels). Optional everywhere: legacy
+   * bookings without it fall back to the carer's first delivery option, or
+   * to `pickup` if the carer has no `deliveryOptions[]` (matches the
+   * historical ScheduleCard rule that rendered all walks as "Pick up at…").
+   *
+   * Walk Service Delivery, 2026-05-20.
+   */
+  delivery?: WalkDeliveryMethod;
   subService: string | null;
   pets: string[];
   // Dates
@@ -1123,8 +1144,11 @@ export interface CarerAvailabilitySlot {
  * A provider's catalogue entry. Three shapes, distinguished by what booking
  * produces (see [[Groups & Care Model]] → Services as Catalog):
  *
- * - **Care-type** (`kind: "care"`) — Walking, Sitting, Boarding. Drop-off.
- *   Owner doesn't sign up to a specific time; booking produces a Booking record.
+ * - **Care-type** (`kind: "care"`) — Walking, Sitting, Boarding. "I take
+ *   the dog" — owner doesn't sign up to a specific time; booking produces
+ *   a Booking record. Walks carry a separate *delivery* axis (pickup vs
+ *   drop-off — `CarerCareServiceConfig.deliveryOptions`); that's about who
+ *   travels for the handoff, not about the offering shape itself.
  * - **Meet-type** (`kind: "meet"`) — Training sessions, workshops, paid group
  *   walks. Owner signs up to a specific time; booking produces an attendance
  *   on a specific Meet (with a public/private/participants_only roster).
@@ -1215,6 +1239,32 @@ export type LeashPolicy = "always" | "off_leash_areas" | "case_by_case";
  *  D3, 2026-05-10. */
 export type HomeType = "flat" | "house" | "ground_floor_with_garden";
 
+/**
+ * Delivery method on a `walks_checkins` Care service — *who travels* for
+ * the handoff. **dropoff** = owner brings the dog to the carer / meet point;
+ * **pickup** = carer collects the dog from the owner's address.
+ *
+ * Distinct from config-#2 ("linked-care booking" — book ≠ attend, see
+ * `Booking.dropoffMeetId`). The two used to overlap in copy; they're now
+ * two orthogonal axes — see Walk Service Delivery phase, 2026-05-20.
+ *
+ * Walks-only in v1. Boarding / house-sitting / day-care have implicit
+ * delivery semantics (whose home implies who travels) — no `deliveryOptions`
+ * needed.
+ */
+export type WalkDeliveryMethod = "dropoff" | "pickup";
+
+/**
+ * A priced delivery option on a `walks_checkins` Care service. Walk Service
+ * Delivery, 2026-05-20.
+ */
+export interface WalkDeliveryOption {
+  method: WalkDeliveryMethod;
+  /** Kč per visit. Same unit as `CarerCareServiceConfig.pricePerUnit` for
+   *  walks (walks_checkins is locked to `per_visit`). */
+  price: number;
+}
+
 export interface CarerCareServiceConfig {
   kind: "care";
   /** Stable id — set **only** when this Care service is linked to a meet
@@ -1245,6 +1295,20 @@ export interface CarerCareServiceConfig {
   pace?: WalkPace;
   /** Walks: leash policy. */
   leashPolicy?: LeashPolicy;
+  /**
+   * Walks: priced delivery options offered by this carer. **dropoff** =
+   * owner brings the dog to the carer / meet point; **pickup** = carer
+   * collects from the owner's address. The owner picks one at booking time
+   * and the choice persists on `Booking.delivery`.
+   *
+   * Absence = carer hasn't authored delivery options yet; surfaces fall back
+   * to `pricePerUnit` as a single drop-off (today's legacy world). Pawel is
+   * the canonical pickup-only carer (one entry, `method: "pickup"`); Klára
+   * and most others offer both.
+   *
+   * Walk Service Delivery, 2026-05-20.
+   */
+  deliveryOptions?: WalkDeliveryOption[];
   /** Sitting / Boarding: type of home the carer offers. */
   homeType?: HomeType;
   /** Sitting / Boarding: carer has own dog(s) on premises. */

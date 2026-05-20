@@ -71,7 +71,10 @@ type WalkthroughContextValue = PersistedState & {
   continueToBeat: () => void;
   /** Advance one step — or, past a beat's last step, to the next beat's interstitial. */
   next: () => void;
-  /** Step back one step — or, from a beat's first step, to the previous beat's interstitial. */
+  /** Step back one step — or, from a beat's first step, to the previous beat's
+   *  LAST step (skipping the handoff interstitial, which is a one-way
+   *  transition, not navigable content). From the very first step of the
+   *  walkthrough, re-opens the opening interstitial. */
   prev: () => void;
   /** Skip the current beat entirely — jump straight to the next beat's interstitial. */
   skipBeat: () => void;
@@ -165,16 +168,46 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
     if (state.stepIndex > 0) {
       // Step back within the beat.
       persist({ ...state, stepIndex: state.stepIndex - 1 });
-    } else if (state.beatIndex > 0) {
-      // From the first step → re-open the previous beat's interstitial.
-      persist({
-        ...state,
-        beatIndex: state.beatIndex - 1,
-        stepIndex: 0,
-        phase: "interstitial",
-      });
+      return;
     }
-  }, [state, persist]);
+    if (state.beatIndex === 0) {
+      // From the first step of the first beat — re-open the opening
+      // interstitial. Previously this was a dead-end (Back disabled);
+      // returning to the interstitial lets the tester re-read the persona
+      // handoff if they need the framing again.
+      persist({ ...state, phase: "interstitial" });
+      return;
+    }
+    // From the first step of a later beat — jump back to the previous
+    // beat's LAST step (skipping its handoff interstitial, which is a
+    // one-way transition, not content the tester would want to re-watch).
+    // Switch persona AND route to the URL the previous beat ended on so
+    // the on-surface card lands on a coherent context.
+    const prevBeatIdx = state.beatIndex - 1;
+    const prevBeat = WALKTHROUGH_BEATS[prevBeatIdx];
+    if (!prevBeat) return;
+    const lastStepIdx = prevBeat.steps.length - 1;
+    // Walk the previous beat's steps from the end and pick the most-recent
+    // `advanceOn` — that's the URL the tester would have navigated to last
+    // in that beat (i.e., where they were when they crossed into the next
+    // beat). Fallback to the beat's `startUrl`.
+    let targetUrl = prevBeat.startUrl;
+    for (let i = lastStepIdx; i >= 0; i--) {
+      const step = prevBeat.steps[i];
+      if (step.kind === "card" && step.advanceOn) {
+        targetUrl = step.advanceOn;
+        break;
+      }
+    }
+    persist({
+      ...state,
+      beatIndex: prevBeatIdx,
+      stepIndex: lastStepIdx,
+      phase: "running",
+    });
+    setUserById(prevBeat.personaId);
+    router.push(targetUrl);
+  }, [state, persist, router, setUserById]);
 
   const skipBeat = useCallback(() => {
     // Jump past the current beat to the next beat's interstitial (or the

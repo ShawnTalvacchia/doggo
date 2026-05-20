@@ -17,6 +17,9 @@ const olgaBooking: Booking = {
   carerAvatarUrl: "/images/generated/lucie-profile.jpeg",
   type: "ongoing",
   serviceType: "walks_checkins",
+  // Walk Service Delivery, 2026-05-20. Pickup: ownerNotes reference key
+  // under the pot + treats in the kitchen — Olga enters Shawn's flat.
+  delivery: "pickup",
   subService: "Solo walk",
   pets: ["Spot"],
   startDate: "2026-03-02",
@@ -112,6 +115,9 @@ const petraBooking: Booking = {
   carerAvatarUrl: "/images/generated/petra-profile.jpeg",
   type: "one_off",
   serviceType: "walks_checkins",
+  // Walk Service Delivery, 2026-05-20. Pickup: a drop-in visit is by
+  // definition the carer coming to the owner's home.
+  delivery: "pickup",
   subService: "Drop-in visit",
   pets: ["Spot", "Goldie"],
   startDate: "2025-12-22",
@@ -143,6 +149,9 @@ const shawnCarerCompletedBooking: Booking = {
   carerAvatarUrl: "/images/generated/shawn-profile.jpg",
   type: "one_off",
   serviceType: "walks_checkins",
+  // Walk Service Delivery, 2026-05-20. Pickup: Shawn (Vinohrady) collects
+  // Hugo from Tomáš (Karlín) — owner doesn't travel cross-district.
+  delivery: "pickup",
   subService: "Solo walk",
   pets: ["Hugo"],
   startDate: "2026-02-10",
@@ -180,6 +189,9 @@ const shawnCarerActiveBooking: Booking = {
   carerAvatarUrl: "/images/generated/shawn-profile.jpg",
   type: "ongoing",
   serviceType: "walks_checkins",
+  // Walk Service Delivery, 2026-05-20. Pickup: group-walk pattern where
+  // Shawn collects each dog on the route.
+  delivery: "pickup",
   subService: "Group walk",
   pets: ["Molly"],
   startDate: "2026-03-03",
@@ -259,6 +271,10 @@ const klaraDropoffToby: Booking = {
   carerAvatarUrl: "/images/generated/klara-profile.jpeg",
   type: "ongoing",
   serviceType: "walks_checkins",
+  // Walk Service Delivery, 2026-05-20. Pickup: Klára collects Toby from
+  // Filip's place in Holešovice on her way to Stromovka — Beat 2's "first,
+  // she's got a dog to pick up" copy. 380 Kč matches Klára's pickup rate.
+  delivery: "pickup",
   subService: "Group walk",
   pets: ["Toby"],
   dropoffMeetId: "meet-klara-stromovka",
@@ -270,15 +286,15 @@ const klaraDropoffToby: Booking = {
     timeLabel: "9:40–11:15am",
   },
   ownerNotes: "Toby has loads of energy and needs the exercise — recall's a work in progress but he's friendly with everyone. He can pull on the leash near other dogs.",
-  carerNotes: "Toby walks with the morning group — good socialisation, and we practise loose-leash as we go.",
+  carerNotes: "I swing by your building at 9:40 and we walk over together. Toby joins the morning group — good socialisation, and we practise loose-leash as we go.",
   sessions: [
     { id: "kt-1", date: daysAgo(14), status: "completed", note: "Toby did great with the group — tired and happy." },
     { id: "kt-2", date: daysAgo(7), status: "completed" },
     { id: "kt-3", date: daysFromNow(0), status: "upcoming" },
   ],
   price: {
-    lineItems: [{ label: "Group walk", amount: 300, unit: "per session" }],
-    total: 300,
+    lineItems: [{ label: "Walk (pickup)", amount: 380, unit: "per session" }],
+    total: 380,
     currency: "Kč",
     billingCycle: "weekly",
   },
@@ -416,6 +432,9 @@ const terezaWalksMarek: Booking = {
   carerAvatarUrl: "/images/generated/tereza-profile.jpeg",
   type: "ongoing",
   serviceType: "walks_checkins",
+  // Walk Service Delivery, 2026-05-20. Pickup: ownerNotes reference key
+  // under the geranium pot — Tereza enters Marek's flat to collect Benny.
+  delivery: "pickup",
   subService: "Solo walk",
   pets: ["Benny"],
   startDate: "2026-04-21",
@@ -479,6 +498,9 @@ const olgaWalksTereza: Booking = {
   carerAvatarUrl: "/images/generated/lucie-profile.jpeg",
   type: "ongoing",
   serviceType: "walks_checkins",
+  // Walk Service Delivery, 2026-05-20. Pickup: ownerNotes reference treats
+  // jar by the door — Olga enters Tereza's flat to collect Franta.
+  delivery: "pickup",
   subService: "Solo walk",
   pets: ["Franta"],
   startDate: daysAgo(28),
@@ -531,6 +553,10 @@ const pawelWalksLena: Booking = {
   carerAvatarUrl: "/images/generated/marek-profile.jpeg",
   type: "ongoing",
   serviceType: "walks_checkins",
+  // Walk Service Delivery, 2026-05-20. Pickup: Pawel's pickup-route brand —
+  // see mockNotifications "Pickup at your building" + mockGroups "Pickup
+  // available in Vinohrady and Žižkov." Pawel is pickup-only narratively.
+  delivery: "pickup",
   subService: "Group walk",
   pets: ["Asha"],
   startDate: daysAgo(35),

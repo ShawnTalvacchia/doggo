@@ -23,6 +23,7 @@ import {
   Pill,
   Ruler,
   Clock,
+  MapPin,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { DetailHeader } from "@/components/layout/DetailHeader";
@@ -957,13 +958,40 @@ export default function BookingDetailPage() {
                 </div>
               </div>
               <div className="flex items-center gap-md bg-surface-top"
-                style={{ padding: "var(--space-md) var(--space-lg)" }}>
+                style={{
+                  padding: "var(--space-md) var(--space-lg)",
+                  borderBottom:
+                    booking.serviceType === "walks_checkins" && booking.delivery
+                      ? "1px solid var(--border-subtle)"
+                      : "none",
+                }}>
                 <PawPrint size={18} weight="light" className="text-fg-tertiary shrink-0" />
                 <div className="flex flex-col flex-1">
                   <span className="text-sm font-medium text-fg-primary">{petNames}</span>
                   <span className="text-xs text-fg-tertiary">{booking.pets.length === 1 ? "1 pet" : `${booking.pets.length} pets`}</span>
                 </div>
               </div>
+              {/* Walks delivery row — surfaces *who travels* for the
+                  handoff. Walk Service Delivery, 2026-05-20. Only renders
+                  on walks_checkins with `Booking.delivery` set; other Care
+                  shapes carry implicit delivery semantics in the service
+                  type itself and don't need this row. */}
+              {booking.serviceType === "walks_checkins" && booking.delivery && (
+                <div className="flex items-center gap-md bg-surface-top"
+                  style={{ padding: "var(--space-md) var(--space-lg)" }}>
+                  <MapPin size={18} weight="light" className="text-fg-tertiary shrink-0" />
+                  <div className="flex flex-col flex-1">
+                    <span className="text-sm font-medium text-fg-primary">
+                      {booking.delivery === "pickup"
+                        ? `${booking.carerName.split(" ")[0]} picks up at the owner's address`
+                        : `Drop the dog off at the start of the walk`}
+                    </span>
+                    <span className="text-xs text-fg-tertiary">
+                      {booking.delivery === "pickup" ? "Pickup" : "Drop-off"}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Notes / Care instructions */}

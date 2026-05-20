@@ -165,13 +165,20 @@ export const tereza: UserProfile = {
         enabled: true,
         pricePerUnit: 200,
         priceUnit: "per_visit",
-        // "Group walk" is a drop-off walk (owner doesn't attend) — a
+        // "Group walk" is a linked-care walk (owner doesn't attend) — a
         // Walks & Check-ins sub-service, not a Meet-type service. The prior
         // `tereza-group-walk` Meet-type entry was a miscategorisation
         // (Service ↔ Meet Linkage remodel, 2026-05-17 — see Open Q §13).
         subServices: ["Solo walk", "Group walk"],
         notes: "Casual walks for neighbours' dogs — solo or in a small group. I usually do Riegrovy sady or Havlíčkovy sady. Familiar dogs only.",
         modifiers: [],
+        // Walk Service Delivery, 2026-05-20. Neighbourhood-scale carer —
+        // pickup and drop-off are both easy when everyone's on the same
+        // block. Modest pickup uplift (220 vs 200) preserves the casual rate.
+        deliveryOptions: [
+          { method: "dropoff", price: 200 },
+          { method: "pickup", price: 220 },
+        ],
       },
     ],
     publicProfile: false,
@@ -277,6 +284,14 @@ export const klara: UserProfile = {
         enabled: true,
         pricePerUnit: 300,
         priceUnit: "per_visit",
+        // Walk Service Delivery, 2026-05-20. Drop-off matches the linked
+        // Stromovka walk's meeting point (300 Kč, the existing rate); pickup
+        // adds the Holešovice-pickup-route value-add (380 Kč). Beat 2's Toby
+        // booking is a pickup — Filip lives in Holešovice on Klára's way.
+        deliveryOptions: [
+          { method: "dropoff", price: 300 },
+          { method: "pickup", price: 380 },
+        ],
         subServices: ["Group walk"],
         notes: "Training walks — structured walk with obedience practice. Max 4 dogs per group.",
       },
@@ -911,6 +926,12 @@ export const veronika: UserProfile = {
         subServices: ["Drop-in visit", "Solo walk"],
         notes: "Drop-in visits or short solo walks for neighbours' dogs. Holešovice Dog Block members only.",
         modifiers: [],
+        // Walk Service Delivery, 2026-05-20. Neighbourhood-scale carer
+        // (Holešovice Dog Block) — both methods, minimal pickup uplift.
+        deliveryOptions: [
+          { method: "dropoff", price: 200 },
+          { method: "pickup", price: 220 },
+        ],
       },
       {
         kind: "care",
@@ -1228,6 +1249,11 @@ export const shawn: UserProfile = {
           { kind: "holiday", enabled: true, pct: 25 },
           { kind: "multi_pet", enabled: true, flatPerExtra: 100 },
         ],
+        // Walk Service Delivery, 2026-05-20.
+        deliveryOptions: [
+          { method: "dropoff", price: 280 },
+          { method: "pickup", price: 340 },
+        ],
       },
     ],
     publicProfile: true,
@@ -1372,6 +1398,11 @@ export const olgaM: UserProfile = {
         ],
         pace: "moderate",
         leashPolicy: "always",
+        // Walk Service Delivery, 2026-05-20. Smíchov flat — both methods.
+        deliveryOptions: [
+          { method: "dropoff", price: 390 },
+          { method: "pickup", price: 470 },
+        ],
       },
       {
         kind: "care",
@@ -1455,6 +1486,11 @@ export const marketaH: UserProfile = {
         ],
         pace: "moderate",
         leashPolicy: "always",
+        // Walk Service Delivery, 2026-05-20. Premium full-service in Old Town.
+        deliveryOptions: [
+          { method: "dropoff", price: 600 },
+          { method: "pickup", price: 720 },
+        ],
       },
       {
         kind: "care",
@@ -1544,6 +1580,11 @@ export const janaK: UserProfile = {
         ],
         pace: "leisurely",
         leashPolicy: "always",
+        // Walk Service Delivery, 2026-05-20. Dejvice-based; both methods.
+        deliveryOptions: [
+          { method: "dropoff", price: 330 },
+          { method: "pickup", price: 390 },
+        ],
       },
       {
         kind: "care",
@@ -1642,6 +1683,11 @@ export const tomasB: UserProfile = {
         ],
         pace: "moderate",
         leashPolicy: "case_by_case",
+        // Walk Service Delivery, 2026-05-20. Žižkov-based; both methods.
+        deliveryOptions: [
+          { method: "dropoff", price: 520 },
+          { method: "pickup", price: 620 },
+        ],
       },
     ],
     publicProfile: true,
@@ -1695,6 +1741,11 @@ export const pavelD: UserProfile = {
         ],
         pace: "moderate",
         leashPolicy: "always",
+        // Walk Service Delivery, 2026-05-20. Karlín-based; both methods.
+        deliveryOptions: [
+          { method: "dropoff", price: 440 },
+          { method: "pickup", price: 520 },
+        ],
       },
       {
         kind: "care",
@@ -1839,6 +1890,11 @@ export const martinK: UserProfile = {
         ],
         pace: "brisk",
         leashPolicy: "off_leash_areas",
+        // Walk Service Delivery, 2026-05-20. Holešovice-based; both methods.
+        deliveryOptions: [
+          { method: "dropoff", price: 480 },
+          { method: "pickup", price: 570 },
+        ],
       },
       {
         kind: "care",
@@ -1909,6 +1965,11 @@ export const lenkaS: UserProfile = {
         ],
         pace: "leisurely",
         leashPolicy: "always",
+        // Walk Service Delivery, 2026-05-20. Vršovice-based; both methods.
+        deliveryOptions: [
+          { method: "dropoff", price: 310 },
+          { method: "pickup", price: 370 },
+        ],
       },
       {
         kind: "care",
