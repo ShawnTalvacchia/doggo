@@ -85,9 +85,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             {/* Guided Walkthrough — full-screen handoff
                                 interstitial + persistent on-surface step
                                 card. Both return null outside an active
-                                walkthrough (WalkthroughContext). */}
+                                walkthrough (WalkthroughContext).
+                                WalkthroughCard reads useSearchParams (for
+                                query-aware advanceOn), so it must sit in
+                                a Suspense boundary for static prerender
+                                — same rule that wraps BottomNav above. */}
                             <WalkthroughInterstitial />
-                            <WalkthroughCard />
+                            <Suspense fallback={null}>
+                              <WalkthroughCard />
+                            </Suspense>
                           </PostMeetReviewProvider>
                         </MeetComposerProvider>
                       </PostComposerProvider>
