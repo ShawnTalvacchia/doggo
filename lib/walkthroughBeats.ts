@@ -182,7 +182,7 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
       {
         kind: "card",
         instruction:
-          "Head to **Klára's Calm Dog Sessions** group — via Community → Groups.",
+          "Head to the **Groups** tab on the Community page. Select **Klára's Calm Dog Sessions**.",
         detail:
           "After a walk wraps, this is where Klára shares the moment with the crew. Her group, her people, her client funnel.",
         advanceOn: "/communities/group-klara-training",
@@ -192,12 +192,10 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
         fireOff: {
           imageUrl: "/images/generated/post-stromovka-walk.jpeg",
           caption:
-            "Another morning at Stromovka with the group. A full house today, and a couple of nervous newcomers who settled in beautifully by the end. This is the part of the job I love: watching a dog who used to give the park a wide berth start to enjoy other dogs' company. We walk every week, 10am by the main gate. All friendly dogs welcome, and I'm always happy to chat if yours finds the world a bit much. 🐾",
+            "Some new faces on the morning walk. Look at these good boys. 🐾",
         },
         instruction:
           "Klára's walk post is ready for the group. Tap **Share** to post it.",
-        detail:
-          "This is how the walk grows. Tomorrow an owner with a nervous dog scrolls past it and thinks, maybe that's what we need.",
       },
       {
         kind: "card",

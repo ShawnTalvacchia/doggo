@@ -115,6 +115,12 @@ export function WalkthroughCard() {
       s.advanceOn &&
       matchesAdvanceOn(s.advanceOn, pathname, searchParams)
     ) {
+      // Skip auto-advance if the tester has already been past this step
+      // (they came here via Back — which routes to the step's URL — and
+      // they want to look at this step's content, not get bounced forward
+      // again immediately). The forward path is via Continue.
+      const beatMax = wt.beatMaxSteps?.[String(wt.beatIndex)] ?? 0;
+      if (wt.stepIndex < beatMax) return;
       wt.next();
     }
   }, [currentUrl, pathname, searchParams, wt]);

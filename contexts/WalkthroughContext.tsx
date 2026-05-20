@@ -183,11 +183,20 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
         },
       });
     } else {
-      // Past the last step → next beat's interstitial (or the closing screen).
+      // Past the last step → next beat's interstitial (or the closing
+      // screen). Mark the previous beat as fully completed (max = step
+      // count, one past the last index) so cross-beat Back's URL routing
+      // doesn't immediately bounce forward again via auto-advance.
+      const prevBeatKey = String(state.beatIndex);
+      const prevMax = state.beatMaxSteps[prevBeatKey] ?? 0;
       persist({
         ...state,
         beatIndex: Math.min(state.beatIndex + 1, WALKTHROUGH_BEAT_COUNT),
         stepIndex: 0,
+        beatMaxSteps: {
+          ...state.beatMaxSteps,
+          [prevBeatKey]: Math.max(prevMax, beat.steps.length),
+        },
         phase: "interstitial",
       });
     }
@@ -195,8 +204,28 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
 
   const prev = useCallback(() => {
     if (state.stepIndex > 0) {
-      // Step back within the beat.
-      persist({ ...state, stepIndex: state.stepIndex - 1 });
+      // Step back within the beat. Also route to the URL the new step
+      // expects so the tester lands on the correct surface — without
+      // this, the card swaps but the page stays on the old step's URL
+      // (confusing: the back card's instruction may not match the page).
+      const newStepIdx = state.stepIndex - 1;
+      persist({ ...state, stepIndex: newStepIdx });
+      const beat = WALKTHROUGH_BEATS[state.beatIndex];
+      if (beat) {
+        // Walk backwards from the new step to find the most-recent
+        // advanceOn — that's the URL the tester was on when this step
+        // was first reached going forward. Fallback to the beat's
+        // startUrl if no preceding step navigated.
+        let targetUrl = beat.startUrl;
+        for (let i = newStepIdx; i >= 0; i--) {
+          const s = beat.steps[i];
+          if (s.kind === "card" && s.advanceOn) {
+            targetUrl = s.advanceOn;
+            break;
+          }
+        }
+        router.push(targetUrl);
+      }
       return;
     }
     if (state.beatIndex === 0) {
