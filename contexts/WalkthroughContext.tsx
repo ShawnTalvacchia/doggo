@@ -52,6 +52,12 @@ type PersistedState = {
   active: boolean;
   beatIndex: number;
   stepIndex: number;
+  /** Per-beat highest step index reached. Used by `WalkthroughCard` to
+   *  detect "user has been past this step before" — turns the awaitAction
+   *  prompt into a Continue button when the tester has backed into a
+   *  step whose action they've already performed. Key is the beat index
+   *  stringified; value is the max stepIndex reached in that beat. */
+  beatMaxSteps: Record<string, number>;
   phase: WalkthroughPhase;
 };
 
@@ -59,6 +65,7 @@ const INITIAL: PersistedState = {
   active: false,
   beatIndex: 0,
   stepIndex: 0,
+  beatMaxSteps: {},
   phase: "interstitial",
 };
 
@@ -106,6 +113,10 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
             active: parsed.active,
             beatIndex: typeof parsed.beatIndex === "number" ? parsed.beatIndex : 0,
             stepIndex: typeof parsed.stepIndex === "number" ? parsed.stepIndex : 0,
+            beatMaxSteps:
+              parsed.beatMaxSteps && typeof parsed.beatMaxSteps === "object"
+                ? (parsed.beatMaxSteps as Record<string, number>)
+                : {},
             phase: parsed.phase === "running" ? "running" : "interstitial",
           });
         }
@@ -136,7 +147,13 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
   // mid-render. `persist` is the only setState path.
 
   const start = useCallback(() => {
-    persist({ active: true, beatIndex: 0, stepIndex: 0, phase: "interstitial" });
+    persist({
+      active: true,
+      beatIndex: 0,
+      stepIndex: 0,
+      beatMaxSteps: {},
+      phase: "interstitial",
+    });
   }, [persist]);
 
   const continueToBeat = useCallback(() => {
@@ -151,8 +168,20 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
     const beat = WALKTHROUGH_BEATS[state.beatIndex];
     if (!beat) return;
     if (state.stepIndex < beat.steps.length - 1) {
-      // Advance within the beat.
-      persist({ ...state, stepIndex: state.stepIndex + 1 });
+      // Advance within the beat. Track the highest step reached in this
+      // beat so the awaitAction prompt can flip to Continue when the
+      // tester backs into a step they've already passed.
+      const newStepIdx = state.stepIndex + 1;
+      const beatKey = String(state.beatIndex);
+      const currentMax = state.beatMaxSteps[beatKey] ?? 0;
+      persist({
+        ...state,
+        stepIndex: newStepIdx,
+        beatMaxSteps: {
+          ...state.beatMaxSteps,
+          [beatKey]: Math.max(currentMax, newStepIdx),
+        },
+      });
     } else {
       // Past the last step → next beat's interstitial (or the closing screen).
       persist({

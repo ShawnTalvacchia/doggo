@@ -30,7 +30,7 @@
  */
 
 import { Fragment, useEffect, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
@@ -49,9 +49,37 @@ function renderEmphasis(text: string) {
   );
 }
 
+/**
+ * Does the current URL satisfy a step's `advanceOn`?
+ *
+ * Backward-compatible: when `advanceOn` is a bare pathname (no `?`), this
+ * behaves exactly like the old `advanceOn === pathname` check — extra query
+ * params on the current URL don't matter. When `advanceOn` carries a query
+ * string (e.g. `/meets/abc?tab=people`), every key/value in it must also be
+ * present in the current `searchParams`. This lets steps target a specific
+ * tab state without forcing query-string matching on every step.
+ */
+function matchesAdvanceOn(
+  advanceOn: string,
+  pathname: string,
+  searchParams: URLSearchParams,
+): boolean {
+  if (!advanceOn.includes("?")) {
+    return advanceOn === pathname;
+  }
+  const [target, targetQuery] = advanceOn.split("?");
+  if (target !== pathname) return false;
+  const targetParams = new URLSearchParams(targetQuery);
+  for (const [key, value] of targetParams.entries()) {
+    if (searchParams.get(key) !== value) return false;
+  }
+  return true;
+}
+
 export function WalkthroughCard() {
   const wt = useWalkthrough();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [minimized, setMinimized] = useState(false);
 
@@ -62,25 +90,34 @@ export function WalkthroughCard() {
   }, [wt.beatIndex, wt.stepIndex]);
 
   // Auto-advance: when the tester *navigates* to a navigation step's target
-  // surface, move the card forward so it never shows a step already done.
-  // Gated on an actual pathname change — without that guard, stepping back
-  // (Prev) onto a nav step whose `advanceOn` equals the page you're already
-  // on would instantly bounce forward again.
-  const lastPathRef = useRef(pathname);
+  // surface (or switches to a target tab via query param), move the card
+  // forward so it never shows a step already done. Gated on an actual URL
+  // change (pathname OR query) — without that guard, stepping back (Prev)
+  // onto a nav step whose target equals the page you're already on would
+  // instantly bounce forward again.
+  const currentUrl = searchParams.toString()
+    ? `${pathname}?${searchParams.toString()}`
+    : pathname;
+  const lastUrlRef = useRef(currentUrl);
   useEffect(() => {
     if (!wt.active || wt.phase !== "running") {
-      lastPathRef.current = pathname;
+      lastUrlRef.current = currentUrl;
       return;
     }
-    const navigated = pathname !== lastPathRef.current;
-    lastPathRef.current = pathname;
+    const navigated = currentUrl !== lastUrlRef.current;
+    lastUrlRef.current = currentUrl;
     if (!navigated) return;
     const b = WALKTHROUGH_BEATS[wt.beatIndex];
     const s = b?.steps[wt.stepIndex];
-    if (s && s.kind === "card" && s.advanceOn && s.advanceOn === pathname) {
+    if (
+      s &&
+      s.kind === "card" &&
+      s.advanceOn &&
+      matchesAdvanceOn(s.advanceOn, pathname, searchParams)
+    ) {
       wt.next();
     }
-  }, [pathname, wt]);
+  }, [currentUrl, pathname, searchParams, wt]);
 
   if (!wt.hydrated || !wt.active || wt.phase !== "running") return null;
 
@@ -97,6 +134,12 @@ export function WalkthroughCard() {
   const isLast =
     wt.beatIndex >= WALKTHROUGH_BEAT_COUNT - 1 &&
     wt.stepIndex >= beat.steps.length - 1;
+  // True when the tester has been past this step before — they advanced
+  // through it once, then backed in via Back. Used to flip the awaitAction
+  // prompt to Continue (they've already done the action; no need to
+  // re-perform it to move forward).
+  const beatMax = wt.beatMaxSteps?.[String(wt.beatIndex)] ?? 0;
+  const visitedPastThisStep = wt.stepIndex < beatMax;
   // The counter numbers card steps only — mid-beat interstitials don't count.
   const cardSteps = beat.steps.filter((s) => s.kind === "card");
   const cardNumber = cardSteps.indexOf(step) + 1;
@@ -183,9 +226,28 @@ export function WalkthroughCard() {
           Back
         </button>
         {step.awaitAction ? (
-          // No "Next" — the step advances only when the tester performs the
-          // in-app action and the resulting navigation arrives at `advanceOn`.
-          <span className="wt-card-await">Do this step to continue</span>
+          // awaitAction normally advances only when the tester performs the
+          // in-app action and navigation reaches `advanceOn`. Two cases
+          // surface a manual Continue button:
+          //   1. Auto-advance race: on some clients (seen on mobile) the
+          //      route change can land before the effect that calls next()
+          //      registers it. Tester is stuck on the satisfied URL with
+          //      no way forward — Continue surfaces if pathname matches
+          //      the step's advanceOn.
+          //   2. Backwards nav from a later step lands on an awaitAction
+          //      step the tester already passed. They've performed the
+          //      action; making them re-do it is wrong. Continue surfaces
+          //      if the per-beat max step reached is past this one.
+          (step.advanceOn &&
+            matchesAdvanceOn(step.advanceOn, pathname, searchParams)) ||
+          visitedPastThisStep ? (
+            <button type="button" className="wt-card-next" onClick={handleNext}>
+              Continue
+              <ArrowRight size={14} weight="bold" aria-hidden="true" />
+            </button>
+          ) : (
+            <span className="wt-card-await">Do this step to continue</span>
+          )
         ) : (
           <button
             type="button"

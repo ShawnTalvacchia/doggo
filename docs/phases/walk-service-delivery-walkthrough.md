@@ -34,13 +34,13 @@ Verifies the LinkedCareCallout, the renamed booking sheet, the picker, and the p
   - One price row: **"From 300 Kč"** + caret — the floor of the two delivery options; the picker inside the booking sheet is where the choice happens.
   - Below: the free **Interested / Invite** RSVP row is still there — book ≠ attend intact.
 
-- [ ] **A2. Daniel → tap the callout.** The booking sheet opens with title **"Book a walk"** (not "Book a drop-off walk"). The top of the sheet shows:
+- [x] **A2. Daniel → tap the callout.** The booking sheet opens with title **"Book a walk"** (not "Book a drop-off walk"). The top of the sheet shows:
   - Carer + dog summary, "Walks & Check-ins · you don't come along," current price **380 Kč**.
   - **"Pickup or drop-off?"** picker — a compact two-segment bar (canonical `MultiSelectSegmentBar`, neutral active state, same pattern as Available times / day-of-week filters). **Pickup pre-selected**, label + price subline ("Pickup / 380 Kč") on the left, ("Drop-off / 300 Kč") on the right.
   - Helper line below the bar names the choice: *"Klára comes to {your-name}'s address."*
   - Date picker below (6 upcoming Wednesdays).
 
-- [ ] **A3. Tap Drop-off in the picker.** Active highlight slides to the right segment; top-right service price flips **380 → 300 Kč**; helper line updates to *"Bring {dog} to Stromovka at the start."*; footer CTA flips to **"Book — 300 Kč"**.
+- [x] **A3. Tap Drop-off in the picker.** Active highlight slides to the right segment; top-right service price flips **380 → 300 Kč**; helper line updates to *"Bring {dog} to Stromovka at the start."*; footer CTA flips to **"Book — 300 Kč"**.
 
 - [ ] **A4. Pick a date + tap Book.** Confirmation screen shows:
   - "Klára walks Bára — {date}"

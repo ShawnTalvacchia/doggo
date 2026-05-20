@@ -23,7 +23,7 @@
  *  - Mobile stacks the halves vertically.
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
@@ -70,6 +70,21 @@ export default function LandingPage() {
   const router = useRouter();
   const { resetToDefault, setUserById } = useDemoState();
   const walkthrough = useWalkthrough();
+
+  // Hide the Reset action when there's nothing to reset — no `doggo*`
+  // entries in local or session storage means the demo has never been
+  // touched, so the button would be a no-op. Starts false (matches the
+  // SSR snapshot — no storage on the server); the effect upgrades it
+  // after hydration if state is actually present.
+  const [hasDemoState, setHasDemoState] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hasKey = (store: Storage) =>
+      Object.keys(store).some((k) => k.startsWith("doggo"));
+    setHasDemoState(
+      hasKey(window.localStorage) || hasKey(window.sessionStorage),
+    );
+  }, []);
 
   function handleStartWalkthrough() {
     // Scripted demo must run against the canonical mock-data seed.
@@ -142,20 +157,15 @@ export default function LandingPage() {
             care from people you already know.
           </p>
 
-          <div className="demo-action-block">
-            <button
-              type="button"
-              className="demo-start-btn"
-              onClick={handleStartWalkthrough}
-            >
-              <Compass size={18} weight="bold" aria-hidden="true" />
-              Start the walkthrough
-              <ArrowRight size={16} weight="bold" aria-hidden="true" />
-            </button>
-            <p className="demo-start-note">
-              Start as <strong>Daniel</strong>. About 15 minutes.
-            </p>
-          </div>
+          <button
+            type="button"
+            className="demo-start-btn"
+            onClick={handleStartWalkthrough}
+          >
+            <Compass size={18} weight="bold" aria-hidden="true" />
+            Start the walkthrough
+            <ArrowRight size={16} weight="bold" aria-hidden="true" />
+          </button>
         </div>
       </section>
 
@@ -228,16 +238,18 @@ export default function LandingPage() {
 
       <div className="demo-reset-row">
         <div className="demo-reset-cell">
-          <div className="demo-reset-inner demo-reset-inner--left">
-            <ButtonAction
-              variant="tertiary"
-              size="sm"
-              leftIcon={<ArrowCounterClockwise size={13} weight="bold" />}
-              onClick={handleReset}
-            >
-              Reset demo state
-            </ButtonAction>
-          </div>
+          {hasDemoState && (
+            <div className="demo-reset-inner demo-reset-inner--left">
+              <ButtonAction
+                variant="tertiary"
+                size="sm"
+                leftIcon={<ArrowCounterClockwise size={13} weight="bold" />}
+                onClick={handleReset}
+              >
+                Reset demo state
+              </ButtonAction>
+            </div>
+          )}
         </div>
         <div className="demo-reset-cell">
           <div className="demo-reset-inner demo-reset-inner--right">

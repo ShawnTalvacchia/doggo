@@ -318,6 +318,65 @@ export const mockNotifications: AppNotification[] = [
     createdAt: daysAgoIso(2, "14:05"),
     read: true,
   },
+  // ── More texture for Klára's bell ───────────────────────────────────────
+  // She's an established trainer-walker, so her notifications should read
+  // like an active professional's — proposals, messages, RSVPs, reviews —
+  // not the sparse 3 entries seeded earlier. 2026-05-20.
+  {
+    id: "notif-klara-4",
+    recipientId: "klara",
+    type: "care_review",
+    title: "Eva left a review for last week's session",
+    body: "5 stars — \"So patient with Luna. Her recall has come on noticeably.\"",
+    avatarUrl: "/images/generated/eva-profile.jpeg",
+    href: "/profile/klara?tab=reviews",
+    createdAt: daysAgoIso(3, "16:40"),
+    read: true,
+  },
+  {
+    id: "notif-klara-5",
+    recipientId: "klara",
+    type: "booking_message",
+    title: "Anežka sent a message",
+    body: "Quick question about Nela's training plan — when's good to chat?",
+    avatarUrl: "/images/generated/anezka-profile.jpeg",
+    href: "/profile/anezka?tab=chat",
+    createdAt: daysAgoIso(4, "11:20"),
+    read: true,
+  },
+  {
+    id: "notif-klara-6",
+    recipientId: "klara",
+    type: "meet_rsvp",
+    title: "New RSVP — Wednesday morning Stromovka",
+    body: "Martin + Charlie are joining Wednesday's walk.",
+    avatarUrl: "/images/generated/martin-profile.jpeg",
+    href: "/meets/meet-klara-stromovka",
+    createdAt: daysAgoIso(4, "08:55"),
+    read: true,
+  },
+  {
+    id: "notif-klara-7",
+    recipientId: "klara",
+    type: "connection_request",
+    title: "Vítek wants to connect",
+    body: "You met at last week's Stromovka morning walk.",
+    avatarUrl: "/images/generated/vitek-profile.jpeg",
+    href: "/profile/vitek",
+    createdAt: daysAgoIso(5, "08:15"),
+    read: true,
+  },
+  {
+    id: "notif-klara-8",
+    recipientId: "klara",
+    type: "post_comment",
+    title: "Hana commented on your post",
+    body: "\"This was such a calm crew today — Runa loved it.\"",
+    avatarUrl: "/images/generated/hana-profile.jpeg",
+    href: "/posts/post-klara-stromovka-walk",
+    createdAt: daysAgoIso(6, "19:30"),
+    read: true,
+  },
   {
     // Demo Narrative V2, Beat 3 — Daniel accepts Magda's connection request
     // inline on /notifications. Reversed from V1 (was Daniel→Magda; V2's Beat
@@ -326,6 +385,26 @@ export const mockNotifications: AppNotification[] = [
     // Beat 3 is a session-local mark, not a real send. The accept handler
     // resolves the connection from `actorId`. See demo-mode.md → "State
     // seeded between beats".
+    // Demo Narrative V2, Beat 3 — Daniel's entry point. He attended Klára's
+    // morning walk; Doggo prompts him to look back on it (the canonical
+    // attendee-side post-meet-review). Tapping the notification opens the
+    // meet, where Daniel reviews the People tab and marks Magda Familiar.
+    // Set later in the day than Magda's invites below so it sorts to the
+    // top of Daniel's bell at Beat 3's open. 2026-05-20.
+    id: "notif-postmeet-daniel-stromovka",
+    recipientId: "daniel",
+    type: "post_meet_review",
+    title: "How was the Stromovka walk?",
+    body: "Look back on the morning — mark anyone you'd like to know better.",
+    avatarUrl: "/images/generated/post-stromovka-walk.jpeg",
+    href: "/meets/meet-klara-stromovka",
+    createdAt: daysAgoIso(0, "13:00"),
+    read: false,
+  },
+  {
+    // Demo Narrative V2, Beat 3 — Magda's connection request reaches Daniel
+    // after the time-passage interstitial. (Move on for the historical
+    // narrative-context comment below — unchanged.)
     id: "notif-magda-connect-daniel",
     recipientId: "daniel",
     type: "connection_request",

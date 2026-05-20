@@ -52,7 +52,14 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   const currentUserId = useCurrentUserId();
 
   const notifications = useMemo(
-    () => allNotifications.filter((n) => n.recipientId === currentUserId),
+    () =>
+      allNotifications
+        .filter((n) => n.recipientId === currentUserId)
+        // Newest first — matches the natural mental model of a notifications
+        // bell. Previously the page rendered in array order, which made
+        // adding a new entry to the mock data order-sensitive.
+        .slice()
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
     [allNotifications, currentUserId],
   );
 

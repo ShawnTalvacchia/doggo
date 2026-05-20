@@ -22,7 +22,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight } from "@phosphor-icons/react";
+import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
 import { useWalkthrough } from "@/contexts/WalkthroughContext";
 import { WALKTHROUGH_BEATS, WALKTHROUGH_BEAT_COUNT } from "@/lib/walkthroughBeats";
 import { getPersona } from "@/lib/personas";
@@ -74,6 +74,14 @@ export function WalkthroughInterstitial() {
           <h2 className="wt-interstitial-heading">{step.heading}</h2>
           <p className="wt-interstitial-context">{step.body}</p>
           <div className="wt-interstitial-actions">
+            <button
+              type="button"
+              className="wt-interstitial-btn wt-interstitial-btn--secondary"
+              onClick={wt.prev}
+            >
+              <ArrowLeft size={16} weight="bold" aria-hidden="true" />
+              Back
+            </button>
             <button
               type="button"
               className="wt-interstitial-btn wt-interstitial-btn--primary"

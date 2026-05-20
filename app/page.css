@@ -86,7 +86,7 @@
 
 .demo-logo {
   display: block;
-  height: 44px;
+  height: 40px;
   width: auto;
 }
 
@@ -139,19 +139,8 @@
   max-width: 52ch;
 }
 
-/* CTA + helper grouped together with a tight gap, so the helper reads
-   as meta info about the action rather than another paragraph at the
-   same hierarchy as the tagline above. Wrapping in .demo-action-block
-   gives them a shared tight gap that decouples from the inner's
-   wider gap between major elements. */
-.demo-action-block {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  align-items: flex-start;
-}
-
 .demo-start-btn {
+  align-self: flex-start;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -170,21 +159,6 @@
 
 .demo-start-btn:hover {
   background: var(--brand-strong);
-}
-
-.demo-start-note {
-  margin: 0;
-  font-size: var(--text-sm);
-  line-height: 1.5;
-  /* Lighter than the tagline above — supporting meta-info about the
-     CTA, not the product description. The tagline (text-base /
-     secondary) carries the product idea; this carries the framing. */
-  color: var(--text-tertiary);
-}
-
-.demo-start-note strong {
-  color: var(--text-secondary);
-  font-weight: var(--weight-semibold);
 }
 
 /* ── Right half: cast showcase + per-card picker ──────────────────── */
@@ -574,13 +548,6 @@
   .demo-right-inner {
     margin-left: 0;
     margin-right: 0;
-  }
-
-  /* CTA + helper stretch full-width on phones so the action reads as
-     a clear, thumb-friendly block. */
-  .demo-action-block {
-    align-items: stretch;
-    width: 100%;
   }
 
   /* Bar cells stack — reset on top, comfortable gap, credits below. */

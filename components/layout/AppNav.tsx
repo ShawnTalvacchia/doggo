@@ -160,7 +160,10 @@ export function AppNav() {
   const navContent = (
     <>
       <div className="app-nav-brand-wrap">
-        <Link href={mode === "logged" ? "/home" : "/"} className={`app-nav-brand${pageTitle || showDetailHeader ? " app-nav-brand--hide-mobile" : ""}`}>
+        {/* Logo always routes back to the demo's front door — same as the
+            desktop sidebar brand. Community is reachable via the nav, the
+            logo is the consistent "back to launcher" affordance. */}
+        <Link href="/" className={`app-nav-brand${pageTitle || showDetailHeader ? " app-nav-brand--hide-mobile" : ""}`}>
           <img src="/logo.svg" alt="Doggo" />
         </Link>
         {/* Detail header (back + title) — shown on mobile when a page sets it */}

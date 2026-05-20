@@ -168,25 +168,24 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
       {
         kind: "card",
         instruction:
-          "The walk's done. Back on the active session, tap **Finish session** and seal the **visit report**. Photos and notes are optional. Then tap **Next**.",
+          "The walk's done. Back on the active session, tap **Finish session** and seal the **visit report**. Photos and notes are optional.",
         detail:
           "Filip gets the report afterwards, photos and all. He booked a walk; this is how he knows it happened.",
+        // Finish session routes to `/bookings/<id>?tab=sessions` — the
+        // pathname is `/bookings/<id>` (query string is excluded from
+        // `usePathname`), which is the advanceOn target. `awaitAction`
+        // hides the Next button so the tester must actually finish the
+        // session (the action this step is about) rather than skip past.
+        advanceOn: "/bookings/booking-klara-toby",
+        awaitAction: true,
       },
       {
         kind: "card",
         instruction:
-          "Head to **Community** to see how the walk's playing out.",
+          "Head to **Klára's Calm Dog Sessions** group — via Community → Groups.",
         detail:
-          "Community is the feed for Klára's network — her groups, the meets, the conversations between them. After a walk wraps, this is where the recap lives.",
-        advanceOn: "/home",
-      },
-      {
-        kind: "card",
-        instruction:
-          "Open today's **Stromovka morning walk** in the feed.",
-        detail:
-          "Regulars and new faces, Daniel and Bára among them. The same crew turns out most weeks now.",
-        advanceOn: "/meets/meet-klara-stromovka",
+          "After a walk wraps, this is where Klára shares the moment with the crew. Her group, her people, her client funnel.",
+        advanceOn: "/communities/group-klara-training",
       },
       {
         kind: "card",
@@ -195,9 +194,17 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
           caption:
             "Another morning at Stromovka with the group. A full house today, and a couple of nervous newcomers who settled in beautifully by the end. This is the part of the job I love: watching a dog who used to give the park a wide berth start to enjoy other dogs' company. We walk every week, 10am by the main gate. All friendly dogs welcome, and I'm always happy to chat if yours finds the world a bit much. 🐾",
         },
-        instruction: "Klára's walk post is ready. Tap **Share** to post it.",
+        instruction:
+          "Klára's walk post is ready for the group. Tap **Share** to post it.",
         detail:
           "This is how the walk grows. Tomorrow an owner with a nervous dog scrolls past it and thinks, maybe that's what we need.",
+      },
+      {
+        kind: "card",
+        instruction:
+          "Klára's post is live in the group feed. Take a look, then tap **Next**.",
+        detail:
+          "Same crew sees it first — regulars who'll like and chime in. But the next nervous-dog owner scrolling Holešovice's groups will find it too. The walk grows from posts like this.",
       },
     ],
   },
@@ -207,20 +214,34 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
     personaId: "daniel",
     when: "Later that day",
     context:
-      "The walk's done. Bára started out nervous and settled in by the end, a real first step. Daniel keeps thinking about the people he met along the way.",
+      "The walk's done. Bára started out nervous and settled in by the end, a real first step. Doggo just nudged Daniel to look back on the morning — and he keeps thinking about the people he met along the way.",
     summary: "From one walk: a trainer, a neighbour, a community.",
-    startUrl: "/meets/meet-klara-stromovka",
+    startUrl: "/notifications",
     steps: [
       {
         kind: "card",
         instruction:
-          "Open the Stromovka walk's **People** tab. Everyone who came along this morning is here.",
-        detail: "Grouped by who Daniel already knows. Most are new faces.",
+          "Tap the **Stromovka walk** notification to revisit the morning.",
+        detail:
+          "After a meet, Doggo prompts attendees to look back: who came, and who Daniel might want to know.",
+        advanceOn: "/meets/meet-klara-stromovka",
       },
       {
         kind: "card",
         instruction:
-          "Daniel got talking to **Magda** on the walk, a neighbour from his own street. Find her on the People tab, mark her **Familiar**, then tap **Next**.",
+          "Open the Stromovka walk's **People** tab.",
+        detail:
+          "Everyone who came along this morning is here, grouped by who Daniel already knows. Most are new faces.",
+        // Tab switch updates the URL's query param. The walkthrough's
+        // auto-advance matches on pathname + query when the advanceOn
+        // includes one, so this fires only when the People tab is open.
+        advanceOn: "/meets/meet-klara-stromovka?tab=people",
+        awaitAction: true,
+      },
+      {
+        kind: "card",
+        instruction:
+          "Daniel got talking to **Magda** on the walk, a neighbour from his own street. Mark her **Familiar**, then tap **Next**.",
         detail: "The quietest possible way of saying, I'd like to know you.",
       },
       {
@@ -229,7 +250,7 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
         eyebrow: "How this works",
         heading: "What “Familiar” means",
         body:
-          "Daniel's profile is private. Marking Magda Familiar quietly lets her see it, and nothing more. It isn't a friend request. Magda is never notified, and it commits Daniel to nothing. It's the first quiet step from stranger toward neighbour.",
+          "Daniel's profile is private. Other people can't see his content or send him a message. Marking Magda Familiar opens his profile to her. It isn't a friend request: Magda is never notified, and it commits Daniel to nothing. It's the first step from stranger toward neighbour.",
       },
       {
         kind: "card",

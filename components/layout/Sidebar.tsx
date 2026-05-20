@@ -50,7 +50,11 @@ export function Sidebar() {
 
   return (
     <aside className="sidebar">
-      <Link href="/home" className="sidebar-brand">
+      {/* Logo routes back to the demo's front door (the landing page),
+          NOT to /home. The Community tab in the nav below handles the
+          home-feed link — the logo is the way out of the persona /
+          back to the launcher. */}
+      <Link href="/" className="sidebar-brand">
         <img src="/logo.svg" alt="Doggo" />
       </Link>
 

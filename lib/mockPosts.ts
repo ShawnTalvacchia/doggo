@@ -46,6 +46,9 @@ export const mockPosts: Post[] = [
     authorId: "klara",
     authorName: "Klára",
     authorAvatarUrl: "/images/generated/klara-profile.jpeg",
+    // Posted to Klára's care group — Beat 2 navigates the tester here
+    // and shows the post landing in the group's feed.
+    groupId: "group-klara-training",
     photos: ["/images/generated/post-stromovka-walk.jpeg"],
     caption:
       "Another morning at Stromovka with the group. A full house today — and a couple of nervous newcomers who settled in beautifully by the end. This is the part of the job I love: watching a dog who used to give the park a wide berth start to enjoy other dogs' company. We walk every week, 10am by the main gate — all friendly dogs welcome, and I'm always happy to chat if yours finds the world a bit much. 🐾",
