@@ -1,47 +1,96 @@
 /* ═══════════════════════════════════════════════════════════════════
-   LANDING PAGE — the demo launcher (root route /).
-   Standalone, chrome-free. Logo + a one-line scene-setter + two ways in:
-   "Start the walkthrough" and the persona picker. The old /demo route
-   was folded into this page 2026-05-19 — one front door, not two.
+   LANDING PAGE — the demo's front door (root route /).
+   Standalone, chrome-free. Full-bleed grid of two halves with
+   different surface colours: left is `--surface-base` (the demo
+   entry), right is `--surface-top` (the "popout" cast showcase).
+   The colour split takes the place of a divider line and lets the
+   composition fill the desktop viewport edge-to-edge.
    ═══════════════════════════════════════════════════════════════════ */
 
 .demo-page {
   position: relative;
   min-height: 100vh;
   min-height: 100dvh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-xl);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    "left right"
+    "reset reset";
   background: var(--surface-base);
-  overflow-y: auto;
 }
 
-.demo-shell {
-  width: 100%;
-  max-width: 440px;
+/* ── Left half: demo entry (logo, headline, CTA) ──────────────────── */
+
+.demo-left {
+  grid-area: left;
+  background: var(--surface-base);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: var(--space-lg);
+  justify-content: center;
+  padding: clamp(32px, 6vh, 72px) clamp(24px, 5vw, 80px);
 }
 
-/* ── Brand + scene-setter ─────────────────────────────────────────── */
+.demo-left-inner {
+  width: 100%;
+  max-width: 520px;
+  margin-left: auto; /* hug the seam between halves on desktop */
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 3vh, 32px);
+}
 
-.demo-eyebrow {
-  font-family: var(--font-heading);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-bold);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--brand-main);
+.demo-left-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-sm);
 }
 
 .demo-logo {
   display: block;
-  width: 180px;
-  height: auto;
+  height: 44px;
+  width: auto;
+}
+
+.demo-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--brand-subtle);
+  /* Brand-main outline — the subtle fill alone fades too much against
+     the surface-base half. The border gives the pill a defined edge. */
+  border: 1px solid var(--brand-main);
+  color: var(--brand-strong);
+  font-family: var(--font-heading);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.demo-headline {
+  font-family: var(--font-heading);
+  font-weight: var(--weight-semibold);
+  font-size: clamp(1.875rem, 3vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.demo-headline-primary,
+.demo-headline-brand {
+  display: block;
+}
+
+.demo-headline-primary {
+  color: var(--text-primary);
+}
+
+.demo-headline-brand {
+  color: var(--brand-main);
 }
 
 .demo-tagline {
@@ -49,26 +98,16 @@
   font-size: var(--text-base);
   line-height: 1.55;
   color: var(--text-secondary);
-}
-
-/* ── Actions ──────────────────────────────────────────────────────── */
-
-.demo-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: var(--space-md);
-  width: 100%;
-  margin-top: var(--space-xs);
+  max-width: 52ch;
 }
 
 .demo-start-btn {
+  align-self: flex-start;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  width: 100%;
-  padding: 14px 22px;
+  padding: 14px 28px;
   border-radius: var(--radius-pill);
   background: var(--brand-main);
   color: var(--text-white);
@@ -85,38 +124,188 @@
 }
 
 .demo-start-note {
-  margin: calc(-1 * var(--space-xs)) 0 0;
-  font-size: var(--text-xs);
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  /* Lighter than the tagline above — supporting meta-info about the
+     CTA, not the product description. The tagline (text-base /
+     secondary) carries the product idea; this carries the framing. */
   color: var(--text-tertiary);
 }
 
-/* "or explore as a persona" — a labelled divider above the picker.
-   Generous margin both sides so the secondary action reads as its own
-   zone, well clear of the primary "Start the walkthrough". */
-.demo-secondary-label {
+.demo-start-note strong {
+  color: var(--text-secondary);
+  font-weight: var(--weight-semibold);
+}
+
+/* ── Right half: cast showcase + per-card picker ──────────────────── */
+
+.demo-right {
+  grid-area: right;
+  background: var(--surface-top);
   display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  margin: var(--space-xl) 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(32px, 6vh, 72px) clamp(24px, 5vw, 80px);
+}
+
+.demo-right-inner {
+  width: 100%;
+  max-width: 520px;
+  margin-right: auto; /* hug the seam between halves on desktop */
+  display: flex;
+  flex-direction: column;
+  gap: clamp(20px, 3vh, 32px);
+}
+
+.demo-cast-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  max-width: 480px;
+}
+
+.demo-cast-eyebrow {
+  font-family: var(--font-heading);
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-tertiary);
 }
 
-.demo-secondary-label::before,
-.demo-secondary-label::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--border-regular);
+.demo-cast-subline {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--text-secondary);
 }
 
-/* ── Persona picker (DemoPersonaDropdown) ─────────────────────────── */
-/* `.demo-pill` is the dropdown trigger; the popover menu reuses the
-   `.profile-name-dropdown-*` classes from globals.css. `.demo-picker-menu`
-   widens that popover to span the full-width trigger. */
+/* Horizontal profile card — photo left, structured content on the
+   right. Substantial card chrome (border + soft shadow) so it reads
+   as a real "card" lifted off the popout half, with the photo bleeding
+   into the rounded corners on the left edge. */
+.demo-profile-card {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  background: var(--surface-top);
+  border: 1px solid var(--border-regular);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.demo-profile-card-photo {
+  flex: 0 0 240px;
+  width: 240px;
+  align-self: stretch;
+  object-fit: cover;
+  display: block;
+  background: var(--surface-base);
+}
+
+.demo-profile-card-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  /* Match the photo's 240px so the photo crop stays a confident
+     square and the Explore CTA can anchor to the card bottom. */
+  min-height: 240px;
+}
+
+.demo-profile-card-name {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.demo-profile-card-pill {
+  align-self: flex-start;
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--brand-subtle);
+  color: var(--brand-strong);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.demo-profile-card-goal {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+/* The "Explore as <Name>" CTA lives inside the card body. `margin-top:
+   auto` pushes it to the bottom of the body so the description sits at
+   the top and the action anchors the card — the body uses the full
+   240px height when the photo's there. */
+.demo-profile-card-body > .btn-action {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.demo-slider-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.demo-slider-arrow {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-regular);
+  background: transparent;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.demo-slider-arrow:hover {
+  border-color: var(--brand-main);
+  color: var(--brand-main);
+}
+
+.demo-slider-arrow:active {
+  transform: translateY(1px);
+}
+
+.demo-slider-counter {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  min-width: 3em;
+  text-align: center;
+}
+
+.demo-slider-counter-sep {
+  color: var(--text-tertiary);
+  margin: 0 2px;
+}
+
+/* ── Persona dropdown trigger + menu (consumed by DemoPersonaDropdown) ─
+   The dedicated dropdown picker was retired from the landing page
+   2026-05-20 — cards now carry the "Explore as <Name>" CTA directly.
+   These class rules are kept in case `DemoPersonaDropdown` is mounted
+   elsewhere, so the component doesn't visually break if reintroduced. */
 
 .demo-picker {
   position: relative;
@@ -181,21 +370,155 @@
   transform: none;
 }
 
-/* ── Reset ────────────────────────────────────────────────────────── */
-/* Anchored to the bottom of the page, clear of the centred launcher.
-   The button itself is a design-system `btn-tertiary` (ButtonAction). */
+/* ── Reset — third grid row, spans both halves ────────────────────── */
 
+/* Inverted bar at the bottom — sits beneath both halves and carries
+   the reset action on the left + demo credits on the right.
+   The bar mirrors the page grid (two cells, same padding + max-width
+   inners with margin-auto) so its content edges track the column
+   content edges above on any viewport width — including wide screens
+   where the columns' margin-auto pushes their inners toward the seam. */
 .demo-reset-row {
-  position: absolute;
-  bottom: var(--space-xl);
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
+  grid-area: reset;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--surface-base-inverse);
+  color: var(--text-inverse);
 }
 
-@media (max-width: 600px) {
+.demo-reset-cell {
+  padding: var(--space-md) clamp(24px, 5vw, 80px);
+  display: flex;
+  align-items: center;
+}
+
+.demo-reset-inner {
+  width: 100%;
+  /* Match the columns' inner max-width so the bar's content edges
+     line up exactly with the logo / card content edges above. */
+  max-width: 520px;
+  display: flex;
+  align-items: center;
+}
+
+/* Mirror the left column's margin-left: auto so the inner hugs the
+   seam on wide viewports. Button sits at the inner's left edge,
+   matching the logo's left edge above. */
+.demo-reset-inner--left {
+  margin-left: auto;
+  justify-content: flex-start;
+}
+
+/* Mirror the right column's margin-right: auto. Credit sits at the
+   inner's right edge, matching the card's right edge above. */
+.demo-reset-inner--right {
+  margin-right: auto;
+  justify-content: flex-end;
+}
+
+.demo-credit {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  color: var(--text-inverse);
+}
+
+/* Reset button styling on the inverse bar — outline treatment so it
+   reads as a clear button distinct from the plain credit label on the
+   other side. */
+.demo-reset-row .btn-action {
+  color: var(--text-inverse);
+  border: 1px solid var(--transparent-light-32);
+}
+
+.demo-reset-row .btn-action:hover {
+  background: var(--on-hover-lighten);
+  border-color: var(--transparent-light-40);
+  color: var(--text-inverse);
+}
+
+@media (max-width: 899px) {
+  /* Mobile: stack the two bar cells. Reset on top, then a comfortable
+     gap from each cell's vertical padding, then credits. Each cell
+     centres its content and matches the halves' horizontal padding. */
+  .demo-reset-row {
+    grid-template-columns: 1fr;
+  }
+
+  .demo-reset-cell {
+    padding: var(--space-md) var(--space-xl);
+    justify-content: center;
+  }
+
+  .demo-reset-inner--left,
+  .demo-reset-inner--right {
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 599px) {
+  /* Phone: extra vertical padding so the bar reads as a substantial
+     closing zone rather than crammed. */
+  .demo-reset-cell {
+    padding: var(--space-lg) var(--space-xl);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+   Mobile (≤899px) — stack the halves vertically.
+   ───────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 899px) {
   .demo-page {
-    padding: var(--space-lg);
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "left"
+      "right"
+      "reset";
+  }
+
+  .demo-left,
+  .demo-right {
+    padding: var(--space-xl);
+  }
+
+  .demo-left-inner,
+  .demo-right-inner {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* On narrow screens drop the photo size so the horizontal card
+     still fits comfortably without crowding the body content. */
+  .demo-profile-card-photo {
+    flex: 0 0 140px;
+    width: 140px;
+  }
+
+  .demo-profile-card-body {
+    padding: var(--space-md);
+    /* Content-driven height on mobile — the desktop's 240px floor
+       crowds narrow screens once the goal sentence wraps. */
+    min-height: 0;
+  }
+
+  /* Explore CTA stretches the full card-body width on mobile so it
+     reads as a clear, thumb-friendly action. */
+  .demo-profile-card-body > .btn-action {
+    align-self: stretch;
+    width: 100%;
+    margin-top: var(--space-sm);
+  }
+
+  /* Slider controls centred and spread across a constrained width
+     so the arrows sit at thumb-reachable edges on phones. */
+  .demo-slider-controls {
+    justify-content: space-between;
+    width: 100%;
+    max-width: 280px;
+    margin-left: auto;
+    margin-right: auto;
   }
 }

@@ -204,15 +204,6 @@ export const mockGroups: Group[] = [
         joinedAt: "2026-01-05",
       },
       {
-        userId: "daniel",
-        userName: "Daniel",
-        avatarUrl:
-          "/images/generated/daniel-profile.jpeg",
-        dogNames: ["Bára"],
-        role: "member",
-        joinedAt: "2026-01-08",
-      },
-      {
         userId: "hana",
         userName: "Hana",
         avatarUrl:
@@ -511,7 +502,6 @@ export const mockGroups: Group[] = [
       { userId: "martin", userName: "Martin", avatarUrl: "/images/generated/martin-profile.jpeg", dogNames: ["Charlie"], role: "member", joinedAt: "2025-11-04" },
       { userId: "filip", userName: "Filip", avatarUrl: "/images/generated/filip-profile.jpeg", dogNames: ["Toby"], role: "member", joinedAt: "2025-11-19" },
       { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"], role: "member", joinedAt: "2026-01-12" },
-      { userId: "daniel", userName: "Daniel", avatarUrl: "/images/generated/daniel-profile.jpeg", dogNames: ["Bára"], role: "member", joinedAt: "2026-05-16" },
     ],
     photos: [],
     photoPolicy: "optional",
