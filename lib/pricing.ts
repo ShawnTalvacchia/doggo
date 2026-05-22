@@ -5,6 +5,7 @@ import type {
   InquiryDetails,
   PriceLineItem,
   CarerCareServiceConfig,
+  CarerAppointmentServiceConfig,
   PricingModifier,
   HolidayPricingModifier,
   WeekendPricingModifier,
@@ -348,6 +349,34 @@ export function computeQuote(
     total: runningSubtotal,
     currency: "Kč",
     billingCycle,
+  };
+}
+
+/**
+ * Appointment quote — a flat, single-line price.
+ *
+ * Appointment-type services (grooming / training, fixed-time solo slot)
+ * carry one `pricePerAppointment` rate and no pricing modifiers: the engine
+ * just stamps the configured price as one line item. Kept separate from
+ * `computeQuote` (which is Care-config-shaped) so neither has to grow a
+ * union. Appointment booking flow, 2026-05-22.
+ */
+export function computeAppointmentQuote(
+  config: CarerAppointmentServiceConfig,
+): BookingPrice {
+  return {
+    lineItems: [
+      {
+        label: config.title,
+        amount: config.pricePerAppointment,
+        // Bare unit — proposal / signing surfaces render "/ {unit}", so this
+        // reads "800 Kč / appointment" (not "/ per appointment").
+        unit: "appointment",
+      },
+    ],
+    total: config.pricePerAppointment,
+    currency: "Kč",
+    billingCycle: "per_session",
   };
 }
 

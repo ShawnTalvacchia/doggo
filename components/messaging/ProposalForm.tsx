@@ -8,12 +8,13 @@ import type {
   BookingProposal,
   InquiryDetails,
   CarerCareServiceConfig,
+  CarerAppointmentServiceConfig,
 } from "@/lib/types";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { formatShortDate } from "@/lib/dateUtils";
-import { SERVICE_LABELS } from "@/lib/constants/services";
-import { computeQuote, quotesMatch } from "@/lib/pricing";
+import { serviceLabelFor } from "@/lib/constants/services";
+import { computeQuote, computeAppointmentQuote, quotesMatch } from "@/lib/pricing";
 import { getUserById } from "@/lib/mockUsers";
 
 const PLATFORM_FEE_PERCENT = 12;
@@ -84,17 +85,25 @@ export function ProposalForm({
     (s): s is CarerCareServiceConfig =>
       s.kind === "care" && s.serviceType === sourceInquiry.serviceType,
   );
+  // Appointment inquiries resolve a flat config instead. Appointment
+  // booking flow, 2026-05-22.
+  const apptService: CarerAppointmentServiceConfig | undefined = sourceInquiry.appointment
+    ? provider?.carerProfile?.services?.find(
+        (s): s is CarerAppointmentServiceConfig =>
+          s.kind === "appointment" && s.id === sourceInquiry.appointment!.serviceId,
+      )
+    : undefined;
 
-  // System quote — the canonical answer. If the carer has no config for
-  // this service (shouldn't happen in practice; would mean the inquiry was
-  // sent to someone who doesn't offer it), fall back to a 0-Kč skeleton
-  // that the provider must override.
+  // System quote — the canonical answer. Appointment → flat quote; Care →
+  // engine quote. If the carer has no config for this service (shouldn't
+  // happen in practice), fall back to a 0-Kč skeleton the provider overrides.
   const systemQuote: BookingPrice = useMemo(() => {
+    if (apptService) return computeAppointmentQuote(apptService);
     if (!careService) {
       return {
         lineItems: [
           {
-            label: SERVICE_LABELS[sourceInquiry.serviceType],
+            label: serviceLabelFor(sourceInquiry),
             amount: 0,
             unit: "per session",
           },
@@ -105,7 +114,7 @@ export function ProposalForm({
       };
     }
     return computeQuote(careService, sourceInquiry, todayISO);
-  }, [careService, sourceInquiry, todayISO]);
+  }, [apptService, careService, sourceInquiry, todayISO]);
 
   // Working price — what the provider will send. Starts from the system
   // quote (or the initialPrice in counter flow). Edits in override mode
@@ -156,6 +165,7 @@ export function ProposalForm({
     const proposal: BookingProposal = {
       bookingType: sourceInquiry.bookingType,
       serviceType: sourceInquiry.serviceType,
+      appointment: sourceInquiry.appointment,
       subService: sourceInquiry.subService,
       pets: sourceInquiry.pets.length > 0 ? sourceInquiry.pets : ["Pet"],
       startDate: sourceInquiry.startDate ?? new Date().toISOString().slice(0, 10),
@@ -172,7 +182,7 @@ export function ProposalForm({
 
   // Render a one-line summary of the inquiry — what they asked for.
   const summaryLine = [
-    SERVICE_LABELS[sourceInquiry.serviceType],
+    serviceLabelFor(sourceInquiry),
     sourceInquiry.subService,
     sourceInquiry.pets.length > 0 ? sourceInquiry.pets.join(" & ") : null,
     sourceInquiry.bookingType === "ongoing" ? "Ongoing" : "One-off",

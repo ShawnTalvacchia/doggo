@@ -3,11 +3,11 @@
 import { useMemo, useState } from "react";
 import { PawPrint, Calendar, Repeat } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
-import type { InquiryDetails, CarerCareServiceConfig } from "@/lib/types";
-import { SERVICE_LABELS } from "@/lib/constants/services";
+import type { InquiryDetails, CarerCareServiceConfig, CarerAppointmentServiceConfig } from "@/lib/types";
+import { serviceLabelFor } from "@/lib/constants/services";
 import { formatShortDate } from "@/lib/dateUtils";
 import { getUserById } from "@/lib/mockUsers";
-import { computeQuote } from "@/lib/pricing";
+import { computeQuote, computeAppointmentQuote } from "@/lib/pricing";
 
 /**
  * InquiryCard — structured artifact owners send when tapping "Book a session"
@@ -54,7 +54,7 @@ export function InquiryCard({
   const [decliningOpen, setDecliningOpen] = useState(false);
   const [reason, setReason] = useState("");
 
-  const serviceLabel = SERVICE_LABELS[inquiry.serviceType];
+  const serviceLabel = serviceLabelFor(inquiry);
   const petText = inquiry.pets.length > 0 ? inquiry.pets.join(" & ") : null;
   // For ongoing recurring bookings, append the start date when set.
   // "Every Mon, Wed, Fri · 8:00am · Starting May 12". Pricing & Proposals
@@ -64,7 +64,11 @@ export function InquiryCard({
     : inquiry.startDate && inquiry.endDate
       ? `${formatShortDate(inquiry.startDate)} – ${formatShortDate(inquiry.endDate)}`
       : inquiry.startDate
-        ? `From ${formatShortDate(inquiry.startDate)}`
+        ? // Appointments are a single fixed slot — show the bare date, not
+          // the open-ended "From …" used for ongoing Care start dates.
+          inquiry.appointment
+          ? formatShortDate(inquiry.startDate)
+          : `From ${formatShortDate(inquiry.startDate)}`
         : null;
 
   const header = variant === "owner"
@@ -89,11 +93,20 @@ export function InquiryCard({
     (s): s is CarerCareServiceConfig =>
       s.kind === "care" && s.serviceType === inquiry.serviceType,
   );
+  // Appointment inquiries price off the flat appointment config, not the
+  // Care engine. Appointment booking flow, 2026-05-22.
+  const apptConfig = inquiry.appointment
+    ? provider?.carerProfile?.services?.find(
+        (s): s is CarerAppointmentServiceConfig =>
+          s.kind === "appointment" && s.id === inquiry.appointment!.serviceId,
+      )
+    : undefined;
   const todayISO = new Date().toISOString().slice(0, 10);
   const estimate = useMemo(() => {
+    if (apptConfig) return computeAppointmentQuote(apptConfig);
     if (!careConfig) return null;
     return computeQuote(careConfig, inquiry, todayISO);
-  }, [careConfig, inquiry, todayISO]);
+  }, [apptConfig, careConfig, inquiry, todayISO]);
   const triggeredModifiers = estimate?.lineItems.filter((li) => li.isModifier) ?? [];
   const cycleLabel = estimate?.billingCycle === "weekly" ? "/ week" : "";
 

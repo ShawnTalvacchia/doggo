@@ -58,6 +58,12 @@ type PersistedState = {
    *  step whose action they've already performed. Key is the beat index
    *  stringified; value is the max stepIndex reached in that beat. */
   beatMaxSteps: Record<string, number>;
+  /** Ids of fire-off posts the tester has "Shared" during this run. The
+   *  group feed hides a walkthrough fire-off post until its id lands here,
+   *  so the post the card is about to Share isn't already sitting in the
+   *  feed. Cleared on exit (clearDemoStorage wipes the run-state), so a
+   *  free-explore session shows the seeded post normally. 2026-05-22. */
+  sharedPostIds: string[];
   phase: WalkthroughPhase;
 };
 
@@ -66,6 +72,7 @@ const INITIAL: PersistedState = {
   beatIndex: 0,
   stepIndex: 0,
   beatMaxSteps: {},
+  sharedPostIds: [],
   phase: "interstitial",
 };
 
@@ -76,8 +83,11 @@ type WalkthroughContextValue = PersistedState & {
   start: () => void;
   /** From an interstitial: switch persona + route to the beat surface, show step 1. */
   continueToBeat: () => void;
-  /** Advance one step — or, past a beat's last step, to the next beat's interstitial. */
-  next: () => void;
+  /** Advance one step — or, past a beat's last step, to the next beat's
+   *  interstitial. Pass a `sharePostId` (fire-off "Share") to atomically mark
+   *  that post Shared in the SAME state update, so the group feed reveals it
+   *  without a second persist clobbering this advance. */
+  next: (sharePostId?: string) => void;
   /** Step back one step — or, from a beat's first step, to the previous beat's
    *  LAST step (skipping the handoff interstitial, which is a one-way
    *  transition, not navigable content). From the very first step of the
@@ -117,6 +127,9 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
               parsed.beatMaxSteps && typeof parsed.beatMaxSteps === "object"
                 ? (parsed.beatMaxSteps as Record<string, number>)
                 : {},
+            sharedPostIds: Array.isArray(parsed.sharedPostIds)
+              ? (parsed.sharedPostIds as string[])
+              : [],
             phase: parsed.phase === "running" ? "running" : "interstitial",
           });
         }
@@ -152,6 +165,7 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
       beatIndex: 0,
       stepIndex: 0,
       beatMaxSteps: {},
+      sharedPostIds: [],
       phase: "interstitial",
     });
   }, [persist]);
@@ -164,9 +178,16 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
     router.push(beat.startUrl);
   }, [state, persist, router, setUserById]);
 
-  const next = useCallback(() => {
+  const next = useCallback((sharePostId?: string) => {
     const beat = WALKTHROUGH_BEATS[state.beatIndex];
     if (!beat) return;
+    // Fire-off "Share" folds in here: mark the post Shared in the SAME
+    // persist as the step advance, so the feed reveals it and the advance
+    // isn't lost to a separate clobbering persist.
+    const sharedPostIds =
+      sharePostId && !state.sharedPostIds.includes(sharePostId)
+        ? [...state.sharedPostIds, sharePostId]
+        : state.sharedPostIds;
     if (state.stepIndex < beat.steps.length - 1) {
       // Advance within the beat. Track the highest step reached in this
       // beat so the awaitAction prompt can flip to Continue when the
@@ -176,6 +197,7 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
       const currentMax = state.beatMaxSteps[beatKey] ?? 0;
       persist({
         ...state,
+        sharedPostIds,
         stepIndex: newStepIdx,
         beatMaxSteps: {
           ...state.beatMaxSteps,
@@ -191,6 +213,7 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
       const prevMax = state.beatMaxSteps[prevBeatKey] ?? 0;
       persist({
         ...state,
+        sharedPostIds,
         beatIndex: Math.min(state.beatIndex + 1, WALKTHROUGH_BEAT_COUNT),
         stepIndex: 0,
         beatMaxSteps: {

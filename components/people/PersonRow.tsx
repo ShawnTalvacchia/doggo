@@ -22,6 +22,7 @@
  * board + `Trust & Connection Model.md` → "Meet participant visibility rules".
  */
 
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { PawPrint } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
@@ -162,6 +163,19 @@ export interface PersonRowProps {
   // Navigation
   href?: string;
   onClick?: () => void;
+
+  /**
+   * Optional footer rendered INSIDE the row's card chrome, below the body
+   * (and below the Familiar-mark footer, if any). Lays out via
+   * `.person-row-footer` (border-top + inset background + space-between), so
+   * pass two children — a label and an action — for the canonical look.
+   * Used for the group Members-tab per-member service bar so the card gains
+   * a footer rather than being nested in another card. 2026-05-22.
+   */
+  footer?: ReactNode;
+  /** Extra class on the footer wrapper — e.g. a tint variant
+   *  (`person-row-footer--service`). Applies only when `footer` is set. */
+  footerClassName?: string;
 }
 
 /**
@@ -223,6 +237,8 @@ export function PersonRow(props: PersonRowProps) {
     onToggleSelect,
     href,
     onClick,
+    footer,
+    footerClassName,
   } = props;
 
   const viewer = useCurrentUser();
@@ -527,7 +543,7 @@ export function PersonRow(props: PersonRowProps) {
   // Mirrors the post-meet review's `AttendeeActionCard` footer pattern —
   // confirms what's just been marked + provides Undo. Session-scoped:
   // disappears when the consumer clears its mark state (e.g. on nav away).
-  const footer = showFooter ? (
+  const markFooter = showFooter ? (
     <div className="person-row-footer">
       <span className="person-row-footer-confirm">
         ✓ Familiar
@@ -543,6 +559,15 @@ export function PersonRow(props: PersonRowProps) {
     </div>
   ) : null;
 
+  // Caller-provided footer (e.g. the Members-tab service bar) — rendered with
+  // the same `.person-row-footer` chrome so it reads as part of THIS card,
+  // not a nested one.
+  const slotFooter = footer ? (
+    <div className={`person-row-footer${footerClassName ? ` ${footerClassName}` : ""}`}>
+      {footer}
+    </div>
+  ) : null;
+
   // Layout: the outer `.person-row` wraps a body row + optional footer.
   // When there's no footer (most surfaces, most rows), the body row IS
   // the row. The body class drives the inline flex layout for inbox vs
@@ -552,14 +577,16 @@ export function PersonRow(props: PersonRowProps) {
     return (
       <Link href={targetHref} onClick={onClick} className={rowClassName}>
         <div className="person-row-body">{rowChildren}</div>
-        {footer}
+        {markFooter}
+        {slotFooter}
       </Link>
     );
   }
   return (
     <div className={rowClassName}>
       <div className="person-row-body">{rowChildren}</div>
-      {footer}
+      {markFooter}
+      {slotFooter}
     </div>
   );
 }

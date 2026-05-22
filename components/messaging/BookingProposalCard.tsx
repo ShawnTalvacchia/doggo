@@ -5,7 +5,7 @@ import Link from "next/link";
 import { CalendarCheck, Sparkle, ArrowRight, CaretDown, CaretUp } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import type { ChatMessage, BookingProposalStatus } from "@/lib/types";
-import { SERVICE_LABELS } from "@/lib/constants/services";
+import { serviceLabelFor } from "@/lib/constants/services";
 import { formatShortDate } from "@/lib/dateUtils";
 
 export function BookingProposalCard({
@@ -38,11 +38,15 @@ export function BookingProposalCard({
     countered: "Countered",
   };
 
+  const serviceLabel = serviceLabelFor(p);
   const scheduleText = p.recurringSchedule
     ? `Every ${p.recurringSchedule.days.join(", ")} · ${p.recurringSchedule.timeLabel}`
     : p.endDate
     ? `${formatShortDate(p.startDate)} – ${formatShortDate(p.endDate)}`
-    : `From ${formatShortDate(p.startDate)}`;
+    : // Appointments are a single fixed slot — bare date, no "From …".
+      p.appointment
+      ? formatShortDate(p.startDate)
+      : `From ${formatShortDate(p.startDate)}`;
 
   // Once the proposal has a response (countered / declined / accepted) the
   // body collapses — like InquiryCard. The status footer carries the truth;
@@ -77,7 +81,7 @@ export function BookingProposalCard({
           aria-label="Expand booking proposal details"
         >
           <h4 className="inbox-proposal-collapsed-title">
-            {SERVICE_LABELS[p.serviceType]}
+            {serviceLabel}
             {p.subService && (
               <span className="inbox-proposal-collapsed-sub"> · {p.subService}</span>
             )}
@@ -93,7 +97,7 @@ export function BookingProposalCard({
         <div className="inbox-proposal-row">
           <span className="inbox-proposal-field">Service</span>
           <span className="inbox-proposal-value">
-            {SERVICE_LABELS[p.serviceType]}
+            {serviceLabel}
             {p.subService ? ` · ${p.subService}` : ""}
           </span>
         </div>

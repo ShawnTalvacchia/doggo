@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { CheckCircle, CalendarDots } from "@phosphor-icons/react";
+import Link from "next/link";
+import { CheckCircle, CalendarDots, ArrowRight } from "@phosphor-icons/react";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
@@ -233,6 +234,19 @@ export function LinkedWalkBookingSheet({
               {priceLabel}
             </span>
           </div>
+
+          {/* Pivot to the carer's full catalogue. This sheet books one
+              service; a curious owner can jump to everything the carer offers
+              (training, sitting, etc.) rather than dead-ending here. Closes
+              the sheet on the way out. 2026-05-22. */}
+          <Link
+            href={`/profile/${carer.id}?tab=services`}
+            onClick={onClose}
+            className="self-start inline-flex items-center gap-tiny text-xs font-semibold text-info-strong"
+          >
+            View all of {carerFirst}&apos;s services
+            <ArrowRight size={12} weight="bold" aria-hidden="true" />
+          </Link>
 
           {/* Delivery picker — uses the canonical `MultiSelectSegmentBar`
               pattern (same as Available times / Repeat-weekly days in

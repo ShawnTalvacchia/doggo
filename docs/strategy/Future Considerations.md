@@ -1,6 +1,6 @@
 ---
 status: living
-last-reviewed: 2026-05-13
+last-reviewed: 2026-05-22
 review-trigger: "Append when a 'noted for later' idea surfaces; promote out when triggered"
 ---
 
@@ -130,3 +130,21 @@ The smaller `.person-row-pill--carer` treatment (11px font, 16.5px tall, for Per
 **Refs:** `components/profile/ProfileAboutTab.tsx` (own-profile hero), `app/profile/[userId]/page.tsx` (other-user hero), `components/profile/ProfileVisibilityChip.tsx` (related neutral-tone visibility chip), `docs/implementation/design-system.md` ("chip-vs-pill" treatment ladder).
 
 **Added:** 2026-05-13
+
+---
+
+## FC6. Group admin control + member opt-out for member-service display
+
+**Trigger:** Feedback that a group shouldn't surface members' care offerings at all (a pure social/park circle), or a carer doesn't want their services advertised in every group they belong to.
+
+**Context:** The Members tab now has a viewer-side **"Show members' services"** toggle (default off) that reveals a service footer on member cards (2026-05-22 neighbour-care redesign — replaced the duplicative `GroupNeighbourCare` section, which also gated on static membership and so hid after an optimistic join). Two governance layers were deliberately deferred:
+- **Admin-side:** a group setting ("Allow members to offer services here") would gate whether the toggle is even available per group.
+- **Member-side:** a per-membership (or global) opt-out so a carer in several groups controls where their services show.
+
+Neither is needed for the demo — the viewer toggle (off by default) already keeps the roster reading as a member list, not a marketplace. These add governance once it matters.
+
+**Effort:** ~2-3h. Admin: a `Group` config boolean + a control in the group admin surface, gate `hasAnyMemberServices` + the toggle on it. Member: a per-membership / per-carer flag, filter `getMemberServiceSummary` by it.
+
+**Refs:** `app/communities/[id]/page.tsx` (`MembersTab` toggle + `getMemberServiceSummary` + the service footer), `lib/types.ts` (`Group` / `GroupMember` / `carerProfile` would carry the flags).
+
+**Added:** 2026-05-22

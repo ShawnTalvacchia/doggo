@@ -1471,7 +1471,18 @@ export const mockMeets: Meet[] = [
       { userId: "magda", userName: "Magda", avatarUrl: "/images/generated/magda-profile.jpeg", dogNames: ["Žofka"], rsvpStatus: "going", profileOpen: true, neighbourhood: "Holešovice" },
       { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"], rsvpStatus: "going" },
       { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna", "Max"], rsvpStatus: "going" },
+      // Locked profile (profileVisibility "locked", no relationship to Daniel)
+      // — surfaces the "Private profiles" row type in the People tab so the
+      // demo shows that state. Action is the silent "+ Familiar" only. Martin
+      // is a Stromovka regular per his bio. 2026-05-22.
+      { userId: "martin", userName: "Martin", avatarUrl: "/images/generated/martin-profile.jpeg", dogNames: ["Charlie"], rsvpStatus: "going", profileOpen: false },
     ],
+    // Daniel follows this series ("Interested") before the demo opens —
+    // fits his newcomer arc (in Klára's group, interested in the walk, not
+    // yet attended). It also grants `viewerCanAct` for the People-tab
+    // actions in Beat 3 even if a tester skips Beat 1 (where he'd otherwise
+    // RSVP). Following ≠ RSVP, so Beat 1's "Join" stays a fresh action.
+    followers: ["daniel"],
     // Config #2 — a free community walk advertising Klára's drop-off Care
     // service (`klara-walks`, `required: false`). Neighbours join free as
     // walkers; an owner can separately book Klára to walk their dog (book ≠

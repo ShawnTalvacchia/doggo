@@ -1,4 +1,4 @@
-import { SERVICE_LABELS } from "@/lib/constants/services";
+import { serviceLabelFor } from "@/lib/constants/services";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import type { ChatMessage, Conversation } from "@/lib/types";
@@ -24,6 +24,8 @@ export function SigningModal({
     ? `Every ${p.recurringSchedule.days.join(", ")} · ${p.recurringSchedule.timeLabel}`
     : p.endDate
     ? `${formatShortDate(p.startDate)} – ${formatShortDate(p.endDate)}`
+    : p.appointment
+    ? formatShortDate(p.startDate)
     : `From ${formatShortDate(p.startDate)}`;
 
   return (
@@ -61,7 +63,7 @@ export function SigningModal({
           <div className="signing-row">
             <span className="signing-field">Service</span>
             <span className="signing-value">
-              {SERVICE_LABELS[p.serviceType]}
+              {serviceLabelFor(p)}
               {p.subService ? ` · ${p.subService}` : ""}
             </span>
           </div>

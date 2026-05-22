@@ -17,13 +17,13 @@
  *  - Right half = cast showcase + picker: MEET THE CAST framing, a
  *    horizontal profile card (photo left, name/role/goal/Explore CTA
  *    right), and slider controls.
- *  - The walkthrough still starts as Daniel; the slider defaults to
- *    his card so the helper line below the primary CTA reads as a
- *    continuous thought with the showcase.
+ *  - Daniel (the walkthrough's lead) is the first card and the slider
+ *    opens on him. On mobile the profile card is swipeable (left/right
+ *    to change persona); desktop also has the arrow controls.
  *  - Mobile stacks the halves vertically.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
@@ -117,20 +117,42 @@ export default function LandingPage() {
     router.push("/home");
   }
 
-  // Excludes the "New user" meta-persona (empty-state test affordance,
-  // not a character in the demo's world).
-  const castPersonas = personas.filter((p) => p.user.id !== NEW_USER_ID);
+  // Cast = every persona except the "New user" meta-persona (an empty-state
+  // test affordance, not a character in the world), with the walkthrough's
+  // lead (Daniel) hoisted to the front so he's the first card.
+  const castPersonas = (() => {
+    const cast = personas.filter((p) => p.user.id !== NEW_USER_ID);
+    const leadIdx = cast.findIndex(
+      (p) => p.user.id === WALKTHROUGH_START_PERSONA_ID,
+    );
+    if (leadIdx > 0) cast.unshift(cast.splice(leadIdx, 1)[0]);
+    return cast;
+  })();
 
-  // Slider state — start on Daniel so the showcase matches the helper
-  // copy ("You start as Daniel…"). Wraps in both directions.
-  const danielIdx = castPersonas.findIndex(
-    (p) => p.user.id === WALKTHROUGH_START_PERSONA_ID,
-  );
-  const [activeIdx, setActiveIdx] = useState(danielIdx >= 0 ? danielIdx : 0);
+  // Slider state — opens on the first card (Daniel, the walkthrough lead).
+  // Wraps in both directions.
+  const [activeIdx, setActiveIdx] = useState(0);
   const active = castPersonas[activeIdx];
   const goPrev = () =>
     setActiveIdx((i) => (i - 1 + castPersonas.length) % castPersonas.length);
   const goNext = () => setActiveIdx((i) => (i + 1) % castPersonas.length);
+
+  // Mobile swipe on the profile card → previous / next persona. A horizontal
+  // drag past a small threshold switches cards; small movements (a tap on the
+  // Explore CTA) are ignored. Touch-only, so desktop keeps using the arrows.
+  const touchStartX = useRef<number | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0]?.clientX ?? null;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const endX = e.changedTouches[0]?.clientX ?? touchStartX.current;
+    const dx = endX - touchStartX.current;
+    const SWIPE_THRESHOLD = 40;
+    if (dx <= -SWIPE_THRESHOLD) goNext();
+    else if (dx >= SWIPE_THRESHOLD) goPrev();
+    touchStartX.current = null;
+  };
 
   return (
     <div className="demo-page">
@@ -174,12 +196,18 @@ export default function LandingPage() {
           <div className="demo-cast-meta">
             <span className="demo-cast-eyebrow">The cast</span>
             <p className="demo-cast-subline">
-              You'll meet these folks in the walkthrough. Or pick one
-              and explore the demo freely.
+              Each card is another way in. Tap Explore to become that
+              person — their feed, their connections, their care — and
+              roam the app freely, no guided steps.
             </p>
           </div>
 
-          <article className="demo-profile-card" aria-live="polite">
+          <article
+            className="demo-profile-card"
+            aria-live="polite"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
             <img
               src={active.user.avatarUrl}
               alt=""

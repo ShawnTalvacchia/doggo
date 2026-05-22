@@ -227,13 +227,41 @@ export type BookingProposalStatus = "pending" | "accepted" | "declined" | "count
 export type InquiryStatus = "pending" | "responded" | "declined" | "withdrawn";
 
 /**
+ * Lightweight reference to an Appointment-type service (grooming / training,
+ * a fixed-time solo slot) carried on an inquiry / proposal / booking.
+ *
+ * Appointments aren't part of the four-service Care `ServiceType` taxonomy,
+ * so the structured booking flow can't identify them by `serviceType`. When
+ * this descriptor is present, renderers show `title` (and the flat
+ * `pricePerAppointment`-derived quote) instead of the Care `serviceType`
+ * path. Appointment booking flow, 2026-05-22.
+ */
+export interface AppointmentRef {
+  /** The `CarerAppointmentServiceConfig.id` this refers to. */
+  serviceId: string;
+  /** Denormalised title so cards render without a carer lookup. */
+  title: string;
+  category: AppointmentCategory;
+  durationMinutes: number;
+}
+
+/**
  * Structured inquiry card — the artifact owners send when tapping "Book a
  * session" on a service card. Captures intent in a form the provider can
  * read at a glance. Lives as a `ChatMessage` of type `"inquiry"`.
  */
 export interface InquiryDetails {
   bookingType: BookingType;
-  serviceType: ServiceType;
+  /**
+   * Care service type. Optional as of the appointment booking flow
+   * (2026-05-22): an Appointment-type inquiry has no Care `ServiceType` —
+   * it's identified by `appointment` instead. Renderers must branch on
+   * `appointment` first, then fall back to `serviceType`.
+   */
+  serviceType?: ServiceType;
+  /** Set when this inquiry is for an Appointment-type service. Mutually
+   *  exclusive with `serviceType`. Appointment booking flow, 2026-05-22. */
+  appointment?: AppointmentRef;
   subService: string | null;
   pets: string[];
   startDate: string | null;       // ISO YYYY-MM-DD
@@ -258,7 +286,12 @@ export type ConversationStatus = "active" | "confirmed" | "archived";
 
 export interface BookingProposal {
   bookingType: BookingType;
-  serviceType: ServiceType;
+  /** Care service type. Optional — an Appointment-type proposal carries
+   *  `appointment` instead. Appointment booking flow, 2026-05-22. */
+  serviceType?: ServiceType;
+  /** Set when this proposal is for an Appointment-type service. Mutually
+   *  exclusive with `serviceType`. Appointment booking flow, 2026-05-22. */
+  appointment?: AppointmentRef;
   subService: string | null;
   pets: string[];
   startDate: string;           // ISO YYYY-MM-DD
@@ -458,6 +491,14 @@ export interface Booking {
    * branch on `meetBooking` first, then fall back to `serviceType`.
    */
   serviceType?: ServiceType;
+  /**
+   * Set when this booking was produced by an **Appointment-type service**
+   * (grooming / training, fixed-time solo slot). Carries the title +
+   * category so the booking renders without a carer-config lookup. Mutually
+   * exclusive with `serviceType` / `meetBooking`. Appointment booking flow,
+   * 2026-05-22.
+   */
+  appointment?: AppointmentRef;
   /**
    * Set when this booking was produced by a **Meet-type service** — i.e.
    * the owner booked a scheduled session (training, workshop, paid group

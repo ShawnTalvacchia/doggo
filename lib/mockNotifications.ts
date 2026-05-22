@@ -397,39 +397,10 @@ export const mockNotifications: AppNotification[] = [
     title: "How was the Stromovka walk?",
     body: "Look back on the morning — mark anyone you'd like to know better.",
     avatarUrl: "/images/generated/post-stromovka-walk.jpeg",
-    href: "/meets/meet-klara-stromovka",
+    // Lands Daniel straight on the walk's People tab — Beat 3's first step
+    // sends him here to mark Magda Familiar, so skip the extra tab tap.
+    href: "/meets/meet-klara-stromovka?tab=people",
     createdAt: daysAgoIso(0, "13:00"),
-    read: false,
-  },
-  {
-    // Demo Narrative V2, Beat 3 — Magda's connection request reaches Daniel
-    // after the time-passage interstitial. (Move on for the historical
-    // narrative-context comment below — unchanged.)
-    id: "notif-magda-connect-daniel",
-    recipientId: "daniel",
-    type: "connection_request",
-    actorId: "magda",
-    title: "Magda wants to connect",
-    body: "You met on the Stromovka walk.",
-    avatarUrl: "/images/generated/magda-profile.jpeg",
-    href: "/profile/magda",
-    createdAt: daysAgoIso(0, "12:15"),
-    read: false,
-  },
-  {
-    // Demo Narrative V2, Beat 3 — Magda's group invite, the "message" half of
-    // "Magda's reached out." Daniel taps through to Holešovice Dog Block.
-    // Deterministic id matches the runtime invite-flow pattern (`handleInvite`
-    // in app/communities/[id]/page.tsx) so a live invite would upsert.
-    id: "notif-ginvite-group-holesovice-block-daniel",
-    recipientId: "daniel",
-    type: "group_invite",
-    actorId: "magda",
-    title: "Magda invited you to Holešovice Dog Block",
-    body: "Lovely to meet you and Bára on the walk — come join our block's little group.",
-    avatarUrl: "/images/generated/magda-profile.jpeg",
-    href: "/communities/group-holesovice-block",
-    createdAt: daysAgoIso(0, "12:16"),
     read: false,
   },
   {
@@ -477,6 +448,58 @@ export const mockNotifications: AppNotification[] = [
     read: false,
   },
 ];
+
+/**
+ * Deferred narrative notifications — NOT part of the always-on stream.
+ *
+ * Demo Narrative V2, Beat 3: Magda's connection request + group invite must
+ * not appear in Daniel's bell until the story's time-passage interstitial
+ * ("a couple of days later") fires them — otherwise they sit on the beat's
+ * opening notifications screen before Daniel has even marked Magda Familiar,
+ * which spoils the reveal and reads as impossible. The walkthrough fires
+ * these via `addNotification` when the tester taps Continue on that
+ * interstitial (`fireNotifications` on the step → `WalkthroughInterstitial`).
+ * Firing is idempotent (upsert by id). createdAt sits just after the
+ * post-meet-review (13:00) so they sort to the top of Daniel's bell on
+ * arrival.
+ */
+export const deferredNotifications: AppNotification[] = [
+  {
+    // Magda's connection request — reaches Daniel after the time-passage.
+    id: "notif-magda-connect-daniel",
+    recipientId: "daniel",
+    type: "connection_request",
+    actorId: "magda",
+    title: "Magda wants to connect",
+    body: "You met on the Stromovka walk.",
+    avatarUrl: "/images/generated/magda-profile.jpeg",
+    href: "/profile/magda",
+    createdAt: daysAgoIso(0, "13:30"),
+    read: false,
+  },
+  {
+    // Magda's group invite, the "message" half of "Magda's reached out."
+    // Daniel taps through to Holešovice Dog Block. Deterministic id matches
+    // the runtime invite-flow pattern (`handleInvite` in
+    // app/communities/[id]/page.tsx) so a live invite would upsert.
+    id: "notif-ginvite-group-holesovice-block-daniel",
+    recipientId: "daniel",
+    type: "group_invite",
+    actorId: "magda",
+    title: "Magda invited you to Holešovice Dog Block",
+    body: "Lovely to meet you and Bára on the walk — come join our block's little group.",
+    avatarUrl: "/images/generated/magda-profile.jpeg",
+    href: "/communities/group-holesovice-block",
+    createdAt: daysAgoIso(0, "13:31"),
+    read: false,
+  },
+];
+
+/** Look up a deferred notification payload by id (for the walkthrough's
+ *  `fireNotifications`). Returns undefined for an unknown id. */
+export function getDeferredNotification(id: string): AppNotification | undefined {
+  return deferredNotifications.find((n) => n.id === id);
+}
 
 export function getUnreadCount(): number {
   return mockNotifications.filter((n) => !n.read).length;

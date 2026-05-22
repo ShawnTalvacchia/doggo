@@ -15881,6 +15881,14 @@ body:has(.bottom-nav) .inbox-page {
   font-size: var(--text-sub);
 }
 
+/* Service-bar variant — group Members tab "Show members' services" footer.
+   Care is blue per the colour rule (Principle 14), so the bar carries a pale
+   info tint that sets the offering apart from the neutral mark footer without
+   shouting. 2026-05-22. */
+.person-row-footer--service {
+  background: var(--status-info-light);
+}
+
 .person-row-footer-confirm {
   display: inline-flex;
   align-items: center;

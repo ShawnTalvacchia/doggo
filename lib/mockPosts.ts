@@ -50,8 +50,11 @@ export const mockPosts: Post[] = [
     // and shows the post landing in the group's feed.
     groupId: "group-klara-training",
     photos: ["/images/generated/post-stromovka-walk.jpeg"],
-    caption:
-      "Another morning at Stromovka with the group. A full house today — and a couple of nervous newcomers who settled in beautifully by the end. This is the part of the job I love: watching a dog who used to give the park a wide berth start to enjoy other dogs' company. We walk every week, 10am by the main gate — all friendly dogs welcome, and I'm always happy to chat if yours finds the world a bit much. 🐾",
+    // Caption must match the walkthrough's fire-off card preview
+    // (`fireOff.caption` for Beat 2's Share step in walkthroughBeats.ts)
+    // — Beat 2 step 6 shows this post landing in the feed right after the
+    // tester "shares" it, so the two have to read identically.
+    caption: "Some new faces on the morning walk. Look at these good boys. 🐾",
     tags: [
       { type: "place", id: "stromovka", label: "Stromovka" },
       { type: "meet", id: "meet-klara-stromovka", label: "Stromovka morning walk" },

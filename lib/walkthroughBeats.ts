@@ -56,10 +56,23 @@ export type WalkthroughStep =
       /**
        * Fire-off steps surface pre-written content for a one-tap commit.
        * When set, the card renders the image + caption as a post preview and
-       * the primary action reads "Share" (the post is pre-seeded in
-       * `mockPosts.ts`; "Share" is the narrated commit). Option 1, 2026-05-18.
+       * the primary action reads "Share". The matching post is seeded in
+       * `mockPosts.ts` but HIDDEN from the group feed until the tester taps
+       * Share (the card calls `sharePost(postId)`, which reveals it) — so the
+       * post the card is about to share isn't already sitting in the feed.
+       * `postId` links the card to that seeded post. 2026-05-22 (was a pure
+       * narrated commit before; the post used to be pre-visible).
        */
-      fireOff?: { imageUrl: string; caption: string };
+      fireOff?: { imageUrl: string; caption: string; postId: string };
+      /**
+       * Notification ids to fire when this card step becomes active. Same
+       * deferred-notification mechanism as the interstitial variant below, but
+       * for card steps — used after the "a couple of days later" interstitial
+       * was removed (2026-05-22): Magda's reach-out now fires as the "Open
+       * Notifications" step activates. Payloads live in `deferredNotifications`
+       * (`lib/mockNotifications.ts`); fired in `WalkthroughCard`. Idempotent.
+       */
+      fireNotifications?: string[];
     }
   | {
       /** A mid-beat full-screen interstitial — the card hides while it shows. */
@@ -69,6 +82,18 @@ export type WalkthroughStep =
       eyebrow: string;
       heading: string;
       body: string;
+      /**
+       * Notification ids to fire (via `addNotification`) when the tester taps
+       * Continue on this interstitial. Used by time-passage steps to defer
+       * narrative notifications until the story's time has actually passed —
+       * e.g. Magda's connection request + group invite must not appear in
+       * Daniel's bell until Beat 3's "a couple of days later", or they're
+       * visible (and impossible) at the beat's opening notifications screen.
+       * Payloads live in `deferredNotifications` (`lib/mockNotifications.ts`),
+       * deliberately kept OUT of the always-on stream. Firing is idempotent
+       * (upsert by id). Fired in `WalkthroughInterstitial`.
+       */
+      fireNotifications?: string[];
     };
 
 export type WalkthroughBeat = {
@@ -116,14 +141,8 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
       {
         kind: "card",
         instruction:
-          "Read the walk. It's free, open to everyone, and Klára's note welcomes nervous dogs. Tap **Next** when you've had a look.",
+          "Read the walk. It's free, open to everyone, and Klára's note welcomes nervous dogs. Tap **Join** on the upcoming session. Then tap **Next**.",
         detail: "This is the gentle first outing Daniel was hoping to find for Bára.",
-      },
-      {
-        kind: "card",
-        instruction: "Tap **Join** to RSVP, then tap **Next**.",
-        detail:
-          "A free, low-pressure first step. Daniel's committed Bára to her first group walk.",
       },
     ],
   },
@@ -133,37 +152,35 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
     personaId: "klara",
     when: "Morning",
     context:
-      "Klára runs a free walk at Stromovka every week. It's how the neighbourhood's dogs get out, and it's how she meets her training clients. First, though, she's got a dog to pick up.",
+      "Klára runs a free walk at Stromovka every week, it's how the neighbourhood's dogs get out. First, though, she's got a dog to pick up.",
     summary: "Run the morning. The walk is the work.",
     startUrl: "/schedule",
     steps: [
       {
         kind: "card",
         instruction:
-          "This is Klára's **My Schedule**. Today holds the Stromovka walk she hosts, and a booked walk for Filip's dog Toby, who she picks up on the way.",
-        detail:
-          "My Schedule is Klára's day at a glance: every commitment in time order, and whatever's ready to start now.",
+          "This is Klára's **My Schedule**, her day in time order. It holds the Stromovka walk she hosts and a booked walk for Toby, whom she picks up on the way. Tap **Start session** on Toby's booking.",
+        advanceOn: "/bookings/booking-klara-toby/active",
+        // No card "Next" — the schedule's quick-start is what advances this
+        // step: tapping Start flips the session in-progress and routes to the
+        // active page, so the walkthrough can't reach Finish with an unstarted
+        // session. If the tester reaches the active page then navigates away
+        // before the auto-advance registers, WalkthroughCard's Continue
+        // fallback recovers the step (no dead-end).
+        awaitAction: true,
       },
       {
         kind: "card",
         instruction:
-          "Find today's session with **Toby** and tap **Start session**.",
-        detail:
-          "The walk is free for everyone. What Klára earns comes from the dogs she's booked to bring, today Toby, plus her own dog Eda for company.",
-        advanceOn: "/bookings/booking-klara-toby/active",
-        // No card "Next" — the schedule's quick-start is what advances this
-        // step: tapping Start flips the session in-progress and routes to
-        // the active page, so the walkthrough can't reach Finish with an
-        // unstarted session.
-        awaitAction: true,
+          "Toby's session is live. From here on, an **active session** banner rides along on every screen, so Klára can jump back to the walk from anywhere in the app. Tap **Next** to carry on.",
       },
       {
         kind: "interstitial",
         mode: "explainer",
         eyebrow: "How this works",
-        heading: "More than a walk",
+        heading: "A free walk, a growing network",
         body:
-          "A Klára walk is part exercise, part training, part crew. As the group moves, she coaches: leash skills, reading other dogs, owners learning to handle their own. Not everyone's there for the training. Some regulars come for the company, and their dogs are already happy to see each other. For a nervous dog it's a calm, controlled first taste of all that, and it's how a dog that used to avoid the park slowly becomes one that belongs in the group.",
+          "The walk is free and open to everyone, part exercise, part crew, part gentle guidance. Klára earns from the dogs she's booked to bring, like Toby, and the walk is how she earns owners' trust, books training clients, and grows her network.",
       },
       {
         kind: "card",
@@ -184,7 +201,7 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
         instruction:
           "Head to the **Groups** tab on the Community page. Select **Klára's Calm Dog Sessions**.",
         detail:
-          "After a walk wraps, this is where Klára shares the moment with the crew. Her group, her people, her client funnel.",
+          "After a walk wraps, this is where she shares the moment with the crew.",
         advanceOn: "/communities/group-klara-training",
       },
       {
@@ -193,6 +210,7 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
           imageUrl: "/images/generated/post-stromovka-walk.jpeg",
           caption:
             "Some new faces on the morning walk. Look at these good boys. 🐾",
+          postId: "post-klara-stromovka-walk",
         },
         instruction:
           "Klára's walk post is ready for the group. Tap **Share** to post it.",
@@ -202,7 +220,7 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
         instruction:
           "Klára's post is live in the group feed. Take a look, then tap **Next**.",
         detail:
-          "Same crew sees it first — regulars who'll like and chime in. But the next nervous-dog owner scrolling Holešovice's groups will find it too. The walk grows from posts like this.",
+          "The crew sees it first, but the next owner scrolling Holešovice's groups finds it too. That's how the walk grows.",
       },
     ],
   },
@@ -222,25 +240,18 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
           "Tap the **Stromovka walk** notification to revisit the morning.",
         detail:
           "After a meet, Doggo prompts attendees to look back: who came, and who Daniel might want to know.",
+        // The notification's href carries `?tab=people`, so tapping it lands
+        // Daniel straight on the walk's People tab. advanceOn is the bare
+        // pathname (query ignored) so the card auto-advances on arrival —
+        // no separate "open the People tab" step needed.
         advanceOn: "/meets/meet-klara-stromovka",
       },
       {
         kind: "card",
         instruction:
-          "Open the Stromovka walk's **People** tab.",
+          "Daniel got talking to **Magda** on the walk, a neighbour from his own street. Find her on the **People** tab and mark her **Familiar**, then tap **Next**.",
         detail:
-          "Everyone who came along this morning is here, grouped by who Daniel already knows. Most are new faces.",
-        // Tab switch updates the URL's query param. The walkthrough's
-        // auto-advance matches on pathname + query when the advanceOn
-        // includes one, so this fires only when the People tab is open.
-        advanceOn: "/meets/meet-klara-stromovka?tab=people",
-        awaitAction: true,
-      },
-      {
-        kind: "card",
-        instruction:
-          "Daniel got talking to **Magda** on the walk, a neighbour from his own street. Mark her **Familiar**, then tap **Next**.",
-        detail: "The quietest possible way of saying, I'd like to know you.",
+          "Everyone who came this morning is here, grouped by who Daniel already knows.",
       },
       {
         kind: "interstitial",
@@ -248,46 +259,80 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
         eyebrow: "How this works",
         heading: "What “Familiar” means",
         body:
-          "Daniel's profile is private. Other people can't see his content or send him a message. Marking Magda Familiar opens his profile to her. It isn't a friend request: Magda is never notified, and it commits Daniel to nothing. It's the first step from stranger toward neighbour.",
+          "Daniel's profile is private. Other people can't see his content or send him a message. Marking Magda Familiar opens his profile to her. It isn't a friend request: Magda is never notified, and it commits Daniel to nothing. It's the first step from stranger to familiar face.",
       },
       {
         kind: "card",
         instruction:
-          "Daniel keeps thinking about how calmly Klára handled the nervous dogs. Open **Klára's profile** and go to her **Services**.",
+          "Daniel keeps thinking about how calmly Klára handled the nervous dogs. Tap **Next** to open her full list of **Services**.",
         detail: "A group walk is a great start, but Bára needs focused, one-on-one help to really get there.",
-        advanceOn: "/profile/klara",
+        advanceOn: "/profile/klara?tab=services",
       },
       {
         kind: "card",
         instruction:
-          "**Book Klára's 1-on-1 training** for Bára. Confirm the booking, then tap **Next**.",
+          "Tap **Book a session** on the **1-on-1 training session**. Pick a date for Bára, check the **800 Kč** price, and send the request.",
+        detail:
+          "Choose the details, see the price up front, send. Klára replies with a proposal right away.",
+        // Completes when the sheet's "Review the proposal" routes Daniel to
+        // the chat thread where Klára's auto-proposal is waiting.
+        advanceOn: "/profile/klara?tab=chat",
+        awaitAction: true,
+      },
+      {
+        kind: "card",
+        instruction:
+          "Klára sent a **proposal** straight back. Tap **Review & sign**, confirm the booking, then tap **Next**.",
         detail:
           "The free walk is what led Daniel here. Now he's investing in something bigger: the confident dog Bára could become.",
       },
       {
-        kind: "interstitial",
-        mode: "time-passage",
-        eyebrow: "A couple of days later",
-        heading: "Daniel's settled in.",
-        body: "The training with Klára is underway, and Magda has been in touch.",
-      },
-      {
         kind: "card",
-        instruction: "Open Daniel's **Notifications**.",
-        detail: "Magda has reached out, with a connection request and a message.",
+        instruction:
+          "The next day, Magda's been in touch. Open Daniel's **Notifications**.",
+        // Her connection request fires as this step becomes active (replacing
+        // the removed "a couple of days later" interstitial), so it's waiting
+        // when Daniel opens the bell — but not before he marked her Familiar
+        // earlier in the beat. The group invite is deferred to the invite step
+        // below (after he accepts), so it reads as sent once they're connected.
+        // Fired in WalkthroughCard; idempotent.
+        fireNotifications: ["notif-magda-connect-daniel"],
         advanceOn: "/notifications",
       },
       {
         kind: "card",
-        instruction: "**Accept** Magda's connection request, then tap **Next**.",
+        instruction:
+          "Magda has sent a **connection request**. **Accept** it, then tap **Next**.",
         detail:
-          "They each marked the other Familiar at the walk. Accepting makes it mutual, and the two of them are properly connected now.",
+          "A connection request is the open ask to actually connect. When Daniel accepts, the two of them are connected for real: they can message each other and arrange care.",
       },
       {
         kind: "card",
         instruction:
-          "Open Magda's **invite** to her private neighbourhood group, **Holešovice Dog Block**. Tap **Next**.",
+          "Now that they're connected, Magda invites Daniel to her private group, **Holešovice Dog Block**. Open the invite.",
         detail: "Daniel's local circle is starting to take shape.",
+        // The group invite fires HERE (not with the connection request), so it
+        // arrives only after Daniel accepted — Magda invites a connection into
+        // her private group, not a stranger. It pops into the notifications
+        // list live as this step lands. Fired in WalkthroughCard; idempotent.
+        fireNotifications: ["notif-ginvite-group-holesovice-block-daniel"],
+        // Tapping the invite (or the card's Next) routes to the group, so the
+        // tester lands there before the private-groups interstitial — no
+        // separate "open the group" step needed afterwards.
+        advanceOn: "/communities/group-holesovice-block",
+      },
+      {
+        kind: "card",
+        instruction:
+          "Have a look around the feed, then tap **Join community** to become a member. Then tap **Next**.",
+        detail: "A tight crew of Holešovice neighbours, and Daniel's one of them now.",
+      },
+      {
+        kind: "card",
+        instruction:
+          "Open the **Members** tab and switch on **Show members' services**. See that **Veronika** offers walks to the circle, right on her card. Then tap **Next**.",
+        detail:
+          "Care from inside the circle, there whenever Daniel needs it. Booking her works just like the request he sent Klára, so no need to repeat it here.",
       },
       {
         kind: "interstitial",
@@ -295,21 +340,7 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
         eyebrow: "How this works",
         heading: "Private groups, and mutual care",
         body:
-          "A private group is a closed circle of neighbours. It's invite-only, and it isn't a marketplace of strangers. Inside it, people look out for each other and each other's dogs, and some offer care to the circle at neighbourly rates.",
-      },
-      {
-        kind: "card",
-        instruction:
-          "Open **Holešovice Dog Block** and have a look around: the feed, the members. Then tap **Next**.",
-        detail: "A tight crew of Holešovice neighbours, and Daniel's one of them now.",
-        advanceOn: "/communities/group-holesovice-block",
-      },
-      {
-        kind: "card",
-        instruction:
-          "Open the **Members** tab. Under **Care from neighbours**, **Veronika** offers drop-in walks to people in the group. **Book her** for Bára, then tap **Next**.",
-        detail:
-          "Booking Veronika works just like booking Klára, but Veronika's a neighbour, inside a circle he trusts. A pro to teach Bára, a neighbour to lean on.",
+          "A private group is a closed circle of neighbours, invite-only, not a marketplace of strangers. Inside it, anyone can offer care to the circle, you don't have to be a trainer or a business. A neighbour like Veronika just walks dogs, at a clear price that keeps it fair and easy.",
       },
     ],
   },
@@ -317,6 +348,61 @@ export const WALKTHROUGH_BEATS: WalkthroughBeat[] = [
 
 /** Total beat count. */
 export const WALKTHROUGH_BEAT_COUNT = WALKTHROUGH_BEATS.length;
+
+/**
+ * Post ids that are seeded in `mockPosts.ts` but should stay HIDDEN from the
+ * group feed until the tester "Shares" them on the matching fire-off step
+ * (tracked in `WalkthroughContext.sharedPostIds`). Lets a fire-off step
+ * present a post that isn't already sitting in the feed. Derived from every
+ * beat's fire-off `postId`. 2026-05-22.
+ */
+export const WALKTHROUGH_FIREOFF_POST_IDS: Set<string> = new Set(
+  WALKTHROUGH_BEATS.flatMap((b) =>
+    b.steps.flatMap((s) =>
+      s.kind === "card" && s.fireOff ? [s.fireOff.postId] : [],
+    ),
+  ),
+);
+
+/**
+ * Should this post be hidden from feeds right now? True when a walkthrough is
+ * active, the post is a fire-off post, and the tester hasn't "Shared" it yet —
+ * so the post a fire-off card is about to share isn't already sitting in any
+ * feed (group feed, Community/Home feed). Outside a walkthrough this is always
+ * false, so free-explore shows the seeded post normally. Shared across every
+ * feed surface that reads `mockPosts`. 2026-05-22.
+ */
+export function isFireOffPostHidden(
+  postId: string,
+  walkthroughActive: boolean,
+  sharedPostIds: string[],
+): boolean {
+  return (
+    walkthroughActive &&
+    WALKTHROUGH_FIREOFF_POST_IDS.has(postId) &&
+    !sharedPostIds.includes(postId)
+  );
+}
+
+/**
+ * Meet ids whose "Coming up" feed card should be hidden while a walkthrough is
+ * active. The Stromovka walk is run during Beat 2 (Klára's morning), and its
+ * occurrence is dated today — so it would otherwise sit in Klára's feed as
+ * "Coming up" even after she's just finished it, which contradicts the story.
+ * Hidden only during the walkthrough; free-explore shows it normally (a
+ * recurring weekly walk legitimately has an upcoming occurrence). 2026-05-22.
+ */
+export const WALKTHROUGH_HIDDEN_FEED_MEET_IDS: Set<string> = new Set([
+  "meet-klara-stromovka",
+]);
+
+/** Should this meet's feed card be hidden right now (walkthrough-only)? */
+export function isWalkthroughHiddenMeet(
+  meetId: string,
+  walkthroughActive: boolean,
+): boolean {
+  return walkthroughActive && WALKTHROUGH_HIDDEN_FEED_MEET_IDS.has(meetId);
+}
 
 /** Get a beat by 0-based index. Returns undefined past the end (the closing interstitial). */
 export function getBeat(index: number): WalkthroughBeat | undefined {

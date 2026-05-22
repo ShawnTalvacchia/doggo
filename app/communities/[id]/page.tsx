@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
+import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
+import { Toggle } from "@/components/ui/Toggle";
+import { SERVICE_LABELS } from "@/lib/constants/services";
 import { DetailHeader } from "@/components/layout/DetailHeader";
 import { TabBar } from "@/components/ui/TabBar";
 import { Spacer } from "@/components/layout/Spacer";
@@ -14,6 +17,8 @@ import {
   ShieldCheck,
   CaretDown,
   Check,
+  Lock,
+  ArrowRight,
   UserPlus,
   Camera,
   CameraSlash,
@@ -39,7 +44,6 @@ import { PrivateProfileRow } from "@/components/people/PrivateProfileRow";
 import { GroupVisibilityChip } from "@/components/groups/GroupVisibilityChip";
 import { RequestToJoinModal } from "@/components/groups/RequestToJoinModal";
 import { GroupInviteSheet } from "@/components/groups/GroupInviteSheet";
-import { GroupNeighbourCare } from "@/components/groups/GroupNeighbourCare";
 import { getGroupById, getGroupMeets } from "@/lib/mockGroups";
 import { getPostsByGroup } from "@/lib/mockPosts";
 import { getConnectionState } from "@/lib/mockConnections";
@@ -54,6 +58,8 @@ import type { PersonAction } from "@/lib/personActions";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { usePostComposer } from "@/contexts/PostComposerContext";
 import { useMeetComposer } from "@/contexts/MeetComposerContext";
+import { useWalkthrough } from "@/contexts/WalkthroughContext";
+import { isFireOffPostHidden } from "@/lib/walkthroughBeats";
 
 /* ── Tab config per group type ─────────────────────────────────── */
 
@@ -149,7 +155,8 @@ function GroupDetailInner() {
   const currentUserId = useCurrentUserId();
   const isGuest = useIsGuest();
   const { requireAuth } = useAuthGate();
-  const { addNotification } = useNotifications();
+  const { addNotification, notifications } = useNotifications();
+  const wt = useWalkthrough();
 
   const group = getGroupById(params.id as string);
   const [joinRequested, setJoinRequested] = useState(false);
@@ -188,7 +195,13 @@ function GroupDetailInner() {
   }
 
   const groupMeets = getGroupMeets(group.id, currentUserId);
-  const groupPosts = getPostsByGroup(group.id);
+  // Hide any walkthrough fire-off post the tester hasn't "Shared" yet — so
+  // the post a fire-off card is about to share isn't already in the feed.
+  // Only gates during an active walkthrough; free-explore shows the seeded
+  // post normally. 2026-05-22.
+  const groupPosts = getPostsByGroup(group.id).filter(
+    (p) => !isFireOffPostHidden(p.id, wt.active, wt.sharedPostIds),
+  );
 
   // Invite a connection to this group: record it for the row's "Invited"
   // state and fire a `group_invite` notification to them. Deterministic
@@ -222,6 +235,16 @@ function GroupDetailInner() {
   const [joinedOpenOptimistic, setJoinedOpenOptimistic] = useState(false);
   const isMember = !isGuest && (group.members.some((m) => m.userId === currentUserId) || joinedOpenOptimistic);
   const isAdmin = !isGuest && group.members.some((m) => m.userId === currentUserId && m.role === "admin");
+  // Private groups are invite-only. The viewer counts as invited iff they
+  // hold a group_invite notification for this group (`notifications` is
+  // already filtered to the current viewer). Gates the Join CTA: invited →
+  // enabled "Join community"; not invited → locked "Invite only". For
+  // open/approval groups this is irrelevant (their own CTAs apply). During
+  // the walkthrough, Daniel's invite fires before he reaches the group, so
+  // he's invited; in free-explore a non-invited viewer sees the lock. 2026-05-22.
+  const isInvitedToThisGroup = notifications.some(
+    (n) => n.type === "group_invite" && n.href === `/communities/${group.id}`,
+  );
   // First-admin lookup for the join-request modal copy ("[Admin] will
   // review your request"). Falls back to "the admin" so the modal still
   // reads coherently when no admin is seeded (system-generated park
@@ -327,6 +350,7 @@ function GroupDetailInner() {
             isCare={isCare}
             totalDogs={totalDogs}
             joinRequested={joinRequested}
+            isInvited={isInvitedToThisGroup}
             adminName={adminName}
             onJoinRequest={() => {
               // Visibility-aware dispatch:
@@ -335,17 +359,18 @@ function GroupDetailInner() {
               //                  context note for the admin)
               //   open         → flip `joinedOpenOptimistic` → isMember=true
               //                  (one-tap, no approval step)
-              //   private      → keep `joinRequested` flip (existing path —
-              //                  private groups stay reachable only via
-              //                  invite in the real product, but the demo's
-              //                  visibility flip retains the optimistic
-              //                  behavior for testing).
+              //   private      → flip to member too. Private groups are
+              //                  reachable only via invite, so a viewer on
+              //                  this page already has one; "Join community"
+              //                  accepts it. (Previously set `joinRequested`,
+              //                  which had no visible effect for private — the
+              //                  button is "Join community", not "Request" —
+              //                  so the click looked dead. 2026-05-22.)
               // Join-flow redesign 2026-05-11; open-group flip added CCFT
               // E4.4 walkthrough iteration.
               if (isGuest) return requireAuth("join this community");
               if (group.visibility === "approval") return setJoinModalOpen(true);
-              if (group.visibility === "open") return setJoinedOpenOptimistic(true);
-              setJoinRequested(true);
+              setJoinedOpenOptimistic(true);
             }}
             leaveMenuOpen={leaveMenuOpen}
             onLeaveMenuToggle={() => setLeaveMenuOpen((v) => !v)}
@@ -365,10 +390,7 @@ function GroupDetailInner() {
         )}
 
         {activeTab === "members" && (
-          <>
-            <GroupNeighbourCare group={group} />
-            <MembersTab group={group} isGuest={isGuest} />
-          </>
+          <MembersTab group={group} isGuest={isGuest} isMember={isMember} />
         )}
 
         {activeTab === "gallery" && (
@@ -428,6 +450,10 @@ interface FeedTabProps {
   isCare: boolean;
   totalDogs: number;
   joinRequested: boolean;
+  /** Whether the current viewer holds an invite to this (private) group.
+   *  Gates the Join CTA between enabled "Join community" and locked
+   *  "Invite only". 2026-05-22. */
+  isInvited: boolean;
   /** First admin's display name. Powers the join-flow helper line + the
    *  request-to-join modal copy. Resolves to "the admin" when no admin
    *  is seeded (system-generated park groups). 2026-05-11. */
@@ -463,9 +489,10 @@ function getJoinHelperText(args: {
   isMember: boolean;
   isAdmin: boolean;
   joinRequested: boolean;
+  isInvited: boolean;
   adminName: string;
 }): string {
-  const { visibility, isMember, isAdmin, joinRequested, adminName } = args;
+  const { visibility, isMember, isAdmin, joinRequested, isInvited, adminName } = args;
   if (isAdmin) {
     if (visibility === "open") return "";
     if (visibility === "approval") return "New members reviewed by you";
@@ -482,18 +509,18 @@ function getJoinHelperText(args: {
       ? `Awaiting ${adminName}'s response`
       : `${adminName} will review your request`;
   }
-  // Private + non-member: typically only reachable via invite. No data
-  // model for invited-but-not-yet-accepted state yet — leave silent until
-  // that lands.
-  return "";
+  // Private + non-member: gated on whether the viewer holds an invite.
+  if (isInvited) return "You've been invited — join anytime";
+  return "Private group — members join by invite";
 }
 
-function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, joinRequested, adminName, onJoinRequest, leaveMenuOpen, onLeaveMenuToggle, onLeave, onOpenInvite, isGuest, onGuestAction }: FeedTabProps) {
+function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, joinRequested, isInvited, adminName, onJoinRequest, leaveMenuOpen, onLeaveMenuToggle, onLeave, onOpenInvite, isGuest, onGuestAction }: FeedTabProps) {
   const joinHelperText = getJoinHelperText({
     visibility: group.visibility,
     isMember,
     isAdmin,
     joinRequested,
+    isInvited,
     adminName,
   });
   return (
@@ -670,6 +697,18 @@ function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, join
             >
               {joinRequested ? "Request sent" : "Request to join"}
             </ButtonAction>
+          ) : group.visibility === "private" && !isInvited ? (
+            // Private + no invite: locked, no join path. Private groups are
+            // invite-only; without an invite there's nothing to act on.
+            <ButtonAction
+              variant="neutral"
+              size="md"
+              cta
+              disabled
+              leftIcon={<Lock size={15} weight="bold" />}
+            >
+              Invite only
+            </ButtonAction>
           ) : (
             <ButtonAction
               variant="neutral"
@@ -815,7 +854,35 @@ interface TieredMember extends GroupMember {
   carerBadge?: CarerIdentity;
 }
 
-function MembersTab({ group, isGuest }: { group: Group; isGuest: boolean }) {
+/** Headline service summary for a member who offers care — powers the
+ *  Members-tab service footer (gated behind the "Show members' services"
+ *  toggle). Returns the first enabled bookable service (care or appointment)
+ *  as a label + from-price, or null if the member offers none. Meet-type
+ *  services (sessions) are skipped — they aren't a "book a slot" shape.
+ *  2026-05-22. */
+function getMemberServiceSummary(
+  userId: string,
+): { label: string; price: number; count: number } | null {
+  const services = getUserById(userId)?.carerProfile?.services ?? [];
+  // Total enabled services — drives "See all N services" so the footer hints
+  // there's more than the one headline service shown.
+  const count = services.filter((s) => s.enabled).length;
+  for (const s of services) {
+    if (s.kind === "care" && s.enabled) {
+      const price =
+        s.deliveryOptions && s.deliveryOptions.length > 0
+          ? Math.min(...s.deliveryOptions.map((o) => o.price))
+          : s.pricePerUnit;
+      return { label: SERVICE_LABELS[s.serviceType], price, count };
+    }
+    if (s.kind === "appointment" && s.enabled) {
+      return { label: s.title, price: s.pricePerAppointment, count };
+    }
+  }
+  return null;
+}
+
+function MembersTab({ group, isGuest, isMember }: { group: Group; isGuest: boolean; isMember: boolean }) {
   const viewerId = useCurrentUserId();
   const {
     getConnection: getConnectionFromContext,
@@ -828,6 +895,11 @@ function MembersTab({ group, isGuest }: { group: Group; isGuest: boolean }) {
   // (navigation away and back). Actual relationship persists via
   // ConnectionsContext separately. Mock World Building 2026-04-30.
   const [localMarks, setLocalMarks] = useState<Record<string, "familiar" | "connect">>({});
+  // "Show members' services" toggle — default off so the roster reads as a
+  // member list, not a marketplace. When on, members who offer care get a
+  // service footer on their card. Members-only (co-membership is the
+  // visibility grant); resets on remount. 2026-05-22.
+  const [showServices, setShowServices] = useState(false);
 
   // Guests see a flat list — no sectioning by relationship state, no row
   // actions. Members visibility is open content; relationship-tier UI would
@@ -998,6 +1070,15 @@ function MembersTab({ group, isGuest }: { group: Group; isGuest: boolean }) {
             year: "numeric",
           })}`
         : undefined;
+    // Service footer (toggle-gated): a fellow member who offers care gets a
+    // headline-service + from-price bar rendered INSIDE their card via
+    // PersonRow's `footer` slot (not a nested card), with a link into their
+    // profile's Services tab where the booking happens. Self is excluded.
+    // 2026-05-22.
+    const serviceSummary =
+      showServices && m.userId !== viewerId
+        ? getMemberServiceSummary(m.userId)
+        : null;
     return (
       <PersonRow
         key={m.userId}
@@ -1021,9 +1102,34 @@ function MembersTab({ group, isGuest }: { group: Group; isGuest: boolean }) {
         onAdvance={() => handleAdvance(m.userId)}
         onDowngradeMark={() => handleDowngrade(m.userId)}
         onUndoMark={() => handleUndoMark(m.userId)}
+        footerClassName="person-row-footer--service"
+        footer={
+          serviceSummary ? (
+            <>
+              <span className="text-sm text-fg-secondary">
+                {serviceSummary.label} · from {serviceSummary.price.toLocaleString()} Kč
+              </span>
+              <Link
+                href={`/profile/${m.userId}?tab=services`}
+                className="inline-flex items-center gap-tiny text-sm font-semibold text-info-strong shrink-0"
+              >
+                {serviceSummary.count > 1
+                  ? `See all ${serviceSummary.count} services`
+                  : "See services"}
+                <ArrowRight size={13} weight="bold" aria-hidden="true" />
+              </Link>
+            </>
+          ) : undefined
+        }
       />
     );
   };
+
+  // Any fellow member offering care? Gates the "Show members' services"
+  // toggle — no point showing it for a circle where nobody offers anything.
+  const hasAnyMemberServices = group.members.some(
+    (m) => m.userId !== viewerId && getMemberServiceSummary(m.userId) !== null,
+  );
 
   const showAdmins = admins.length > 0;
   const showConnected = connected.length > 0;
@@ -1039,6 +1145,21 @@ function MembersTab({ group, isGuest }: { group: Group; isGuest: boolean }) {
   return (
     <LayoutSection>
       <section className="flex flex-col gap-md">
+        {/* Members-only service reveal. Default off so the roster reads as a
+            member list; on, member cards gain a service footer. Co-membership
+            is the visibility grant, so it's gated on `isMember`. Wrapped in a
+            slim banner so the control reads as deliberate without competing
+            with the member cards. 2026-05-22. */}
+        {isMember && hasAnyMemberServices && (
+          <div className="rounded-panel border border-edge-regular bg-surface-inset px-md py-sm">
+            <Toggle
+              label="Show members' services"
+              checked={showServices}
+              onChange={setShowServices}
+              size="sm"
+            />
+          </div>
+        )}
         {showAdmins && <SectionHeader label="Admins" />}
         {showAdmins && (
           <div className="flex flex-col gap-sm">{admins.map(renderRow)}</div>

@@ -36,7 +36,8 @@ import { ProfileChatTab } from "@/components/profile/ProfileChatTab";
 import { AvailabilityGrid } from "@/components/profile/AvailabilityGrid";
 import { InquiryFormModal } from "@/components/messaging/InquiryFormModal";
 import { BookSessionSheet } from "@/components/meets/BookSessionSheet";
-import type { ServiceType, CarerMeetServiceConfig } from "@/lib/types";
+import { AppointmentBookingSheet } from "@/components/messaging/AppointmentBookingSheet";
+import type { ServiceType, CarerMeetServiceConfig, CarerAppointmentServiceConfig } from "@/lib/types";
 import { getCommunityCarers, getMutualConnectedUserIds } from "@/lib/mockConnections";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { viewerSharedMeetWith, mockMeets } from "@/lib/mockMeets";
@@ -311,6 +312,10 @@ function UserProfileInner() {
   // Service ↔ Meet Linkage C5 — the Meet-type service whose Book CTA was
   // tapped on the Services tab. Drives the BookSessionSheet.
   const [bookingService, setBookingService] = useState<CarerMeetServiceConfig | null>(null);
+  // Appointment-type service whose "Book a session" CTA was tapped. Drives
+  // the AppointmentBookingSheet. Appointment booking flow, 2026-05-22.
+  const [bookingAppointment, setBookingAppointment] =
+    useState<CarerAppointmentServiceConfig | null>(null);
 
   const tabs = [
     { key: "about", label: "About" },
@@ -966,6 +971,53 @@ function UserProfileInner() {
               <div className="profile-services-list">
                 {userProfile?.carerProfile?.services
                   ? <>
+                    {/* Appointment-type services — fixed-time solo slots
+                        (training, grooming). Rendered FIRST so a carer's
+                        headline 1-on-1 offering leads the catalogue (Klára's
+                        1-on-1 training). Booking opens the
+                        AppointmentBookingSheet (pickers + flat price +
+                        auto-proposal). 2026-05-22. */}
+                    {userProfile.carerProfile.services
+                      .filter((s): s is import("@/lib/types").CarerAppointmentServiceConfig => s.kind === "appointment" && s.enabled)
+                      .map((svc) => (
+                        <div key={svc.id} className="profile-service-card">
+                          <div className="profile-service-top">
+                            <span className="profile-service-name">{svc.title}</span>
+                            <div className="profile-service-price-wrap">
+                              <span className="profile-service-price">
+                                {svc.pricePerAppointment.toLocaleString()} Kč
+                                <span className="profile-service-unit">{" "}/ appointment</span>
+                              </span>
+                            </div>
+                          </div>
+                          <div className="profile-service-subs">
+                            <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
+                              {svc.appointmentCategory === "training" ? "Training visit" : "Grooming"}
+                            </span>
+                            <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
+                              {svc.durationMinutes} min
+                            </span>
+                          </div>
+                          {svc.notes && (
+                            <p className="profile-service-notes">{svc.notes}</p>
+                          )}
+                          {!isSelf && (
+                            <ButtonAction
+                              variant="secondary"
+                              size="sm"
+                              cta
+                              className="self-start"
+                              onClick={() =>
+                                isGuest
+                                  ? requireAuth(`book ${firstName}'s appointment`)
+                                  : setBookingAppointment(svc)
+                              }
+                            >
+                              Book a session
+                            </ButtonAction>
+                          )}
+                        </div>
+                      ))}
                     {/* Care-type services — "I take the dog" shape (Walking,
                         Sitting, Day care, Boarding). Booking produces a
                         Booking record. Walks carry an additional delivery
@@ -1172,48 +1224,6 @@ function UserProfileInner() {
                           </div>
                         );
                       })}
-                    {/* Appointment-type — vet / grooming. Specific time slot,
-                        no roster. Tap routes to chat with service context so
-                        the inquiry form pre-fills with the appointment kind. */}
-                    {userProfile.carerProfile.services
-                      .filter((s): s is import("@/lib/types").CarerAppointmentServiceConfig => s.kind === "appointment" && s.enabled)
-                      .map((svc) => (
-                        <div key={svc.id} className="profile-service-card">
-                          <div className="profile-service-top">
-                            <span className="profile-service-name">{svc.title}</span>
-                            <div className="profile-service-price-wrap">
-                              <span className="profile-service-price">
-                                {svc.pricePerAppointment.toLocaleString()} Kč
-                                <span className="profile-service-unit">{" "}/ appointment</span>
-                              </span>
-                            </div>
-                          </div>
-                          <div className="profile-service-subs">
-                            <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
-                              {svc.appointmentCategory === "training" ? "Training visit" : "Grooming"}
-                            </span>
-                            <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
-                              {svc.durationMinutes} min
-                            </span>
-                          </div>
-                          {svc.notes && (
-                            <p className="profile-service-notes">{svc.notes}</p>
-                          )}
-                          {!isSelf && (
-                            <ButtonAction
-                              variant="secondary"
-                              size="sm"
-                              cta
-                              className="self-start"
-                              {...(isGuest
-                                ? { onClick: () => requireAuth(`ask about ${firstName}'s appointment`) }
-                                : { href: `/profile/${userId}?tab=chat&appointment=${svc.id}` })}
-                            >
-                              Ask about this
-                            </ButtonAction>
-                          )}
-                        </div>
-                      ))}
                   </>
                   : (provider?.services ?? communityCarer?.services ?? []).map((svcType) => {
                     // Directory-only carers carry a single `priceUnit` that
@@ -1305,6 +1315,18 @@ function UserProfileInner() {
             onClose={() => setBookingService(null)}
             service={bookingService}
             carer={{ id: userId, name, avatarUrl }}
+          />
+        )}
+
+        {/* AppointmentBookingSheet — opens from an Appointment-type service
+            card's "Book a session" CTA. Pickers + flat price + auto-proposal.
+            Appointment booking flow, 2026-05-22. */}
+        {bookingAppointment && (
+          <AppointmentBookingSheet
+            open
+            onClose={() => setBookingAppointment(null)}
+            provider={{ id: userId, name, avatarUrl }}
+            service={bookingAppointment}
           />
         )}
 

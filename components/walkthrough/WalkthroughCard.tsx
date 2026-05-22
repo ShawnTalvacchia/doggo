@@ -39,7 +39,9 @@ import {
   Compass,
 } from "@phosphor-icons/react";
 import { useWalkthrough } from "@/contexts/WalkthroughContext";
+import { useNotifications } from "@/contexts/NotificationsContext";
 import { WALKTHROUGH_BEATS, WALKTHROUGH_BEAT_COUNT } from "@/lib/walkthroughBeats";
+import { getDeferredNotification } from "@/lib/mockNotifications";
 import { getPersona } from "@/lib/personas";
 
 /** Render `**bold**` spans (UI labels in step copy) as <strong>. */
@@ -81,6 +83,7 @@ export function WalkthroughCard() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { addNotification } = useNotifications();
   const [minimized, setMinimized] = useState(false);
 
   // Restore the card whenever the beat OR step changes — a new step means a
@@ -88,6 +91,27 @@ export function WalkthroughCard() {
   useEffect(() => {
     setMinimized(false);
   }, [wt.beatIndex, wt.stepIndex]);
+
+  // Fire any deferred notifications a card step carries, when that step
+  // becomes active. Used for narrative reach-outs that should land at a story
+  // moment rather than be present from the start — e.g. Magda's connection
+  // request as Daniel opens his bell, then her group invite once they're
+  // connected. Idempotent (addNotification upserts by id); the ref guards
+  // against re-firing while the step stays active.
+  const firedStepRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!wt.active || wt.phase !== "running") return;
+    const b = WALKTHROUGH_BEATS[wt.beatIndex];
+    const s = b?.steps[wt.stepIndex];
+    const stepKey = `${wt.beatIndex}:${wt.stepIndex}`;
+    if (s?.kind === "card" && s.fireNotifications && firedStepRef.current !== stepKey) {
+      firedStepRef.current = stepKey;
+      for (const id of s.fireNotifications) {
+        const payload = getDeferredNotification(id);
+        if (payload) addNotification(payload);
+      }
+    }
+  }, [wt.active, wt.phase, wt.beatIndex, wt.stepIndex, addNotification]);
 
   // Auto-advance: when the tester *navigates* to a navigation step's target
   // surface (or switches to a target tab via query param), move the card
@@ -99,22 +123,35 @@ export function WalkthroughCard() {
     ? `${pathname}?${searchParams.toString()}`
     : pathname;
   const lastUrlRef = useRef(currentUrl);
+  // Remembers the step (beat:step key) whose `advanceOn` was satisfied at
+  // least once while it was the active step. Lets an `awaitAction` step still
+  // offer Continue after the tester reaches the target then navigates away
+  // before the auto-advance registered — e.g. tap Start session, land on the
+  // active page, then jump to another screen. Without this, they'd be stuck:
+  // not on the advanceOn URL, not past the step, no button. (Bug report
+  // 2026-05-22.)
+  const satisfiedStepRef = useRef<string | null>(null);
   useEffect(() => {
     if (!wt.active || wt.phase !== "running") {
       lastUrlRef.current = currentUrl;
       return;
     }
+    const b = WALKTHROUGH_BEATS[wt.beatIndex];
+    const s = b?.steps[wt.stepIndex];
+    const stepKey = `${wt.beatIndex}:${wt.stepIndex}`;
+    const satisfied =
+      !!s &&
+      s.kind === "card" &&
+      !!s.advanceOn &&
+      matchesAdvanceOn(s.advanceOn, pathname, searchParams);
+    // Record satisfaction independent of the navigation gate below, so the
+    // Continue fallback survives a later navigation away from the target.
+    if (satisfied) satisfiedStepRef.current = stepKey;
+
     const navigated = currentUrl !== lastUrlRef.current;
     lastUrlRef.current = currentUrl;
     if (!navigated) return;
-    const b = WALKTHROUGH_BEATS[wt.beatIndex];
-    const s = b?.steps[wt.stepIndex];
-    if (
-      s &&
-      s.kind === "card" &&
-      s.advanceOn &&
-      matchesAdvanceOn(s.advanceOn, pathname, searchParams)
-    ) {
+    if (satisfied) {
       // Skip auto-advance if the tester has already been past this step
       // (they came here via Back — which routes to the step's URL — and
       // they want to look at this step's content, not get bounced forward
@@ -173,8 +210,23 @@ export function WalkthroughCard() {
   // take them — and the auto-advance effect then moves the card forward on
   // arrival. Action steps (and the case where the tester is already on the
   // target) just advance the sequencer directly.
+  // Fire-off "Share": advance AND mark the post Shared in one atomic state
+  // update (next folds the share in), so the group feed reveals the post —
+  // which was hidden until now so it wasn't already sitting in the feed.
+  const handleShare = () => {
+    wt.next(step.fireOff ? step.fireOff.postId : undefined);
+  };
+
   const handleNext = () => {
-    if (step.advanceOn && pathname !== step.advanceOn) {
+    // Route to the step's target unless the current URL already satisfies it.
+    // Use matchesAdvanceOn (not `pathname !== advanceOn`) so a query-carrying
+    // advanceOn — e.g. `/meets/x?tab=people` — is recognised as satisfied;
+    // a bare pathname compare never matches a URL with a query, which would
+    // re-route forever and never call next().
+    if (
+      step.advanceOn &&
+      !matchesAdvanceOn(step.advanceOn, pathname, searchParams)
+    ) {
       router.push(step.advanceOn);
     } else {
       wt.next();
@@ -233,7 +285,7 @@ export function WalkthroughCard() {
         </button>
         {step.awaitAction ? (
           // awaitAction normally advances only when the tester performs the
-          // in-app action and navigation reaches `advanceOn`. Two cases
+          // in-app action and navigation reaches `advanceOn`. Three cases
           // surface a manual Continue button:
           //   1. Auto-advance race: on some clients (seen on mobile) the
           //      route change can land before the effect that calls next()
@@ -244,9 +296,14 @@ export function WalkthroughCard() {
           //      step the tester already passed. They've performed the
           //      action; making them re-do it is wrong. Continue surfaces
           //      if the per-beat max step reached is past this one.
+          //   3. Did the action, then navigated away before the advance
+          //      registered (e.g. Start session → active page → jumped to
+          //      another screen). `satisfiedStepRef` remembers the target
+          //      was reached once, so Continue persists instead of trapping.
           (step.advanceOn &&
             matchesAdvanceOn(step.advanceOn, pathname, searchParams)) ||
-          visitedPastThisStep ? (
+          visitedPastThisStep ||
+          satisfiedStepRef.current === `${wt.beatIndex}:${wt.stepIndex}` ? (
             <button type="button" className="wt-card-next" onClick={handleNext}>
               Continue
               <ArrowRight size={14} weight="bold" aria-hidden="true" />
@@ -258,7 +315,7 @@ export function WalkthroughCard() {
           <button
             type="button"
             className="wt-card-next"
-            onClick={handleNext}
+            onClick={step.fireOff ? handleShare : handleNext}
           >
             {step.fireOff ? "Share" : isLast ? "Finish" : "Next"}
             {step.fireOff ? (

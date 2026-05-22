@@ -28,6 +28,8 @@ import { PageColumn } from "@/components/layout/PageColumn";
 import { CardGroup } from "@/components/groups/CardGroup";
 import { FilterPillRow } from "@/components/ui/FilterPillRow";
 import { getUserGroups } from "@/lib/mockGroups";
+import { useWalkthrough } from "@/contexts/WalkthroughContext";
+import { isFireOffPostHidden, isWalkthroughHiddenMeet } from "@/lib/walkthroughBeats";
 import type { FeedItem, GroupType } from "@/lib/types";
 
 // ── Feed rendering ──────────────────────────────────────────────────────────
@@ -107,9 +109,24 @@ function HomePageInner() {
 
   const newUserMode = useIsNewUser();
   const currentUserId = useCurrentUserId();
+  const wt = useWalkthrough();
 
   const userGroups = getUserGroups(currentUserId);
-  const allFeedItems = getFeedForUser(currentUserId);
+  // Walkthrough-only feed gating: (1) hide fire-off posts not yet "Shared"
+  // so a fire-off card's post isn't already in the feed; (2) hide the
+  // Stromovka walk's "Coming up" card, which is dated today and would
+  // otherwise contradict Klára having just run it in Beat 2. Both no-op
+  // outside an active walkthrough. 2026-05-22.
+  const hideInWalkthrough = (item: FeedItem): boolean => {
+    const post = (item as { post?: { id?: string } }).post;
+    if (post?.id && isFireOffPostHidden(post.id, wt.active, wt.sharedPostIds)) {
+      return true;
+    }
+    const meet = (item as { meet?: { id?: string } }).meet;
+    if (meet?.id && isWalkthroughHiddenMeet(meet.id, wt.active)) return true;
+    return false;
+  };
+  const allFeedItems = getFeedForUser(currentUserId).filter((i) => !hideInWalkthrough(i));
 
   // Discovery banner trigger — user is in at least one group but has
   // fewer than 2 distinct meet series in the next 7 days. The "your
@@ -255,9 +272,11 @@ function HomePageInner() {
               {newUserMode ? (
                 <>
                   <DogsNearYou />
-                  {getNewUserFeed().map((item) => (
-                    <FeedItemRenderer key={item.feedId} item={item} />
-                  ))}
+                  {getNewUserFeed()
+                    .filter((i) => !hideInWalkthrough(i))
+                    .map((item) => (
+                      <FeedItemRenderer key={item.feedId} item={item} />
+                    ))}
                 </>
               ) : (
                 <>

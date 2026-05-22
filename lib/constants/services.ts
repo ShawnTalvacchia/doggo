@@ -1,4 +1,4 @@
-import type { ServiceType, Booking } from "@/lib/types";
+import type { ServiceType, Booking, AppointmentRef } from "@/lib/types";
 
 /**
  * Canonical display labels for the four Care service types. Resolved
@@ -14,13 +14,30 @@ export const SERVICE_LABELS: Record<ServiceType, string> = {
 };
 
 /**
+ * Display label for a service carried on an inquiry / proposal / booking.
+ * Branches in priority order: Appointment-type (`appointment.title`) →
+ * Care `serviceType` (`SERVICE_LABELS`) → a neutral fallback. Use this
+ * everywhere a structured-flow artifact's service name is rendered so the
+ * appointment path doesn't fall through to `SERVICE_LABELS[undefined]`.
+ * Appointment booking flow, 2026-05-22.
+ */
+export function serviceLabelFor(x: {
+  serviceType?: ServiceType;
+  appointment?: Pick<AppointmentRef, "title">;
+}): string {
+  if (x.appointment) return x.appointment.title;
+  return x.serviceType ? SERVICE_LABELS[x.serviceType] : "Service";
+}
+
+/**
  * Display label for a booking's service. Handles Meet-type service bookings
  * (Service ↔ Meet Linkage C2) — those have no Care `serviceType`, so the
- * label comes from `meetBooking.serviceTitle`. Care/Appointment bookings
- * fall back to the Care `SERVICE_LABELS`.
+ * label comes from `meetBooking.serviceTitle`. Appointment bookings use
+ * `appointment.title`; Care bookings fall back to the Care `SERVICE_LABELS`.
  */
 export function bookingServiceLabel(booking: Booking): string {
   if (booking.meetBooking) return booking.meetBooking.serviceTitle;
+  if (booking.appointment) return booking.appointment.title;
   return booking.serviceType ? SERVICE_LABELS[booking.serviceType] : "Service";
 }
 

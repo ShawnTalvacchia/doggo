@@ -24,12 +24,15 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
 import { useWalkthrough } from "@/contexts/WalkthroughContext";
+import { useNotifications } from "@/contexts/NotificationsContext";
 import { WALKTHROUGH_BEATS, WALKTHROUGH_BEAT_COUNT } from "@/lib/walkthroughBeats";
+import { getDeferredNotification } from "@/lib/mockNotifications";
 import { getPersona } from "@/lib/personas";
 
 export function WalkthroughInterstitial() {
   const wt = useWalkthrough();
   const router = useRouter();
+  const { addNotification } = useNotifications();
 
   // Warm the upcoming beat's surface while the full-screen handoff is up,
   // so tapping Continue lands on an already-ready route instead of waiting
@@ -62,6 +65,18 @@ export function WalkthroughInterstitial() {
     const beat = WALKTHROUGH_BEATS[wt.beatIndex];
     const step = beat?.steps[wt.stepIndex];
     if (!step || step.kind !== "interstitial") return null;
+    // Fire any deferred narrative notifications this interstitial carries
+    // (e.g. Magda's reach-out, held back until the time-passage), then
+    // advance. Idempotent — addNotification upserts by id.
+    const handleContinue = () => {
+      if (step.fireNotifications) {
+        for (const id of step.fireNotifications) {
+          const payload = getDeferredNotification(id);
+          if (payload) addNotification(payload);
+        }
+      }
+      wt.next();
+    };
     return (
       <div
         className="wt-interstitial"
@@ -85,7 +100,7 @@ export function WalkthroughInterstitial() {
             <button
               type="button"
               className="wt-interstitial-btn wt-interstitial-btn--primary"
-              onClick={wt.next}
+              onClick={handleContinue}
             >
               Continue
               <ArrowRight size={16} weight="bold" aria-hidden="true" />
