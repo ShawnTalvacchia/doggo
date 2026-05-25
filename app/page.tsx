@@ -186,16 +186,18 @@ export default function LandingPage() {
               className="demo-profile-card"
               role="listitem"
             >
-              <img
-                src={p.user.avatarUrl}
-                alt=""
-                className="demo-profile-card-photo"
-              />
-              {/* Role chip overlaid on the photo (dark scrim, neutral) so the
-                  body reads cleanly: name → goal → action. */}
-              <span className="demo-profile-card-pill">
-                {PERSONA_ROLES[p.user.id] ?? p.archetype}
-              </span>
+              <div className="demo-profile-card-media">
+                <img
+                  src={p.user.avatarUrl}
+                  alt=""
+                  className="demo-profile-card-photo"
+                />
+                {/* Role chip overlaid on the photo (dark scrim, neutral) so
+                    the body reads cleanly: name → goal → action. */}
+                <span className="demo-profile-card-pill">
+                  {PERSONA_ROLES[p.user.id] ?? p.archetype}
+                </span>
+              </div>
               <div className="demo-profile-card-body">
                 <div className="demo-profile-card-name">
                   {p.user.firstName} {p.user.lastName}
