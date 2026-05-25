@@ -173,7 +173,11 @@
   background: var(--surface-top);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* `safe center` centers the cast block when it fits, but anchors it to the
+     top (start) when it overflows a short viewport — without `safe`, the
+     overflow is split top/bottom and the eyebrow's top margin gets clipped
+     above the fold (the "gap isn't showing" bug). */
+  justify-content: safe center;
   gap: clamp(20px, 3vh, 32px);
   padding: clamp(32px, 6vh, 72px) var(--demo-gutter);
 }
@@ -208,9 +212,10 @@
 }
 
 /* Hovering any cast card lights the "EXPLORE FREELY" eyebrow brand-light —
-   a small "you're exploring" cue. `:has()` lets a card reach back to colour
-   the eyebrow even though the carousel now sits after it in the DOM. */
-.demo-right:has(.demo-profile-card:hover) .demo-cast-eyebrow {
+   a small "you're exploring" cue. Driven by a JS class toggled on the
+   scroller's mouse enter/leave (replaces a `:has(:hover)` rule that proved
+   flaky across browsers). */
+.demo-cast-eyebrow--active {
   color: var(--brand-light);
 }
 

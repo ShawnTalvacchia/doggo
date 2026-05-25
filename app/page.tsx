@@ -44,21 +44,27 @@ import "./page.css";
  * the place context lands now that the eyebrow no longer announces it).
  */
 const PERSONA_ROLES: Record<string, string> = {
-  tereza: "Community anchor",
+  tereza: "Community organiser",
   daniel: "New owner",
   klara: "Trainer",
   tomas: "Busy professional",
-  lena: "Marketplace customer",
+  lena: "Care customer",
   magda: "Neighbour",
 };
 
 const PERSONA_GOALS: Record<string, string> = {
-  tereza: "Anchors the Vinohrady walking crew most days.",
-  daniel: "Looking for a community where nervous Bára can settle in.",
-  klara: "Runs free community walks at Stromovka; her clients come from them.",
-  tomas: "Needs reliable care squeezed around a packed Karlín week.",
-  lena: "Just wants a walker for Asha. Skips the community part.",
-  magda: "Knows everyone on her street in Holešovice.",
+  tereza:
+    "Runs the Vinohrady evening walkers and hosts the meets that keep the crew showing up.",
+  daniel:
+    "New to the city with a shy rescue, slowly finding his people on neighbourhood walks.",
+  klara:
+    "Hosts a free weekly walk at Stromovka; her paid training clients come from it.",
+  tomas:
+    "A packed Karlín work week, so he books walkers and sitters he can actually trust.",
+  lena:
+    "Skips the community side and just books a reliable walker for her weekday routine.",
+  magda:
+    "Anchors a private Holešovice block where neighbours mind each other's dogs for a fair price.",
 };
 
 /** The persona the walkthrough begins as — slider defaults to this card. */
@@ -75,6 +81,11 @@ export default function LandingPage() {
   // SSR snapshot — no storage on the server); the effect upgrades it
   // after hydration if state is actually present.
   const [hasDemoState, setHasDemoState] = useState(false);
+
+  // Lights the "Explore freely" eyebrow brand-light while the pointer is over
+  // any cast card — a small "you're exploring" cue. JS-driven (replaces a
+  // flaky `:has(:hover)` CSS rule).
+  const [castHovered, setCastHovered] = useState(false);
   useEffect(() => {
     if (typeof window === "undefined") return;
     const hasKey = (store: Storage) =>
@@ -167,7 +178,11 @@ export default function LandingPage() {
       <section className="demo-right">
         <div className="demo-right-inner">
           <div className="demo-cast-meta">
-            <span className="demo-cast-eyebrow">Explore freely</span>
+            <span
+              className={`demo-cast-eyebrow${castHovered ? " demo-cast-eyebrow--active" : ""}`}
+            >
+              Explore freely
+            </span>
             <p className="demo-cast-subline">
               For an open-ended way to experience Doggo, pick a character
               and explore the app through their eyes, at your own pace.
@@ -179,7 +194,13 @@ export default function LandingPage() {
             .demo-right (NOT the max-width inner) so it can run off the right
             section edge. Cards start aligned with the eyebrow; native scroll
             (swipe on touch) replaced the prev/next stepper. */}
-        <div className="demo-cast-scroller" role="list" aria-label="The cast">
+        <div
+          className="demo-cast-scroller"
+          role="list"
+          aria-label="The cast"
+          onMouseEnter={() => setCastHovered(true)}
+          onMouseLeave={() => setCastHovered(false)}
+        >
           {castPersonas.map((p) => (
             <article
               key={p.user.id}
@@ -200,7 +221,7 @@ export default function LandingPage() {
               </div>
               <div className="demo-profile-card-body">
                 <div className="demo-profile-card-name">
-                  {p.user.firstName} {p.user.lastName}
+                  {p.user.firstName} {p.user.lastName.charAt(0)}.
                 </div>
                 <p className="demo-profile-card-goal">
                   {PERSONA_GOALS[p.user.id] ?? p.archetype}
