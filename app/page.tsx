@@ -34,7 +34,7 @@ import { useDemoState } from "@/contexts/CurrentUserContext";
 import { useWalkthrough } from "@/contexts/WalkthroughContext";
 import { clearDemoStorage } from "@/lib/demoReset";
 import { ButtonAction } from "@/components/ui/ButtonAction";
-import { personas, NEW_USER_ID } from "@/lib/personas";
+import { personas } from "@/lib/personas";
 import "./page.css";
 
 /**
@@ -60,15 +60,27 @@ const PERSONA_GOALS: Record<string, string> = {
   klara:
     "Hosts a free weekly walk at Stromovka; her paid training clients come from it.",
   tomas:
-    "A packed Karlín work week, so he books walkers and sitters he can actually trust.",
+    "Away for work often, so he boards Hugo overnight with a sitter he's come to trust.",
   lena:
-    "Skips the community side and just books a reliable walker for her weekday routine.",
+    "Books a pro walker for Asha's weekday routine and skips the community side entirely.",
   magda:
     "Anchors a private Holešovice block where neighbours mind each other's dogs for a fair price.",
 };
 
-/** The persona the walkthrough begins as — slider defaults to this card. */
-const WALKTHROUGH_START_PERSONA_ID = "daniel";
+/**
+ * Curated landing-page cast — a tight set of non-overlapping use-cases, in
+ * showcase order (Daniel, the walkthrough lead, is first). Deliberately a
+ * subset of `personas`: Tereza (the default owner, who overlapped Magda as a
+ * community anchor) and the empty "New user" persona stay reachable via the
+ * /demo picker and the in-app switcher — just not as landing cards. Each id
+ * is one distinct way into the product:
+ *   daniel — new owner finding community
+ *   klara  — trainer offering paid care
+ *   tomas  — busy owner booking trusted boarding around travel
+ *   lena   — marketplace-only owner booking recurring walks
+ *   magda  — neighbour anchoring a private mutual-care circle
+ */
+const LANDING_CAST_IDS = ["daniel", "klara", "tomas", "lena", "magda"];
 
 export default function LandingPage() {
   const router = useRouter();
@@ -126,17 +138,10 @@ export default function LandingPage() {
     router.push("/home");
   }
 
-  // Cast = every persona except the "New user" meta-persona (an empty-state
-  // test affordance, not a character in the world), with the walkthrough's
-  // lead (Daniel) hoisted to the front so he's the first card.
-  const castPersonas = (() => {
-    const cast = personas.filter((p) => p.user.id !== NEW_USER_ID);
-    const leadIdx = cast.findIndex(
-      (p) => p.user.id === WALKTHROUGH_START_PERSONA_ID,
-    );
-    if (leadIdx > 0) cast.unshift(cast.splice(leadIdx, 1)[0]);
-    return cast;
-  })();
+  // Build the cast in curated order, dropping any id not found in the registry.
+  const castPersonas = LANDING_CAST_IDS.map((id) =>
+    personas.find((p) => p.user.id === id),
+  ).filter((p): p is (typeof personas)[number] => Boolean(p));
 
   return (
     <div className="demo-page">
