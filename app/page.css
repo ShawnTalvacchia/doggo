@@ -286,17 +286,24 @@
   line-height: 1.2;
 }
 
+/* Role chip overlaid on the top-left of the photo. Dark scrim + white text
+   (not brand colours — those wash out on photos) reads on any image; the
+   subtle blur softens the photo behind it. Card is position: relative. */
 .demo-profile-card-pill {
-  align-self: flex-start;
+  position: absolute;
+  top: var(--space-sm);
+  left: var(--space-sm);
+  z-index: 1;
   display: inline-flex;
   padding: 4px 10px;
   border-radius: var(--radius-pill);
-  background: var(--brand-subtle);
-  color: var(--brand-strong);
+  background: var(--transparent-dark-64);
+  color: var(--text-white);
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
   letter-spacing: 0.02em;
   line-height: 1.2;
+  backdrop-filter: blur(4px);
 }
 
 .demo-profile-card-goal {
