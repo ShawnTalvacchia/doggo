@@ -167,11 +167,15 @@
    starts at the same Y as the headline opposite. */
 .demo-right {
   grid-area: right;
+  /* Horizontal gutter, exposed as a custom prop so the full-bleed carousel
+     can cancel it with a negative margin to reach the section edge. */
+  --demo-gutter: clamp(24px, 5vw, 80px);
   background: var(--surface-top);
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: clamp(32px, 6vh, 72px) clamp(24px, 5vw, 80px);
+  gap: clamp(20px, 3vh, 32px);
+  padding: clamp(32px, 6vh, 72px) var(--demo-gutter);
 }
 
 .demo-right-inner {
@@ -191,12 +195,23 @@
 }
 
 .demo-cast-eyebrow {
+  /* Clear breathing room above the eyebrow. The cast block can fill the
+     column (tall cards), so a generous top margin reads as a deliberate gap. */
+  margin-top: clamp(28px, 5vh, 56px);
   font-family: var(--font-heading);
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-tertiary);
+  transition: color 0.15s;
+}
+
+/* Hovering any cast card lights the "EXPLORE FREELY" eyebrow brand-light —
+   a small "you're exploring" cue. `:has()` lets a card reach back to colour
+   the eyebrow even though the carousel now sits after it in the DOM. */
+.demo-right:has(.demo-profile-card:hover) .demo-cast-eyebrow {
+  color: var(--brand-light);
 }
 
 .demo-cast-subline {
@@ -206,32 +221,49 @@
   color: var(--text-secondary);
 }
 
-/* Horizontal profile card — photo left, structured content on the
-   right. Substantial card chrome (border + soft shadow) so it reads
-   as a real "card" lifted off the popout half, with the photo bleeding
-   into the rounded corners on the left edge. */
+/* Cast carousel — a horizontal-scroll track of vertical profile cards.
+   Native scroll (swipe on touch) replaced the prev/next stepper. Cards
+   snap and size to their content; the minimal Explore link sits right
+   under each goal line. */
+.demo-cast-scroller {
+  display: flex;
+  /* Stretch cards to a common height (the tallest card sets it), so a short
+     card grows to match rather than leaving the row ragged. */
+  align-items: stretch;
+  gap: var(--space-md);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  /* Bleed off the right section edge: a negative margin cancels the half's
+     right gutter so the track runs to the viewport edge. Cards still start
+     aligned with the eyebrow (left padding 0; the track's left edge is the
+     content edge). overflow-x: auto computes overflow-y to auto, which would
+     clip the soft shadow — pad top/bottom so it shows. */
+  margin-right: calc(-1 * var(--demo-gutter));
+  padding: 4px 0 14px 0;
+  scroll-padding-left: 0;
+}
+
+/* Vertical profile card — photo on top, content below. Light border + a
+   soft, minimal shadow (the earlier hard offset shadow read as noise with
+   several cards on screen). Fixed width, narrower than the track, so the
+   next card peeks and signals there's more to scroll. */
 .demo-profile-card {
   position: relative;
-  width: 100%;
-  max-width: 540px;
+  flex: 0 0 auto;
+  width: 260px;
   display: flex;
-  flex-direction: row;
-  align-items: stretch;
+  flex-direction: column;
   background: var(--surface-top);
   border: 1px solid var(--border-regular);
   border-radius: var(--radius-panel);
-  /* Hard-edge offset shadow in a light brand tint — graphic / editorial
-     feel that stands the card off the surface-top half subtly. Raw
-     rgba (not a token) — the specific brand-tinted alpha here doesn't
-     map cleanly to brand-subtle. */
-  box-shadow: 6px 6px 0 rgba(120, 202, 193, 0.18);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
+  scroll-snap-align: start;
 }
 
 .demo-profile-card-photo {
-  flex: 0 0 240px;
-  width: 240px;
-  align-self: stretch;
+  width: 100%;
+  aspect-ratio: 4 / 3;
   object-fit: cover;
   display: block;
   background: var(--surface-base);
@@ -243,10 +275,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  padding: var(--space-lg);
-  /* Match the photo's 240px so the photo crop stays a confident
-     square and the Explore CTA can anchor to the card bottom. */
-  min-height: 240px;
+  padding: var(--space-md) var(--space-lg) var(--space-lg);
 }
 
 .demo-profile-card-name {
@@ -277,57 +306,27 @@
   color: var(--text-secondary);
 }
 
-/* The "Explore as <Name>" CTA lives inside the card body. `margin-top:
-   auto` pushes it to the bottom of the body so the description sits at
-   the top and the action anchors the card — the body uses the full
-   240px height when the photo's there. */
-.demo-profile-card-body > .btn-action {
+/* Minimal "Explore as <Name>" link — text + arrow (not the ButtonAction
+   component) so the card stays light. Flows right under the goal on the
+   body gap, shrinking the large gap the old bottom-anchored button left. */
+.demo-profile-card-explore {
   align-self: flex-start;
-  margin-top: auto;
-}
-
-.demo-slider-controls {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-}
-
-.demo-slider-arrow {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1px solid var(--border-regular);
-  background: transparent;
-  color: var(--text-secondary);
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
-}
-
-.demo-slider-arrow:hover {
-  border-color: var(--brand-main);
-  color: var(--brand-main);
-}
-
-.demo-slider-arrow:active {
-  transform: translateY(1px);
-}
-
-.demo-slider-counter {
+  gap: var(--space-xs);
+  background: none;
+  border: none;
+  padding: 0;
   font-family: var(--font-body);
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
-  color: var(--text-secondary);
-  font-variant-numeric: tabular-nums;
-  min-width: 3em;
-  text-align: center;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: color 0.15s;
 }
 
-.demo-slider-counter-sep {
-  color: var(--text-tertiary);
-  margin: 0 2px;
+.demo-profile-card-explore:hover {
+  color: var(--brand-strong);
 }
 
 /* ── Persona dropdown trigger + menu (consumed by DemoPersonaDropdown) ─
@@ -470,50 +469,6 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────
-   Tablet + below (≤1023px) — card flips to column.
-   Halves stay side-by-side; only the card layout changes. This avoids
-   the horizontal card getting cramped in the narrow tablet half
-   (240px photo + body in a ~400px content area is uncomfortable).
-   ───────────────────────────────────────────────────────────────────── */
-
-@media (max-width: 1023px) {
-  .demo-profile-card {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .demo-profile-card-photo {
-    width: 100%;
-    flex: 0 0 auto;
-    aspect-ratio: 4 / 3;
-  }
-
-  .demo-profile-card-body {
-    /* Content-driven height — desktop's 240px floor (matched to the
-       photo's stretched height) doesn't apply once the photo's on top. */
-    min-height: 0;
-  }
-
-  /* Explore CTA stretches the full card-body width — clearer thumb
-     target and a natural rhythm with the photo above. */
-  .demo-profile-card-body > .btn-action {
-    align-self: stretch;
-    width: 100%;
-    margin-top: var(--space-sm);
-  }
-
-  /* Slider controls centred across a constrained width so the arrows
-     sit at thumb-reachable edges. */
-  .demo-slider-controls {
-    justify-content: space-between;
-    width: 100%;
-    max-width: 280px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
-
-/* ─────────────────────────────────────────────────────────────────────
    Phone (≤699px) — halves stack vertically, bar cells stack too.
    Pushed down from the previous 899px so the side-by-side layout
    survives tablet widths. The column card from the ≤1023 block
@@ -542,6 +497,12 @@
     /* More breathing room top/bottom — page can grow taller, the user
        gets clearer separation between sections. */
     padding: var(--space-jumbo-1) var(--space-xl);
+  }
+
+  /* Match the gutter custom prop to the mobile padding so the carousel's
+     bleed margin lines up with the section edge here too. */
+  .demo-right {
+    --demo-gutter: var(--space-xl);
   }
 
   .demo-left-inner,

@@ -23,13 +23,11 @@
  *  - Mobile stacks the halves vertically.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
   ArrowCounterClockwise,
-  CaretLeft,
-  CaretRight,
   Compass,
 } from "@phosphor-icons/react";
 import { useDemoState } from "@/contexts/CurrentUserContext";
@@ -129,31 +127,6 @@ export default function LandingPage() {
     return cast;
   })();
 
-  // Slider state — opens on the first card (Daniel, the walkthrough lead).
-  // Wraps in both directions.
-  const [activeIdx, setActiveIdx] = useState(0);
-  const active = castPersonas[activeIdx];
-  const goPrev = () =>
-    setActiveIdx((i) => (i - 1 + castPersonas.length) % castPersonas.length);
-  const goNext = () => setActiveIdx((i) => (i + 1) % castPersonas.length);
-
-  // Mobile swipe on the profile card → previous / next persona. A horizontal
-  // drag past a small threshold switches cards; small movements (a tap on the
-  // Explore CTA) are ignored. Touch-only, so desktop keeps using the arrows.
-  const touchStartX = useRef<number | null>(null);
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0]?.clientX ?? null;
-  };
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null) return;
-    const endX = e.changedTouches[0]?.clientX ?? touchStartX.current;
-    const dx = endX - touchStartX.current;
-    const SWIPE_THRESHOLD = 40;
-    if (dx <= -SWIPE_THRESHOLD) goNext();
-    else if (dx >= SWIPE_THRESHOLD) goPrev();
-    touchStartX.current = null;
-  };
-
   return (
     <div className="demo-page">
       <header className="demo-top-header-left">
@@ -194,73 +167,51 @@ export default function LandingPage() {
       <section className="demo-right">
         <div className="demo-right-inner">
           <div className="demo-cast-meta">
-            <span className="demo-cast-eyebrow">The cast</span>
+            <span className="demo-cast-eyebrow">Explore freely</span>
             <p className="demo-cast-subline">
-              Each card is another way in. Tap Explore to become that
-              person — their feed, their connections, their care — and
-              roam the app freely, no guided steps.
+              For an open-ended way to experience Doggo, pick a character
+              and explore the app through their eyes, at your own pace.
             </p>
           </div>
+        </div>
 
-          <article
-            className="demo-profile-card"
-            aria-live="polite"
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
-          >
-            <img
-              src={active.user.avatarUrl}
-              alt=""
-              className="demo-profile-card-photo"
-            />
-            <div className="demo-profile-card-body">
-              <div className="demo-profile-card-name">
-                {active.user.firstName} {active.user.lastName}
+        {/* Full-bleed carousel of vertical cast cards — a direct child of
+            .demo-right (NOT the max-width inner) so it can run off the right
+            section edge. Cards start aligned with the eyebrow; native scroll
+            (swipe on touch) replaced the prev/next stepper. */}
+        <div className="demo-cast-scroller" role="list" aria-label="The cast">
+          {castPersonas.map((p) => (
+            <article
+              key={p.user.id}
+              className="demo-profile-card"
+              role="listitem"
+            >
+              <img
+                src={p.user.avatarUrl}
+                alt=""
+                className="demo-profile-card-photo"
+              />
+              <div className="demo-profile-card-body">
+                <div className="demo-profile-card-name">
+                  {p.user.firstName} {p.user.lastName}
+                </div>
+                <span className="demo-profile-card-pill">
+                  {PERSONA_ROLES[p.user.id] ?? p.archetype}
+                </span>
+                <p className="demo-profile-card-goal">
+                  {PERSONA_GOALS[p.user.id] ?? p.archetype}
+                </p>
+                <button
+                  type="button"
+                  className="demo-profile-card-explore"
+                  onClick={() => handlePickPersona(p.user.id)}
+                >
+                  Explore as {p.user.firstName}
+                  <ArrowRight size={13} weight="bold" aria-hidden="true" />
+                </button>
               </div>
-              <span className="demo-profile-card-pill">
-                {PERSONA_ROLES[active.user.id] ?? active.archetype}
-              </span>
-              <p className="demo-profile-card-goal">
-                {PERSONA_GOALS[active.user.id] ?? active.archetype}
-              </p>
-              <ButtonAction
-                variant="outline"
-                size="sm"
-                rightIcon={<ArrowRight size={14} weight="bold" />}
-                onClick={() => handlePickPersona(active.user.id)}
-              >
-                Explore as {active.user.firstName}
-              </ButtonAction>
-            </div>
-          </article>
-
-          <div
-            className="demo-slider-controls"
-            role="group"
-            aria-label="Browse personas"
-          >
-            <button
-              type="button"
-              className="demo-slider-arrow"
-              onClick={goPrev}
-              aria-label="Previous persona"
-            >
-              <CaretLeft size={16} weight="bold" />
-            </button>
-            <span className="demo-slider-counter">
-              {activeIdx + 1}{" "}
-              <span className="demo-slider-counter-sep">/</span>{" "}
-              {castPersonas.length}
-            </span>
-            <button
-              type="button"
-              className="demo-slider-arrow"
-              onClick={goNext}
-              aria-label="Next persona"
-            >
-              <CaretRight size={16} weight="bold" />
-            </button>
-          </div>
+            </article>
+          ))}
         </div>
       </section>
 
