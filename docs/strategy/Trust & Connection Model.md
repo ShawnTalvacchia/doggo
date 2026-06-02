@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-16
+last-reviewed: 2026-06-01
 tags: [trust, connections, privacy, safety]
 review-trigger: "when touching connection states, visibility, or trust signals"
 ---
@@ -199,6 +199,7 @@ Trust signals are displayed on profiles and in relevant contexts (provider cards
 - Response consistency
 - Verified identity (future — when implemented)
 - Provider trust badges — three-tier system (community-earned, credential, platform). See `Competitive Research - Prague Dog Care Scene.md` for full taxonomy.
+- **Shelter walker credentialing** (forward reference). Per-shelter institutional tiers — Vetted Walker / Experienced Walker / Trusted Handler — gating walk eligibility on a per-shelter basis. Composes with per-shelter policy and per-dog overrides; strictest rule wins. Shelter Foundation (2026-06-01) ships the static side (the tier model lives in `ShelterWalker.tier`; the Members tab renders the tier label inline); the merged Carer Portfolio + Shelter Walker Credentialing phase ships the visual escalation language (outlined → filled → filled+ring) shared with the Carer Portfolio aggregate badge and the walker journey (booking → active session → visit report). See [[features/shelters]] → "Walker tier model" and [[Cold-Start Playbook]] → "Walker credentialing as a shelter trust layer."
 
 ### What we avoid
 

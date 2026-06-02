@@ -1,7 +1,7 @@
 ---
-status: active
-last-reviewed: 2026-05-18
-review-trigger: When any task is completed or blocked
+status: archived
+last-reviewed: 2026-06-01
+review-trigger: archived — phase closed 2026-06-01
 ---
 
 # Demo Narrative V2 — Walker-Trainer Story

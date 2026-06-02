@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-16
+last-reviewed: 2026-06-01
 tags: [privacy, visibility, content, groups, photos]
 review-trigger: "when touching content sharing, photo features, feed logic, or group visibility"
 ---
@@ -181,6 +181,8 @@ When a user shares a photo, the flow determines the origin context:
 4. **Tagging**: Tag dogs, people, locations. Tags create cross-references but do **not** expand the audience. A tagged person who isn't in the audience doesn't gain access — the tag simply creates a link for people who *can* already see the content.
 
 **Key rule: Tags never expand audience.** If User A posts a meet photo and tags User C who wasn't at the meet and isn't in the group, User C cannot see the photo. The tag exists as metadata for people who can see the post. This prevents accidental privacy leaks through tagging.
+
+**Tag approval — owner vs. shelter authority.** Tags on a user's dog respect that owner's `UserProfile.tagApproval` setting (the owner is the dog's authority). Tags on a shelter dog respect `ShelterProfile.tagApproval` (the shelter is the authority for non-owned dogs in its roster). Same inheritance model, different authority. Per-dog overrides for multi-pet households where one dog wants tighter approval than another are a V2 feature (see [[Open Questions]] §12). The `"shelter"` tag type was added 2026-06-01 (Shelter Foundation) as reserved infrastructure — composer doesn't surface a shelter picker; the tag is written by walker journey work and Photos & Galleries phase machinery. See [[features/shelters]].
 
 ---
 

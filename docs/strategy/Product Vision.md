@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-18
+last-reviewed: 2026-06-01
 tags: [vision, principles, strategy, monetization]
 review-trigger: "before any major feature decision or strategic discussion"
 ---
@@ -14,23 +14,24 @@ Doggo is a community-first platform in Prague for people whose lives revolve aro
 
 ## The Thesis
 
-Organic growth comes from owners connecting with each other, not from owners searching for paid services. If Doggo becomes the place where dog owners in Prague socialise their pets, meet up for walks, and build neighbourhood familiarity, everything else follows. Paid care, business profiles, and bookings become natural extensions of an already-engaged user base — not cold marketplace features competing with word-of-mouth.
+Doggo is a dog ecosystem platform — community and care surfaces are inseparable, and the credentialing layer is what makes both trustworthy. Organic growth comes from owners and dog-lovers connecting with each other; paid care, business profiles, and bookings become natural extensions of an already-engaged user base. Institutional credentials (shelter vouching, methodology affiliations, professional certifications) compose with community-built reputation (post-meet reviews, repeat clients, mutual connections) to make every kind of trust legible.
 
 **Meets build trust. Trust enables care. Care is booked and tracked.**
 
-The community is the acquisition and trust layer. The marketplace emerges from it.
+This isn't community-with-marketplace or marketplace-with-community. Doggo is both at once, by design. When community and marketplace decisions surface real tension, those are the most strategically important calls and get careful case-by-case deliberation — not pre-committed rules. See [[Open Questions & Assumptions Log]] §7.
 
-### Three Ways In
+### Ways In
 
-Groups are the connective tissue. Every user enters through one of three doors:
+Groups are the connective tissue. Doors expand as the platform grows; here are the established and planned ones:
 
 | Door | What it is | Barrier | Examples |
 |------|-----------|---------|----------|
 | **Find Your Park** | Auto-generated groups for major dog parks. Open, no admin, anyone posts a walk. | Lowest — just show up | "Riegrovy Sady Dog Walks", "Letná Off-Leash" |
 | **Find Your People** | Neighbourhood circles, breed groups, activity crews. Small, trusted, high-utility. Where mutual aid lives. | Medium — request to join | "Vinohrady Evening Walkers", "Prague Reactive Dog Support" |
 | **Find Your Help** | Provider-run groups with booking CTAs on meets. Your walker's schedule, your trainer's sessions. Community-wrapped service. | Low-Medium — join or book | "Klára's Calm Dog Sessions", "Olga's Walking Group" |
+| **Help a Dog** *(Shelter Foundation phase pending)* | Shelter dogs available to walk. Institutional accounts (`ShelterProfile`) parallel to UserProfile. Non-ownership entry point: walkers earn institutional credentials at vetted shelters and become community anchors through documented dog-handling. | Low to browse + become a Supporter; vouching at the shelter to walk | "Útulek Liběň", "Pes v nouzi" |
 
-All three doors lead to the same place: a network of people who know each other and each other's dogs. The booking system exists to protect the friendships that form — clear rates, clear records, no scorekeeping.
+All doors lead to the same place: a network of people who know each other and each other's dogs. The booking system exists to protect the friendships that form — clear rates, clear records, no scorekeeping. See [[Open Questions & Assumptions Log]] §14 for the full shelter design.
 
 ### The Key Insight
 
@@ -44,7 +45,7 @@ Dogs are the gateway, not the destination. Most features start from a dog — ho
 
 This is deliberate. People wary of "social apps" will happily join something organised around their dog. Users who join "for their dog" and end up making friends, finding a reliable walker, or starting to offer care themselves are the highest-retention users — the social and professional rewards land harder because they weren't sold to them.
 
-This framing welcomes non-owners too. Some users join because they love dogs and want to help, not because they have one. Dog-lovers looking for gig work, hobbyists, small service providers — they enter through the community, earn trust the same way anyone does, and offer their services as part of the same fabric. The platform is a community for dog people. Dog ownership is one way in, not the only one.
+This framing welcomes non-owners too. Some users join because they love dogs and want to help, not because they have one. Dog-lovers looking for gig work, hobbyists, small service providers, and shelter walkers — they enter through the community, earn trust the same way anyone does, and offer their services as part of the same fabric. The **shelter-walker ramp** is a particular case worth naming: someone whose entry point is "I want to walk shelter dogs" earns institutional credentials through documented dog-handling at vetted shelters and becomes a community anchor without ever owning a pet — different door, same destination. The platform is a community for dog people. Dog ownership is one way in, not the only one.
 
 ---
 
@@ -58,7 +59,7 @@ The walker-trainer hybrid is Doggo's cold-start engine — 80–90% of Prague's 
 - **Controlled group walks are the method and the outcome.** A trainer helps an anxious or untrained dog build the skills to enjoy other dogs' company; once ready, the dog belongs to the community. Training is the on-ramp to belonging, not a side service. The pattern Doggo argues against is avoidance — a reactive dog that simply never gets near another dog, until one day it gets too close and there's a clash. *Resolve it, don't avoid it.*
 - **The trainer-led public walk is both funnel and mission.** Every walk is demonstration and lead-gen for the trainer's paid services — and it's the trainer doing real, visible vocational work. The platform should let trainers market that.
 
-Expand at the strategic review: how this lands across product surfaces, the landing page, and onboarding; and its relationship to the marketplace-vs-community fork ([[Open Questions & Assumptions Log]] §7).
+Expand at the strategic review: how this lands across product surfaces, the landing page, and onboarding. The trainer-led walks playbook is one of two streams (alongside shelter walks) that feed the cold-start engine; both rely on the credentialing-layer thesis ([[Open Questions & Assumptions Log]] §7 — credentialing as deliberate strategic moat) to compose institutional credentials with community-built reputation.
 
 ---
 
@@ -88,7 +89,7 @@ Doggo creates opportunities for connection, trust, and help. It does not pressur
 
 ### 6. Trust is Earned Through Participation, Not Claims
 
-Trust is built through real-world interaction — attending meets, being a reliable presence, helping when asked. Profile claims and self-descriptions are context, not credentials. The platform's job is to make genuine trust signals visible. See [[Trust & Connection Model]] for details.
+Trust is built through real-world interaction — attending meets, being a reliable presence, helping when asked. Profile claims and self-descriptions are context, not credentials. The platform's job is to make genuine trust signals visible, composing community-built reputation (post-meet reviews, repeat clients, mutual connections) with institutional credentials (shelter vouching, methodology affiliations, professional certifications) so each kind of trust earns its visual weight. See [[Trust & Connection Model]] and [[Open Questions & Assumptions Log]] §7 (credentialing as deliberate moat) for details.
 
 ### 7. Community Signals Over Vanity Metrics
 

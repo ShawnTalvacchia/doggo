@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-04-30
+last-reviewed: 2026-06-01
 tags: [connections, trust, visibility, privacy]
 review-trigger: "when modifying connection states, visibility settings, or trust signals"
 ---

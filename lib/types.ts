@@ -1166,6 +1166,11 @@ export interface PetProfile {
   breed: string;
   weightLabel: string;  // e.g. "18 kg"
   ageLabel: string;     // e.g. "4 years"
+  /**
+   * Sex. Optional on owned dogs (legacy seeds may omit). Shelter dogs
+   * should always carry this — it's a routine intake field.
+   */
+  sex?: "male" | "female";
   imageUrl: string;
   notes?: string;
   // Enhanced fields (Phase 5)
@@ -1174,6 +1179,41 @@ export interface PetProfile {
   socialisationNotes?: string;
   vetInfo?: VetInfo;
   photoGallery?: string[];    // additional photo URLs beyond imageUrl
+
+  // ── Shelter-only fields (Shelter Foundation, 2026-06-01) ─────────────
+  // Present on dogs contained in `ShelterProfile.dogs[]`. Ownership is
+  // tracked by containment (`UserProfile.pets[]` vs `ShelterProfile.dogs[]`);
+  // there is no `ownerId` / `shelterId` discriminator on `PetProfile` itself.
+  // See [[features/shelters]] → "Non-owned dogs."
+
+  /** Per-dog policy override: this dog can only be walked solo, regardless of
+   *  walker tier or shelter-level group-walks policy. Unions with shelter
+   *  policy — strictest rule wins. Shelter dogs only. */
+  soloOnly?: boolean;
+  /** Per-dog policy override: only walkers at the Experienced or Trusted tier
+   *  may handle this dog. Shelter dogs only. */
+  experiencedHandlersOnly?: boolean;
+  /** Adoption pipeline state. Shelter dogs only. */
+  adoptionStatus?: "available" | "pending" | "adopted";
+  /** Days since shelter intake. Shelter dogs only. Drives the "Long-stayer"
+   *  treatment (>=30) and sort defaults. */
+  daysInKennel?: number;
+  /** ISO timestamp of the most recent walk. Shelter dogs only. Drives the
+   *  "Needs walks now" default sort on the shelter Dogs tab. */
+  lastWalkedAt?: string;
+  /** Short narrative blurb (1–2 sentences) shown on the dog profile and
+   *  optionally on the dog card. Shelter dogs only. */
+  backstory?: string;
+  /** Free-form tag chips shown on the shelter Dogs tab card + dog profile.
+   *  Curated short labels — "Reactive to other dogs," "Good with kids,"
+   *  "New arrival," "Long-stayer" (the Long-stayer chip is also auto-derived
+   *  from `daysInKennel >= 30`; explicit entry is a manual override).
+   *  Shelter dogs only. */
+  tags?: string[];
+  /** Optional ISO intake date. Persisted so `daysInKennel` could be derived
+   *  in production; in mock data we keep the explicit field for stability
+   *  against the demo clock. Shelter dogs only. */
+  intakeDate?: string;
 }
 
 export interface CarerAvailabilitySlot {
@@ -1513,13 +1553,177 @@ export interface UserProfile {
   shareCode?: string;
 }
 
+// ── Shelters (Institutional Accounts) ─────────────────────────────────────────
+//
+// Shelters are top-level entities parallel to UserProfile, NOT a Group type.
+// See [[strategy/Open Questions & Assumptions Log]] §14 and [[features/shelters]]
+// for the strategic rationale and the four-tab page chrome (Feed / Dogs /
+// Members / Gallery) that mirrors the Communities pattern with a Meets→Dogs
+// swap.
+//
+// Account model is institutional-by-default: the shelter logo is the avatar,
+// posts are attributed to the shelter (shared-credential operation). An
+// optional `team[]` link grants individual staff visibility — same page shape
+// with or without linked staff. Demo ships shared-credential only.
+//
+// Non-owned dogs live in `ShelterProfile.dogs[]` — containment, no
+// `shelterId` field on `PetProfile`. Containment is the source of truth for
+// ownership on both the owned side (`UserProfile.pets[]`) and the shelter
+// side. Lookups (`getDogById`) check both lists.
+
+/**
+ * Walker tier — a per-shelter institutional credential gating walk
+ * eligibility. Three tiers, visually escalating in the credentialing-moat
+ * phase (outlined → filled → filled+ring). This phase ships flat affiliation
+ * chips; tier intensification arrives with the merged Carer Portfolio +
+ * Shelter Walker Credentialing phase.
+ *
+ * Tier semantics (per [[Cold-Start Playbook]] → "Walker credentialing"):
+ * - `vetted` — default after vouching. Solo walks only.
+ * - `experienced` — group walks with sociable dogs (~10 walks at this shelter).
+ * - `trusted` — group walks with reactive or unknown dogs (~25 walks +
+ *    coordinator sign-off).
+ *
+ * Tier gates compose with shelter-level policy (some shelters never permit
+ * group walks regardless of tier) and per-dog overrides (`PetProfile.soloOnly`,
+ * `experiencedHandlersOnly`). Strictest rule wins.
+ */
+export type WalkerTier = "vetted" | "experienced" | "trusted";
+
+/**
+ * A user vouched to walk dogs at a specific shelter.
+ * One `ShelterWalker` per (shelter, user) pair.
+ */
+export interface ShelterWalker {
+  /** UserProfile id when bridged to a real user. Names-only directory
+   *  entries (no `UserProfile`) carry a fabricated slug-style id. */
+  userId: string;
+  /** Display name. Persisted on the walker record so directory-style
+   *  walkers without a UserProfile bridge still render. */
+  displayName: string;
+  /** Optional avatar override for directory-style walkers. */
+  avatarUrl?: string;
+  tier: WalkerTier;
+  /** ISO date the walker was vouched. */
+  vouchedAt: string;
+  /** Total walks logged at this shelter. Drives tier-progression hints
+   *  and recency ordering. Production: derived from visit reports. */
+  walkCount: number;
+  /** ISO timestamp of most recent walk at this shelter. Drives the
+   *  Members tab "recency" sort. */
+  lastWalkedAt?: string;
+}
+
+/**
+ * A user following a shelter without taking on the walking commitment.
+ * Followers, sponsors, adoption-curious. Surfaces on the Members tab
+ * under the "Supporters" filter.
+ */
+export interface ShelterSupporter {
+  /** UserProfile id when bridged; otherwise a directory-style id. */
+  userId: string;
+  displayName: string;
+  avatarUrl?: string;
+  /** ISO timestamp the user became a supporter. */
+  since: string;
+}
+
+/**
+ * Optional linked staff. Empty for shared-credential-only shelters
+ * (the demo default for V1). When populated, the shelter info card's
+ * "Run by" line scales from "Run by the {shelter} team" to an avatar
+ * stack of linked staff, and a "Team" filter pill appears on the
+ * Members tab. Full link-staff invite UX is deferred.
+ */
+export interface ShelterTeamMember {
+  /** UserProfile id of the linked staff member. */
+  userId: string;
+  /** Role label — "Coordinator," "Volunteer lead," "Director," etc. */
+  role?: string;
+  /** ISO timestamp the staff member linked their account. */
+  linkedAt: string;
+}
+
+/**
+ * Per-shelter institutional policy. Gates walk eligibility ABOVE walker
+ * tier (some shelters never permit group walks; that's a first-class case).
+ * Walker tier and per-dog overrides compose with this — strictest wins.
+ *
+ * Authoring UI is deferred to a future shelter operator/admin view (V3+);
+ * V1 seeds policy inline in `lib/mockShelters.ts`.
+ */
+export interface ShelterPolicy {
+  /** May tier-2+ walkers run group walks with sociable dogs?
+   *  `false` = solo only across the board, regardless of walker tier. */
+  groupWalksPermitted: boolean;
+  /** Minimum tier required for any walk. Default `"vetted"`. */
+  minimumTier?: WalkerTier;
+  /** Free-form short note rendered on the Get Involved area when V2 lands
+   *  (e.g. "We require an in-person intro visit before vouching"). */
+  vouchingNote?: string;
+  /** Primary working language(s) for shelter coordination. Informational —
+   *  bilingual surfaces are deferred per §14 open item. */
+  workingLanguages?: ("cs" | "en" | "sk" | "de")[];
+}
+
+/**
+ * A top-level institutional account. Parallel to `UserProfile`. Future
+ * generalization to `OrgProfile` (rescue, vet clinic, training school) is
+ * named in §14 as an open item; we keep `ShelterProfile` concrete until a
+ * second institutional type exists.
+ */
+export interface ShelterProfile {
+  /** Slug-style id used as the route param (e.g. "utulek-liben"). */
+  id: string;
+  /** Display name (e.g. "Útulek Liběň"). */
+  name: string;
+  /** Avatar — institutional logo. Rendered as a rounded-panel square
+   *  (institutional, not a person — Avatar Rule B). */
+  logoUrl: string;
+  /** Optional banner photo for the detail header. */
+  bannerUrl?: string;
+  /** Display-friendly location (e.g. "Libeň, Prague 8"). */
+  location: string;
+  /** Hyper-local neighbourhood (e.g. "Libeň"). */
+  neighbourhood?: string;
+  /** Short institutional bio — 1–3 sentences. */
+  bio: string;
+  /** Optional founding year for the info card. */
+  establishedYear?: number;
+  /** Optional website + social handles for the info card chip row. */
+  website?: string;
+  socialLinks?: { facebook?: string; instagram?: string; email?: string };
+  /** Tag-approval mode for posts tagging dogs in this shelter's roster.
+   *  Mirrors `UserProfile.tagApproval` — shelter is the authority for its
+   *  dogs the way an owner is for theirs. See [[Content Visibility Model]]. */
+  tagApproval?: TagApproval;
+  /** Per-shelter policy gating walk eligibility above walker tier. */
+  policy: ShelterPolicy;
+  /** Dog roster — non-owned `PetProfile`s with shelter-only optional fields
+   *  (`daysInKennel`, `lastWalkedAt`, `backstory`, `adoptionStatus`, etc.). */
+  dogs: PetProfile[];
+  /** Vouched walkers across all three tiers. */
+  walkers: ShelterWalker[];
+  /** Followers / supporters / adoption-curious users. */
+  supporters: ShelterSupporter[];
+  /** Optional linked staff. Empty array = shared-credential-only operation. */
+  team?: ShelterTeamMember[];
+}
+
 // ── Posts & Feed ──────────────────────────────────────────────────────────────
 
-export type PostTagType = "dog" | "person" | "community" | "place" | "meet";
+/**
+ * Post-tag entity types. `"shelter"` was added 2026-06-01 (Shelter Foundation)
+ * as a slot for tagging shelters in walker-authored posts and meet recaps; the
+ * composer doesn't surface a shelter-tag picker yet — it's reserved
+ * infrastructure for the Photos & Galleries phase and walker journey work.
+ */
+export type PostTagType = "dog" | "person" | "community" | "place" | "meet" | "shelter";
 
 export interface PostTag {
   type: PostTagType;
-  /** ID of the tagged entity (dog ID, user ID, group ID, or place slug) */
+  /** ID of the tagged entity (dog ID, user ID, group ID, place slug, meet ID,
+   *  or shelter slug). */
   id: string;
   /** Display name */
   label: string;

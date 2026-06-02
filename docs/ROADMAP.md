@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-05-17
+last-reviewed: 2026-06-01
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
@@ -34,37 +34,23 @@ The full product skeleton exists. Every page renders with real content and worki
 
 ---
 
-## Current Phases
-
-No phase is currently open. **Demo Narrative V2 — Walker-Trainer Story** is the next phase (see Upcoming Phases) — a re-author of the guided demo around the walker-trainer hybrid framing, drafted 2026-05-18.
-
-### Earlier closes (archive index)
-
-- Guided Walkthrough Build closed 2026-05-18 — `archive/phases/guided-walkthrough-build.md`
-- Demo Narrative & Personas closed 2026-05-18 — `archive/phases/demo-narrative-and-personas.md`
-- Service ↔ Meet Linkage closed 2026-05-17 — `archive/phases/service-meet-linkage.md`
-- Profiles Deep Pass closed 2026-05-14 — `archive/phases/profiles-deep-pass.md`
-- Cross-Cutting Flow Testing closed 2026-05-14 — `archive/phases/cross-cutting-flow-testing.md`
-- Demo Presentation retired 2026-05-14 — `archive/phases/demo-presentation.md` (workstreams A/B/C/D/F shipped; E pending; superseded by Demo Narrative & Personas)
-- Care Catalog Taxonomy & Filter Redesign closed 2026-05-11 — `archive/phases/care-catalog-taxonomy-and-filter-redesign.md`
-- Design System Cleanup closed 2026-05-11 — `archive/phases/design-system-cleanup.md`
-- Discover Refinement closed 2026-05-10 — `archive/phases/discover-refinement.md`
-- Inbox & Notifications closed 2026-05-10 — `archive/phases/inbox-and-notifications-deep-pass.md`
-
----
-
 ## Upcoming Phases
 
-Reorganized 2026-05-04 around the principle that **services are the core functionality** — the actual transactional loop (provider pricing → inquiry → proposal → contract → sessions → payment) needs to sing before community surrounds get more polish. Inbox & Notifications and Onboarding shrink in scope because most of the service-flow comms and pricing-setup teaching now belong inside the service phases that come first.
+Reorganized 2026-06-01 to reflect three strategic shifts: (a) **shelter direction graduated** from pre-roadmap exploration to an active strategic thread (PO pursuing real Prague shelter conversations) and lands as a real phase built in code — not preempted by mockups, (b) **Shelter Foundation goes first** because dog cards on the shelter Dogs tab need a landing destination and a shelter context to live in before Dog Profile makes sense, (c) **Carer Portfolio and Shelter Walker Credentialing merge** into one credentialing-moat phase — same engagement-aggregation thesis applied to two domains (per §8 + §7 Open Questions resolutions 2026-06-01). Open Questions resolution pass completed 2026-06-01 — Photos & Galleries unblocked (§12), Carer Portfolio threshold/display resolved (§8), marketplace-vs-community fork retired as false binary (§7), full shelter scope codified (§14).
 
 | Phase | Goal | Key refs |
 |-------|------|----------|
-| **Demo Narrative V2 — Walker-Trainer Story** *(next — phase board drafted 2026-05-18)* | Re-author the guided demo as a polished narrated concept story. Walker-trainer hybrid framing (the cold-start engine, per the 2026-05-15 PO briefing); a tighter 3-beat structure (Klára → Daniel → Magda); pre-loaded content fired off in steps (posts, messages); richer interstitials (persona handoff / time-passage / feature explainer); the private-group mutual-care concept unpacked carefully. Mock-data + character reshaping, not new product surface. | `phases/demo-narrative-v2.md`, `docs/meetings/po-briefing-2026-05-15.md`, `Demo Narrative.md`, `Cold-Start Playbook.md` |
-| **Design System Cleanup** *(sized 2026-05-14 from Profiles Deep Pass close)* | Consolidation pile is real: Section shell component (FC4), IdentityChip (FC5), the recurring `flex-1 + white-space:nowrap` CTA pattern, P67 component-consolidation audit, and the bundle-wrapper pattern applied 3+ times during PDP. Doing this before the next deep page-pass makes everything that follows cheaper. Not yet drafted — would absorb the FC items, P67, and a sweep of accreted patterns. | `Future Considerations.md` FC4/FC5, `phases/punch-list.md` P67, `docs/implementation/design-system.md` |
-| **Config #2 meet-side link authoring** *(follow-on from Service ↔ Meet Linkage — sized 2026-05-17)* | Config #2's owner-facing side shipped *in* the Service ↔ Meet Linkage phase (Workstream H — drop-off-Care callout + booking; the link is seeded). This follow-on builds the **authoring** surface: a **meet-side** editor where a meet declares which drop-off Care services run on it. That's the right home — it keeps the Care service card clean (no "link a meet" affordance, which read as a confusing peer of "Session offering"), and it naturally handles **multi-carer** linking (a host advertising *other* carers' services). Needs a **meet-edit screen** — none exists today (`MeetComposer` is create-only), so a meet-edit surface is a prerequisite. | `Open Questions §13` (config #2 correction note), `archive/phases/service-meet-linkage.md` (Workstream H4) |
-| **Onboarding & In-Product Communication** *(paused — after CCFT + DSC + Service ↔ Meet Linkage)* | Trust model + Carer audience + privacy mechanics + Carer pricing setup tutorials. Paused until surface stability — too much core flow still changing for tutorial work to invest in. Profile-side teaching (Familiar explainer card, Private/Public copy) already landed in PDP, which thinned this phase's scope. | `phases/onboarding-and-communication.md`, `Trust & Connection Model.md`, `Open Questions §2 + §3 + §4` |
-| **Photos & Galleries** *(draft — sketched 2026-05-11 during Profiles Deep Pass walkthrough B6)* | Per-dog "Photos" auto-album derived from tagged posts; profile-level photo grid; curated Highlights strip; owner moderation (untag, hide, approve queue); cross-cutting privacy walkthrough. Existing Content Visibility Model rules already prescribe the gates — this phase ships the surfaces. **Pre-open block:** moderation + tag-approval Open Questions need resolution first. | `phases/photos-and-galleries.md` (draft), `Content Visibility Model.md`, `Open Questions §12` |
-| **Carer Portfolio** *(draft — sketched 2026-05-11, sibling to Photos & Galleries)* | Aggregate trust signal computed from completed engagements (bookings + past meet attendances). Renders in `TrustBadgeStrip` on carer profile hero with priority-rule propagation to PersonRow + Discover cards. Lands the Cold-Start Playbook credentialing-layer thesis — verifiable, hard to fake, accumulates with real work. **Pre-open block:** threshold + copy + time-scope + surface Open Questions need resolution first. **Not in scope:** photo-tag portfolios, dog-level credit (named-dog list), reviews/ratings. Independent from Photos & Galleries — either can open first. | `phases/carer-portfolio.md` (draft), `Cold-Start Playbook.md`, `badges.md`, `Open Questions §8` |
+| **Shelter Foundation** *(next — sized 2026-06-01 from strategy conversation)* | `ShelterProfile` entity (parallel to UserProfile, NOT a Group type), non-owned `PetProfile` shape (`shelterId` instead of `ownerId`), institutional-by-default account model (shared login + shelter logo as avatar; optional staff-linking "Team" path), shelter page chrome (Feed / Dogs / Members / Gallery tabs — Communities pattern with Meets→Dogs swap), the dogs roster (single-column photo-led feed, "Needs walks now" default sort), Members tab (filter pills: Walkers / Supporters / Team). **Includes a minimal dog profile page** — functional but shallow — as a landing destination for the Dogs tab roster cards (per the option-a call 2026-06-01). Walker journey + credentialing are NOT in scope; those land in the merged credentialing-moat phase later. | `Open Questions §14`, `Cold-Start Playbook.md`, the 2026-06-01 strategy conversation |
+| **Dog Profile** *(sized 2026-06-01)* | Deepens the minimal shelter dog profile from Shelter Foundation AND introduces the owned-dog profile (which doesn't exist anywhere yet — owned dogs are just PetCards today). Shared spine: hero photo, name, breed/age/sex, tags, personality blurb, photo gallery, posts about this dog, activity. Conditional fields: owned-only (owner attribution, vet info, daily routine, household notes) vs shelter-only (kennel stats, backstory blurb, adoption status, per-dog policy overrides, walker history, adoption-celebration state). Hookup points for Photos & Galleries (per-dog photo gallery surface). | `Open Questions §14`, `features/profiles.md` (PetCard), `Cold-Start Playbook.md` |
+| **Photos & Galleries** *(unblocked 2026-06-01 — §12 resolved)* | Per-dog "Photos" auto-album derived from tagged posts; profile-level photo grid; curated Highlights strip; owner moderation (untag via per-post menu / hide-from-album + pin-to-Highlights via long-press / per-dog settings); cross-pet households (per-dog albums on each PetCard). Tag-approval inherits from owner (per-dog override deferred). Dog Profile phase (above) gives this its landing surfaces. | `phases/photos-and-galleries.md` (draft), `Content Visibility Model.md`, `Open Questions §12` |
+| **Carer Portfolio + Shelter Walker Credentialing (merged credentialing-moat phase)** *(sized 2026-06-01)* | One phase, two domains. **Carer Portfolio side:** aggregate "{tier} · {N} sessions" badge — Carer (3–9) / Experienced Carer (10–24) / Trusted Carer (25+) — visually escalating (outlined → filled → filled+ring), rendered in `TrustBadgeStrip` with priority-rule propagation to PersonRow + Discover cards. **Shelter Walker side:** per-shelter institutional tiers (Vetted Walker / Experienced Walker / Trusted Handler) gating real permissions; per-shelter policy + per-dog overrides; vouching state machine; walker tier badges sharing the visual escalation language with Carer Portfolio. Lands the credentialing-as-deliberate-moat thesis (per §7). Walker journey (booking a shelter dog walk, active session, visit report attaching back to dog) lives here too. | `Open Questions §8 + §14`, `Cold-Start Playbook.md` → "The credentialing-gap moat" + "Walker credentialing as a shelter trust layer", `badges.md` |
+| **Onboarding & Communication (rewrite)** *(paused — needs re-scope when surfaces stabilize)* | With shelter direction landed and Carer Portfolio shipped, the onboarding question is finally well-posed. Re-scope from the archived 2026-05-04 board against the V2 walker-trainer narrative + shelter entry-point persona (someone joining to walk shelter dogs, not to manage their own pet) + Photos & Galleries gates + four-service Care taxonomy. **Pre-open block:** original board needs full re-read + reassessment; expect significant rewrite. | `archive/phases/onboarding-and-communication.md`, `Trust & Connection Model.md`, `Open Questions §2 + §3 + §4` |
+| **Design System Cleanup** *(sized 2026-05-14; intentionally late in the arc)* | Consolidation pass before demo polish. Section shell component (FC4), IdentityChip (FC5), the recurring `flex-1 + white-space:nowrap` CTA pattern, P67 component-consolidation audit, the bundle-wrapper pattern applied 3+ times during PDP. Originally proposed earlier in the queue; deferred 2026-06-01 because by the time it runs there'll be additional shelter + Dog Profile + Carer Portfolio surfaces with new consolidation opportunities — cleaning up everything at once is higher leverage than a clean-then-make-mess-again cycle. | `Future Considerations.md` FC4/FC5, `phases/punch-list.md` P67, `docs/implementation/design-system.md` |
+
+**Side tasks running alongside (not phases):**
+
+- **Config #2 meet-side link authoring** *(small, technical — slot whenever)* — A meet-side editor declaring which drop-off Care services run on a meet. Needs a meet-edit screen (`MeetComposer` is create-only). Not blocking anything strategic; palate-cleanser between bigger phases. See `archive/phases/service-meet-linkage.md` Workstream H4.
+- **Punch list** — Continuous. `phases/punch-list.md`.
 
 Phase boards are created when a phase opens — that's where detailed tasks live. The research docs referenced above contain specific action items and open questions that feed into each phase's board.
 
@@ -80,7 +66,7 @@ Things to keep in mind across phases. Not tasks — lenses.
 
 **Session experience.** Visit report cards, real-time updates, and a focused provider in-session UI are table stakes for care confidence. → `Competitive Research - Time To Pet.md`
 
-**Hybrid trust model.** Community trust is the primary mechanism, but lightweight signals (verified ID, network overlap, intro sessions) bridge the gap for users who haven't built deep connections yet. → `Competitive Research - Fluv.md`
+**Hybrid trust model.** The three-tier badge architecture (community-earned > credential > platform) IS the hybrid model in shipped form. Community-built signals (visit reports, post-meet reviews, mutual connections, repeat-client counts) compose with credential signals (KYNOLOG.cz cert, methodology affiliations, shelter walker tier badges, Carer Portfolio aggregate) and platform signals (Verified Identity — taxonomy slot, not yet built). Credentialing layer is the **deliberate strategic moat** (per Open Questions §7 resolution 2026-06-01). → `Open Questions §2 + §7 + §8`, `Cold-Start Playbook.md`
 
 ---
 

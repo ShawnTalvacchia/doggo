@@ -1,10 +1,22 @@
 ---
-status: planned
-last-reviewed: 2026-05-04
-review-trigger: When any task is completed or blocked, or new touchpoints are added
+status: archived
+last-reviewed: 2026-06-01
+review-trigger: archived — phase closed-without-completion 2026-06-01
 ---
 
 # Onboarding & In-Product Communication
+
+> **Closed-without-completion 2026-06-01 (lightweight close).** Phase was opened 2026-05-04 as pre-phase research while Pricing & Proposals was mid-flight; only V1.1 (privacy explainer page `/help/privacy` + lock-card wire-up at [`app/profile/[userId]/page.tsx:501`](../../app/profile/[userId]/page.tsx)) and V1.3 (Familiar asymmetry explainer card on `ProfileAboutTab` at [`components/profile/ProfileAboutTab.tsx:562`](../../components/profile/ProfileAboutTab.tsx)) actually shipped. **V1.2 (group visibility chip rewrites)** and **V1.4 (tier badge tooltips — partially obsolete since the tier system was retired in Discover Refinement 2026-05-10)** were never built.
+>
+> **Why closed without completion.** Too much core flow was still changing for tutorial work to invest in (V2 walker-trainer narrative, Carer Portfolio, Photos & Galleries, the four-service Care taxonomy + filter redesign all landed after this board was drafted). A future onboarding phase should re-scope against the current product state rather than resume this board verbatim — the V1.2 + V1.4 specs reference surfaces that may have moved.
+>
+> **What survives for a future onboarding phase.** The product decisions D1–D5 below + the V2-deferred list at the bottom are the reusable record. The deniability principle, the four touchpoint design pattern (trigger / surface / dismiss / copy), and the V1.1 privacy explainer page structure are the foundations a re-opened phase can build on.
+>
+> **Walkthrough.** Only V1.1.a + V1.1.b were walked (the privacy page renders + anchors work). The other walkthrough items are unverified.
+
+---
+
+## Original phase content
 
 **Goal:** Teach the trust model + tier system + privacy mechanics in-context, briefly, without lecturing — and without leaking anything that would break the deniability principle.
 

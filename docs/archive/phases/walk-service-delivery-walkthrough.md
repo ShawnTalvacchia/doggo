@@ -1,7 +1,7 @@
 ---
-status: active
-last-reviewed: 2026-05-20
-review-trigger: "Update as items are walked, edit as scope adjusts"
+status: archived
+last-reviewed: 2026-06-01
+review-trigger: archived — phase closed 2026-06-01 (walkthrough partially walked — A1–A3 + decisions log)
 ---
 
 # Walk Service Delivery — Walkthrough

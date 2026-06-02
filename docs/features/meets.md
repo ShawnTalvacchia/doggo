@@ -1,7 +1,7 @@
 ---
 category: feature
 status: active
-last-reviewed: 2026-05-17
+last-reviewed: 2026-06-01
 tags: [meets, groups, community, social]
 review-trigger: "when modifying meets, groups, group detail tabs, or meet discovery"
 ---
@@ -171,11 +171,11 @@ A meet can link to a carer's service. The full model — the four canonical conf
 
 **Required-link meet (booking = RSVP).** A Meet-type service linked with `required: true` — free RSVP collapses, booking is the only path onto the roster. The "About this service" card is a single tappable card (carer avatar · service title + description · **blue** price + caret) opening `BookSessionSheet`; the per-date Upcoming-dates rows carry a per-occurrence **Book** button as the quick path. (Klára's training meets — `meet-care-1`, `meet-care-workshop-1`, `meet-care-puppy-basics` — also carry the legacy `serviceCTA` field; the meet detail suppresses free RSVP whenever `serviceCTA` is present.)
 
-**Config #2 — free meet + drop-off Care service (book ≠ attend).** A *free* community walk can also advertise a drop-off **Care** service: an owner books the carer to walk their dog *without joining the walk themselves*. Two separate paths, never both on one occurrence — join free as a walker, or book the drop-off. `LinkedCareCallout` renders the callout ("Have {carer} walk your dog" — avatar · title + subline · blue price + caret), sitting *alongside* the intact free RSVP. Tapping it opens `DropoffBookingSheet`, which creates a Care `Booking` and does **not** add the owner to the roster. The booking carries `Booking.dropoffMeetId` back to the meet, so the booked occurrence's Upcoming-dates row shows a blue "Drop-off booked" pill (linking to the Care booking) in place of Join / Skip.
+**Config #2 — linked-care booking on a free meet (book ≠ attend).** A *free* community walk can also advertise a walks_checkins **Care** service: an owner books the carer to walk their dog *without joining the walk themselves*. Two separate paths, never both on one occurrence — join free as a walker, or book the carer. `LinkedCareCallout` renders the callout ("Have {carer} walk your dog" — avatar · title + subline · blue price + caret), sitting *alongside* the intact free RSVP. When the carer offers both delivery methods (pickup / drop-off — see [[explore-and-care]] → Walk Service Delivery), the price reads "From {floor} Kč" + caret; the picker inside the booking sheet is where the choice lands. Tapping it opens `LinkedWalkBookingSheet`, which creates a Care `Booking` and does **not** add the owner to the roster. The booking carries `Booking.dropoffMeetId` back to the meet (typed field name retained; user-facing copy uses "linked-care booking"), so the booked occurrence's Upcoming-dates row shows a blue **"Walk booked"** pill (linking to the Care booking) in place of Join / Skip.
 
 The required-link "About this service" card and the config #2 `LinkedCareCallout` share a layout — one family at two weights: the required card is blue-tinted (the meet's primary path), the config #2 callout is white with a blue accent (a secondary "or, instead" path).
 
-**Booking sheets** (`components/meets/`): `BookSessionSheet` (Meet-type services — creates a `Booking` with `meetBooking` set + adds to the roster) and `DropoffBookingSheet` (config #2 drop-off Care — creates a plain Care `Booking`, no roster). The legacy `ServiceBookingSheet` still serves `serviceCTA`-only meets with no resolvable linked service; it retires when `serviceCTA` is fully removed.
+**Booking sheets** (`components/meets/`): `BookSessionSheet` (Meet-type services — creates a `Booking` with `meetBooking` set + adds to the roster) and `LinkedWalkBookingSheet` (config #2 linked-care booking — creates a plain Care `Booking`, no roster; hosts the delivery picker when the carer offers both pickup + drop-off). The legacy `ServiceBookingSheet` still serves `serviceCTA`-only meets with no resolvable linked service; it retires when `serviceCTA` is fully removed.
 
 **Config #2 link authoring** — a meet-side surface for declaring which drop-off Care services run on a meet — is a scheduled follow-on (needs a meet-edit screen; `MeetComposer` is create-only). Links are seeded for now.
 

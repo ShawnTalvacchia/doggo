@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-05-08
+last-reviewed: 2026-05-27
 tags: [rules, workflow, css, conventions]
 review-trigger: "always — read before any working session"
 ---
@@ -51,7 +51,7 @@ Before marking a phase complete, work through the **Closing Checklist** on the p
 2. **Sweep the walkthrough's "Decisions surfaced" section.** This is a plain log — not a checklist. Every entry there represents an emergent decision that needs to land in a feature doc (or be explicitly marked "no doc update needed"). Process each one in order: update the named home doc per the `→` annotation, then check it off in the phase board's Closing Checklist (not in the walkthrough itself — the walkthrough entries stay as the historical record). **The walkthrough cannot be archived until every entry has been propagated.** This is the single biggest defense against feature-doc staleness — earlier phases shipped many decisions that never made it home, and this step plugs the gap going forward.
 3. **Update all affected feature docs.** Beyond what the Decisions section covers, scan for anything else the phase changed (component patterns, edge cases, copy conventions). The feature docs must reflect the new reality.
 4. **Update the Open Questions log.** Close any questions this phase resolved. Add any new ones that emerged.
-5. **Update ROADMAP.md.** Move the completed phase out of "Current Phase." Do NOT add a completion summary — the archived phase board is the record.
+5. **Update ROADMAP.md only if upcoming scope shifted.** Adjust the Upcoming Phases table if this phase's close changes what comes next (reordered, added, cut, re-scoped). Do NOT add a completion summary or a list of recent closes — the archived phase board is the record. The Roadmap tracks objectives and what's next, not what shipped.
 6. **Review CLAUDE.md.** If the phase changed navigation, key components, or project structure, update the project instructions.
 7. **Review Punch List changes.** Read completed items and change reports in `phases/punch-list.md` since the last phase close. Check if any completed fixes affected feature docs, design-system.md, or design-tokens.md — update anything that was missed.
 8. **Archive the phase board AND walkthrough.** Mark `status: archived` in the frontmatter on both, then `git mv docs/phases/<name>.md docs/archive/phases/` and the same for the walkthrough. Single atomic moves.

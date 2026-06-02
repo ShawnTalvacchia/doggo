@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-05-17
+last-reviewed: 2026-06-01
 tags: [design-system, components, patterns, css]
 review-trigger: "when building or refactoring components, adding CSS patterns, or consolidating styles"
 ---
@@ -95,7 +95,7 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 | `BookingModal` | Open-ended provider booking — service picker + date range + message + success flow |
 | `ServiceBookingSheet` | Lightweight "book this scheduled session" — pre-filled date/time/provider/price, optional message, confirm. **Legacy** — serves `serviceCTA`-only meets with no resolvable linked service; superseded by `BookSessionSheet` for the linkage model, retires when `serviceCTA` is removed. |
 | `BookSessionSheet` | Meet-type service booking (Service ↔ Meet Linkage) — occurrence picker across the service's linked meets; on confirm creates a `Booking` with `meetBooking` set + adds the owner to the meet roster. Reached from the carer's Services tab and a linked meet's detail page. |
-| `DropoffBookingSheet` | Config #2 drop-off Care booking — pick a date on a free meet's schedule, book the carer to walk your dog. Creates a plain Care `Booking` with `dropoffMeetId` set; does **not** add the owner to the roster (book ≠ attend). |
+| `LinkedWalkBookingSheet` | Config #2 linked-care booking — pick a date on a free meet's schedule, book the carer to walk your dog. Hosts the delivery picker (`MultiSelectSegmentBar`, pickup-default) when the walks_checkins service offers both methods; the chosen `delivery` and final price persist on the `Booking`. Creates a plain Care `Booking` with `dropoffMeetId` set; does **not** add the owner to the roster (book ≠ attend). Renamed from `DropoffBookingSheet` (Walk Service Delivery 2026-05-20). |
 
 ---
 

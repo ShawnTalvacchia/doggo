@@ -117,7 +117,7 @@ function LoggedNavLinks({ hideCreate = false }: { hideCreate?: boolean }) {
   );
 }
 
-const loggedRoutes = ["/home", "/communities", "/groups", "/activity", "/discover", "/meets", "/schedule", "/explore", "/inbox", "/notifications", "/bookings", "/profile", "/help"];
+const loggedRoutes = ["/home", "/communities", "/groups", "/activity", "/discover", "/meets", "/schedule", "/explore", "/inbox", "/notifications", "/bookings", "/profile", "/help", "/shelters", "/dogs"];
 
 function getPageTitle(pathname: string): string | null {
   if (pathname.startsWith("/discover/care")) return "Dog Care";

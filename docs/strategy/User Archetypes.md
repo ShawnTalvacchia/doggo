@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-16
+last-reviewed: 2026-06-01
 tags: [users, personas, trust, funnels]
 review-trigger: "when designing user-facing flows or onboarding"
 ---
@@ -321,6 +321,43 @@ Someone interested in offering dog-related services more regularly. Could be bui
 
 **Product behaviour**
 Has listed one or more services. Active profile with availability. May have started through the Casual Carer stage and found they enjoyed it. Building reviews and care history. Audience setting may still be "circle" (testing the waters with people they know) or freshly opened to "anyone" (just appearing in `/discover/care`). Still primarily an owner — their own dog is their main reason for being on the platform.
+
+---
+
+### The Shelter Walker
+
+*Different door, same destination — enters Doggo without a dog of their own*
+
+**Who they are**
+Someone who joined Doggo to walk shelter dogs, not to manage their own pet. Probably has volunteer energy, time on weekends, an apartment that won't allow a dog (or won't allow another one), or is rebuilding a relationship with dogs after losing one. Particularly relevant for expat-heavy Prague neighbourhoods where dog ownership is lower but volunteer energy is high.
+
+**Primary goals**
+
+- Spend time around dogs without the commitment of owning one
+- Help dogs who need it most
+- Feel competent — accumulate the standing to handle more dogs, more situations, over time
+- (Often unstated) Build a real-world social circle through the shelter community
+
+**Primary fears**
+
+- Being treated as undifferentiated free labor
+- Getting matched with a dog who's beyond their handling ability
+- Long-stayer dogs they grow attached to never finding homes
+- The platform turning their volunteering into a scoreboard
+
+**Trust threshold**
+
+- They trust the shelter's vouching gate (intro visit before the first walk). They trust the platform if it surfaces honest information about each dog (handling notes, recent behaviour) without flattening it into a "Book Now" funnel.
+
+**What success feels like**
+
+- Walking the same dog regularly enough to know their quirks
+- Earning the next tier (Vetted → Experienced → Trusted) through documented work, not gaming
+- A long-stayer they walked finally getting adopted, with the walker knowing they were part of why
+- Recognising other walkers in the park and at the shelter
+
+**Product behaviour**
+Enters via the shelter page (`/shelters/[id]`) rather than the owner-side flow. Profile may or may not have a dog (the dog isn't the entry point). Heavy engagement on a small set of specific dog profiles (`/dogs/[id]`). May develop into a Connector at the shelter community level — running walking sessions, mentoring new walkers, advocating for specific dogs. Some will eventually open their own care services if a dog enters their life. The Shelter Walker is the cold-start engine's natural complement to the Trainer-led Walks playbook — both seed real community participation without requiring dog ownership as the entry token. See [[Cold-Start Playbook]] → "Walker credentialing as a shelter trust layer" and [[features/shelters]].
 
 ---
 

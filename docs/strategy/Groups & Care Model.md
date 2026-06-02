@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-20
+last-reviewed: 2026-06-01
 tags: [groups, community, carers, care, navigation, demo]
 review-trigger: "when touching group features, Community tab, Care groups, care model, or demo planning"
 ---
@@ -355,6 +355,12 @@ A Carer's services have an audience setting that controls who can act on them �
 | `true` — "open to anyone" | Anyone (subject to Lock visibility — Locked profile narrows actionable viewers to those who can see the profile) | Yes |
 
 Composition with **Lock** (the profile-visibility setting from [[Trust & Connection Model]]) is documented at `features/profiles.md` → Lock + Carer audience: two settings, one role.
+
+### Group co-membership as a third visibility path (Demo Narrative V2, 2026-05-19)
+
+A `publicProfile: false` Carer's offering doesn't show up in `/discover/care` (audience = circle) and is gated by Connection on their profile's Services tab — both correct for "casual care between people who already know each other." But a fellow **private-group member** is a third class of "person who already knows you" — even if they're not 1:1 Connected. The "Care from neighbours" surface (`components/groups/GroupNeighbourCare.tsx`) lives on a private group's **Members tab** and lists members' circle-scoped Care offerings; **group co-membership grants the visibility** (not 1:1 Connection). Booking reuses `InquiryFormModal` — the same machinery as a marketplace Care booking.
+
+Why: the private-group mutual-care concept is "a closed circle of neighbours where members offer care to each other." Without this surface, a new member can be inside the circle but unable to see what their fellow members offer. The surface is **members-only** (guests / non-members don't see the section) and **scoped to non-Care groups** — Care groups foreground their providers via the hero instead.
 
 ### Individual Carers and Care groups are both first-class
 

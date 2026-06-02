@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { PawPrint, User, UsersThree, MapPin, Handshake, X } from "@phosphor-icons/react";
+import { PawPrint, User, UsersThree, MapPin, Handshake, Buildings, X } from "@phosphor-icons/react";
 import type { PostTag, PostTagType, UserProfile } from "@/lib/types";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { getConnectionsForViewer } from "@/lib/mockConnections";
@@ -16,6 +16,7 @@ const TYPE_ICONS: Record<PostTagType, typeof PawPrint> = {
   community: UsersThree,
   place: MapPin,
   meet: Handshake,
+  shelter: Buildings,
 };
 
 const TYPE_LABELS: Record<PostTagType, string> = {
@@ -24,6 +25,7 @@ const TYPE_LABELS: Record<PostTagType, string> = {
   community: "Communities",
   place: "Places",
   meet: "Meets",
+  shelter: "Shelters",
 };
 
 function getAllSearchableEntities(
@@ -167,7 +169,7 @@ export function TagAutocomplete({ selectedTags, onAddTag, onRemoveTag }: TagAuto
               marginTop: 4,
             }}
           >
-            {(["dog", "person", "community", "place", "meet"] as PostTagType[]).map((type) => {
+            {(["dog", "person", "community", "place", "meet", "shelter"] as PostTagType[]).map((type) => {
               const items = grouped.get(type);
               if (!items || items.length === 0) return null;
               const Icon = TYPE_ICONS[type];

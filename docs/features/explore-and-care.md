@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-20
+last-reviewed: 2026-06-01
 
 tags: [discover, care, booking, carers, map, payment, trust-gating]
 review-trigger: "when modifying Discover Care tab, Carer profiles, booking flows, payment, or map"
@@ -121,7 +121,7 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 - **Default selected = pickup.** Research-backed (most owners prefer pickup); pre-selecting the expected option means owners who deviate to drop-off see the price drop, which reads as a happy surprise rather than an upsell.
 - **Linked-care booking (config #2) renamed.** Internally `Booking.dropoffMeetId` stays as a stable field name; user-facing copy retires "drop-off" as the booking-shape label, in favour of "linked-care booking" (book ≠ attend). The previous overload — "drop-off" meant both the booking shape *and* a delivery method — caused a long-standing copy mess. Two axes are now explicit (see [[Groups & Care Model]] → "Two axes").
 - **Component rename.** `DropoffBookingSheet` → **`LinkedWalkBookingSheet`** (`components/meets/`). The sheet now hosts a delivery picker (when the carer offers both) above the date picker. Single-option services skip the picker. The confirmation step names the chosen method + price.
-- **`LinkedCareCallout`** on the free meet detail surfaces both delivery options inline with their prices when the carer offers both, or the single price otherwise. The previous "Drop-off — Klára takes your dog on this walk" prefix copy was retired.
+- **`LinkedCareCallout`** on the free meet detail shows "From {floor} Kč" + caret when the carer offers multiple delivery options — the picker inside the booking sheet is where the choice happens, so the card stays the affordance, not the catalogue. Single-option services show that one price. The previous "Drop-off — Klára takes your dog on this walk" prefix copy was retired.
 - **Meet occurrence pill on the meet detail page** now reads **"Walk booked"** (was "Drop-off booked") for dates the viewer has a linked-care booking on. The pill names the commitment, not the delivery method.
 - **`ScheduleCard`** now reads `Booking.delivery` for the operational hint on walks ("Pick up at Holešovice" / "Drop off at Stromovka") instead of inferring from `serviceType`. Non-walk Care bookings still infer from service shape. The one-off chip ("Drop-off" for one-off Care bookings) was renamed to **"One-off"** — the chip's actual meaning was always "single discrete event," not "drop-off."
 - **Booking detail page** surfaces the chosen delivery as a row in the details list, alongside schedule / pets / price.
@@ -133,7 +133,7 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 - **`klara-1on1` reclassified Meet → Appointment** (`appointmentCategory: "training"`) — 1-on-1 = solo + scheduled + no roster = Appointment per the §13 roster test. First seeded entry for the `"training"` Appointment variant.
 - **`Booking` extended for Meet-service bookings.** `serviceType` is now optional; a new `meetBooking: { serviceId, serviceTitle, meetId, occurrenceDate }` identifies a booking produced by a Meet-type service. Renderers branch on `meetBooking` first, then `serviceType` (`bookingServiceLabel` helper). These bookings show on `/bookings` as list rows routing to `/meets/{meetId}` — the meet IS the session detail, no Care-lifecycle booking-detail page.
 - **`Booking.dropoffMeetId`** — config #2 drop-off Care bookings carry a back-reference to the free meet they run on (book ≠ attend; no `meetBooking`, no roster entry). Lets the meet's Upcoming-dates row show a "Drop-off booked" pill. See [[meets]] → Service ↔ Meet linkage.
-- **Booking sheets:** `BookSessionSheet` (Meet-type — creates a `Booking` + adds to the meet roster via `setMeetRsvp`) and `DropoffBookingSheet` (config #2 drop-off Care — creates a plain Care `Booking`, no roster). Both reachable from the carer's Services tab and a linked meet's detail page.
+- **Booking sheets:** `BookSessionSheet` (Meet-type — creates a `Booking` + adds to the meet roster via `setMeetRsvp`) and `LinkedWalkBookingSheet` (config #2 linked-care booking — creates a plain Care `Booking`, no roster; renamed from `DropoffBookingSheet` in the Walk Service Delivery phase). Both reachable from the carer's Services tab and a linked meet's detail page.
 - **Soft-archive on service delete.** Deleting a Meet/Appointment service with active bookings soft-archives it (`enabled: false` + `softDeletedAt`) rather than hard-deleting; existing bookings keep resolving their service reference. `Booking` carries no `serviceId`, so "has active bookings" is proxied by the linked meet's roster. No-booking services hard-delete.
 - **`CarerCareServiceConfig.id?`** — set only when a Care service is meet-linked (config #2); resolved by `getServiceById`. `CarerMeetServiceConfig.seriesMeetId` (singular) retired in favour of `linkedMeetIds: string[]` (one-to-many).
 

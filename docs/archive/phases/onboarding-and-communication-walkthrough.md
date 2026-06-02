@@ -1,7 +1,7 @@
 ---
-status: active
-last-reviewed: 2026-05-04
-review-trigger: "Update as items are walked, edit as scope adjusts"
+status: archived
+last-reviewed: 2026-06-01
+review-trigger: archived — phase closed-without-completion 2026-06-01 (only V1.1.a + V1.1.b walked)
 ---
 
 # Onboarding & In-Product Communication — Walkthrough

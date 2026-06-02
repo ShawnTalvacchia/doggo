@@ -1,7 +1,7 @@
 ---
-status: active
-last-reviewed: 2026-05-19
-review-trigger: "Update as items are walked, edit as scope adjusts"
+status: archived
+last-reviewed: 2026-06-01
+review-trigger: archived — phase closed 2026-06-01 (walkthrough not walked through; decisions log propagated at close)
 ---
 
 # Demo Narrative V2 — Walkthrough

@@ -6,7 +6,20 @@ import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
 import { TagPillRow } from "@/components/posts/TagPill";
 import { getDogById, getUserById } from "@/lib/mockUsers";
 import { getGroupById } from "@/lib/mockGroups";
+import { getShelterById } from "@/lib/mockShelters";
 import type { Post, PostTag, PostReaction, PostComment } from "@/lib/types";
+
+/**
+ * Resolve where the author's name should link to. Posts can be authored
+ * by users (profile route), shelters (shelter detail), or directory-style
+ * walkers (no profile yet — return undefined so the name renders as plain
+ * text). Shelter Foundation, 2026-06-01.
+ */
+function resolveAuthorHref(authorId: string): string | undefined {
+  if (getShelterById(authorId)) return `/shelters/${authorId}`;
+  if (getUserById(authorId)) return `/profile/${authorId}`;
+  return undefined;
+}
 
 interface MomentCardProps {
   authorName: string;
@@ -128,7 +141,7 @@ export function MomentCard({
     <FeedCard
       authorName={authorName}
       authorAvatarUrl={authorAvatarUrl}
-      authorHref={`/profile/${authorId}`}
+      authorHref={resolveAuthorHref(authorId)}
       timestamp={createdAt}
       headerContext={headerContext}
       connectionContext={connectionContext}

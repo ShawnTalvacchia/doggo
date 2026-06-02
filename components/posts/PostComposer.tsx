@@ -8,6 +8,7 @@ import {
   User,
   UsersThree,
   Handshake,
+  Buildings,
   X,
   Plus,
   CaretRight,
@@ -53,13 +54,17 @@ const TAG_TYPE_ICON: Record<PostTagType, typeof MapPin> = {
   person: User,
   community: UsersThree,
   meet: Handshake,
+  shelter: Buildings,
 };
 
-/** Single-select types replace previous selection instead of accumulating */
-const SINGLE_SELECT_TYPES: Set<PostTagType> = new Set(["place", "meet"]);
+/** Single-select types replace previous selection instead of accumulating.
+ *  Shelter is single-select — a post belongs to one shelter context. */
+const SINGLE_SELECT_TYPES: Set<PostTagType> = new Set(["place", "meet", "shelter"]);
 
-/** Types that don't show suggestion pills in the header (context-dependent — will be wired during persona/flow building) */
-const NO_SUGGESTIONS: Set<PostTagType> = new Set(["community", "meet", "person"]);
+/** Types that don't show suggestion pills in the header (context-dependent — will be wired during persona/flow building).
+ *  Shelter tags are infrastructure for Photos & Galleries / walker journey work;
+ *  the V1 composer doesn't surface a shelter picker. */
+const NO_SUGGESTIONS: Set<PostTagType> = new Set(["community", "meet", "person", "shelter"]);
 
 const TAG_ROWS: { type: PostTagType; label: string }[] = [
   { type: "place", label: "Add location" },
@@ -93,6 +98,11 @@ function getEntitiesForType(type: PostTagType, currentUser: UserProfile): TagOpt
       return getUserMeets(currentUser.id).map((m) => ({
         type: "meet" as const, id: m.id, label: m.title,
       }));
+    case "shelter":
+      // Reserved infrastructure — composer doesn't surface a shelter
+      // picker in V1. Shelter tags are written elsewhere (walker journey,
+      // Photos & Galleries phase).
+      return [];
     default:
       return [];
   }

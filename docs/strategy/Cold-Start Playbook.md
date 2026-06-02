@@ -1,16 +1,16 @@
 ---
 category: strategy
 status: draft
-last-reviewed: 2026-05-16
+last-reviewed: 2026-06-01
 tags: [cold-start, trainers, shelter, foster, community, account-types, credentialing, future]
 review-trigger: "before any phase touching cold-start, monetization, account types, or category strategy"
 ---
 
 # Cold-Start Playbook
 
-> **Status.** Pre-roadmap exploration. Not active product work; not part of the demo. Documents the strategic threads that would inform a future cold-start phase, pending real conversations with Prague trainers and shelters before any product commitments.
+> **Status.** Mixed. The **shelter angle** has graduated from exploration into active product work — the Shelter Foundation phase opened 2026-06-01 and lands Útulek Liběň in the demo. The **trainer-led walks playbook** and the **credentialing moat** threads remain pre-roadmap exploration pending real conversations in Prague; both will be carried forward by the merged Carer Portfolio + Shelter Walker Credentialing phase when it opens.
 
-**TL;DR.** Doggo has a chicken-and-egg problem: a community-first dog-care platform has no value until other dog people are on it. Three threads — paid trainer partnerships, shelter dog walks, and Doggo-as-credentialing-layer — converge on a single playbook: **seed activity with paid trainers leading public walks (with shelter dogs as always-on inventory), use those walks to onboard organic users into hosting their own meets, and accrue trust infrastructure that becomes the platform's moat in a market with no existing credentialing layer.** Not for the demo. The next concrete step is real conversations in Prague — partnerships with 2-3 anchor trainers + 1-2 shelter orgs.
+**TL;DR.** Doggo has a chicken-and-egg problem: a community-first dog-care platform has no value until other dog people are on it. Three threads — paid trainer partnerships, shelter dog walks, and Doggo-as-credentialing-layer — converge on a single playbook: **seed activity with paid trainers leading public walks (with shelter dogs as always-on inventory), use those walks to onboard organic users into hosting their own meets, and accrue trust infrastructure that becomes the platform's moat in a market with no existing credentialing layer.** The shelter side is now in the demo; the trainer and credentialing threads still need real Prague conversations — partnerships with 2-3 anchor trainers + 1-2 shelter orgs — before further product commitments.
 
 ---
 
