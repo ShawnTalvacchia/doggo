@@ -149,7 +149,9 @@ function DogProfileInner() {
                       ? `${dog.daysInKennel} ${dog.daysInKennel === 1 ? "day" : "days"}`
                       : "Just arrived"
                   }
-                  subline={isLongStayer ? "Long-stayer" : undefined}
+                  /* Long-stayer subline removed — it duplicated the
+                     "Long-stayer" chip in the tag row below. Keep both
+                     stat columns at two rows for visual parity. */
                 />
                 <DogStatTile
                   icon={<PawPrint size={12} weight="light" />}
