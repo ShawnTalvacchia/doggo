@@ -3,9 +3,9 @@
   "configurations": [
     {
       "name": "doggo-dev",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "cwd": ".",
+      "runtimeExecutable": "/bin/bash",
+      "runtimeArgs": ["-c", "cd /Users/shawntalvacchia/Desktop/Doggo && export PATH=\"/Users/shawntalvacchia/.nvm/versions/node/v22.22.3/bin:$PATH\" && exec npm run dev"],
+      "cwd": "/Users/shawntalvacchia/Desktop/Doggo",
       "port": 3000,
       "autoPort": true
     }
