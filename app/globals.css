@@ -3446,7 +3446,12 @@ body.guest-route {
   align-items: center;
   padding: 4px 14px;
   font-family: var(--font-body);
-  font-size: var(--font-size-body-sm);
+  /* `--font-size-body-sm` is not a real token (see MEMORY.md font-size
+     aliases note). Was silently inheriting from the parent — fine on
+     the meet detail page where the surrounding font-size happened to
+     match, broken on shelter Dogs/Members where the parent's text
+     scaled up. Fixed to use the real `--text-sm` token. */
+  font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   border-radius: var(--radius-pill);
   border: 1px solid var(--border-regular);
