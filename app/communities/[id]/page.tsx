@@ -330,8 +330,12 @@ function GroupDetailInner() {
 
   return (
     <div className="group-detail-page">
-      {/* ── Header (above panel on desktop, becomes mobile top bar) ── */}
-      <DetailHeader backLabel="Back" title={group.name} rightAction={headerAction} />
+      {/* ── Header (above panel on desktop, becomes mobile top bar) ──
+           Back-as-hierarchy: goes up to /home (or / for guests). Tour
+           mode's "step backward" affordance lives in the mobile
+           setDetailHeader callback above; the desktop inline header
+           always walks up the tree. */}
+      <DetailHeader backLabel="Back" title={group.name} rightAction={headerAction} backHref={isGuest ? "/" : "/home"} />
 
       {/* ── Panel (rounded card container) ── */}
       <div className="group-detail-panel">

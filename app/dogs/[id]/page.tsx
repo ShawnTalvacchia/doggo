@@ -41,14 +41,18 @@ function DogProfileInner() {
   const dogId = params.id as string;
   const resolved = getShelterDog(dogId);
 
+  // Back-as-hierarchy: shelter dogs go up to their shelter's Dogs tab,
+  // unknown dogs (or owned dogs once their profile lands) go to /home.
+  // Deliberately not using router.back() — back should walk the tree,
+  // not the navigation history.
+  const parentHref = resolved
+    ? `/shelters/${resolved.shelter.id}?tab=dogs`
+    : "/home";
+
   useEffect(() => {
-    if (!resolved) {
-      setDetailHeader("Dog", () => router.back());
-    } else {
-      setDetailHeader(resolved.dog.name, () => router.back());
-    }
+    setDetailHeader(resolved?.dog.name ?? "Dog", () => router.push(parentHref));
     return () => clearDetailHeader();
-  }, [resolved?.dog.name]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [resolved?.dog.name, parentHref]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Unknown dog — gracefully degrades for owned-dog tags whose profile
   // route doesn't ship until the Dog Profile phase. NOT a 404 — the route
@@ -56,7 +60,7 @@ function DogProfileInner() {
   if (!resolved) {
     return (
       <div className="dog-profile-page">
-        <DetailHeader backLabel="Back" title="Dog" />
+        <DetailHeader backLabel="Back" title="Dog" backHref={parentHref} />
         <div className="dog-profile-panel">
           <div className="dog-profile-body">
             <div className="px-lg py-xl">
@@ -101,7 +105,7 @@ function DogProfileInner() {
 
   return (
     <div className="dog-profile-page">
-      <DetailHeader backLabel="Back" title={dog.name} />
+      <DetailHeader backLabel="Back" title={dog.name} backHref={parentHref} />
       <div className="dog-profile-panel">
         <div className="dog-profile-body">
           {/* Pet-as-protagonist hero — full-width photo, name overlay.

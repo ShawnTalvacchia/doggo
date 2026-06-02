@@ -445,14 +445,19 @@ function MeetDetailInner() {
     </ButtonAction>
   ) : undefined;
 
-  // Feed detail header into AppNav on mobile. Guests don't have a /home to
-  // fall back to — `router.back()` is fine for in-app navigation, but on a
-  // fresh entry (e.g. a copy-pasted meet link with `?guest=1`) browser history
-  // is shallow and back may exit the app. Acceptable for prototype.
+  // Back-as-hierarchy: meets attached to a group walk back to that
+  // group's Meets tab; standalone meets walk to /schedule (the only
+  // surface that lists ungrouped meets a viewer might own).
+  const parentHref = meet.groupId
+    ? `/communities/${meet.groupId}?tab=meets`
+    : isGuest
+    ? "/"
+    : "/schedule";
+
   useEffect(() => {
-    setDetailHeader(meet.title, () => router.back(), headerAction);
+    setDetailHeader(meet.title, () => router.push(parentHref), headerAction);
     return () => clearDetailHeader();
-  }, [meet.title, activeTab, isGuest]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [meet.title, activeTab, isGuest, parentHref]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTabChange = (key: string) => {
     if (key === "details") {
@@ -464,7 +469,7 @@ function MeetDetailInner() {
 
   return (
     <div className="meet-detail-page">
-      <DetailHeader backLabel="Back" title={meet.title} rightAction={headerAction} />
+      <DetailHeader backLabel="Back" title={meet.title} rightAction={headerAction} backHref={parentHref} />
 
       <div className="meet-detail-panel">
         <div className={`meet-detail-body${activeTab === "chat" ? " meet-detail-body--chat" : ""}`}>

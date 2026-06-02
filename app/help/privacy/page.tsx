@@ -77,14 +77,16 @@ export default function PrivacyExplainerPage() {
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
 
   useEffect(() => {
-    setDetailHeader("How privacy works", () => router.back());
+    // Back-as-hierarchy: /help/privacy has no parent index, so back
+    // goes to /home (the global up-a-level for help articles).
+    setDetailHeader("How privacy works", () => router.push("/home"));
     return () => clearDetailHeader();
   }, [setDetailHeader, clearDetailHeader, router]);
 
   return (
     <PageColumn
       hideHeader
-      abovePanel={<DetailHeader title="How privacy works" />}
+      abovePanel={<DetailHeader title="How privacy works" backHref="/home" />}
     >
       <div
         className="page-column-panel-body"

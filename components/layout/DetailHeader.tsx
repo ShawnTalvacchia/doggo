@@ -5,8 +5,16 @@ import { useRouter } from "next/navigation";
 import { CaretLeft } from "@phosphor-icons/react";
 
 interface DetailHeaderProps {
-  /** Fixed back destination. If omitted, uses router.back() */
+  /** Fixed back destination. Preferred over `onBack` and `router.back()`.
+   *  Pages should set this to the up-a-level route (back-as-hierarchy);
+   *  detail pages always sit under a parent surface, so back should walk
+   *  the tree, not the navigation history. */
   backHref?: string;
+  /** Custom back handler. Used when the parent route is conditional
+   *  (e.g. tour mode wants to step backward, not jump up a level).
+   *  Takes precedence over the default `router.back()` fallback when
+   *  `backHref` isn't set. */
+  onBack?: () => void;
   /** Label shown next to back arrow. Defaults to "Back" */
   backLabel?: string;
   /** Page title shown next to the back arrow (optional) */
@@ -20,6 +28,7 @@ interface DetailHeaderProps {
 
 export function DetailHeader({
   backHref,
+  onBack,
   backLabel = "Back",
   title,
   rightAction,
@@ -27,7 +36,9 @@ export function DetailHeader({
 }: DetailHeaderProps) {
   const router = useRouter();
 
-  const handleBack = () => router.back();
+  // router.back() is the last-resort fallback. Prefer `backHref` (up
+  // the tree) or `onBack` (custom hierarchy logic) on every page.
+  const handleBack = onBack ?? (() => router.back());
 
   // Arrow + (optional avatar) + label/title are all one click target
   const backContent = (

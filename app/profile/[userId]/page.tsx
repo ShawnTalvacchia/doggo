@@ -334,17 +334,15 @@ function UserProfileInner() {
     <DefaultAvatar name={firstName} size={28} />
   );
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
+  // Back-as-hierarchy: someone else's profile goes up to /home (or / for
+  // guests). Used to fall back to router.back() when history was deep
+  // enough, but that broke the "back walks the tree, not the history"
+  // model.
+  const parentHref = isGuest ? "/" : "/home";
   useEffect(() => {
     setDetailHeader(
       headerName,
-      () => {
-        if (window.history.length > 1) {
-          router.back();
-          return;
-        }
-        // Guests don't have a /home to fall back to.
-        router.replace(isGuest ? "/" : "/home");
-      },
+      () => router.replace(parentHref),
       undefined,
       headerAvatar,
     );
@@ -360,7 +358,7 @@ function UserProfileInner() {
   if (isSelf) return null;
 
   return (
-    <PageColumn hideHeader abovePanel={<DetailHeader title={headerName} leadingAvatar={headerAvatar} />}>
+    <PageColumn hideHeader abovePanel={<DetailHeader title={headerName} leadingAvatar={headerAvatar} backHref={parentHref} />}>
       <div className={`page-column-panel-body${activeTab === "chat" ? " page-column-panel-body--no-scroll" : ""}`}>
 
         {/* Tabs — hidden for locked profiles */}
