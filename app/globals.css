@@ -14520,10 +14520,15 @@ a.shelter-intro-social:hover {
 
 /* Yellow-tinted glass — semantically "in progress / pending". Picked
    over a light brand-green tint so it reads distinctly from New
-   arrival (which IS brand-green) at a glance. */
+   arrival (which IS brand-green) at a glance.
+   Alpha needs to sit high enough that yellow dominates regardless of
+   the photo behind (green leaves at low alpha turned the chip muddy).
+   Text uses warning-850 — a deep amber-brown — for maximum contrast
+   against yellow; warning-strong didn't have enough contrast space. */
 .shelter-dog-card-chip--pending {
-  background: rgba(255, 201, 54, 0.4); /* var(--warning-500) with alpha */
-  color: var(--status-warning-strong);
+  background: rgba(255, 201, 54, 0.75); /* var(--warning-500) at 0.75 alpha */
+  color: var(--warning-850); /* #372800 deep amber-brown */
+  border-color: rgba(222, 171, 38, 0.45); /* warning-600 tinted border */
 }
 
 /* Event tier — solid brand fill, no glass. Strongest visual treatment
