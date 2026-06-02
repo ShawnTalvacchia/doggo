@@ -142,7 +142,7 @@ function DogProfileInner() {
             {showCareStats && (
               <div className="dog-profile-stats">
                 <DogStatTile
-                  icon={<Clock size={16} weight="light" />}
+                  icon={<Clock size={12} weight="light" />}
                   label="In care"
                   value={
                     dog.daysInKennel != null
@@ -152,7 +152,7 @@ function DogProfileInner() {
                   subline={isLongStayer ? "Long-stayer" : undefined}
                 />
                 <DogStatTile
-                  icon={<PawPrint size={16} weight="light" />}
+                  icon={<PawPrint size={12} weight="light" />}
                   label="Last walked"
                   value={dog.lastWalkedAt ? formatRelativeDay(dog.lastWalkedAt) : "Not yet"}
                 />
@@ -229,12 +229,12 @@ function DogStatTile({
 }) {
   return (
     <div className="dog-profile-stat">
-      <div className="dog-profile-stat-icon">{icon}</div>
-      <div className="flex flex-col gap-tiny min-w-0">
-        <span className="text-xs text-fg-tertiary">{label}</span>
-        <span className="text-sm font-semibold text-fg-primary">{value}</span>
-        {subline && <span className="text-xs text-warning-strong">{subline}</span>}
+      <div className="dog-profile-stat-header">
+        <span className="dog-profile-stat-icon" aria-hidden="true">{icon}</span>
+        <span className="dog-profile-stat-label">{label}</span>
       </div>
+      <div className="dog-profile-stat-value">{value}</div>
+      {subline && <div className="dog-profile-stat-subline">{subline}</div>}
     </div>
   );
 }
