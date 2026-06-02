@@ -14480,11 +14480,14 @@ a.shelter-intro-social:hover {
   background-position: center;
 }
 
-/* Auto-derived chip overlaid on the photo. Three tones, one shown at a
-   time, picked by priority (pending > new > long > none). Solid
-   background + subtle shadow for clean separation from the photo —
-   skips backdrop-filter because the partial-transparency rendering it
-   produced read as broken at small sizes. */
+/* Auto-derived chip overlaid on the photo. Three tones, picked by
+   priority (pending > new > long > none).
+   Visual hierarchy:
+   - Long-stayer + Adoption pending → glass (translucent fill + backdrop
+     blur). Passive/observational signals; stay subtle so they don't
+     overpower the photo or compete with the card's title row below.
+   - New arrival → solid brand fill. The event/celebration chip — meant
+     to stand out, gets the strongest treatment. */
 .shelter-dog-card-chip {
   position: absolute;
   top: var(--space-sm);
@@ -14497,22 +14500,39 @@ a.shelter-intro-social:hover {
   font-weight: 600;
   line-height: 1.2;
   white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
 }
 
+/* Glass tier — translucent fill, backdrop blur, soft border. The blur
+   creates legible separation from any photo behind it without a hard
+   opaque background. */
+.shelter-dog-card-chip--long,
 .shelter-dog-card-chip--pending {
-  background: var(--info-strong);
-  color: #fff;
-}
-
-.shelter-dog-card-chip--new {
-  background: var(--brand-strong);
-  color: #fff;
+  backdrop-filter: blur(10px) saturate(140%);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .shelter-dog-card-chip--long {
-  background: #fff;
+  background: rgba(255, 255, 255, 0.45);
   color: var(--text-primary);
+}
+
+/* Yellow-tinted glass — semantically "in progress / pending". Picked
+   over a light brand-green tint so it reads distinctly from New
+   arrival (which IS brand-green) at a glance. */
+.shelter-dog-card-chip--pending {
+  background: rgba(255, 201, 54, 0.4); /* var(--warning-500) with alpha */
+  color: var(--status-warning-strong);
+}
+
+/* Event tier — solid brand fill, no glass. Strongest visual treatment
+   because "a new dog arrived" is a celebration moment, not an
+   observation. */
+.shelter-dog-card-chip--new {
+  background: var(--brand-strong);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .shelter-dog-card-body {
