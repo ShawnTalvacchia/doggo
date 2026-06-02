@@ -10,7 +10,6 @@ import {
   Images,
   Heart,
   Clock,
-  ShieldCheck,
   PawPrint,
   CaretRight,
   CaretDown,
@@ -137,10 +136,17 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
   const [followMenuOpen, setFollowMenuOpen] = useState(false);
   const [walkerMenuOpen, setWalkerMenuOpen] = useState(false);
 
+  // Order mirrors the community-detail Feed: banner → title + bio →
+  // primary "what's the special thing about this surface" card
+  // (community uses the provider card; we use the dogs-in-care summary)
+  // → consolidated meta row → socials → action buttons → posts.
   return (
     <div className="shelter-feed">
       <ShelterBanner shelter={shelter} />
       <ShelterIntro shelter={shelter} />
+      <DogsInCareSummaryCard shelter={shelter} />
+      <ShelterMetaRow shelter={shelter} />
+      <ShelterSocialsRow shelter={shelter} />
       <ShelterActionRow
         isFollowing={isFollowing}
         walkerInterestSent={walkerInterestSent}
@@ -163,7 +169,6 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
           setWalkerMenuOpen(false);
         }}
       />
-      <DogsInCareSummaryCard shelter={shelter} />
 
       {posts.length === 0 ? (
         <div className="px-lg py-xl">
@@ -206,86 +211,87 @@ function ShelterBanner({ shelter }: { shelter: ShelterProfile }) {
 }
 
 function ShelterIntro({ shelter }: { shelter: ShelterProfile }) {
-  const teamCount = shelter.team?.length ?? 0;
-  const runBy = teamCount > 0
-    ? `Run by ${teamCount} ${teamCount === 1 ? "team member" : "team members"}`
-    : `Run by the ${shelter.name} team`;
-  const policyNote = shelter.policy.groupWalksPermitted === false
-    ? "Solo walks only. Even our calmest dogs do best one-on-one."
-    : null;
-
   return (
     <div className="shelter-intro">
       <h1 className="shelter-intro-name">{shelter.name}</h1>
-      <div className="shelter-intro-location">
+      <p className="shelter-intro-bio">{shelter.bio}</p>
+    </div>
+  );
+}
+
+/**
+ * Single-row icon-prefixed meta. Mirrors the community page's
+ * "📍 location · 👥 N members · 6 dogs · 📷 Photos encouraged" pattern.
+ * We drop "Run by team" (redundant with the institutional account model
+ * when no staff are linked) and "Solo walks only" (already on each dog
+ * card and in the Walk-a-dog sheet's vouching note).
+ */
+function ShelterMetaRow({ shelter }: { shelter: ShelterProfile }) {
+  return (
+    <div className="shelter-meta-row">
+      <span className="shelter-meta-item">
         <MapPin size={14} weight="light" />
         <span>{shelter.location}</span>
-      </div>
+      </span>
+      <span className="shelter-meta-item">
+        <Users size={14} weight="light" />
+        <span>
+          {shelter.walkers.length} walkers, {shelter.supporters.length} supporters
+        </span>
+      </span>
+      {shelter.establishedYear && (
+        <span className="shelter-meta-item">
+          <Clock size={14} weight="light" />
+          <span>since {shelter.establishedYear}</span>
+        </span>
+      )}
+    </div>
+  );
+}
 
-      <p className="shelter-intro-bio">{shelter.bio}</p>
-
-      <div className="shelter-intro-meta">
-        <div className="shelter-intro-meta-row">
-          <Users size={14} weight="light" />
-          <span>{runBy}</span>
-        </div>
-        {shelter.establishedYear && (
-          <div className="shelter-intro-meta-row">
-            <Clock size={14} weight="light" />
-            <span>Caring for dogs since {shelter.establishedYear}</span>
-          </div>
-        )}
-        {policyNote && (
-          <div className="shelter-intro-meta-row">
-            <ShieldCheck size={14} weight="light" />
-            <span>{policyNote}</span>
-          </div>
-        )}
-      </div>
-
-      {(shelter.website || shelter.socialLinks) && (
-        <div className="shelter-intro-socials" aria-label="Shelter links">
-          {shelter.website && (
-            <a
-              href={`https://${shelter.website}`}
-              target="_blank"
-              rel="noreferrer"
-              className="shelter-intro-social"
-              aria-label={`Website: ${shelter.website}`}
-              title={shelter.website}
-            >
-              <Globe size={16} weight="light" />
-            </a>
-          )}
-          {shelter.socialLinks?.facebook && (
-            <span
-              className="shelter-intro-social"
-              aria-label={`Facebook: ${shelter.socialLinks.facebook}`}
-              title={shelter.socialLinks.facebook}
-            >
-              <FacebookLogo size={16} weight="light" />
-            </span>
-          )}
-          {shelter.socialLinks?.instagram && (
-            <span
-              className="shelter-intro-social"
-              aria-label={`Instagram: ${shelter.socialLinks.instagram}`}
-              title={shelter.socialLinks.instagram}
-            >
-              <InstagramLogo size={16} weight="light" />
-            </span>
-          )}
-          {shelter.socialLinks?.email && (
-            <a
-              href={`mailto:${shelter.socialLinks.email}`}
-              className="shelter-intro-social"
-              aria-label={`Email: ${shelter.socialLinks.email}`}
-              title={shelter.socialLinks.email}
-            >
-              <Envelope size={16} weight="light" />
-            </a>
-          )}
-        </div>
+function ShelterSocialsRow({ shelter }: { shelter: ShelterProfile }) {
+  if (!shelter.website && !shelter.socialLinks) return null;
+  return (
+    <div className="shelter-intro-socials" aria-label="Shelter links">
+      {shelter.website && (
+        <a
+          href={`https://${shelter.website}`}
+          target="_blank"
+          rel="noreferrer"
+          className="shelter-intro-social"
+          aria-label={`Website: ${shelter.website}`}
+          title={shelter.website}
+        >
+          <Globe size={16} weight="light" />
+        </a>
+      )}
+      {shelter.socialLinks?.facebook && (
+        <span
+          className="shelter-intro-social"
+          aria-label={`Facebook: ${shelter.socialLinks.facebook}`}
+          title={shelter.socialLinks.facebook}
+        >
+          <FacebookLogo size={16} weight="light" />
+        </span>
+      )}
+      {shelter.socialLinks?.instagram && (
+        <span
+          className="shelter-intro-social"
+          aria-label={`Instagram: ${shelter.socialLinks.instagram}`}
+          title={shelter.socialLinks.instagram}
+        >
+          <InstagramLogo size={16} weight="light" />
+        </span>
+      )}
+      {shelter.socialLinks?.email && (
+        <a
+          href={`mailto:${shelter.socialLinks.email}`}
+          className="shelter-intro-social"
+          aria-label={`Email: ${shelter.socialLinks.email}`}
+          title={shelter.socialLinks.email}
+        >
+          <Envelope size={16} weight="light" />
+        </a>
       )}
     </div>
   );
