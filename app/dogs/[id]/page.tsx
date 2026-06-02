@@ -63,7 +63,7 @@ function DogProfileInner() {
               <EmptyState
                 icon={<PawPrint size={32} weight="light" />}
                 title="Dog profile coming soon"
-                subtitle="Owned-dog profiles arrive with the Dog Profile phase. Shelter dogs are already live — try the Útulek Liběň roster."
+                subtitle="Owned-dog profiles arrive with the Dog Profile phase. Shelter dogs are already live. Try the Útulek Liběň roster."
                 action={
                   <ButtonAction
                     variant="secondary"

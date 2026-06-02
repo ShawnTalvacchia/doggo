@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Heart, ChatCircle, PaperPlaneTilt, HandHeart, Star } from "@phosphor-icons/react";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import { CommentThread } from "./CommentThread";
 import type { PostReaction, PostComment } from "@/lib/types";
 
@@ -80,17 +81,24 @@ export function FeedCard({
   }
 
   /* ── Threads-style layout: avatar + two-row header, then content ── */
-  if (authorName && authorAvatarUrl) {
+  // Authors without an avatar URL (e.g. directory-style shelter walkers) still
+  // get the full layout — we render initials via DefaultAvatar instead of
+  // falling through to the no-author fallback.
+  if (authorName) {
     return (
       <article className="feed-card">
         <div className="feed-card-body">
           {/* Left column: avatar */}
           <div className="feed-card-col-avatar">
-            <img
-              src={authorAvatarUrl}
-              alt={authorName}
-              className="feed-card-avatar"
-            />
+            {authorAvatarUrl ? (
+              <img
+                src={authorAvatarUrl}
+                alt={authorName}
+                className="feed-card-avatar"
+              />
+            ) : (
+              <DefaultAvatar name={authorName} size={40} className="feed-card-avatar" />
+            )}
           </div>
 
           {/* Right column: header + content */}

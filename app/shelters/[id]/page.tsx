@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   MapPin,
-  Buildings,
   Dog,
   Users,
   Images,
@@ -14,6 +13,8 @@ import {
   ShieldCheck,
   PawPrint,
   CaretRight,
+  CaretDown,
+  Check,
   Globe,
   FacebookLogo,
   InstagramLogo,
@@ -25,6 +26,7 @@ import { Spacer } from "@/components/layout/Spacer";
 import { FilterPillRow } from "@/components/ui/FilterPillRow";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { ShelterDogCard } from "@/components/shelters/ShelterDogCard";
 import { ShelterMemberRow } from "@/components/shelters/ShelterMemberRow";
@@ -38,7 +40,6 @@ import {
 } from "@/lib/mockShelters";
 import type {
   PetProfile,
-  Post,
   ShelterProfile,
   ShelterSupporter,
   ShelterWalker,
@@ -75,7 +76,7 @@ function ShelterDetailInner() {
   const visibleKeys = new Set(tabs.map((t) => t.key));
   const activeTab = visibleKeys.has(rawActiveTab) ? rawActiveTab : "feed";
 
-  // Mobile detail header — back goes to home (no /shelters list view yet).
+  // Mobile detail header. Back goes to home (no /shelters list view yet).
   useEffect(() => {
     if (!shelter) return;
     setDetailHeader(shelter.name, () => router.push("/home"));
@@ -107,10 +108,9 @@ function ShelterDetailInner() {
 
       <div className="shelter-detail-panel">
         <div className="shelter-detail-body">
-          {/* Banner + info chrome — only on Feed tab (mirrors profile pattern
-              where the hero collapses on sub-tabs to give content room). */}
-          {activeTab === "feed" && <ShelterHero shelter={shelter} />}
-
+          {/* Tabs are sticky at the top of the scrollable body. Mirrors the
+              community-detail pattern: tabs always accessible, hero scrolls
+              away inside the Feed tab, no banner-jump between tabs. */}
           <div className="detail-tabs detail-tabs--fill">
             <TabBar tabs={tabs} activeKey={activeTab} onChange={handleTabChange} />
           </div>
@@ -127,49 +127,46 @@ function ShelterDetailInner() {
   );
 }
 
-/* ── Hero (banner + logo + name + location) ────────────────────────── */
-
-function ShelterHero({ shelter }: { shelter: ShelterProfile }) {
-  return (
-    <>
-      <div
-        className="shelter-detail-banner"
-        style={{ backgroundImage: shelter.bannerUrl ? `url(${shelter.bannerUrl})` : undefined }}
-      />
-      <div className="shelter-detail-info">
-        <div className="shelter-detail-avatar-row">
-          <img
-            src={shelter.logoUrl}
-            alt={shelter.name}
-            className="shelter-detail-avatar"
-          />
-          <div className="flex flex-col gap-xxs">
-            <h1 className="text-2xl font-semibold text-fg-primary m-0" style={{ fontFamily: "var(--font-heading)" }}>
-              {shelter.name}
-            </h1>
-            <div className="flex items-center gap-xs text-sm text-fg-tertiary">
-              <MapPin size={14} weight="light" />
-              <span>{shelter.location}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
 /* ── Feed tab ──────────────────────────────────────────────────────── */
 
 function FeedTab({ shelter }: { shelter: ShelterProfile }) {
   const posts = getShelterFeed(shelter);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [walkerInterestSent, setWalkerInterestSent] = useState(false);
+  const [walkSheetOpen, setWalkSheetOpen] = useState(false);
+  const [followMenuOpen, setFollowMenuOpen] = useState(false);
+  const [walkerMenuOpen, setWalkerMenuOpen] = useState(false);
 
   return (
     <div className="shelter-feed">
-      <ShelterInfoCard shelter={shelter} />
+      <ShelterBanner shelter={shelter} />
+      <ShelterIntro shelter={shelter} />
+      <ShelterActionRow
+        isFollowing={isFollowing}
+        walkerInterestSent={walkerInterestSent}
+        followMenuOpen={followMenuOpen}
+        walkerMenuOpen={walkerMenuOpen}
+        onToggleFollow={() => {
+          if (isFollowing) setFollowMenuOpen((v) => !v);
+          else setIsFollowing(true);
+        }}
+        onUnfollow={() => {
+          setIsFollowing(false);
+          setFollowMenuOpen(false);
+        }}
+        onToggleWalker={() => {
+          if (walkerInterestSent) setWalkerMenuOpen((v) => !v);
+          else setWalkSheetOpen(true);
+        }}
+        onWithdrawInterest={() => {
+          setWalkerInterestSent(false);
+          setWalkerMenuOpen(false);
+        }}
+      />
       <DogsInCareSummaryCard shelter={shelter} />
 
       {posts.length === 0 ? (
-        <div className="px-lg pb-lg">
+        <div className="px-lg py-xl">
           <EmptyState
             icon={<PawPrint size={32} weight="light" />}
             title="No posts yet"
@@ -183,69 +180,110 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
           ))}
         </div>
       )}
+
+      <WalkInterestSheet
+        open={walkSheetOpen}
+        shelter={shelter}
+        onClose={() => setWalkSheetOpen(false)}
+        onConfirm={() => {
+          setWalkerInterestSent(true);
+          setWalkSheetOpen(false);
+        }}
+      />
     </div>
   );
 }
 
-function ShelterInfoCard({ shelter }: { shelter: ShelterProfile }) {
+/* ── Hero pieces ───────────────────────────────────────────────────── */
+
+function ShelterBanner({ shelter }: { shelter: ShelterProfile }) {
+  return (
+    <div
+      className="shelter-detail-banner"
+      style={{ backgroundImage: shelter.bannerUrl ? `url(${shelter.bannerUrl})` : undefined }}
+    />
+  );
+}
+
+function ShelterIntro({ shelter }: { shelter: ShelterProfile }) {
   const teamCount = shelter.team?.length ?? 0;
   const runBy = teamCount > 0
     ? `Run by ${teamCount} ${teamCount === 1 ? "team member" : "team members"}`
     : `Run by the ${shelter.name} team`;
+  const policyNote = shelter.policy.groupWalksPermitted === false
+    ? "Solo walks only. Even our calmest dogs do best one-on-one."
+    : null;
 
   return (
-    <div className="shelter-info-card">
-      <p className="shelter-info-bio">{shelter.bio}</p>
+    <div className="shelter-intro">
+      <h1 className="shelter-intro-name">{shelter.name}</h1>
+      <div className="shelter-intro-location">
+        <MapPin size={14} weight="light" />
+        <span>{shelter.location}</span>
+      </div>
 
-      <div className="shelter-info-meta">
-        <div className="shelter-info-meta-row">
+      <p className="shelter-intro-bio">{shelter.bio}</p>
+
+      <div className="shelter-intro-meta">
+        <div className="shelter-intro-meta-row">
           <Users size={14} weight="light" />
           <span>{runBy}</span>
         </div>
         {shelter.establishedYear && (
-          <div className="shelter-info-meta-row">
+          <div className="shelter-intro-meta-row">
             <Clock size={14} weight="light" />
             <span>Caring for dogs since {shelter.establishedYear}</span>
           </div>
         )}
-        {shelter.policy.groupWalksPermitted === false && (
-          <div className="shelter-info-meta-row">
+        {policyNote && (
+          <div className="shelter-intro-meta-row">
             <ShieldCheck size={14} weight="light" />
-            <span>Solo walks only — even our calmest dogs do best one-on-one.</span>
+            <span>{policyNote}</span>
           </div>
         )}
       </div>
 
       {(shelter.website || shelter.socialLinks) && (
-        <div className="shelter-info-links">
+        <div className="shelter-intro-socials" aria-label="Shelter links">
           {shelter.website && (
             <a
               href={`https://${shelter.website}`}
               target="_blank"
               rel="noreferrer"
-              className="shelter-info-link"
+              className="shelter-intro-social"
+              aria-label={`Website: ${shelter.website}`}
+              title={shelter.website}
             >
-              <Globe size={12} weight="light" />
-              {shelter.website}
+              <Globe size={16} weight="light" />
             </a>
           )}
           {shelter.socialLinks?.facebook && (
-            <span className="shelter-info-link">
-              <FacebookLogo size={12} weight="light" />
-              {shelter.socialLinks.facebook}
+            <span
+              className="shelter-intro-social"
+              aria-label={`Facebook: ${shelter.socialLinks.facebook}`}
+              title={shelter.socialLinks.facebook}
+            >
+              <FacebookLogo size={16} weight="light" />
             </span>
           )}
           {shelter.socialLinks?.instagram && (
-            <span className="shelter-info-link">
-              <InstagramLogo size={12} weight="light" />
-              {shelter.socialLinks.instagram}
+            <span
+              className="shelter-intro-social"
+              aria-label={`Instagram: ${shelter.socialLinks.instagram}`}
+              title={shelter.socialLinks.instagram}
+            >
+              <InstagramLogo size={16} weight="light" />
             </span>
           )}
           {shelter.socialLinks?.email && (
-            <span className="shelter-info-link">
-              <Envelope size={12} weight="light" />
-              {shelter.socialLinks.email}
-            </span>
+            <a
+              href={`mailto:${shelter.socialLinks.email}`}
+              className="shelter-intro-social"
+              aria-label={`Email: ${shelter.socialLinks.email}`}
+              title={shelter.socialLinks.email}
+            >
+              <Envelope size={16} weight="light" />
+            </a>
           )}
         </div>
       )}
@@ -253,14 +291,132 @@ function ShelterInfoCard({ shelter }: { shelter: ShelterProfile }) {
   );
 }
 
+/* ── Action row (Follow + Walk a dog) ──────────────────────────────── */
+
+interface ShelterActionRowProps {
+  isFollowing: boolean;
+  walkerInterestSent: boolean;
+  followMenuOpen: boolean;
+  walkerMenuOpen: boolean;
+  onToggleFollow: () => void;
+  onUnfollow: () => void;
+  onToggleWalker: () => void;
+  onWithdrawInterest: () => void;
+}
+
+function ShelterActionRow({
+  isFollowing,
+  walkerInterestSent,
+  followMenuOpen,
+  walkerMenuOpen,
+  onToggleFollow,
+  onUnfollow,
+  onToggleWalker,
+  onWithdrawInterest,
+}: ShelterActionRowProps) {
+  return (
+    <div className="shelter-action-row">
+      <div className="shelter-action-button-wrap">
+        <ButtonAction
+          variant={isFollowing ? "brand-subtle" : "neutral"}
+          size="md"
+          cta
+          leftIcon={isFollowing ? <Check size={16} weight="bold" /> : undefined}
+          rightIcon={isFollowing ? <CaretDown size={12} weight="bold" /> : undefined}
+          onClick={onToggleFollow}
+        >
+          {isFollowing ? "Following" : "Follow"}
+        </ButtonAction>
+        {followMenuOpen && isFollowing && (
+          <div className="shelter-action-menu" role="menu">
+            <button type="button" className="shelter-action-menu-item" onClick={onUnfollow}>
+              Unfollow
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="shelter-action-button-wrap">
+        <ButtonAction
+          variant={walkerInterestSent ? "brand-subtle" : "primary"}
+          size="md"
+          cta
+          leftIcon={walkerInterestSent ? <Check size={16} weight="bold" /> : undefined}
+          rightIcon={walkerInterestSent ? <CaretDown size={12} weight="bold" /> : undefined}
+          onClick={onToggleWalker}
+        >
+          {walkerInterestSent ? "Interest sent" : "Walk a dog"}
+        </ButtonAction>
+        {walkerMenuOpen && walkerInterestSent && (
+          <div className="shelter-action-menu" role="menu">
+            <button type="button" className="shelter-action-menu-item" onClick={onWithdrawInterest}>
+              Withdraw interest
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function WalkInterestSheet({
+  open,
+  shelter,
+  onClose,
+  onConfirm,
+}: {
+  open: boolean;
+  shelter: ShelterProfile;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <ModalSheet
+      open={open}
+      onClose={onClose}
+      title="Walk a dog"
+      compact
+      footer={
+        <div className="flex gap-sm justify-end px-md py-md">
+          <ButtonAction variant="neutral" size="md" onClick={onClose}>
+            Not yet
+          </ButtonAction>
+          <ButtonAction variant="primary" size="md" cta onClick={onConfirm}>
+            Express interest
+          </ButtonAction>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-md p-md">
+        <p className="text-sm text-fg-secondary m-0">
+          {shelter.name} pairs new walkers with the right dog through a short
+          intro visit at the shelter.
+        </p>
+        {shelter.policy.vouchingNote && (
+          <p className="text-sm text-fg-primary m-0">
+            <em>{shelter.policy.vouchingNote}</em>
+          </p>
+        )}
+        <p className="text-xs text-fg-tertiary m-0">
+          We&rsquo;ll be in touch via the email on your profile to schedule
+          your visit. The full walker journey (booking walks, visit reports,
+          tier progression) arrives in a later phase.
+        </p>
+      </div>
+    </ModalSheet>
+  );
+}
+
+/* ── Dogs-in-care summary card ─────────────────────────────────────── */
+
 function DogsInCareSummaryCard({ shelter }: { shelter: ShelterProfile }) {
   const dogCount = shelter.dogs.length;
   const needWalks = countDogsNeedingWalks(shelter);
   const longStayers = countLongStayers(shelter);
 
-  const summaryParts: string[] = [`${dogCount} dogs in care`];
-  if (needWalks > 0) summaryParts.push(`${needWalks} need walks now`);
-  if (longStayers > 0) summaryParts.push(`${longStayers} long-stayer${longStayers === 1 ? "" : "s"}`);
+  const subParts: string[] = [];
+  if (needWalks > 0) subParts.push(`${needWalks} need walks now`);
+  if (longStayers > 0) subParts.push(`${longStayers} long-stayer${longStayers === 1 ? "" : "s"}`);
 
   return (
     <Link
@@ -269,15 +425,18 @@ function DogsInCareSummaryCard({ shelter }: { shelter: ShelterProfile }) {
       style={{ textDecoration: "none" }}
     >
       <div className="shelter-summary-card-icon">
-        <Dog size={20} weight="light" />
+        <Dog size={24} weight="light" />
       </div>
       <div className="flex flex-col gap-xxs flex-1 min-w-0">
-        <span className="text-sm font-semibold text-fg-primary">
-          {summaryParts.join(" · ")}
+        <span className="shelter-summary-card-headline">
+          {dogCount} {dogCount === 1 ? "dog" : "dogs"} in care
         </span>
-        <span className="text-xs text-fg-tertiary">See the dog roster</span>
+        {subParts.length > 0 && (
+          <span className="shelter-summary-card-sub">{subParts.join(" · ")}</span>
+        )}
+        <span className="shelter-summary-card-action">See the roster</span>
       </div>
-      <CaretRight size={14} weight="bold" className="text-fg-tertiary flex-shrink-0" />
+      <CaretRight size={16} weight="bold" className="text-fg-tertiary flex-shrink-0" />
     </Link>
   );
 }
@@ -361,7 +520,7 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
 
   const [filter, setFilter] = useState<MembersFilterKey>("all");
 
-  // Build sortable, typed entries that flow through ShelterMemberRow.
+  // Sortable, typed entries that flow through ShelterMemberRow.
   type WalkerEntry = { kind: "walker"; data: ShelterWalker; sortAt: string };
   type SupporterEntry = { kind: "supporter"; data: ShelterSupporter; sortAt: string };
   type Entry = WalkerEntry | SupporterEntry;
@@ -382,10 +541,10 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
     let list: Entry[];
     if (filter === "walkers") list = walkerEntries;
     else if (filter === "supporters") list = supporterEntries;
-    else if (filter === "team") list = []; // No staff seeded — UI is forward-compat.
+    else if (filter === "team") list = []; // No staff seeded; UI is forward-compat.
     else list = [...walkerEntries, ...supporterEntries];
 
-    // Sort by recency (newest sortAt first) — anti-scoreboard discipline.
+    // Sort by recency (newest sortAt first). Anti-scoreboard discipline.
     return list.sort((a, b) => b.sortAt.localeCompare(a.sortAt));
   }, [shelter, filter]);
 

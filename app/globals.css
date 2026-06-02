@@ -14208,34 +14208,6 @@ body:has(.bottom-nav) .inbox-page {
   body.nav-hidden .shelter-detail-panel { border-radius: 0; }
 }
 
-.shelter-detail-info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  padding: var(--space-lg) var(--space-xl) var(--space-md);
-  flex-shrink: 0;
-  background: var(--surface-popout);
-}
-
-.shelter-detail-avatar-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  margin-top: -36px; /* logo pulls up to overlap the banner */
-}
-
-/* Avatar Rule B — institutional logo is a rounded-panel square,
-   not a circle (shelter is an org, not a person). */
-.shelter-detail-avatar {
-  width: 72px;
-  height: 72px;
-  border-radius: var(--radius-panel);
-  object-fit: cover;
-  border: 3px solid var(--surface-top);
-  flex-shrink: 0;
-  background: var(--surface-base);
-}
-
 /* ── Shelter Feed tab ─────────────────────────────────────────────── */
 
 .shelter-feed {
@@ -14243,29 +14215,48 @@ body:has(.bottom-nav) .inbox-page {
   flex-direction: column;
 }
 
-.shelter-info-card {
+/* Title + bio + meta + socials block under the banner. Mirrors the
+   community-page intro: name + tagline + meta rows + small social row. */
+.shelter-intro {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
-  padding: var(--space-md) var(--space-xl) var(--space-lg);
+  gap: var(--space-sm);
+  padding: var(--space-lg) var(--space-xl) var(--space-md);
   background: var(--surface-popout);
-  border-bottom: 1px solid var(--border-regular);
 }
 
-.shelter-info-bio {
+.shelter-intro-name {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.shelter-intro-location {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+}
+
+.shelter-intro-bio {
   font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
   color: var(--text-secondary);
   margin: 0;
+  padding-top: var(--space-xs);
 }
 
-.shelter-info-meta {
+.shelter-intro-meta {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
+  padding-top: var(--space-xs);
 }
 
-.shelter-info-meta-row {
+.shelter-intro-meta-row {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
@@ -14273,58 +14264,129 @@ body:has(.bottom-nav) .inbox-page {
   color: var(--text-tertiary);
 }
 
-.shelter-info-links {
+.shelter-intro-socials {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-xs);
+  align-items: center;
+  gap: var(--space-sm);
+  padding-top: var(--space-xs);
 }
 
-.shelter-info-link {
+.shelter-intro-social {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-xxs);
-  padding: var(--space-xxs) var(--space-sm);
-  border-radius: var(--radius-pill);
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   background: var(--surface-base);
-  border: 1px solid var(--border-regular);
-  font-size: var(--text-xs);
   color: var(--text-secondary);
   text-decoration: none;
+  border: 1px solid var(--border-regular);
 }
 
-a.shelter-info-link:hover {
+a.shelter-intro-social:hover {
+  background: var(--on-hover-base);
+  color: var(--text-primary);
+}
+
+/* Follow + Walk a dog action row. Mirrors .group-action-buttons. */
+.shelter-action-row {
+  display: flex;
+  gap: var(--space-sm);
+  padding: 0 var(--space-xl) var(--space-md);
+  background: var(--surface-popout);
+}
+
+.shelter-action-button-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.shelter-action-button-wrap .btn {
+  width: 100%;
+}
+
+.shelter-action-menu {
+  position: absolute;
+  top: calc(100% + var(--space-xxs));
+  left: 0;
+  right: 0;
+  background: var(--surface-top);
+  border: 1px solid var(--border-regular);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-md);
+  z-index: 5;
+  overflow: hidden;
+}
+
+.shelter-action-menu-item {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  background: none;
+  border: 0;
+  font-size: var(--text-sm);
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.shelter-action-menu-item:hover {
   background: var(--on-hover-base);
 }
 
+/* Dogs-in-care summary card. Stands out as the primary CTA between the
+   action row and the feed. Card-style: padded, bordered, brand-tinted
+   icon tile. Borders sit between siblings, no doubled lines. */
 .shelter-summary-card {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  padding: var(--space-md) var(--space-xl);
-  background: var(--surface-popout);
-  border-bottom: 1px solid var(--border-regular);
+  margin: 0 var(--space-xl) var(--space-md);
+  padding: var(--space-md);
+  background: var(--surface-base);
+  border: 1px solid var(--border-regular);
+  border-radius: var(--radius-panel);
 }
 
 .shelter-summary-card:hover {
   background: var(--on-hover-base);
+  border-color: var(--border-stronger);
 }
 
 .shelter-summary-card-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-panel);
   background: var(--info-subtle);
   color: var(--info-strong);
   flex-shrink: 0;
 }
 
+.shelter-summary-card-headline {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.shelter-summary-card-sub {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.shelter-summary-card-action {
+  font-size: var(--text-xs);
+  color: var(--info-strong);
+  padding-top: var(--space-xxs);
+}
+
 .shelter-feed-list {
   display: flex;
   flex-direction: column;
   background: var(--surface-popout);
+  border-top: 1px solid var(--border-regular);
 }
 
 .shelter-feed-list .feed-card:last-child {
@@ -14751,7 +14813,7 @@ a.shelter-info-link:hover {
 .dog-profile-shelter-backlink-logo {
   width: 40px;
   height: 40px;
-  border-radius: var(--radius-panel);
+  border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
   background: var(--surface-base);

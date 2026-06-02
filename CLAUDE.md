@@ -121,7 +121,7 @@ Foundational rules that shape decisions across the app. Implementation details (
 ### Visual Conventions
 
 - **Pet-as-protagonist** on care surfaces. Booking detail Sessions tab treats the dog as the visual centerpiece — full-width hero photo + name heading. Encourages emotional bonding and owner-uploaded quality photos.
-- **Avatar Rule B.** People = circle. Dogs = rounded square (`rounded-panel`). Institutional entities (shelters) = rounded square (`rounded-panel`) — institutional, not a person. Shape encodes the entity type, not the layout role — same dog (or shelter) renders the same way across surfaces.
+- **Avatar Rule B.** Circle: people, communities, shelters (every entity that has a "presence" on the platform). Rounded square (`rounded-panel`): dogs only. The square encodes the creature-of-bonding case, not "institutional." Shape encodes the entity type, not the layout role — same dog renders the same way across surfaces.
 - **Care = blue, community = green.** `--status-info` / `text-info-*` (blue) = care + paid services. `--brand-*` (green) = community (meets, groups, group links). See `docs/implementation/design-system.md` → Principle 14.
 
 ### Workflow

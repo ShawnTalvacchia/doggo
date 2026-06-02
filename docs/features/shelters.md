@@ -29,7 +29,7 @@ Future generalization to `OrgProfile` (rescue, vet clinic, training school) is l
 
 ## Account model
 
-**Institutional-by-default.** Shared login. Shelter logo as the avatar (rendered as a rounded-panel square per Avatar Rule B — institutional, not a person). Posts authored by the shelter use the shelter's id as `Post.authorId`. Survives staff turnover; no per-staff account setup; minimal onboarding friction.
+**Institutional-by-default.** Shared login. Shelter logo as the avatar (rendered as a circle per Avatar Rule B, same as communities and user profiles — every entity-with-presence is a circle; only dogs are rounded-square). Posts authored by the shelter use the shelter's id as `Post.authorId`. Survives staff turnover; no per-staff account setup; minimal onboarding friction.
 
 **Optional Team mode.** Individual staff can opt to link their `UserProfile` to a shelter via `ShelterTeamMember`. When `team[].length > 0`, the shelter info card's "Run by" line scales from "Run by the {shelter} team" to "Run by N team members," and a Team filter pill appears on the Members tab. The page shape is identical with zero linked staff or with N linked staff — same chrome, scaled fill-in. Full invite UX and operator/admin view are V3+.
 

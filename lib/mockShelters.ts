@@ -79,7 +79,7 @@ const UTULEK_DOGS: PetProfile[] = [
     daysInKennel: 45,
     lastWalkedAt: daysAgoIso(3, "16:00"),
     backstory:
-      "Surrendered when her family moved abroad. Sharp, quick to learn — would thrive with someone who likes a thinking partner.",
+      "Surrendered when her family moved abroad. Sharp and quick to learn. Would thrive with someone who likes a thinking partner.",
     tags: ["Smart", "Reactive to other dogs"],
     adoptionStatus: "available",
     intakeDate: daysAgo(45),
@@ -295,7 +295,7 @@ export const mockShelters: ShelterProfile[] = [
     location: "Libeň, Prague 8",
     neighbourhood: "Libeň",
     bio:
-      "A small municipal shelter caring for dogs left without homes across Prague 8 and 9. We rehome roughly 80 dogs a year — but we need walkers, supporters, and people who will share these dogs' stories. Útočiště pro psy bez domova v Praze 8.",
+      "A small municipal shelter caring for dogs left without homes across Prague 8 and 9. We rehome roughly 80 dogs a year, but we need walkers, supporters, and people who will share these dogs' stories. Útočiště pro psy bez domova v Praze 8.",
     establishedYear: 2007,
     website: "utulekliben.cz",
     socialLinks: {
@@ -308,7 +308,7 @@ export const mockShelters: ShelterProfile[] = [
       groupWalksPermitted: false,
       minimumTier: "vetted",
       vouchingNote:
-        "First-time walkers come in for a 30-minute intro visit so we can match you with the right dog. Walks are solo only — even our calmest dogs do best one-on-one.",
+        "First-time walkers come in for a 30-minute intro visit so we can match you with the right dog. Walks are solo only. Even our calmest dogs do best one-on-one.",
       workingLanguages: ["cs", "en"],
     },
     dogs: UTULEK_DOGS,

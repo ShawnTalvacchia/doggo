@@ -1677,14 +1677,24 @@ export const mockPosts: Post[] = [
     ],
   },
 
-  /* ── Útulek Liběň feed — shelter-authored + walker-authored posts ──── */
-  // Posts about shelter dogs share the same `Post` shape as everything else.
-  // Shelter-authored posts set `authorId` to the shelter's id ("utulek-liben");
-  // the shelter feed query (`getShelterFeed`) resolves both shelter-authored
-  // posts AND walker-authored posts that tag any shelter dog. See
-  // `lib/mockShelters.ts` and [[features/shelters]].
+  /* ── Útulek Liběň feed ────────────────────────────────────────────────
+   *
+   * Walker-led: most of the feed comes from people who walk dogs at the
+   * shelter and post about it, not from the shelter itself. The shelter's
+   * own voice is reserved for things only the shelter can say (a new dog
+   * arriving, a long-stayer who needs a special home, a call for more
+   * walkers). This keeps the shelter from having to run a social media
+   * account; walkers carry the surface naturally.
+   *
+   * Resolution: `getShelterFeed` picks up posts authored by the shelter
+   * (`utulek-liben`) AND any post tagged with the shelter or one of its
+   * dogs. See `lib/mockShelters.ts` and [[features/shelters]].
+   * ────────────────────────────────────────────────────────────────── */
 
-  // Shelter-authored — Theo arrival celebration
+  /* ── Shelter-authored (3 posts) ──────────────────────────────────── */
+
+  // Theo arrival celebration. New dog announcement; only the shelter can
+  // post this. Walkers chime in via reactions and comments.
   {
     id: "post-shelter-theo-arrival",
     authorId: "utulek-liben",
@@ -1692,7 +1702,7 @@ export const mockPosts: Post[] = [
     authorAvatarUrl: "/images/generated/community-cover-karlin.jpeg",
     photos: ["/images/generated/toby-portrait.jpeg"],
     caption:
-      "Meet Theo. Five months old, just arrived with two siblings. He's a goofball already. Walkers — he'll be ready for short outings once he's settled.",
+      "Meet Theo. Five months old, just arrived with two siblings. He's already a goofball. He'll be ready for short outings once he's settled in.",
     tags: [
       { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
       { type: "dog", id: "shelter-dog-theo", label: "Theo" },
@@ -1710,13 +1720,15 @@ export const mockPosts: Post[] = [
         authorId: "walker-helena-s",
         authorName: "Helena S.",
         authorAvatarUrl: "",
-        text: "Looking forward to meeting him!",
+        text: "Looking forward to meeting him.",
         createdAt: daysAgoIso(3, "10:15"),
       },
     ],
   },
 
-  // Shelter-authored — Berta long-stayer call
+  // Berta long-stayer call. The shelter knows her best and can write the
+  // careful "this dog needs a special home" call. A walker would defer to
+  // the shelter on this kind of post.
   {
     id: "post-shelter-berta-needs-home",
     authorId: "utulek-liben",
@@ -1724,7 +1736,7 @@ export const mockPosts: Post[] = [
     authorAvatarUrl: "/images/generated/community-cover-karlin.jpeg",
     photos: ["/images/generated/daisy-portrait.jpeg"],
     caption:
-      "Berta has been with us for four months. She's wary, she's careful, and she's been completely overlooked. Looking for someone who understands that some dogs need a slow start. No other pets, no kids — just a quiet sofa and a steady person.",
+      "Berta has been with us for four months. She's wary, she's careful, and she's been completely overlooked. Looking for someone who understands that some dogs need a slow start. No other pets, no kids. Just a quiet sofa and a steady person.",
     tags: [
       { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
       { type: "dog", id: "shelter-dog-berta", label: "Berta" },
@@ -1739,61 +1751,8 @@ export const mockPosts: Post[] = [
     comments: [],
   },
 
-  // Shelter-authored — Šimon spotlight
-  {
-    id: "post-shelter-simon-spotlight",
-    authorId: "utulek-liben",
-    authorName: "Útulek Liběň",
-    authorAvatarUrl: "/images/generated/community-cover-karlin.jpeg",
-    photos: ["/images/generated/eda-portrait.jpeg"],
-    caption:
-      "Šimon. Eight years old, deeply gentle, and very tired of waiting. He's not flashy and he doesn't need a job — he just needs a person. Please share if you know someone with a soft spot for older boys.",
-    tags: [
-      { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
-      { type: "dog", id: "shelter-dog-simon", label: "Šimon" },
-    ],
-    createdAt: daysAgoIso(9, "11:00"),
-    reactions: [
-      { userId: "supporter-iveta-p", userName: "Iveta P." },
-      { userId: "supporter-radek-s", userName: "Radek S." },
-      { userId: "walker-pavel-d", userName: "Pavel D." },
-      { userId: "walker-marie-b", userName: "Marie B." },
-    ],
-    comments: [
-      {
-        id: "comment-shelter-simon-1",
-        authorId: "supporter-iveta-p",
-        authorName: "Iveta P.",
-        authorAvatarUrl: "",
-        text: "Sharing — he's such a sweet face.",
-        createdAt: daysAgoIso(9, "12:45"),
-      },
-    ],
-  },
-
-  // Shelter-authored — Líza's brother adopted
-  {
-    id: "post-shelter-liza-brother-adopted",
-    authorId: "utulek-liben",
-    authorName: "Útulek Liběň",
-    authorAvatarUrl: "/images/generated/community-cover-karlin.jpeg",
-    photos: ["/images/generated/post-dog-park-sunset.jpeg"],
-    caption:
-      "Good news: Líza's brother went to his new home this weekend! He's settling in beautifully with a family in Holešovice. Líza is still here looking for her own person — she's bubbly, full of love, and ready when you are.",
-    tags: [
-      { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
-      { type: "dog", id: "shelter-dog-liza", label: "Líza" },
-    ],
-    createdAt: daysAgoIso(12, "16:00"),
-    reactions: [
-      { userId: "supporter-nela-d", userName: "Nela D." },
-      { userId: "supporter-michal-h", userName: "Michal H." },
-      { userId: "walker-anna-k", userName: "Anna K." },
-    ],
-    comments: [],
-  },
-
-  // Shelter-authored — Walker recruit
+  // Walker recruit. Recruitment lives with the shelter (operational ask),
+  // not with individual walkers.
   {
     id: "post-shelter-walker-recruit",
     authorId: "utulek-liben",
@@ -1801,7 +1760,7 @@ export const mockPosts: Post[] = [
     authorAvatarUrl: "/images/generated/community-cover-karlin.jpeg",
     photos: ["/images/generated/group-walk-stromovka.jpeg"],
     caption:
-      "We're a small team and our dogs need walks every day. If you can spare an hour a week, we'd love to meet you. First-time walkers come in for a 30-minute intro visit — we'll match you with a dog who fits your pace. Czech or English, both fine.",
+      "We're a small team and our dogs need walks every day. If you can spare an hour a week, we'd love to meet you. First-time walkers come in for a 30-minute intro visit so we can match you with a dog who fits your pace. Czech or English, both fine.",
     tags: [{ type: "shelter", id: "utulek-liben", label: "Útulek Liběň" }],
     createdAt: daysAgoIso(16, "10:00"),
     reactions: [
@@ -1815,110 +1774,21 @@ export const mockPosts: Post[] = [
         authorId: "supporter-katerina-v",
         authorName: "Kateřina V.",
         authorAvatarUrl: "",
-        text: "Coming by Saturday — what's the best time?",
+        text: "Coming by Saturday. What's the best time?",
         createdAt: daysAgoIso(16, "13:20"),
       },
     ],
   },
 
-  // Shelter-authored — General shelter day update
-  {
-    id: "post-shelter-general-day",
-    authorId: "utulek-liben",
-    authorName: "Útulek Liběň",
-    authorAvatarUrl: "/images/generated/community-cover-karlin.jpeg",
-    photos: ["/images/generated/dogs-cafe-terrace.jpeg"],
-    caption:
-      "Slow Sunday at the shelter. Everyone walked, everyone fed, everyone snoring in the afternoon sun. Thank you to today's walkers — Pavel, Marie, Anna. We see you.",
-    tags: [{ type: "shelter", id: "utulek-liben", label: "Útulek Liběň" }],
-    createdAt: daysAgoIso(20, "18:30"),
-    reactions: [
-      { userId: "walker-pavel-d", userName: "Pavel D." },
-      { userId: "walker-marie-b", userName: "Marie B." },
-      { userId: "walker-anna-k", userName: "Anna K." },
-      { userId: "supporter-marta-r", userName: "Marta R." },
-    ],
-    comments: [],
-  },
+  /* ── Walker-authored (9 posts) ─────────────────────────────────────
+   *
+   * Each walker post tags the shelter AND the specific dog. Voices vary
+   * by tier — the Trusted Handler (Pavel D.) takes the wary dogs, the
+   * Experienced walkers (Marie, Lukáš, Helena) take the sociable ones,
+   * the Vetted walkers (Anna, Jakub, Petr, Karolína) cover the rest.
+   * ────────────────────────────────────────────────────────────── */
 
-  /* ── Walker-authored posts tagging shelter dogs ──────────────────────── */
-
-  // Walker-authored — Anna K. walks Tonda
-  {
-    id: "post-walker-anna-tonda",
-    authorId: "walker-anna-k",
-    authorName: "Anna K.",
-    authorAvatarUrl: "",
-    photos: ["/images/generated/max-portrait.jpeg"],
-    caption:
-      "Walked Tonda today — what a goof. Marched up to every dog we passed like he was greeting royalty. Beautiful soft autumn light at Stromovka.",
-    tags: [
-      { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
-      { type: "dog", id: "shelter-dog-tonda", label: "Tonda" },
-      { type: "place", id: "stromovka", label: "Stromovka" },
-    ],
-    createdAt: daysAgoIso(5, "11:00"),
-    reactions: [
-      { userId: "supporter-andrea-k", userName: "Andrea K." },
-      { userId: "supporter-iveta-p", userName: "Iveta P." },
-      { userId: "walker-marie-b", userName: "Marie B." },
-    ],
-    comments: [],
-  },
-
-  // Walker-authored — Pavel D. walks Šimon
-  {
-    id: "post-walker-pavel-simon",
-    authorId: "walker-pavel-d",
-    authorName: "Pavel D.",
-    authorAvatarUrl: "",
-    photos: ["/images/generated/eda-portrait.jpeg"],
-    caption:
-      "Šimon and I had our usual loop this morning. He stops at the same bench every time, sits, looks around for about a minute, then we keep going. Old man habits. Wonderful walk.",
-    tags: [
-      { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
-      { type: "dog", id: "shelter-dog-simon", label: "Šimon" },
-    ],
-    createdAt: daysAgoIso(1, "09:45"),
-    reactions: [
-      { userId: "walker-marie-b", userName: "Marie B." },
-      { userId: "walker-helena-s", userName: "Helena S." },
-      { userId: "supporter-vojta-l", userName: "Vojtěch L." },
-    ],
-    comments: [
-      {
-        id: "comment-walker-pavel-simon-1",
-        authorId: "walker-marie-b",
-        authorName: "Marie B.",
-        authorAvatarUrl: "",
-        text: "He does this with me too! Same bench!",
-        createdAt: daysAgoIso(1, "11:00"),
-      },
-    ],
-  },
-
-  // Walker-authored — Marie B. walks Maja
-  {
-    id: "post-walker-marie-maja",
-    authorId: "walker-marie-b",
-    authorName: "Marie B.",
-    authorAvatarUrl: "",
-    photos: ["/images/generated/luna-portrait.jpeg"],
-    caption:
-      "Maja knows her stuff. Solid recall on a long line, sits at every crossing without being asked. Whoever takes her home is getting a really sharp dog.",
-    tags: [
-      { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
-      { type: "dog", id: "shelter-dog-maja", label: "Maja" },
-    ],
-    createdAt: daysAgoIso(3, "16:30"),
-    reactions: [
-      { userId: "walker-pavel-d", userName: "Pavel D." },
-      { userId: "supporter-radek-s", userName: "Radek S." },
-    ],
-    comments: [],
-  },
-
-  // Walker-authored — Helena S. walks Theo
+  // Helena (Experienced) walks Theo, the new arrival.
   {
     id: "post-walker-helena-theo",
     authorId: "walker-helena-s",
@@ -1947,6 +1817,216 @@ export const mockPosts: Post[] = [
         createdAt: daysAgoIso(0, "12:00"),
       },
     ],
+  },
+
+  // Pavel (Trusted Handler) walks Šimon, the senior shepherd.
+  {
+    id: "post-walker-pavel-simon",
+    authorId: "walker-pavel-d",
+    authorName: "Pavel D.",
+    authorAvatarUrl: "",
+    photos: ["/images/generated/eda-portrait.jpeg"],
+    caption:
+      "Šimon and I had our usual loop this morning. He stops at the same bench every time, sits, looks around for about a minute, then we keep going. Old man habits. Wonderful walk.",
+    tags: [
+      { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
+      { type: "dog", id: "shelter-dog-simon", label: "Šimon" },
+    ],
+    createdAt: daysAgoIso(1, "09:45"),
+    reactions: [
+      { userId: "walker-marie-b", userName: "Marie B." },
+      { userId: "walker-helena-s", userName: "Helena S." },
+      { userId: "supporter-vojta-l", userName: "Vojtěch L." },
+    ],
+    comments: [
+      {
+        id: "comment-walker-pavel-simon-1",
+        authorId: "walker-marie-b",
+        authorName: "Marie B.",
+        authorAvatarUrl: "",
+        text: "He does this with me too. Same bench.",
+        createdAt: daysAgoIso(1, "11:00"),
+      },
+    ],
+  },
+
+  // Karolína (newest Vetted walker) takes Tonda. New-walker voice.
+  {
+    id: "post-walker-karolina-tonda",
+    authorId: "walker-karolina-m",
+    authorName: "Karolína M.",
+    authorAvatarUrl: "",
+    photos: ["/images/generated/max-portrait.jpeg"],
+    caption:
+      "Second walk this week with Tonda. He's decided I'm Allowed. The other dogs at Stromovka were all very important to him today.",
+    tags: [
+      { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
+      { type: "dog", id: "shelter-dog-tonda", label: "Tonda" },
+      { type: "place", id: "stromovka", label: "Stromovka" },
+    ],
+    createdAt: daysAgoIso(2, "10:00"),
+    reactions: [
+      { userId: "walker-anna-k", userName: "Anna K." },
+      { userId: "supporter-stepan-m", userName: "Štěpán M." },
+    ],
+    comments: [],
+  },
+
+  // Marie (Experienced) walks Maja. Smart-dog appreciation post.
+  {
+    id: "post-walker-marie-maja",
+    authorId: "walker-marie-b",
+    authorName: "Marie B.",
+    authorAvatarUrl: "",
+    photos: ["/images/generated/luna-portrait.jpeg"],
+    caption:
+      "Maja knows her stuff. Solid recall on a long line, sits at every crossing without being asked. Whoever takes her home is getting a really sharp dog.",
+    tags: [
+      { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
+      { type: "dog", id: "shelter-dog-maja", label: "Maja" },
+    ],
+    createdAt: daysAgoIso(3, "16:30"),
+    reactions: [
+      { userId: "walker-pavel-d", userName: "Pavel D." },
+      { userId: "supporter-radek-s", userName: "Radek S." },
+    ],
+    comments: [],
+  },
+
+  // Anna (Vetted) walks Tonda. Quick atmospheric post.
+  {
+    id: "post-walker-anna-tonda",
+    authorId: "walker-anna-k",
+    authorName: "Anna K.",
+    authorAvatarUrl: "",
+    photos: ["/images/generated/max-portrait.jpeg"],
+    caption:
+      "Walked Tonda today. What a goof. Marched up to every dog we passed like he was greeting royalty. Beautiful soft autumn light at Stromovka.",
+    tags: [
+      { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
+      { type: "dog", id: "shelter-dog-tonda", label: "Tonda" },
+      { type: "place", id: "stromovka", label: "Stromovka" },
+    ],
+    createdAt: daysAgoIso(5, "11:00"),
+    reactions: [
+      { userId: "supporter-andrea-k", userName: "Andrea K." },
+      { userId: "supporter-iveta-p", userName: "Iveta P." },
+      { userId: "walker-marie-b", userName: "Marie B." },
+    ],
+    comments: [],
+  },
+
+  // Lukáš (Experienced) takes Káťa, the shy dog with adoption pending.
+  // Demonstrates the patience walkers bring to harder cases.
+  {
+    id: "post-walker-lukas-kata",
+    authorId: "walker-lukas-p",
+    authorName: "Lukáš P.",
+    authorAvatarUrl: "",
+    photos: ["/images/generated/runa-portrait.jpeg"],
+    caption:
+      "Káťa took my hand to her chest today. Took her three months to do that with anyone. Her family-to-be is going to be very lucky.",
+    tags: [
+      { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
+      { type: "dog", id: "shelter-dog-kata", label: "Káťa" },
+    ],
+    createdAt: daysAgoIso(4, "15:20"),
+    reactions: [
+      { userId: "walker-pavel-d", userName: "Pavel D." },
+      { userId: "walker-marie-b", userName: "Marie B." },
+      { userId: "walker-helena-s", userName: "Helena S." },
+      { userId: "supporter-andrea-k", userName: "Andrea K." },
+      { userId: "supporter-nela-d", userName: "Nela D." },
+    ],
+    comments: [
+      {
+        id: "comment-walker-lukas-kata-1",
+        authorId: "walker-pavel-d",
+        authorName: "Pavel D.",
+        authorAvatarUrl: "",
+        text: "Quietly the best news I've read all week.",
+        createdAt: daysAgoIso(4, "17:00"),
+      },
+    ],
+  },
+
+  // Pavel (Trusted Handler) walks Berta. Wary-dog handling. Important
+  // post because it shows what the Trusted tier is actually for.
+  {
+    id: "post-walker-pavel-berta",
+    authorId: "walker-pavel-d",
+    authorName: "Pavel D.",
+    authorAvatarUrl: "",
+    photos: ["/images/generated/daisy-portrait.jpeg"],
+    caption:
+      "Three weeks of just being in the yard with Berta before she'd take a leash. Today we got two blocks. She watches everything, but her shoulders drop when she sees me now. We'll get there.",
+    tags: [
+      { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
+      { type: "dog", id: "shelter-dog-berta", label: "Berta" },
+    ],
+    createdAt: daysAgoIso(7, "13:00"),
+    reactions: [
+      { userId: "walker-marie-b", userName: "Marie B." },
+      { userId: "walker-helena-s", userName: "Helena S." },
+      { userId: "walker-lukas-p", userName: "Lukáš P." },
+      { userId: "supporter-andrea-k", userName: "Andrea K." },
+      { userId: "supporter-vojta-l", userName: "Vojtěch L." },
+      { userId: "supporter-iveta-p", userName: "Iveta P." },
+    ],
+    comments: [
+      {
+        id: "comment-walker-pavel-berta-1",
+        authorId: "walker-helena-s",
+        authorName: "Helena S.",
+        authorAvatarUrl: "",
+        text: "Hero work, Pavel.",
+        createdAt: daysAgoIso(7, "14:30"),
+      },
+    ],
+  },
+
+  // Helena (Experienced) walks Edda, the small terrier mix.
+  {
+    id: "post-walker-helena-edda",
+    authorId: "walker-helena-s",
+    authorName: "Helena S.",
+    authorAvatarUrl: "",
+    photos: ["/images/generated/nela-portrait.jpeg"],
+    caption:
+      "Edda is nine kilos of opinion. We did the long loop. She carried a stick the whole way.",
+    tags: [
+      { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
+      { type: "dog", id: "shelter-dog-edda", label: "Edda" },
+    ],
+    createdAt: daysAgoIso(8, "12:00"),
+    reactions: [
+      { userId: "supporter-alena-t", userName: "Alena T." },
+      { userId: "walker-anna-k", userName: "Anna K." },
+    ],
+    comments: [],
+  },
+
+  // Anna (Vetted) walks Líza. Sociable young dog with energy.
+  {
+    id: "post-walker-anna-liza",
+    authorId: "walker-anna-k",
+    authorName: "Anna K.",
+    authorAvatarUrl: "",
+    photos: ["/images/generated/mia-portrait.jpeg"],
+    caption:
+      "Líza wants every person at the park to be her best friend immediately. She is at least 60% wiggle. Someone please adopt this beautiful menace.",
+    tags: [
+      { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
+      { type: "dog", id: "shelter-dog-liza", label: "Líza" },
+    ],
+    createdAt: daysAgoIso(10, "16:00"),
+    reactions: [
+      { userId: "walker-karolina-m", userName: "Karolína M." },
+      { userId: "supporter-nela-d", userName: "Nela D." },
+      { userId: "supporter-michal-h", userName: "Michal H." },
+      { userId: "supporter-katerina-v", userName: "Kateřina V." },
+    ],
+    comments: [],
   },
 ];
 
