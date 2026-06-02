@@ -14407,16 +14407,51 @@ a.shelter-intro-social:hover {
   flex-direction: column;
 }
 
-.shelter-dogs-filter,
 .shelter-members-filter {
   padding: var(--space-md) var(--space-xl);
   background: var(--surface-popout);
   border-bottom: 1px solid var(--border-regular);
 }
 
-.shelter-dogs-list {
+/* Sort dropdown toolbar — replaces the old filter-pill row. Single
+   inline "Sort by [Needs walks now ▾]" affordance. */
+.shelter-dogs-toolbar {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  background: var(--surface-popout);
+  border-bottom: 1px solid var(--border-regular);
+}
+
+.shelter-dogs-toolbar-label {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.shelter-dogs-toolbar-select {
+  /* The Select component wraps in .input-block which adds vertical
+     gap meant for forms. Trim it down for inline toolbar use. */
+  flex: 1;
+  max-width: 220px;
+}
+
+.shelter-dogs-toolbar-select .input-block {
+  gap: 0;
+}
+
+.shelter-dogs-toolbar-select .select {
+  height: 32px;
+  padding-top: 0;
+  padding-bottom: 0;
+  font-size: var(--text-sm);
+}
+
+/* 2-up card grid inside the 640px panel. Auto-collapses to 1-up on
+   narrow viewports (< ~480px) via the auto-fit + minmax pattern. */
+.shelter-dogs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-md);
   padding: var(--space-md) var(--space-xl) var(--space-xl);
 }
@@ -14439,29 +14474,55 @@ a.shelter-intro-social:hover {
 .shelter-dog-card-photo {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 4 / 3;
   background-color: var(--surface-base);
   background-size: cover;
   background-position: center;
 }
 
-.shelter-dog-card-status {
+/* Auto-derived chip overlaid on the photo. Three tones, one shown at a
+   time, picked by priority (pending > new > long > none). */
+.shelter-dog-card-chip {
   position: absolute;
   top: var(--space-sm);
-  right: var(--space-sm);
+  left: var(--space-sm);
   padding: var(--space-xxs) var(--space-sm);
   border-radius: var(--radius-pill);
-  background: var(--info-strong);
-  color: var(--info-on-strong, #fff);
   font-size: var(--text-xs);
   font-weight: 600;
+  letter-spacing: 0.01em;
+  /* Background sits in front of the photo with a subtle backdrop blur for
+     legibility regardless of the photo behind it. */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.shelter-dog-card-chip--pending {
+  background: var(--info-strong);
+  color: #fff;
+}
+
+.shelter-dog-card-chip--new {
+  background: var(--brand-strong);
+  color: #fff;
+}
+
+.shelter-dog-card-chip--long {
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--text-primary);
 }
 
 .shelter-dog-card-body {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
-  padding: var(--space-md) var(--space-md) var(--space-md);
+  gap: var(--space-xs);
+  padding: var(--space-md);
+}
+
+.shelter-dog-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
 }
 
 .shelter-dog-card-name {
@@ -14470,57 +14531,43 @@ a.shelter-intro-social:hover {
   font-weight: 600;
   color: var(--text-primary);
   margin: 0;
+  flex: 1;
+  min-width: 0;
+  /* Truncate long names in narrow card cells so they don't break layout. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.shelter-dog-card-line {
+.shelter-dog-card-sex {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.shelter-dog-card-meta {
   font-size: var(--text-xs);
   color: var(--text-tertiary);
+  /* Truncate breed strings that overflow the narrow card width. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .shelter-dog-card-stats {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-sm) var(--space-md);
+  gap: var(--space-xs) var(--space-md);
   font-size: var(--text-xs);
   color: var(--text-tertiary);
+  padding-top: var(--space-xxs);
 }
 
 .shelter-dog-card-stat {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-xxs);
-}
-
-.shelter-dog-card-stat--policy {
-  color: var(--text-secondary);
-}
-
-.shelter-dog-card-backstory {
-  font-size: var(--text-sm);
-  line-height: var(--leading-relaxed);
-  color: var(--text-secondary);
-  margin: 0;
-}
-
-.shelter-dog-card-tags {
-  display: flex;
-  flex-wrap: wrap;
+  /* Comfortable icon-to-text breathing room. `xxs` was too tight and
+     made the chip read as "icontext" rather than "icon · text". */
   gap: var(--space-xs);
-}
-
-.shelter-dog-card-tag {
-  padding: var(--space-xxs) var(--space-sm);
-  border-radius: var(--radius-pill);
-  background: var(--surface-base);
-  border: 1px solid var(--border-regular);
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-}
-
-.shelter-dog-card-tag--long {
-  background: var(--warning-subtle, var(--surface-base));
-  color: var(--warning-strong, var(--text-secondary));
-  border-color: transparent;
 }
 
 /* ── Shelter Members tab ──────────────────────────────────────────── */

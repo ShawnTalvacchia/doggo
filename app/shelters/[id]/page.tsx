@@ -23,6 +23,7 @@ import { DetailHeader } from "@/components/layout/DetailHeader";
 import { TabBar } from "@/components/ui/TabBar";
 import { Spacer } from "@/components/layout/Spacer";
 import { FilterPillRow } from "@/components/ui/FilterPillRow";
+import { Select } from "@/components/ui/Select";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
@@ -449,7 +450,22 @@ function DogsInCareSummaryCard({ shelter }: { shelter: ShelterProfile }) {
 
 /* ── Dogs tab ──────────────────────────────────────────────────────── */
 
-type DogsSortKey = "needs-walks" | "recent-arrivals" | "long-stayers" | "all";
+type DogsSortKey = "needs-walks" | "longest" | "smallest" | "alpha";
+
+const SORT_OPTIONS: { value: DogsSortKey; label: string }[] = [
+  { value: "needs-walks", label: "Needs walks now" },
+  { value: "longest", label: "Longest in care" },
+  { value: "smallest", label: "Smallest first" },
+  { value: "alpha", label: "A–Z" },
+];
+
+/** Parse weight strings like "22 kg" -> 22. Falls back to Infinity for
+ *  unknown weights so they sort to the end of "smallest first." */
+function parseWeight(label: string | undefined): number {
+  if (!label) return Number.POSITIVE_INFINITY;
+  const match = label.match(/(\d+(?:\.\d+)?)/);
+  return match ? parseFloat(match[1]) : Number.POSITIVE_INFINITY;
+}
 
 function DogsTab({ shelter }: { shelter: ShelterProfile }) {
   const [sortKey, setSortKey] = useState<DogsSortKey>("needs-walks");
@@ -458,44 +474,43 @@ function DogsTab({ shelter }: { shelter: ShelterProfile }) {
     switch (sortKey) {
       case "needs-walks":
         return getDogsNeedingWalks(shelter);
-      case "recent-arrivals":
+      case "longest":
         return [...shelter.dogs].sort(
-          (a, b) => (a.daysInKennel ?? 0) - (b.daysInKennel ?? 0),
+          (a, b) => (b.daysInKennel ?? 0) - (a.daysInKennel ?? 0),
         );
-      case "long-stayers":
-        return [...shelter.dogs]
-          .filter((d) => (d.daysInKennel ?? 0) >= 30)
-          .sort((a, b) => (b.daysInKennel ?? 0) - (a.daysInKennel ?? 0));
-      case "all":
+      case "smallest":
+        return [...shelter.dogs].sort(
+          (a, b) => parseWeight(a.weightLabel) - parseWeight(b.weightLabel),
+        );
+      case "alpha":
         return [...shelter.dogs].sort((a, b) => a.name.localeCompare(b.name));
     }
   }, [shelter, sortKey]);
 
   return (
     <div className="shelter-dogs">
-      <div className="shelter-dogs-filter">
-        <FilterPillRow
-          pills={[
-            { key: "needs-walks", label: "Needs walks now" },
-            { key: "recent-arrivals", label: "Recently arrived" },
-            { key: "long-stayers", label: "Long-stayers" },
-            { key: "all", label: "All" },
-          ]}
-          activeKey={sortKey}
-          onChange={(k) => setSortKey(k as DogsSortKey)}
-        />
+      <div className="shelter-dogs-toolbar">
+        <span className="shelter-dogs-toolbar-label">Sort by</span>
+        <div className="shelter-dogs-toolbar-select">
+          <Select
+            id="shelter-dogs-sort"
+            ariaLabel="Sort dogs by"
+            value={sortKey}
+            onChange={(v) => setSortKey(v as DogsSortKey)}
+            options={SORT_OPTIONS}
+          />
+        </div>
       </div>
 
       {sorted.length === 0 ? (
         <div className="px-lg py-xl">
           <EmptyState
             icon={<PawPrint size={32} weight="light" />}
-            title="No dogs in this view"
-            subtitle="Switch the filter to see more."
+            title="No dogs to show"
           />
         </div>
       ) : (
-        <div className="shelter-dogs-list">
+        <div className="shelter-dogs-grid">
           {sorted.map((dog) => (
             <ShelterDogCard key={dog.id} dog={dog} />
           ))}

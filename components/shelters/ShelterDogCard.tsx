@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Clock, PawPrint, ShieldCheck } from "@phosphor-icons/react";
+import {
+  Clock,
+  PawPrint,
+  GenderMale,
+  GenderFemale,
+} from "@phosphor-icons/react";
 import type { PetProfile } from "@/lib/types";
 
 interface ShelterDogCardProps {
@@ -9,23 +14,26 @@ interface ShelterDogCardProps {
 }
 
 /**
- * Single-column photo-led card for a shelter dog. Used on the shelter
- * Dogs tab roster. Taps land on `/dogs/[id]`. Photo is the visual
- * centerpiece (pet-as-protagonist) — name, breed/age/sex, kennel
- * stats, and tags sit underneath.
+ * Compact photo-led card for a shelter dog. Tighter than V1: the card now
+ * sits inside a 2-up grid on the shelter Dogs tab, so it drops the
+ * backstory paragraph and manual tag pills (both belong on the full dog
+ * profile at `/dogs/[id]`).
+ *
+ * The card carries at most ONE auto-derived chip overlaid on the photo,
+ * picked by priority: Adoption pending > New arrival (<=7d) >
+ * Long-stayer (>=30d) > none. No manual tag entry — these are stable
+ * signals computed from the dog's data, so they're always accurate and
+ * never need maintenance.
+ *
+ * Sex renders as a small Mars/Venus icon next to the name; the prior
+ * "Male" / "Female" word in the breed/age row was redundant with the
+ * universally-understood symbol.
  */
 export function ShelterDogCard({ dog }: ShelterDogCardProps) {
-  const isLongStayer = (dog.daysInKennel ?? 0) >= 30;
-  const isPending = dog.adoptionStatus === "pending";
+  const chip = pickAutoChip(dog);
 
-  // Derived tags include any explicit `dog.tags` PLUS an auto Long-stayer
-  // chip when `daysInKennel >= 30` and it wasn't already included manually.
-  const tagSet = new Set(dog.tags ?? []);
-  if (isLongStayer) tagSet.add("Long-stayer");
-  const tagList = [...tagSet];
-
-  const sexLabel = dog.sex === "male" ? "Male" : dog.sex === "female" ? "Female" : null;
-  const lineParts = [dog.breed, dog.ageLabel, sexLabel].filter(Boolean);
+  const SexIcon = dog.sex === "male" ? GenderMale : dog.sex === "female" ? GenderFemale : null;
+  const sexLabel = dog.sex === "male" ? "Male" : dog.sex === "female" ? "Female" : "";
 
   return (
     <Link
@@ -37,52 +45,48 @@ export function ShelterDogCard({ dog }: ShelterDogCardProps) {
         className="shelter-dog-card-photo"
         style={{ backgroundImage: `url(${dog.imageUrl})` }}
       >
-        {isPending && (
-          <span className="shelter-dog-card-status">Adoption pending</span>
+        {chip && (
+          <span
+            className={`shelter-dog-card-chip shelter-dog-card-chip--${chip.tone}`}
+          >
+            {chip.label}
+          </span>
         )}
       </div>
 
       <div className="shelter-dog-card-body">
-        <div className="flex items-baseline justify-between gap-md">
+        <div className="shelter-dog-card-header">
           <h3 className="shelter-dog-card-name">{dog.name}</h3>
-          <span className="shelter-dog-card-line">{lineParts.join(" · ")}</span>
+          {SexIcon && (
+            <SexIcon
+              size={14}
+              weight="light"
+              className="shelter-dog-card-sex"
+              aria-label={sexLabel}
+            />
+          )}
+        </div>
+
+        <div className="shelter-dog-card-meta">
+          {[dog.breed, dog.ageLabel].filter(Boolean).join(" · ")}
         </div>
 
         <div className="shelter-dog-card-stats">
           <span className="shelter-dog-card-stat">
             <Clock size={12} weight="light" />
-            {dog.daysInKennel != null
-              ? `${dog.daysInKennel} ${dog.daysInKennel === 1 ? "day" : "days"} in care`
-              : "Just arrived"}
+            <span>
+              {dog.daysInKennel != null
+                ? `${dog.daysInKennel}d in care`
+                : "Just arrived"}
+            </span>
           </span>
           <span className="shelter-dog-card-stat">
             <PawPrint size={12} weight="light" />
-            {dog.lastWalkedAt ? `Last walked ${formatRelativeDay(dog.lastWalkedAt)}` : "Hasn't been walked yet"}
-          </span>
-          {dog.soloOnly && (
-            <span className="shelter-dog-card-stat shelter-dog-card-stat--policy">
-              <ShieldCheck size={12} weight="light" />
-              Solo only
+            <span>
+              {dog.lastWalkedAt ? formatRelativeDay(dog.lastWalkedAt) : "No walks yet"}
             </span>
-          )}
+          </span>
         </div>
-
-        {dog.backstory && (
-          <p className="shelter-dog-card-backstory">{dog.backstory}</p>
-        )}
-
-        {tagList.length > 0 && (
-          <div className="shelter-dog-card-tags">
-            {tagList.map((tag) => (
-              <span
-                key={tag}
-                className={`shelter-dog-card-tag${tag === "Long-stayer" ? " shelter-dog-card-tag--long" : ""}`}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
       </div>
     </Link>
   );
@@ -90,12 +94,24 @@ export function ShelterDogCard({ dog }: ShelterDogCardProps) {
 
 /* ── Helpers ───────────────────────────────────────────────────────── */
 
-/** Compact relative-day phrasing — "today", "yesterday", "3 days ago". */
+type AutoChip = { label: string; tone: "pending" | "new" | "long" };
+
+function pickAutoChip(dog: PetProfile): AutoChip | null {
+  if (dog.adoptionStatus === "pending") {
+    return { label: "Adoption pending", tone: "pending" };
+  }
+  const days = dog.daysInKennel ?? 0;
+  if (days <= 7) return { label: "New arrival", tone: "new" };
+  if (days >= 30) return { label: "Long-stayer", tone: "long" };
+  return null;
+}
+
+/** Compact relative-day phrasing — "today", "yesterday", "3d ago". */
 function formatRelativeDay(iso: string): string {
   const then = new Date(iso).getTime();
   const now = Date.now();
   const days = Math.floor((now - then) / (1000 * 60 * 60 * 24));
   if (days <= 0) return "today";
   if (days === 1) return "yesterday";
-  return `${days} days ago`;
+  return `${days}d ago`;
 }
