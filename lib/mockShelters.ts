@@ -98,7 +98,8 @@ const UTULEK_DOGS: PetProfile[] = [
     lastWalkedAt: daysAgoIso(8, "10:00"),
     backstory:
       "Older gentleman who lost his person to illness. Calm, steady, gets along with everyone. Just wants a sofa and a soft voice.",
-    tags: ["Long-stayer", "Senior", "Calm"],
+    /* "Calm" is auto-derived from `energyLevel: "low"` — manual tag dropped */
+    tags: ["Long-stayer", "Senior"],
     adoptionStatus: "available",
     intakeDate: daysAgo(91),
     experiencedHandlersOnly: true,
@@ -134,7 +135,8 @@ const UTULEK_DOGS: PetProfile[] = [
     lastWalkedAt: daysAgoIso(1, "09:00"),
     backstory:
       "Small but mighty. Loves a brisk walk and a stick. Has decided opinions about cats.",
-    tags: ["Small", "High energy"],
+    /* "High energy"/"Active" is auto-derived from `energyLevel: "high"` */
+    tags: ["Small"],
     adoptionStatus: "available",
     intakeDate: daysAgo(14),
     energyLevel: "high",
@@ -169,7 +171,9 @@ const UTULEK_DOGS: PetProfile[] = [
     lastWalkedAt: undefined,
     backstory:
       "Came from a rural municipal pound after her owner died. Wary of new people but loyal once she trusts you. Needs a quiet home with no other dogs.",
-    tags: ["Long-stayer", "Wary of strangers", "Solo only"],
+    /* "Solo only" is auto-derived from `soloOnly: true` — the policy
+       chip renders below the tags strip, so this would have duplicated. */
+    tags: ["Long-stayer", "Wary of strangers"],
     adoptionStatus: "available",
     intakeDate: daysAgo(120),
     soloOnly: true,

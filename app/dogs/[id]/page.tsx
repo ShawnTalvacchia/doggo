@@ -85,13 +85,29 @@ function DogProfileInner() {
   const { dog, shelter } = resolved;
   const posts = getDogPosts(dog.id);
   const isLongStayer = (dog.daysInKennel ?? 0) >= 30;
+  // Shelter-care stats (In care, Last walked) only render while the dog
+  // is actively being cared for at the shelter. Once adopted, the dog
+  // has gone home and those numbers stop being meaningful.
+  const showCareStats = dog.adoptionStatus !== "adopted";
+  const energyLabel = formatEnergy(dog.energyLevel);
+  // Manual tags can duplicate auto-derivable labels (older seeds set
+  // "Calm" or "High energy" manually alongside `energyLevel`). Dedupe
+  // when rendering so the user doesn't see the same chip twice. Energy
+  // gets its own chip first; matching manual tags get filtered.
+  const energyDedupe = energyLabel ? new Set([energyLabel.toLowerCase()]) : new Set<string>();
+  const manualTags = (dog.tags ?? []).filter(
+    (t) => !energyDedupe.has(t.toLowerCase()),
+  );
 
   return (
     <div className="dog-profile-page">
       <DetailHeader backLabel="Back" title={dog.name} />
       <div className="dog-profile-panel">
         <div className="dog-profile-body">
-          {/* Pet-as-protagonist hero — full-width photo, name overlay */}
+          {/* Pet-as-protagonist hero — full-width photo, name overlay.
+              Hero meta line carries the universal dog stats: breed,
+              age, sex, weight. Status-y data (In care, Last walked,
+              energy, tags) lives in the body below. */}
           <div
             className="dog-profile-hero"
             style={{ backgroundImage: `url(${dog.imageUrl})` }}
@@ -99,7 +115,12 @@ function DogProfileInner() {
             <div className="dog-profile-hero-overlay">
               <h1 className="dog-profile-name">{dog.name}</h1>
               <div className="dog-profile-line">
-                {[dog.breed, dog.ageLabel, dog.sex === "male" ? "Male" : dog.sex === "female" ? "Female" : null]
+                {[
+                  dog.breed,
+                  dog.ageLabel,
+                  dog.sex === "male" ? "Male" : dog.sex === "female" ? "Female" : null,
+                  dog.weightLabel,
+                ]
                   .filter(Boolean)
                   .join(" · ")}
               </div>
@@ -115,47 +136,55 @@ function DogProfileInner() {
               <p className="dog-profile-backstory">{dog.backstory}</p>
             )}
 
-            {/* Kennel stats */}
-            <div className="dog-profile-stats">
-              <DogStatTile
-                icon={<Clock size={16} weight="light" />}
-                label="In care"
-                value={
-                  dog.daysInKennel != null
-                    ? `${dog.daysInKennel} ${dog.daysInKennel === 1 ? "day" : "days"}`
-                    : "Just arrived"
-                }
-                subline={isLongStayer ? "Long-stayer" : undefined}
-              />
-              <DogStatTile
-                icon={<PawPrint size={16} weight="light" />}
-                label="Last walked"
-                value={dog.lastWalkedAt ? formatRelativeDay(dog.lastWalkedAt) : "Not yet"}
-              />
-              {dog.weightLabel && (
+            {/* Shelter-care stats. Only render while the dog is actively
+                in shelter care (pre-adopted). Owned dogs and adopted
+                shelter dogs hide this row entirely. */}
+            {showCareStats && (
+              <div className="dog-profile-stats">
                 <DogStatTile
-                  icon={<Heart size={16} weight="light" />}
-                  label="Weight"
-                  value={dog.weightLabel}
+                  icon={<Clock size={16} weight="light" />}
+                  label="In care"
+                  value={
+                    dog.daysInKennel != null
+                      ? `${dog.daysInKennel} ${dog.daysInKennel === 1 ? "day" : "days"}`
+                      : "Just arrived"
+                  }
+                  subline={isLongStayer ? "Long-stayer" : undefined}
                 />
-              )}
-            </div>
+                <DogStatTile
+                  icon={<PawPrint size={16} weight="light" />}
+                  label="Last walked"
+                  value={dog.lastWalkedAt ? formatRelativeDay(dog.lastWalkedAt) : "Not yet"}
+                />
+              </div>
+            )}
 
-            {/* Tags */}
-            {(dog.tags?.length ?? 0) > 0 && (
+            {/* Tags row. Energy chip first (auto-derived from
+                `energyLevel`), then auto Long-stayer (auto-derived from
+                `daysInKennel`), then manually-set personality tags.
+                Tag taxonomy is intentional but not yet formalized — see
+                FC8 in Future Considerations. */}
+            {(energyLabel || isLongStayer || manualTags.length > 0) && (
               <div className="dog-profile-tags">
-                {dog.tags!.map((tag) => (
+                {energyLabel && (
+                  <span className="dog-profile-tag dog-profile-tag--energy">
+                    {energyLabel}
+                  </span>
+                )}
+                {isLongStayer && !dog.tags?.includes("Long-stayer") && (
+                  <span className="dog-profile-tag dog-profile-tag--long">Long-stayer</span>
+                )}
+                {manualTags.map((tag) => (
                   <span key={tag} className="dog-profile-tag">
                     {tag}
                   </span>
                 ))}
-                {isLongStayer && !dog.tags?.includes("Long-stayer") && (
-                  <span className="dog-profile-tag dog-profile-tag--long">Long-stayer</span>
-                )}
               </div>
             )}
 
-            {/* Handling notes */}
+            {/* Handling policy notes — solo only, experienced handlers
+                only. Visually separate from personality tags because
+                these gate walker eligibility. Shelter dogs only. */}
             {(dog.soloOnly || dog.experiencedHandlersOnly) && (
               <div className="dog-profile-policy">
                 <ShieldCheck size={14} weight="light" />
@@ -302,4 +331,22 @@ function formatRelativeDay(iso: string): string {
   if (days <= 0) return "today";
   if (days === 1) return "yesterday";
   return `${days} days ago`;
+}
+
+/** Translate the raw `energyLevel` enum to a human-readable chip label.
+ *  Returns `null` when the field is missing so the chip is skipped
+ *  entirely (no "Unknown energy" placeholder). */
+function formatEnergy(level: string | undefined): string | null {
+  switch (level) {
+    case "low":
+      return "Calm";
+    case "moderate":
+      return "Easygoing";
+    case "high":
+      return "Active";
+    case "very_high":
+      return "High energy";
+    default:
+      return null;
+  }
 }

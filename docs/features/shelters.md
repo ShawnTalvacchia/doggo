@@ -133,6 +133,31 @@ Walker-authored walk recaps thus auto-route into the shelter feed via their dog/
 
 ---
 
+## Dog profile tag taxonomy (interim)
+
+The chip/pill rows on the Dogs-tab card AND the dog profile (`/dogs/[id]`) fall into three categories. V1 ships them visually distinct but the data model is still informal — formalization is FC8 in Future Considerations and lands with the Dog Profile phase.
+
+**1. Auto-derived chips** — computed at render time, never stored. Always accurate.
+
+| Chip | Derived from | Visual |
+|---|---|---|
+| Long-stayer | `daysInKennel >= 30` | Amber-tinted (`--warning-25`) |
+| New arrival | `daysInKennel <= 7` (cards only) | Solid brand fill (event treatment) |
+| Adoption pending | `adoptionStatus === "pending"` (cards only) | Yellow glass (translucent) |
+| Calm / Easygoing / Active / High energy | `PetProfile.energyLevel` | Brand-tinted (`--brand-subtle`) |
+
+The card-level chip uses single-overlay priority (Adoption pending > New arrival > Long-stayer > none). The dog-profile chips render all applicable.
+
+**2. Manual personality tags** — `PetProfile.tags: string[]`. Curated free-text, e.g. "Affectionate", "Smart", "Wary of strangers", "Reactive to other dogs". Render as neutral surface chips.
+
+Seed-time discipline: don't manually enter any tag that would auto-derive (e.g. don't add "Calm" to a dog whose `energyLevel: "low"` — the energy chip will render it). The render layer dedupes case-insensitively against `formatEnergy()` output to handle drift.
+
+**3. Policy chips (auto-derived)** — `PetProfile.soloOnly` + `PetProfile.experiencedHandlersOnly`. Visually distinct (single row with shield icon) because they gate walker eligibility. Different visual role from personality tags.
+
+**Tag system formalization** — FC8 in Future Considerations covers the planned shape: a typed enum for personality tags (controlled vocabulary), explicit auto-derive helpers per chip type, and the harmonized seed data. Currently mixed for compatibility; clean-up lands with the Dog Profile phase.
+
+---
+
 ## Discovery
 
 V1 ships **no top-level Discover entry** for shelters. Users reach a shelter via:

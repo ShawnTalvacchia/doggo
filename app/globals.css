@@ -14827,8 +14827,17 @@ a.shelter-intro-social:hover {
 }
 
 .dog-profile-tag--long {
-  background: var(--warning-subtle, var(--surface-base));
-  color: var(--warning-strong, var(--text-secondary));
+  background: var(--warning-25);
+  color: var(--warning-850);
+  border-color: transparent;
+}
+
+/* Energy chip — derived from `energyLevel`. Brand-tinted to distinguish
+   it from manual personality tags. Same shape, different palette so
+   "Calm" reads as an automatic characteristic, not a curated label. */
+.dog-profile-tag--energy {
+  background: var(--brand-subtle);
+  color: var(--brand-strong);
   border-color: transparent;
 }
 
