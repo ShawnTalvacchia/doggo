@@ -32,8 +32,12 @@ interface ShelterDogCardProps {
 export function ShelterDogCard({ dog }: ShelterDogCardProps) {
   const chip = pickAutoChip(dog);
 
+  // Sex renders as a Mars/Venus icon paired with the letter "M" / "F" so
+  // viewers who don't recognize the symbol still get the meaning. Lives
+  // in the meta row beside breed + age, not in the name header.
   const SexIcon = dog.sex === "male" ? GenderMale : dog.sex === "female" ? GenderFemale : null;
-  const sexLabel = dog.sex === "male" ? "Male" : dog.sex === "female" ? "Female" : "";
+  const sexLetter = dog.sex === "male" ? "M" : dog.sex === "female" ? "F" : "";
+  const sexAria = dog.sex === "male" ? "Male" : dog.sex === "female" ? "Female" : "";
 
   return (
     <Link
@@ -55,20 +59,25 @@ export function ShelterDogCard({ dog }: ShelterDogCardProps) {
       </div>
 
       <div className="shelter-dog-card-body">
-        <div className="shelter-dog-card-header">
-          <h3 className="shelter-dog-card-name">{dog.name}</h3>
-          {SexIcon && (
-            <SexIcon
-              size={14}
-              weight="light"
-              className="shelter-dog-card-sex"
-              aria-label={sexLabel}
-            />
-          )}
-        </div>
+        <h3 className="shelter-dog-card-name">{dog.name}</h3>
 
         <div className="shelter-dog-card-meta">
-          {[dog.breed, dog.ageLabel].filter(Boolean).join(" · ")}
+          {dog.breed && <span>{dog.breed}</span>}
+          {dog.ageLabel && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span>{dog.ageLabel}</span>
+            </>
+          )}
+          {SexIcon && (
+            <>
+              <span aria-hidden="true">·</span>
+              <span className="shelter-dog-card-sex" aria-label={sexAria}>
+                <SexIcon size={11} weight="bold" />
+                {sexLetter}
+              </span>
+            </>
+          )}
         </div>
 
         <div className="shelter-dog-card-stats">

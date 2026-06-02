@@ -434,7 +434,7 @@ function DogsInCareSummaryCard({ shelter }: { shelter: ShelterProfile }) {
       <div className="shelter-summary-card-icon">
         <Dog size={24} weight="light" />
       </div>
-      <div className="flex flex-col gap-xxs flex-1 min-w-0">
+      <div className="flex flex-col gap-tiny flex-1 min-w-0">
         <span className="shelter-summary-card-headline">
           {dogCount} {dogCount === 1 ? "dog" : "dogs"} in care
         </span>

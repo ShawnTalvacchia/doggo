@@ -201,7 +201,7 @@ function DogStatTile({
   return (
     <div className="dog-profile-stat">
       <div className="dog-profile-stat-icon">{icon}</div>
-      <div className="flex flex-col gap-xxs min-w-0">
+      <div className="flex flex-col gap-tiny min-w-0">
         <span className="text-xs text-fg-tertiary">{label}</span>
         <span className="text-sm font-semibold text-fg-primary">{value}</span>
         {subline && <span className="text-xs text-warning-strong">{subline}</span>}
@@ -284,7 +284,7 @@ function ShelterBacklink({ shelter }: { shelter: ShelterProfile }) {
       style={{ textDecoration: "none" }}
     >
       <img src={shelter.logoUrl} alt={shelter.name} className="dog-profile-shelter-backlink-logo" />
-      <div className="flex flex-col gap-xxs flex-1 min-w-0">
+      <div className="flex flex-col gap-tiny flex-1 min-w-0">
         <span className="text-xs text-fg-tertiary">Cared for by</span>
         <span className="text-sm font-semibold text-fg-primary">{shelter.name}</span>
       </div>

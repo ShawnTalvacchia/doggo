@@ -1,6 +1,6 @@
 ---
 status: living
-last-reviewed: 2026-05-22
+last-reviewed: 2026-06-01
 review-trigger: "Append when a 'noted for later' idea surfaces; promote out when triggered"
 ---
 
@@ -148,3 +148,60 @@ Neither is needed for the demo — the viewer toggle (off by default) already ke
 **Refs:** `app/communities/[id]/page.tsx` (`MembersTab` toggle + `getMemberServiceSummary` + the service footer), `lib/types.ts` (`Group` / `GroupMember` / `carerProfile` would carry the flags).
 
 **Added:** 2026-05-22
+
+---
+
+## FC7. Shelter Dogs tab — list + carousel view modes
+
+**Trigger:** A walker or shelter coordinator surfaces "I want to scan the roster more quickly" (list view), or the "Help a Dog" entry point (Cold-Start Playbook future thread) needs an emotional one-dog-at-a-time pattern (carousel view).
+
+**Context:** Shelter Foundation (2026-06-01) shipped the Dogs tab as a single photo-led card grid (2-up on desktop, 1-up on mobile). Two additional view modes were discussed and deferred:
+
+- **List view** — small dog avatar on the left, info on the right. Most compact; useful for staff/walkers scanning who's available, who needs a walk, etc. Trades emotive presentation for density.
+- **Carousel / one-at-a-time view** — swipe-style focus on a single dog at a time. Emphasizes commitment (you can't scroll past), fits the future "Help a Dog" door from the Cold-Start Playbook. Substantial UI build (swipe gestures, transitions, navigation, prev/next state).
+
+Cards remain the default. A view-mode toggle (Cards · List · Carousel) would sit in the toolbar next to the sort dropdown. Sort persists across views.
+
+**Effort:** ~3-5h for List (new compact row component + view-mode toggle state + CSS). Carousel is its own ~1-day build (gesture handling, animation, nav UI) and should probably land as part of the "Help a Dog" Cold-Start phase rather than incrementally on the existing Dogs tab.
+
+**Refs:** `app/shelters/[id]/page.tsx` (`DogsTab`), `components/shelters/ShelterDogCard.tsx`, `docs/strategy/Cold-Start Playbook.md` ("Help a Dog" thread), Shelter Foundation walkthrough.
+
+**Added:** 2026-06-01
+
+---
+
+## FC8. Shelter dog tag system formalization
+
+**Trigger:** Manual tag inconsistency becomes a real maintenance pain (one shelter's "Reactive" is another's "Reactive to other dogs"), OR a search/filter affordance over tags becomes a real ask.
+
+**Context:** Shelter Foundation (2026-06-01) seeded shelter dogs with a `tags: string[]` free-text field — "Affectionate", "Smart", "Reactive to other dogs", "Long-stayer", "New arrival", "Solo only", etc. Tags currently render only on `/dogs/[id]` (the Dogs-tab card was pared back to drop them, since auto-derived chips communicate the urgent signals).
+
+Two distinct tag categories are mixed in the current data:
+- **Auto-derivable** — Long-stayer (`daysInKennel >= 30`), New arrival (`daysInKennel <= 7`), Senior (age-derived), Puppy (age-derived). These should be computed at render time, never manually entered. Today some of these are duplicated manually in the `tags` array.
+- **Curated personality** — Affectionate, Calm, Smart, Shy, Wary of strangers, etc. These are human-judgment tags. A controlled vocabulary (enum or constants set) would make them consistent across shelters.
+
+Cleaner system: split `PetProfile.tags` into auto-derived (computed, never stored) + curated personality (typed enum or constants-backed string union). Or just keep the free-text field and rely on documentation conventions. Either way, the V1 mock data needs a cleanup pass: drop redundant auto-derivable entries, harmonize wording.
+
+**Effort:** ~2-3h. Define the personality-tag vocabulary; refactor seeds; add a `deriveAutoTags(dog: PetProfile)` helper; update the dog profile + future surfaces to compose auto-derived + manual.
+
+**Refs:** `lib/mockShelters.ts` (current free-text seeds), `app/dogs/[id]/page.tsx` (renders `dog.tags`), `components/shelters/ShelterDogCard.tsx` (uses `pickAutoChip` — the seed for the auto-derived pattern).
+
+**Added:** 2026-06-01
+
+---
+
+## FC9. Locked-profile rendering across surfaces
+
+**Trigger:** The Credentialing Moat phase (Carer Portfolio + Shelter Walker Credentialing) opens. Or sooner if a walkthrough surfaces "I clicked on a walker name and it 404'd" / "Why can't I see this person?"
+
+**Context:** The visibility-gradient machinery for showing a person to a viewer (full identity vs Tier-2/Tier-3 collapse vs "+ Familiar" pill on locked profiles with shared context) already exists in `PersonRow` + `getAttendeeTier` + `lib/personActions.ts` + `PrivateProfileRow`. It runs on the community Members tab today.
+
+Several surfaces don't use it yet — most notably the **shelter Members tab**, where walkers are rendered through a custom `ShelterMemberRow` because today's walkers are directory-style entries without `UserProfile` records. When walkers bridge to real personas (planned for credentialing-moat), the move is: make `ShelterMemberRow` a thin wrapper around `PersonRow` (passing the walker affiliation chip + tier label into PersonRow's chip slot). Visibility logic comes for free.
+
+Same applies to: post comments from un-bridged authors, "Recent walkers" on dog profiles, future gallery sub-attribution. The principle is one shape per entity, regardless of which surface renders it.
+
+**Effort:** ~2-3h within the credentialing-moat phase once walker personas exist. Most work is wiring, not rebuilding.
+
+**Refs:** `components/people/PersonRow.tsx`, `components/people/PrivateProfileRow.tsx`, `lib/personActions.ts`, `components/shelters/ShelterMemberRow.tsx` (today's stand-in), `docs/strategy/Trust & Connection Model.md` (full visibility model).
+
+**Added:** 2026-06-01
