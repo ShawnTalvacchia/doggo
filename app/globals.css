@@ -14383,7 +14383,9 @@ a.shelter-intro-social:hover {
 }
 
 .shelter-members-filter {
-  padding: var(--space-md) var(--space-xl);
+  /* Horizontal padding matches .detail-tabs so the filter row aligns
+     edge-to-edge with the tabs above. */
+  padding: var(--space-md);
   background: var(--surface-popout);
   border-bottom: 1px solid var(--border-regular);
 }
@@ -14611,7 +14613,8 @@ a.shelter-intro-social:hover {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  padding: var(--space-md) var(--space-xl);
+  /* Horizontal padding matches .detail-tabs / filter row above. */
+  padding: var(--space-md);
   background: var(--surface-popout);
   border-bottom: 1px solid var(--border-regular);
 }
@@ -14648,25 +14651,25 @@ a.shelter-intro-social:hover {
   color: var(--text-primary);
 }
 
+/* Tier-labeled walker chip on shelter Members rows. Uniform style for
+   all three tiers in V1 (label carries the tier); tier-coded visual
+   intensification (outlined → filled → filled+ring) lands with the
+   credentialing-moat phase per FC9. */
 .shelter-member-chip {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-tiny);
-  padding: var(--space-tiny) var(--space-sm);
+  gap: var(--space-xs);
+  padding: 3px 10px;
   border-radius: var(--radius-pill);
   font-size: var(--text-xs);
-  font-weight: 500;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .shelter-member-chip--walker {
   background: var(--status-info-light);
   color: var(--status-info-strong);
-}
-
-.shelter-member-chip--supporter {
-  background: var(--surface-base);
-  color: var(--text-secondary);
-  border: 1px solid var(--border-regular);
 }
 
 .shelter-member-subline {

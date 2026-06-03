@@ -201,11 +201,17 @@ const UTULEK_DOGS: PetProfile[] = [
 
 /* ── Walker roster ───────────────────────────────────────────────────────── */
 
+// Walker avatars reuse supporting-cast portraits. Same face appearing
+// across multiple demo contexts is a known visual trade-off — picked
+// over initials-only because the prototype reads materially richer with
+// real portraits, and the bridges to real personas will be wired in
+// the credentialing-moat phase. See FC9.
 const UTULEK_WALKERS: ShelterWalker[] = [
   // Trusted — 1 walker, deeply embedded
   {
     userId: "walker-pavel-d",
     displayName: "Pavel D.",
+    avatarUrl: "/images/generated/marek-profile.jpeg",
     tier: "trusted",
     vouchedAt: daysAgo(420),
     walkCount: 87,
@@ -215,6 +221,7 @@ const UTULEK_WALKERS: ShelterWalker[] = [
   {
     userId: "walker-marie-b",
     displayName: "Marie B.",
+    avatarUrl: "/images/generated/marie-profile.jpeg",
     tier: "experienced",
     vouchedAt: daysAgo(240),
     walkCount: 32,
@@ -223,6 +230,7 @@ const UTULEK_WALKERS: ShelterWalker[] = [
   {
     userId: "walker-lukas-p",
     displayName: "Lukáš P.",
+    avatarUrl: "/images/generated/vitek-profile.jpeg",
     tier: "experienced",
     vouchedAt: daysAgo(180),
     walkCount: 22,
@@ -231,6 +239,7 @@ const UTULEK_WALKERS: ShelterWalker[] = [
   {
     userId: "walker-helena-s",
     displayName: "Helena S.",
+    avatarUrl: "/images/generated/eva-profile.jpeg",
     tier: "experienced",
     vouchedAt: daysAgo(140),
     walkCount: 18,
@@ -240,6 +249,7 @@ const UTULEK_WALKERS: ShelterWalker[] = [
   {
     userId: "walker-anna-k",
     displayName: "Anna K.",
+    avatarUrl: "/images/generated/hana-profile.jpeg",
     tier: "vetted",
     vouchedAt: daysAgo(85),
     walkCount: 9,
@@ -248,6 +258,7 @@ const UTULEK_WALKERS: ShelterWalker[] = [
   {
     userId: "walker-jakub-v",
     displayName: "Jakub V.",
+    avatarUrl: "/images/generated/jakub-profile.jpeg",
     tier: "vetted",
     vouchedAt: daysAgo(60),
     walkCount: 6,
@@ -256,6 +267,7 @@ const UTULEK_WALKERS: ShelterWalker[] = [
   {
     userId: "walker-petr-h",
     displayName: "Petr H.",
+    avatarUrl: "/images/generated/ondrej-profile.jpeg",
     tier: "vetted",
     vouchedAt: daysAgo(28),
     walkCount: 3,
@@ -264,6 +276,7 @@ const UTULEK_WALKERS: ShelterWalker[] = [
   {
     userId: "walker-karolina-m",
     displayName: "Karolína M.",
+    avatarUrl: "/images/generated/adela-profile.jpeg",
     tier: "vetted",
     vouchedAt: daysAgo(14),
     walkCount: 2,
@@ -273,19 +286,21 @@ const UTULEK_WALKERS: ShelterWalker[] = [
 
 /* ── Supporters roster ───────────────────────────────────────────────────── */
 
+// Supporter avatars also reuse supporting-cast portraits (same trade-off
+// as walkers, see comment on UTULEK_WALKERS).
 const UTULEK_SUPPORTERS: ShelterSupporter[] = [
-  { userId: "supporter-andrea-k", displayName: "Andrea K.", since: daysAgo(380) },
-  { userId: "supporter-marta-r", displayName: "Marta R.", since: daysAgo(310) },
-  { userId: "supporter-vojta-l", displayName: "Vojtěch L.", since: daysAgo(245) },
-  { userId: "supporter-iveta-p", displayName: "Iveta P.", since: daysAgo(190) },
-  { userId: "supporter-radek-s", displayName: "Radek S.", since: daysAgo(170) },
-  { userId: "supporter-nela-d", displayName: "Nela D.", since: daysAgo(130) },
-  { userId: "supporter-michal-h", displayName: "Michal H.", since: daysAgo(95) },
-  { userId: "supporter-eva-z", displayName: "Eva Ž.", since: daysAgo(72) },
-  { userId: "supporter-david-c", displayName: "David Č.", since: daysAgo(48) },
-  { userId: "supporter-katerina-v", displayName: "Kateřina V.", since: daysAgo(31) },
-  { userId: "supporter-stepan-m", displayName: "Štěpán M.", since: daysAgo(18) },
-  { userId: "supporter-alena-t", displayName: "Alena T.", since: daysAgo(6) },
+  { userId: "supporter-andrea-k", displayName: "Andrea K.", avatarUrl: "/images/generated/nikola-profile.jpeg", since: daysAgo(380) },
+  { userId: "supporter-marta-r", displayName: "Marta R.", avatarUrl: "/images/generated/zuzana-profile.jpeg", since: daysAgo(310) },
+  { userId: "supporter-vojta-l", displayName: "Vojtěch L.", avatarUrl: "/images/generated/martin-profile.jpeg", since: daysAgo(245) },
+  { userId: "supporter-iveta-p", displayName: "Iveta P.", avatarUrl: "/images/generated/petra-profile.jpeg", since: daysAgo(190) },
+  { userId: "supporter-radek-s", displayName: "Radek S.", avatarUrl: "/images/generated/filip-profile.jpeg", since: daysAgo(170) },
+  { userId: "supporter-nela-d", displayName: "Nela D.", avatarUrl: "/images/generated/jana-profile.jpeg", since: daysAgo(130) },
+  { userId: "supporter-michal-h", displayName: "Michal H.", avatarUrl: "/images/generated/jakub-profile.jpeg", since: daysAgo(95) },
+  { userId: "supporter-eva-z", displayName: "Eva Ž.", avatarUrl: "/images/generated/anezka-profile.jpeg", since: daysAgo(72) },
+  { userId: "supporter-david-c", displayName: "David Č.", avatarUrl: "/images/generated/marek-profile.jpeg", since: daysAgo(48) },
+  { userId: "supporter-katerina-v", displayName: "Kateřina V.", avatarUrl: "/images/generated/lucie-profile.jpeg", since: daysAgo(31) },
+  { userId: "supporter-stepan-m", displayName: "Štěpán M.", avatarUrl: "/images/generated/ondrej-profile.jpeg", since: daysAgo(18) },
+  { userId: "supporter-alena-t", displayName: "Alena T.", avatarUrl: "/images/generated/adela-profile.jpeg", since: daysAgo(6) },
 ];
 
 /* ── The shelter ─────────────────────────────────────────────────────────── */

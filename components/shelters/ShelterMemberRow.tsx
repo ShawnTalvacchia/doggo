@@ -1,34 +1,42 @@
 "use client";
 
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
-import { PawPrint, Heart } from "@phosphor-icons/react";
+import { PawPrint } from "@phosphor-icons/react";
 import type { ShelterSupporter, ShelterWalker, WalkerTier } from "@/lib/types";
 
 /**
- * A single row on the shelter Members tab. Walkers and Supporters render
- * through this one component — walkers get an affiliation chip + walks-count
- * subline; supporters get a quieter "Supporter" chip.
+ * A single row on the shelter Members tab.
  *
- * V1 ships a flat affiliation chip ("Walker · {shelter}") with no tier
- * intensification — the credentialing-moat phase upgrades the badge with
- * the visual escalation language (outlined → filled → filled+ring) per the
- * §8 + §14 resolutions. Walker tier is shown here in the subline ("Vetted
- * walker") so the information is visible without needing a tier-styled chip.
+ * Walkers carry a tier-labeled chip ("Vetted Walker" / "Experienced
+ * Walker" / "Trusted Handler") — the chip IS the tier signal. The
+ * subline carries the activity stat ("18 walks").
+ *
+ * Supporters get NO chip — the whole tab is supporters by default; the
+ * walker chip is the differentiator. Supporter rows just show
+ * "Following since Mon Year" in the subline.
+ *
+ * Tier-coded visual intensification (outlined → filled → filled+ring)
+ * is deferred to the credentialing-moat phase per FC9. V1 ships the
+ * tier label inside a uniform chip style.
  */
 interface ShelterMemberRowProps {
   entry:
     | { kind: "walker"; data: ShelterWalker; sortAt: string }
     | { kind: "supporter"; data: ShelterSupporter; sortAt: string };
-  shelterName: string;
+  // shelterName is kept on the prop type for forward-compat (a future
+  // multi-shelter walker badge could render shelter context); unused
+  // today because the chip is implicit-shelter on the shelter's own
+  // Members tab.
+  shelterName?: string;
 }
 
 const TIER_LABEL: Record<WalkerTier, string> = {
-  vetted: "Vetted walker",
-  experienced: "Experienced walker",
-  trusted: "Trusted handler",
+  vetted: "Vetted Walker",
+  experienced: "Experienced Walker",
+  trusted: "Trusted Handler",
 };
 
-export function ShelterMemberRow({ entry, shelterName }: ShelterMemberRowProps) {
+export function ShelterMemberRow({ entry }: ShelterMemberRowProps) {
   const { kind, data } = entry;
   const displayName = data.displayName;
 
@@ -45,28 +53,19 @@ export function ShelterMemberRow({ entry, shelterName }: ShelterMemberRowProps) 
       <div className="shelter-member-body">
         <div className="shelter-member-name-row">
           <span className="shelter-member-name">{displayName}</span>
-          {kind === "walker" ? (
+          {kind === "walker" && (
             <span className="shelter-member-chip shelter-member-chip--walker">
               <PawPrint size={11} weight="light" />
-              Walker · {shelterName}
-            </span>
-          ) : (
-            <span className="shelter-member-chip shelter-member-chip--supporter">
-              <Heart size={11} weight="light" />
-              Supporter
+              {TIER_LABEL[data.tier]}
             </span>
           )}
         </div>
 
         <div className="shelter-member-subline">
           {kind === "walker" ? (
-            <>
-              <span>{TIER_LABEL[data.tier]}</span>
-              <span aria-hidden="true">·</span>
-              <span>
-                {data.walkCount} {data.walkCount === 1 ? "walk" : "walks"}
-              </span>
-            </>
+            <span>
+              {data.walkCount} {data.walkCount === 1 ? "walk" : "walks"}
+            </span>
           ) : (
             <span>Following since {monthYear(data.since)}</span>
           )}

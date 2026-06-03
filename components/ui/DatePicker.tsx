@@ -32,9 +32,10 @@ function todayIso(): string {
   return toIso(new Date());
 }
 
-/** Returns cells for a calendar month grid (Sun-start, 7 cols). Nulls = empty padding. */
+/** Returns cells for a calendar month grid (Mon-start, 7 cols). Nulls = empty padding. */
 function buildMonthGrid(year: number, month: number): (Date | null)[] {
-  const firstDow = new Date(year, month, 1).getDay(); // 0=Sun
+  // getDay(): 0=Sun, 1=Mon, ..., 6=Sat. Shift to Mon-start: Sun→6, Mon→0, ..., Sat→5.
+  const firstDow = (new Date(year, month, 1).getDay() + 6) % 7;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const cells: (Date | null)[] = Array(firstDow).fill(null);
   for (let d = 1; d <= daysInMonth; d++) {
@@ -84,7 +85,7 @@ const MONTH_SHORT = [
   "Dec",
 ];
 
-const WEEKDAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
+const WEEKDAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"];
 
 /** Full label used only for aria-labels (better for screen readers) */
 function formatDateLabel(iso: string): string {

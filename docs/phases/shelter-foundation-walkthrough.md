@@ -32,7 +32,7 @@ Tight verification for the Shelter Foundation phase thesis: **Doggo accepts shel
 
 - [x] **B1. Dogs tab.** Sort dropdown defaults to **Needs walks now**. Berta sorts first (never walked, 120 days in care — Long-stayer glass chip). Theo appears with the solid green **New arrival** chip. Káťa shows the yellow glass **Adoption pending** chip. Cards 1-up on mobile, 2-up on desktop.
 
-- [ ] **B2. Switch sort.** Try `Longest in care` (Berta still first, 120d), `Smallest first` (Edda's 9kg first), `A–Z` (Berta, Edda, Káťa, Líza, Maja, Šimon, Theo, Tonda).
+- [x] **B2. Switch sort.** Try `Longest in care` (Berta still first, 120d), `Smallest first` (Edda's 9kg first), `A–Z` (Berta, Edda, Káťa, Líza, Maja, Šimon, Theo, Tonda).
 
 ---
 
