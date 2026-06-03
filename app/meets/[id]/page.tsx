@@ -894,20 +894,23 @@ function DetailsTab({
 
                 {rsvpMenuOpen && (
                   <div className="dropdown-menu" role="menu">
+                    {/* All menu icons use weight="light" for visual
+                        consistency. Active item is signaled by brand
+                        color on text+icon (no background fill). */}
                     <button
                       type="button"
                       className={`dropdown-menu-item${rsvpStatus === "going" ? " is-active" : ""}`}
                       onClick={() => { onRsvpChange("going"); setRsvpMenuOpen(false); }}
                       disabled={spotsLeft === 0 && rsvpStatus !== "going"}
                     >
-                      <Check size={16} weight="bold" /> Going
+                      <Check size={16} weight="light" /> Going
                     </button>
                     <button
                       type="button"
                       className={`dropdown-menu-item${rsvpStatus === "interested" ? " is-active" : ""}`}
                       onClick={() => { onRsvpChange("interested"); setRsvpMenuOpen(false); }}
                     >
-                      <Star size={16} weight="fill" /> Interested
+                      <Star size={16} weight="light" /> Interested
                     </button>
                     {rsvpStatus !== "none" && (
                       <button

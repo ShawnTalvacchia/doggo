@@ -15560,21 +15560,28 @@ a.shelter-intro-social:hover {
   z-index: 30;
   display: flex;
   flex-direction: column;
+  /* Padding + gap make the menu feel airy and substantial — taller
+     than the trigger button even with a single option. Padding is
+     larger than the gap so items nest cleanly inside the container. */
+  padding: 8px;
+  gap: 4px;
   background: var(--surface-top);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
-  overflow: hidden;
 }
 
 .dropdown-menu-item {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  /* Match .btn-md height so the menu item reads as a sibling of the
+  /* Match .btn-md height so each item reads as a sibling of the
      trigger button above. */
   min-height: 40px;
   padding: 0 var(--space-md);
+  /* Items round individually inside the menu container — no internal
+     border separators. */
+  border-radius: var(--radius-xs);
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   color: var(--text-primary);
@@ -15586,14 +15593,14 @@ a.shelter-intro-social:hover {
   transition: background 120ms ease, color 120ms ease;
 }
 
-.dropdown-menu-item + .dropdown-menu-item {
-  border-top: 1px solid var(--border-light);
-}
-
 .dropdown-menu-item:hover {
   background: var(--on-hover-base);
 }
 
+/* Active item — brand color on text + icon (icons inherit via
+   currentColor), no background change. Hover bg still applies on top,
+   matching Facebook's selected-row pattern: clicking the active item
+   just closes the menu without state change. */
 .dropdown-menu-item.is-active {
   color: var(--brand-strong);
 }
@@ -15603,11 +15610,12 @@ a.shelter-intro-social:hover {
   cursor: not-allowed;
 }
 
-/* Destructive variant — irreversible / negative actions. Light error
-   surface + strong error text on hover so the consequence registers
-   before the click commits. */
+/* Destructive variant — irreversible / negative actions. Bumped from
+   the lightest error tier (--error-25) to --error-50 so the hover
+   surface reads distinctly against the white menu background; the
+   strong error text holds. */
 .dropdown-menu-item--destructive:hover {
-  background: var(--status-error-light);
+  background: var(--error-50);
   color: var(--status-error-strong);
 }
 

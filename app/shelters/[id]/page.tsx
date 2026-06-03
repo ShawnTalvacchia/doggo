@@ -376,7 +376,7 @@ function ShelterActionRow({
               className="dropdown-menu-item dropdown-menu-item--destructive"
               onClick={onWithdrawInterest}
             >
-              <X size={16} weight="bold" />
+              <X size={16} weight="light" />
               Withdraw interest
             </button>
           </div>
