@@ -234,6 +234,8 @@ export const daniel: UserProfile = {
       weightLabel: "15 kg",
       ageLabel: "3 years",
       imageUrl: "/images/generated/bara-portrait.jpeg",
+      backstory:
+        "Adopted from a rural shelter in late 2025 after eight months in care. We're slowly building her confidence in the city — she's already a different dog from the one who hid behind the kennel door.",
       energyLevel: "moderate",
       playStyles: ["sniffing", "fetch"],
       socialisationNotes: "Reactive with unfamiliar dogs — needs slow, controlled introductions. Fine once she knows them. Nervous in large groups. Best with 1-2 calm dogs.",

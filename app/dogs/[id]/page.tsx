@@ -300,6 +300,14 @@ function DogProfileInner() {
               phase. */}
           {shelter && <RecentWalkers shelter={shelter} dogId={dog.id} />}
 
+          {/* Photos landing slot (Dog Profile phase, 2026-06-02). Reserves
+              the surface for the Photos & Galleries phase, which will
+              populate an auto-album from tagged posts. V1 surfaces only
+              the existing curated `photoGallery` field; the auto-album +
+              owner moderation + Highlights pinning belong to the next
+              phase. See [[phases/photos-and-galleries]] (draft). */}
+          <DogPhotoGallerySection dog={dog} />
+
           {/* Posts about this dog. Works identically for owned + shelter
               dogs — `getDogPosts(id)` matches posts tagging the dog id. */}
           <DogPostsSection dog={dog} posts={posts} />
@@ -478,6 +486,44 @@ function RecentWalkers({ shelter, dogId }: { shelter: ShelterProfile; dogId: str
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Photos landing slot (Dog Profile phase, 2026-06-02). Renders the
+ * existing curated `photoGallery` thumbnails in a 3-column grid. The
+ * Photos & Galleries phase will replace this with an auto-album drawn
+ * from posts tagged with the dog id, plus owner moderation + Highlights
+ * pinning. V1 reserves the surface so testers see the section structure.
+ *
+ * Always renders the header so the upcoming auto-album feels in-place;
+ * the body shows thumbs if seeded, an empty caption otherwise.
+ */
+function DogPhotoGallerySection({ dog }: { dog: PetProfile }) {
+  const photos = dog.photoGallery ?? [];
+  return (
+    <div className="dog-profile-section">
+      <h2 className="dog-profile-section-title">Photos</h2>
+      <p className="text-xs text-fg-tertiary">
+        Coming soon — photos from posts tagging {dog.name} will surface here.
+      </p>
+      {photos.length > 0 ? (
+        <div
+          className="grid gap-xs"
+          style={{ gridTemplateColumns: "repeat(3, 1fr)", marginTop: "var(--space-sm)" }}
+        >
+          {photos.map((url, i) => (
+            <img
+              key={i}
+              src={url}
+              alt={`${dog.name} photo ${i + 1}`}
+              className="rounded-sm"
+              style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover" }}
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

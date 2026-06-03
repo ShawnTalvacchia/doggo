@@ -1296,8 +1296,9 @@ export interface PetProfile {
   /** ISO timestamp of the most recent walk. Shelter dogs only. Drives the
    *  "Needs walks now" default sort on the shelter Dogs tab. */
   lastWalkedAt?: string;
-  /** Short narrative blurb (1–2 sentences) shown on the dog profile and
-   *  optionally on the dog card. Shelter dogs only. */
+  /** Short narrative blurb (1–2 sentences) shown on the dog profile under
+   *  the hero. Authored by the shelter (shelter dogs) or the owner via
+   *  PetEditCard (owned dogs — opened up in the Dog Profile phase). */
   backstory?: string;
   /**
    * Curated personality tags from the controlled `PersonalityTag` vocabulary

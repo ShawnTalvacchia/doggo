@@ -394,6 +394,26 @@ export function PetEditCard({
             </div>
           </div>
         </div>
+
+        {/* Backstory — narrative blurb shown on the dog profile under the
+            hero. Optional; shelter dogs already use this field, Dog
+            Profile phase opens it up to owned dogs too. */}
+        <div className="input-block">
+          <label className="label" htmlFor={`pet-backstory-${pet.id}`}>
+            <span className="label-primary-group">
+              <span>About {pet.name || "this dog"}</span>
+              <span className="text-xs text-fg-tertiary">— optional</span>
+            </span>
+          </label>
+          <textarea
+            id={`pet-backstory-${pet.id}`}
+            className="textarea"
+            placeholder="A short backstory — adoption story, what makes them them, anything you'd want a new carer to know first."
+            value={pet.backstory || ""}
+            onChange={(e) => onChange({ ...pet, backstory: e.target.value })}
+            style={{ minHeight: 60 }}
+          />
+        </div>
       </section>
 
       {/* ── Section 2: Personality ────────────────────────────────────── */}
