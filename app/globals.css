@@ -14311,34 +14311,9 @@ a.shelter-intro-social:hover {
 .shelter-action-button-wrap .btn {
   width: 100%;
 }
-
-.shelter-action-menu {
-  position: absolute;
-  top: calc(100% + var(--space-tiny));
-  left: 0;
-  right: 0;
-  background: var(--surface-top);
-  border: 1px solid var(--border-regular);
-  border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-md);
-  z-index: 5;
-  overflow: hidden;
-}
-
-.shelter-action-menu-item {
-  width: 100%;
-  padding: var(--space-sm) var(--space-md);
-  background: none;
-  border: 0;
-  font-size: var(--text-sm);
-  text-align: left;
-  cursor: pointer;
-  color: var(--text-primary);
-}
-
-.shelter-action-menu-item:hover {
-  background: var(--on-hover-base);
-}
+/* Menu styling lives in `.dropdown-menu` (shared across community
+   leave, shelter Follow/Walker, meet RSVP). The shelter action row
+   uses .dropdown-menu-wrap on the button wrapper. */
 
 /* Dogs-in-care summary card. Stands out as the primary CTA between the
    action row and the feed. Card-style: padded, bordered, brand-tinted
@@ -15554,15 +15529,30 @@ a.shelter-intro-social:hover {
   cursor: pointer;
 }
 
-/* ── RSVP dropdown menu (anchored under the going/interested button) ── */
+/* ── Shared dropdown menu ─────────────────────────────────────────────
+   Anchored under an action-becomes-status CTA (Joined ▾, Following ▾,
+   Going ▾, etc.). Wraps the trigger button with `.dropdown-menu-wrap`,
+   renders the menu below with `.dropdown-menu`, individual options as
+   `.dropdown-menu-item`.
 
-.meet-rsvp-menu-wrap {
+   Item height matches `.btn-md` (40px) so the menu reads as a natural
+   continuation of the button above. Text weight + size align with
+   button typography.
+
+   Modifiers:
+   - `.dropdown-menu-item.is-active` — highlights the currently-chosen
+     option (e.g. the active RSVP state).
+   - `.dropdown-menu-item--destructive` — lights up red on hover for
+     irreversible/negative actions (Unfollow, Leave community,
+     Withdraw interest). Neutral hover otherwise. */
+
+.dropdown-menu-wrap {
   position: relative;
   flex: 1;
   display: flex;
 }
 
-.meet-rsvp-menu {
+.dropdown-menu {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
@@ -15577,73 +15567,48 @@ a.shelter-intro-social:hover {
   overflow: hidden;
 }
 
-.meet-rsvp-menu-item {
+.dropdown-menu-item {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
+  /* Match .btn-md height so the menu item reads as a sibling of the
+     trigger button above. */
+  min-height: 40px;
+  padding: 0 var(--space-md);
   font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
   color: var(--text-primary);
   background: transparent;
   border: none;
   text-align: left;
   cursor: pointer;
   font-family: inherit;
+  transition: background 120ms ease, color 120ms ease;
 }
 
-.meet-rsvp-menu-item + .meet-rsvp-menu-item {
+.dropdown-menu-item + .dropdown-menu-item {
   border-top: 1px solid var(--border-light);
 }
 
-/* Group "Joined ▾" leave menu — mirrors the meet RSVP menu pattern so the
-   two surfaces share visual vocabulary. Could be extracted to a shared
-   `.dropdown-menu` later if a third surface adopts the same treatment. */
-.group-leave-menu-wrap {
-  position: relative;
-  flex: 1;
-  display: flex;
+.dropdown-menu-item:hover {
+  background: var(--on-hover-base);
 }
 
-.group-leave-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  z-index: 30;
-  display: flex;
-  flex-direction: column;
-  background: var(--surface-top);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
-}
-
-.group-leave-menu-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
-  font-size: var(--text-sm);
-  color: var(--text-primary);
-  background: transparent;
-  border: none;
-  text-align: left;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.group-leave-menu-item:hover {
-  background: var(--transparent-dark-8);
-}
-
-.meet-rsvp-menu-item:hover {
-  background: var(--surface-gray);
-}
-
-.meet-rsvp-menu-item.is-active {
+.dropdown-menu-item.is-active {
   color: var(--brand-strong);
-  font-weight: var(--weight-semibold);
+}
+
+.dropdown-menu-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Destructive variant — irreversible / negative actions. Light error
+   surface + strong error text on hover so the consequence registers
+   before the click commits. */
+.dropdown-menu-item--destructive:hover {
+  background: var(--status-error-light);
+  color: var(--status-error-strong);
 }
 
 /* ── RSVP action buttons (inline at top of info block) ── */

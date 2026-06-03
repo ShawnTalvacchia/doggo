@@ -860,7 +860,7 @@ function DetailsTab({
                 Hosting
               </ButtonAction>
             ) : (
-              <div className="meet-rsvp-menu-wrap">
+              <div className="meet-rsvp-menu-wrap dropdown-menu-wrap">
                 <ButtonAction
                   // FB-style toggle pattern (2026-04-27 v3): inactive is
                   // quiet (neutral fill); active is brand-celebrated
@@ -893,10 +893,10 @@ function DetailsTab({
                 </ButtonAction>
 
                 {rsvpMenuOpen && (
-                  <div className="meet-rsvp-menu" role="menu">
+                  <div className="dropdown-menu" role="menu">
                     <button
                       type="button"
-                      className={`meet-rsvp-menu-item${rsvpStatus === "going" ? " is-active" : ""}`}
+                      className={`dropdown-menu-item${rsvpStatus === "going" ? " is-active" : ""}`}
                       onClick={() => { onRsvpChange("going"); setRsvpMenuOpen(false); }}
                       disabled={spotsLeft === 0 && rsvpStatus !== "going"}
                     >
@@ -904,7 +904,7 @@ function DetailsTab({
                     </button>
                     <button
                       type="button"
-                      className={`meet-rsvp-menu-item${rsvpStatus === "interested" ? " is-active" : ""}`}
+                      className={`dropdown-menu-item${rsvpStatus === "interested" ? " is-active" : ""}`}
                       onClick={() => { onRsvpChange("interested"); setRsvpMenuOpen(false); }}
                     >
                       <Star size={16} weight="fill" /> Interested
@@ -912,7 +912,7 @@ function DetailsTab({
                     {rsvpStatus !== "none" && (
                       <button
                         type="button"
-                        className="meet-rsvp-menu-item"
+                        className="dropdown-menu-item dropdown-menu-item--destructive"
                         onClick={() => { onRsvpChange("none"); setRsvpMenuOpen(false); }}
                       >
                         <SignOut size={16} weight="light" /> Not going

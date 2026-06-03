@@ -31,6 +31,7 @@ import {
   CalendarBlank,
   CalendarPlus,
   CaretRight,
+  SignOut,
 } from "@phosphor-icons/react";
 import { CameraPlusFill } from "@/components/icons/CameraPlusFill";
 import { ButtonAction } from "@/components/ui/ButtonAction";
@@ -668,7 +669,7 @@ function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, join
             See `app/meets/[id]/page.tsx` action row for the parallel. */}
         <div className="group-action-buttons">
           {isMember ? (
-            <div className="group-leave-menu-wrap">
+            <div className="group-leave-menu-wrap dropdown-menu-wrap">
               <ButtonAction
                 // Active membership state — brand-subtle (FB-style toggle).
                 // Inactive (Join community / Request to join) uses primary
@@ -685,8 +686,13 @@ function FeedTab({ groupPosts, group, isMember, isAdmin, isCare, totalDogs, join
                 {isAdmin ? "Admin" : "Joined"}
               </ButtonAction>
               {leaveMenuOpen && !isAdmin && (
-                <div className="group-leave-menu" role="menu">
-                  <button type="button" className="group-leave-menu-item" onClick={onLeave}>
+                <div className="dropdown-menu" role="menu">
+                  <button
+                    type="button"
+                    className="dropdown-menu-item dropdown-menu-item--destructive"
+                    onClick={onLeave}
+                  >
+                    <SignOut size={16} weight="light" />
                     Leave community
                   </button>
                 </div>

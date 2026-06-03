@@ -18,6 +18,8 @@ import {
   FacebookLogo,
   InstagramLogo,
   Envelope,
+  SignOut,
+  X,
 } from "@phosphor-icons/react";
 import { DetailHeader } from "@/components/layout/DetailHeader";
 import { TabBar } from "@/components/ui/TabBar";
@@ -331,7 +333,7 @@ function ShelterActionRow({
 }: ShelterActionRowProps) {
   return (
     <div className="shelter-action-row">
-      <div className="shelter-action-button-wrap">
+      <div className="shelter-action-button-wrap dropdown-menu-wrap">
         <ButtonAction
           variant={isFollowing ? "brand-subtle" : "neutral"}
           size="md"
@@ -343,15 +345,20 @@ function ShelterActionRow({
           {isFollowing ? "Following" : "Follow"}
         </ButtonAction>
         {followMenuOpen && isFollowing && (
-          <div className="shelter-action-menu" role="menu">
-            <button type="button" className="shelter-action-menu-item" onClick={onUnfollow}>
+          <div className="dropdown-menu" role="menu">
+            <button
+              type="button"
+              className="dropdown-menu-item dropdown-menu-item--destructive"
+              onClick={onUnfollow}
+            >
+              <SignOut size={16} weight="light" />
               Unfollow
             </button>
           </div>
         )}
       </div>
 
-      <div className="shelter-action-button-wrap">
+      <div className="shelter-action-button-wrap dropdown-menu-wrap">
         <ButtonAction
           variant={walkerInterestSent ? "brand-subtle" : "primary"}
           size="md"
@@ -363,8 +370,13 @@ function ShelterActionRow({
           {walkerInterestSent ? "Interest sent" : "Walk a dog"}
         </ButtonAction>
         {walkerMenuOpen && walkerInterestSent && (
-          <div className="shelter-action-menu" role="menu">
-            <button type="button" className="shelter-action-menu-item" onClick={onWithdrawInterest}>
+          <div className="dropdown-menu" role="menu">
+            <button
+              type="button"
+              className="dropdown-menu-item dropdown-menu-item--destructive"
+              onClick={onWithdrawInterest}
+            >
+              <X size={16} weight="bold" />
               Withdraw interest
             </button>
           </div>
