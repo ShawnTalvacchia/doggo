@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import {
   Lightning,
   Heart,
@@ -279,20 +279,16 @@ function PetPreferences({ pet }: { pet: PetProfile }) {
         <Heart size={14} weight="fill" className="text-brand-main" />
         <span>How {pet.name} likes to be cared for</span>
       </div>
-      <div className="flex flex-col gap-sm">
+      {/* Label + text-with-separator. Pills were retired 2026-06-03 —
+          they implied a controlled vocabulary the field isn't backed
+          by. Same shape as the dog profile + booking detail
+          (`.dog-profile-prefs-*` family). */}
+      <div className="dog-profile-prefs">
         {nonEmpty.map((g) => (
-          <div key={g.key} className="flex flex-col gap-tiny">
-            <span className="text-xs font-semibold text-fg-tertiary uppercase tracking-wide">
-              {g.label}
-            </span>
-            <div className="flex flex-wrap gap-tiny">
-              {g.items!.map((item) => (
-                <span key={item} className="pet-profile-play-pill">
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
+          <Fragment key={g.key}>
+            <span className="dog-profile-prefs-label">{g.label}</span>
+            <span className="dog-profile-prefs-items">{g.items!.join(" · ")}</span>
+          </Fragment>
         ))}
       </div>
     </div>

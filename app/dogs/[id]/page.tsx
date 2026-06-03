@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, Suspense } from "react";
+import { Fragment, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
@@ -181,30 +181,37 @@ function DogProfileInner() {
       <DetailHeader backLabel="Back" title={dog.name} backHref={parentHref} />
       <div className="dog-profile-panel">
         <div className="dog-profile-body">
-          {/* Pet-as-protagonist hero — full-width photo, name overlay.
-              Hero meta line carries the universal dog stats: breed,
-              age, sex, weight. Same shape across shelter + owned dogs;
-              ony "Adoption pending" pill is shelter-only. */}
-          <div
-            className="dog-profile-hero"
-            style={{ backgroundImage: `url(${dog.imageUrl})` }}
-          >
-            <div className="dog-profile-hero-overlay">
-              <h1 className="dog-profile-name">{dog.name}</h1>
+          {/* Hero — side-by-side card pattern (refactored 2026-06-03).
+              Rounded-square photo (Avatar Rule B — dogs are squares) +
+              name/meta beside it. Same shape across shelter + owned
+              dogs; "Adoption pending" pill sits next to the name when
+              applicable (shelter-only). The earlier full-bleed 4:3 hero
+              was retired because square-source pet portraits stretched
+              awkwardly across surfaces. */}
+          <div className="dog-profile-hero">
+            <img
+              src={dog.imageUrl}
+              alt={dog.name}
+              className="dog-profile-hero-photo"
+            />
+            <div className="dog-profile-hero-content">
+              <div className="dog-profile-hero-name-row">
+                <h1 className="dog-profile-name">{dog.name}</h1>
+                {dog.adoptionStatus === "pending" && (
+                  <span className="dog-profile-status-pill">Adoption pending</span>
+                )}
+              </div>
               <div className="dog-profile-line">
                 {[
                   dog.breed,
-                  dog.ageLabel,
                   dog.sex === "male" ? "Male" : dog.sex === "female" ? "Female" : null,
+                  dog.ageLabel,
                   dog.weightLabel,
                 ]
                   .filter(Boolean)
                   .join(" · ")}
               </div>
             </div>
-            {dog.adoptionStatus === "pending" && (
-              <span className="dog-profile-status-pill">Adoption pending</span>
-            )}
           </div>
 
           <div className="dog-profile-section">
@@ -378,20 +385,12 @@ function DogPreferencesSection({
   return (
     <div className="dog-profile-section">
       <h2 className="dog-profile-section-title">How {dogName} likes to be cared for</h2>
-      <div className="flex flex-col gap-md">
+      <div className="dog-profile-prefs">
         {nonEmpty.map((g) => (
-          <div key={g.key} className="flex flex-col gap-xs">
-            <span className="text-xs font-semibold text-fg-tertiary uppercase tracking-wide">
-              {g.label}
-            </span>
-            <div className="dog-profile-tags">
-              {g.items!.map((item) => (
-                <span key={item} className="dog-profile-tag">
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
+          <Fragment key={g.key}>
+            <span className="dog-profile-prefs-label">{g.label}</span>
+            <span className="dog-profile-prefs-items">{g.items!.join(" · ")}</span>
+          </Fragment>
         ))}
       </div>
     </div>

@@ -679,10 +679,26 @@ function PreferencesEditor({
     label: string;
     placeholder: string;
   }> = [
-    { key: "likes", label: "Likes", placeholder: "e.g. squeaky toys" },
-    { key: "dislikes", label: "Dislikes", placeholder: "e.g. nail trims" },
-    { key: "triggers", label: "Triggers", placeholder: "e.g. strange men in hats" },
-    { key: "playPreferences", label: "Play", placeholder: "e.g. loves fetch" },
+    {
+      key: "likes",
+      label: "Likes",
+      placeholder: "comma-separated, e.g. squeaky toys, ear scratches",
+    },
+    {
+      key: "dislikes",
+      label: "Dislikes",
+      placeholder: "comma-separated, e.g. nail trims, loud vacuums",
+    },
+    {
+      key: "triggers",
+      label: "Triggers",
+      placeholder: "comma-separated, e.g. skateboards, men in tall hats",
+    },
+    {
+      key: "playPreferences",
+      label: "Play",
+      placeholder: "comma-separated, e.g. fetch, tug, sniffy walks",
+    },
   ];
 
   function updateField(
@@ -706,113 +722,36 @@ function PreferencesEditor({
           <span>How {pet.name || "this dog"} likes to be cared for</span>
         </span>
       </label>
+      {/* One comma-separated input per sub-field. Replaced the earlier
+          chip-add UX (2026-06-03) — pills implied a controlled
+          vocabulary, and the chip-add input added pattern weight
+          without buying anything for free text. Owner types a short
+          list, parse on commas, render as text-with-separator. */}
       <div className="flex flex-col gap-md">
         {subFields.map((f) => (
-          <PreferenceChipInput
-            key={f.key}
-            id={`pet-pref-${pet.id}-${f.key}`}
-            label={f.label}
-            placeholder={f.placeholder}
-            items={pet.preferences?.[f.key] ?? []}
-            onChange={(next) => updateField(f.key, next)}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function PreferenceChipInput({
-  id,
-  label,
-  placeholder,
-  items,
-  onChange,
-}: {
-  id: string;
-  label: string;
-  placeholder: string;
-  items: string[];
-  onChange: (next: string[]) => void;
-}) {
-  const [draft, setDraft] = useState("");
-
-  function commit() {
-    const trimmed = draft.trim();
-    if (!trimmed) return;
-    if (items.includes(trimmed)) {
-      setDraft("");
-      return;
-    }
-    onChange([...items, trimmed]);
-    setDraft("");
-  }
-
-  function removeAt(idx: number) {
-    onChange(items.filter((_, i) => i !== idx));
-  }
-
-  return (
-    <div className="flex flex-col gap-xs">
-      <label
-        htmlFor={id}
-        className="text-xs font-semibold text-fg-tertiary uppercase tracking-wide"
-      >
-        {label}
-      </label>
-      {items.length > 0 && (
-        <div className="flex flex-wrap gap-tiny">
-          {items.map((item, i) => (
-            <span
-              key={`${item}-${i}`}
-              className="pill"
-              style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
+          <div key={f.key} className="flex flex-col gap-xs">
+            <label
+              htmlFor={`pet-pref-${pet.id}-${f.key}`}
+              className="text-xs font-semibold text-fg-tertiary uppercase tracking-wide"
             >
-              {item}
-              <button
-                type="button"
-                onClick={() => removeAt(i)}
-                aria-label={`Remove ${item}`}
-                className="text-fg-tertiary"
-                style={{
-                  background: "none",
-                  border: "none",
-                  padding: 0,
-                  cursor: "pointer",
-                  fontSize: 14,
-                  lineHeight: 1,
-                }}
-              >
-                ×
-              </button>
-            </span>
-          ))}
-        </div>
-      )}
-      <div className="flex gap-sm">
-        <input
-          id={id}
-          className="input"
-          placeholder={placeholder}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              commit();
-            }
-          }}
-          style={{ flex: 1 }}
-        />
-        <button
-          type="button"
-          onClick={commit}
-          disabled={!draft.trim()}
-          className="btn btn--ghost"
-          style={{ whiteSpace: "nowrap" }}
-        >
-          Add
-        </button>
+              {f.label}
+            </label>
+            <input
+              id={`pet-pref-${pet.id}-${f.key}`}
+              type="text"
+              className="input"
+              placeholder={f.placeholder}
+              value={(pet.preferences?.[f.key] ?? []).join(", ")}
+              onChange={(e) => {
+                const items = e.target.value
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean);
+                updateField(f.key, items);
+              }}
+            />
+          </div>
+        ))}
       </div>
     </div>
   );
