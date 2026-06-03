@@ -9,6 +9,7 @@ import {
   ShieldCheck,
   Lock,
   CaretRight,
+  Syringe,
 } from "@phosphor-icons/react";
 import { DetailHeader } from "@/components/layout/DetailHeader";
 import { Spacer } from "@/components/layout/Spacer";
@@ -211,77 +212,82 @@ function DogProfileInner() {
                   .filter(Boolean)
                   .join(" · ")}
               </div>
+
+              {/* Tag row lives inside the hero (moved from the next
+                  section, 2026-06-03). Putting auto + personality tags
+                  beside the photo gives the dog identity upfront — the
+                  card reads "this is who Franta is" at first glance.
+                  Policy chips stay below (operational, not identity). */}
+              {(autoTags.length > 0 || personalityTags.length > 0) && (
+                <div className="dog-profile-tags">
+                  {autoTags.map((t) => (
+                    <span
+                      key={t.kind}
+                      className={`dog-profile-tag dog-profile-tag--${t.tone}`}
+                    >
+                      {t.label}
+                    </span>
+                  ))}
+                  {personalityTags.map((tag) => (
+                    <span key={tag} className="dog-profile-tag">
+                      {PERSONALITY_TAG_LABELS[tag]}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
-          <div className="dog-profile-section">
-            {/* Backstory — works for both shelter dogs (shelter-authored)
-                and owned dogs (owner-authored "About {Dog}"). */}
-            {dog.backstory && (
-              <p className="dog-profile-backstory">{dog.backstory}</p>
-            )}
+          {/* "About + operational" section. Suppresses entirely when
+              empty (owned dogs with no backstory get no orphan padding).
+              Tags moved into the hero — this section now carries the
+              shelter-care stats, the optional backstory paragraph, and
+              the policy strip. */}
+          {(dog.backstory || showCareStats || policyChips.length > 0) && (
+            <div className="dog-profile-section">
+              {/* Backstory — works for both shelter dogs (shelter-authored)
+                  and owned dogs (owner-authored "About {Dog}"). */}
+              {dog.backstory && (
+                <p className="dog-profile-backstory">{dog.backstory}</p>
+              )}
 
-            {/* Shelter-care stats. Only render while the dog is actively
-                in shelter care (pre-adopted). Owned dogs hide this row
-                entirely — those numbers don't exist outside the shelter
-                context. */}
-            {showCareStats && (
-              <div className="dog-profile-stats">
-                <DogStatTile
-                  icon={<Clock size={12} weight="light" />}
-                  label="In care"
-                  value={
-                    dog.daysInKennel != null
-                      ? `${dog.daysInKennel} ${dog.daysInKennel === 1 ? "day" : "days"}`
-                      : "Just arrived"
-                  }
-                />
-                <DogStatTile
-                  icon={<PawPrint size={12} weight="light" />}
-                  label="Last walked"
-                  value={dog.lastWalkedAt ? formatRelativeDay(dog.lastWalkedAt) : "Not yet"}
-                />
-              </div>
-            )}
+              {/* Shelter-care stats. Only render while the dog is actively
+                  in shelter care (pre-adopted). Owned dogs hide this row
+                  entirely — those numbers don't exist outside the shelter
+                  context. */}
+              {showCareStats && (
+                <div className="dog-profile-stats">
+                  <DogStatTile
+                    icon={<Clock size={12} weight="light" />}
+                    label="In care"
+                    value={
+                      dog.daysInKennel != null
+                        ? `${dog.daysInKennel} ${dog.daysInKennel === 1 ? "day" : "days"}`
+                        : "Just arrived"
+                    }
+                  />
+                  <DogStatTile
+                    icon={<PawPrint size={12} weight="light" />}
+                    label="Last walked"
+                    value={dog.lastWalkedAt ? formatRelativeDay(dog.lastWalkedAt) : "Not yet"}
+                  />
+                </div>
+              )}
 
-            {/* Tags row. Three categories rendered in order:
-                1. Auto-derived chips (Adoption pending > New arrival >
-                   Long-stayer > energy) via `deriveAutoTags`.
-                2. Curated personality tags from the typed
-                   `PersonalityTag` vocabulary.
-                See [[features/shelters]] → "Dog profile tag taxonomy"
-                for the formalization (FC8). */}
-            {(autoTags.length > 0 || personalityTags.length > 0) && (
-              <div className="dog-profile-tags">
-                {autoTags.map((t) => (
-                  <span
-                    key={t.kind}
-                    className={`dog-profile-tag dog-profile-tag--${t.tone}`}
-                  >
-                    {t.label}
+              {/* Handling policy chips — solo-only, experienced handlers
+                  only. Operational (about who can walk the dog) — stays
+                  below the hero, not co-mingled with identity tags.
+                  Shelter dogs only; owned dogs never carry these fields. */}
+              {policyChips.length > 0 && (
+                <div className="dog-profile-policy">
+                  <ShieldCheck size={14} weight="light" />
+                  <span>
+                    {policyChips.map((c) => c.label).join(" · ")}
                   </span>
-                ))}
-                {personalityTags.map((tag) => (
-                  <span key={tag} className="dog-profile-tag">
-                    {PERSONALITY_TAG_LABELS[tag]}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Handling policy chips — solo-only, experienced handlers
-                only. Visually separate from personality tags because
-                these gate walker eligibility. Shelter dogs only; owned
-                dogs never carry these fields. */}
-            {policyChips.length > 0 && (
-              <div className="dog-profile-policy">
-                <ShieldCheck size={14} weight="light" />
-                <span>
-                  {policyChips.map((c) => c.label).join(" · ")}
-                </span>
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Standing preferences (likes / dislikes / triggers / play).
               Per-pet baseline that anyone who books sees — eliminates the
@@ -427,9 +433,10 @@ function DogHealthSection({
             {sorted.map((r) => (
               <span
                 key={r.type}
-                className="dog-profile-tag"
+                className="dog-profile-tag dog-profile-tag--vaccine"
                 title={`${VACCINATION_LABELS[r.type]} — last given ${r.lastGivenAt}`}
               >
+                <Syringe size={11} weight="fill" />
                 {VACCINATION_LABELS[r.type]} · {formatVaccinationDate(r.lastGivenAt)}
               </span>
             ))}

@@ -14704,8 +14704,8 @@ a.shelter-intro-social:hover {
 }
 
 .dog-profile-hero-photo {
-  width: 144px;
-  height: 144px;
+  width: 180px;
+  height: 180px;
   border-radius: var(--radius-panel);
   object-fit: cover;
   flex-shrink: 0;
@@ -14717,7 +14717,7 @@ a.shelter-intro-social:hover {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: var(--space-md);
 }
 
 .dog-profile-hero-name-row {
@@ -14864,12 +14864,28 @@ a.shelter-intro-social:hover {
 }
 
 .dog-profile-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-tiny);
   padding: var(--space-tiny) var(--space-sm);
   border-radius: var(--radius-pill);
   background: var(--surface-base);
   border: 1px solid var(--border-regular);
   font-size: var(--text-xs);
   color: var(--text-secondary);
+}
+
+/* Vaccine chip — icon-prefixed variant. Per-chip Syringe icon
+   establishes a chip-type icon language so future health chip types
+   (medications → Pill, conditions → Warning) can slot in beside
+   vaccines and stay readable as a group. */
+.dog-profile-tag--vaccine {
+  color: var(--text-primary);
+}
+
+.dog-profile-tag--vaccine > svg {
+  color: var(--info-700);
+  flex-shrink: 0;
 }
 
 .dog-profile-tag--long {
@@ -15622,14 +15638,14 @@ a.shelter-intro-social:hover {
   min-width: 180px;
 }
 
-/* Hero action row: when the menu wrap sits beside another CTA (Connect /
-   Message), match the sibling's `grow basis-[140px]` so the two split the
-   row 50/50. `.dropdown-menu-wrap`'s shorthand `flex: 1` resets basis to 0,
-   which makes the wrap shrink to its content — leaving Message wider. */
-.unmark-familiar-menu-wrap,
-.connected-menu-wrap {
-  flex: 1 1 140px;
-}
+/* Note (2026-06-03): the flex-sizing previously applied here as a class
+   rule leaked into the LOCKED-profile hero (which reuses the same
+   `.unmark-familiar-menu-wrap` class but is rendered inside a flex-COL
+   parent — so `flex: 1 1 140px` grew the wrap vertically and stretched
+   the button height). The 50/50 sizing now lives as an inline `style`
+   on the unlocked-profile JSX where it's actually needed — inline wins
+   the cascade fight against `.dropdown-menu-wrap`'s `flex: 1` without
+   bleeding into other layout contexts. */
 
 .dropdown-menu-item {
   display: flex;
