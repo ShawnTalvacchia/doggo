@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-05-04
+last-reviewed: 2026-06-02
 tags: [patterns, structure, detail-pages, architecture]
 review-trigger: "when building new detail pages (meets, profiles, etc) or refactoring existing ones"
 ---

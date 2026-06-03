@@ -30,8 +30,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-const STORAGE_KEY = "doggo:dismissedReviews";
-const EVENT_NAME = "doggo:dismissedReviews:change";
+// Hyphen-snake to match the rest of the project's `doggo-*` localStorage
+// convention (P57, 2026-06-02). Both the key prefix and the event name
+// migrated in lockstep so any cross-tab/cross-component listeners stay
+// wired without a transitional alias. `clearDemoStorage` already prefix-
+// wipes `doggo*` so demo-reset paths catch the new key automatically.
+const STORAGE_KEY = "doggo-dismissed-reviews";
+const EVENT_NAME = "doggo-dismissed-reviews-change";
 
 export type DismissKind = "meet" | "session" | "meet-skip";
 export type DismissId = `${DismissKind}:${string}`;

@@ -1,7 +1,7 @@
 ---
-status: active
-last-reviewed: 2026-06-01
-review-trigger: When any task is completed or blocked
+status: archived
+last-reviewed: 2026-06-02
+review-trigger: Closed phase — historical record only
 ---
 
 # Shelter Foundation

@@ -228,3 +228,26 @@ This thread overlaps with the **Anxious New Owner** archetype (User Archetypes, 
 **Refs:** `docs/meetings/po-briefing-2026-06-02.md` (Roman's "Future Iterations" section), `docs/strategy/User Archetypes.md` ("Anxious New Owner" archetype).
 
 **Added:** 2026-06-02
+
+---
+
+## FC11. Extend `resolveAuthor*` resolvers + promote shelter denormalized fields
+
+**Trigger:** Walker bridge to `UserProfile` lands (credentialing-moat phase). Or when a third source of truth needs to feed the post header (supporter authoring, shelter operator surface, etc.).
+
+**Context:** Shelter Foundation introduced two resolvers in `components/feed/MomentCard.tsx`:
+
+- `resolveAuthorHref(authorId)` — routes post-author links to `/shelters/`, `/profile/`, or undefined (for directory-style walkers without a profile).
+- `resolveAuthorAvatarUrl(authorId, fallback)` — overrides the denormalized `Post.authorAvatarUrl` when the author is a walker, pulling from `ShelterWalker.avatarUrl` (single source of truth).
+
+This works cleanly for walkers because their avatars now live on the walker record. Three follow-ups when more cases arise:
+
+1. **Extend to supporters.** Today supporters don't author posts (only react/comment), so the resolver has no work to do. When/if supporters post — or when the comment-author treatment gets the same single-source treatment — `findShelterSupporter` would mirror `findShelterWalker`.
+2. **Extend to shelter logos on shelter-authored posts.** Currently shelter posts denormalize `authorAvatarUrl` to the shelter logo path. If the logo URL changes (real shelter onboarding, brand pass), every post would need re-seeding. Switching to resolver-based lookup (`getShelterById(authorId).logoUrl`) eliminates the drift risk. Small change but worth doing the next time we touch shelter posts.
+3. **Promote the violet pair (`#ede9fe` / `#5b21b6`) to tokens.** Used in two places today: `.shelter-member-chip--volunteer` and `.shelter-summary-card-icon` (with matching CTA color). When the volunteer badge surfaces on user profiles or in feed mentions, a third hit makes it worth promoting to `--volunteer-light` / `--volunteer-strong` semantic aliases (or to a full `--violet-*` color family if the color sees non-volunteer uses). Both surfaces should be updated together so they stay in lockstep.
+
+**Effort:** ~30min per change. Each is mechanical.
+
+**Refs:** `components/feed/MomentCard.tsx`, `lib/mockShelters.ts` (`findShelterWalker`), `app/globals.css` (violet hex pair in two rules).
+
+**Added:** 2026-06-02

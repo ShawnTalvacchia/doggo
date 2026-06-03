@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-05-02
+last-reviewed: 2026-06-02
 tags: [research, competitive, trust, providers, badges, cold-start, prague]
 review-trigger: "when designing provider profiles, trust badges, care discovery, or go-to-market strategy"
 ---

@@ -13642,30 +13642,6 @@ body:has(.bottom-nav) .inbox-page {
   border-top: 1px solid var(--border-light);
 }
 
-/* ── Legacy feed-greeting (used by FeedCTA) ── */
-
-.feed-greeting {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-}
-
-.feed-greeting-info {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  flex: 1;
-  min-width: 0;
-}
-
-.feed-greeting-action {
-  flex-shrink: 0;
-}
-
-.feed-greeting-find-care {
-  display: none;
-}
-
 /* Like split-pill button */
 .like-pill {
   display: inline-flex;
@@ -13712,30 +13688,6 @@ body:has(.bottom-nav) .inbox-page {
 
 .like-pill[data-liked] .like-pill-action {
   border-right-color: var(--border-strong);
-}
-
-@media (max-width: 767px) {
-  .feed-greeting {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .feed-greeting-action {
-    display: flex;
-    gap: var(--space-sm);
-    width: 100%;
-  }
-
-  .feed-greeting-action a,
-  .feed-greeting-action button {
-    flex: 1;
-    justify-content: center;
-  }
-
-  .feed-greeting-find-care {
-    display: inline-flex;
-  }
-
 }
 
 /* ── MasterDetailShell page shells ── */

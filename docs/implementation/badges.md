@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-05-10
+last-reviewed: 2026-06-02
 
 tags: [badges, person-row, trust, design-system]
 review-trigger: "when adding a new badge, changing display rules, or modifying carer-status semantics"
@@ -101,6 +101,22 @@ Certified Trainer · First Aid Trained · Vet Background · Force-Free Methods �
 Verified Identity · Responsive · Consistent
 
 See `strategy/Competitive Research - Prague Dog Care Scene.md` → "Trust Badges for Doggo Provider Profiles" for full descriptions and earning criteria.
+
+### Volunteer (parallel — earned through shelter walking)
+
+A separate badge family sitting outside the three trust tiers, introduced with the Shelter Foundation phase (2026-06-02). Renders on the shelter Members tab and travels to user profiles when walkers bridge to UserProfiles (credentialing-moat phase). Three tiers, label-led with growth-icon shape progression:
+
+| Tier | Icon | Label | Threshold (typical) |
+|---|---|---|---|
+| `vetted` | 🍃 Leaf | `Volunteer` | Default after vouching |
+| `experienced` | 🌱 Plant | `Regular Volunteer` | ~10 walks at this shelter |
+| `trusted` | 🌳 Tree | `Super Volunteer` | ~25 walks + coordinator sign-off |
+
+**Color:** violet (`#ede9fe` background / `#5b21b6` text). Sits outside the existing semantic ladder — `info` blue = paid care, `brand` green = community. Violet carries "earned recognition for time given to shelter dogs" as its own category. Hex inlined for now; promote to `--violet-*` tokens or semantic `--volunteer-*` aliases when a third surface picks up the color (FC11).
+
+**Visual escalation deferred to credentialing-moat phase.** V1 uses one uniform chip style across all tiers — the icon shape carries the tier signal. The visual intensification (outlined → filled → filled+ring) shared with the Carer Portfolio aggregate badge ships when the merged phase opens (FC9).
+
+See `features/shelters.md` → "Volunteer badge" for the full surface treatment and `mockShelters.ts:ShelterWalker.tier` for the data shape.
 
 ---
 

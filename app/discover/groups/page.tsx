@@ -76,6 +76,28 @@ const DOG_SIZE_OPTIONS = [
 
 const FOCUS_AREAS = ["Socialisation", "Exercise", "Training", "Puppy play", "Senior dogs", "Reactive dogs"];
 
+// Keyword bag per focus area — used to match against a group's name +
+// description while Group has no first-class `focusAreas` field. Adding a
+// structured field is the right long-term move; this keyword set lets the
+// filter ship functionally now without a schema change. Update entries
+// here when new focus areas land or seeded groups use new phrasing.
+const FOCUS_KEYWORDS: Record<string, string[]> = {
+  Socialisation: ["socialis", "social", "meet other", "friendly"],
+  Exercise: ["exercise", "play", "off-leash", "run", "walk"],
+  Training: ["train", "recall", "obedience", "skill", "loose-leash", "command"],
+  "Puppy play": ["puppy", "puppies", "young dog"],
+  "Senior dogs": ["senior", "older dog", "calm"],
+  "Reactive dogs": ["reactive", "anxious", "fearful", "threshold"],
+};
+
+function groupMatchesAnyFocus(group: Group, focusAreas: string[]): boolean {
+  if (focusAreas.length === 0) return true;
+  const haystack = `${group.name} ${group.description}`.toLowerCase();
+  return focusAreas.some((area) =>
+    (FOCUS_KEYWORDS[area] ?? []).some((kw) => haystack.includes(kw)),
+  );
+}
+
 const NEIGHBOURHOODS = ["Vinohrady", "Žižkov", "Holešovice", "Letná", "Karlín", "Břevnov", "Malá Strana"];
 
 /* ── Filter state ── */
@@ -92,12 +114,14 @@ interface GroupFilters {
   selectedVisibility: string[];
   maxMembers: number;
   selectedNeighbourhoods: string[];
+  selectedFocusAreas: string[];
 }
 
 const DEFAULT_FILTERS: GroupFilters = {
   selectedVisibility: [],
   maxMembers: GROUP_SIZE_NO_LIMIT,
   selectedNeighbourhoods: [],
+  selectedFocusAreas: [],
 };
 
 /* ── Filter logic ── */
@@ -108,6 +132,7 @@ function applyFilters(groups: Group[], type: string, filters: GroupFilters): Gro
     if (filters.selectedVisibility.length > 0 && !filters.selectedVisibility.includes(group.visibility)) return false;
     if (filters.maxMembers < GROUP_SIZE_NO_LIMIT && group.members.length > filters.maxMembers) return false;
     if (filters.selectedNeighbourhoods.length > 0 && !filters.selectedNeighbourhoods.includes(group.neighbourhood)) return false;
+    if (!groupMatchesAnyFocus(group, filters.selectedFocusAreas)) return false;
     return true;
   });
 }
@@ -218,6 +243,13 @@ function GroupsFilterPanel({
     });
   };
 
+  const toggleFocusArea = (name: string) => {
+    const current = filters.selectedFocusAreas;
+    onFiltersChange({
+      selectedFocusAreas: current.includes(name) ? current.filter((n) => n !== name) : [...current, name],
+    });
+  };
+
   return (
     <div className="discover-hub-body" style={{ gap: "var(--space-xxl)" }}>
       {/* Filters heading + group-type dropdown — mirrors Discover Care + Meets. */}
@@ -275,21 +307,48 @@ function GroupsFilterPanel({
           previous shape) inherited the page-level `gap: xxl` between
           siblings and produced a visible double-divider gap. */}
       <div className="filter-accordion-stack">
+        {/* Selection counts in the accordion header — `Title · N` matches
+            the shelter Members tab pill convention (`Walkers · 8`). When
+            collapsed, the count is the only cue that filters inside are
+            active, so it earns its keep on every accordion that holds
+            multi-select state. P2-adjacent — surfaced 2026-06-02. */}
         <div className="filter-accordion">
           <button type="button" className={`filter-accordion-btn${focusOpen ? " open" : ""}`} onClick={() => setFocusOpen((o) => !o)}>
-            Focus
+            <span>
+              Focus
+              {filters.selectedFocusAreas.length > 0 && (
+                <span className="text-fg-tertiary font-normal">
+                  {" · "}{filters.selectedFocusAreas.length}
+                </span>
+              )}
+            </span>
             <span className="accordion-caret"><CaretUp size={24} weight="regular" /></span>
           </button>
           <div className={`filter-accordion-body${focusOpen ? " open" : ""}`}>
             <div className="filter-accordion-inner">
-              {FOCUS_AREAS.map((name) => <CheckboxRow key={name} label={name} checked={false} onChange={() => {}} placement="right" />)}
+              {FOCUS_AREAS.map((name) => (
+                <CheckboxRow
+                  key={name}
+                  label={name}
+                  checked={filters.selectedFocusAreas.includes(name)}
+                  onChange={() => toggleFocusArea(name)}
+                  placement="right"
+                />
+              ))}
             </div>
           </div>
         </div>
 
         <div className="filter-accordion">
           <button type="button" className={`filter-accordion-btn${neighbourhoodsOpen ? " open" : ""}`} onClick={() => setNeighbourhoodsOpen((o) => !o)}>
-            Neighbourhoods
+            <span>
+              Neighbourhoods
+              {filters.selectedNeighbourhoods.length > 0 && (
+                <span className="text-fg-tertiary font-normal">
+                  {" · "}{filters.selectedNeighbourhoods.length}
+                </span>
+              )}
+            </span>
             <span className="accordion-caret"><CaretUp size={24} weight="regular" /></span>
           </button>
           <div className={`filter-accordion-body${neighbourhoodsOpen ? " open" : ""}`}>

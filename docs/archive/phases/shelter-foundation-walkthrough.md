@@ -1,7 +1,7 @@
 ---
-status: active
-last-reviewed: 2026-06-01
-review-trigger: "Update as items are walked, edit as scope adjusts"
+status: archived
+last-reviewed: 2026-06-02
+review-trigger: "Closed phase — historical record only"
 ---
 
 # Shelter Foundation — Walkthrough
@@ -38,21 +38,21 @@ Tight verification for the Shelter Foundation phase thesis: **Doggo accepts shel
 
 ## Workstream C — Dog Profile
 
-- [ ] **C1. Tap any dog → `/dogs/[id]`.** Hero photo (capped at 20rem on tall viewports), name + meta line `breed · age · sex · weight`, backstory, stat row (In care / Last walked, centered, hairline strokes top + bottom), tag chips (energy chip first / Long-stayer if applicable / manual tags), policy strip if soloOnly or experiencedHandlersOnly, Recent walkers row (initials avatars), Posts about [dog], shelter backlink at the bottom.
+- [x] **C1. Tap any dog → `/dogs/[id]`.** Hero photo (capped at 20rem on tall viewports), name + meta line `breed · age · sex · weight`, backstory, stat row (In care / Last walked, centered, hairline strokes top + bottom), tag chips (energy chip first / Long-stayer if applicable / manual tags), policy strip if soloOnly or experiencedHandlersOnly, Recent walkers row (initials avatars), Posts about [dog], shelter backlink at the bottom.
 
-- [ ] **C2. Visit `/dogs/spot`** (owned-dog id that doesn't resolve as a shelter dog). Graceful "Dog profile coming soon" empty state with a CTA back to the shelter roster — not a 404.
+- [x] **C2. Visit `/dogs/spot`** (owned-dog id that doesn't resolve as a shelter dog). Graceful "Dog profile coming soon" empty state with a CTA back to the shelter roster — not a 404.
 
 ---
 
 ## Workstream D — Members tab
 
-- [ ] **D1. Members tab.** Filter pills `All · Walkers · 8 · Supporters · 12`, no Team pill (no linked staff in V1). Walker rows show "Walker · Útulek Liběň" chip + tier label in subline (Trusted handler / Experienced walker / Vetted walker). Supporter rows show the quieter Supporter chip + "Following since …" subline. List sorts by recency.
+- [x] **D1. Members tab.** Filter pills `All · Walkers · 8 · Supporters · 12`, no Team pill (no linked staff in V1). Walker rows show "Walker · Útulek Liběň" chip + tier label in subline (Trusted handler / Experienced walker / Vetted walker). Supporter rows show the quieter Supporter chip + "Following since …" subline. List sorts by recency.
 
 ---
 
 ## Workstream E — Gallery
 
-- [ ] **E1. Gallery tab.** Empty-state placeholder pointing at the future Photos & Galleries phase.
+- [x] **E1. Gallery tab.** Empty-state placeholder pointing at the future Photos & Galleries phase.
 
 ---
 
