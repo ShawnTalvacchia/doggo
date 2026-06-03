@@ -1,16 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, Suspense } from "react";
+import { useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
-  Buildings,
   Clock,
   PawPrint,
   ShieldCheck,
-  Users,
-  Heart,
-  ArrowRight,
+  Lock,
   CaretRight,
 } from "@phosphor-icons/react";
 import { DetailHeader } from "@/components/layout/DetailHeader";
@@ -21,7 +18,10 @@ import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
+import { useConnections } from "@/contexts/ConnectionsContext";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { getShelterDog, getDogPosts } from "@/lib/mockShelters";
+import { getOwnedDogWithOwner } from "@/lib/mockUsers";
 import {
   VACCINATION_LABELS,
   deriveAutoTags,
@@ -30,7 +30,13 @@ import {
   sortVaccinations,
 } from "@/lib/petUtils";
 import { PERSONALITY_TAG_LABELS } from "@/lib/constants/dogs";
-import type { PetProfile, Post, ShelterProfile, VetInfo } from "@/lib/types";
+import type {
+  PetProfile,
+  Post,
+  ShelterProfile,
+  UserProfile,
+  VetInfo,
+} from "@/lib/types";
 
 /* ── Page wrapper ──────────────────────────────────────────────────── */
 
@@ -47,27 +53,79 @@ function DogProfileInner() {
   const router = useRouter();
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
   const { lastListPath } = useNavigationMemory();
+  const currentUserId = useCurrentUserId();
+  const { getConnection } = useConnections();
 
   const dogId = params.id as string;
-  const resolved = getShelterDog(dogId);
 
-  // Shelter dogs always go up to their shelter's Dogs tab (tree-hierarchy
-  // — the dog belongs to the shelter regardless of how the viewer
-  // arrived). Unknown / future owned-dog cases are source-aware (last
-  // list page, fallback /home).
-  const parentHref = resolved
-    ? `/shelters/${resolved.shelter.id}?tab=dogs`
-    : lastListPath ?? "/home";
+  // Resolve in two passes: shelter dogs first, then owned dogs. The two
+  // share the rendering spine (hero + tags + health + posts); the
+  // surrounding sections differ — shelter has care-stats / recent walkers
+  // / shelter backlink; owned has owner backlink only.
+  const shelterResolved = getShelterDog(dogId);
+  const ownedResolved = !shelterResolved ? getOwnedDogWithOwner(dogId) : null;
+
+  // Visibility gate for owned dogs (A7). The dog profile inherits the
+  // owner's profile visibility. Open owner → public dog profile. Locked
+  // owner → only Familiar/Connected/Pending viewers (matches the
+  // `/profile/[userId]` lock logic — unlocking is the SUBJECT's choice,
+  // so viewer-marked Familiar does NOT unlock).
+  const ownedVisible = (() => {
+    if (!ownedResolved) return false;
+    const owner = ownedResolved.owner;
+    if (owner.profileVisibility === "open") return true;
+    if (owner.id === currentUserId) return true; // own dog
+    const connection = getConnection(owner.id, currentUserId);
+    if (connection?.theyMarkedFamiliar) return true;
+    const state = connection?.state ?? "none";
+    return state === "connected" || state === "pending";
+  })();
+
+  // Back-nav target. Shelter dogs go up to their shelter's Dogs tab
+  // (tree-hierarchy). Owned dogs go to the owner's profile (or `/profile`
+  // for self). Unknown dogs use source-aware nav memory.
+  const parentHref = (() => {
+    if (shelterResolved) return `/shelters/${shelterResolved.shelter.id}?tab=dogs`;
+    if (ownedResolved) {
+      if (ownedResolved.owner.id === currentUserId) return "/profile";
+      return `/profile/${ownedResolved.owner.id}`;
+    }
+    return lastListPath ?? "/home";
+  })();
+
+  const dogName =
+    shelterResolved?.dog.name ?? ownedResolved?.dog.name ?? "Dog";
 
   useEffect(() => {
-    setDetailHeader(resolved?.dog.name ?? "Dog", () => router.push(parentHref));
+    setDetailHeader(dogName, () => router.push(parentHref));
     return () => clearDetailHeader();
-  }, [resolved?.dog.name, parentHref]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [dogName, parentHref]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Unknown dog — gracefully degrades for owned-dog tags whose profile
-  // route doesn't ship until the Dog Profile phase. NOT a 404 — the route
-  // is real, the content just hasn't landed yet.
-  if (!resolved) {
+  // Owned dog gated by the owner's lock — render a locked-style empty
+  // state. Same shape as the unknown-dog state but with lock framing.
+  if (ownedResolved && !ownedVisible) {
+    return (
+      <div className="dog-profile-page">
+        <DetailHeader backLabel="Back" title={ownedResolved.dog.name} backHref={parentHref} />
+        <div className="dog-profile-panel">
+          <div className="dog-profile-body">
+            <div className="px-lg py-xl">
+              <EmptyState
+                icon={<Lock size={32} weight="light" />}
+                title={`${ownedResolved.dog.name}'s profile is private`}
+                subtitle={`Connect with ${ownedResolved.owner.firstName} at a meet to see ${ownedResolved.dog.name}'s profile.`}
+              />
+            </div>
+            <Spacer />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Truly unknown dog — neither a shelter dog nor an owned dog. NOT a
+  // 404; the route is real, the id just doesn't resolve.
+  if (!shelterResolved && !ownedResolved) {
     return (
       <div className="dog-profile-page">
         <DetailHeader backLabel="Back" title="Dog" backHref={parentHref} />
@@ -76,8 +134,8 @@ function DogProfileInner() {
             <div className="px-lg py-xl">
               <EmptyState
                 icon={<PawPrint size={32} weight="light" />}
-                title="Dog profile coming soon"
-                subtitle="Owned-dog profiles arrive with the Dog Profile phase. Shelter dogs are already live. Try the Útulek Liběň roster."
+                title="Dog profile not found"
+                subtitle="This dog isn't in the directory. Try the Útulek Liběň shelter roster."
                 action={
                   <ButtonAction
                     variant="secondary"
@@ -96,12 +154,16 @@ function DogProfileInner() {
     );
   }
 
-  const { dog, shelter } = resolved;
+  const dog = (shelterResolved?.dog ?? ownedResolved?.dog) as PetProfile;
+  const shelter = shelterResolved?.shelter;
+  const owner = ownedResolved?.owner;
   const posts = getDogPosts(dog.id);
   // Shelter-care stats (In care, Last walked) only render while the dog
   // is actively being cared for at the shelter. Once adopted, the dog
-  // has gone home and those numbers stop being meaningful.
-  const showCareStats = dog.adoptionStatus !== "adopted";
+  // has gone home and those numbers stop being meaningful. Owned dogs
+  // never show them — daysInKennel + lastWalkedAt are shelter-only.
+  const showCareStats =
+    !!shelter && dog.adoptionStatus !== "adopted";
   // Tag taxonomy (FC8 formalization, 2026-06-02): auto-derived chips
   // (Adoption pending / New arrival / Long-stayer / energy) come from
   // `deriveAutoTags`; personality tags come from the typed
@@ -110,6 +172,9 @@ function DogProfileInner() {
   const autoTags = deriveAutoTags(dog, new Date());
   const personalityTags = dog.personalityTags ?? [];
   const policyChips = derivePolicyChips(dog);
+  // Acknowledger label for the Health section caption. Shelter dogs:
+  // the shelter. Owned dogs: the owner's first name.
+  const acknowledgerLabel = shelter?.name ?? owner?.firstName ?? "Owner";
 
   return (
     <div className="dog-profile-page">
@@ -118,8 +183,8 @@ function DogProfileInner() {
         <div className="dog-profile-body">
           {/* Pet-as-protagonist hero — full-width photo, name overlay.
               Hero meta line carries the universal dog stats: breed,
-              age, sex, weight. Status-y data (In care, Last walked,
-              energy, tags) lives in the body below. */}
+              age, sex, weight. Same shape across shelter + owned dogs;
+              ony "Adoption pending" pill is shelter-only. */}
           <div
             className="dog-profile-hero"
             style={{ backgroundImage: `url(${dog.imageUrl})` }}
@@ -143,14 +208,16 @@ function DogProfileInner() {
           </div>
 
           <div className="dog-profile-section">
-            {/* Backstory */}
+            {/* Backstory — works for both shelter dogs (shelter-authored)
+                and owned dogs (owner-authored "About {Dog}"). */}
             {dog.backstory && (
               <p className="dog-profile-backstory">{dog.backstory}</p>
             )}
 
             {/* Shelter-care stats. Only render while the dog is actively
-                in shelter care (pre-adopted). Owned dogs and adopted
-                shelter dogs hide this row entirely. */}
+                in shelter care (pre-adopted). Owned dogs hide this row
+                entirely — those numbers don't exist outside the shelter
+                context. */}
             {showCareStats && (
               <div className="dog-profile-stats">
                 <DogStatTile
@@ -161,9 +228,6 @@ function DogProfileInner() {
                       ? `${dog.daysInKennel} ${dog.daysInKennel === 1 ? "day" : "days"}`
                       : "Just arrived"
                   }
-                  /* Long-stayer subline removed — it duplicated the
-                     "Long-stayer" chip in the tag row below. Keep both
-                     stat columns at two rows for visual parity. */
                 />
                 <DogStatTile
                   icon={<PawPrint size={12} weight="light" />}
@@ -200,8 +264,8 @@ function DogProfileInner() {
 
             {/* Handling policy chips — solo-only, experienced handlers
                 only. Visually separate from personality tags because
-                these gate walker eligibility. Shelter dogs only;
-                derived via `derivePolicyChips`. */}
+                these gate walker eligibility. Shelter dogs only; owned
+                dogs never carry these fields. */}
             {policyChips.length > 0 && (
               <div className="dog-profile-policy">
                 <ShieldCheck size={14} weight="light" />
@@ -214,22 +278,25 @@ function DogProfileInner() {
 
           {/* Health & vaccinations (Vaccines V1, 2026-06-02). Owner /
               shelter self-declared; verification belongs to V2 (Open
-              Q §15 + §16). The acknowledger label is shelter-side here;
-              the owned-dog branch in Workstream A uses the owner. */}
+              Q §15 + §16). Acknowledger label = shelter name (shelter
+              dogs) or owner first name (owned dogs). */}
           <DogHealthSection
             vet={dog.vetInfo}
-            acknowledgerLabel={shelter.name}
+            acknowledgerLabel={acknowledgerLabel}
           />
 
-          {/* Recent walkers — avatar stack only this phase; walker journey
-              and richer per-dog walker history land with credentialing-moat. */}
-          <RecentWalkers shelter={shelter} dogId={dog.id} />
+          {/* Recent walkers — shelter dogs only. Walker journey + richer
+              per-dog walker history land with the credentialing-moat
+              phase. */}
+          {shelter && <RecentWalkers shelter={shelter} dogId={dog.id} />}
 
-          {/* Posts about this dog */}
+          {/* Posts about this dog. Works identically for owned + shelter
+              dogs — `getDogPosts(id)` matches posts tagging the dog id. */}
           <DogPostsSection dog={dog} posts={posts} />
 
-          {/* Backlink to shelter */}
-          <ShelterBacklink shelter={shelter} />
+          {/* Backlink: shelter (shelter dog) or owner (owned dog). */}
+          {shelter && <ShelterBacklink shelter={shelter} />}
+          {owner && <OwnerBacklink owner={owner} isSelf={owner.id === currentUserId} />}
 
           <Spacer />
         </div>
@@ -391,6 +458,43 @@ function ShelterBacklink({ shelter }: { shelter: ShelterProfile }) {
       <div className="flex flex-col gap-tiny flex-1 min-w-0">
         <span className="text-xs text-fg-tertiary">Cared for by</span>
         <span className="text-sm font-semibold text-fg-primary">{shelter.name}</span>
+      </div>
+      <CaretRight size={14} weight="bold" className="text-fg-tertiary" />
+    </Link>
+  );
+}
+
+/**
+ * Owned-dog backlink — mirrors the shelter backlink visually so the two
+ * sit in the same slot at the bottom of the profile. Avatar Rule B:
+ * owner is a person → circle (using the same shelter-backlink-logo class
+ * which is round). Routes to `/profile` for self, `/profile/<id>` for
+ * others.
+ */
+function OwnerBacklink({ owner, isSelf }: { owner: UserProfile; isSelf: boolean }) {
+  const href = isSelf ? "/profile" : `/profile/${owner.id}`;
+  const ownerName = `${owner.firstName} ${owner.lastName}`.trim();
+
+  return (
+    <Link
+      href={href}
+      className="dog-profile-shelter-backlink"
+      style={{ textDecoration: "none" }}
+    >
+      {owner.avatarUrl ? (
+        <img
+          src={owner.avatarUrl}
+          alt={ownerName}
+          className="dog-profile-shelter-backlink-logo"
+        />
+      ) : (
+        <DefaultAvatar name={ownerName} size={40} />
+      )}
+      <div className="flex flex-col gap-tiny flex-1 min-w-0">
+        <span className="text-xs text-fg-tertiary">{isSelf ? "Your dog" : "Lives with"}</span>
+        <span className="text-sm font-semibold text-fg-primary">
+          {isSelf ? "You" : ownerName}
+        </span>
       </div>
       <CaretRight size={14} weight="bold" className="text-fg-tertiary" />
     </Link>

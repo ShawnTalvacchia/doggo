@@ -32,7 +32,7 @@
  * 2026-04-30 to match this distribution.
  */
 
-import type { UserProfile, CarerServiceConfig } from "./types";
+import type { UserProfile, CarerServiceConfig, PetProfile } from "./types";
 
 /* ── Avatar URLs (Unsplash, cropped 400×400) ──────────────────────────────── */
 
@@ -2240,6 +2240,22 @@ export function getDogById(dogId: string) {
   for (const u of allUsers) {
     const dog = u.pets.find((p) => p.id === dogId);
     if (dog) return { ...dog, ownerId: u.id, ownerName: u.firstName };
+  }
+  return undefined;
+}
+
+/**
+ * Resolve an owned dog AND its owner `UserProfile` in one call. Parallel
+ * to `getShelterDog` in `lib/mockShelters.ts`, which returns
+ * `{ dog, shelter }`. Used by `/dogs/[id]` (Dog Profile phase) to render
+ * the owned-dog branch with owner backlink + visibility gating.
+ */
+export function getOwnedDogWithOwner(dogId: string):
+  | { dog: PetProfile; owner: UserProfile }
+  | undefined {
+  for (const u of allUsers) {
+    const dog = u.pets.find((p) => p.id === dogId);
+    if (dog) return { dog, owner: u };
   }
   return undefined;
 }
