@@ -13,7 +13,14 @@ import {
 } from "@phosphor-icons/react";
 import { InputField } from "@/components/ui/InputField";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
-import type { PetProfile, EnergyLevel, PlayStyle, VetInfo } from "@/lib/types";
+import type {
+  PetProfile,
+  EnergyLevel,
+  PlayStyle,
+  VetInfo,
+  VaccinationType,
+} from "@/lib/types";
+import { VACCINATION_LABELS, VACCINATION_ORDER } from "@/lib/petUtils";
 import { ENERGY_LABELS, PLAY_STYLE_LABELS } from "./PetCard";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -146,7 +153,7 @@ export function PetEditCard({
     pet.vetInfo &&
     (pet.vetInfo.clinicName ||
       pet.vetInfo.vetPhone ||
-      pet.vetInfo.vaccinationsUpToDate ||
+      (pet.vetInfo.vaccinations && pet.vetInfo.vaccinations.length > 0) ||
       pet.vetInfo.spayedNeutered ||
       pet.vetInfo.medications ||
       pet.vetInfo.conditions)
@@ -156,7 +163,6 @@ export function PetEditCard({
   const vetInfo = pet.vetInfo ?? {
     clinicName: "",
     vetPhone: "",
-    vaccinationsUpToDate: false,
     spayedNeutered: false,
     medications: "",
     conditions: "",
@@ -164,6 +170,36 @@ export function PetEditCard({
 
   function updateVet(updates: Partial<VetInfo>) {
     onChange({ ...pet, vetInfo: { ...vetInfo, ...updates } });
+  }
+
+  // Per-type read/write helpers for the structured vaccination list (V1).
+  // Empty date = omit from the array; non-empty = upsert by type. Keeps the
+  // 5 standard types as a fixed presence in the UI without forcing the
+  // owner to "add" each row — most dogs have all five or none.
+  function getVaccinationDateFor(type: VaccinationType): string {
+    return vetInfo.vaccinations?.find((v) => v.type === type)?.lastGivenAt ?? "";
+  }
+
+  function setVaccinationDateFor(type: VaccinationType, iso: string) {
+    const others = (vetInfo.vaccinations ?? []).filter((v) => v.type !== type);
+    if (!iso) {
+      updateVet({ vaccinations: others.length > 0 ? others : undefined });
+      return;
+    }
+    updateVet({
+      vaccinations: [...others, { type, lastGivenAt: iso, confidence: "self-declared" }],
+    });
+  }
+
+  const isAcknowledged = !!vetInfo.vaccinationsAcknowledgedAt;
+
+  function toggleAcknowledged(next: boolean) {
+    if (next) {
+      const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+      updateVet({ vaccinationsAcknowledgedAt: today });
+    } else {
+      updateVet({ vaccinationsAcknowledgedAt: undefined });
+    }
   }
 
   const hasPhoto = !!(pet.imageUrl && !pet.imageUrl.includes("placeholder"));
@@ -453,13 +489,57 @@ export function PetEditCard({
               />
             </div>
 
-            <div className="pet-edit-checkbox-row">
+            {/* Vaccinations V1 — per-vaccine date inputs + single
+                per-dog acknowledgement checkbox. The 5 standard CZ types
+                are always shown as rows; leaving a date empty omits that
+                record from the array. Owner self-declared; verification
+                belongs to V2 (Open Q §15 + §16). */}
+            <div className="input-block">
+              <label className="label">
+                <span className="label-primary-group">
+                  <span>Vaccinations</span>
+                </span>
+              </label>
+              <div className="flex flex-col gap-sm">
+                {VACCINATION_ORDER.map((type) => (
+                  <div
+                    key={type}
+                    className="flex items-center gap-md"
+                    style={{ minHeight: 32 }}
+                  >
+                    <label
+                      htmlFor={`pet-vax-${pet.id}-${type}`}
+                      className="text-sm text-fg-primary"
+                      style={{ flex: "0 0 120px" }}
+                    >
+                      {VACCINATION_LABELS[type]}
+                    </label>
+                    <input
+                      id={`pet-vax-${pet.id}-${type}`}
+                      type="date"
+                      className="input"
+                      value={getVaccinationDateFor(type)}
+                      onChange={(e) => setVaccinationDateFor(type, e.target.value)}
+                      style={{ flex: 1, minWidth: 0 }}
+                      aria-label={`${VACCINATION_LABELS[type]} last given date`}
+                    />
+                  </div>
+                ))}
+              </div>
               <CheckboxRow
-                id={`pet-vax-${pet.id}`}
-                label="Vaccinations up to date"
-                checked={vetInfo.vaccinationsUpToDate}
-                onChange={(v) => updateVet({ vaccinationsUpToDate: v })}
+                id={`pet-vax-ack-${pet.id}`}
+                label={`I confirm ${pet.name || "this dog"}'s vaccination record is accurate as of today`}
+                checked={isAcknowledged}
+                onChange={toggleAcknowledged}
               />
+              {isAcknowledged && vetInfo.vaccinationsAcknowledgedAt && (
+                <p className="text-xs text-fg-tertiary">
+                  Confirmed {vetInfo.vaccinationsAcknowledgedAt}
+                </p>
+              )}
+            </div>
+
+            <div className="pet-edit-checkbox-row">
               <CheckboxRow
                 id={`pet-spay-${pet.id}`}
                 label="Spayed / neutered"

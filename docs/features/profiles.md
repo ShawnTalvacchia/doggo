@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-17
+last-reviewed: 2026-06-02
 tags: [profile, pets, carer, edit, posts, tagging]
 review-trigger: "when modifying profile pages, pet cards, posts, or carer sections"
 ---
@@ -176,8 +176,22 @@ The `userId` field on `ProviderCard` bridges between provider catalog IDs (e.g. 
 | Energy level | select | Low / Moderate / High / Very high |
 | Play styles | multi-select pills | Fetch, Tug, Chase, Wrestling, Gentle, Independent, Sniffing |
 | Socialisation notes | textarea | How they are with other dogs, people, kids |
-| Vet info | fieldset | Clinic name, phone, last checkup, vaccinations, spayed/neutered, medications, conditions |
+| Vet info | fieldset | Clinic name, phone, last checkup, vaccinations *(structured — see below)*, spayed/neutered, medications, conditions |
 | Photo gallery | image array | Multiple photos beyond the primary |
+
+### Vaccines V1 (2026-06-02)
+
+`VetInfo.vaccinations: VaccinationRecord[]` replaces the legacy `vaccinationsUpToDate: boolean`. Owner self-declared with a single per-dog acknowledgement timestamp (`vaccinationsAcknowledgedAt`). No platform gating, no verification — verification belongs to V2 ([[phases/Open Questions §15]] + [[phases/Open Questions §16]] — Vets as a Credentialing Layer).
+
+| Sub-field | Type | Notes |
+|-----------|------|-------|
+| `vaccinations[].type` | enum | `rabies \| parvovirus \| distemper \| hepatitis \| parainfluenza` — the five standard Czech canine vaccines per PO interviews. Rabies is legally mandatory; V1 treats all five uniformly. |
+| `vaccinations[].lastGivenAt` | ISO YYYY-MM-DD | When the dose was administered. |
+| `vaccinations[].confidence` | enum | `"self-declared"` in V1. V2 adds `"photo-confirmed"` and `"vet-confirmed"`. |
+| `vaccinationsAcknowledgedAt` | ISO YYYY-MM-DD | Single per-dog confirmation — "I confirm {Dog}'s vaccination record is accurate as of today." Per-dog, not per-vaccine. |
+| `vaccinationsUpToDate` | boolean *(deprecated)* | Bridged for one phase via `isVaccinationsCurrent` in `lib/petUtils.ts`; slated for removal at Dog Profile phase close. |
+
+Read surfaces: `PetCard` Health & vet section (chips), `app/dogs/[id]/page.tsx` `DogHealthSection` (chips + acknowledgement caption). Edit surface: `PetEditCard` Health & vet section (per-vaccine date input + per-dog confirmation checkbox). Helper: `lib/petUtils.ts:isVaccinationsCurrent(vet, today)`.
 
 ---
 

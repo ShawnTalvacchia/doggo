@@ -22,7 +22,12 @@ import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
 import { getShelterDog, getDogPosts } from "@/lib/mockShelters";
-import type { PetProfile, Post, ShelterProfile } from "@/lib/types";
+import {
+  VACCINATION_LABELS,
+  formatVaccinationDate,
+  sortVaccinations,
+} from "@/lib/petUtils";
+import type { PetProfile, Post, ShelterProfile, VetInfo } from "@/lib/types";
 
 /* ── Page wrapper ──────────────────────────────────────────────────── */
 
@@ -205,6 +210,15 @@ function DogProfileInner() {
             )}
           </div>
 
+          {/* Health & vaccinations (Vaccines V1, 2026-06-02). Owner /
+              shelter self-declared; verification belongs to V2 (Open
+              Q §15 + §16). The acknowledger label is shelter-side here;
+              the owned-dog branch in Workstream A uses the owner. */}
+          <DogHealthSection
+            vet={dog.vetInfo}
+            acknowledgerLabel={shelter.name}
+          />
+
           {/* Recent walkers — avatar stack only this phase; walker journey
               and richer per-dog walker history land with credentialing-moat. */}
           <RecentWalkers shelter={shelter} dogId={dog.id} />
@@ -243,6 +257,57 @@ function DogStatTile({
       </div>
       <div className="dog-profile-stat-value">{value}</div>
       {subline && <div className="dog-profile-stat-subline">{subline}</div>}
+    </div>
+  );
+}
+
+/**
+ * Health & vaccinations section. Renders Vaccines V1 records as chips with
+ * an acknowledgement caption. Owner self-declared — no platform verification
+ * in V1 (Open Q §15 + §16 carry the V2 + V3 paths). Hidden entirely when
+ * there's no vet info at all (the page surface should not advertise empty
+ * health data — that reads worse than absence).
+ */
+function DogHealthSection({
+  vet,
+  acknowledgerLabel,
+}: {
+  vet: VetInfo | undefined;
+  acknowledgerLabel: string;
+}) {
+  const records = vet?.vaccinations ?? [];
+  const hasAnyHealthData = !!vet && (records.length > 0 || vet.spayedNeutered);
+
+  if (!hasAnyHealthData) return null;
+
+  const sorted = sortVaccinations(records);
+
+  return (
+    <div className="dog-profile-section">
+      <h2 className="dog-profile-section-title">Health</h2>
+      {records.length > 0 ? (
+        <>
+          <div className="dog-profile-tags">
+            {sorted.map((r) => (
+              <span
+                key={r.type}
+                className="dog-profile-tag"
+                title={`${VACCINATION_LABELS[r.type]} — last given ${r.lastGivenAt}`}
+              >
+                {VACCINATION_LABELS[r.type]} · {formatVaccinationDate(r.lastGivenAt)}
+              </span>
+            ))}
+          </div>
+          {vet?.vaccinationsAcknowledgedAt && (
+            <p className="text-xs text-fg-tertiary mt-xs">
+              Confirmed by {acknowledgerLabel} on{" "}
+              {formatVaccinationDate(vet.vaccinationsAcknowledgedAt)}
+            </p>
+          )}
+        </>
+      ) : (
+        <p className="text-sm text-fg-tertiary">No vaccination records on file.</p>
+      )}
     </div>
   );
 }
