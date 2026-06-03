@@ -318,6 +318,28 @@ function UserProfileInner() {
   const [bookingAppointment, setBookingAppointment] =
     useState<CarerAppointmentServiceConfig | null>(null);
 
+  // Unmark-Familiar confirm popover (P40). Friction-by-design: tapping a
+  // "Familiar ✓" tag opens a one-item menu rather than firing the unmark
+  // immediately, since Familiar is a deliberate trust mark and a stray tap
+  // shouldn't silently undo it. Mirrors the group-leave menu pattern.
+  const [unmarkMenuOpen, setUnmarkMenuOpen] = useState(false);
+  useEffect(() => {
+    if (!unmarkMenuOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setUnmarkMenuOpen(false);
+    }
+    function onClick(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      if (!target.closest(".unmark-familiar-menu-wrap")) setUnmarkMenuOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onClick);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onClick);
+    };
+  }, [unmarkMenuOpen]);
+
   const tabs = [
     { key: "about", label: "About" },
     { key: "posts", label: "Posts" },
@@ -449,25 +471,48 @@ function UserProfileInner() {
                             ? `${firstName} can now see your profile and tags from shared contexts.`
                             : `Have you met ${firstName}? Mark them familiar to let them see your profile.`}
                         </p>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (isGuest) {
-                              requireAuth(`recognise ${firstName}`);
-                              return;
+                        <div className="unmark-familiar-menu-wrap dropdown-menu-wrap">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (isGuest) {
+                                requireAuth(`recognise ${firstName}`);
+                                return;
+                              }
+                              if (isMarked) {
+                                // P40: friction-by-design. Open confirm menu
+                                // instead of unmarking on first tap — Familiar
+                                // is a deliberate mark, the undo should be too.
+                                setUnmarkMenuOpen((v) => !v);
+                              } else {
+                                markFamiliar(currentUserId, userId);
+                              }
+                            }}
+                            className={`private-profile-row-pill private-profile-row-pill--lg${isMarked ? " is-marked" : ""}`}
+                            aria-pressed={isMarked}
+                            aria-haspopup={isMarked ? "menu" : undefined}
+                            aria-expanded={isMarked ? unmarkMenuOpen : undefined}
+                            aria-label={
+                              isMarked ? `Remove Familiar from ${firstName}` : `Mark ${firstName} as Familiar`
                             }
-                            isMarked
-                              ? unmarkFamiliar(currentUserId, userId)
-                              : markFamiliar(currentUserId, userId);
-                          }}
-                          className={`private-profile-row-pill private-profile-row-pill--lg${isMarked ? " is-marked" : ""}`}
-                          aria-pressed={isMarked}
-                          aria-label={
-                            isMarked ? `Remove Familiar from ${firstName}` : `Mark ${firstName} as Familiar`
-                          }
-                        >
-                          {isMarked ? "Familiar ✓" : "+ Familiar"}
-                        </button>
+                          >
+                            {isMarked ? "Familiar ✓" : "+ Familiar"}
+                          </button>
+                          {isMarked && unmarkMenuOpen && (
+                            <div className="dropdown-menu" role="menu">
+                              <button
+                                type="button"
+                                className="dropdown-menu-item dropdown-menu-item--destructive"
+                                onClick={() => {
+                                  unmarkFamiliar(currentUserId, userId);
+                                  setUnmarkMenuOpen(false);
+                                }}
+                              >
+                                Unmark Familiar
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -693,18 +738,38 @@ function UserProfileInner() {
                           </ButtonAction>
                         )}
                         {leftSlot === "familiar_marked" && (
-                          <ButtonAction
-                            variant="outline"
-                            size="md"
-                            cta
-                            className="grow basis-[140px]"
-                            leftIcon={<Check size={14} weight="bold" />}
-                            onClick={() => unmarkFamiliar(currentUserId, userId)}
-                            aria-pressed
-                            aria-label={`Remove Familiar from ${firstName}`}
-                          >
-                            Familiar
-                          </ButtonAction>
+                          // P40: friction-by-design unmark — tap opens menu,
+                          // not a direct undo. Mirrors the locked-profile pill.
+                          <div className="unmark-familiar-menu-wrap dropdown-menu-wrap grow basis-[140px]">
+                            <ButtonAction
+                              variant="outline"
+                              size="md"
+                              cta
+                              className="w-full"
+                              leftIcon={<Check size={14} weight="bold" />}
+                              onClick={() => setUnmarkMenuOpen((v) => !v)}
+                              aria-pressed
+                              aria-haspopup="menu"
+                              aria-expanded={unmarkMenuOpen}
+                              aria-label={`Remove Familiar from ${firstName}`}
+                            >
+                              Familiar
+                            </ButtonAction>
+                            {unmarkMenuOpen && (
+                              <div className="dropdown-menu" role="menu">
+                                <button
+                                  type="button"
+                                  className="dropdown-menu-item dropdown-menu-item--destructive"
+                                  onClick={() => {
+                                    unmarkFamiliar(currentUserId, userId);
+                                    setUnmarkMenuOpen(false);
+                                  }}
+                                >
+                                  Unmark Familiar
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         )}
                         {leftSlot === "connected" && (
                           <ButtonAction

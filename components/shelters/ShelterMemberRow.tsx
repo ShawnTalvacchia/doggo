@@ -1,54 +1,49 @@
 "use client";
 
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
-import { PawPrint } from "@phosphor-icons/react";
+import { Leaf, Plant, Tree } from "@phosphor-icons/react";
 import type { ShelterSupporter, ShelterWalker, WalkerTier } from "@/lib/types";
 
 /**
  * A single row on the shelter Members tab.
  *
- * Walkers carry a tier-labeled chip ("Vetted Walker" / "Experienced
- * Walker" / "Trusted Handler") — the chip IS the tier signal. The
- * subline carries the activity stat ("18 walks").
+ * Walkers carry a tier-labeled volunteer badge ("New Volunteer" /
+ * "Regular Volunteer" / "Trusted Volunteer"). The chip uses a violet
+ * fill ("earned recognition") which sits outside the existing semantic
+ * ladder (info = paid care, brand = community) so the badge stays
+ * distinct as it appears on more surfaces (user profiles, etc.) in
+ * the credentialing-moat phase.
  *
- * Supporters get NO chip — the whole tab is supporters by default; the
- * walker chip is the differentiator. Supporter rows just show
- * "Following since Mon Year" in the subline.
+ * Tier escalation reads through icon SHAPE — Leaf → Plant → Tree —
+ * not through weight or chip styling. Distinct shapes are far more
+ * legible at small sizes than weight progression on a single icon.
  *
- * Tier-coded visual intensification (outlined → filled → filled+ring)
- * is deferred to the credentialing-moat phase per FC9. V1 ships the
- * tier label inside a uniform chip style.
+ * Supporters carry no chip; the walker badge is the differentiator.
  */
 interface ShelterMemberRowProps {
   entry:
     | { kind: "walker"; data: ShelterWalker; sortAt: string }
     | { kind: "supporter"; data: ShelterSupporter; sortAt: string };
-  // shelterName is kept on the prop type for forward-compat (a future
-  // multi-shelter walker badge could render shelter context); unused
-  // today because the chip is implicit-shelter on the shelter's own
-  // Members tab.
   shelterName?: string;
 }
 
-// Working titles — see FC9. The pattern is consistent ("[modifier] Walker")
-// so the chip family reads as one taxonomy across shelters: change the
-// modifier, the affiliation stays.
+// Working titles — see FC9. "[Tier] Volunteer" travels cleanly to
+// out-of-context surfaces (a profile, a feed mention) without needing
+// shelter context appended — exactly what we want for encouraging
+// volunteers to walk at multiple shelters.
 const TIER_LABEL: Record<WalkerTier, string> = {
-  vetted: "New Walker",
-  experienced: "Regular Walker",
-  trusted: "Trusted Walker",
+  vetted: "New Volunteer",
+  experienced: "Regular Volunteer",
+  trusted: "Trusted Volunteer",
 };
 
-// Tier escalation is carried by the paw icon weight — light → bold →
-// fill. One icon, three weights reads as a coherent progression
-// without leaderboard / points-system framing. Chip style stays
-// identical across tiers (Regular Walker baseline) so the family reads
-// as "walker affiliation" first; the weight nudge is the tier nuance.
-// See FC9 for the future credentialing-moat treatment.
-const TIER_ICON_WEIGHT: Record<WalkerTier, "light" | "bold" | "fill"> = {
-  vetted: "light",
-  experienced: "bold",
-  trusted: "fill",
+// Growth metaphor: leaf (smallest unit of life) → plant (a small thing
+// growing) → tree (established, rooted). Reads as time accumulating
+// through volunteering, not as a leaderboard rank.
+const TIER_ICON: Record<WalkerTier, typeof Leaf> = {
+  vetted: Leaf,
+  experienced: Plant,
+  trusted: Tree,
 };
 
 export function ShelterMemberRow({ entry }: ShelterMemberRowProps) {
@@ -68,12 +63,15 @@ export function ShelterMemberRow({ entry }: ShelterMemberRowProps) {
       <div className="shelter-member-body">
         <div className="shelter-member-name-row">
           <span className="shelter-member-name">{displayName}</span>
-          {kind === "walker" && (
-            <span className="shelter-member-chip shelter-member-chip--walker">
-              <PawPrint size={11} weight={TIER_ICON_WEIGHT[data.tier]} />
-              {TIER_LABEL[data.tier]}
-            </span>
-          )}
+          {kind === "walker" && (() => {
+            const TierIcon = TIER_ICON[data.tier];
+            return (
+              <span className="shelter-member-chip shelter-member-chip--volunteer">
+                <TierIcon size={12} weight="bold" />
+                {TIER_LABEL[data.tier]}
+              </span>
+            );
+          })()}
         </div>
 
         <div className="shelter-member-subline">

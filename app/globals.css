@@ -14663,14 +14663,17 @@ a.shelter-intro-social:hover {
   white-space: nowrap;
 }
 
-/* Walker chip — single uniform style across all tiers. The label
-   carries the modifier ("New / Regular / Trusted Walker") and the paw
-   icon's weight (light → bold → fill) does the visual escalation. One
-   chip family reading as "walker affiliation"; the paw weight is the
-   tier nuance. See FC9 for the future credentialing-moat treatment. */
-.shelter-member-chip--walker {
-  background: var(--status-info-light);
-  color: var(--status-info-strong);
+/* Volunteer badge — earned recognition for shelter walkers. Single
+   uniform chip style across all tiers; the icon shape carries the tier
+   (Leaf → Plant → Tree).
+   Violet fill sits outside the existing semantic ladder (info = paid
+   care, brand = community) so the badge reads as its own category:
+   "time given to shelter dogs." Hex values inlined for now — promote
+   to a `--violet-*` token family if the chip lands on more surfaces.
+   See FC9. */
+.shelter-member-chip--volunteer {
+  background: #f3eafa;
+  color: #6f2aa6;
 }
 
 .shelter-member-subline {
@@ -15603,6 +15606,14 @@ a.shelter-intro-social:hover {
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
+}
+
+/* P40: the Familiar pill is narrow ("Familiar ✓" sets the trigger width),
+   which makes "Unmark Familiar" wrap awkwardly when the menu inherits
+   left/right: 0 from `.dropdown-menu`. A min-width on this menu wrap
+   lets the items read on one line each. */
+.unmark-familiar-menu-wrap .dropdown-menu {
+  min-width: 180px;
 }
 
 .dropdown-menu-item {
