@@ -27,14 +27,18 @@ interface ShelterMemberRowProps {
   shelterName?: string;
 }
 
-// Working titles — see FC9. "[Tier] Volunteer" travels cleanly to
-// out-of-context surfaces (a profile, a feed mention) without needing
-// shelter context appended — exactly what we want for encouraging
-// volunteers to walk at multiple shelters.
+// Working titles — see FC9. The ladder is:
+//  - Entry: just "Volunteer" (no modifier — the real thing, not a
+//    probationary "New" status).
+//  - Middle: "Regular Volunteer" — modest, descriptive of cadence.
+//  - Top: "Super Volunteer" — praise rather than rank, doesn't imply
+//    other tiers are "untrusted" the way "Trusted" did.
+// "Volunteer" travels cleanly across shelters; the chip doesn't need
+// shelter context appended.
 const TIER_LABEL: Record<WalkerTier, string> = {
-  vetted: "New Volunteer",
+  vetted: "Volunteer",
   experienced: "Regular Volunteer",
-  trusted: "Trusted Volunteer",
+  trusted: "Super Volunteer",
 };
 
 // Growth metaphor: leaf (smallest unit of life) → plant (a small thing

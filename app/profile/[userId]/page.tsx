@@ -240,7 +240,7 @@ function UserProfileInner() {
   // taken on this page (or anywhere else that uses the context) reflect
   // immediately. Static `mockConnections` is the fallback inside the
   // context's `getConnection` helper.
-  const { getConnection, markFamiliar, unmarkFamiliar } = useConnections();
+  const { getConnection, markFamiliar, unmarkFamiliar, clearConnection } = useConnections();
   const connection = getConnection(userId, currentUserId);
   const userProfile = getUserOrProvider(userId);
   const provider = providers.find((p) => p.id === userId || p.userId === userId);
@@ -339,6 +339,29 @@ function UserProfileInner() {
       document.removeEventListener("mousedown", onClick);
     };
   }, [unmarkMenuOpen]);
+
+  // Connected-menu (P54). Tapping the "Connected" hero button opens a menu
+  // with Unconnect / Block / Report — heavy actions, friction-by-design.
+  // Unconnect is wired through `clearConnection` (cleared override bypasses
+  // the rank floor); Block + Report are placeholders pending backing data
+  // (no block list, no reports queue exists in mock world yet).
+  const [connectedMenuOpen, setConnectedMenuOpen] = useState(false);
+  useEffect(() => {
+    if (!connectedMenuOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setConnectedMenuOpen(false);
+    }
+    function onClick(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      if (!target.closest(".connected-menu-wrap")) setConnectedMenuOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onClick);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onClick);
+    };
+  }, [connectedMenuOpen]);
 
   const tabs = [
     { key: "about", label: "About" },
@@ -772,16 +795,60 @@ function UserProfileInner() {
                           </div>
                         )}
                         {leftSlot === "connected" && (
-                          <ButtonAction
-                            variant="outline"
-                            size="md"
-                            cta
-                            className="grow basis-[140px]"
-                            leftIcon={<Check size={14} weight="bold" />}
-                            aria-label={`You're connected with ${firstName}`}
-                          >
-                            Connected
-                          </ButtonAction>
+                          // P54: trigger the heavy-actions menu rather than
+                          // a quiet status pill. Unconnect is real; Block +
+                          // Report are stubs (no backing data yet).
+                          <div className="connected-menu-wrap dropdown-menu-wrap grow basis-[140px]">
+                            <ButtonAction
+                              variant="outline"
+                              size="md"
+                              cta
+                              className="w-full"
+                              leftIcon={<Check size={14} weight="bold" />}
+                              onClick={() => setConnectedMenuOpen((v) => !v)}
+                              aria-pressed
+                              aria-haspopup="menu"
+                              aria-expanded={connectedMenuOpen}
+                              aria-label={`You're connected with ${firstName} — open options`}
+                            >
+                              Connected
+                            </ButtonAction>
+                            {connectedMenuOpen && (
+                              <div className="dropdown-menu" role="menu">
+                                <button
+                                  type="button"
+                                  className="dropdown-menu-item dropdown-menu-item--destructive"
+                                  onClick={() => {
+                                    clearConnection(currentUserId, userId);
+                                    setConnectedMenuOpen(false);
+                                  }}
+                                >
+                                  Unconnect
+                                </button>
+                                <button
+                                  type="button"
+                                  className="dropdown-menu-item dropdown-menu-item--destructive"
+                                  onClick={() => {
+                                    // Stub: no backing data for blocked list yet.
+                                    // Closing the menu so the click feels acknowledged.
+                                    setConnectedMenuOpen(false);
+                                  }}
+                                >
+                                  Block
+                                </button>
+                                <button
+                                  type="button"
+                                  className="dropdown-menu-item"
+                                  onClick={() => {
+                                    // Stub: no reports queue yet. See P54 notes.
+                                    setConnectedMenuOpen(false);
+                                  }}
+                                >
+                                  Report
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         )}
                         {rightSlot === "message" && (
                           <ButtonAction

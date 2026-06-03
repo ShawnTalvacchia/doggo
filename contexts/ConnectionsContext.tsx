@@ -55,6 +55,12 @@ interface ConnectionsContextValue {
    *  walkthrough 2026-05-05 (resolves Open Q §2 inquiry-driven trust
    *  transitions for the contract-accept case). */
   markConnected: (viewerUserId: string, targetUserId: string) => void;
+  /** Drop a relationship entirely — viewer→target has no connection. Backs
+   *  the "Unconnect" menu item on profile heroes (P54, 2026-06-02). Sets a
+   *  `cleared` override that bypasses the state-rank floor so a Connected
+   *  base doesn't keep the relationship alive. Mirrors the deliberate
+   *  down-mark semantics of an unmark. */
+  clearConnection: (viewerUserId: string, targetUserId: string) => void;
   /** Convenience: read the override map (mostly useful in tests / debugging). */
   overrides: Record<string, ConnectionOverride>;
 }
@@ -63,6 +69,11 @@ interface ConnectionOverride {
   state: ConnectionState;
   /** When the override was applied (lets us show "Just marked Familiar" later if needed). */
   markedAt: string;
+  /** Deliberate down-mark — bypass the state-rank merge floor so the override
+   *  wins even when the static base is a higher state. Set by `clearConnection`
+   *  to drop a Connected base back to none. Without this, the rank rule would
+   *  treat a `none` override as a no-op against a `connected` base. */
+  cleared?: boolean;
 }
 
 const noopContext: ConnectionsContextValue = {
@@ -70,6 +81,7 @@ const noopContext: ConnectionsContextValue = {
   markFamiliar: () => {},
   unmarkFamiliar: () => {},
   markConnected: () => {},
+  clearConnection: () => {},
   overrides: {},
 };
 
@@ -141,6 +153,18 @@ export function ConnectionsProvider({ children }: { children: ReactNode }) {
         inboundFamiliar || base?.theyMarkedFamiliar;
 
       if (base) {
+        // Deliberate down-mark (Unconnect) — `cleared: true` bypasses the
+        // state-rank floor so a `none` override wins against a `connected`
+        // base. Without this short-circuit the rank rule below would keep
+        // the connection alive. P54, 2026-06-02.
+        if (outbound?.cleared) {
+          return {
+            ...base,
+            state: "none",
+            updatedAt: outbound.markedAt,
+            theyMarkedFamiliar: effectiveTheyMarkedFamiliar,
+          };
+        }
         // State precedence: connected > pending > familiar > none. Take
         // the HIGHER state when merging — never let an override downgrade
         // an existing relationship. Without this rule, the auto-Familiar
@@ -213,9 +237,20 @@ export function ConnectionsProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const clearConnection = useCallback(
+    (viewerUserId: string, targetUserId: string) => {
+      const k = key(viewerUserId, targetUserId);
+      setOverrides((prev) => ({
+        ...prev,
+        [k]: { state: "none", markedAt: new Date().toISOString(), cleared: true },
+      }));
+    },
+    [],
+  );
+
   const value = useMemo(
-    () => ({ getConnection, markFamiliar, unmarkFamiliar, markConnected, overrides }),
-    [getConnection, markFamiliar, unmarkFamiliar, markConnected, overrides],
+    () => ({ getConnection, markFamiliar, unmarkFamiliar, markConnected, clearConnection, overrides }),
+    [getConnection, markFamiliar, unmarkFamiliar, markConnected, clearConnection, overrides],
   );
 
   return <ConnectionsContext.Provider value={value}>{children}</ConnectionsContext.Provider>;

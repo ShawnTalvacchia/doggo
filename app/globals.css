@@ -14668,12 +14668,13 @@ a.shelter-intro-social:hover {
    (Leaf → Plant → Tree).
    Violet fill sits outside the existing semantic ladder (info = paid
    care, brand = community) so the badge reads as its own category:
-   "time given to shelter dogs." Hex values inlined for now — promote
-   to a `--violet-*` token family if the chip lands on more surfaces.
-   See FC9. */
+   "time given to shelter dogs." Cooler (more indigo-leaning) violet
+   so it doesn't drift toward pink at small chip sizes. Hex values
+   inlined for now — promote to a `--violet-*` token family when the
+   chip lands on more surfaces. See FC9. */
 .shelter-member-chip--volunteer {
-  background: #f3eafa;
-  color: #6f2aa6;
+  background: #ede9fe; /* violet-100 — cool lavender */
+  color: #5b21b6;      /* violet-800 — deep indigo-violet, less rose */
 }
 
 .shelter-member-subline {
@@ -15608,11 +15609,12 @@ a.shelter-intro-social:hover {
   box-shadow: var(--shadow-md);
 }
 
-/* P40: the Familiar pill is narrow ("Familiar ✓" sets the trigger width),
-   which makes "Unmark Familiar" wrap awkwardly when the menu inherits
-   left/right: 0 from `.dropdown-menu`. A min-width on this menu wrap
-   lets the items read on one line each. */
-.unmark-familiar-menu-wrap .dropdown-menu {
+/* P40 + P54: the Familiar / Connected hero pills are narrow (their labels
+   set the trigger width), which makes menu items wrap awkwardly when the
+   menu inherits left/right: 0 from `.dropdown-menu`. A min-width on these
+   wraps lets items read on one line each. */
+.unmark-familiar-menu-wrap .dropdown-menu,
+.connected-menu-wrap .dropdown-menu {
   min-width: 180px;
 }
 
