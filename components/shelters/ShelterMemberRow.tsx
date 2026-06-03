@@ -39,6 +39,18 @@ const TIER_LABEL: Record<WalkerTier, string> = {
   trusted: "Trusted Walker",
 };
 
+// Tier escalation is carried by the paw icon weight — light → bold →
+// fill. One icon, three weights reads as a coherent progression
+// without leaderboard / points-system framing. Chip style stays
+// identical across tiers (Regular Walker baseline) so the family reads
+// as "walker affiliation" first; the weight nudge is the tier nuance.
+// See FC9 for the future credentialing-moat treatment.
+const TIER_ICON_WEIGHT: Record<WalkerTier, "light" | "bold" | "fill"> = {
+  vetted: "light",
+  experienced: "bold",
+  trusted: "fill",
+};
+
 export function ShelterMemberRow({ entry }: ShelterMemberRowProps) {
   const { kind, data } = entry;
   const displayName = data.displayName;
@@ -57,10 +69,8 @@ export function ShelterMemberRow({ entry }: ShelterMemberRowProps) {
         <div className="shelter-member-name-row">
           <span className="shelter-member-name">{displayName}</span>
           {kind === "walker" && (
-            <span
-              className={`shelter-member-chip shelter-member-chip--walker shelter-member-chip--${data.tier}`}
-            >
-              <PawPrint size={11} weight="light" />
+            <span className="shelter-member-chip shelter-member-chip--walker">
+              <PawPrint size={11} weight={TIER_ICON_WEIGHT[data.tier]} />
               {TIER_LABEL[data.tier]}
             </span>
           )}

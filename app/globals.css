@@ -14663,33 +14663,14 @@ a.shelter-intro-social:hover {
   white-space: nowrap;
 }
 
-/* Tier-coded walker chip variants — three visual weights that read as
-   one family. Working version of the credentialing-moat intensification
-   pattern (FC9). Labels carry the modifier; the styling reinforces it.
-
-   - New Walker (vetted):     outlined only — quietest, "just arrived"
-   - Regular Walker (exp):    filled subtle — the comfortable middle
-   - Trusted Walker (trusted): filled stronger + brand-tinted border —
-     visually heaviest, "earned"
-
-   All three keep info (blue) as the family color so they read as
-   "walker affiliation" regardless of tier. */
+/* Walker chip — single uniform style across all tiers. The label
+   carries the modifier ("New / Regular / Trusted Walker") and the paw
+   icon's weight (light → bold → fill) does the visual escalation. One
+   chip family reading as "walker affiliation"; the paw weight is the
+   tier nuance. See FC9 for the future credentialing-moat treatment. */
 .shelter-member-chip--walker {
-  color: var(--status-info-strong);
-}
-
-.shelter-member-chip--vetted {
-  background: transparent;
-  border: 1px solid var(--status-info-light);
-}
-
-.shelter-member-chip--experienced {
   background: var(--status-info-light);
-}
-
-.shelter-member-chip--trusted {
-  background: var(--info-50);
-  border: 1px solid var(--status-info-strong);
+  color: var(--status-info-strong);
 }
 
 .shelter-member-subline {
