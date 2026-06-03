@@ -24,7 +24,7 @@ Before writing any code for a new phase, complete the **Opening Checklist** on t
 
 1. **Read the phase board** in `phases/`. Understand every task and its references.
 2. **Read all referenced docs** — strategy, feature, and implementation docs cited by the phase.
-3. **Review Open Questions** (`strategy/Open Questions & Assumptions Log.md`). Check if any unresolved questions affect this phase. Resolve or flag them before building.
+3. **Review Open Questions** (`phases/Open Questions & Assumptions Log.md`). Check if any unresolved questions affect this phase. Resolve or flag them before building.
 4. **Audit for conflicts.** Compare what the phase proposes against what's currently built. Raise anything that contradicts existing code, strategy docs, or feature docs. Don't assume the phase board is correct — it may have been written before recent changes.
 5. **Update stale docs.** If any referenced doc has a `last-reviewed` date older than 2 weeks, review and update it now.
 6. **Scan the Punch List** (`phases/punch-list.md`). Check if any open items overlap with the new phase's scope — adopt them into the phase board or note the overlap.

@@ -64,7 +64,7 @@ See `docs/CONTRIBUTING.md` for full details, including the phase open/close life
 | `docs/strategy/Trust & Connection Model.md` | Connection states, trust principles, safety & privacy |
 | `docs/strategy/Groups & Care Model.md` | Group taxonomy, provider types, config model, user journeys |
 | `docs/strategy/Content Visibility Model.md` | Two-gate visibility system, tagging privacy rules |
-| `docs/strategy/Open Questions & Assumptions Log.md` | Unresolved strategic questions — review before each phase |
+| `docs/phases/Open Questions & Assumptions Log.md` | Unresolved questions affecting upcoming work — review before each phase. Lives in `phases/` (alongside punch list) because it's a work-tracker, not strategy itself. |
 | `docs/strategy/Future Considerations.md` | Long-term ideas + possible add-ons waiting for a trigger (data scale, user feedback, related work). Distinct from Open Questions (those are questions to answer; these are known-direction items waiting to land). Distinct from punch list (those are concrete fixes; these are speculative). Items graduate out — to punch list, phase board, or feature scope — when triggered. |
 | `docs/strategy/Competitive Research - Prague Dog Care Scene.md` | Prague provider trust patterns, trust badge taxonomy, cold-start seeding strategy |
 | `docs/strategy/Competitive Research - Fluv.md` | Fluv analysis, hybrid trust model question, pre-booking meet-and-greet |

@@ -24,7 +24,7 @@ Tight verification for the Shelter Foundation phase thesis: **Doggo accepts shel
 
 - [x] **A2. Tap Follow.** Flips to `Following ▾`. Tap again → menu with Unfollow. Tap **Walk a dog** → sheet opens with the vouching note ("First-time walkers come in for a 30-minute intro visit…"); tap **Express interest** → button flips to `Interest sent ▾`.
 
-- [ ] **A3. Switch tabs.** Tabs stay at top, no banner-jump between tabs (banner is inside the Feed tab body, scrolls within it).
+- [x] **A3. Switch tabs.** Tabs stay at top, no banner-jump between tabs (banner is inside the Feed tab body, scrolls within it).
 
 ---
 

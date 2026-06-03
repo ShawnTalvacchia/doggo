@@ -13,7 +13,7 @@ review-trigger: When any task is completed or blocked
 - Cold-Start Playbook → "The shelter angle" + "Walker credentialing as a shelter trust layer"
 - Communities pattern (`/communities/[id]`) — page chrome shape we mirror with the Meets → Dogs swap
 
-**Refs:** [[strategy/Open Questions & Assumptions Log#14]], [[Cold-Start Playbook]], [[features/profiles]] (PetCard), [[strategy/Groups & Care Model]] (we are NOT a Group type — important contrast), [[implementation/badges]]
+**Refs:** [[phases/Open Questions & Assumptions Log#14]], [[Cold-Start Playbook]], [[features/profiles]] (PetCard), [[strategy/Groups & Care Model]] (we are NOT a Group type — important contrast), [[implementation/badges]]
 
 ---
 

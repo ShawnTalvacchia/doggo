@@ -423,5 +423,5 @@ Two accepted limitations remain. The pre-Mock-World-Building list of six was res
 
 - `docs/strategy/User Archetypes.md` — behavioural profiles each persona maps to
 - `docs/implementation/mock-data-plan.md` — Mock World Building scope (per-persona content)
-- `docs/strategy/Open Questions & Assumptions Log.md` §10 — closed by this phase; see for original framing
+- `docs/phases/Open Questions & Assumptions Log.md` §10 — closed by this phase; see for original framing
 - `docs/archive/phases/persona-wiring.md` — full phase board (workstreams, decisions, closing summary)

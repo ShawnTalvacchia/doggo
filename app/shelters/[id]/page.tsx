@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, Suspense } from "react";
+import { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -25,7 +25,6 @@ import { DetailHeader } from "@/components/layout/DetailHeader";
 import { TabBar } from "@/components/ui/TabBar";
 import { Spacer } from "@/components/layout/Spacer";
 import { FilterPillRow } from "@/components/ui/FilterPillRow";
-import { Select } from "@/components/ui/Select";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
@@ -487,6 +486,86 @@ function parseWeight(label: string | undefined): number {
   return match ? parseFloat(match[1]) : Number.POSITIVE_INFINITY;
 }
 
+/**
+ * Custom-styled sort dropdown. Uses the project's .dropdown-menu pattern
+ * (same as the Follow / RSVP / Joined menus) so options render with our
+ * styling instead of the OS-native select dropdown. Lives inline here
+ * because the shelter Dogs tab is its only consumer; extract to a
+ * shared component when a second surface needs the pattern.
+ */
+function SortMenu({
+  value,
+  options,
+  onChange,
+}: {
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (value: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  // Close on outside click + Escape. Mirrors the meet-RSVP / shelter-Follow
+  // menus' close behavior.
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    function onMouseDown(e: MouseEvent) {
+      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onMouseDown);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("mousedown", onMouseDown);
+    };
+  }, [open]);
+
+  const current = options.find((o) => o.value === value);
+
+  return (
+    <div ref={wrapRef} className="dropdown-menu-wrap shelter-sort-wrap">
+      <button
+        type="button"
+        className="shelter-sort-trigger"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+      >
+        <span>{current?.label ?? "Sort"}</span>
+        <CaretDown size={12} weight="bold" />
+      </button>
+      {open && (
+        <div className="dropdown-menu" role="listbox">
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              role="option"
+              aria-selected={opt.value === value}
+              className={`dropdown-menu-item${opt.value === value ? " is-active" : ""}`}
+              onClick={() => {
+                onChange(opt.value);
+                setOpen(false);
+              }}
+            >
+              <Check
+                size={14}
+                weight="light"
+                style={{ opacity: opt.value === value ? 1 : 0 }}
+                aria-hidden="true"
+              />
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function DogsTab({ shelter }: { shelter: ShelterProfile }) {
   const [sortKey, setSortKey] = useState<DogsSortKey>("needs-walks");
 
@@ -511,15 +590,11 @@ function DogsTab({ shelter }: { shelter: ShelterProfile }) {
     <div className="shelter-dogs">
       <div className="shelter-dogs-toolbar">
         <span className="shelter-dogs-toolbar-label">Sort by</span>
-        <div className="shelter-dogs-toolbar-select">
-          <Select
-            id="shelter-dogs-sort"
-            ariaLabel="Sort dogs by"
-            value={sortKey}
-            onChange={(v) => setSortKey(v as DogsSortKey)}
-            options={SORT_OPTIONS}
-          />
-        </div>
+        <SortMenu
+          value={sortKey}
+          options={SORT_OPTIONS}
+          onChange={(v) => setSortKey(v as DogsSortKey)}
+        />
       </div>
 
       {sorted.length === 0 ? (

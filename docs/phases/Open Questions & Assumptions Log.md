@@ -1,8 +1,8 @@
 ---
-category: strategy
+category: work-tracking
 status: active
-last-reviewed: 2026-06-01
-tags: [questions, risks, assumptions]
+last-reviewed: 2026-06-02
+tags: [questions, risks, assumptions, work-on-deck]
 review-trigger: "before starting a new phase, after any strategic discussion"
 ---
 

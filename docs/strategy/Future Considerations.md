@@ -9,7 +9,7 @@ review-trigger: "Append when a 'noted for later' idea surfaces; promote out when
 Long-term ideas, possible add-ons, and improvements to keep on the radar — things that aren't actionable now but are worth not-forgetting.
 
 **Distinct from:**
-- **Open Questions** (`docs/strategy/Open Questions & Assumptions Log.md`) — strategic questions awaiting resolution. Future Considerations are NOT questions; the direction is known, just waiting for a trigger.
+- **Open Questions** (`docs/phases/Open Questions & Assumptions Log.md`) — unresolved questions affecting upcoming work. Future Considerations are NOT questions; the direction is known, just waiting for a trigger.
 - **Punch List** (`docs/phases/punch-list.md`) — concrete, actionable fixes (≤few hours each). Future Considerations are speculative or trigger-gated; usually too big OR too tentative for the punch list.
 - **Phase boards** (`docs/phases/*.md`) — multi-task coordinated goals. A Future Consideration that grows trigger-fired scope can graduate to a phase board.
 

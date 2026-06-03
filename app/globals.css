@@ -14388,8 +14388,11 @@ a.shelter-intro-social:hover {
   border-bottom: 1px solid var(--border-regular);
 }
 
-/* Sort dropdown toolbar — replaces the old filter-pill row. Single
-   inline "Sort by [Needs walks now ▾]" affordance. */
+/* Sort dropdown toolbar — single inline "Sort by [Needs walks now ▾]"
+   affordance. The trigger is a custom button; clicking opens a
+   .dropdown-menu listbox styled with the project's menu pattern (same
+   styling as Follow / RSVP / Joined menus). Avoids the native OS
+   select dropdown that doesn't match the rest of the UI. */
 .shelter-dogs-toolbar {
   display: flex;
   align-items: center;
@@ -14404,22 +14407,36 @@ a.shelter-intro-social:hover {
   color: var(--text-tertiary);
 }
 
-.shelter-dogs-toolbar-select {
-  /* The Select component wraps in .input-block which adds vertical
-     gap meant for forms. Trim it down for inline toolbar use. */
+.shelter-sort-wrap {
   flex: 1;
   max-width: 220px;
 }
 
-.shelter-dogs-toolbar-select .input-block {
-  gap: 0;
+.shelter-sort-trigger {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  height: 32px;
+  padding: 0 var(--space-md);
+  background: var(--surface-base);
+  border: 1px solid var(--border-regular);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
 }
 
-.shelter-dogs-toolbar-select .select {
-  height: 32px;
-  padding-top: 0;
-  padding-bottom: 0;
-  font-size: var(--text-sm);
+.shelter-sort-trigger:hover {
+  border-color: var(--border-stronger);
+  background: var(--surface-hover);
+}
+
+.shelter-sort-trigger[aria-expanded="true"] {
+  border-color: var(--border-stronger);
 }
 
 /* 2-up card grid inside the 640px panel. Auto-collapses to 1-up on

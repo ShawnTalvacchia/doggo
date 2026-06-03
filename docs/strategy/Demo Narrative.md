@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: draft
-last-reviewed: 2026-05-20
+last-reviewed: 2026-06-02
 tags: [demo, narrative, walkthrough, personas]
 review-trigger: "before any change to the persona roster, the anchor meet, or the walkthrough beats"
 ---
@@ -36,6 +36,8 @@ The demo still runs in two modes; V2 stops trying to make one mode do both jobs:
 V2 anchors on **Klára**, a **walker-trainer-community-builder** — the most common shape of paid dog professional in Prague (80–90% of the market; see [[po-briefing-2026-05-15]]). For this pro, a public walk isn't a sideline — it's the business: demonstration, lead-gen, content, and retention all at once.
 
 But the framing is not only commercial. A trainer's real value to owners is **teaching** — dogs sit home alone most of the day, and getting them out, social, and well-mannered lifts both the dog's quality of life and the owner's ability to communicate with them. Dogs need social, leash, and listening skills. The pattern Doggo argues against is **avoidance** — a reactive dog that simply never gets near another dog, until one day it gets too close and there's a clash. *Resolve it, don't avoid it.* A trainer helps an anxious dog build the skills to enjoy other dogs' company — and **once ready, the dog belongs to the community.** Training is the on-ramp to belonging. Full positioning: [[Product Vision]] → "Trainer-Led Walks & the Training Value Proposition."
+
+**The demand signal under this framing.** Training is the highest-demand service for first-time owners and expats — the user segment most over-represented in Prague's dog-app audience. Roman's user interviews (2026-06-02 PO briefing) confirmed training was the most-needed and most-appealing service for these users. Daniel is that archetype on the demo stage; his Beat 3 capstone (booking Klára's 1-on-1) lands the demand signal in narrative form. See [[meetings/po-briefing-2026-06-02]] for the interview synthesis, and the new "Anxious New Owner" archetype in [[strategy/User Archetypes]].
 
 Klára's funnel has three tiers, all already in Doggo's model:
 

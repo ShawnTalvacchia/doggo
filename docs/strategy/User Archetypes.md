@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-06-01
+last-reviewed: 2026-06-02
 tags: [users, personas, trust, funnels]
 review-trigger: "when designing user-facing flows or onboarding"
 ---
@@ -214,6 +214,47 @@ Someone genuinely motivated by wanting to meet people in their neighbourhood —
 
 **Product behaviour**
 High engagement with meets and group features. Likely to become a Regular quickly if early experiences are good. May become a Connector — the social reward motivates them to organise. Rarely enters Ramp 2 because their motivation isn't care-related, but may casually help Connected friends.
+
+---
+
+### The Anxious New Owner
+
+*Ramp 1 — enters at Curious, the most training-driven entry pattern*
+
+**Who they are**
+A first-time owner (or a newcomer to Prague with a dog who's lived elsewhere) who feels under-equipped to handle their dog in public. Often expat — over-represented in international neighbourhoods where dog ownership is high and family-network help is low. Their dog may be reactive, fearful, untrained, or just unknown to them as a personality. They downloaded Doggo because they need help, not because they want to socialise.
+
+This archetype is where the training-demand signal lives. Per Roman's user interviews (2026-06-02), training is the most-needed and most-appealing service for this segment — they're paying attention to professionals before they're paying attention to peers.
+
+**Primary goals**
+
+- Get their dog to a level where public outings aren't a crisis
+- Learn what they're supposed to be doing (technique, calm body language, leash handling)
+- Find a professional they can trust *before* trying to make friends
+- Eventually, have their dog belong somewhere — but the training comes first
+
+**Primary fears**
+
+- Their dog embarrassing or hurting someone at a meet
+- Being judged for their dog's behaviour by experienced owners
+- Booking someone unqualified and making things worse
+- Group settings before they're ready — the wrong meet at the wrong time could set them back
+
+**Trust threshold**
+
+- High for paid services (they're investing in expertise)
+- Low for community participation (they want to observe, not be seen)
+  The trust gradient (Locked → Familiar → Connected) fits them well — they engage on their own pace, and the community side feels safe because it doesn't demand their visibility.
+
+**What success feels like**
+
+- A trainer they trust who knows their dog by name
+- A measurable change in their dog's behaviour they can feel weekly
+- A first walk that doesn't end in apology or panic
+- The realisation, months in, that they belong to a community they didn't notice forming
+
+**Product behaviour**
+Locked profile by default. Joins one or two care groups (specifically the trainer's group, not park groups) before joining any community-driven group. RSVPs to the trainer's free public walk as a low-stakes way to evaluate them. Heavy `/discover/care` usage with a training filter. Their first booking is almost always a 1-on-1 training session, not a recurring walker. Mid-engagement, they may start attending the trainer's group walks regularly and slowly drift into Participant behaviour. Daniel is the canonical persona for this archetype.
 
 ---
 

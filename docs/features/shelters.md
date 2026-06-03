@@ -10,7 +10,7 @@ review-trigger: "when modifying shelter surfaces, walker tier model, or non-owne
 
 Top-level institutional accounts on Doggo. Parallel to `UserProfile` — NOT a Group type. Ship with the Shelter Foundation phase (2026-06-01) seeded with one demo shelter (Útulek Liběň). Walker journey, credentialing UX, and shelter operator/admin views are deferred to later phases.
 
-See [[Cold-Start Playbook]] (strategic rationale) and [[strategy/Open Questions & Assumptions Log]] §14 (resolutions log).
+See [[Cold-Start Playbook]] (strategic rationale) and [[phases/Open Questions & Assumptions Log]] §14 (resolutions log).
 
 ---
 
