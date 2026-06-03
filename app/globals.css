@@ -14334,6 +14334,11 @@ a.shelter-intro-social:hover {
   border-color: var(--border-stronger);
 }
 
+/* Dogs-in-care summary card uses the volunteer-violet pair (matches
+   the badge color). Was info-blue, which per CLAUDE.md is reserved
+   for paid care — wrong semantic for a card that primes the volunteer
+   journey. Hex values kept in sync with .shelter-member-chip--volunteer;
+   promote to a token family together when violet gets more uses. */
 .shelter-summary-card-icon {
   display: inline-flex;
   align-items: center;
@@ -14341,8 +14346,8 @@ a.shelter-intro-social:hover {
   width: 44px;
   height: 44px;
   border-radius: var(--radius-panel);
-  background: var(--status-info-light);
-  color: var(--status-info-strong);
+  background: #ede9fe; /* violet-100 */
+  color: #5b21b6;      /* violet-800 */
   flex-shrink: 0;
 }
 
@@ -14359,7 +14364,7 @@ a.shelter-intro-social:hover {
 
 .shelter-summary-card-action {
   font-size: var(--text-xs);
-  color: var(--status-info-strong);
+  color: #5b21b6; /* violet-800 — matches icon */
   padding-top: var(--space-tiny);
 }
 
@@ -15616,6 +15621,15 @@ a.shelter-intro-social:hover {
 .unmark-familiar-menu-wrap .dropdown-menu,
 .connected-menu-wrap .dropdown-menu {
   min-width: 180px;
+}
+
+/* Hero action row: when the menu wrap sits beside another CTA (Connect /
+   Message), match the sibling's `grow basis-[140px]` so the two split the
+   row 50/50. `.dropdown-menu-wrap`'s shorthand `flex: 1` resets basis to 0,
+   which makes the wrap shrink to its content — leaving Message wider. */
+.unmark-familiar-menu-wrap,
+.connected-menu-wrap {
+  flex: 1 1 140px;
 }
 
 .dropdown-menu-item {

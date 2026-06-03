@@ -17,6 +17,7 @@ import {
   House,
   Tree,
   Dog,
+  CaretDown,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { DetailHeader } from "@/components/layout/DetailHeader";
@@ -763,13 +764,14 @@ function UserProfileInner() {
                         {leftSlot === "familiar_marked" && (
                           // P40: friction-by-design unmark — tap opens menu,
                           // not a direct undo. Mirrors the locked-profile pill.
-                          <div className="unmark-familiar-menu-wrap dropdown-menu-wrap grow basis-[140px]">
+                          <div className="unmark-familiar-menu-wrap dropdown-menu-wrap">
                             <ButtonAction
                               variant="outline"
                               size="md"
                               cta
                               className="w-full"
                               leftIcon={<Check size={14} weight="bold" />}
+                              rightIcon={<CaretDown size={12} weight="bold" />}
                               onClick={() => setUnmarkMenuOpen((v) => !v)}
                               aria-pressed
                               aria-haspopup="menu"
@@ -798,13 +800,14 @@ function UserProfileInner() {
                           // P54: trigger the heavy-actions menu rather than
                           // a quiet status pill. Unconnect is real; Block +
                           // Report are stubs (no backing data yet).
-                          <div className="connected-menu-wrap dropdown-menu-wrap grow basis-[140px]">
+                          <div className="connected-menu-wrap dropdown-menu-wrap">
                             <ButtonAction
                               variant="outline"
                               size="md"
                               cta
                               className="w-full"
                               leftIcon={<Check size={14} weight="bold" />}
+                              rightIcon={<CaretDown size={12} weight="bold" />}
                               onClick={() => setConnectedMenuOpen((v) => !v)}
                               aria-pressed
                               aria-haspopup="menu"
