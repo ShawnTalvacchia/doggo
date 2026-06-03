@@ -31,6 +31,7 @@ import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { ShelterDogCard } from "@/components/shelters/ShelterDogCard";
 import { ShelterMemberRow } from "@/components/shelters/ShelterMemberRow";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
+import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
 import {
   getShelterById,
   getShelterFeed,
@@ -61,8 +62,13 @@ function ShelterDetailInner() {
   const searchParams = useSearchParams();
   const rawActiveTab = searchParams.get("tab") || "feed";
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
+  const { lastListPath } = useNavigationMemory();
 
   const shelter = getShelterById(params.id as string);
+  // Source-aware back: shelter detail is reachable from /home, future
+  // /discover/shelters, post tag click, etc. Walk back to wherever the
+  // viewer was last on a list-level surface; fallback /home.
+  const parentHref = lastListPath ?? "/home";
 
   const tabs = useMemo(
     () => [
@@ -76,12 +82,14 @@ function ShelterDetailInner() {
   const visibleKeys = new Set(tabs.map((t) => t.key));
   const activeTab = visibleKeys.has(rawActiveTab) ? rawActiveTab : "feed";
 
-  // Mobile detail header. Back goes to home (no /shelters list view yet).
+  // Mobile detail header. Back walks to the last list-level path the
+  // viewer was on (NavigationMemoryContext), falling back to /home for
+  // deep links / fresh sessions.
   useEffect(() => {
     if (!shelter) return;
-    setDetailHeader(shelter.name, () => router.push("/home"));
+    setDetailHeader(shelter.name, () => router.push(parentHref));
     return () => clearDetailHeader();
-  }, [shelter?.name]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [shelter?.name, parentHref]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!shelter) {
     return (
@@ -104,7 +112,7 @@ function ShelterDetailInner() {
 
   return (
     <div className="shelter-detail-page">
-      <DetailHeader backLabel="Back" title={shelter.name} />
+      <DetailHeader backLabel="Back" title={shelter.name} backHref={parentHref} />
 
       <div className="shelter-detail-panel">
         <div className="shelter-detail-body">

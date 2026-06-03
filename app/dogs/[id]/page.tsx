@@ -20,6 +20,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
+import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
 import { getShelterDog, getDogPosts } from "@/lib/mockShelters";
 import type { PetProfile, Post, ShelterProfile } from "@/lib/types";
 
@@ -37,17 +38,18 @@ function DogProfileInner() {
   const params = useParams();
   const router = useRouter();
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
+  const { lastListPath } = useNavigationMemory();
 
   const dogId = params.id as string;
   const resolved = getShelterDog(dogId);
 
-  // Back-as-hierarchy: shelter dogs go up to their shelter's Dogs tab,
-  // unknown dogs (or owned dogs once their profile lands) go to /home.
-  // Deliberately not using router.back() — back should walk the tree,
-  // not the navigation history.
+  // Shelter dogs always go up to their shelter's Dogs tab (tree-hierarchy
+  // — the dog belongs to the shelter regardless of how the viewer
+  // arrived). Unknown / future owned-dog cases are source-aware (last
+  // list page, fallback /home).
   const parentHref = resolved
     ? `/shelters/${resolved.shelter.id}?tab=dogs`
-    : "/home";
+    : lastListPath ?? "/home";
 
   useEffect(() => {
     setDetailHeader(resolved?.dog.name ?? "Dog", () => router.push(parentHref));

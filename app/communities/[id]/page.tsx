@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
+import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
 import { Toggle } from "@/components/ui/Toggle";
 import { SERVICE_LABELS } from "@/lib/constants/services";
 import { DetailHeader } from "@/components/layout/DetailHeader";
@@ -150,6 +151,7 @@ function GroupDetailInner() {
   const searchParams = useSearchParams();
   const rawActiveTab = searchParams.get("tab") || "feed";
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
+  const { lastListPath } = useNavigationMemory();
   const { openComposer } = usePostComposer();
   const { openComposer: openMeetComposer } = useMeetComposer();
   const currentUserId = useCurrentUserId();
@@ -300,11 +302,13 @@ function GroupDetailInner() {
     }
   })() : undefined;
 
-  // Feed detail header into AppNav on mobile. Guests don't have a /home
-  // surface to fall back to — back goes to the landing page. When a tour is
-  // active, defer to browser history so the user lands back at the previous
-  // tour step (with overlay still active) instead of being silently kicked
-  // out of the tour by a hardcoded /home navigation. PO note 2026-05-05.
+  // Source-aware back navigation: community detail is reachable from
+  // home, discover/groups, profile, etc. Back goes to the last list-level
+  // path the viewer visited, falling back to /home (or / for guests).
+  // Tour mode is a special case — tour state lives in URL search params,
+  // so we step backward through history instead of jumping out.
+  const guestFallback = isGuest ? "/" : "/home";
+  const parentHref = lastListPath ?? guestFallback;
   useEffect(() => {
     setDetailHeader(
       group.name,
@@ -313,12 +317,12 @@ function GroupDetailInner() {
           router.back();
           return;
         }
-        router.push(isGuest ? "/" : "/home");
+        router.push(parentHref);
       },
       headerAction,
     );
     return () => clearDetailHeader();
-  }, [group.name, activeTab, isMember, isGuest]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [group.name, activeTab, isMember, isGuest, parentHref]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTabChange = (key: string) => {
     if (key === "feed") {
@@ -331,11 +335,11 @@ function GroupDetailInner() {
   return (
     <div className="group-detail-page">
       {/* ── Header (above panel on desktop, becomes mobile top bar) ──
-           Back-as-hierarchy: goes up to /home (or / for guests). Tour
-           mode's "step backward" affordance lives in the mobile
-           setDetailHeader callback above; the desktop inline header
-           always walks up the tree. */}
-      <DetailHeader backLabel="Back" title={group.name} rightAction={headerAction} backHref={isGuest ? "/" : "/home"} />
+           Source-aware back — same parentHref the mobile callback above
+           computes (last list-level path the viewer was on, fallback
+           /home or /). Tour-mode special case stays in the mobile
+           callback. */}
+      <DetailHeader backLabel="Back" title={group.name} rightAction={headerAction} backHref={parentHref} />
 
       {/* ── Panel (rounded card container) ── */}
       <div className="group-detail-panel">

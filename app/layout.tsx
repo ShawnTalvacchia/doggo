@@ -11,6 +11,7 @@ import { BookingsProvider } from "@/contexts/BookingsContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { ReviewsProvider } from "@/contexts/ReviewsContext";
 import { PageHeaderProvider } from "@/contexts/PageHeaderContext";
+import { NavigationMemoryProvider } from "@/contexts/NavigationMemoryContext";
 import { PostComposerProvider } from "@/contexts/PostComposerContext";
 import { MeetComposerProvider } from "@/contexts/MeetComposerContext";
 import { PostMeetReviewProvider } from "@/contexts/PostMeetReviewContext";
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <ConnectionsProvider>
                   <BookingsProvider>
                     <PageHeaderProvider>
+                    <NavigationMemoryProvider>
                       <PostComposerProvider>
                         <MeetComposerProvider>
                           <PostMeetReviewProvider>
@@ -97,6 +99,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                           </PostMeetReviewProvider>
                         </MeetComposerProvider>
                       </PostComposerProvider>
+                    </NavigationMemoryProvider>
                     </PageHeaderProvider>
                   </BookingsProvider>
                   </ConnectionsProvider>

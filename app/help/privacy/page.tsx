@@ -33,6 +33,7 @@ import { PageColumn } from "@/components/layout/PageColumn";
 import { DetailHeader } from "@/components/layout/DetailHeader";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
+import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
 
 interface SectionProps {
   id: string;
@@ -75,18 +76,22 @@ function Section({ id, icon, title, children }: SectionProps) {
 export default function PrivacyExplainerPage() {
   const router = useRouter();
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
+  const { lastListPath } = useNavigationMemory();
+
+  // Source-aware back: help articles are reachable from anywhere
+  // (settings, footer links, post-RSVP flow). Walk back to the last
+  // list-level path; fallback /home.
+  const parentHref = lastListPath ?? "/home";
 
   useEffect(() => {
-    // Back-as-hierarchy: /help/privacy has no parent index, so back
-    // goes to /home (the global up-a-level for help articles).
-    setDetailHeader("How privacy works", () => router.push("/home"));
+    setDetailHeader("How privacy works", () => router.push(parentHref));
     return () => clearDetailHeader();
-  }, [setDetailHeader, clearDetailHeader, router]);
+  }, [setDetailHeader, clearDetailHeader, router, parentHref]);
 
   return (
     <PageColumn
       hideHeader
-      abovePanel={<DetailHeader title="How privacy works" backHref="/home" />}
+      abovePanel={<DetailHeader title="How privacy works" backHref={parentHref} />}
     >
       <div
         className="page-column-panel-body"

@@ -49,6 +49,7 @@ import { useAuthGate } from "@/contexts/AuthGateContext";
 import { resolvePersonActions } from "@/lib/personActions";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
+import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
 import { providers } from "@/lib/mockData";
 import { getUserOrProvider, getUserById } from "@/lib/mockUsers";
 import { SERVICE_LABELS } from "@/lib/constants/services";
@@ -334,11 +335,12 @@ function UserProfileInner() {
     <DefaultAvatar name={firstName} size={28} />
   );
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
-  // Back-as-hierarchy: someone else's profile goes up to /home (or / for
-  // guests). Used to fall back to router.back() when history was deep
-  // enough, but that broke the "back walks the tree, not the history"
-  // model.
-  const parentHref = isGuest ? "/" : "/home";
+  const { lastListPath } = useNavigationMemory();
+  // Source-aware back: profile detail is reachable from home, discover,
+  // meet attendee lists, post comments, etc. Walk back to wherever the
+  // viewer was last on a list-level surface; fallback /home (or / for
+  // guests).
+  const parentHref = lastListPath ?? (isGuest ? "/" : "/home");
   useEffect(() => {
     setDetailHeader(
       headerName,

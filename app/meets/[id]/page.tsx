@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { DetailHeader } from "@/components/layout/DetailHeader";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
+import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
 import { Spacer } from "@/components/layout/Spacer";
 import { TabBar } from "@/components/ui/TabBar";
 import {
@@ -226,6 +227,7 @@ function MeetDetailInner() {
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab") || "details";
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
+  const { lastListPath } = useNavigationMemory();
   const currentUser = useCurrentUser();
   const currentUserId = currentUser.id;
   const isGuest = useIsGuest();
@@ -445,14 +447,14 @@ function MeetDetailInner() {
     </ButtonAction>
   ) : undefined;
 
-  // Back-as-hierarchy: meets attached to a group walk back to that
-  // group's Meets tab; standalone meets walk to /schedule (the only
-  // surface that lists ungrouped meets a viewer might own).
+  // Grouped meets always walk up to their group's Meets tab (tree —
+  // the meet belongs to the group regardless of how the viewer arrived).
+  // Standalone meets are source-aware: walk back to wherever the viewer
+  // was last on a list surface (home, schedule, discover/meets, etc.),
+  // falling back to /schedule (or / for guests).
   const parentHref = meet.groupId
     ? `/communities/${meet.groupId}?tab=meets`
-    : isGuest
-    ? "/"
-    : "/schedule";
+    : lastListPath ?? (isGuest ? "/" : "/schedule");
 
   useEffect(() => {
     setDetailHeader(meet.title, () => router.push(parentHref), headerAction);
