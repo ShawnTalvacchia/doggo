@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-02
+last-reviewed: 2026-06-03
 tags: [shelters, institutional-accounts, walkers, dogs, cold-start]
 review-trigger: "when modifying shelter surfaces, walker tier model, or non-owned dog handling"
 ---
@@ -192,30 +192,36 @@ Walker-authored walk recaps auto-route into the shelter feed via their dog/shelt
 
 ---
 
-## Dog profile tag taxonomy (interim)
+## Dog profile tag taxonomy
 
-The chip/pill rows on the Dogs-tab card AND the dog profile (`/dogs/[id]`) fall into three categories. V1 ships them visually distinct but the data model is still informal — formalization is FC8 in Future Considerations and lands with the Dog Profile phase.
+Formalized in the Dog Profile phase (2026-06-02 — FC8 closure). Three categories with explicit code separation: auto-derived chips computed at render time, curated personality tags from a typed vocabulary, and policy chips derived from per-dog flags. Helpers live in `lib/petUtils.ts` (`deriveAutoTags`, `derivePolicyChips`); vocabulary lives in `lib/constants/dogs.ts` (`PERSONALITY_TAG_LABELS`, `PERSONALITY_TAG_PICKER_ORDER`).
 
-**1. Auto-derived card chip** — single chip overlaid on the dog card photo, picked by priority. Computed at render time, never stored.
+**1. Auto-derived chips** — computed at render time via `deriveAutoTags(dog, today)`. Never stored. Order is render-priority:
 
-| Chip | Derived from | Visual |
-|---|---|---|
-| `Adoption pending` | `adoptionStatus === "pending"` | Yellow glass (translucent, backdrop-filter) |
-| `New arrival` | `daysInKennel <= 7` | Solid brand fill (event celebration) |
-| `Long-stayer` | `daysInKennel >= 30` | White glass (translucent, neutral text) |
+| Chip | Derived from | Tone | Dog-profile renders | Shelter-card renders |
+|---|---|---|---|---|
+| `Adoption pending` | `adoptionStatus === "pending"` | `pending` | yes | yes (highest priority chip — yellow glass) |
+| `New arrival` | `daysInKennel > 0 && daysInKennel <= 7` | `new` | yes | yes (solid brand fill) |
+| `Long-stayer` | `daysInKennel >= 30` | `long` | yes | yes (white glass) |
+| *energy-derived* | `energyLevel` (`low → Calm` / `moderate → Easygoing` / `high → Active` / `very_high → High energy`) | `energy` | yes | no — energy chips never appear on the shelter Dogs-tab card |
 
-Priority order: `pending > new > long > none`. Card displays at most one.
+Shelter Dogs-tab card takes the first non-energy chip. The dog profile renders all.
 
-**2. Dog-profile chips** — render all applicable, in this order:
-- Energy-derived chip (`PetProfile.energyLevel` → "Calm" / "Easygoing" / "Active" / "High energy")
-- Long-stayer chip (if `daysInKennel >= 30` and not already in manual tags)
-- Manual personality tags from `PetProfile.tags`
+**2. Personality tags** — typed `PersonalityTag` vocabulary stored in `PetProfile.personalityTags?: PersonalityTag[]`. Owner-authored (PetEditCard picker) or shelter-seeded. Replaces the previous free-text `PetProfile.tags: string[]`.
 
-The render layer dedupes case-insensitively against `formatEnergy()` output.
+Vocabulary (17 entries — extend in `lib/types.ts:PersonalityTag` + `lib/constants/dogs.ts:PERSONALITY_TAG_LABELS`):
 
-**3. Policy chips (auto-derived)** — `PetProfile.soloOnly` + `PetProfile.experiencedHandlersOnly`. Render as a separate row with shield icon. Different visual role from personality tags because they gate walker eligibility.
+`affectionate` · `calm` · `smart` · `shy` · `playful` · `independent` · `gentle` · `loves-walks` · `good-with-strangers` · `good-with-kids` · `good-with-dogs` · `selective-with-dogs` · `reactive-on-leash` · `wary-of-strangers` · `needs-basics` · `senior` · `puppy`
 
-**Tag system formalization** — FC8 covers the planned shape: typed enum for personality tags (controlled vocabulary), explicit auto-derive helpers per chip type, and harmonized seed data. Currently mixed for compatibility; clean-up lands with the Dog Profile phase.
+Curation rules (enforced by review):
+- Behavioural / disposition descriptors only.
+- NO auto-derivable state (Long-stayer, New arrival, Adoption pending, energy-level) — those compute from data.
+- NO policy chips (Solo-only, Experienced-handlers-only) — those come from `derivePolicyChips`.
+- NO size chips — size sorts the Dogs tab; a redundant tag adds noise.
+
+Edit affordance: PetEditCard's Personality section carries the multi-select chip picker (owned dogs). Shelter operator authoring lives at the shelter-operator surface (V3+).
+
+**3. Policy chips** — auto-derived via `derivePolicyChips(dog)` from `PetProfile.soloOnly` + `PetProfile.experiencedHandlersOnly`. Render as a separate row with a shield icon, visually distinct from personality tags because they gate walker eligibility.
 
 ---
 

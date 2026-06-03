@@ -1,4 +1,10 @@
-import type { VaccinationRecord, VaccinationType, VetInfo } from "@/lib/types";
+import type {
+  EnergyLevel,
+  PetProfile,
+  VaccinationRecord,
+  VaccinationType,
+  VetInfo,
+} from "@/lib/types";
 
 /**
  * Human-readable labels for `VaccinationType` enum values. Used by every
@@ -76,4 +82,88 @@ export function sortVaccinations(records: VaccinationRecord[]): VaccinationRecor
 export function formatVaccinationDate(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
+
+// ── Tag taxonomy helpers (FC8 formalization, Dog Profile phase) ──────
+
+/**
+ * An auto-derived chip for a dog. Tone drives visual treatment per surface
+ * (shelter Dogs-tab card priority chip, dog profile tag row).
+ */
+export type AutoTag = {
+  kind: "adoption-pending" | "new-arrival" | "long-stayer" | "energy";
+  label: string;
+  tone: "pending" | "new" | "long" | "energy";
+};
+
+const ENERGY_LABEL: Record<EnergyLevel, string> = {
+  low: "Calm",
+  moderate: "Easygoing",
+  high: "Active",
+  very_high: "High energy",
+};
+
+/**
+ * Compute the auto-derived chips for a dog. Replaces the inline render-time
+ * derivation that lived on `app/dogs/[id]/page.tsx` and
+ * `components/shelters/ShelterDogCard.tsx`. Always-accurate, never stored.
+ *
+ * Order is render-priority — surfaces that show all chips (dog profile)
+ * render top-to-bottom in this order; surfaces that show only one (the
+ * shelter Dogs-tab card) take the first.
+ */
+export function deriveAutoTags(dog: PetProfile, today: Date): AutoTag[] {
+  const tags: AutoTag[] = [];
+
+  if (dog.adoptionStatus === "pending") {
+    tags.push({ kind: "adoption-pending", label: "Adoption pending", tone: "pending" });
+  }
+
+  const days = dog.daysInKennel ?? 0;
+  if (days > 0 && days <= 7) {
+    tags.push({ kind: "new-arrival", label: "New arrival", tone: "new" });
+  } else if (days >= 30) {
+    tags.push({ kind: "long-stayer", label: "Long-stayer", tone: "long" });
+  }
+
+  if (dog.energyLevel) {
+    tags.push({
+      kind: "energy",
+      label: ENERGY_LABEL[dog.energyLevel],
+      tone: "energy",
+    });
+  }
+
+  // `today` reserved for future age-derived chips (Senior / Puppy from
+  // structured age). V1 keeps Senior/Puppy in the manual PersonalityTag
+  // vocabulary because `ageLabel` is free-text.
+  void today;
+
+  return tags;
+}
+
+/**
+ * A walker-eligibility chip. Visually distinct from personality tags
+ * because these gate handling, not disposition.
+ */
+export type PolicyChip = {
+  kind: "solo-only" | "experienced-only";
+  label: string;
+};
+
+/**
+ * Compute policy chips from per-dog policy flags. Shelter dogs only —
+ * owned dogs don't carry these fields. Strictest rule wins at the
+ * walk-eligibility check; the chips here surface the per-dog inputs to
+ * that check.
+ */
+export function derivePolicyChips(dog: PetProfile): PolicyChip[] {
+  const chips: PolicyChip[] = [];
+  if (dog.soloOnly) {
+    chips.push({ kind: "solo-only", label: "Solo walks only" });
+  }
+  if (dog.experiencedHandlersOnly) {
+    chips.push({ kind: "experienced-only", label: "Experienced handlers only" });
+  }
+  return chips;
 }

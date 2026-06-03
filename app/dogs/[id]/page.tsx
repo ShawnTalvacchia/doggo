@@ -24,9 +24,12 @@ import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
 import { getShelterDog, getDogPosts } from "@/lib/mockShelters";
 import {
   VACCINATION_LABELS,
+  deriveAutoTags,
+  derivePolicyChips,
   formatVaccinationDate,
   sortVaccinations,
 } from "@/lib/petUtils";
+import { PERSONALITY_TAG_LABELS } from "@/lib/constants/dogs";
 import type { PetProfile, Post, ShelterProfile, VetInfo } from "@/lib/types";
 
 /* ── Page wrapper ──────────────────────────────────────────────────── */
@@ -95,20 +98,18 @@ function DogProfileInner() {
 
   const { dog, shelter } = resolved;
   const posts = getDogPosts(dog.id);
-  const isLongStayer = (dog.daysInKennel ?? 0) >= 30;
   // Shelter-care stats (In care, Last walked) only render while the dog
   // is actively being cared for at the shelter. Once adopted, the dog
   // has gone home and those numbers stop being meaningful.
   const showCareStats = dog.adoptionStatus !== "adopted";
-  const energyLabel = formatEnergy(dog.energyLevel);
-  // Manual tags can duplicate auto-derivable labels (older seeds set
-  // "Calm" or "High energy" manually alongside `energyLevel`). Dedupe
-  // when rendering so the user doesn't see the same chip twice. Energy
-  // gets its own chip first; matching manual tags get filtered.
-  const energyDedupe = energyLabel ? new Set([energyLabel.toLowerCase()]) : new Set<string>();
-  const manualTags = (dog.tags ?? []).filter(
-    (t) => !energyDedupe.has(t.toLowerCase()),
-  );
+  // Tag taxonomy (FC8 formalization, 2026-06-02): auto-derived chips
+  // (Adoption pending / New arrival / Long-stayer / energy) come from
+  // `deriveAutoTags`; personality tags come from the typed
+  // `PersonalityTag` vocabulary; policy chips render separately because
+  // they gate handler eligibility, not disposition.
+  const autoTags = deriveAutoTags(dog, new Date());
+  const personalityTags = dog.personalityTags ?? [];
+  const policyChips = derivePolicyChips(dog);
 
   return (
     <div className="dog-profile-page">
@@ -172,39 +173,40 @@ function DogProfileInner() {
               </div>
             )}
 
-            {/* Tags row. Energy chip first (auto-derived from
-                `energyLevel`), then auto Long-stayer (auto-derived from
-                `daysInKennel`), then manually-set personality tags.
-                Tag taxonomy is intentional but not yet formalized — see
-                FC8 in Future Considerations. */}
-            {(energyLabel || isLongStayer || manualTags.length > 0) && (
+            {/* Tags row. Three categories rendered in order:
+                1. Auto-derived chips (Adoption pending > New arrival >
+                   Long-stayer > energy) via `deriveAutoTags`.
+                2. Curated personality tags from the typed
+                   `PersonalityTag` vocabulary.
+                See [[features/shelters]] → "Dog profile tag taxonomy"
+                for the formalization (FC8). */}
+            {(autoTags.length > 0 || personalityTags.length > 0) && (
               <div className="dog-profile-tags">
-                {energyLabel && (
-                  <span className="dog-profile-tag dog-profile-tag--energy">
-                    {energyLabel}
+                {autoTags.map((t) => (
+                  <span
+                    key={t.kind}
+                    className={`dog-profile-tag dog-profile-tag--${t.tone}`}
+                  >
+                    {t.label}
                   </span>
-                )}
-                {isLongStayer && !dog.tags?.includes("Long-stayer") && (
-                  <span className="dog-profile-tag dog-profile-tag--long">Long-stayer</span>
-                )}
-                {manualTags.map((tag) => (
+                ))}
+                {personalityTags.map((tag) => (
                   <span key={tag} className="dog-profile-tag">
-                    {tag}
+                    {PERSONALITY_TAG_LABELS[tag]}
                   </span>
                 ))}
               </div>
             )}
 
-            {/* Handling policy notes — solo only, experienced handlers
+            {/* Handling policy chips — solo-only, experienced handlers
                 only. Visually separate from personality tags because
-                these gate walker eligibility. Shelter dogs only. */}
-            {(dog.soloOnly || dog.experiencedHandlersOnly) && (
+                these gate walker eligibility. Shelter dogs only;
+                derived via `derivePolicyChips`. */}
+            {policyChips.length > 0 && (
               <div className="dog-profile-policy">
                 <ShieldCheck size={14} weight="light" />
                 <span>
-                  {dog.soloOnly && "Solo walks only"}
-                  {dog.soloOnly && dog.experiencedHandlersOnly && " · "}
-                  {dog.experiencedHandlersOnly && "Experienced handlers only"}
+                  {policyChips.map((c) => c.label).join(" · ")}
                 </span>
               </div>
             )}
@@ -404,22 +406,4 @@ function formatRelativeDay(iso: string): string {
   if (days <= 0) return "today";
   if (days === 1) return "yesterday";
   return `${days} days ago`;
-}
-
-/** Translate the raw `energyLevel` enum to a human-readable chip label.
- *  Returns `null` when the field is missing so the chip is skipped
- *  entirely (no "Unknown energy" placeholder). */
-function formatEnergy(level: string | undefined): string | null {
-  switch (level) {
-    case "low":
-      return "Calm";
-    case "moderate":
-      return "Easygoing";
-    case "high":
-      return "Active";
-    case "very_high":
-      return "High energy";
-    default:
-      return null;
-  }
 }

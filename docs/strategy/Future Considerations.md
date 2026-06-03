@@ -1,6 +1,6 @@
 ---
 status: living
-last-reviewed: 2026-06-02
+last-reviewed: 2026-06-03
 review-trigger: "Append when a 'noted for later' idea surfaces; promote out when triggered"
 ---
 
@@ -170,23 +170,9 @@ Cards remain the default. A view-mode toggle (Cards · List · Carousel) would s
 
 ---
 
-## FC8. Shelter dog tag system formalization
+## FC8. Shelter dog tag system formalization *(resolved 2026-06-02 — Dog Profile phase)*
 
-**Trigger:** Manual tag inconsistency becomes a real maintenance pain (one shelter's "Reactive" is another's "Reactive to other dogs"), OR a search/filter affordance over tags becomes a real ask.
-
-**Context:** Shelter Foundation (2026-06-01) seeded shelter dogs with a `tags: string[]` free-text field — "Affectionate", "Smart", "Reactive to other dogs", "Long-stayer", "New arrival", "Solo only", etc. Tags currently render only on `/dogs/[id]` (the Dogs-tab card was pared back to drop them, since auto-derived chips communicate the urgent signals).
-
-Two distinct tag categories are mixed in the current data:
-- **Auto-derivable** — Long-stayer (`daysInKennel >= 30`), New arrival (`daysInKennel <= 7`), Senior (age-derived), Puppy (age-derived). These should be computed at render time, never manually entered. Today some of these are duplicated manually in the `tags` array.
-- **Curated personality** — Affectionate, Calm, Smart, Shy, Wary of strangers, etc. These are human-judgment tags. A controlled vocabulary (enum or constants set) would make them consistent across shelters.
-
-Cleaner system: split `PetProfile.tags` into auto-derived (computed, never stored) + curated personality (typed enum or constants-backed string union). Or just keep the free-text field and rely on documentation conventions. Either way, the V1 mock data needs a cleanup pass: drop redundant auto-derivable entries, harmonize wording.
-
-**Effort:** ~2-3h. Define the personality-tag vocabulary; refactor seeds; add a `deriveAutoTags(dog: PetProfile)` helper; update the dog profile + future surfaces to compose auto-derived + manual.
-
-**Refs:** `lib/mockShelters.ts` (current free-text seeds), `app/dogs/[id]/page.tsx` (renders `dog.tags`), `components/shelters/ShelterDogCard.tsx` (uses `pickAutoChip` — the seed for the auto-derived pattern).
-
-**Added:** 2026-06-01
+**Shipped.** Dog Profile phase landed the three-category split: auto-derived chips via `deriveAutoTags` in `lib/petUtils.ts`; controlled `PersonalityTag` vocabulary in `lib/types.ts` with labels + picker order in `lib/constants/dogs.ts`; policy chips via `derivePolicyChips`. `PetProfile.tags: string[]` replaced by `personalityTags: PersonalityTag[]`. Seed migration cleaned redundant auto-derivable entries (Long-stayer / New arrival / Adoption pending dropped from manual seeds; Senior + Puppy kept in vocabulary pending structured-age refactor). PetEditCard surfaces the controlled-vocabulary picker on owned-dog editing; shelter operator authoring deferred to V3+. Full taxonomy doc: [[features/shelters]] → "Dog profile tag taxonomy."
 
 ---
 

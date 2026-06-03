@@ -1151,6 +1151,40 @@ export type PlayStyle =
   | "sniffing";
 
 /**
+ * Controlled vocabulary for the personality-tag chip row on dog cards and
+ * profiles (FC8 formalization, Dog Profile phase). Replaces the previous
+ * free-text `PetProfile.tags: string[]`. Labels live in
+ * `lib/constants/dogs.ts:PERSONALITY_TAG_LABELS`.
+ *
+ * Curation rules:
+ * - Only behavioural / disposition descriptors. Things humans judge.
+ * - NO auto-derivable state (Long-stayer, New arrival, Adoption pending,
+ *   energy-level). Those are computed at render time via `deriveAutoTags`.
+ * - NO policy chips (Solo-only, Experienced-handlers-only). Those derive
+ *   from `PetProfile.soloOnly` / `experiencedHandlersOnly` via
+ *   `derivePolicyChips`.
+ * - NO size chips. Size sorts the Dogs tab; a redundant tag adds noise.
+ */
+export type PersonalityTag =
+  | "affectionate"
+  | "calm"
+  | "smart"
+  | "shy"
+  | "playful"
+  | "independent"
+  | "gentle"
+  | "loves-walks"
+  | "good-with-strangers"
+  | "good-with-kids"
+  | "good-with-dogs"
+  | "selective-with-dogs"
+  | "reactive-on-leash"
+  | "wary-of-strangers"
+  | "needs-basics"
+  | "senior"
+  | "puppy";
+
+/**
  * Standard Czech canine vaccines surfaced in Vaccines V1 (per PO interviews,
  * Roman 2026-06-02). Rabies is legally mandatory in CZ; the others are
  * recommended core vaccines. V1 treats all five uniformly — no platform legal
@@ -1248,12 +1282,20 @@ export interface PetProfile {
   /** Short narrative blurb (1–2 sentences) shown on the dog profile and
    *  optionally on the dog card. Shelter dogs only. */
   backstory?: string;
-  /** Free-form tag chips shown on the shelter Dogs tab card + dog profile.
-   *  Curated short labels — "Reactive to other dogs," "Good with kids,"
-   *  "New arrival," "Long-stayer" (the Long-stayer chip is also auto-derived
-   *  from `daysInKennel >= 30`; explicit entry is a manual override).
-   *  Shelter dogs only. */
-  tags?: string[];
+  /**
+   * Curated personality tags from the controlled `PersonalityTag` vocabulary
+   * (FC8 formalization, 2026-06-02). Replaces the previous free-text
+   * `tags: string[]`. Auto-derived chips (Long-stayer / New arrival /
+   * Adoption pending / energy) are NOT stored here — they're computed at
+   * render time via `deriveAutoTags` in `lib/petUtils.ts`. Policy chips
+   * (Solo-only / Experienced-handlers-only) are derived separately via
+   * `derivePolicyChips`.
+   *
+   * Currently shelter-dog-seeded only; owned-dog authoring lands with the
+   * PetEditCard tag picker. See [[features/shelters]] →
+   * "Dog profile tag taxonomy."
+   */
+  personalityTags?: PersonalityTag[];
   /** Optional ISO intake date. Persisted so `daysInKennel` could be derived
    *  in production; in mock data we keep the explicit field for stability
    *  against the demo clock. Shelter dogs only. */

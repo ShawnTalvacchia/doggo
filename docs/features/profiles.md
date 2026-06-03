@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-02
+last-reviewed: 2026-06-03
 tags: [profile, pets, carer, edit, posts, tagging]
 review-trigger: "when modifying profile pages, pet cards, posts, or carer sections"
 ---

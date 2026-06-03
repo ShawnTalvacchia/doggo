@@ -63,7 +63,7 @@ const UTULEK_DOGS: PetProfile[] = [
     lastWalkedAt: daysAgoIso(5, "08:30"),
     backstory:
       "Found wandering near the Hloubětín tram stop. Goofy, friendly, and absolutely thinks every walk is a special occasion just for him.",
-    tags: ["Loves walks", "Good with strangers"],
+    personalityTags: ["loves-walks", "good-with-strangers"],
     adoptionStatus: "available",
     intakeDate: daysAgo(27),
     energyLevel: "high",
@@ -80,7 +80,7 @@ const UTULEK_DOGS: PetProfile[] = [
     lastWalkedAt: daysAgoIso(3, "16:00"),
     backstory:
       "Surrendered when her family moved abroad. Sharp and quick to learn. Would thrive with someone who likes a thinking partner.",
-    tags: ["Smart", "Reactive to other dogs"],
+    personalityTags: ["smart", "reactive-on-leash"],
     adoptionStatus: "available",
     intakeDate: daysAgo(45),
     soloOnly: true,
@@ -98,8 +98,9 @@ const UTULEK_DOGS: PetProfile[] = [
     lastWalkedAt: daysAgoIso(8, "10:00"),
     backstory:
       "Older gentleman who lost his person to illness. Calm, steady, gets along with everyone. Just wants a sofa and a soft voice.",
-    /* "Calm" is auto-derived from `energyLevel: "low"` — manual tag dropped */
-    tags: ["Long-stayer", "Senior"],
+    /* Long-stayer is auto-derived from daysInKennel; Senior stays manual
+       (age-derivation deferred — ageLabel is free-text). */
+    personalityTags: ["senior"],
     adoptionStatus: "available",
     intakeDate: daysAgo(91),
     experiencedHandlersOnly: true,
@@ -117,7 +118,7 @@ const UTULEK_DOGS: PetProfile[] = [
     lastWalkedAt: daysAgoIso(0, "11:30"),
     backstory:
       "Came in with her brother (already adopted!). Bubbly, affectionate, would do well with a confident handler who can match her energy.",
-    tags: ["Affectionate", "Reactive to other dogs"],
+    personalityTags: ["affectionate", "reactive-on-leash"],
     adoptionStatus: "available",
     intakeDate: daysAgo(8),
     soloOnly: true,
@@ -135,8 +136,10 @@ const UTULEK_DOGS: PetProfile[] = [
     lastWalkedAt: daysAgoIso(1, "09:00"),
     backstory:
       "Small but mighty. Loves a brisk walk and a stick. Has decided opinions about cats.",
-    /* "High energy"/"Active" is auto-derived from `energyLevel: "high"` */
-    tags: ["Small"],
+    /* Personality tags intentionally empty — "Small" was the only manual
+       entry and size already drives the Dogs-tab "Smallest first" sort, so
+       it adds noise as a chip. Auto-derived energy chip ("Active") still
+       surfaces via `deriveAutoTags`. */
     adoptionStatus: "available",
     intakeDate: daysAgo(14),
     energyLevel: "high",
@@ -153,7 +156,7 @@ const UTULEK_DOGS: PetProfile[] = [
     lastWalkedAt: daysAgoIso(4, "14:00"),
     backstory:
       "Shy at first, gold once she warms up. Looking for a patient adopter who can let her take her time.",
-    tags: ["Shy", "Gentle"],
+    personalityTags: ["shy", "gentle"],
     adoptionStatus: "pending",
     intakeDate: daysAgo(62),
     energyLevel: "moderate",
@@ -171,9 +174,9 @@ const UTULEK_DOGS: PetProfile[] = [
     lastWalkedAt: undefined,
     backstory:
       "Came from a rural municipal pound after her owner died. Wary of new people but loyal once she trusts you. Needs a quiet home with no other dogs.",
-    /* "Solo only" is auto-derived from `soloOnly: true` — the policy
-       chip renders below the tags strip, so this would have duplicated. */
-    tags: ["Long-stayer", "Wary of strangers"],
+    /* Long-stayer auto-derives from daysInKennel; "Solo only" derives
+       from `soloOnly: true` via `derivePolicyChips` and renders below. */
+    personalityTags: ["wary-of-strangers"],
     adoptionStatus: "available",
     intakeDate: daysAgo(120),
     soloOnly: true,
@@ -192,7 +195,8 @@ const UTULEK_DOGS: PetProfile[] = [
     lastWalkedAt: daysAgoIso(0, "13:00"),
     backstory:
       "Just arrived! Brought in with two siblings from an unplanned litter. All the puppy energy you'd expect.",
-    tags: ["New arrival", "Puppy", "Needs basics"],
+    /* "New arrival" auto-derives from daysInKennel <= 7. */
+    personalityTags: ["puppy", "needs-basics"],
     adoptionStatus: "available",
     intakeDate: daysAgo(3),
     energyLevel: "very_high",

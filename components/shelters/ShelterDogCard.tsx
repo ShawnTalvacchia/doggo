@@ -8,6 +8,7 @@ import {
   GenderFemale,
 } from "@phosphor-icons/react";
 import type { PetProfile } from "@/lib/types";
+import { deriveAutoTags } from "@/lib/petUtils";
 
 interface ShelterDogCardProps {
   dog: PetProfile;
@@ -30,7 +31,12 @@ interface ShelterDogCardProps {
  * universally-understood symbol.
  */
 export function ShelterDogCard({ dog }: ShelterDogCardProps) {
-  const chip = pickAutoChip(dog);
+  // The card shows at most one auto-derived chip overlaid on the photo,
+  // ordered by priority (Adoption pending > New arrival > Long-stayer).
+  // Energy chips never surface here — they live on the full dog profile
+  // only. FC8 formalization (Dog Profile phase) routes through the same
+  // helper as the profile so chip priority stays in one place.
+  const chip = deriveAutoTags(dog, new Date()).find((t) => t.tone !== "energy") ?? null;
 
   // Sex renders as a Mars/Venus icon paired with the letter "M" / "F" so
   // viewers who don't recognize the symbol still get the meaning. Lives
@@ -102,18 +108,6 @@ export function ShelterDogCard({ dog }: ShelterDogCardProps) {
 }
 
 /* ── Helpers ───────────────────────────────────────────────────────── */
-
-type AutoChip = { label: string; tone: "pending" | "new" | "long" };
-
-function pickAutoChip(dog: PetProfile): AutoChip | null {
-  if (dog.adoptionStatus === "pending") {
-    return { label: "Adoption pending", tone: "pending" };
-  }
-  const days = dog.daysInKennel ?? 0;
-  if (days <= 7) return { label: "New arrival", tone: "new" };
-  if (days >= 30) return { label: "Long-stayer", tone: "long" };
-  return null;
-}
 
 /** Compact relative-day phrasing — "today", "yesterday", "3d ago". */
 function formatRelativeDay(iso: string): string {

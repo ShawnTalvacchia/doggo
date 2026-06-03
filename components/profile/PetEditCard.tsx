@@ -16,11 +16,16 @@ import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import type {
   PetProfile,
   EnergyLevel,
+  PersonalityTag,
   PlayStyle,
   VetInfo,
   VaccinationType,
 } from "@/lib/types";
 import { VACCINATION_LABELS, VACCINATION_ORDER } from "@/lib/petUtils";
+import {
+  PERSONALITY_TAG_LABELS,
+  PERSONALITY_TAG_PICKER_ORDER,
+} from "@/lib/constants/dogs";
 import { ENERGY_LABELS, PLAY_STYLE_LABELS } from "./PetCard";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -421,6 +426,42 @@ export function PetEditCard({
                   }}
                 >
                   {PLAY_STYLE_LABELS[ps]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Personality tags (FC8 formalization, Dog Profile phase). Pick
+            from the controlled `PersonalityTag` vocabulary; auto-derived
+            chips (Long-stayer, New arrival, Adoption pending, energy)
+            never live here — they're computed at render time. */}
+        <div className="input-block">
+          <label className="label">
+            <span className="label-primary-group">
+              <span>Personality tags</span>
+            </span>
+          </label>
+          <div className="pill-group" style={{ flexWrap: "wrap" }}>
+            {PERSONALITY_TAG_PICKER_ORDER.map((tag) => {
+              const active = pet.personalityTags?.includes(tag);
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  className={`pill${active ? " active" : ""}`}
+                  onClick={() => {
+                    const current = pet.personalityTags ?? [];
+                    const next: PersonalityTag[] = active
+                      ? current.filter((t) => t !== tag)
+                      : [...current, tag];
+                    onChange({
+                      ...pet,
+                      personalityTags: next.length > 0 ? next : undefined,
+                    });
+                  }}
+                >
+                  {PERSONALITY_TAG_LABELS[tag]}
                 </button>
               );
             })}
