@@ -80,6 +80,14 @@ const NEIGHBOURHOODS = ["Vinohrady", "Žižkov", "Holešovice", "Letná", "Karl�
 
 /* ── Filter state ── */
 
+// Slider's right-end position is the "no upper limit" state — some groups
+// are genuinely unlimited (open park communities, large interest groups),
+// so the slider needs a way to NOT cap. The constant doubles as the slider
+// max and the sentinel: at this value the filter short-circuits. Pulling
+// it out so the filter logic + label + slider config can't drift. P2.
+const GROUP_SIZE_MIN = 2;
+const GROUP_SIZE_NO_LIMIT = 50;
+
 interface GroupFilters {
   selectedVisibility: string[];
   maxMembers: number;
@@ -88,7 +96,7 @@ interface GroupFilters {
 
 const DEFAULT_FILTERS: GroupFilters = {
   selectedVisibility: [],
-  maxMembers: 50,
+  maxMembers: GROUP_SIZE_NO_LIMIT,
   selectedNeighbourhoods: [],
 };
 
@@ -98,7 +106,7 @@ function applyFilters(groups: Group[], type: string, filters: GroupFilters): Gro
   return groups.filter((group) => {
     if (type !== "all" && group.groupType !== type) return false;
     if (filters.selectedVisibility.length > 0 && !filters.selectedVisibility.includes(group.visibility)) return false;
-    if (filters.maxMembers < 50 && group.members.length > filters.maxMembers) return false;
+    if (filters.maxMembers < GROUP_SIZE_NO_LIMIT && group.members.length > filters.maxMembers) return false;
     if (filters.selectedNeighbourhoods.length > 0 && !filters.selectedNeighbourhoods.includes(group.neighbourhood)) return false;
     return true;
   });
@@ -235,8 +243,25 @@ function GroupsFilterPanel({
 
       <div className="filter-field">
         <div className="label">Group size</div>
-        <Slider min={2} max={50} step={1} value={filters.maxMembers} onChange={(v) => onFiltersChange({ maxMembers: v })} />
-        <span className="text-sm text-fg-tertiary">{filters.maxMembers >= 50 ? "No limit" : `Up to ${filters.maxMembers} members`}</span>
+        <Slider
+          min={GROUP_SIZE_MIN}
+          max={GROUP_SIZE_NO_LIMIT}
+          step={1}
+          value={filters.maxMembers}
+          onChange={(v) => onFiltersChange({ maxMembers: v })}
+        />
+        {/* Scale labels under the slider make the "any size" state visible
+            at a glance — without them, the right-end "no limit" mode reads
+            as "up to 50" which mis-frames groups bigger than that. P2. */}
+        <div className="flex items-center justify-between text-xs text-fg-tertiary">
+          <span>{GROUP_SIZE_MIN} members</span>
+          <span>Any size</span>
+        </div>
+        <span className="text-sm text-fg-tertiary">
+          {filters.maxMembers >= GROUP_SIZE_NO_LIMIT
+            ? "Any group size"
+            : `Up to ${filters.maxMembers} members`}
+        </span>
       </div>
 
       <div className="filter-field">
@@ -244,6 +269,11 @@ function GroupsFilterPanel({
         <MultiSelectSegmentBar ariaLabel="Dog size" options={DOG_SIZE_OPTIONS} selectedValues={selectedDogSizes} onToggle={(val) => setSelectedDogSizes((prev) => prev.includes(val) ? prev.filter((v) => v !== val) : [...prev, val])} variant="filter" />
       </div>
 
+      {/* Both accordions share one .filter-accordion-stack so adjacent
+          borders collapse and there's no gap between them — matches the
+          Discover Care FilterBody pattern. Splitting into two stacks (the
+          previous shape) inherited the page-level `gap: xxl` between
+          siblings and produced a visible double-divider gap. */}
       <div className="filter-accordion-stack">
         <div className="filter-accordion">
           <button type="button" className={`filter-accordion-btn${focusOpen ? " open" : ""}`} onClick={() => setFocusOpen((o) => !o)}>
@@ -256,9 +286,7 @@ function GroupsFilterPanel({
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="filter-accordion-stack">
         <div className="filter-accordion">
           <button type="button" className={`filter-accordion-btn${neighbourhoodsOpen ? " open" : ""}`} onClick={() => setNeighbourhoodsOpen((o) => !o)}>
             Neighbourhoods

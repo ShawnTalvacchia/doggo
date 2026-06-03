@@ -6,7 +6,7 @@ import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
 import { TagPillRow } from "@/components/posts/TagPill";
 import { getDogById, getUserById } from "@/lib/mockUsers";
 import { getGroupById } from "@/lib/mockGroups";
-import { getShelterById } from "@/lib/mockShelters";
+import { getShelterById, findShelterWalker } from "@/lib/mockShelters";
 import type { Post, PostTag, PostReaction, PostComment } from "@/lib/types";
 
 /**
@@ -19,6 +19,18 @@ function resolveAuthorHref(authorId: string): string | undefined {
   if (getShelterById(authorId)) return `/shelters/${authorId}`;
   if (getUserById(authorId)) return `/profile/${authorId}`;
   return undefined;
+}
+
+/**
+ * Resolve the author's avatar URL. The walker record is the source of
+ * truth for its avatar — denormalized `Post.authorAvatarUrl` values
+ * fall out of sync as we iterate on walker portraits. Falls back to
+ * the post's denormalized value for non-walker authors.
+ */
+function resolveAuthorAvatarUrl(authorId: string, fallback: string): string {
+  const walker = findShelterWalker(authorId);
+  if (walker?.avatarUrl) return walker.avatarUrl;
+  return fallback;
 }
 
 interface MomentCardProps {
@@ -167,7 +179,7 @@ export function MomentCardFromPost({
   return (
     <MomentCard
       authorName={post.authorName}
-      authorAvatarUrl={post.authorAvatarUrl}
+      authorAvatarUrl={resolveAuthorAvatarUrl(post.authorId, post.authorAvatarUrl)}
       authorId={post.authorId}
       caption={post.caption}
       photos={post.photos}

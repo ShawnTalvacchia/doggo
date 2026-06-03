@@ -355,6 +355,20 @@ export function getShelterDog(
   return undefined;
 }
 
+/**
+ * Find a walker record by userId across all shelters. The walker is the
+ * source of truth for its avatar URL — denormalized fields on post
+ * objects (`Post.authorAvatarUrl`) can fall behind seed updates, so
+ * MomentCard resolves the live walker avatar through this helper.
+ */
+export function findShelterWalker(userId: string): ShelterWalker | undefined {
+  for (const shelter of mockShelters) {
+    const walker = shelter.walkers.find((w) => w.userId === userId);
+    if (walker) return walker;
+  }
+  return undefined;
+}
+
 /** Dogs that need a walk now — never walked first, then oldest lastWalkedAt. */
 export function getDogsNeedingWalks(shelter: ShelterProfile): PetProfile[] {
   return [...shelter.dogs].sort((a, b) => {

@@ -363,6 +363,25 @@ function MeetsFilterPanel({
   const toggleInArray = (arr: string[], val: string) =>
     arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val];
 
+  // Mutual-exclusivity toggle for filter rows that carry an "Any" pill (P1).
+  // "Any" means "no filter applied" — it can't coexist with specific options
+  // without contradicting itself. Rules:
+  //   - Tap "Any" → array becomes ["any"] (clear specifics; commit to no filter).
+  //   - Tap a specific while "any" is selected → array becomes [specific].
+  //   - Tap a specific that's not selected → add it (multi-select within specifics).
+  //   - Tap a specific that IS selected → remove it; if nothing specific remains,
+  //     fall back to ["any"] so the row never reads as "no rule applied" by
+  //     accident.
+  const toggleWithAny = (arr: string[], val: string) => {
+    if (val === "any") return ["any"];
+    const withoutAny = arr.filter((v) => v !== "any");
+    if (withoutAny.includes(val)) {
+      const next = withoutAny.filter((v) => v !== val);
+      return next.length === 0 ? ["any"] : next;
+    }
+    return [...withoutAny, val];
+  };
+
   return (
     <div className="discover-hub-body" style={{ gap: "var(--space-xxl)" }}>
       {/* Filters heading + meet-type dropdown — mirrors Discover Care. */}
@@ -407,7 +426,7 @@ function MeetsFilterPanel({
           options={ENERGY_OPTIONS}
           selectedValues={filters.selectedEnergy}
           onToggle={(val) =>
-            onFiltersChange({ selectedEnergy: toggleInArray(filters.selectedEnergy, val) })
+            onFiltersChange({ selectedEnergy: toggleWithAny(filters.selectedEnergy, val) })
           }
           variant="filter"
         />
@@ -435,7 +454,7 @@ function MeetsFilterPanel({
           options={DOG_SIZE_OPTIONS}
           selectedValues={filters.selectedSize}
           onToggle={(val) =>
-            onFiltersChange({ selectedSize: toggleInArray(filters.selectedSize, val) })
+            onFiltersChange({ selectedSize: toggleWithAny(filters.selectedSize, val) })
           }
           variant="filter"
         />
