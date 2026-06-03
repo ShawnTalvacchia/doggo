@@ -485,7 +485,7 @@ export function PetEditCard({
         </div>
       </section>
 
-      {/* ── Section 3: Socialisation ──────────────────────────────────── */}
+      {/* ── Section 3: Socialisation + standing preferences ───────────── */}
       <section className="pet-edit-section">
         <EditSectionHeader
           icon={<Heart size={16} weight="fill" />}
@@ -500,6 +500,13 @@ export function PetEditCard({
           style={{ minHeight: 60 }}
           aria-label="Socialisation notes"
         />
+
+        {/* Standing preferences (Dog Profile phase, 2026-06-02). Four
+            chip-add inputs — Likes / Dislikes / Triggers / Play. Owner
+            authors once; per-booking overrides ride on top via the
+            deferred third-comms-surface (Key Decision #8 in
+            explore-and-care). */}
+        <PreferencesEditor pet={pet} onChange={onChange} />
       </section>
 
       {/* ── Section 4: Health & vet (collapsible) ─────────────────────── */}
@@ -625,6 +632,168 @@ export function PetEditCard({
       </section>
       </>
       )}
+    </div>
+  );
+}
+
+/**
+ * Editor for `PetProfile.preferences` — four sub-groups of chip-add
+ * inputs. Type a phrase + Enter (or click Add) to commit; click × on a
+ * chip to remove. Empty sub-groups serialize as `undefined`.
+ *
+ * Free-form strings in V1 — no autocomplete, no controlled vocabulary.
+ * Authoring stays lightweight (Roman's interview: "things the dog
+ * doesn't like / triggers / positive preferences" — owner knows them in
+ * their own words). Controlled vocabulary is a future enhancement if
+ * usage signals a need.
+ */
+function PreferencesEditor({
+  pet,
+  onChange,
+}: {
+  pet: PetProfile;
+  onChange: (updated: PetProfile) => void;
+}) {
+  const subFields: Array<{
+    key: keyof NonNullable<PetProfile["preferences"]>;
+    label: string;
+    placeholder: string;
+  }> = [
+    { key: "likes", label: "Likes", placeholder: "e.g. squeaky toys" },
+    { key: "dislikes", label: "Dislikes", placeholder: "e.g. nail trims" },
+    { key: "triggers", label: "Triggers", placeholder: "e.g. strange men in hats" },
+    { key: "playPreferences", label: "Play", placeholder: "e.g. loves fetch" },
+  ];
+
+  function updateField(
+    key: keyof NonNullable<PetProfile["preferences"]>,
+    items: string[],
+  ) {
+    const next = { ...(pet.preferences ?? {}) };
+    if (items.length > 0) {
+      next[key] = items;
+    } else {
+      delete next[key];
+    }
+    const hasAny = Object.values(next).some((arr) => arr && arr.length > 0);
+    onChange({ ...pet, preferences: hasAny ? next : undefined });
+  }
+
+  return (
+    <div className="input-block">
+      <label className="label">
+        <span className="label-primary-group">
+          <span>How {pet.name || "this dog"} likes to be cared for</span>
+        </span>
+      </label>
+      <div className="flex flex-col gap-md">
+        {subFields.map((f) => (
+          <PreferenceChipInput
+            key={f.key}
+            id={`pet-pref-${pet.id}-${f.key}`}
+            label={f.label}
+            placeholder={f.placeholder}
+            items={pet.preferences?.[f.key] ?? []}
+            onChange={(next) => updateField(f.key, next)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PreferenceChipInput({
+  id,
+  label,
+  placeholder,
+  items,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  placeholder: string;
+  items: string[];
+  onChange: (next: string[]) => void;
+}) {
+  const [draft, setDraft] = useState("");
+
+  function commit() {
+    const trimmed = draft.trim();
+    if (!trimmed) return;
+    if (items.includes(trimmed)) {
+      setDraft("");
+      return;
+    }
+    onChange([...items, trimmed]);
+    setDraft("");
+  }
+
+  function removeAt(idx: number) {
+    onChange(items.filter((_, i) => i !== idx));
+  }
+
+  return (
+    <div className="flex flex-col gap-xs">
+      <label
+        htmlFor={id}
+        className="text-xs font-semibold text-fg-tertiary uppercase tracking-wide"
+      >
+        {label}
+      </label>
+      {items.length > 0 && (
+        <div className="flex flex-wrap gap-tiny">
+          {items.map((item, i) => (
+            <span
+              key={`${item}-${i}`}
+              className="pill"
+              style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
+            >
+              {item}
+              <button
+                type="button"
+                onClick={() => removeAt(i)}
+                aria-label={`Remove ${item}`}
+                className="text-fg-tertiary"
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                  fontSize: 14,
+                  lineHeight: 1,
+                }}
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="flex gap-sm">
+        <input
+          id={id}
+          className="input"
+          placeholder={placeholder}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              commit();
+            }
+          }}
+          style={{ flex: 1 }}
+        />
+        <button
+          type="button"
+          onClick={commit}
+          disabled={!draft.trim()}
+          className="btn btn--ghost"
+          style={{ whiteSpace: "nowrap" }}
+        >
+          Add
+        </button>
+      </div>
     </div>
   );
 }

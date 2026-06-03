@@ -175,9 +175,21 @@ The `userId` field on `ProviderCard` bridges between provider catalog IDs (e.g. 
 |-------|------|-------|
 | Energy level | select | Low / Moderate / High / Very high |
 | Play styles | multi-select pills | Fetch, Tug, Chase, Wrestling, Gentle, Independent, Sniffing |
+| Personality tags | multi-select pills | Typed `PersonalityTag` vocabulary — see [[features/shelters]] → "Dog profile tag taxonomy." |
 | Socialisation notes | textarea | How they are with other dogs, people, kids |
+| Standing preferences | fieldset | Four chip groups — Likes / Dislikes / Triggers / Play preferences *(see below)* |
 | Vet info | fieldset | Clinic name, phone, last checkup, vaccinations *(structured — see below)*, spayed/neutered, medications, conditions |
 | Photo gallery | image array | Multiple photos beyond the primary |
+
+### Standing preferences (2026-06-02)
+
+Pet-level standing preferences authored once by the owner and visible to anyone who can see the dog profile (and explicitly to carers on the booking detail Info tab). Eliminates the "tell every new carer what they need to know" tax. Per Roman's PO interview (2026-06-02).
+
+Shape: `PetProfile.preferences?: { likes?: string[]; dislikes?: string[]; triggers?: string[]; playPreferences?: string[] }`. Each sub-field is a list of short chips. V1 is free-text; a controlled vocabulary is out of scope until usage signals a need.
+
+**Per-booking overrides are deferred** — solo-today, longer-today, "she's been off-food this week" style notes belong to the third-comms-surface decision. See [[features/explore-and-care]] → "Key Decision #8." Standing preferences are the per-pet baseline; the booking-level layer rides on top.
+
+Read surfaces: `PetCard` (own profile), `app/dogs/[id]/page.tsx` `DogPreferencesSection` (dog profile), booking detail Info tab via the existing pet-info surface.
 
 ### Vaccines V1 (2026-06-02)
 

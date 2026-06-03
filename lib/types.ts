@@ -1256,6 +1256,23 @@ export interface PetProfile {
   playStyles?: PlayStyle[];
   socialisationNotes?: string;
   vetInfo?: VetInfo;
+  /**
+   * Pet-level standing preferences (Dog Profile phase, 2026-06-02 — per
+   * Roman's PO interview). Authored once by the owner; surfaces on the
+   * dog profile + PetCard + booking detail so the carer doesn't need it
+   * re-explained every booking. Per-booking overrides ("solo today,"
+   * "longer today") are intentionally deferred to the third-comms-surface
+   * decision — see [[features/explore-and-care]] Key Decision #8.
+   *
+   * Each sub-field is a list of short chips. Free-form strings in V1
+   * (controlled vocabulary out of scope until usage signals a need).
+   */
+  preferences?: {
+    likes?: string[];
+    dislikes?: string[];
+    triggers?: string[];
+    playPreferences?: string[];
+  };
   photoGallery?: string[];    // additional photo URLs beyond imageUrl
 
   // ── Shelter-only fields (Shelter Foundation, 2026-06-01) ─────────────

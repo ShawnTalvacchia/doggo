@@ -91,6 +91,11 @@ export const tereza: UserProfile = {
       energyLevel: "moderate",
       playStyles: ["sniffing", "chase"],
       socialisationNotes: "Friendly with all dogs. Nose-first — will follow a scent over a recall. Does well in groups of any size.",
+      preferences: {
+        likes: ["scent games", "ear scratches", "treats hidden in puzzle toys"],
+        dislikes: ["being rushed past interesting smells"],
+        playPreferences: ["long sniffy walks", "treasure hunts in tall grass"],
+      },
       notes: "Reliable recall except when scent-tracking. Loves treats.",
       vetInfo: {
         clinicName: "Veterina Vinohrady",
@@ -118,6 +123,12 @@ export const tereza: UserProfile = {
       energyLevel: "high",
       playStyles: ["chase", "fetch"],
       socialisationNotes: "Adopted from a rural shelter early 2026. Bonding well with Franta — he showed her the Vinohrady ropes. Still slow to warm up to strangers; great once she knows you. Calm with other dogs, alert with new people.",
+      preferences: {
+        likes: ["chasing tennis balls", "morning routines", "kids she knows"],
+        dislikes: ["sudden loud sounds", "thunderstorms"],
+        triggers: ["new people entering the apartment"],
+        playPreferences: ["fetch with multiple balls", "structured games over chaos"],
+      },
       notes: "Working on confidence around city sounds. Off-leash recall is solid in parks she knows; we keep her leashed in unfamiliar spots.",
       vetInfo: {
         clinicName: "Veterina Vinohrady",
@@ -226,6 +237,12 @@ export const daniel: UserProfile = {
       energyLevel: "moderate",
       playStyles: ["sniffing", "fetch"],
       socialisationNotes: "Reactive with unfamiliar dogs — needs slow, controlled introductions. Fine once she knows them. Nervous in large groups. Best with 1-2 calm dogs.",
+      preferences: {
+        likes: ["calm voices", "treat puzzles", "her soft bed in the corner"],
+        dislikes: ["loud noises", "fast movement nearby", "crowded streets"],
+        triggers: ["men in tall hats", "off-leash dogs running at her", "skateboards"],
+        playPreferences: ["slow sniffy walks on familiar routes", "1-on-1 fetch in a quiet park"],
+      },
       notes: "Working on her leash reactivity — slow and steady. Looking for the right training help.",
       vetInfo: {
         clinicName: "Veterina Smíchov",
@@ -419,6 +436,12 @@ export const tomas: UserProfile = {
       energyLevel: "very_high",
       playStyles: ["fetch", "wrestling", "chase"],
       socialisationNotes: "Loves every dog and every person. Zero reactivity. Can be too enthusiastic greeting small dogs — working on impulse control.",
+      preferences: {
+        likes: ["wrestling with bigger dogs", "fetch", "the river path", "any human food (don't share)"],
+        dislikes: ["being left alone for long stretches"],
+        triggers: ["food on the ground — he WILL eat it"],
+        playPreferences: ["rough-and-tumble play", "tug-of-war", "river swims when it's warm"],
+      },
       notes: "Pulls on leash. Eats everything. Absolute sweetheart.",
       vetInfo: {
         clinicName: "Karlín Veterinary Clinic",

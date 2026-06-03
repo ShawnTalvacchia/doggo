@@ -162,6 +162,12 @@ export function PetCard({ pet, defaultExpanded = true }: PetCardProps) {
             </div>
           )}
 
+          {/* Standing preferences (Dog Profile phase, 2026-06-02). Four
+              chip groups visible to anyone who can see the dog — the
+              same data also surfaces on the dog profile + booking detail
+              Info tab so a carer doesn't need it re-explained. */}
+          <PetPreferences pet={pet} />
+
           {/* Vet / Health summary */}
           {pet.vetInfo && (
             <div className="pet-profile-section">
@@ -242,6 +248,53 @@ export function PetCard({ pet, defaultExpanded = true }: PetCardProps) {
           )}
         </>
       )}
+    </div>
+  );
+}
+
+/**
+ * Per-pet standing preferences chip groups (Dog Profile phase). Owner
+ * authors once; visible everywhere the pet is shown to anyone who can
+ * see the profile. Same display block as the dog profile +
+ * booking-detail Info tab — kept inline because the rendering is small
+ * and the surfaces have slightly different chrome (header style varies).
+ */
+function PetPreferences({ pet }: { pet: PetProfile }) {
+  const groups: Array<{ key: string; label: string; items?: string[] }> = [
+    { key: "likes", label: "Likes", items: pet.preferences?.likes },
+    { key: "dislikes", label: "Dislikes", items: pet.preferences?.dislikes },
+    { key: "triggers", label: "Triggers", items: pet.preferences?.triggers },
+    {
+      key: "playPreferences",
+      label: "Play",
+      items: pet.preferences?.playPreferences,
+    },
+  ];
+  const nonEmpty = groups.filter((g) => g.items && g.items.length > 0);
+  if (nonEmpty.length === 0) return null;
+
+  return (
+    <div className="pet-profile-section">
+      <div className="pet-profile-section-header">
+        <Heart size={14} weight="fill" className="text-brand-main" />
+        <span>How {pet.name} likes to be cared for</span>
+      </div>
+      <div className="flex flex-col gap-sm">
+        {nonEmpty.map((g) => (
+          <div key={g.key} className="flex flex-col gap-tiny">
+            <span className="text-xs font-semibold text-fg-tertiary uppercase tracking-wide">
+              {g.label}
+            </span>
+            <div className="flex flex-wrap gap-tiny">
+              {g.items!.map((item) => (
+                <span key={item} className="pet-profile-play-pill">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

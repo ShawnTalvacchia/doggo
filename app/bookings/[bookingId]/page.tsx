@@ -411,6 +411,15 @@ function SessionRow({
  * recognition (which dog am I caring for) without burying the session
  * list under a wall of vital info. Tap the header to expand.
  */
+function hasPreferences(p: PetProfile): boolean {
+  return !!(
+    (p.preferences?.likes && p.preferences.likes.length > 0) ||
+    (p.preferences?.dislikes && p.preferences.dislikes.length > 0) ||
+    (p.preferences?.triggers && p.preferences.triggers.length > 0) ||
+    (p.preferences?.playPreferences && p.preferences.playPreferences.length > 0)
+  );
+}
+
 function PetInfoSection({ pets }: { pets: PetProfile[] }) {
   const [expanded, setExpanded] = useState(false);
   const hasDetails = pets.some(
@@ -419,7 +428,8 @@ function PetInfoSection({ pets }: { pets: PetProfile[] }) {
       p.vetInfo?.conditions ||
       p.socialisationNotes ||
       p.vetInfo?.clinicName ||
-      p.vetInfo?.vetPhone,
+      p.vetInfo?.vetPhone ||
+      hasPreferences(p),
   );
 
   return (
@@ -493,6 +503,30 @@ function PetInfoSection({ pets }: { pets: PetProfile[] }) {
                 {pet.socialisationNotes && (
                   <PetInfoRow icon={<PawPrint size={12} weight="light" />} label="Around dogs">
                     {pet.socialisationNotes}
+                  </PetInfoRow>
+                )}
+                {/* Standing preferences (Dog Profile phase, 2026-06-02).
+                    Per-pet baseline — likes / dislikes / triggers / play.
+                    The per-booking layer ("solo today, longer today") is
+                    the third comms surface deferred per Key Decision #8. */}
+                {pet.preferences?.likes && pet.preferences.likes.length > 0 && (
+                  <PetInfoRow icon={<HandHeart size={12} weight="light" />} label="Likes">
+                    {pet.preferences.likes.join(" · ")}
+                  </PetInfoRow>
+                )}
+                {pet.preferences?.dislikes && pet.preferences.dislikes.length > 0 && (
+                  <PetInfoRow icon={<HandHeart size={12} weight="light" />} label="Dislikes">
+                    {pet.preferences.dislikes.join(" · ")}
+                  </PetInfoRow>
+                )}
+                {pet.preferences?.triggers && pet.preferences.triggers.length > 0 && (
+                  <PetInfoRow icon={<HandHeart size={12} weight="light" />} label="Triggers">
+                    {pet.preferences.triggers.join(" · ")}
+                  </PetInfoRow>
+                )}
+                {pet.preferences?.playPreferences && pet.preferences.playPreferences.length > 0 && (
+                  <PetInfoRow icon={<PawPrint size={12} weight="light" />} label="Play">
+                    {pet.preferences.playPreferences.join(" · ")}
                   </PetInfoRow>
                 )}
                 {(pet.vetInfo?.clinicName || pet.vetInfo?.vetPhone) && (

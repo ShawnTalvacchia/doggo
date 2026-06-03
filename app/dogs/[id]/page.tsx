@@ -276,6 +276,16 @@ function DogProfileInner() {
             )}
           </div>
 
+          {/* Standing preferences (likes / dislikes / triggers / play).
+              Per-pet baseline that anyone who books sees — eliminates the
+              "tell every new carer what they need to know" tax. Per-booking
+              overrides are deferred (see [[features/explore-and-care]]
+              Key Decision #8). */}
+          <DogPreferencesSection
+            dogName={dog.name}
+            preferences={dog.preferences}
+          />
+
           {/* Health & vaccinations (Vaccines V1, 2026-06-02). Owner /
               shelter self-declared; verification belongs to V2 (Open
               Q §15 + §16). Acknowledger label = shelter name (shelter
@@ -326,6 +336,56 @@ function DogStatTile({
       </div>
       <div className="dog-profile-stat-value">{value}</div>
       {subline && <div className="dog-profile-stat-subline">{subline}</div>}
+    </div>
+  );
+}
+
+/**
+ * Standing preferences section — "How {Dog} likes to be cared for."
+ * Four sub-groups (Likes / Dislikes / Triggers / Play) rendered as chip
+ * rows under a sub-label. Skips empty groups. Hidden entirely when no
+ * preferences are authored. Visible to anyone who can see the profile
+ * AND to carers on the booking detail Info tab.
+ */
+function DogPreferencesSection({
+  dogName,
+  preferences,
+}: {
+  dogName: string;
+  preferences: PetProfile["preferences"];
+}) {
+  const groups: Array<{ key: string; label: string; items?: string[] }> = [
+    { key: "likes", label: "Likes", items: preferences?.likes },
+    { key: "dislikes", label: "Dislikes", items: preferences?.dislikes },
+    { key: "triggers", label: "Triggers", items: preferences?.triggers },
+    {
+      key: "playPreferences",
+      label: "Play",
+      items: preferences?.playPreferences,
+    },
+  ];
+  const nonEmpty = groups.filter((g) => g.items && g.items.length > 0);
+  if (nonEmpty.length === 0) return null;
+
+  return (
+    <div className="dog-profile-section">
+      <h2 className="dog-profile-section-title">How {dogName} likes to be cared for</h2>
+      <div className="flex flex-col gap-md">
+        {nonEmpty.map((g) => (
+          <div key={g.key} className="flex flex-col gap-xs">
+            <span className="text-xs font-semibold text-fg-tertiary uppercase tracking-wide">
+              {g.label}
+            </span>
+            <div className="dog-profile-tags">
+              {g.items!.map((item) => (
+                <span key={item} className="dog-profile-tag">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
