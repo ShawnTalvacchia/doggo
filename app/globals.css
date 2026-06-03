@@ -14471,6 +14471,10 @@ a.shelter-intro-social:hover {
   align-items: center;
   padding: 4px 10px;
   border-radius: var(--radius-pill);
+  /* Transparent border on base so glass-tier and solid-tier chips share
+     the same total height. Glass tiers override with a visible border;
+     solid `--new` keeps the transparent fallback. */
+  border: 1px solid transparent;
   font-size: var(--text-xs);
   font-weight: 600;
   line-height: 1.2;
@@ -14484,12 +14488,16 @@ a.shelter-intro-social:hover {
 .shelter-dog-card-chip--pending {
   backdrop-filter: blur(10px) saturate(140%);
   -webkit-backdrop-filter: blur(10px) saturate(140%);
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.35);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Alpha sits at 0.65 so the chip reads as solid glass even on devices
+   where backdrop-filter doesn't fully apply (older mobile Safari,
+   in-app browsers). With backdrop-filter the blur enhances it; without,
+   the 0.65 white still floats above the photo legibly. */
 .shelter-dog-card-chip--long {
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.65);
   color: var(--text-primary);
 }
 

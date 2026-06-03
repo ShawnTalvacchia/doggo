@@ -22,7 +22,7 @@ Tight verification for the Shelter Foundation phase thesis: **Doggo accepts shel
 
 - [x] **A1. Open `/shelters/utulek-liben`.** Top to bottom: tabs sticky at top, banner (~240px), title + bio + meta row (location · walkers/supporters · since YYYY) + social icons, Follow + Walk-a-dog buttons, dogs-in-care summary card, then the post feed. Walker-authored posts are the majority; each post has the shelter's logo (circle) for shelter-authored OR initials avatar for walker-authored.
 
-- [ ] **A2. Tap Follow.** Flips to `Following ▾`. Tap again → menu with Unfollow. Tap **Walk a dog** → sheet opens with the vouching note ("First-time walkers come in for a 30-minute intro visit…"); tap **Express interest** → button flips to `Interest sent ▾`.
+- [x] **A2. Tap Follow.** Flips to `Following ▾`. Tap again → menu with Unfollow. Tap **Walk a dog** → sheet opens with the vouching note ("First-time walkers come in for a 30-minute intro visit…"); tap **Express interest** → button flips to `Interest sent ▾`.
 
 - [ ] **A3. Switch tabs.** Tabs stay at top, no banner-jump between tabs (banner is inside the Feed tab body, scrolls within it).
 
