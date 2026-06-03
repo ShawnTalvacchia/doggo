@@ -343,3 +343,76 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 - **Incident reporting from visit reports.** Visit reports support flagging in principle; the institutional side (does the shelter see the flag, does it auto-impact walker tier, does it require coordinator review, what happens to the dog's record, does the dog's per-dog policy auto-tighten in response to repeated incidents) is real design work. Sized small for V2; demo can show that the flag exists without the full workflow. **Adjacent:** §5 Safety & Liability "trust regression" question applies here — incident-driven tier demotion is a real instance of trust regression we'd need to handle.
 
 - **Bilingual surfaces (Czech/expat).** Útulek Liběň's coordination is in Czech; the expat dog community is English-first. A bilingual coordination layer (shelter posts in both languages, dog-profile content in both, vouching process notes in both) is unusually valuable for shelter onboarding specifically. Probably out of V2 scope but worth logging so we don't bake English-only assumptions into shelter post-authoring surfaces.
+
+---
+
+## 15. Vaccinations — disclosure, verification, gating
+
+Added 2026-06-02 from PO user interviews (Roman). Today `VetInfo.vaccinationsUpToDate` is a single boolean. Roman wants structured per-vaccine records (Rabies / Parvovirus / Distemper / Hepatitis / Parainfluenza), an explicit acknowledgement-of-accuracy framing, and gating of meets so unvaccinated dogs can't join.
+
+**Open (V1 — owner self-declared, within Dog Profile phase):**
+- What's the structured field shape — list of `{ type, lastGivenAt, acknowledgedAt }`? Add a `confidence: "self-declared"` field now to leave room for the verified state later?
+- Is Rabies special-cased as legally mandatory (always shown, separate UI treatment) or treated uniformly with the others (no platform legal hierarchy)?
+- What's the display surface — chips on the dog profile, status pill on RSVP rows, both?
+- Does the acknowledgement framing live as a single per-dog confirm (e.g. "I confirm Bára's vaccination record is accurate as of today") or per-vaccine?
+
+**Open (V2 — gating + verification, deferred):**
+- Without verification, gating is theatre. Do we ship gating-on-self-declared (social pressure / liability transfer) or wait until verification exists?
+- What verification path? Photo of booklet (moderation) or vet-confirmed via [[strategy/Vets as a Credentialing Layer]] (full institutional)?
+- Who sets the gate — meet host, group admin, platform default?
+
+**Forward direction:** the verification path resolves via §16 (Vets as credentialing layer). V1 ships in Dog Profile phase (informational + acknowledgement), V2 waits on that decision.
+
+**Refs:** [[strategy/Vets as a Credentialing Layer]] · [[meetings/po-briefing-2026-06-02]] · ROADMAP Dog Profile entry
+
+---
+
+## 16. Vets as a credentialing layer
+
+Added 2026-06-02 from PO user interviews. Vaccines without verification are theatre. Verification requires vets in the system; vets bring a multi-sided value loop (owners get peace of mind, vets get patient acquisition, platform gets a verified data layer, public good: more dogs vaccinated). This is the credentialing-as-deliberate-moat thesis applied to a new vertical, with the same shape as shelters.
+
+**Open:**
+- Is the thread real? Trigger to graduate from research to phase: PO has a Prague vet conversation (mirrors how shelters graduated 2026-06-01).
+- If we proceed, which Tier? Tier 1 (owner-self-declared) is on deck in Dog Profile. Tier 2 (photo-confirmed) is a separate commitment. Tier 3 (`VetProfile` parallel to `ShelterProfile`) is Shelter-Foundation-sized.
+- Entity model — A (`VetProfile` parallel to `ShelterProfile`), B (thin record-only entity), C (no entity, photo-only), D (start with C, graduate to A)?
+- "Vet-as-Carer is retired" (§6) — maintained? Suggested yes; vets stay credentialing layer, not Care category.
+- Cold-start partnerships strategy — same playbook structure as shelters, separate investment commitment?
+
+**Resolved (2026-06-02):** the strategic framing is the research doc at [[strategy/Vets as a Credentialing Layer]] — the multi-sided value loop, entity options, tier breakdown, decisions for PO. The doc is for PO presentation; this OQ entry exists to track whether/when the thread graduates.
+
+**Refs:** [[strategy/Vets as a Credentialing Layer]] · [[meetings/po-briefing-2026-06-02]] · [[strategy/Cold-Start Playbook]] (shelter precedent)
+
+---
+
+## 17. Appointment meeting-options model
+
+Added 2026-06-02 from PO user interviews. The current `AppointmentBookingSheet` surfaces no location to the owner — Klára's 1-on-1 training booking flow says nothing about where the session happens (mobile vs. facility) or whether the trainer picks up the dog. Roman flagged the gap.
+
+**Open:**
+- Q1 — generalise into a shared "meeting-options" abstraction across walks_checkins + appointments (extends/replaces `deliveryOptions`), or keep them separate (`appointmentLocations` on `CarerAppointmentServiceConfig`)?
+- Q2 — curated tuples (~4 named patterns: "Carer comes to you" / "You bring dog to carer" / "Carer picks up + meets at a public place" / "Owner + carer meet at a public place") or carer-defined free-form (label + price)?
+- Q3 — default-recommended option per service type? Training → "Carer comes to you" (matches Prague mobile-modal). Facility-based → "You bring dog to carer."
+- Q4 — pricing engine impact — `computeAppointmentQuote` resolves option-aware base rate?
+
+**Forward direction:** scoped into the **Service Options & Booking Clarity** phase (`phases/service-options-and-booking-clarity.md`) as Workstream B with the Qs as Pre-build scope calls. The phase board sketches recommended answers but holds them for confirmation before opening.
+
+**Refs:** [[phases/service-options-and-booking-clarity]] · [[meetings/po-briefing-2026-06-02]] · [[features/explore-and-care]] (existing `deliveryOptions` precedent on walks)
+
+---
+
+## 18. Should training graduate to a 5th Care service type?
+
+Added 2026-06-02 from PO user interviews. Roman flagged training as the most-needed service for first-time owners + expats, with 11+ training sub-types each with their own price. Today training is split across `Meet` (group training sessions) and `Appointment` (in-house solo training). Three paths:
+
+- A — Promote Training to a 5th Care service type alongside Walks / Sitting / Day-care / Boarding. **Reopens** the four-service Care taxonomy we just stabilised (2026-05-11). High blast radius.
+- B — Extend the existing Appointment training variant with structured sub-types (obedience / behaviour / agility / etc. — see PO briefing for the full list); add a Training filter pill on Discover.
+- C — A dedicated Training surface on Discover that aggregates training meets + training appointments without re-jiggering the taxonomy.
+
+**Open:**
+- Do user-testing signals confirm that training is hard to find / hard to compare via the current taxonomy?
+- If yes, does B suffice or does A become necessary?
+- C is the lightest move — should we ship it preemptively as a discovery improvement?
+
+**Forward direction:** B's two side tasks (Discover Training filter pill + Appointment `trainingType` enum) ship in this session as punch-list. A is the deferred decision waiting for a user-testing signal. **Do not reopen the Care taxonomy without a real user-testing-confirmed pain.**
+
+**Refs:** [[meetings/po-briefing-2026-06-02]] · [[features/explore-and-care]] (Care Catalog Taxonomy 2026-05-11) · `lib/constants/services.ts`

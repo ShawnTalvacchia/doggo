@@ -14397,7 +14397,9 @@ a.shelter-intro-social:hover {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  padding: var(--space-md) var(--space-xl);
+  /* Horizontal padding matches .detail-tabs so the toolbar aligns
+     edge-to-edge with the tabs above. */
+  padding: var(--space-md);
   background: var(--surface-popout);
   border-bottom: 1px solid var(--border-regular);
 }
@@ -14440,12 +14442,15 @@ a.shelter-intro-social:hover {
 }
 
 /* 2-up card grid inside the 640px panel. Auto-collapses to 1-up on
-   narrow viewports (< ~480px) via the auto-fit + minmax pattern. */
+   narrow viewports (< ~480px) via the auto-fit + minmax pattern.
+   Horizontal padding matches .detail-tabs (md) so the grid aligns with
+   the tabs above. Cards have their own internal padding for breathing
+   room. */
 .shelter-dogs-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--space-md);
-  padding: var(--space-md) var(--space-xl) var(--space-xl);
+  padding: var(--space-md) var(--space-md) var(--space-xl);
 }
 
 .shelter-dog-card {

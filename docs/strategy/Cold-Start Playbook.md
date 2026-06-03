@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: draft
-last-reviewed: 2026-06-01
+last-reviewed: 2026-06-02
 tags: [cold-start, trainers, shelter, foster, community, account-types, credentialing, future]
 review-trigger: "before any phase touching cold-start, monetization, account types, or category strategy"
 ---
@@ -203,6 +203,23 @@ Risks specific to this thread:
 4. **Strategic shape question.** Building this pulls Doggo deeper into being a *credentialing body* than the current "coordination layer" framing implies. Not necessarily bad — credentialing layers can be very defensible businesses — but a shape choice worth naming. The trainer-credentialing thread implies the same shift. Both together would make "Doggo as the trust infrastructure for Prague's dog-care ecosystem" a more accurate description of the business than "coordination platform."
 
 Unbuilt and pre-validation. Belongs in the same conversational territory as the trainer-credentialing thread — both wait on real shelter conversations before they become anything more concrete.
+
+---
+
+## The vet angle
+
+> **Status: pre-roadmap exploration, separate research doc.** Added 2026-06-02 after Roman's user interviews flagged structured vaccination records (and gating) as a real owner need. The full strategic framing — multi-sided value loop, entity model options, tier breakdown, decisions for PO — lives in [[strategy/Vets as a Credentialing Layer]]. Open Question §16 tracks whether the thread graduates.
+
+The shape mirrors the shelter angle: vets become an institutional partner type whose presence on the platform produces verified credential signals (vet-confirmed vaccinations). Same playbook structure:
+
+- **Partner type** with strong professional networks, highly local, owner-facing acquisition pain
+- **Multi-sided value** (owners get peace of mind; vets get patient acquisition + billing; platform gets verified data; public good: more dogs vaccinated)
+- **Cold-start partnership pattern** — 1-2 anchor partnerships (one large clinic, one expat-leaning) before product commitment
+- **Trigger to graduate from research → phase** — PO has a real Prague vet conversation
+
+What's different from shelters: the owner-facing motivation is quieter (record-keeping isn't a public-good story owners rally behind the way they rally behind homeless dogs), and the rule we'd want to maintain is that **vets stay a credentialing layer, NOT a Care service category** (vet-as-Carer was retired in OQ §6 — we don't want to un-do that stabilisation by accident).
+
+See the research doc for the full breakdown before any phase-shaped commitment.
 
 ---
 

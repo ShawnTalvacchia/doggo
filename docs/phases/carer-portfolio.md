@@ -1,16 +1,16 @@
 ---
 status: draft
-last-reviewed: 2026-05-11
+last-reviewed: 2026-06-02
 review-trigger: When any task is completed or blocked; when prerequisite Open Questions resolve
 ---
 
 # Carer Portfolio
 
-> **Status: draft.** Sketched 2026-05-11 during Profiles Deep Pass walkthrough as the natural follow-on from resolving "what's the source of a carer's portfolio signal?" — Open Questions §8 (resolved). Sibling phase to Photos & Galleries (`docs/phases/photos-and-galleries.md`) but independent — they don't block each other. **Do not open as active until the threshold + display Open Questions resolve** — those decisions shape Workstream B.
+> **Status: draft.** Sketched 2026-05-11 during Profiles Deep Pass walkthrough as the natural follow-on from resolving "what's the source of a carer's portfolio signal?" — Open Questions §8 (resolved). **Scope expanded 2026-06-02 from PO user interviews** — Workstreams E (circle attribution) and F (review form) added per Roman's insight that "has anyone in my circle booked this provider + what they said" is KEY to booking decisions. Sibling phase to Photos & Galleries (`docs/phases/photos-and-galleries.md`) but independent — they don't block each other. **Do not open as active until the threshold + display Open Questions resolve** — those decisions shape Workstream B.
 
-**Goal:** Completed work becomes a visible trust credential. A carer's profile (and the surfaces that point at it) carries an aggregate signal — "30 completed sessions," "trained 25 dogs," however we frame it — computed from verifiable engagement records, not from photo tags or self-declared counts. Aligns with the Cold-Start Playbook credentialing-layer thesis: hard to fake, accumulates with real work, builds the moat.
+**Goal:** Completed work becomes a visible trust credential. A carer's profile (and the surfaces that point at it) carries: (1) an aggregate signal — "30 completed sessions," "trained 25 dogs," however we frame it — computed from verifiable engagement records, not from photo tags or self-declared counts; (2) circle attribution — "N people in your circle booked {name}" — surfaced on Discover cards and the provider profile; (3) actual reviews (star + text) from completed bookings. Aligns with the Cold-Start Playbook credentialing-layer thesis: hard to fake, accumulates with real work, builds the moat.
 
-**Thesis:** The platform already records every booking completion and every meet attendance. Those are two-sided ground truth (owner engaged → carer delivered → record exists). Surfacing them as a trust signal is mechanical once the design decisions resolve. The phase ships the aggregation + the surfaces; the strategy is already locked in.
+**Thesis:** The platform already records every booking completion and every meet attendance. Those are two-sided ground truth (owner engaged → carer delivered → record exists). Surfacing them as a trust signal is mechanical once the design decisions resolve. The phase ships the aggregation + the circle-attribution lens + the review form — three views of the same credentialing-moat thesis.
 
 **Depends on:**
 - Existing `Booking` records with `state` field (need `completed` state populated for past sessions).
@@ -22,8 +22,8 @@ review-trigger: When any task is completed or blocked; when prerequisite Open Qu
 
 **Not in scope:**
 - Photo-tag-based portfolio (rejected by the resolved Open Q §8 — see explanation there).
-- Carer reviews / ratings system (separate concern; the rating data exists but display + computation is its own piece).
 - Dog-level credit (a list of named dogs the carer trained, like a creator portfolio) — declined as a non-consensual leak of owner→carer engagement metadata. Aggregate counts only.
+- Anonymised review excerpts to non-Connected viewers (Workstream E shows reviewer name only to viewers Connected to the reviewer; outside that, the count is shown without attribution).
 
 ---
 
@@ -80,18 +80,50 @@ Verify the badge surfaces correctly without leaking the wrong privacy semantics.
 | D2 | Phase walkthrough: verify each persona's carer profile shows the right badge (or correctly hides it for non-carers + new carers). Walk Klára (high count from sessions), Tereza (modest count from informal sits), Daniel + Tomáš (no badge — not carers), Shawn (modest count), New User (no badge), bridged Carers (high counts). | todo |
 | D3 | Strategic-review writeup at phase close — does the badge land the credentialing-layer thesis? Does Klára's profile feel more credible with it than without? Is the threshold right? Feed back into Cold-Start Playbook and `badges.md`. | todo |
 
+### Workstream E — Circle attribution
+
+Added 2026-06-02. The Discover-surface lens that says "N people in your circle have booked {name}." Roman flagged this as KEY to booking decisions — it's the credentialing-moat thesis at the moment-of-decision.
+
+| # | Description | Status |
+|---|-------------|--------|
+| E1 | Helper `getCircleAttribution(viewerId, providerId)` in `lib/trustBadges.ts` (or sibling). Returns `{ count: number, attributedReviews: { reviewerId, bookingId, reviewSnippet? }[] }` where the count is unique-Connected-users of the viewer who have a completed Booking with the provider; `attributedReviews` includes those who left a review. Privacy gate: only surface reviewer names for users the viewer is Connected to (no Familiar leakage, no inference about other Connected-Connected relationships). | todo |
+| E2 | Discover Care card — when `count >= 1`, render an inline-icon row "{N} in your circle have booked them." Sits next to the existing connection-signals row (community context). Compete-for-space rule: this signal wins over "Met at N walks" when both fire (it's more booking-relevant). | E1 | todo |
+| E3 | Provider profile — new section "Booked by people you know" on the About tab (between the trust-badge strip and the Services preview). Renders as a small PersonRow stack (reviewer name + avatar + review excerpt + star rating if available) for Connected reviewers; non-Connected reviewers contribute to the count but render as anonymous rows ("Someone in your circle, 5 ★"). | E1, F1 | todo |
+| E4 | Mock data — calibrate the bridged carers (olgaM, janaK, marketaH, etc.) so each demo persona viewing them sees a believable circle-attribution count. Klára especially needs at least 1-2 of Daniel's connections to have booked her (sets up the demo conversion narrative). | E1, D1 | todo |
+| E5 | Empty-state — no surface when `count === 0`. Don't say "0 people in your circle have booked them" — silent absence is the correct treatment. | E2 | todo |
+
+### Workstream F — Review form
+
+Added 2026-06-02. Today the "Leave a review" button on completed bookings is a stub. This workstream lands the real form, which is the prerequisite for Workstream E's review excerpts.
+
+| # | Description | Status |
+|---|-------------|--------|
+| F1 | `BookingReview` data shape — `{ id, bookingId, reviewerId, providerId, stars: 1-5, text: string, submittedAt: ISO, hiddenByModerator?: boolean }`. Persisted via `usePersistedState` in a new `ReviewsContext` (mirrors `BookingsContext`). | [[features/explore-and-care]] | todo |
+| F2 | Review form modal — opens from the "Leave a review" CTA on a completed booking. Pet-as-protagonist hero (mirrors Sessions tab pattern), star rating (5-star tap-select), optional text area, submit. Validation: stars required, text optional but encouraged. | F1, [[features/explore-and-care]] Sessions tab anatomy | todo |
+| F3 | Submission flow — on submit, lands a `BookingReview` record + posts a system message in the booking conversation ("Daniel left a 5★ review"). Familiar/Connected state unchanged (review action itself doesn't escalate; the Connected mark was already made on contract sign). | F1, F2 | todo |
+| F4 | Provider profile — Reviews section on About tab (or its own tab if the count grows large). Renders reviews chronologically with star rating + reviewer name + text + booking-date context. Hidden reviews (moderator-flagged) skipped. | F1 | todo |
+| F5 | Aggregate display — provider profile hero carries average-star rating + review count (e.g. "4.8 ★ · 24 reviews"). Discover Care cards carry the same. | F1, F4 | todo |
+| F6 | Mock data — backfill reviews for completed bookings across the persona world. Klára gets 8-15 reviews; Tereza 2-4 (informal Carer); bridged carers vary from 5 to 30 to match their seeded engagement counts. Mix of all 4-5 star (warm); occasional 3-star (texture, not damning); no negative reviews seeded (mock world prefers a generous ecosystem). | F1, D1 | todo |
+| F7 | Existing stub cleanup — the "Leave a review" placeholder button on completed bookings now opens the real form. Verify the "Stub" pill (if present) is removed. | F2 | todo |
+
 ---
 
 ## Acceptance Criteria
 
-- [ ] Aggregate computer accurately counts completed bookings + past meet attendances per carer.
-- [ ] Badge renders on carer profile hero (and propagates per priority rule) with the resolved copy + threshold.
-- [ ] Threshold suppression works — carers below threshold don't show the badge.
-- [ ] Circle-only carers' badge respects the audience-visibility rule.
-- [ ] Mock data reads believable across all personas + bridged carers.
-- [ ] `badges.md` updated with the new badge spec.
-- [ ] `features/profiles.md` and/or `Groups & Care Model.md` updated where the credit is described.
-- [ ] TypeScript compiles clean.
+- [ ] Aggregate computer accurately counts completed bookings + past meet attendances per carer (Workstream A)
+- [ ] Badge renders on carer profile hero (and propagates per priority rule) with the resolved copy + threshold (Workstream B)
+- [ ] Threshold suppression works — carers below threshold don't show the badge
+- [ ] Circle-only carers' badge respects the audience-visibility rule (Workstream C)
+- [ ] Discover Care cards show "{N} in your circle have booked them" when count ≥ 1 (Workstream E)
+- [ ] Provider profile carries the "Booked by people you know" section with named reviewers (Connected) + anonymous attribution (non-Connected) (Workstream E)
+- [ ] Reviews can be submitted via the form modal; submission posts to provider profile + system message lands in conversation (Workstream F)
+- [ ] Provider profile + Discover cards show aggregate star rating + review count (Workstream F)
+- [ ] Privacy gate verified — no Familiar leakage; non-Connected reviewers anonymous in circle-attribution display
+- [ ] Mock data reads believable across all personas + bridged carers
+- [ ] `badges.md` updated with the new badge spec
+- [ ] `features/profiles.md` and/or `Groups & Care Model.md` updated where the credit is described
+- [ ] `features/explore-and-care.md` updated — review form is no longer in the Future section
+- [ ] TypeScript compiles clean
 
 ---
 

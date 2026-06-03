@@ -1,6 +1,6 @@
 ---
 status: living
-last-reviewed: 2026-06-01
+last-reviewed: 2026-06-02
 review-trigger: "Append when a 'noted for later' idea surfaces; promote out when triggered"
 ---
 
@@ -205,3 +205,26 @@ Same applies to: post comments from un-bridged authors, "Recent walkers" on dog 
 **Refs:** `components/people/PersonRow.tsx`, `components/people/PrivateProfileRow.tsx`, `lib/personActions.ts`, `components/shelters/ShelterMemberRow.tsx` (today's stand-in), `docs/strategy/Trust & Connection Model.md` (full visibility model).
 
 **Added:** 2026-06-01
+
+---
+
+## FC10. Forum / regulatory information for Czech dog owners
+
+**Trigger:** Post-demo. Or sooner if user testing surfaces "I don't know what I'm legally required to do as a dog owner" as a real complaint (especially from expat / first-time-owner segments).
+
+**Context:** Roman flagged in his user interview (2026-06-02) that Czech dog owners — especially new owners and expats — are often unaware of regulatory and tax obligations. His own example: he was unaware for 10 years that he was required to pay a special dog tax. The bureaucracy of European dog ownership creates an information gap that current Doggo surfaces don't address.
+
+Two shapes worth considering when the trigger fires:
+
+- **Forum** — a Q&A surface like a community-moderated FAQ. Threads for "Registering your dog in Prague," "Annual dog tax," "Apartment-building regulations," etc. Lives parallel to Communities (own surface) or as a special Group type.
+- **Helpful-info layer** — curated articles, possibly localised, surfaced contextually (e.g. a notification "First time owning a dog in Prague? Here's what you need to know"). Less interactive, lower content-moderation burden.
+
+Strategic positioning question: is regulatory information *Doggo's job*, or do we point users at an existing resource? Czech veterinary chamber and city council publish official information; the gap may be discoverability + translation, not creation.
+
+This thread overlaps with the **Anxious New Owner** archetype (User Archetypes, added 2026-06-02) — the user segment most likely to benefit from this content is exactly the high-demand-for-training segment Roman identified.
+
+**Effort:** Variable. Curated-articles surface (no forum mechanics) is ~1 phase. Full forum is multi-phase territory. Helpful-info layer surfaced via existing post types is the lightest cut (~few workstreams).
+
+**Refs:** `docs/meetings/po-briefing-2026-06-02.md` (Roman's "Future Iterations" section), `docs/strategy/User Archetypes.md` ("Anxious New Owner" archetype).
+
+**Added:** 2026-06-02
