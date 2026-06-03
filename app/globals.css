@@ -14327,11 +14327,17 @@ a.shelter-intro-social:hover {
   background: var(--surface-base);
   border: 1px solid var(--border-regular);
   border-radius: var(--radius-panel);
+  transition: background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
 }
 
+/* Lift-on-hover — card rises from --surface-base (slightly darker than
+   the panel around it) to --surface-top (brighter) with a small shadow.
+   Reads as elevation rather than the darken-tint we use on quieter
+   affordances; reinforces the card as the primary CTA on the Feed. */
 .shelter-summary-card:hover {
-  background: var(--surface-hover);
+  background: var(--surface-top);
   border-color: var(--border-stronger);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Dogs-in-care summary card uses the volunteer-violet pair (matches
