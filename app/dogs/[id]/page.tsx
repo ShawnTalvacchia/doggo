@@ -190,11 +190,13 @@ function DogProfileInner() {
               was retired because square-source pet portraits stretched
               awkwardly across surfaces. */}
           <div className="dog-profile-hero">
-            <img
-              src={dog.imageUrl}
-              alt={dog.name}
-              className="dog-profile-hero-photo"
-            />
+            <div className="dog-profile-hero-photo-wrap">
+              <img
+                src={dog.imageUrl}
+                alt={dog.name}
+                className="dog-profile-hero-photo"
+              />
+            </div>
             <div className="dog-profile-hero-content">
               <div className="dog-profile-hero-name-row">
                 <h1 className="dog-profile-name">{dog.name}</h1>

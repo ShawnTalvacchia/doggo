@@ -14696,20 +14696,30 @@ a.shelter-intro-social:hover {
    different surface where the dramatic frame is the point. */
 .dog-profile-hero {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-lg);
   padding: var(--space-lg) var(--space-xl);
   background: var(--surface-popout);
   border-bottom: 1px solid var(--border-regular);
 }
 
-.dog-profile-hero-photo {
-  width: 180px;
-  height: 180px;
-  border-radius: var(--radius-panel);
-  object-fit: cover;
+/* Photo wrapper carries 12px padding so the rounded-square doesn't
+   bleed all the way to the panel edge — matches the user profile
+   hero (where the avatar wrapper has the same 12px breathing room).
+   Photo size also matches user profile (200×200). */
+.dog-profile-hero-photo-wrap {
+  padding: 12px;
   flex-shrink: 0;
+  align-self: center;
+}
+
+.dog-profile-hero-photo {
+  width: 200px;
+  height: 200px;
+  border-radius: var(--radius-panel); /* Avatar Rule B — dogs are squares */
+  object-fit: cover;
   background-color: var(--surface-base);
+  display: block;
 }
 
 .dog-profile-hero-content {
@@ -14717,7 +14727,7 @@ a.shelter-intro-social:hover {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-xs);
 }
 
 .dog-profile-hero-name-row {
@@ -14729,7 +14739,7 @@ a.shelter-intro-social:hover {
 
 .dog-profile-name {
   font-family: var(--font-heading);
-  font-size: var(--text-2xl);
+  font-size: var(--text-3xl);
   font-weight: 600;
   margin: 0;
   color: var(--text-primary);
@@ -14738,8 +14748,8 @@ a.shelter-intro-social:hover {
 
 .dog-profile-line {
   font-size: var(--text-base);
-  font-weight: 500;
   color: var(--text-secondary);
+  margin-bottom: var(--space-xs);
 }
 
 .dog-profile-status-pill {
