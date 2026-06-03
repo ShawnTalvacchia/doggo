@@ -16,11 +16,11 @@ Tight verification for the Dog Profile phase thesis: **`/dogs/[id]` now renders 
 
 ## Workstream A — Owned-dog profile branch at `/dogs/[id]`
 
-- [ ] **A1. Tereza → `/dogs/franta`.** First real owned-dog profile. Hero (full-width photo + name + breed/age/weight, sex omitted cleanly). Tag chips. **No** "In care / Last walked" row, **no** policy strip, **no** Recent walkers. Owner backlink at bottom reads **"Your dog · You"** → tap routes to `/profile`. Back arrow (top-left) also → `/profile`.
+- [x] **A1. Tereza → `/dogs/franta`.** First real owned-dog profile. Hero (full-width photo + name + breed/age/weight, sex omitted cleanly). Tag chips. **No** "In care / Last walked" row, **no** policy strip, **no** Recent walkers. Owner backlink at bottom reads **"Your dog · You"** → tap routes to `/profile`. Back arrow (top-left) also → `/profile`.
 
-- [ ] **A2. Tereza → `/dogs/shelter-dog-tonda`** (regression). Shelter spine still intact — stat row + shelter backlink + the rest.
+- [x] **A2. Tereza → `/dogs/shelter-dog-tonda`** (regression). Shelter spine still intact — stat row + shelter backlink + the rest.
 
-- [ ] **A3. Switch to New User → `/dogs/bara`** (Daniel locked, New User unconnected). Lock icon + **"Bára's profile is private"** empty state.
+- [x] **A3. Switch to New User → `/dogs/bara`** (Daniel locked, New User unconnected). Lock icon + **"Bára's profile is private"** empty state.
 
 - [ ] **A4. Switch to Daniel → `/dogs/bara`** (self viewing own locked dog). Full profile renders. Backlink reads **"Your dog · You"**.
 
@@ -72,4 +72,5 @@ Tight verification for the Dog Profile phase thesis: **`/dogs/[id]` now renders 
 
 Append as you walk — don't wait until the end. Each entry annotates where the decision needs to land (`→ target-doc.md`); phase-close sweep processes the list.
 
-(Add entries below as the walkthrough reveals them.)
+- **Locked dog profile empty state gets an owner-profile action button.** A locked Bára view (Daniel locked, viewer unconnected) was a dead end — the title said "private," the subtitle said "connect with Daniel," but the viewer had no path to act. Added a `View {firstName}'s profile` secondary button routing to `/profile/{ownerId}`. Owner's profile honors its own lock when visited (no privacy leak vs. a meet-attendee row). → `features/shelters.md` (Dog Profile section)
+- **Locked user profile card splits into title + subtitle.** The full-width lock card on `/profile/[userId]` was a single paragraph ("{firstName} keeps their profile private. People typically see more after meeting at a walk or community."). Reshaped to match the EmptyState pattern used on the dog profile lock — bold first line **"{firstName}'s profile is private"** + lighter subtitle + Learn link. Cross-page consistency for the lock language. → `features/profiles.md` (Locked Profile View section)

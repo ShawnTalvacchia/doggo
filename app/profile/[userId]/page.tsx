@@ -41,7 +41,7 @@ import { AppointmentBookingSheet } from "@/components/messaging/AppointmentBooki
 import type { ServiceType, CarerMeetServiceConfig, CarerAppointmentServiceConfig } from "@/lib/types";
 import { getCommunityCarers, getMutualConnectedUserIds } from "@/lib/mockConnections";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
-import { viewerSharedMeetWith, mockMeets } from "@/lib/mockMeets";
+import { viewerSharedMeetWith, getSharedMeetsBetween, mockMeets } from "@/lib/mockMeets";
 import { meetScheduleSummary } from "@/lib/meetUtils";
 import { viewerSharedGroupWith, getSharedGroupNames } from "@/lib/mockGroups";
 import { useConnections } from "@/contexts/ConnectionsContext";
@@ -53,7 +53,7 @@ import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
 import { providers } from "@/lib/mockData";
 import { getUserOrProvider, getUserById } from "@/lib/mockUsers";
-import { SERVICE_LABELS } from "@/lib/constants/services";
+import { SERVICE_LABELS, TRAINING_TYPE_LABELS } from "@/lib/constants/services";
 
 /* ── Mutual connections section (other-user profiles) ──────────────────────
  *
@@ -241,7 +241,7 @@ function UserProfileInner() {
   // taken on this page (or anywhere else that uses the context) reflect
   // immediately. Static `mockConnections` is the fallback inside the
   // context's `getConnection` helper.
-  const { getConnection, markFamiliar, unmarkFamiliar, clearConnection } = useConnections();
+  const { getConnection, markFamiliar, unmarkFamiliar, requestConnect, clearConnection } = useConnections();
   const connection = getConnection(userId, currentUserId);
   const userProfile = getUserOrProvider(userId);
   const provider = providers.find((p) => p.id === userId || p.userId === userId);
@@ -435,8 +435,10 @@ function UserProfileInner() {
           // Reactive Dog Support group but have no connection record, so
           // the connection-record check would falsely return no context).
           const sharedGroupNames = getSharedGroupNames(currentUserId, userId);
+          const sharedMeets = getSharedMeetsBetween(currentUserId, userId);
           const hasSharedContext =
             sharedGroupNames.length > 0 ||
+            sharedMeets.length > 0 ||
             viewerSharedMeetWith(currentUserId, userId) ||
             viewerSharedGroupWith(currentUserId, userId) ||
             (connection?.meetsShared ?? 0) > 0;
@@ -487,14 +489,28 @@ function UserProfileInner() {
                         action row sits set apart from the meta lines above. */}
                     {hasSharedContext && (
                       <div
-                        className="flex flex-col gap-sm items-center sm:items-start w-full"
+                        className="flex flex-col gap-md items-center sm:items-start w-full"
                         style={{ marginTop: "var(--space-md)" }}
                       >
-                        <p className="text-sm text-fg-secondary m-0">
-                          {isMarked
-                            ? `${firstName} can now see your profile and tags from shared contexts.`
-                            : `Have you met ${firstName}? Mark them familiar to let them see your profile.`}
-                        </p>
+                        {isMarked ? (
+                          <p className="text-sm text-fg-secondary m-0">
+                            {firstName} can now see your profile and tags from shared contexts.
+                          </p>
+                        ) : (
+                          // Two-line "question + footnote" structure — first
+                          // line conversational (the invitation to unlock),
+                          // second line is the explainer in small print. Was
+                          // a single paragraph that read as one wall of body
+                          // text and crowded the pill below. 2026-06-03.
+                          <div className="flex flex-col gap-xs items-center sm:items-start">
+                            <p className="text-sm font-semibold text-fg-primary m-0">
+                              Have you met {firstName}?
+                            </p>
+                            <p className="text-sm text-fg-secondary m-0">
+                              Mark them Familiar to let them see your profile.
+                            </p>
+                          </div>
+                        )}
                         <div className="unmark-familiar-menu-wrap dropdown-menu-wrap">
                           <button
                             type="button"
@@ -553,24 +569,32 @@ function UserProfileInner() {
               <SharedContextCard
                 firstName={firstName}
                 sharedGroupNames={sharedGroupNames}
+                sharedMeets={sharedMeets}
               />
 
-              {/* Lock card — full-width, privacy explainer + inline
-                  "Learn how privacy works" link. Keeps the inset-fill
-                  chrome (muted "this is gated" treatment). CCFT 2026-05-11. */}
+              {/* Lock card — full-width, title + explainer subtitle +
+                  inline "Learn how privacy works" link. Matches the
+                  EmptyState title/subtitle shape used on the locked
+                  dog profile (2026-06-03 walkthrough) — first line
+                  carries the heading weight, body explains, link
+                  routes to the help page. Keeps the inset-fill
+                  chrome (muted "this is gated" treatment). */}
               <div
-                className="flex flex-col items-center gap-sm rounded-panel bg-surface-inset w-full"
+                className="flex flex-col items-center gap-xs rounded-panel bg-surface-inset w-full"
                 style={{ padding: "var(--space-xl) var(--space-lg)" }}
               >
-                <LockSimple size={28} weight="light" className="text-fg-tertiary" />
+                <LockSimple size={28} weight="light" className="text-fg-tertiary" style={{ marginBottom: "var(--space-xs)" }} />
+                <p className="text-base font-semibold text-fg-primary m-0 text-center">
+                  {firstName}'s profile is private
+                </p>
                 <p className="text-sm text-fg-secondary m-0 text-center">
-                  {firstName} keeps their profile private. People typically see more after meeting at a walk or community.
+                  People typically see more after meeting at a walk or community.
                 </p>
                 <Link
                   href="/help/privacy"
                   className="text-sm font-semibold text-fg-primary hover:text-brand-main"
                   style={{
-                    marginTop: "var(--space-xs)",
+                    marginTop: "var(--space-sm)",
                     textDecoration: "underline",
                     textUnderlineOffset: "4px",
                   }}
@@ -764,7 +788,17 @@ function UserProfileInner() {
                         {leftSlot === "familiar_marked" && (
                           // P40: friction-by-design unmark — tap opens menu,
                           // not a direct undo. Mirrors the locked-profile pill.
-                          <div className="unmark-familiar-menu-wrap dropdown-menu-wrap">
+                          // Inline `flex: 1 1 140px` so this wrap balances
+                          // 50/50 with the Message sibling. Inline wins
+                          // against `.dropdown-menu-wrap`'s `flex: 1`
+                          // without bleeding into other layout contexts
+                          // (the locked-profile path uses the same wrap
+                          // class but lives in a flex-COL parent — see
+                          // globals.css note). 2026-06-03.
+                          <div
+                            className="unmark-familiar-menu-wrap dropdown-menu-wrap"
+                            style={{ flex: "1 1 140px" }}
+                          >
                             <ButtonAction
                               variant="outline"
                               size="md"
@@ -799,8 +833,13 @@ function UserProfileInner() {
                         {leftSlot === "connected" && (
                           // P54: trigger the heavy-actions menu rather than
                           // a quiet status pill. Unconnect is real; Block +
-                          // Report are stubs (no backing data yet).
-                          <div className="connected-menu-wrap dropdown-menu-wrap">
+                          // Report are stubs (no backing data yet). Inline
+                          // `flex: 1 1 140px` — see the unmark-familiar
+                          // wrap above for the same context-scoping note.
+                          <div
+                            className="connected-menu-wrap dropdown-menu-wrap"
+                            style={{ flex: "1 1 140px" }}
+                          >
                             <ButtonAction
                               variant="outline"
                               size="md"
@@ -883,6 +922,14 @@ function UserProfileInner() {
                             size="md"
                             cta
                             className="grow basis-[140px]"
+                            onClick={() => {
+                              if (isGuest) {
+                                requireAuth(`connect with ${firstName}`);
+                                return;
+                              }
+                              requestConnect(currentUserId, userId);
+                            }}
+                            aria-label={`Send a connect request to ${firstName}`}
                           >
                             Connect with {firstName}
                           </ButtonAction>
@@ -1129,6 +1176,13 @@ function UserProfileInner() {
                             <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
                               {svc.appointmentCategory === "training" ? "Training visit" : "Grooming"}
                             </span>
+                            {/* Training sub-type chip — only renders for
+                                training appointments with a focus set. P73. */}
+                            {svc.appointmentCategory === "training" && svc.trainingType && (
+                              <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
+                                {TRAINING_TYPE_LABELS[svc.trainingType]}
+                              </span>
+                            )}
                             <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
                               {svc.durationMinutes} min
                             </span>
