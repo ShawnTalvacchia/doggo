@@ -103,7 +103,11 @@ function DogProfileInner() {
   }, [dogName, parentHref]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Owned dog gated by the owner's lock — render a locked-style empty
-  // state. Same shape as the unknown-dog state but with lock framing.
+  // state. The owner action button is the connection path: the dog's
+  // lock derives from the owner's lock, so "meet the owner" is the only
+  // way through. Routing to the owner's profile lands on their own
+  // locked-profile preview (with its Connect CTA) when relevant — no
+  // additional privacy leak vs. what a meet-attendee row already shows.
   if (ownedResolved && !ownedVisible) {
     return (
       <div className="dog-profile-page">
@@ -115,6 +119,15 @@ function DogProfileInner() {
                 icon={<Lock size={32} weight="light" />}
                 title={`${ownedResolved.dog.name}'s profile is private`}
                 subtitle={`Connect with ${ownedResolved.owner.firstName} at a meet to see ${ownedResolved.dog.name}'s profile.`}
+                action={
+                  <ButtonAction
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => router.push(`/profile/${ownedResolved.owner.id}`)}
+                  >
+                    View {ownedResolved.owner.firstName}'s profile
+                  </ButtonAction>
+                }
               />
             </div>
             <Spacer />
