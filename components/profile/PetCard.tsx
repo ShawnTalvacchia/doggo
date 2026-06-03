@@ -10,6 +10,11 @@ import {
   CaretDown,
 } from "@phosphor-icons/react";
 import type { PetProfile, EnergyLevel, PlayStyle } from "@/lib/types";
+import {
+  VACCINATION_LABELS,
+  formatVaccinationDate,
+  sortVaccinations,
+} from "@/lib/petUtils";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
@@ -164,22 +169,42 @@ export function PetCard({ pet, defaultExpanded = true }: PetCardProps) {
                 <FirstAidKit size={14} weight="fill" className="text-brand-main" />
                 <span>Health & vet</span>
               </div>
-              {/* Health checks — icon + colored text inline, no pill chrome.
+              {/* Vaccinations — structured per-vaccine chips (Vaccines V1,
+                  Dog Profile phase). Replaces the prior single
+                  "Vaccinations up to date" check with per-vaccine records
+                  + owner acknowledgement caption. */}
+              {pet.vetInfo.vaccinations && pet.vetInfo.vaccinations.length > 0 ? (
+                <div className="flex flex-col gap-xs">
+                  <span className="pet-profile-health-check">
+                    <ShieldCheck size={13} weight="fill" /> Vaccinations
+                  </span>
+                  <div className="flex flex-wrap gap-tiny">
+                    {sortVaccinations(pet.vetInfo.vaccinations).map((v) => (
+                      <span key={v.type} className="pet-profile-vet-pill">
+                        {VACCINATION_LABELS[v.type]} · {formatVaccinationDate(v.lastGivenAt)}
+                      </span>
+                    ))}
+                  </div>
+                  {pet.vetInfo.vaccinationsAcknowledgedAt && (
+                    <span className="text-xs text-fg-tertiary">
+                      Confirmed {formatVaccinationDate(pet.vetInfo.vaccinationsAcknowledgedAt)}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <span className="text-xs text-fg-tertiary italic">
+                  No vaccination records on file
+                </span>
+              )}
+              {/* Spayed / neutered — icon + colored text inline, no pill chrome.
                   The pill treatment was too heavy for "yes this is a thing"
                   affirmations; icon-and-text reads as a check at a glance.
                   2026-05-11. */}
-              {(pet.vetInfo.vaccinationsUpToDate || pet.vetInfo.spayedNeutered) && (
+              {pet.vetInfo.spayedNeutered && (
                 <div className="pet-profile-health-checks">
-                  {pet.vetInfo.vaccinationsUpToDate && (
-                    <span className="pet-profile-health-check">
-                      <ShieldCheck size={13} weight="fill" /> Vaccinations up to date
-                    </span>
-                  )}
-                  {pet.vetInfo.spayedNeutered && (
-                    <span className="pet-profile-health-check">
-                      <ShieldCheck size={13} weight="fill" /> Spayed / neutered
-                    </span>
-                  )}
+                  <span className="pet-profile-health-check">
+                    <ShieldCheck size={13} weight="fill" /> Spayed / neutered
+                  </span>
                 </div>
               )}
               {/* Conditions — plain text. Pill styling was wrong here; the

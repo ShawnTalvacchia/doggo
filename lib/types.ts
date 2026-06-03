@@ -1150,11 +1150,55 @@ export type PlayStyle =
   | "independent"
   | "sniffing";
 
+/**
+ * Standard Czech canine vaccines surfaced in Vaccines V1 (per PO interviews,
+ * Roman 2026-06-02). Rabies is legally mandatory in CZ; the others are
+ * recommended core vaccines. V1 treats all five uniformly — no platform legal
+ * hierarchy.
+ */
+export type VaccinationType =
+  | "rabies"
+  | "parvovirus"
+  | "distemper"
+  | "hepatitis"
+  | "parainfluenza";
+
+/**
+ * One vaccination record. V1 is owner self-declared — the `confidence` field
+ * leaves room for V2 verification paths (photo-of-booklet moderation, or
+ * vet-confirmed via the credentialing-layer thread). See Open Q §15 + §16.
+ */
+export interface VaccinationRecord {
+  type: VaccinationType;
+  /** ISO YYYY-MM-DD — when the dose was administered. */
+  lastGivenAt: string;
+  /** V1 always emits "self-declared". V2 introduces "photo-confirmed" and
+   *  "vet-confirmed" when the verification surfaces land. */
+  confidence: "self-declared";
+}
+
 export interface VetInfo {
   clinicName?: string;
   vetPhone?: string;
   lastCheckup?: string;       // ISO YYYY-MM-DD
-  vaccinationsUpToDate: boolean;
+  /**
+   * Structured per-vaccine records (Vaccines V1, 2026-06-02). Replaces the
+   * legacy `vaccinationsUpToDate` boolean below. Display surfaces should
+   * read from this array via `isVaccinationsCurrent` in `lib/petUtils.ts`.
+   */
+  vaccinations?: VaccinationRecord[];
+  /**
+   * ISO YYYY-MM-DD — single per-dog acknowledgement-of-accuracy timestamp,
+   * written when the owner confirms the vaccination record is accurate.
+   * Per-dog confirm, not per-vaccine.
+   */
+  vaccinationsAcknowledgedAt?: string;
+  /**
+   * @deprecated Vaccines V1 reshape — read via `isVaccinationsCurrent` instead.
+   * Retained for one phase to bridge any consumers not yet migrated. Slated for
+   * removal at Dog Profile phase close once all reads route through the helper.
+   */
+  vaccinationsUpToDate?: boolean;
   spayedNeutered: boolean;
   medications?: string;       // free-text list of current meds
   conditions?: string;        // free-text known conditions
