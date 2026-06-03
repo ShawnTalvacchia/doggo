@@ -14382,13 +14382,9 @@ a.shelter-intro-social:hover {
   flex-direction: column;
 }
 
-.shelter-members-filter {
-  /* Horizontal padding matches .detail-tabs so the filter row aligns
-     edge-to-edge with the tabs above. */
-  padding: var(--space-md);
-  background: var(--surface-popout);
-  border-bottom: 1px solid var(--border-regular);
-}
+/* .shelter-members-filter retired — FilterPillRow carries its own
+   padding + border-bottom; wrapping it caused double-padding +
+   double-divider. Filter pills now render bare on the Members tab. */
 
 /* Sort dropdown toolbar — single inline "Sort by [Needs walks now ▾]"
    affordance. The trigger is a custom button; clicking opens a
@@ -14667,9 +14663,33 @@ a.shelter-intro-social:hover {
   white-space: nowrap;
 }
 
+/* Tier-coded walker chip variants — three visual weights that read as
+   one family. Working version of the credentialing-moat intensification
+   pattern (FC9). Labels carry the modifier; the styling reinforces it.
+
+   - New Walker (vetted):     outlined only — quietest, "just arrived"
+   - Regular Walker (exp):    filled subtle — the comfortable middle
+   - Trusted Walker (trusted): filled stronger + brand-tinted border —
+     visually heaviest, "earned"
+
+   All three keep info (blue) as the family color so they read as
+   "walker affiliation" regardless of tier. */
 .shelter-member-chip--walker {
-  background: var(--status-info-light);
   color: var(--status-info-strong);
+}
+
+.shelter-member-chip--vetted {
+  background: transparent;
+  border: 1px solid var(--status-info-light);
+}
+
+.shelter-member-chip--experienced {
+  background: var(--status-info-light);
+}
+
+.shelter-member-chip--trusted {
+  background: var(--info-50);
+  border: 1px solid var(--status-info-strong);
 }
 
 .shelter-member-subline {

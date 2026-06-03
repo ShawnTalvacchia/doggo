@@ -30,10 +30,13 @@ interface ShelterMemberRowProps {
   shelterName?: string;
 }
 
+// Working titles — see FC9. The pattern is consistent ("[modifier] Walker")
+// so the chip family reads as one taxonomy across shelters: change the
+// modifier, the affiliation stays.
 const TIER_LABEL: Record<WalkerTier, string> = {
-  vetted: "Vetted Walker",
-  experienced: "Experienced Walker",
-  trusted: "Trusted Handler",
+  vetted: "New Walker",
+  experienced: "Regular Walker",
+  trusted: "Trusted Walker",
 };
 
 export function ShelterMemberRow({ entry }: ShelterMemberRowProps) {
@@ -54,7 +57,9 @@ export function ShelterMemberRow({ entry }: ShelterMemberRowProps) {
         <div className="shelter-member-name-row">
           <span className="shelter-member-name">{displayName}</span>
           {kind === "walker" && (
-            <span className="shelter-member-chip shelter-member-chip--walker">
+            <span
+              className={`shelter-member-chip shelter-member-chip--walker shelter-member-chip--${data.tier}`}
+            >
               <PawPrint size={11} weight="light" />
               {TIER_LABEL[data.tier]}
             </span>

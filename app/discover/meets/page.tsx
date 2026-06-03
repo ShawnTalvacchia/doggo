@@ -41,12 +41,16 @@ import type { Meet, MeetType } from "@/lib/types";
 // followed series + group-member meets now surface in the elevated
 // "Meets from your circle" section at the top of this surface, mirroring
 // the Discover Care "Carers in your circle" pattern.
+// "puppies" is a cross-type lens, not a MeetType — it picks playdates
+// with puppy ageRange + training meets with a puppy linkedService. Added
+// 2026-06-02 (P71) from PO interviews. See `isPuppyMeet` in this file.
 const TYPE_TABS: { key: string; label: string }[] = [
   { key: "all", label: "All" },
   { key: "walk", label: "Walks" },
   { key: "park_hangout", label: "Hangouts" },
   { key: "playdate", label: "Playdates" },
   { key: "training", label: "Training" },
+  { key: "puppies", label: "Puppies" },
 ];
 
 // Type dropdown content — icon + heading + sub-label per meet type.
@@ -59,6 +63,7 @@ const TYPE_ICONS: Record<string, typeof Path> = {
   park_hangout: Tree,
   playdate: GameController,
   training: GraduationCap,
+  puppies: PawPrint,
 };
 
 const TYPE_DROPDOWN_LABELS: Record<string, string> = {
@@ -67,6 +72,7 @@ const TYPE_DROPDOWN_LABELS: Record<string, string> = {
   park_hangout: "Park hangouts",
   playdate: "Playdates",
   training: "Training",
+  puppies: "Puppies",
 };
 
 const TYPE_DROPDOWN_SUBLABELS: Record<string, string> = {
@@ -75,6 +81,7 @@ const TYPE_DROPDOWN_SUBLABELS: Record<string, string> = {
   park_hangout: "Off-leash play sessions at a park",
   playdate: "Small-group play between matched dogs",
   training: "Skill-focused practice with a trainer",
+  puppies: "Meets suitable for puppies under 1 year",
 };
 
 const DOG_SIZE_OPTIONS = [
@@ -120,9 +127,28 @@ const DEFAULT_FILTERS: MeetFilters = {
 
 /* ── Filter logic ── */
 
+// Puppy-lens detector. A meet is "puppy-suitable" when:
+//   - It's a playdate with ageRange === "puppy", OR
+//   - It's a training meet whose title carries the word "puppy" (covers
+//     bridged training cohorts like Klára's "Puppy Basics" without
+//     reaching into linkedServices to introspect the carer config).
+// Added 2026-06-02 (P71). Free-text title match is intentional — the mock
+// world's puppy-targeted training meets all signal it in the title, and
+// rejecting non-titled cases keeps us from picking up "calm dogs welcome,
+// including puppies" copy that isn't actually puppy-targeted.
+function isPuppyMeet(meet: Meet): boolean {
+  if (meet.type === "playdate" && meet.playdate?.ageRange === "puppy") return true;
+  if (meet.type === "training" && /puppy/i.test(meet.title)) return true;
+  return false;
+}
+
 function applyFilters(meets: Meet[], type: string, filters: MeetFilters): Meet[] {
   return meets.filter((meet) => {
-    if (type !== "all" && meet.type !== type) return false;
+    if (type === "puppies") {
+      if (!isPuppyMeet(meet)) return false;
+    } else if (type !== "all" && meet.type !== type) {
+      return false;
+    }
 
     if (filters.selectedDays.length > 0) {
       const meetDay = new Date(meet.date).getDay();

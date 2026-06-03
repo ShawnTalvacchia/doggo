@@ -15,6 +15,7 @@ import {
   Sun,
   Moon,
   Scissors,
+  GraduationCap,
 } from "@phosphor-icons/react";
 import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
@@ -56,7 +57,12 @@ import type {
  * could split Appointment into Vet/Grooming pills once we have more than
  * a handful of vet-only providers.
  */
-type FilterPillKey = "all" | ServiceType | "appointment";
+// "training" is a cross-cutting lens added 2026-06-02 (P72) — filters
+// providers offering a training appointment. The mock world's Training-as-Meet
+// offerings (Klára's group cohorts) surface via Discover Meets' existing
+// Training pill; the Care pill catches the Appointment-shaped subset that
+// owners reach through the carer's profile, not through Meets.
+type FilterPillKey = "all" | ServiceType | "appointment" | "training";
 
 const TYPE_TABS: { key: FilterPillKey; label: string }[] = [
   { key: "all", label: "All" },
@@ -65,6 +71,7 @@ const TYPE_TABS: { key: FilterPillKey; label: string }[] = [
   { key: "day_care", label: "Day care" },
   { key: "boarding", label: "Boarding" },
   { key: "appointment", label: "Appointment" },
+  { key: "training", label: "Training" },
 ];
 
 /**
@@ -81,6 +88,7 @@ const TYPE_DROPDOWN_LABELS: Record<FilterPillKey, string> = {
   day_care: "Day care",
   boarding: "Boarding",
   appointment: "Appointment",
+  training: "Training",
 };
 
 /**
@@ -103,6 +111,7 @@ const TYPE_DROPDOWN_SUBLABELS: Record<FilterPillKey, string> = {
   day_care: "Daytime at the carer's home",
   boarding: "Overnight at the carer's home",
   appointment: "Grooming or training visit",
+  training: "1-on-1 or small-group training",
 };
 
 /**
@@ -119,6 +128,7 @@ const SERVICE_ICONS: Record<FilterPillKey, PhosphorIcon> = {
   day_care: Sun,
   boarding: Moon,
   appointment: Scissors,
+  training: GraduationCap,
 };
 
 /* ── Day + slot maps ─────────────────────────────────────────────────────── */
@@ -231,6 +241,7 @@ const DEFAULT_FILTERS: CareFilters = {
 function matchesPillFilter(provider: ProviderCard, key: FilterPillKey): boolean {
   if (key === "all") return true;
   if (key === "appointment") return (provider.appointmentTypes?.length ?? 0) > 0;
+  if (key === "training") return provider.appointmentTypes?.includes("training") ?? false;
   return provider.services.includes(key);
 }
 
@@ -275,7 +286,7 @@ function applyAllFilters(
   if (!matchesPillFilter(provider, pill)) return false;
 
   const activeService: ServiceType | null =
-    pill === "all" || pill === "appointment" ? null : pill;
+    pill === "all" || pill === "appointment" || pill === "training" ? null : pill;
 
   // Price range — compare against the displayed price under the active pill.
   const price = resolveListedPrice(provider, activeService);
@@ -587,7 +598,7 @@ function CareFilterPanel({
   // specific Care pill is active — under "All" the union would be ambiguous,
   // and Appointment uses a separate category model.
   const subServiceOptions =
-    pill === "all" || pill === "appointment" ? null : SUB_SERVICES[pill];
+    pill === "all" || pill === "appointment" || pill === "training" ? null : SUB_SERVICES[pill];
 
   // B2 (2026-05-10): saved addresses derive from the viewer's seeded
   // neighbourhood for now. Future-state: a saved-places list on the user
@@ -905,8 +916,12 @@ function CareResultsList({
   // per-service pricing logic falls through to the bridged appointment
   // offering when this is set.
   const activeService: ServiceType | null =
-    pill === "all" || pill === "appointment" ? null : pill;
-  const activeFilterCategory = pill === "appointment" ? "appointment" : null;
+    pill === "all" || pill === "appointment" || pill === "training" ? null : pill;
+  // "training" is a subset of Appointment — pass through as its own category
+  // so the price resolver can prefer training appointments specifically, while
+  // the filter panel still gates Care-specific fields the same way.
+  const activeFilterCategory: "appointment" | "training" | null =
+    pill === "appointment" ? "appointment" : pill === "training" ? "training" : null;
 
   // Community-first split: Carers in the viewer's circle (Connected or
   // Familiar from viewer→carer direction) render in a top section with

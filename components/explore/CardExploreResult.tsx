@@ -24,7 +24,7 @@ type CardExploreResultProps = {
    * the bridged appointment offering and suppresses the service chip row
    * the same way `activeService` does. Discover Refinement D1, 2026-05-10.
    */
-  activeFilterCategory?: "appointment" | null;
+  activeFilterCategory?: "appointment" | "training" | null;
   /** Full query string from the results page (e.g. "service=walks_checkins&minRate=200") */
   returnQuery?: string;
   /**
@@ -60,12 +60,20 @@ function formatUnit(unit: ProviderCard["priceUnit"]) {
 function resolveDisplayPrice(
   provider: ProviderCard,
   activeService: ServiceType | null | undefined,
-  activeFilterCategory: "appointment" | null | undefined,
+  activeFilterCategory: "appointment" | "training" | null | undefined,
 ): { priceFrom: number; priceUnit: ProviderCard["priceUnit"] } {
-  if (activeFilterCategory === "appointment" && provider.userId) {
+  if (
+    (activeFilterCategory === "appointment" || activeFilterCategory === "training") &&
+    provider.userId
+  ) {
     const user = getUserById(provider.userId);
+    // Training pill narrows to training appointments specifically; Appointment
+    // pill considers all categories (grooming + training).
     const apts = user?.carerProfile?.services?.filter(
-      (s): s is CarerAppointmentServiceConfig => s.kind === "appointment" && s.enabled,
+      (s): s is CarerAppointmentServiceConfig =>
+        s.kind === "appointment" &&
+        s.enabled &&
+        (activeFilterCategory === "appointment" || s.appointmentCategory === "training"),
     ) ?? [];
     if (apts.length > 0) {
       const cheapest = apts.reduce(

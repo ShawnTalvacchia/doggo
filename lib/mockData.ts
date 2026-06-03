@@ -143,6 +143,10 @@ export const providers: ProviderCard[] = [
     blurb: "Force-free trainer · group sessions at Stromovka + 1-on-1s",
     avatarUrl: "/images/generated/klara-profile.jpeg",
     services: ["walks_checkins"],
+    // Klára's `klara-1on1` is an Appointment with `appointmentCategory: "training"`
+    // (authoritative source on her bridged carerProfile.services). Tagging the
+    // directory card matches her against the "Appointment" + "Training" pills.
+    appointmentTypes: ["training"],
     availableTimes: ["6-11", "11-15", "15-22"],
     distanceKm: 1.5,
     neighbourhoodMatch: false,

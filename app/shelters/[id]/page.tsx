@@ -666,13 +666,14 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
 
   return (
     <div className="shelter-members">
-      <div className="shelter-members-filter">
-        <FilterPillRow
-          pills={filters}
-          activeKey={filter}
-          onChange={(k) => setFilter(k as MembersFilterKey)}
-        />
-      </div>
+      {/* FilterPillRow carries its own padding + border-bottom — no need
+          to wrap it in another container (was causing double-padding
+          and double-divider relative to other surfaces). */}
+      <FilterPillRow
+        pills={filters}
+        activeKey={filter}
+        onChange={(k) => setFilter(k as MembersFilterKey)}
+      />
 
       {entries.length === 0 ? (
         <div className="px-lg py-xl">
