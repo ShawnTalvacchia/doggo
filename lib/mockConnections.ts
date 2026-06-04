@@ -138,13 +138,18 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
     // side is Locked (their mark is meaningful — they're opening up).
     // Per Action matrix v3 in CLAUDE.md.
     {
+      // Shawn ↔ Tereza — Familiar via active direct conversation
+      // `shawn-tereza-conv` (Open Q §2 rule: first message in a
+      // non-Connected conversation → mutual Familiar). P74 audit
+      // 2026-06-03 backfill — was `state: "none"`. Tereza's roster
+      // mirrors with `state: "familiar"` + `theyMarkedFamiliar`.
       id: "conn-shawn-tereza",
       userId: "tereza",
       userName: "Tereza",
       avatarUrl: "/images/generated/tereza-profile.jpeg",
       dogNames: ["Franta"],
       location: "Prague 2",
-      state: "none",
+      state: "familiar",
       metAt: "meet-7",
       updatedAt: "2026-02-10T18:00:00Z",
       meetsShared: 4,
@@ -155,6 +160,7 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       dogBreed: "Beagle",
       neighbourhood: "Vinohrady",
       profileOpen: true,
+      theyMarkedFamiliar: true,
     },
     {
       id: "conn-shawn-eva",
@@ -210,17 +216,21 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       profileOpen: true,
     },
 
-    /* ─── PENDING ────────────────────────────────────────────────── */
     {
+      // Shawn ↔ Tomáš — Connected via signed booking
+      // `booking-shawn-carer-tomas` (signed 2026-02-07). Per Open Q §2
+      // contract sign → mutual Connected. Was `pending` before the
+      // P74 audit (2026-06-03). Moved out of the PENDING block into
+      // CONNECTED accordingly.
       id: "conn-shawn-tomas",
       userId: "tomas",
       userName: "Tomáš",
       avatarUrl: "/images/generated/tomas-profile.jpeg",
       dogNames: ["Hugo"],
       location: "Prague 8",
-      state: "pending",
+      state: "connected",
       metAt: "meet-1",
-      updatedAt: "2026-03-15T14:00:00Z",
+      updatedAt: "2026-02-07T10:00:00Z",
       meetsShared: 2,
       firstMetDate: "2026-02-20",
       lastMetDate: "2026-03-18",
@@ -229,6 +239,8 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       neighbourhood: "Karlín",
       profileOpen: false,
     },
+
+    /* ─── PENDING ────────────────────────────────────────────────── */
     {
       id: "conn-shawn-zuzana",
       userId: "zuzana",
@@ -369,13 +381,17 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       profileOpen: true,
     },
     {
+      // Tereza ↔ Shawn — Familiar via active direct conversation
+      // `shawn-tereza-conv` (Open Q §2: first message in a
+      // non-Connected conversation → mutual Familiar). P74 audit
+      // 2026-06-03 backfill — was `state: "none"`.
       id: "conn-tereza-shawn",
       userId: "shawn",
       userName: "Shawn",
       avatarUrl: "/images/generated/shawn-profile.jpg",
       dogNames: ["Spot", "Goldie"],
       location: "Prague 2",
-      state: "none",
+      state: "familiar",
       metAt: "meet-7",
       updatedAt: "2026-02-10T18:00:00Z",
       meetsShared: 4,
@@ -384,6 +400,7 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       mutualConnections: ["Jana", "Marek"],
       sharedGroups: ["Vinohrady Morning Crew", "Riegrovy Sady Dog Walks"],
       dogBreed: "Dalmatian Mix",
+      theyMarkedFamiliar: true,
       neighbourhood: "Vinohrady",
       profileOpen: true,
     },
@@ -675,6 +692,29 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       sharedGroups: ["Prague Reactive Dog Support"],
       dogBreed: "Mixed breed rescue",
       neighbourhood: "Holešovice",
+      profileOpen: false,
+    },
+    {
+      // Klára ↔ Tomáš — Connected via signed booking
+      // `booking-meet-care-1-tomas` (signed ~6 days ago — group
+      // training session, Hugo attending). P74 audit 2026-06-03
+      // backfill. Mirrors the entry on Tomáš's roster.
+      id: "conn-klara-tomas",
+      userId: "tomas",
+      userName: "Tomáš",
+      avatarUrl: "/images/generated/tomas-profile.jpeg",
+      dogNames: ["Hugo"],
+      location: "Prague 8",
+      state: "connected",
+      metAt: "meet-care-1",
+      updatedAt: "2026-05-28T18:30:00Z",
+      meetsShared: 1,
+      firstMetDate: "2026-05-20",
+      lastMetDate: "2026-05-28",
+      mutualConnections: [],
+      sharedGroups: ["Klára's Calm Dog Sessions"],
+      dogBreed: "Labrador Retriever",
+      neighbourhood: "Karlín",
       profileOpen: false,
     },
     {
@@ -1005,17 +1045,20 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       theyMarkedFamiliar: true,
     },
 
-    /* ─── PENDING ────────────────────────────────────────────────── */
     {
+      // Tomáš ↔ Shawn — Connected via signed booking
+      // `booking-shawn-carer-tomas` (signed 2026-02-07). P74 audit
+      // 2026-06-03 — was `pending`, contract sign promotes to mutual
+      // Connected per Open Q §2.
       id: "conn-tomas-shawn",
       userId: "shawn",
       userName: "Shawn",
       avatarUrl: "/images/generated/shawn-profile.jpg",
       dogNames: ["Spot", "Goldie"],
       location: "Prague 2",
-      state: "pending",
+      state: "connected",
       metAt: "meet-1",
-      updatedAt: "2026-03-15T14:00:00Z",
+      updatedAt: "2026-02-07T10:00:00Z",
       meetsShared: 2,
       firstMetDate: "2026-02-20",
       lastMetDate: "2026-03-18",
@@ -1023,6 +1066,30 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       dogBreed: "Dalmatian Mix",
       neighbourhood: "Vinohrady",
       profileOpen: true,
+    },
+    {
+      // Tomáš ↔ Klára — Connected via signed booking
+      // `booking-meet-care-1-tomas` (signed ~6 days ago — group
+      // training session). P74 audit 2026-06-03 backfill. Mirrored
+      // on Klára's roster.
+      id: "conn-tomas-klara",
+      userId: "klara",
+      userName: "Klára",
+      avatarUrl: "/images/generated/klara-profile.jpeg",
+      dogNames: ["Eda"],
+      location: "Prague 7",
+      state: "connected",
+      metAt: "meet-care-1",
+      updatedAt: "2026-05-28T18:30:00Z",
+      meetsShared: 1,
+      firstMetDate: "2026-05-20",
+      lastMetDate: "2026-05-28",
+      mutualConnections: [],
+      sharedGroups: ["Klára's Calm Dog Sessions"],
+      dogBreed: "Border Collie",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+      theyMarkedFamiliar: true,
     },
 
     /* ─── INBOUND-ONLY FAMILIAR (state: "none" + theyMarkedFamiliar) ─── */
