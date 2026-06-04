@@ -333,6 +333,25 @@ function ProfileInner() {
               if (updates.bio !== undefined) setEditBio(updates.bio);
               if (updates.pets !== undefined) setEditPets(updates.pets);
             }}
+            onAddDog={() => {
+              // Workstream G (2026-06-03): pets are no longer edited
+              // inline on the profile. Add dog creates a blank pet,
+              // persists it to user state, then routes to the dog
+              // page's edit mode so the owner fills in the details
+              // on the canonical surface.
+              const newPet: PetProfile = {
+                id: `pet-${Date.now()}`,
+                name: "",
+                breed: "",
+                weightLabel: "",
+                ageLabel: "",
+                imageUrl: "",
+                notes: "",
+              };
+              setUser((prev) => ({ ...prev, pets: [...prev.pets, newPet] }));
+              setEditPets((prev) => [...prev, newPet]);
+              router.push(`/dogs/${newPet.id}?edit=1`);
+            }}
             tagApproval={tagApproval}
             onTagApprovalChange={setTagApproval}
             profileVisibility={user.profileVisibility ?? "locked"}

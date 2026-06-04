@@ -2469,15 +2469,29 @@ body.guest-route {
    `.pet-card` flex gap (16px) handles spacing. When collapsed, the
    summary row is the only child and `gap` has nothing to act on. */
 
-/* PetEditCard section wrapper — gives each named section its own divider
-   + breathing room. The first section drops the top divider so the card
-   doesn't open with a line right under nothing. 2026-05-11 (C3).        */
+/* PetEditCard section wrapper — full-page treatment (Workstream G
+   refactor, 2026-06-03). Each section sits on the panel surface with
+   the same chrome as the view-mode dog profile sections
+   (`.dog-profile-section`) so the edit form reads as a natural
+   extension of the page rather than a card sitting inside it. */
 .pet-edit-section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border-strong);
+  gap: var(--space-xl);
+  padding: var(--space-lg) var(--space-xl);
+  background: var(--surface-popout);
+  border-bottom: 1px solid var(--border-regular);
+}
+
+/* Destructive "Remove dog" row at the bottom of the edit form.
+   Replaces the Trash icon that used to live in the now-retired
+   summary row. Set apart from the form sections by extra padding +
+   no background fill, right-aligned so it doesn't sit in the
+   leftmost column where the eye would land first. */
+.pet-edit-delete-row {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--space-xl);
 }
 
 /* Pet photo edit trigger — square framed photo with an edit-pencil
@@ -5603,7 +5617,7 @@ body.guest-route {
 .profile-tab-stack > section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-xs);
 }
 
 .profile-card-title {
@@ -14429,6 +14443,42 @@ a.shelter-intro-social:hover {
   border-color: var(--border-stronger);
 }
 
+/* Disabled-state modifier on the shared photo-led dog card. Used by
+   PetSummaryCard on /profile while edit mode is active — the cards
+   stay visible (owner needs to see what dogs they have) but lose hover
+   + click + drop to muted opacity. A helper line above the grid points
+   the owner at /dogs/[id] for actual editing. */
+.pet-summary-card--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Grid for PetSummaryCard on profile surfaces. Same `1fr` track
+   pattern as `.shelter-dogs-grid` (which reliably does 2-up). The
+   per-card cap (320px) lives on the item, not the track — a fixed-
+   pixel max on the track itself caused some browsers to collapse to
+   single-column in containers that should have fit 2 cards. Cards
+   left-align via the grid auto-flow. No padding (the surrounding
+   `<section>` handles surface spacing).
+   Below 500px viewport, the cap is dropped so a single card on a
+   narrow phone fills the row rather than orphan-floating at 320. */
+.pet-summary-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-md);
+}
+
+.pet-summary-cards-grid > * {
+  max-width: 320px;
+}
+
+@media (max-width: 499px) {
+  .pet-summary-cards-grid > * {
+    max-width: none;
+  }
+}
+
 .shelter-dog-card-photo {
   position: relative;
   width: 100%;
@@ -14509,7 +14559,7 @@ a.shelter-intro-social:hover {
 .shelter-dog-card-body {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: var(--space-tiny);
   padding: var(--space-md);
 }
 
@@ -14684,6 +14734,28 @@ a.shelter-intro-social:hover {
   .dog-profile-page { max-width: 100%; }
   .dog-profile-panel { border-radius: var(--radius-panel); }
   body.nav-hidden .dog-profile-panel { border-radius: 0; }
+
+  /* Hero stacks vertically on narrow viewports — mirrors the user
+     profile hero (ProfileAboutTab) which uses `sm:flex-row` to switch
+     between stacked and side-by-side at the Tailwind sm breakpoint.
+     Photo centers above the content; name/meta/tags center too so
+     the stacked layout reads balanced. */
+  .dog-profile-hero {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .dog-profile-hero-content {
+    align-items: center;
+  }
+  .dog-profile-hero-name-row {
+    justify-content: center;
+  }
+  /* Scoped to the hero only — Health section vaccine pills (which also
+     use `.dog-profile-tags`) stay left-aligned at every viewport. */
+  .dog-profile-hero .dog-profile-tags {
+    justify-content: center;
+  }
 }
 
 /* Dog profile hero — side-by-side card pattern (Dog Profile phase
@@ -14716,7 +14788,12 @@ a.shelter-intro-social:hover {
 .dog-profile-hero-photo {
   width: 200px;
   height: 200px;
-  border-radius: var(--radius-panel); /* Avatar Rule B — dogs are squares */
+  /* Percentage radius so the rounded-square character (Avatar Rule B —
+     dogs are squares, NOT circles) scales with the photo size. 20%
+     gives a clearly-rounded portrait that stays distinct from the
+     50% circle used for people. Safe here because the element is
+     square; percentage would warp on a non-square photo. */
+  border-radius: 20%;
   object-fit: cover;
   background-color: var(--surface-base);
   display: block;
@@ -14813,14 +14890,17 @@ a.shelter-intro-social:hover {
   margin: 0;
 }
 
-/* Stats row — anchored top + bottom with hairline strokes rather than
-   wrapped in card chrome. Lets the values breathe on the surface
-   without the boxy card feel. */
+/* Stats band — full-bleed dividers (border-top + border-bottom span
+   the panel width), tighter vertical padding than `.dog-profile-section`
+   so the data strip reads as its own banded facts row, not as a
+   regular section. Sits between the hero and the about-section so
+   the rhythm is hero → facts → story. 2026-06-03 walkthrough. */
 .dog-profile-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-md);
-  padding: var(--space-md) 0;
+  padding: var(--space-md) var(--space-xl);
+  background: var(--surface-popout);
   border-top: 1px solid var(--border-regular);
   border-bottom: 1px solid var(--border-regular);
 }
@@ -14888,8 +14968,11 @@ a.shelter-intro-social:hover {
 /* Vaccine chip — icon-prefixed variant. Per-chip Syringe icon
    establishes a chip-type icon language so future health chip types
    (medications → Pill, conditions → Warning) can slot in beside
-   vaccines and stay readable as a group. */
+   vaccines and stay readable as a group. Slightly wider icon→text
+   gap than the base chip's `tiny` so the syringe doesn't crowd the
+   first letter. */
 .dog-profile-tag--vaccine {
+  gap: var(--space-xs);
   color: var(--text-primary);
 }
 
@@ -14901,7 +14984,9 @@ a.shelter-intro-social:hover {
 .dog-profile-tag--long {
   background: var(--warning-25);
   color: var(--warning-850);
-  border-color: transparent;
+  /* Light palette-matched border so the chip doesn't fade into the
+     surface (warning-25 is close to the panel bg). 2026-06-03. */
+  border-color: var(--warning-100);
 }
 
 /* Energy chip — derived from `energyLevel`. Brand-tinted to distinguish
@@ -14910,7 +14995,9 @@ a.shelter-intro-social:hover {
 .dog-profile-tag--energy {
   background: var(--brand-subtle);
   color: var(--brand-strong);
-  border-color: transparent;
+  /* Light palette-matched border — see note on `--long` above; same
+     fix applies for the same reason. 2026-06-03. */
+  border-color: var(--brand-50);
 }
 
 .dog-profile-policy {
@@ -14950,6 +15037,21 @@ a.shelter-intro-social:hover {
 .dog-profile-posts {
   display: flex;
   flex-direction: column;
+}
+
+/* Header-only variant of `.dog-profile-section` — used by the Posts
+   about {Dog} title strip. Drops the section's bottom border and
+   uses the same surface (`--surface-top`) as the `.feed-card-body`
+   below so the heading reads as the lead-in to the posts rather than
+   a separate banded section. Horizontal padding matches the post
+   body's `--space-md` so the title aligns vertically with the post
+   content (other sections use the wider `--space-xl` — accept the
+   small difference for this surface). 2026-06-03 walkthrough. */
+.dog-profile-section--header-only {
+  gap: 0;
+  padding: var(--space-lg) var(--space-md);
+  background: var(--surface-top);
+  border-bottom: 0;
 }
 
 .dog-profile-posts .feed-card:last-child {

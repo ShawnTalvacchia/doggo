@@ -31,7 +31,7 @@ import { SharedContextCard } from "@/components/profile/SharedContextCard";
 import { TrustBadgeStrip } from "@/components/badges/TrustBadgeStrip";
 import { getTrustBadges, userProfileToTrustSubject } from "@/lib/trustBadges";
 import { getCarerIdentity } from "@/lib/identityBadges";
-import { PetCard } from "@/components/profile/PetCard";
+import { PetSummaryCard } from "@/components/profile/PetSummaryCard";
 import { PostsTab } from "@/components/profile/PostsTab";
 import { ProfileChatTab } from "@/components/profile/ProfileChatTab";
 import { AvailabilityGrid } from "@/components/profile/AvailabilityGrid";
@@ -1004,15 +1004,20 @@ function UserProfileInner() {
               </section>
             )}
 
-            {/* Dogs — PetCards with collapsed default for other users */}
+            {/* Dogs — photo-led PetSummaryCard grid linking to `/dogs/[id]`.
+                Workstream G (2026-06-03): replaces the previous collapsed
+                PetCard list. Each card opens the canonical dog profile;
+                the visibility gate there handles locked-owner viewers. */}
             {dogs.length > 0 && (
               <section className="flex flex-col gap-md">
                 <h3 className="profile-card-subtitle" style={{ marginBottom: 0 }}>
                   {firstName}&apos;s Dogs
                 </h3>
-                {dogs.map((pet) => (
-                  <PetCard key={pet.id} pet={pet} defaultExpanded={false} />
-                ))}
+                <div className="pet-summary-cards-grid">
+                  {dogs.map((pet) => (
+                    <PetSummaryCard key={pet.id} pet={pet} />
+                  ))}
+                </div>
               </section>
             )}
 

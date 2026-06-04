@@ -237,3 +237,19 @@ This works cleanly for walkers because their avatars now live on the walker reco
 **Refs:** `components/feed/MomentCard.tsx`, `lib/mockShelters.ts` (`findShelterWalker`), `app/globals.css` (violet hex pair in two rules).
 
 **Added:** 2026-06-02
+
+---
+
+## FC12. Booking detail Info tab — dedupe pet identity, surface critical alerts inline
+
+**Trigger:** When a booking-detail polish pass opens. Or when user testing surfaces "I scroll past the pet card without reading."
+
+**Context:** The Dog Profile phase landed a meaningful iteration on the booking detail Info tab (PetInfoSection avatar restored, identity row dropped, Details list reordered above pet info, Next session row + Start gating, Activity row replacing the 3-tile grid). The deeper move proposed but not shipped: make the dog avatar in the booking header's `OwnerDogAvatar` tappable → routes to `/dogs/[id]`. With that anchor in place, the PetInfoSection card could disappear entirely and critical operational alerts (medications, conditions, triggers) could render as plain inline rows on the Info tab.
+
+The trade-off: convenience of inline reference vs. cleanness of "dog page is the canonical surface." Carers DO need session-time access to triggers/meds — forcing a tap-through is real friction. The hybrid (header avatar tap-through + inline critical alerts only) captures both.
+
+**Effort:** ~3-4 hours. (a) Extend `OwnerDogAvatar` to accept optional `petIds` so the dog half can route. (b) Drop the PetInfoSection card entirely. (c) Replace with inline rows on the Info tab for medications / conditions / triggers (the operational alerts; defer likes/dislikes/play to the dog page). (d) Update walkthrough verification + the booking-detail section in `features/explore-and-care.md`.
+
+**Refs:** `components/people/OwnerDogAvatar.tsx`, `app/bookings/[bookingId]/page.tsx:PetInfoSection`, `docs/features/explore-and-care.md` → Booking detail surfaces. Discussed during Dog Profile phase walkthrough C3 (2026-06-03).
+
+**Added:** 2026-06-03

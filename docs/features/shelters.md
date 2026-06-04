@@ -137,30 +137,35 @@ Lookups (`getShelterDog(dogId)` in `lib/mockShelters.ts`) check shelter rosters;
 
 ## Dog Profile
 
-Lives at `/dogs/[id]`. V1 ships a minimal-but-functional version for shelter dogs only — the Dog Profile phase deepens this AND introduces the owned-dog profile (which doesn't exist yet).
+Lives at `/dogs/[id]`. Shipped (Dog Profile phase, 2026-06-03) for both shelter dogs and owned dogs from a single page that branches on the resolver. Shelter dogs get the original spine (Shelter Foundation 2026-06-02); owned dogs get the same spine with shelter-only sections suppressed (stat row, recent walkers, shelter backlink) and an owner-side edit affordance.
 
-**Hero** — Full-width photo, `aspect-ratio: 4/3`, capped at `max-height: 20rem` so it doesn't push everything else below the fold on tall viewports. Pet-as-protagonist: name + meta line (`breed · age · sex · weight`) overlaid at the bottom of the hero. `Adoption pending` status pill renders top-right when applicable.
+**DetailHeader title.** Owned dogs render **"← {firstName}'s Dogs"** — attributes the dog to its owner and frames the page as part of that owner's territory. Multi-dog owners get a sibling `TabBar` below the header (`Franta | Bella`) so visitors can switch siblings without going back through the owner profile. Shelter dogs keep the dog's name as the title (no equivalent grouping concept).
 
-**Stat row** — Hairline strokes top + bottom (border-top + border-bottom on the row container), NOT card chrome. Two stat tiles in a 2-column grid (`In care` + `Last walked`), each with icon + label inline + larger value below. Centered icon + label header, value below. Compact, breathable, no boxy feel.
+**Owner edit affordance** (Workstream G, 2026-06-03). When viewer === owner, an Edit button surfaces in the page-action slot. Tap → swaps to Cancel + Save chrome and locks the nav (`navLockedIn: true` via `PageHeaderContext`). Renders `PetEditCard` as the body. Delete (Trash in PetEditCard's summary row) routes back to `/profile`. Shelter operator editing on shelter dogs is V3+ (see deferred items below).
 
-The stat row only renders while the dog is in active care (`adoptionStatus !== "adopted"`). Owned dogs and adopted shelter dogs hide it entirely (the numbers stop being meaningful once the dog has gone home).
+**Hero** — Side-by-side card pattern (refactored Dog Profile phase, 2026-06-03). 200px rounded-square photo (Avatar Rule B — dogs are squares) left + 12px padding wrap, name (text-3xl heading) + meta line (`breed · sex · age · weight`) + tag chips on the right column. `Adoption pending` status pill sits inline beside the name when applicable. Replaced the earlier full-bleed 4:3 hero, which stretched square-source pet portraits awkwardly. Same shape across shelter + owned dogs.
 
-**Tags row** — Renders three categories with dedupe:
-1. Energy-derived chip (always first when present), brand-tinted.
-2. Auto Long-stayer chip (if `daysInKennel >= 30` and not duplicated in manual tags).
-3. Manual personality tags from `PetProfile.tags`.
+**Tag row in hero.** Auto-derived chips + personality tags render inside the hero's right column (moved from the next section, 2026-06-03). Order: auto chips (Adoption pending > New arrival > Long-stayer > energy) → typed personality tags. Render helpers: `lib/petUtils.ts:deriveAutoTags` + `lib/constants/dogs.ts:PERSONALITY_TAG_LABELS`.
 
-The render layer dedupes case-insensitively against `formatEnergy()` output to handle seed drift (older seeds might have "Calm" manually entered alongside `energyLevel: "low"`).
+**Stat row** — Hairline strokes top + bottom (border-top + border-bottom on the row container), NOT card chrome. Two stat tiles in a 2-column grid (`In care` + `Last walked`), each with icon + label inline + larger value below. Only renders while the dog is in active shelter care (`adoptionStatus !== "adopted"` AND shelter context present). Owned dogs hide it entirely.
 
-**Policy strip** — Solo-only / Experienced-handlers-only renders as its own row below tags (shield icon + descriptive text), visually distinct from personality tags. Walker eligibility gates, not personality.
+**Policy strip** — Solo-only / Experienced-handlers-only renders as its own row below the hero (shield icon + descriptive text), visually distinct from personality tags. Walker eligibility gates, not personality. Shelter dogs only — derived via `derivePolicyChips`.
 
-**Recent walkers** — Avatar stack with names below. Derived from posts tagging this dog whose author is a walker at the shelter. Falls back to no row when there are none.
+**Standing preferences** — "How {Dog} likes to be cared for" section between the about/operational block and Health. Four label + text-with-separator rows (Likes / Dislikes / Triggers / Play). See [[features/profiles]] → Standing preferences for storage shape + edit affordance.
 
-**Posts about [Dog]** — Dog-tagged posts from `getDogPosts(dog.id)`. Empty state when none.
+**Health (Vaccines V1)** — Syringe-prefixed vaccine chips list (`Rabies · Aug 2025`, etc.) + acknowledgement caption ("Confirmed by {acknowledger} on {date}"). Shelter dogs use the shelter as the acknowledger; owned dogs use the owner's first name. See [[features/profiles]] → Vaccines V1.
 
-**Backlink to shelter** — `Cared for by Útulek Liběň →` at the bottom, with the shelter logo as a small avatar.
+**Recent walkers** — Avatar stack with names below. Shelter dogs only. Derived from posts tagging this dog whose author is a walker at the shelter. Falls back to no row when there are none.
 
-**Unknown-dog graceful state.** Visiting `/dogs/[id]` for an owned-dog id falls back to a polite empty state ("Dog profile coming soon — owned-dog profiles arrive with the Dog Profile phase"). NOT a 404 — the route is real, the content just hasn't landed yet. Post-tag clicks routing to `/dogs/${ownedPetId}` thus degrade gracefully rather than dead-ending.
+**Photos landing slot** — Reserved section between Recent walkers / Health and Posts. V1 surfaces existing `photoGallery` thumbs (if any) + a "Coming soon" subline. Auto-album from tagged posts is the Photos & Galleries phase.
+
+**Posts about [Dog]** — Dog-tagged posts from `getDogPosts(dog.id)`. Renders full-width below a header strip (no surrounding card chrome — the post's own card chrome is enough; nesting was redundant). Empty state when none.
+
+**Backlink** — Shelter dogs: `Cared for by Útulek Liběň →` with shelter logo (circle avatar — institutional entity). Owned dogs: owner backlink reads "Your dog · You" for self or "Lives with {Owner Name}" for cross-persona view, with owner avatar (circle — person).
+
+**Locked owned-dog state** — When the owner's profile is locked AND the viewer has no Familiar/Connected/Pending relationship, the dog profile renders a lock empty state (lock icon + "{Dog}'s profile is private" title + "Connect with {owner} at a meet…" subtitle + **"View {firstName}'s profile"** action button routing to `/profile/{ownerId}`). The action button is the connection path — the dog's lock derives from the owner's lock, so meeting the owner is the only path through. No additional privacy leak: the owner's profile honors its own lock when visited.
+
+**Unknown-dog graceful state.** Visiting `/dogs/[id]` for a non-existent id falls back to a polite empty state ("Dog profile not found") with a CTA back to the shelter roster. NOT a 404 — the route is real, the content just doesn't resolve.
 
 ---
 

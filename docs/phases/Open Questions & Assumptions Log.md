@@ -352,20 +352,16 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 Added 2026-06-02 from PO user interviews (Roman). Today `VetInfo.vaccinationsUpToDate` is a single boolean. Roman wants structured per-vaccine records (Rabies / Parvovirus / Distemper / Hepatitis / Parainfluenza), an explicit acknowledgement-of-accuracy framing, and gating of meets so unvaccinated dogs can't join.
 
-**Open (V1 — owner self-declared, within Dog Profile phase):**
-- What's the structured field shape — list of `{ type, lastGivenAt, acknowledgedAt }`? Add a `confidence: "self-declared"` field now to leave room for the verified state later?
-- Is Rabies special-cased as legally mandatory (always shown, separate UI treatment) or treated uniformly with the others (no platform legal hierarchy)?
-- What's the display surface — chips on the dog profile, status pill on RSVP rows, both?
-- Does the acknowledgement framing live as a single per-dog confirm (e.g. "I confirm Bára's vaccination record is accurate as of today") or per-vaccine?
+**Resolved (V1 — Dog Profile phase, 2026-06-03):** Shipped owner-self-declared structured records. Field shape: `VaccinationRecord { type, lastGivenAt, confidence: "self-declared" }` array on `VetInfo` + single per-dog `vaccinationsAcknowledgedAt` (not per-vaccine — acknowledgement is "I confirm THIS DOG's record is accurate as of today"). Rabies treated uniformly with the other four (no platform legal hierarchy; the 5 standard CZ types render in canonical order — Rabies first, then Parvovirus / Distemper / Hepatitis / Parainfluenza). Display surfaces: Syringe-prefixed chips on `/dogs/[id]` (Health section) + PetCard Health & vet section (chips). Edit: PetEditCard Health & vet — per-vaccine date input row (5 rows always shown) + single confirmation checkbox. No gating, no verification — informational only. Helpers in `lib/petUtils.ts:isVaccinationsCurrent / sortVaccinations / formatVaccinationDate`. Vocabulary + ordering in `lib/petUtils.ts:VACCINATION_LABELS / VACCINATION_ORDER`. Seeded on 9 owned dogs + 4 shelter dogs (varied state: full records, older records, mid-puppy-series, refreshed at intake).
 
-**Open (V2 — gating + verification, deferred):**
+**Still open (V2 — gating + verification, deferred):**
 - Without verification, gating is theatre. Do we ship gating-on-self-declared (social pressure / liability transfer) or wait until verification exists?
 - What verification path? Photo of booklet (moderation) or vet-confirmed via [[strategy/Vets as a Credentialing Layer]] (full institutional)?
 - Who sets the gate — meet host, group admin, platform default?
 
-**Forward direction:** the verification path resolves via §16 (Vets as credentialing layer). V1 ships in Dog Profile phase (informational + acknowledgement), V2 waits on that decision.
+**Forward direction:** the verification path resolves via §16 (Vets as credentialing layer). V2 waits on that decision.
 
-**Refs:** [[strategy/Vets as a Credentialing Layer]] · [[meetings/po-briefing-2026-06-02]] · ROADMAP Dog Profile entry
+**Refs:** [[strategy/Vets as a Credentialing Layer]] · [[meetings/po-briefing-2026-06-02]] · [[features/profiles]] → Vaccines V1 · `archive/phases/dog-profile.md`
 
 ---
 

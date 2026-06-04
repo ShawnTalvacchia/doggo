@@ -1,7 +1,7 @@
 ---
-status: active
+status: archived
 last-reviewed: 2026-06-03
-review-trigger: When any task is completed or blocked
+review-trigger: "Closed phase — historical record only"
 ---
 
 # Dog Profile
@@ -32,7 +32,7 @@ What's already on disk (from Shelter Foundation 2026-06-02) and what this phase 
 
 **Shared spine — already shipped for shelter dogs** at `app/dogs/[id]/page.tsx`: full-width hero with name + meta overlay (breed · age · sex · weight), backstory, stat row (hairline strokes — In care · Last walked), tags row (energy-derived + auto Long-stayer + manual), policy strip, recent walkers, posts-about, shelter backlink. Unknown ids fall back to a polite "coming soon" empty state — that's what this phase replaces with the owned-dog branch.
 
-**What's new:** owned-dog branch (Workstream A), Vaccines V1 reshape (Workstream B), standing preferences (Workstream C), tag taxonomy formalization (Workstream D), photo-gallery landing slot (Workstream E), shared-spine parity polish (Workstream F).
+**What's new:** owned-dog branch (Workstream A), Vaccines V1 reshape (Workstream B), standing preferences (Workstream C), tag taxonomy formalization (Workstream D), photo-gallery landing slot (Workstream E), shared-spine parity polish (Workstream F), PetCard → photo-led summary tile that links to `/dogs/[id]` + dog editing relocated to the dog page (Workstream G, added 2026-06-03 during walkthrough).
 
 **Out of scope (deferred — explicitly named):**
 - Vaccine gating / verification (§15 V2 + §16 — waits on PO vet conversation)
@@ -134,6 +134,26 @@ Small items that fall out of giving owned dogs the same spine shelter dogs got. 
 | F1 | Backstory field availability on owned dogs — surface in PetEditCard as an optional "About {Dog}" textarea below Basic info. Surfaces on dog profile as the same `dog-profile-backstory` paragraph the shelter spine uses. | `lib/types.ts` (verify field exists on owned dogs — it does), `components/profile/PetEditCard.tsx`, `app/dogs/[id]/page.tsx` | done |
 | F2 | Avatar Rule B check on the owner backlink: owner avatar is a circle (people), dog hero is a rounded-square asset (creature-of-bonding). No mixing. Quick visual pass. | `app/dogs/[id]/page.tsx` | done |
 | F3 | Sex / weight meta-line consistency: owned dogs may omit `sex` (per `PetProfile` JSDoc). Hero meta line skips the missing field cleanly (current shelter implementation already filters falsy values — verify). | `app/dogs/[id]/page.tsx` | done |
+
+---
+
+## Workstream G — PetCard → photo-led summary + dog editing relocated to `/dogs/[id]`
+
+Added 2026-06-03 during walkthrough discussion. The expandable PetCard pattern on `/profile` predates the owned-dog profile and now duplicates content the subpage shows better. PetCard becomes a photo-led summary tile (shelter-dog-card visual pattern), tap → `/dogs/[id]`. Dog editing moves off `/profile` and onto `/dogs/[id]`. Profile edit mode mutes the dog cards with a helper line.
+
+| Task | Description | Refs | Status |
+|------|-------------|------|--------|
+| G1 | New `PetSummaryCard` component — photo-led, vertical stack (large square photo + name + breed/sex/age/weight meta), wraps a `Link` to `/dogs/[id]`. Reuses the `.shelter-dog-card-*` CSS family for visual parity. No auto chip overlay; no stat row (those are shelter-only). | `components/profile/PetSummaryCard.tsx` (new), `app/globals.css` (verify shelter dog card classes generalize) | todo |
+| G2 | `ProfileAboutTab` view-mode dogs section uses `PetSummaryCard` in a 2-up grid (1-up on narrow) — mirrors the shelter Dogs tab grid. Drops `PetCard` in view mode entirely. | `components/profile/ProfileAboutTab.tsx` | todo |
+| G3 | `/profile/[userId]` (other-user) dogs section same refactor — `PetSummaryCard` in grid. Cards link to `/dogs/[id]`; the visibility gate on `/dogs/[id]` handles locked-owner-other-viewer. | `app/profile/[userId]/page.tsx` | todo |
+| G4 | Edit-mode disabled view: when `/profile` Edit is active, dog cards stay as `PetSummaryCard` but render muted (lower opacity, no hover, no click). Helper line above the dogs grid: **"Edit a dog's details from its profile."** "+ Add a dog" button stays — tap creates a blank pet + routes to `/dogs/[newId]` for filling out. | `components/profile/ProfileAboutTab.tsx`, `app/globals.css` (`.pet-summary-card--disabled` modifier) | todo |
+| G5 | `/dogs/[id]` page header for owned dogs: when viewer === owner, title becomes **"{firstName}'s Dogs"** (was the dog's name); back arrow routes to `/profile?tab=about` (was already correct but reconfirm). DetailHeader title for non-owners stays the dog name. | `app/dogs/[id]/page.tsx`, `contexts/PageHeaderContext.tsx` | todo |
+| G6 | Multi-dog owners get a sibling tab strip below the DetailHeader on `/dogs/[id]` — `Franta · Bella` style. Single-dog owners render no tab strip (saves space). Reuses the existing `TabBar` primitive. Tap → routes to the sibling's `/dogs/[id]`. | `app/dogs/[id]/page.tsx`, `components/ui/TabBar.tsx` (or equivalent) | todo |
+| G7 | Owner Edit affordance on `/dogs/[id]`: when viewer === owner, Edit button in the page-action slot (same `PageHeaderContext.pageAction` pattern profile uses). Toggling Edit swaps to Cancel + Save and locks the nav. Renders `PetEditCard` for that single dog as the edit body. | `app/dogs/[id]/page.tsx`, `contexts/PageHeaderContext.tsx`, `components/profile/PetEditCard.tsx` | todo |
+| G8 | Delete dog flow on `/dogs/[id]` edit. Existing PetEditCard summary-row Trash button keeps working as the delete action; on delete, navigates back to `/profile?tab=about`. | `app/dogs/[id]/page.tsx`, `components/profile/PetEditCard.tsx` | todo |
+| G9 | Add dog flow: `ProfileAboutTab` "+ Add a dog" button creates a new pet record with a generated id and minimal placeholder fields, then navigates to `/dogs/[newId]?edit=1` (or routes into edit mode by default on first visit). PetEditCard handles the empty-state placeholder pattern (which it already does via `defaultExpanded` auto-expand for new pets). | `components/profile/ProfileAboutTab.tsx`, `app/dogs/[id]/page.tsx`, `lib/mockUser.ts` (or session-state hook for pet creation) | todo |
+| G10 | Walkthrough item updates: B2/B3 (vaccines on PetCard + edit) move to PetSummaryCard / `/dogs/[id]` edit. C2 (preferences edit) moves to dog page edit. D3 (personality tag picker) moves to dog page edit. | `docs/phases/dog-profile-walkthrough.md` | todo |
+| G11 | Doc updates: `features/profiles.md` "Pet management" section reflects the new pattern (cards link out; editing on dog page). `features/shelters.md` Dog Profile section notes the editing affordance is owner-side on `/dogs/[id]`. | `docs/features/profiles.md`, `docs/features/shelters.md` | todo |
 
 ---
 

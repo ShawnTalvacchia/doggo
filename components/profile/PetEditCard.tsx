@@ -13,6 +13,7 @@ import {
 } from "@phosphor-icons/react";
 import { InputField } from "@/components/ui/InputField";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
+import { ButtonAction } from "@/components/ui/ButtonAction";
 import type {
   PetProfile,
   EnergyLevel,
@@ -154,17 +155,6 @@ export function PetEditCard({
 }: PetEditCardProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
 
-  const hasVetData = !!(
-    pet.vetInfo &&
-    (pet.vetInfo.clinicName ||
-      pet.vetInfo.vetPhone ||
-      (pet.vetInfo.vaccinations && pet.vetInfo.vaccinations.length > 0) ||
-      pet.vetInfo.spayedNeutered ||
-      pet.vetInfo.medications ||
-      pet.vetInfo.conditions)
-  );
-  const [vetOpen, setVetOpen] = useState(hasVetData);
-
   const vetInfo = pet.vetInfo ?? {
     clinicName: "",
     vetPhone: "",
@@ -208,78 +198,27 @@ export function PetEditCard({
   }
 
   const hasPhoto = !!(pet.imageUrl && !pet.imageUrl.includes("placeholder"));
+  // Suppress unused-var lints — the prop is retained for backwards
+  // compatibility but the expand mechanic was retired with the
+  // full-page edit refactor (Workstream G, 2026-06-03).
+  void expanded;
+  void setExpanded;
+  void defaultExpanded;
+  void hasPhoto;
 
   return (
-    <div className="pet-card">
-      {/* ── Always-visible compact summary row ────────────────────────
-          Carries identity (photo + name + breed) + expand toggle +
-          delete. Toggle area is the button; delete sits outside so it
-          doesn't double as an expand trigger. 2026-05-11 (C7b). */}
-      <div className="pet-edit-summary-row">
-        <button
-          type="button"
-          className="pet-edit-summary-toggle"
-          onClick={() => setExpanded((e) => !e)}
-          aria-expanded={expanded}
-          aria-label={expanded ? "Collapse pet details" : "Expand pet details"}
-        >
-          {hasPhoto ? (
-            <img
-              src={pet.imageUrl}
-              alt={pet.name}
-              className="pet-edit-summary-thumb"
-            />
-          ) : (
-            <span
-              className="pet-edit-summary-thumb pet-edit-summary-thumb--empty"
-              aria-hidden="true"
-            >
-              <Dog size={20} weight="light" />
-            </span>
-          )}
-          <div className="flex flex-col flex-1 min-w-0 text-left">
-            <span
-              className="text-base font-semibold text-fg-primary truncate"
-              style={{ lineHeight: 1.3 }}
-            >
-              {pet.name || "New dog"}
-            </span>
-            {pet.breed && (
-              <span
-                className="text-sm text-fg-secondary truncate"
-                style={{ lineHeight: 1.3 }}
-              >
-                {pet.breed}
-              </span>
-            )}
-          </div>
-          <CaretDown
-            size={16}
-            weight="bold"
-            className="text-fg-tertiary shrink-0"
-            style={{
-              transform: expanded ? "rotate(180deg)" : "none",
-              transition: "transform 0.15s ease",
-            }}
-          />
-        </button>
-        <button
-          type="button"
-          onClick={onDelete}
-          className="pet-edit-summary-delete"
-          aria-label="Remove pet"
-          title="Remove pet"
-        >
-          <Trash size={18} weight="light" />
-        </button>
-      </div>
+    <>
+      {/* Full-page edit treatment (Workstream G, 2026-06-03). Dropped the
+          card chrome + summary row + expand mechanic that made sense
+          when this component lived inside /profile's pet management
+          list. On /dogs/[id] the page IS the editor — sections sit
+          directly on the panel surface, matching the view-mode dog
+          profile section pattern. The identity (photo, name, breed)
+          comes from the page hero / DetailHeader, not from a redundant
+          summary row inside the form. Delete moved to a destructive
+          row at the bottom. */}
 
-      {!expanded ? null : (
-      <>
-      {/* ── Section 1: Basic info ──────────────────────────────────────
-          Top divider preserved (no `--first` modifier) so it reads as a
-          form body distinct from the always-visible summary row above.
-          2026-05-11 (C7b). */}
+      {/* ── Section 1: Basic info ────────────────────────────────────── */}
       <section className="pet-edit-section">
         <EditSectionHeader label="Basic info" />
 
@@ -436,7 +375,7 @@ export function PetEditCard({
                 <button
                   key={ps}
                   type="button"
-                  className={`pill${active ? " active" : ""}`}
+                  className={`pill pill-sm${active ? " active" : ""}`}
                   onClick={() => {
                     const current = pet.playStyles ?? [];
                     const next = active
@@ -469,7 +408,7 @@ export function PetEditCard({
                 <button
                   key={tag}
                   type="button"
-                  className={`pill${active ? " active" : ""}`}
+                  className={`pill pill-sm${active ? " active" : ""}`}
                   onClick={() => {
                     const current = pet.personalityTags ?? [];
                     const next: PersonalityTag[] = active
@@ -529,17 +468,14 @@ export function PetEditCard({
         <PreferencesEditor pet={pet} onChange={onChange} />
       </section>
 
-      {/* ── Section 4: Health & vet (collapsible) ─────────────────────── */}
+      {/* ── Section 4: Health & vet ──────────────────────────────────── */}
       <section className="pet-edit-section">
         <EditSectionHeader
           icon={<FirstAidKit size={16} weight="fill" />}
           label="Health & vet info"
-          onClick={() => setVetOpen((v) => !v)}
-          expanded={vetOpen}
         />
 
-        {vetOpen && (
-          <div className="flex flex-col gap-lg">
+        <div className="flex flex-col gap-lg">
             <div className="two-col">
               <InputField
                 id={`pet-vet-clinic-${pet.id}`}
@@ -648,11 +584,23 @@ export function PetEditCard({
               />
             </div>
           </div>
-        )}
       </section>
-      </>
-      )}
-    </div>
+
+      {/* Destructive Remove dog row — bottom of the form, set apart so
+          accidental taps are unlikely. Outline + Trash icon stays
+          tertiary visual weight; the page-action Cancel/Save in the
+          DetailHeader is the primary commitment surface. */}
+      <div className="pet-edit-delete-row">
+        <ButtonAction
+          variant="outline"
+          size="sm"
+          leftIcon={<Trash size={14} weight="light" />}
+          onClick={onDelete}
+        >
+          Remove {pet.name || "dog"}
+        </ButtonAction>
+      </div>
+    </>
   );
 }
 

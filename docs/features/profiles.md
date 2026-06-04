@@ -51,9 +51,9 @@ All profile pages use the **PageColumn + TabBar** pattern — the same layout as
 
 - **Pages:** `/profile` (own profile, edit mode), `/profile/[userId]` (other user and provider profiles)
 - **Redirects:** `/discover/profile/[providerId]` → `/profile/[userId]` (via `userId` field on ProviderCard), `/explore/profile/[providerId]` → `/profile/[userId]`
-- **Components:** `PetCard` (expand/collapse), `PetEditCard`, `PostsTab`, `TagApprovalSetting`, `TabBar`, `PageColumn`, `DetailHeader`
+- **Components:** `PetSummaryCard` (photo-led tile linking to `/dogs/[id]`), `PetEditCard` (renders inside `/dogs/[id]` edit mode), `PostsTab`, `TagApprovalSetting`, `TabBar`, `PageColumn`, `DetailHeader`. `PetCard` (the older expand/collapse component) is retained but no longer mounted on profile surfaces — pending deletion in a follow-up cleanup pass.
 - **Data:** `lib/mockUser.ts` (own profile + pets), `lib/mockPosts.ts` (posts), `lib/mockData.ts` (provider profiles with `userId` bridge field)
-- **Status:** Built — unified PageColumn layout, edit mode, PetCard expand/collapse, connection-gated CTAs, provider services on profile
+- **Status:** Built — unified PageColumn layout, edit mode, photo-led PetSummaryCard grid (Dog Profile phase 2026-06-03), connection-gated CTAs, provider services on profile
 
 ### Layout structure
 
@@ -81,8 +81,8 @@ The Chat tab embeds the full messaging thread directly on the profile page using
 - **Edit mode is a locked state via the AppNav page-action slot** (Profiles Deep Pass A6, 2026-05-11). About and Services tabs declare an `Edit` (outline, pencil icon) button into `PageHeaderContext.pageAction`; the same node also fills `PageColumn.headerAction` so it shows on mobile (AppNav row) and desktop (page-column-header). Tapping Edit swaps the slot to `Cancel` + `Save` and sets `navLockedIn: true` — TabBar, Bell, and Inbox hide. The user must commit or abort to leave. Auto-discard on Cancel; no confirm modal. Posts tab declares `suppressCreate: true` (no Edit verb on Posts; the AppNav Camera+ also hides because the new-post action lives in-panel — see below).
 - Tab content uses `.profile-tab-stack` — sections sit on the page surface separated by thin dividers, no card-per-section nesting.
 - Edit mode for bio, pets (About tab); care offering (off/circle/anyone), services, availability, carer bio (Services tab — see the **Care-offering picker** section below).
-- Pet management: PetCards with expand/collapse (defaultExpanded=true on own profile). Health & vet section uses the **treatment ladder**: affirmative checks (Vaccinations / Spayed) as icon + colored text inline; conditions as body copy; vet clinic as a neutral pill (future-clickable when a vet directory wires up).
-- **PetEditCard collapse-in-edit** (Profiles Deep Pass 2026-05-13). Each pet card in edit mode carries an always-visible compact summary row (48px rounded-square photo thumb + name + breed + caret toggle + Trash delete). Saved pets default collapsed; newly added pets (only in editState, not in user.pets) auto-expand so the "+ Add dog" path doesn't trap users behind an empty collapsed card. Form body (Basic info / Personality / Socialisation / Health & vet sections) renders below when expanded. Trash on the summary row so deletion is reachable from collapsed state. View-mode PetCard stays fully expanded; collapse is edit-mode-only.
+- **Pet management** (Dog Profile phase 2026-06-03 — Workstream G). Dogs render as a photo-led `PetSummaryCard` grid (2-up desktop, 1-up mobile) — large square photo top, name + breed/sex/age/weight meta below. Tap → `/dogs/[id]` (the canonical dog profile). No inline expand on profile surfaces. Edit mode on `/profile` mutes the cards (no click, 0.6 opacity) and shows a helper line: **"Edit a dog's details from its profile."** The Add dog button stays in the section header → creates a blank pet and routes to `/dogs/[newId]?edit=1` for fill-in. Single source of truth for dog presentation across `/profile`, `/profile/[userId]`, shelter Dogs tab, and `/dogs/[id]` — visual parity via the shared `.shelter-dog-card-*` CSS family.
+- **Dog editing lives on `/dogs/[id]`** (Workstream G). The owner sees an Edit button in the page-action slot when viewing their own dog; tapping it locks the nav (Cancel + Save chrome) and renders `PetEditCard` as the body. The same vaccine inputs, personality tag picker, preference editor, and Health & vet section that previously lived inline on `/profile` now live here. Delete (Trash in PetEditCard's summary row) routes back to `/profile`. PROTOTYPE NOTE: Save currently exits edit without persisting app-wide — matches the rest of the prototype's stub mutation pattern; real persistence wires up when a user-state context lands.
 - **Profile visibility + Tagging preferences are gated behind edit mode** (Profiles Deep Pass 2026-05-11). View mode renders a compact bordered summary card (icon + label + description); edit mode renders the full row picker. Visibility labels read **Private / Public** (data field stays `"locked" | "open"`, UI strings updated per Open Q §9). The Private description is Familiar-inclusive: "Only people you've marked Familiar or are Connected with can see your full profile." For Private profiles only, the "About marking people Familiar" explainer card nests inside the Profile visibility section (Familiar IS the visibility mechanism for Private profiles — the teaching belongs with the setting). Public profile owners don't see the explainer per Action matrix v3 ("Open viewers skip Familiar entirely").
 - Tag approval setting: auto-approve / review first / don't allow tagging
 - Care CTAs: Find Care + Offer Care / Manage Services. CTA row uses `flex flex-wrap gap-sm` + `grow basis-[140px]` per button so the pair wraps to stacked full-width on narrow viewports (`.btn` has `white-space: nowrap` so `flex-1` alone can't shrink — the basis pattern earns the row the right behavior).
@@ -100,7 +100,7 @@ The Chat tab embeds the full messaging thread directly on the profile page using
 - Same TabBar pattern, read-only
 - Hero section: avatar, name, location, dogs summary, connection badge, trust signal badges
 - Provider stats (rating, reviews) shown in hero when user has provider data
-- PetCards shown collapsed (defaultExpanded=false)
+- Dogs render as `PetSummaryCard` grid (Workstream G, 2026-06-03) — same photo-led tiles as own-profile; tap → `/dogs/[id]` honoring the visibility gate there.
 - **Mutual connections section** (Profiles Deep Pass 2026-05-11). Below Dogs on the About tab: avatar stack of up to 5 + "N mutual connections" count + "View →" → opens `ModalSheet` "You both know · N" with the full list. Each row links to that user's `/profile/[id]`. Section is hidden entirely when there are zero mutuals. **Privacy:** Connected-only — Familiar marks are deliberately excluded. Surfacing Familiar would break the deniability principle (viewers must never infer who marked whom Familiar). Helper: `getMutualConnectedUserIds(viewerId, subjectId)` in `lib/mockConnections.ts`. See [[Trust & Connection Model]] → Familiar privacy.
 - Posts tab shows their posts visible to you
 - **Own-self redirect + hydration gate** (Profiles Deep Pass 2026-05-11 + C11 bugfix 2026-05-13). Visiting `/profile/<ownId>` while logged in as that user redirects to `/profile`. Without this the page applies the viewer-vs-subject lock gate to your own self — locked personas see "this profile is private" about their own profile. Tab param preserved when the destination tab exists on the own-profile route. **Hydration gate:** `useCurrentUser` resolves to the SSR/first-paint Tereza fallback until `localStorage` hydrates; pre-hydration `isSelf` evaluated as `tereza === userId` and falsely fired the redirect when a non-Tereza persona visited `/profile/tereza`. Fix: `isSelf` gated on `isHydrated && !isGuest && userId === currentUserId` using the new `useIsHydrated()` hook (reads `hydrated` flag on `CurrentUserContext`, flips true at end of mount-hydration `useEffect`). See [[demo-mode]] → Hydration gate for the reusable pattern.
@@ -132,7 +132,7 @@ The `userId` field on `ProviderCard` bridges between provider catalog IDs (e.g. 
 
 3. **Provider profile redirect** — the old `/discover/profile/[providerId]` route now redirects to `/profile/[userId]`. All links across the app (Discover cards, map popups, inbox) point directly to `/profile/[userId]`.
 
-4. **PetCard expand/collapse** — pet cards show header (photo, name, breed, age) by default. Expanded view shows energy level, play styles, socialisation notes, health info, and photo gallery. `defaultExpanded` prop controls initial state (true on own profile, false on other profiles).
+4. **Photo-led PetSummaryCard tiles + dog editing on `/dogs/[id]`** (Dog Profile phase 2026-06-03 — Workstream G). Dogs render as a 2-up grid of photo-led summary tiles on profile surfaces; tap routes to the canonical `/dogs/[id]` profile. No inline expand. Owner editing lives on the dog page (Edit button in the page-action slot → locks the nav → PetEditCard form). The earlier expandable PetCard pattern was retired because it duplicated content the dog profile now shows in richer form.
 
 5. **Connection-gated CTAs** — pill-shaped ButtonAction components with `cta` prop. Actions gated by connection state: Message + Book Care for connected users, Connect for familiar, disabled states for pending/none.
 
@@ -189,7 +189,7 @@ Shape: `PetProfile.preferences?: { likes?: string[]; dislikes?: string[]; trigge
 
 **Per-booking overrides are deferred** — solo-today, longer-today, "she's been off-food this week" style notes belong to the third-comms-surface decision. See [[features/explore-and-care]] → "Key Decision #8." Standing preferences are the per-pet baseline; the booking-level layer rides on top.
 
-Read surfaces: `PetCard` (own profile), `app/dogs/[id]/page.tsx` `DogPreferencesSection` (dog profile), booking detail Info tab via the existing pet-info surface.
+Read surfaces: `app/dogs/[id]/page.tsx` `DogPreferencesSection` (dog profile), booking detail Info tab via the existing pet-info surface. (As of Workstream G the `PetCard` profile surface no longer renders preferences — profile dogs are summary tiles linking to the dog page.)
 
 ### Vaccines V1 (2026-06-02)
 
@@ -203,7 +203,7 @@ Read surfaces: `PetCard` (own profile), `app/dogs/[id]/page.tsx` `DogPreferences
 | `vaccinationsAcknowledgedAt` | ISO YYYY-MM-DD | Single per-dog confirmation — "I confirm {Dog}'s vaccination record is accurate as of today." Per-dog, not per-vaccine. |
 | `vaccinationsUpToDate` | boolean *(deprecated)* | Bridged for one phase via `isVaccinationsCurrent` in `lib/petUtils.ts`; slated for removal at Dog Profile phase close. |
 
-Read surfaces: `PetCard` Health & vet section (chips), `app/dogs/[id]/page.tsx` `DogHealthSection` (chips + acknowledgement caption). Edit surface: `PetEditCard` Health & vet section (per-vaccine date input + per-dog confirmation checkbox). Helper: `lib/petUtils.ts:isVaccinationsCurrent(vet, today)`.
+Read surface: `app/dogs/[id]/page.tsx` `DogHealthSection` (Syringe-prefixed chips + acknowledgement caption). Edit surface: `PetEditCard` Health & vet section rendered inside `/dogs/[id]` edit mode (per-vaccine date input + per-dog confirmation checkbox). Helper: `lib/petUtils.ts:isVaccinationsCurrent(vet, today)`. As of Workstream G the `PetCard` profile surface no longer renders vaccines — profile dogs are summary tiles linking to the dog page.
 
 ---
 
@@ -258,18 +258,28 @@ Profile Posts tab → "New post" / Home "Add Post" CTA
 
 ---
 
-## Locked Profile View (Phase 15)
+## Locked Profile View
 
-When a non-Familiar, non-Connected user views a Locked profile:
+When a non-Familiar, non-Connected user views a Locked profile on `/profile/[userId]`:
 
 - Avatar (blurred/dimmed), first name only, dog name + breed, neighbourhood
-- Explanation: "[Name] has a private profile. Connect with them at a meet or community to see more."
-- No action CTA — the profile owner controls who gets access
-- If viewer shares a community: "You're both in [community name] — they may mark you as Familiar after a meet"
+- **Lock card** — full-width inset-fill card with bold title + lighter subtitle + Learn link (Dog Profile phase 2026-06-03 refactor; was a single paragraph before):
+  - Title: **"{firstName}'s profile is private"** (text-base, font-semibold, fg-primary)
+  - Subtitle: "People typically see more after meeting at a walk or community." (text-sm, fg-secondary)
+  - **"Learn how privacy works"** link → `/help/privacy`
+- If viewer shares a community: contextual SharedContextCard surfaces the shared groups + meets above the lock card (deniability-safe — surfaces context that's already public)
 
 In list contexts (search results, community members, meet attendees):
 - **Open** profiles show a subtle globe icon
 - **Locked** profiles with no relationship get muted/collapsed treatment (shown as count, not individual cards)
+
+### Locked dog profile
+
+Same title + subtitle pattern on `/dogs/[id]` when the owner is locked and the viewer can't see them (Dog Profile phase, 2026-06-03). Empty state carries:
+- Lock icon
+- Title: **"{Dog}'s profile is private"**
+- Subtitle: **"Connect with {firstName} at a meet to see {Dog}'s profile."**
+- **"View {firstName}'s profile"** action button → `/profile/{ownerId}` (the connection path: the dog's lock derives from the owner's lock, so meeting the owner is the only path through). Owner profile honors its own lock when visited — no additional privacy leak vs. a meet-attendee row.
 
 ### Locked provider banner
 

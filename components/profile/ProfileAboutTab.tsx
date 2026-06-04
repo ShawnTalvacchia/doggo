@@ -16,8 +16,7 @@ import {
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
-import { PetCard } from "./PetCard";
-import { PetEditCard } from "./PetEditCard";
+import { PetSummaryCard } from "./PetSummaryCard";
 import { SectionHeader } from "./SectionHeader";
 import { TagApprovalSetting } from "./TagApprovalSetting";
 import { ProfileNameDropdown } from "./ProfileNameDropdown";
@@ -360,6 +359,14 @@ interface ProfileAboutTabProps {
   editing: boolean;
   editState: { bio: string; pets: PetProfile[] };
   onEditChange: (updates: Partial<{ bio: string; pets: PetProfile[] }>) => void;
+  /**
+   * Called when the user taps "Add a dog" in profile edit mode. Parent
+   * handles creating the placeholder pet, persisting it, and routing
+   * to `/dogs/[newId]?edit=1` — pets are no longer edited inline on
+   * the profile (Workstream G, 2026-06-03). Optional so legacy
+   * consumers that don't supply it fall back to a no-op.
+   */
+  onAddDog?: () => void;
   tagApproval: TagApproval;
   onTagApprovalChange: (value: TagApproval) => void;
   /** Current profile visibility setting. Drives both the hero chip
@@ -376,6 +383,7 @@ export function ProfileAboutTab({
   editing,
   editState,
   onEditChange,
+  onAddDog,
   tagApproval,
   onTagApprovalChange,
   profileVisibility,
@@ -402,29 +410,29 @@ export function ProfileAboutTab({
         )}
       </section>
 
-      {/* Dogs — bare or with-button via SectionHeader; section's
-          flex-column gap (from `.profile-tab-stack > section`) handles
-          header → cards spacing. 2026-05-11. */}
+      {/* Dogs — photo-led PetSummaryCard grid (Workstream G, 2026-06-03).
+          Tap a card → `/dogs/[id]` for the canonical dog profile.
+          - View mode: cards link out; "+ Add dog" surfaces in the
+            section header (creates a blank pet, routes to
+            `/dogs/[newId]?edit=1`).
+          - Edit mode: cards mute (non-interactive); "+ Add dog"
+            hides — it isn't a profile-edit action, and clicking it
+            mid-edit would route away from the locked profile-edit
+            state. Helper line under the section header points the
+            owner at the dog page for dog-detail editing.
+          Pets are no longer edited inline on the profile — the dog
+          page is the editor. */}
       <section>
         <SectionHeader
           title="My dogs"
           action={
-            editing ? (
+            !editing ? (
               <ButtonAction
                 variant="tertiary"
                 size="sm"
                 leftIcon={<Plus size={13} weight="bold" />}
                 onClick={() => {
-                  const newPet: PetProfile = {
-                    id: `pet-${Date.now()}`,
-                    name: "",
-                    breed: "",
-                    weightLabel: "",
-                    ageLabel: "",
-                    imageUrl: "",
-                    notes: "",
-                  };
-                  onEditChange({ pets: [...editState.pets, newPet] });
+                  onAddDog?.();
                 }}
               >
                 Add dog
@@ -432,37 +440,15 @@ export function ProfileAboutTab({
             ) : undefined
           }
         />
-        {editing ? (
-          <div className="flex flex-col gap-md">
-            {editState.pets.map((pet, i) => {
-              // Newly added pets (only in editState, not yet in user.pets)
-              // auto-expand so the user can fill them in. Existing pets
-              // stay collapsed by default — two dogs would otherwise push
-              // Profile visibility well below the fold. 2026-05-11 (C7b).
-              const isNew = !user.pets.some((p) => p.id === pet.id);
-              return (
-                <PetEditCard
-                  key={pet.id}
-                  pet={pet}
-                  defaultExpanded={isNew}
-                  onChange={(updated) => {
-                    const next = [...editState.pets];
-                    next[i] = updated;
-                    onEditChange({ pets: next });
-                  }}
-                  onDelete={() => {
-                    onEditChange({
-                      pets: editState.pets.filter((_, j) => j !== i),
-                    });
-                  }}
-                />
-              );
-            })}
-          </div>
-        ) : user.pets.length > 0 ? (
-          <div className="flex flex-col gap-md">
+        {editing && user.pets.length > 0 && (
+          <p className="text-xs text-fg-tertiary" style={{ margin: 0 }}>
+            Edit a dog's details from its profile.
+          </p>
+        )}
+        {user.pets.length > 0 ? (
+          <div className="pet-summary-cards-grid">
             {user.pets.map((pet) => (
-              <PetCard key={pet.id} pet={pet} />
+              <PetSummaryCard key={pet.id} pet={pet} disabled={editing} />
             ))}
           </div>
         ) : (

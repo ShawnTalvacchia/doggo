@@ -67,6 +67,17 @@ const UTULEK_DOGS: PetProfile[] = [
     adoptionStatus: "available",
     intakeDate: daysAgo(27),
     energyLevel: "high",
+    vetInfo: {
+      vaccinations: [
+        { type: "rabies", lastGivenAt: "2026-04-12", confidence: "self-declared" },
+        { type: "parvovirus", lastGivenAt: "2026-04-12", confidence: "self-declared" },
+        { type: "distemper", lastGivenAt: "2026-04-12", confidence: "self-declared" },
+        { type: "hepatitis", lastGivenAt: "2026-04-12", confidence: "self-declared" },
+        { type: "parainfluenza", lastGivenAt: "2026-04-12", confidence: "self-declared" },
+      ],
+      vaccinationsAcknowledgedAt: "2026-05-08",
+      spayedNeutered: true,
+    },
   },
   {
     id: "shelter-dog-maja",
@@ -105,6 +116,17 @@ const UTULEK_DOGS: PetProfile[] = [
     intakeDate: daysAgo(91),
     experiencedHandlersOnly: true,
     energyLevel: "low",
+    vetInfo: {
+      vaccinations: [
+        { type: "rabies", lastGivenAt: "2025-12-10", confidence: "self-declared" },
+        { type: "parvovirus", lastGivenAt: "2025-12-10", confidence: "self-declared" },
+        { type: "distemper", lastGivenAt: "2025-12-10", confidence: "self-declared" },
+        { type: "hepatitis", lastGivenAt: "2025-12-10", confidence: "self-declared" },
+        { type: "parainfluenza", lastGivenAt: "2025-12-10", confidence: "self-declared" },
+      ],
+      vaccinationsAcknowledgedAt: "2026-03-05",
+      spayedNeutered: true,
+    },
   },
   {
     id: "shelter-dog-liza",
@@ -182,6 +204,17 @@ const UTULEK_DOGS: PetProfile[] = [
     soloOnly: true,
     experiencedHandlersOnly: true,
     energyLevel: "low",
+    vetInfo: {
+      vaccinations: [
+        { type: "rabies", lastGivenAt: "2026-02-04", confidence: "self-declared" },
+        { type: "parvovirus", lastGivenAt: "2026-02-04", confidence: "self-declared" },
+        { type: "distemper", lastGivenAt: "2026-02-04", confidence: "self-declared" },
+        { type: "hepatitis", lastGivenAt: "2026-02-04", confidence: "self-declared" },
+        { type: "parainfluenza", lastGivenAt: "2026-02-04", confidence: "self-declared" },
+      ],
+      vaccinationsAcknowledgedAt: "2026-02-04",
+      spayedNeutered: true,
+    },
   },
   {
     id: "shelter-dog-theo",
@@ -200,6 +233,18 @@ const UTULEK_DOGS: PetProfile[] = [
     adoptionStatus: "available",
     intakeDate: daysAgo(3),
     energyLevel: "very_high",
+    vetInfo: {
+      /* Theo's a 5-month puppy — only the first puppy-series round
+         is done (parvo + distemper at ~8 weeks). Rabies, hepatitis,
+         parainfluenza come with the booster series later. Realistic
+         "vaccinations in progress" demo case. */
+      vaccinations: [
+        { type: "parvovirus", lastGivenAt: "2026-05-01", confidence: "self-declared" },
+        { type: "distemper", lastGivenAt: "2026-05-01", confidence: "self-declared" },
+      ],
+      vaccinationsAcknowledgedAt: "2026-06-01",
+      spayedNeutered: false,
+    },
   },
 ];
 

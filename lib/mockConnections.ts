@@ -475,6 +475,29 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
   daniel: [
     /* ─── CONNECTED ──────────────────────────────────────────────── */
     {
+      // Daniel ↔ Klára — auto-Connected mirror of the entry on
+      // Klára's roster (signed Reactive Dog Session contract). See
+      // klara roster header note. 2026-06-03 walkthrough.
+      id: "conn-daniel-klara",
+      userId: "klara",
+      userName: "Klára",
+      avatarUrl: "/images/generated/klara-profile.jpeg",
+      dogNames: ["Eda"],
+      location: "Prague 7",
+      state: "connected",
+      metAt: "meet-care-workshop-1",
+      updatedAt: "2026-05-26T20:15:00Z",
+      meetsShared: 1,
+      firstMetDate: "2026-05-15",
+      lastMetDate: "2026-05-26",
+      mutualConnections: ["Hana"],
+      sharedGroups: ["Prague Reactive Dog Support"],
+      dogBreed: "Border Collie",
+      neighbourhood: "Holešovice",
+      profileOpen: true,
+      theyMarkedFamiliar: true,
+    },
+    {
       id: "conn-daniel-hana",
       userId: "hana",
       userName: "Hana",
@@ -628,6 +651,32 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
      ═══════════════════════════════════════════════════════════════════════ */
   klara: [
     /* ─── CONNECTED ──────────────────────────────────────────────── */
+    {
+      // Klára ↔ Daniel — auto-Connected via the signed Reactive Dog
+      // Session contract (`booking-meet-care-workshop-1-daniel`,
+      // signed ~8 days ago). Per the trust model resolved in Open
+      // Q §2 → contract sign promotes to mutual Connected. Without
+      // this seed entry, Klára can't see Bára's profile from the
+      // booking detail Pet info link — even though they're in an
+      // active service relationship. Surfaced 2026-06-03 walkthrough.
+      id: "conn-klara-daniel",
+      userId: "daniel",
+      userName: "Daniel",
+      avatarUrl: "/images/generated/daniel-profile.jpeg",
+      dogNames: ["Bára"],
+      location: "Prague 7",
+      state: "connected",
+      metAt: "meet-care-workshop-1",
+      updatedAt: "2026-05-26T20:15:00Z",
+      meetsShared: 1,
+      firstMetDate: "2026-05-15",
+      lastMetDate: "2026-05-26",
+      mutualConnections: ["Hana"],
+      sharedGroups: ["Prague Reactive Dog Support"],
+      dogBreed: "Mixed breed rescue",
+      neighbourhood: "Holešovice",
+      profileOpen: false,
+    },
     {
       id: "conn-klara-filip",
       userId: "filip",

@@ -372,31 +372,41 @@ function SessionRow({
           <p className="text-sm text-fg-tertiary m-0 italic">{cancelledReason}</p>
         )}
 
-        {/* Provider actions — only for upcoming sessions. Wrapping the
-            inner check around the wrapper itself avoids rendering an
-            empty flex div with marginTop on past / cancelled rows
-            (which gave them phantom space below). In-progress sessions
-            are not rendered in this list at all — they live on the
-            Active panel above the upcoming/past sections. */}
-        {canAct && onUpdate && bookingId && session.status === "upcoming" && (
-          <div className="flex flex-wrap gap-xs" style={{ marginTop: "var(--space-xs)" }}>
-            <ButtonAction variant="primary" size="sm"
-              leftIcon={<Play size={14} weight="fill" />}
-              onClick={() => onUpdate(bookingId, session.id, {
-                status: "in_progress",
-                checkedInAt: new Date().toISOString(),
-              })}>
-              Start session
-            </ButtonAction>
-            {onCancelSession && (
-              <ButtonAction variant="outline" size="sm"
-                leftIcon={<Prohibit size={14} weight="light" />}
-                onClick={() => onCancelSession(session)}>
-                Cancel
+        {/* Provider actions — only when the session is today or
+            overdue. Future sessions (tomorrow+) render info-only with
+            no action chrome — far-out rows aren't actionable today,
+            and a lone Cancel button on each row reads as visual
+            noise. Same threshold as the Info-tab Next session row
+            (2026-06-03 walkthrough). In-progress sessions are not
+            rendered in this list at all — they live on the Active
+            panel above the upcoming/past sections. */}
+        {canAct && onUpdate && bookingId && session.status === "upcoming" && (() => {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const sessionDate = new Date(session.date.slice(0, 10) + "T00:00:00");
+          const dayMs = 1000 * 60 * 60 * 24;
+          const daysUntil = Math.round((sessionDate.getTime() - today.getTime()) / dayMs);
+          if (daysUntil > 0) return null;
+          return (
+            <div className="flex flex-wrap gap-xs" style={{ marginTop: "var(--space-xs)" }}>
+              <ButtonAction variant="primary" size="sm"
+                leftIcon={<Play size={14} weight="fill" />}
+                onClick={() => onUpdate(bookingId, session.id, {
+                  status: "in_progress",
+                  checkedInAt: new Date().toISOString(),
+                })}>
+                Start session
               </ButtonAction>
-            )}
-          </div>
-        )}
+              {onCancelSession && (
+                <ButtonAction variant="outline" size="sm"
+                  leftIcon={<Prohibit size={14} weight="light" />}
+                  onClick={() => onCancelSession(session)}>
+                  Cancel
+                </ButtonAction>
+              )}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
@@ -411,26 +421,14 @@ function SessionRow({
  * recognition (which dog am I caring for) without burying the session
  * list under a wall of vital info. Tap the header to expand.
  */
-function hasPreferences(p: PetProfile): boolean {
-  return !!(
-    (p.preferences?.likes && p.preferences.likes.length > 0) ||
-    (p.preferences?.dislikes && p.preferences.dislikes.length > 0) ||
-    (p.preferences?.triggers && p.preferences.triggers.length > 0) ||
-    (p.preferences?.playPreferences && p.preferences.playPreferences.length > 0)
-  );
-}
-
 function PetInfoSection({ pets }: { pets: PetProfile[] }) {
-  const [expanded, setExpanded] = useState(false);
-  const hasDetails = pets.some(
-    (p) =>
-      p.vetInfo?.medications ||
-      p.vetInfo?.conditions ||
-      p.socialisationNotes ||
-      p.vetInfo?.clinicName ||
-      p.vetInfo?.vetPhone ||
-      hasPreferences(p),
-  );
+  // Workstream G follow-up (2026-06-03 walkthrough). Dropped the avatar
+  // identity row + expand/collapse mechanic. The booking header above
+  // already surfaces the pet identity (`OwnerDogAvatar` + verb +
+  // {petName} subtitle), so repeating it here was duplicative. Each
+  // pet's section gets a tight header + "View {Pet}'s profile →" link
+  // routing to the canonical surface; rows below render inline,
+  // always visible (no toggle to chase). The dog page handles depth.
 
   return (
     <div className="flex flex-col gap-sm">
@@ -441,100 +439,81 @@ function PetInfoSection({ pets }: { pets: PetProfile[] }) {
         {pets.map((pet, i) => (
           <div
             key={pet.id}
-            className="flex flex-col gap-md bg-surface-top"
+            className="flex flex-col gap-lg bg-surface-top"
             style={{
               padding: "var(--space-md) var(--space-lg)",
               borderBottom: i === pets.length - 1 ? "none" : "1px solid var(--border-subtle)",
             }}
           >
-            {/* Avatar row IS the toggle — the chevron at the right edge
-                signals "tap to expand," matching native Settings-style
-                disclosure. Disabled gracefully when there's nothing to
-                expand (some pets have only the basic profile). */}
-            <button
-              type="button"
-              onClick={() => hasDetails && setExpanded((v) => !v)}
-              disabled={!hasDetails}
-              className="flex items-center gap-sm cursor-pointer disabled:cursor-default w-full"
-              style={{ background: "transparent", border: "none", padding: 0, textAlign: "left" }}
-            >
-              {/* Rule B: dogs render as rounded squares (people are circles).
-                  Bumped from 36→48 — at 36 it read as utility thumbnail;
-                  48 makes the pet the visual centerpiece of the section.
-                  2026-05-08 walkthrough refinement. */}
+            <div className="flex items-center gap-sm">
+              {/* Dog avatar — 40px rounded-square per Avatar Rule B.
+                  Visual recognition anchor: the carer's eye lands on
+                  the pet thumbnail before the labels below, so they
+                  immediately know which dog this section covers. The
+                  breed/weight/age identity line that used to sit
+                  beside it was dropped — booking header above
+                  already surfaces those. (2026-06-03 walkthrough). */}
               <img
                 src={pet.imageUrl}
                 alt={pet.name}
-                className="rounded-panel object-cover"
-                style={{ width: 48, height: 48 }}
+                className="rounded-panel object-cover shrink-0"
+                style={{ width: 40, height: 40 }}
               />
-              <div className="flex flex-col flex-1 min-w-0">
-                <span className="text-sm font-semibold text-fg-primary">{pet.name}</span>
-                <span className="text-xs text-fg-tertiary">
-                  {pet.breed} · {pet.weightLabel} · {pet.ageLabel}
-                </span>
-              </div>
-              {hasDetails && (
-                <CaretDown
-                  size={16}
-                  weight="bold"
-                  className="text-fg-tertiary"
-                  style={{
-                    transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
-                    transition: "transform 150ms ease",
-                    flexShrink: 0,
-                  }}
-                />
-              )}
-            </button>
+              <span className="text-sm font-semibold text-fg-primary flex-1 min-w-0">
+                {pet.name}
+              </span>
+              <Link
+                href={`/dogs/${pet.id}`}
+                className="text-xs font-semibold text-brand-strong hover:text-brand-main shrink-0"
+                style={{ textDecoration: "none" }}
+              >
+                View profile →
+              </Link>
+            </div>
 
-            {expanded && (
-              <>
-                {pet.vetInfo?.medications && (
-                  <PetInfoRow icon={<Pill size={12} weight="light" />} label="Medications">
-                    {pet.vetInfo.medications}
-                  </PetInfoRow>
-                )}
-                {pet.vetInfo?.conditions && (
-                  <PetInfoRow icon={<HandHeart size={12} weight="light" />} label="Conditions">
-                    {pet.vetInfo.conditions}
-                  </PetInfoRow>
-                )}
-                {pet.socialisationNotes && (
-                  <PetInfoRow icon={<PawPrint size={12} weight="light" />} label="Around dogs">
-                    {pet.socialisationNotes}
-                  </PetInfoRow>
-                )}
-                {/* Standing preferences (Dog Profile phase, 2026-06-02).
-                    Per-pet baseline — likes / dislikes / triggers / play.
-                    The per-booking layer ("solo today, longer today") is
-                    the third comms surface deferred per Key Decision #8. */}
-                {pet.preferences?.likes && pet.preferences.likes.length > 0 && (
-                  <PetInfoRow icon={<HandHeart size={12} weight="light" />} label="Likes">
-                    {pet.preferences.likes.join(" · ")}
-                  </PetInfoRow>
-                )}
-                {pet.preferences?.dislikes && pet.preferences.dislikes.length > 0 && (
-                  <PetInfoRow icon={<HandHeart size={12} weight="light" />} label="Dislikes">
-                    {pet.preferences.dislikes.join(" · ")}
-                  </PetInfoRow>
-                )}
-                {pet.preferences?.triggers && pet.preferences.triggers.length > 0 && (
-                  <PetInfoRow icon={<HandHeart size={12} weight="light" />} label="Triggers">
-                    {pet.preferences.triggers.join(" · ")}
-                  </PetInfoRow>
-                )}
-                {pet.preferences?.playPreferences && pet.preferences.playPreferences.length > 0 && (
-                  <PetInfoRow icon={<PawPrint size={12} weight="light" />} label="Play">
-                    {pet.preferences.playPreferences.join(" · ")}
-                  </PetInfoRow>
-                )}
-                {(pet.vetInfo?.clinicName || pet.vetInfo?.vetPhone) && (
-                  <PetInfoRow icon={<CalendarCheck size={12} weight="light" />} label="Vet">
-                    {[pet.vetInfo.clinicName, pet.vetInfo.vetPhone].filter(Boolean).join(" · ")}
-                  </PetInfoRow>
-                )}
-              </>
+            {pet.vetInfo?.medications && (
+              <PetInfoRow icon={<Pill size={12} weight="light" />} label="Medications">
+                {pet.vetInfo.medications}
+              </PetInfoRow>
+            )}
+            {pet.vetInfo?.conditions && (
+              <PetInfoRow icon={<HandHeart size={12} weight="light" />} label="Conditions">
+                {pet.vetInfo.conditions}
+              </PetInfoRow>
+            )}
+            {pet.socialisationNotes && (
+              <PetInfoRow icon={<PawPrint size={12} weight="light" />} label="Around dogs">
+                {pet.socialisationNotes}
+              </PetInfoRow>
+            )}
+            {/* Standing preferences (Dog Profile phase, 2026-06-02).
+                Per-pet baseline — likes / dislikes / triggers / play.
+                The per-booking layer ("solo today, longer today") is
+                the third comms surface deferred per Key Decision #8. */}
+            {pet.preferences?.likes && pet.preferences.likes.length > 0 && (
+              <PetInfoRow icon={<HandHeart size={12} weight="light" />} label="Likes">
+                {pet.preferences.likes.join(" · ")}
+              </PetInfoRow>
+            )}
+            {pet.preferences?.dislikes && pet.preferences.dislikes.length > 0 && (
+              <PetInfoRow icon={<HandHeart size={12} weight="light" />} label="Dislikes">
+                {pet.preferences.dislikes.join(" · ")}
+              </PetInfoRow>
+            )}
+            {pet.preferences?.triggers && pet.preferences.triggers.length > 0 && (
+              <PetInfoRow icon={<HandHeart size={12} weight="light" />} label="Triggers">
+                {pet.preferences.triggers.join(" · ")}
+              </PetInfoRow>
+            )}
+            {pet.preferences?.playPreferences && pet.preferences.playPreferences.length > 0 && (
+              <PetInfoRow icon={<PawPrint size={12} weight="light" />} label="Play">
+                {pet.preferences.playPreferences.join(" · ")}
+              </PetInfoRow>
+            )}
+            {(pet.vetInfo?.clinicName || pet.vetInfo?.vetPhone) && (
+              <PetInfoRow icon={<CalendarCheck size={12} weight="light" />} label="Vet">
+                {[pet.vetInfo.clinicName, pet.vetInfo.vetPhone].filter(Boolean).join(" · ")}
+              </PetInfoRow>
             )}
           </div>
         ))}
@@ -849,7 +828,15 @@ export default function BookingDetailPage() {
                     )}
                   </div>
                 </Link>
-                <StatusBadge status={booking.status} />
+                {/* Status pill — hidden for "upcoming" because the
+                    Next session row in the Details list below carries
+                    the date + relative framing ("In N days" / "Today" /
+                    "Tomorrow"). Pill stays for completed / cancelled /
+                    active / proposed where the status IS the salient
+                    signal. 2026-06-03 walkthrough. */}
+                {booking.status !== "upcoming" && (
+                  <StatusBadge status={booking.status} />
+                )}
               </div>
 
               {/* Action buttons — CTA variants like Groups page.
@@ -934,30 +921,14 @@ export default function BookingDetailPage() {
               </div>
             </div>
 
-            {/* Aggregate stats — ongoing bookings only */}
-            {booking.type === "ongoing" && completedSessions.length > 0 && (
-              <div className="grid grid-cols-3 gap-md">
-                <div className="flex flex-col items-center gap-xs rounded-panel p-md bg-surface-top border border-edge-regular text-center">
-                  <Footprints size={20} weight="light" className="text-brand-main" />
-                  <span className="text-lg font-semibold text-fg-primary">{completedSessions.length}</span>
-                  <span className="text-xs text-fg-tertiary">{serviceNoun} completed</span>
-                </div>
-                <div className="flex flex-col items-center gap-xs rounded-panel p-md bg-surface-top border border-edge-regular text-center">
-                  <CalendarCheck size={20} weight="light" className="text-brand-main" />
-                  <span className="text-lg font-semibold text-fg-primary">
-                    {formatShortDate(booking.startDate)}
-                  </span>
-                  <span className="text-xs text-fg-tertiary">Since</span>
-                </div>
-                <div className="flex flex-col items-center gap-xs rounded-panel p-md bg-surface-top border border-edge-regular text-center">
-                  <CalendarDots size={20} weight="light" className="text-brand-main" />
-                  <span className="text-lg font-semibold text-fg-primary">
-                    {nextSession ? formatShortDate(nextSession.date) : "—"}
-                  </span>
-                  <span className="text-xs text-fg-tertiary">Next session</span>
-                </div>
-              </div>
-            )}
+            {/* The 3-tile aggregate stats grid (sessions completed /
+                since / next session) was retired here 2026-06-03 to
+                align the booking views — meet bookings never carried
+                tiles (the grid was gated to ongoing + completed
+                sessions only), and the Next session info now lives in
+                the Details list's Next session row. "Since" + the
+                completed count migrate into an Activity row inside
+                the Details list below. */}
 
             {/* Pet info — provider-only reference (medications, conditions,
                 behavior, vet contact). Lives on Info because it's reference
@@ -965,12 +936,87 @@ export default function BookingDetailPage() {
                 execution; clusters with ownerNotes (care instructions)
                 below. Sessions & Service Execution walkthrough call,
                 2026-05-05. */}
-            {isProvider && petProfilesForSession.length > 0 && (
-              <PetInfoSection pets={petProfilesForSession} />
-            )}
-
-            {/* Details — vertical list */}
+            {/* Details — vertical list. Moved ABOVE PetInfoSection
+                (2026-06-03 walkthrough) so "when/how much/where" lands
+                first — those are the actionable booking facts;
+                pet-info is reference. The pet-name row that used to
+                live here is gone (redundant with the booking header
+                above + the PetInfoSection avatar below). */}
             <div className="flex flex-col rounded-panel border border-edge-regular overflow-hidden">
+              {/* Next session row — surfaces the upcoming session date
+                  with relative framing ("Today" / "Tomorrow" / "In N days")
+                  and a Start CTA when the provider is on the hook today.
+                  Sits above the cadence/range schedule row because "what
+                  date am I next showing up" is the actionable fact;
+                  schedule below carries the broader cadence context.
+                  Date source falls back through:
+                    1. `nextSession.date` — Care booking with discrete sessions
+                    2. `booking.startDate` — meet bookings (RSVP to one
+                       occurrence — no sessions array) or any other
+                       single-date booking shape
+                  Suppressed when the booking isn't upcoming OR a session
+                  is currently in progress (the Active panel on the
+                  Sessions tab handles in-flight work). Start CTA only
+                  surfaces when there's an actual session record to
+                  flip — meet bookings don't get the Start button. */}
+              {!activeSession &&
+                (booking.status === "upcoming" || booking.status === "active") &&
+                (() => {
+                  const nextDateIso = nextSession?.date ?? booking.startDate;
+                  if (!nextDateIso) return null;
+                  // Compare next-session date (ISO YYYY-MM-DD) against today
+                  // at day granularity. Negative daysUntil = overdue (past),
+                  // 0 = today, 1 = tomorrow, etc.
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  const nextDate = new Date(nextDateIso.slice(0, 10) + "T00:00:00");
+                  const dayMs = 1000 * 60 * 60 * 24;
+                  const daysUntil = Math.round((nextDate.getTime() - today.getTime()) / dayMs);
+                  const relativeLabel =
+                    daysUntil < 0
+                      ? `${Math.abs(daysUntil)} day${Math.abs(daysUntil) === 1 ? "" : "s"} overdue`
+                      : daysUntil === 0
+                      ? "Today"
+                      : daysUntil === 1
+                      ? "Tomorrow"
+                      : `In ${daysUntil} days`;
+                  // Provider can start when they're the provider, the
+                  // session is today (or overdue), AND there's a real
+                  // session record to flip. Meet bookings (no sessions
+                  // array) skip the Start button — they're group meets
+                  // hosted by the carer, not 1-on-1 care sessions with
+                  // a Start/Finish lifecycle.
+                  const canStart = isProvider && daysUntil <= 0 && !!nextSession;
+                  return (
+                    <div className="flex items-center gap-md bg-surface-top"
+                      style={{ padding: "var(--space-md) var(--space-lg)", borderBottom: "1px solid var(--border-subtle)" }}>
+                      <CalendarCheck size={18} weight="light" className="text-fg-tertiary shrink-0" />
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <span className="text-sm font-medium text-fg-primary">
+                          {formatShortDate(nextDateIso)}
+                        </span>
+                        <span className="text-xs text-fg-tertiary">
+                          Next session · {relativeLabel}
+                        </span>
+                      </div>
+                      {canStart && nextSession && (
+                        <ButtonAction
+                          variant="primary"
+                          size="sm"
+                          leftIcon={<Play size={14} weight="fill" />}
+                          onClick={() =>
+                            handleUpdateSession(booking.id, nextSession.id, {
+                              status: "in_progress",
+                              checkedInAt: new Date().toISOString(),
+                            })
+                          }
+                        >
+                          Start
+                        </ButtonAction>
+                      )}
+                    </div>
+                  );
+                })()}
               <div className="flex items-center gap-md bg-surface-top"
                 style={{ padding: "var(--space-md) var(--space-lg)", borderBottom: "1px solid var(--border-subtle)" }}>
                 <CalendarDots size={18} weight="light" className="text-fg-tertiary shrink-0" />
@@ -981,16 +1027,25 @@ export default function BookingDetailPage() {
                   </span>
                 </div>
               </div>
-              <div className="flex items-center gap-md bg-surface-top"
-                style={{ padding: "var(--space-md) var(--space-lg)", borderBottom: "1px solid var(--border-subtle)" }}>
-                <Tag size={18} weight="light" className="text-fg-tertiary shrink-0" />
-                <div className="flex flex-col flex-1">
-                  <span className="text-sm font-medium text-fg-primary">{perSessionPrice(booking)}</span>
-                  <span className="text-xs text-fg-tertiary">
-                    {booking.price.billingCycle === "weekly" ? "Billed weekly" : "Rate"}
-                  </span>
+              {/* Activity row — replaces the retired 3-tile aggregate
+                  stats grid (2026-06-03 walkthrough). Shows session
+                  count + when the relationship started. Ongoing
+                  bookings only — one-off / meet bookings don't have
+                  the "since X, N sessions in" framing. */}
+              {booking.type === "ongoing" && completedSessions.length > 0 && (
+                <div className="flex items-center gap-md bg-surface-top"
+                  style={{ padding: "var(--space-md) var(--space-lg)", borderBottom: "1px solid var(--border-subtle)" }}>
+                  <Footprints size={18} weight="light" className="text-fg-tertiary shrink-0" />
+                  <div className="flex flex-col flex-1">
+                    <span className="text-sm font-medium text-fg-primary">
+                      {completedSessions.length} {serviceNoun} completed
+                    </span>
+                    <span className="text-xs text-fg-tertiary">
+                      Since {formatShortDate(booking.startDate)}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
               <div className="flex items-center gap-md bg-surface-top"
                 style={{
                   padding: "var(--space-md) var(--space-lg)",
@@ -999,10 +1054,12 @@ export default function BookingDetailPage() {
                       ? "1px solid var(--border-subtle)"
                       : "none",
                 }}>
-                <PawPrint size={18} weight="light" className="text-fg-tertiary shrink-0" />
+                <Tag size={18} weight="light" className="text-fg-tertiary shrink-0" />
                 <div className="flex flex-col flex-1">
-                  <span className="text-sm font-medium text-fg-primary">{petNames}</span>
-                  <span className="text-xs text-fg-tertiary">{booking.pets.length === 1 ? "1 pet" : `${booking.pets.length} pets`}</span>
+                  <span className="text-sm font-medium text-fg-primary">{perSessionPrice(booking)}</span>
+                  <span className="text-xs text-fg-tertiary">
+                    {booking.price.billingCycle === "weekly" ? "Billed weekly" : "Rate"}
+                  </span>
                 </div>
               </div>
               {/* Walks delivery row — surfaces *who travels* for the
@@ -1027,6 +1084,16 @@ export default function BookingDetailPage() {
                 </div>
               )}
             </div>
+
+            {/* Pet info — provider-only reference (medications, conditions,
+                behavior, vet contact, preferences). Now sits below Details
+                because those are the actionable facts of "what am I
+                providing and when"; pet-info is reference for session
+                execution. Sessions & Service Execution walkthrough call,
+                2026-05-05 / reordered 2026-06-03. */}
+            {isProvider && petProfilesForSession.length > 0 && (
+              <PetInfoSection pets={petProfilesForSession} />
+            )}
 
             {/* Notes / Care instructions */}
             {(booking.ownerNotes || booking.carerNotes) && (

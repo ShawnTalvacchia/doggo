@@ -1,8 +1,8 @@
 "use client";
 
-import { Fragment, useEffect, Suspense } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState, Suspense } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   Clock,
   PawPrint,
@@ -10,13 +10,18 @@ import {
   Lock,
   CaretRight,
   Syringe,
+  PencilSimple,
+  X,
+  Check,
 } from "@phosphor-icons/react";
 import { DetailHeader } from "@/components/layout/DetailHeader";
+import { TabBar } from "@/components/ui/TabBar";
 import { Spacer } from "@/components/layout/Spacer";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
+import { PetEditCard } from "@/components/profile/PetEditCard";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
 import { useConnections } from "@/contexts/ConnectionsContext";
@@ -52,12 +57,27 @@ export default function DogProfilePage() {
 function DogProfileInner() {
   const params = useParams();
   const router = useRouter();
-  const { setDetailHeader, clearDetailHeader } = usePageHeader();
+  const searchParams = useSearchParams();
+  const { setDetailHeader, clearDetailHeader, setPageAction, clearPageAction } =
+    usePageHeader();
   const { lastListPath } = useNavigationMemory();
   const currentUserId = useCurrentUserId();
   const { getConnection } = useConnections();
 
   const dogId = params.id as string;
+
+  // Owner-side edit lifecycle (Workstream G, 2026-06-03). Edit lives on
+  // /dogs/[id] instead of inline on /profile — the dog page is the
+  // canonical surface for everything about a dog, including authoring.
+  // `?edit=1` URL param auto-enters edit mode (used by /profile's Add
+  // Dog flow: create blank pet → route here in edit mode → fill in).
+  // PROTOTYPE NOTE: Save currently exits edit mode without persisting
+  // changes app-wide — matches the rest of the prototype's stub-state
+  // mutation pattern. Real persistence wires up when a user-state
+  // context lands.
+  const startInEditMode = searchParams.get("edit") === "1";
+  const [editing, setEditing] = useState(startInEditMode);
+  const [editDraft, setEditDraft] = useState<PetProfile | null>(null);
 
   // Resolve in two passes: shelter dogs first, then owned dogs. The two
   // share the rendering spine (hero + tags + health + posts); the
@@ -97,10 +117,127 @@ function DogProfileInner() {
   const dogName =
     shelterResolved?.dog.name ?? ownedResolved?.dog.name ?? "Dog";
 
+  // Header title (Workstream G, 2026-06-03):
+  // - Shelter dogs → the dog's name (current Shelter Foundation behavior).
+  // - Owned dogs → "{firstName}'s Dogs" — attributes the dog to its
+  //   owner and frames the page as part of that owner's territory.
+  //   Sibling tab strip below the header (when owner has >1 dog) lets
+  //   visitors switch between the owner's dogs without back-and-forth
+  //   through the owner's profile.
+  const headerTitle = ownedResolved
+    ? `${ownedResolved.owner.firstName}'s Dogs`
+    : dogName;
+
+  // Resolved values that ALL downstream hooks read. Possibly-undefined
+  // when neither shelter nor owned resolves — guarded inside each hook
+  // so they call unconditionally (Rules of Hooks: every hook must run
+  // in the same order on every render, including the empty-state
+  // returns below). 2026-06-03 fix for a hook-order violation.
+  const maybeDog: PetProfile | undefined =
+    shelterResolved?.dog ?? ownedResolved?.dog;
+  const owner = ownedResolved?.owner;
+  const isOwnerView = !!owner && owner.id === currentUserId;
+
+  // Effects + callbacks — declared above any conditional return.
+
+  const startEdit = useCallback(() => setEditing(true), []);
+  const cancelEdit = useCallback(() => {
+    setEditing(false);
+    // Strip ?edit=1 from the URL so a refresh doesn't re-enter edit
+    if (searchParams.get("edit") === "1") {
+      router.replace(`/dogs/${dogId}`);
+    }
+  }, [dogId, router, searchParams]);
+  const saveEdit = useCallback(() => {
+    // PROTOTYPE: real persistence is a follow-up. Exit edit mode and
+    // strip the URL param. The PetEditCard's onChange already mutates
+    // the local editDraft; without an EditablePetsContext those
+    // changes don't propagate back to /profile.
+    setEditing(false);
+    if (searchParams.get("edit") === "1") {
+      router.replace(`/dogs/${dogId}`);
+    }
+  }, [dogId, router, searchParams]);
+
+  // Owner edit affordance — Edit / Cancel+Save chrome. Hoisted via
+  // useMemo so the SAME node passes to both the `<DetailHeader>`
+  // component (desktop in-page header) and `setDetailHeader` (mobile
+  // AppNav detail-header slot). The convention across detail pages
+  // (meets, communities, shelters) is to pass `rightAction` through
+  // both surfaces — the AppNav detail-header is mobile-only via
+  // `.app-nav-mode--detail { display: none }`, and the in-page
+  // `<DetailHeader>` shows on desktop.
+  const ownerHeaderAction: React.ReactNode = useMemo(() => {
+    if (!isOwnerView) return null;
+    if (editing) {
+      return (
+        <div className="flex items-center gap-sm">
+          <ButtonAction
+            variant="outline"
+            size="sm"
+            leftIcon={<X size={14} weight="bold" />}
+            onClick={cancelEdit}
+          >
+            Cancel
+          </ButtonAction>
+          <ButtonAction
+            variant="primary"
+            size="sm"
+            leftIcon={<Check size={14} weight="bold" />}
+            onClick={saveEdit}
+          >
+            Save
+          </ButtonAction>
+        </div>
+      );
+    }
+    return (
+      <ButtonAction
+        variant="outline"
+        size="sm"
+        leftIcon={<PencilSimple size={14} weight="bold" />}
+        onClick={startEdit}
+      >
+        Edit
+      </ButtonAction>
+    );
+  }, [isOwnerView, editing, startEdit, cancelEdit, saveEdit]);
+
   useEffect(() => {
-    setDetailHeader(dogName, () => router.push(parentHref));
+    setDetailHeader(headerTitle, () => router.push(parentHref), ownerHeaderAction);
     return () => clearDetailHeader();
-  }, [dogName, parentHref]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [headerTitle, parentHref, ownerHeaderAction]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Seed the edit draft when entering edit mode (or when the URL flips
+  // to ?edit=1 on first load via Add Dog flow). Cancel discards the
+  // draft; Save (currently) just exits edit mode.
+  useEffect(() => {
+    if (!maybeDog) return;
+    if (editing && !editDraft) {
+      setEditDraft({ ...maybeDog });
+    }
+    if (!editing && editDraft) {
+      setEditDraft(null);
+    }
+  }, [editing, maybeDog, editDraft]);
+
+  // Nav lock-in during edit — hides Bell + Inbox so the owner has to
+  // explicitly Save or Cancel before leaving the dog page. Detail-page
+  // convention puts the action chrome in the DetailHeader rightAction
+  // slot (see the setDetailHeader effect above); this effect carries
+  // ONLY the navLockedIn signal, not the action node.
+  useEffect(() => {
+    if (!isOwnerView) {
+      clearPageAction();
+      return;
+    }
+    setPageAction(null, { navLockedIn: editing, suppressCreate: editing });
+    return () => clearPageAction();
+  }, [isOwnerView, editing, setPageAction, clearPageAction]);
+
+  // ────────────────────────────────────────────────────────────────────
+  // Early returns. All hooks above this line so call order stays stable.
+  // ────────────────────────────────────────────────────────────────────
 
   // Owned dog gated by the owner's lock — render a locked-style empty
   // state. The owner action button is the connection path: the dog's
@@ -111,7 +248,7 @@ function DogProfileInner() {
   if (ownedResolved && !ownedVisible) {
     return (
       <div className="dog-profile-page">
-        <DetailHeader backLabel="Back" title={ownedResolved.dog.name} backHref={parentHref} />
+        <DetailHeader backLabel="Back" title={headerTitle} backHref={parentHref} />
         <div className="dog-profile-panel">
           <div className="dog-profile-body">
             <div className="px-lg py-xl">
@@ -168,9 +305,11 @@ function DogProfileInner() {
     );
   }
 
-  const dog = (shelterResolved?.dog ?? ownedResolved?.dog) as PetProfile;
+  // From here on, dog is guaranteed non-undefined (the two early
+  // returns above handle the no-dog cases). Re-cast for the render
+  // block below so JSX can deref freely.
+  const dog = maybeDog as PetProfile;
   const shelter = shelterResolved?.shelter;
-  const owner = ownedResolved?.owner;
   const posts = getDogPosts(dog.id);
   // Shelter-care stats (In care, Last walked) only render while the dog
   // is actively being cared for at the shelter. Once adopted, the dog
@@ -190,11 +329,66 @@ function DogProfileInner() {
   // the shelter. Owned dogs: the owner's first name.
   const acknowledgerLabel = shelter?.name ?? owner?.firstName ?? "Owner";
 
+  // Sibling tab strip — multi-dog owners get a Franta | Bella tabbar
+  // below the DetailHeader so visitors can switch between an owner's
+  // dogs without going back through the owner profile. Single-dog
+  // owners and shelter dogs render no strip (saves vertical space).
+  // Suppressed in edit mode (Cancel/Save committed before nav).
+  const siblingDogs = !editing && ownedResolved && ownedResolved.owner.pets.length > 1
+    ? ownedResolved.owner.pets
+    : null;
+
+  // Edit-mode body — owners only. Renders PetEditCard for the single
+  // dog as the entire body, skipping hero / sections / posts. Delete
+  // (handled inside PetEditCard) navigates back to /profile.
+  if (editing && editDraft && isOwnerView) {
+    return (
+      <div className="dog-profile-page">
+        <DetailHeader backLabel="Back" title={headerTitle} backHref={parentHref} rightAction={ownerHeaderAction} />
+        <div className="dog-profile-panel">
+          <div className="dog-profile-body">
+            <PetEditCard
+              pet={editDraft}
+              onChange={(updated) => setEditDraft(updated)}
+              onDelete={() => {
+                // PROTOTYPE: real delete is a follow-up. Production
+                // version needs (a) a confirmation modal — removing a
+                // dog is destructive and irreversible from the
+                // owner's POV; (b) actual mutation of the user's pets
+                // list via the editable-pets context that's also
+                // pending; (c) cleanup of references (post tags,
+                // bookings, etc.) — open question for the persistence
+                // pass. For now, exit edit and route back to /profile
+                // so the owner doesn't sit on a "deleted" dog page.
+                setEditing(false);
+                router.push("/profile");
+              }}
+            />
+            <Spacer />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="dog-profile-page">
-      <DetailHeader backLabel="Back" title={dog.name} backHref={parentHref} />
+      <DetailHeader backLabel="Back" title={headerTitle} backHref={parentHref} rightAction={ownerHeaderAction} />
       <div className="dog-profile-panel">
         <div className="dog-profile-body">
+          {/* Sibling tab strip — sticks at top of the scrollable body
+              so visitors can switch between an owner's dogs without
+              scrolling back. Mirrors the shelter / community detail
+              tab pattern (`.detail-tabs detail-tabs--fill` wrapper). */}
+          {siblingDogs && (
+            <div className="detail-tabs detail-tabs--fill">
+              <TabBar
+                tabs={siblingDogs.map((p) => ({ key: p.id, label: p.name || "New dog" }))}
+                activeKey={dog.id}
+                onChange={(key) => router.push(`/dogs/${key}`)}
+              />
+            </div>
+          )}
           {/* Hero — side-by-side card pattern (refactored 2026-06-03).
               Rounded-square photo (Avatar Rule B — dogs are squares) +
               name/meta beside it. Same shape across shelter + owned
@@ -253,12 +447,36 @@ function DogProfileInner() {
             </div>
           </div>
 
-          {/* "About + operational" section. Suppresses entirely when
-              empty (owned dogs with no backstory get no orphan padding).
-              Tags moved into the hero — this section now carries the
-              shelter-care stats, the optional backstory paragraph, and
-              the policy strip. */}
-          {(dog.backstory || showCareStats || policyChips.length > 0) && (
+          {/* Shelter-care stats band — facts row, sits between the
+              hero and the about/story section so the rhythm is
+              hero → facts → story (2026-06-03 walkthrough). Only
+              renders while the dog is actively in shelter care
+              (pre-adopted). Owned dogs hide it entirely. */}
+          {showCareStats && (
+            <div className="dog-profile-stats">
+              <DogStatTile
+                icon={<Clock size={12} weight="light" />}
+                label="In care"
+                value={
+                  dog.daysInKennel != null
+                    ? `${dog.daysInKennel} ${dog.daysInKennel === 1 ? "day" : "days"}`
+                    : "Just arrived"
+                }
+              />
+              <DogStatTile
+                icon={<PawPrint size={12} weight="light" />}
+                label="Last walked"
+                value={dog.lastWalkedAt ? formatRelativeDay(dog.lastWalkedAt) : "Not yet"}
+              />
+            </div>
+          )}
+
+          {/* Story section — backstory + policy strip flow together
+              with no divider between them (they're both "about who
+              this dog is"); stats moved out above so the facts get
+              their own banded treatment. Suppresses entirely when
+              both are absent. */}
+          {(dog.backstory || policyChips.length > 0) && (
             <div className="dog-profile-section">
               {/* Backstory — works for both shelter dogs (shelter-authored)
                   and owned dogs (owner-authored "About {Dog}"). */}
@@ -266,33 +484,12 @@ function DogProfileInner() {
                 <p className="dog-profile-backstory">{dog.backstory}</p>
               )}
 
-              {/* Shelter-care stats. Only render while the dog is actively
-                  in shelter care (pre-adopted). Owned dogs hide this row
-                  entirely — those numbers don't exist outside the shelter
-                  context. */}
-              {showCareStats && (
-                <div className="dog-profile-stats">
-                  <DogStatTile
-                    icon={<Clock size={12} weight="light" />}
-                    label="In care"
-                    value={
-                      dog.daysInKennel != null
-                        ? `${dog.daysInKennel} ${dog.daysInKennel === 1 ? "day" : "days"}`
-                        : "Just arrived"
-                    }
-                  />
-                  <DogStatTile
-                    icon={<PawPrint size={12} weight="light" />}
-                    label="Last walked"
-                    value={dog.lastWalkedAt ? formatRelativeDay(dog.lastWalkedAt) : "Not yet"}
-                  />
-                </div>
-              )}
-
               {/* Handling policy chips — solo-only, experienced handlers
-                  only. Operational (about who can walk the dog) — stays
-                  below the hero, not co-mingled with identity tags.
-                  Shelter dogs only; owned dogs never carry these fields. */}
+                  only. Operational (about who can walk the dog) — flows
+                  directly from the backstory ("she needs a quiet home with
+                  no other dogs" → "solo walks only" reads as natural
+                  continuation). Shelter dogs only; owned dogs never carry
+                  these fields. */}
               {policyChips.length > 0 && (
                 <div className="dog-profile-policy">
                   <ShieldCheck size={14} weight="light" />
@@ -562,15 +759,21 @@ function DogPostsSection({ dog, posts }: { dog: PetProfile; posts: Post[] }) {
       </div>
     );
   }
+  // Title in a header strip (keeps the section chrome — padding,
+  // border-bottom). Posts render below as full-width MomentCards, no
+  // outer padding — drops the card-in-card visual that was crowding
+  // each post (2026-06-03 walkthrough B-ish).
   return (
-    <div className="dog-profile-section">
-      <h2 className="dog-profile-section-title">Posts about {dog.name}</h2>
+    <>
+      <div className="dog-profile-section dog-profile-section--header-only">
+        <h2 className="dog-profile-section-title">Posts about {dog.name}</h2>
+      </div>
       <div className="dog-profile-posts">
         {posts.map((post) => (
           <MomentCardFromPost key={post.id} post={post} />
         ))}
       </div>
-    </div>
+    </>
   );
 }
 

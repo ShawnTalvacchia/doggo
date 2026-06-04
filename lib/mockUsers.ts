@@ -213,6 +213,11 @@ export const tereza: UserProfile = {
     publicProfile: false,
     visibility: "connected_only",
     acceptingBookings: true,
+    // Tereza is a Casual Carer (Vinohrady neighbour) — runs no Care group,
+    // no training credentials, so the resolver previously fell through to
+    // plain "Carer". Setting specs explicitly so her badge reads as the
+    // shape she actually offers (sitting + day-care at her flat). P60.
+    specializations: ["sitter", "daycare"],
   },
 };
 
@@ -377,6 +382,10 @@ export const klara: UserProfile = {
         pricePerAppointment: 800,
         durationMinutes: 60,
         appointmentCategory: "training",
+        // Klára's 1-on-1 is positioned for reactive / anxious dogs (see
+        // notes + her demo arc), so the training focus is behaviour work.
+        // P73, 2026-06-03.
+        trainingType: "behaviour",
         notes: "Private session at your location or Stromovka. Behaviour assessment included on the first session.",
       },
       {
@@ -416,6 +425,11 @@ export const klara: UserProfile = {
       identityVerified: true,
     },
     repeatClients: 12,
+    // Walker-trainer hybrid (per V2 Demo Narrative). The Care group's
+    // careCategory already resolves to "Dog Trainer" via path #2, so this
+    // is explicit confirmation rather than a behaviour change. Multi-spec
+    // rendering would surface "+ Walker" in a future enhancement. P60.
+    specializations: ["trainer", "walker"],
   },
 };
 
@@ -1433,6 +1447,145 @@ export const lenkaVet: UserProfile = {
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   TRAINING-VISIT APPOINTMENT EXEMPLARS (P64, 2026-06-03)
+   Two trainers whose offerings exercise the new `trainingType` axis and
+   the two location modes Prague's training market actually uses:
+     - Šárka — mobile trainer, Prague modal case. Visits the owner's home
+       or meets at a quiet park; puppy-socialisation focus (the most-
+       demanded sub-type per Roman's PO interview 2026-06-02).
+     - Radek — facility trainer at his agility-equipped training yard in
+       Holešovice. Owner brings the dog; agility focus (a sub-type that
+       NEEDS facility equipment, so the location mode is natural).
+   Both surface in Discover Care via ProviderCard entries in `mockData.ts`
+   with `appointmentTypes: ["training"]`.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+export const sarkaTrainer: UserProfile = {
+  id: "sarka-trainer",
+  firstName: "Šárka",
+  lastName: "Vondráčková",
+  email: "sarka.trainer@email.cz",
+  avatarUrl: AV.anezka,
+  bio: "Puppy socialisation trainer — I come to you. Six years building confident first-walk experiences for puppies under six months.",
+  location: "Prague 2, Czech Republic",
+  neighbourhood: "Vinohrady",
+  memberSince: "2024-11",
+  profileVisibility: "open",
+  tagApproval: "approve",
+  pets: [],
+  openToHelping: true,
+  carerProfile: {
+    bio: "I work with puppies and their owners across central Prague. Mobile — I come to your home or meet at a quiet park you already know. First-time owner? That's exactly who I'm built for.",
+    location: "Mobile · Prague 2 + 3 + 7",
+    availability: [
+      { day: "Mon", slots: ["morning", "afternoon"] },
+      { day: "Tue", slots: ["morning", "afternoon"] },
+      { day: "Wed", slots: ["morning"] },
+      { day: "Thu", slots: ["morning", "afternoon"] },
+      { day: "Fri", slots: ["morning", "afternoon"] },
+      { day: "Sat", slots: ["morning"] },
+    ],
+    services: [
+      {
+        kind: "appointment",
+        id: "sarka-puppy-intro",
+        title: "Puppy starter session",
+        enabled: true,
+        pricePerAppointment: 650,
+        durationMinutes: 60,
+        appointmentCategory: "training",
+        trainingType: "puppy_socialisation",
+        notes: "First-meet at your home, then a short outing to a quiet park. Best in the first 6 weeks after you bring a puppy home.",
+      },
+      {
+        kind: "appointment",
+        id: "sarka-puppy-followup",
+        title: "Follow-up walk-and-coach",
+        enabled: true,
+        pricePerAppointment: 550,
+        durationMinutes: 50,
+        appointmentCategory: "training",
+        trainingType: "puppy_socialisation",
+        notes: "Loose-leash + recall practice in a real park environment. For puppies who've had the starter session.",
+      },
+    ],
+    publicProfile: true,
+    visibility: "open",
+    acceptingBookings: true,
+    credentials: {
+      yearsExperience: 6,
+      methodology: "Force-free, positive reinforcement",
+      certifications: ["Certified puppy trainer"],
+      firstAidTrained: true,
+      insured: true,
+    },
+    specializations: ["trainer"],
+  },
+};
+
+export const radekTrainer: UserProfile = {
+  id: "radek-trainer",
+  firstName: "Radek",
+  lastName: "Holub",
+  email: "radek@holub-agility.cz",
+  avatarUrl: AV.vitek,
+  bio: "Agility trainer in Holešovice. My facility has tunnels, jumps, weaves, and a dog walk — book a 1-on-1 to get started.",
+  location: "Prague 7, Czech Republic",
+  neighbourhood: "Holešovice",
+  memberSince: "2024-03",
+  profileVisibility: "open",
+  tagApproval: "approve",
+  pets: [],
+  openToHelping: true,
+  carerProfile: {
+    bio: "Holub Agility, Holešovice. Fenced outdoor course with full agility kit — jumps, tunnels, weaves, A-frame, dog walk. Sessions are at the facility; owners bring their dog. 1-on-1 only, no class format.",
+    location: "Holub Agility · Argentinská 18, Prague 7",
+    availability: [
+      { day: "Tue", slots: ["afternoon", "evening"] },
+      { day: "Wed", slots: ["afternoon", "evening"] },
+      { day: "Thu", slots: ["afternoon", "evening"] },
+      { day: "Sat", slots: ["morning", "afternoon"] },
+      { day: "Sun", slots: ["morning"] },
+    ],
+    services: [
+      {
+        kind: "appointment",
+        id: "radek-agility-intro",
+        title: "Agility starter session",
+        enabled: true,
+        pricePerAppointment: 750,
+        durationMinutes: 60,
+        appointmentCategory: "training",
+        trainingType: "agility",
+        notes: "Owner brings the dog to the Holešovice facility. Foundations — focus, tunnel intro, low jumps. No prior agility experience needed.",
+      },
+      {
+        kind: "appointment",
+        id: "radek-agility-followup",
+        title: "Course-building session",
+        enabled: true,
+        pricePerAppointment: 850,
+        durationMinutes: 75,
+        appointmentCategory: "training",
+        trainingType: "agility",
+        notes: "Full-course work for dogs with at least 3 starter sessions. Handler footwork, sequencing, contact zones.",
+      },
+    ],
+    publicProfile: true,
+    visibility: "open",
+    acceptingBookings: true,
+    credentials: {
+      yearsExperience: 10,
+      methodology: "Reward-based, dog-led pacing",
+      certifications: ["Agility judge — KJ Praha", "Certified Trainer"],
+      firstAidTrained: true,
+      insured: true,
+    },
+    specializations: ["trainer"],
+  },
+};
+
+/* ═══════════════════════════════════════════════════════════════════════════
    PROMOTED DIRECTORY CARERS
    Bridged from `mockData.ts` ProviderCards to full UserProfiles with proper
    carerProfile.services arrays. Started with `olga-m` + `marketa-h` (Pricing
@@ -2209,6 +2362,7 @@ export const allUsers: UserProfile[] = [
   jana, nikola, marie,
   shawn,
   lenkaVet,
+  sarkaTrainer, radekTrainer,
   olgaM, marketaH,
   janaK, tomasB, pavelD, simonaV, martinK, lenkaS, petrV,
 ];
