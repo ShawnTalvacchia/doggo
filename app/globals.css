@@ -15541,6 +15541,46 @@ a.shelter-intro-social:hover {
   padding: var(--space-md);
 }
 
+/* ── Mobile: stack photo + sidebar vertically ──────────────────────
+   At narrow widths the row layout fights both axes — the photo gets
+   crushed AND the sidebar feels confined. Stacking vertically gives
+   the photo full-width breathing room (capped at ~55vh so caption /
+   comments aren't pushed below the fold) and lets the sidebar scroll
+   naturally for longer content. Cross-post nav buttons hide on touch;
+   swipe ←/→ on the photo area takes over (see PostLightbox.tsx).
+   Close × stays top-right. 2026-06-04. */
+@media (max-width: 768px) {
+  .post-lightbox-frame {
+    flex-direction: column;
+    width: 100vw;
+    height: 100dvh;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .post-lightbox-photo-area {
+    flex: 0 0 auto;
+    height: 55dvh;
+  }
+
+  .post-lightbox-photo {
+    max-height: 100%;
+  }
+
+  .post-lightbox-sidebar {
+    flex: 1;
+    min-height: 0;
+    border-left: 0;
+    border-top: 1px solid var(--border-light);
+  }
+
+  /* Hide chrome that fights mobile real estate. Swipe gestures replace
+     the cross-post buttons; keyboard nav doesn't apply on touch. */
+  .post-lightbox-post-nav {
+    display: none;
+  }
+}
+
 .post-lightbox-caption {
   margin: 0 0 var(--space-md);
   font-size: var(--text-sm);

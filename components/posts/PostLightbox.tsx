@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
@@ -109,6 +109,34 @@ export function PostLightbox({
     };
   }, []);
 
+  // Touch-swipe → cross-post navigation. Scoped to the photo area so
+  // scrolling the sidebar (comments etc.) doesn't accidentally switch
+  // posts. Threshold + axis-dominance rule (|dx| > |dy|) prevents
+  // diagonal/vertical scrolls from triggering. 2026-06-04.
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const SWIPE_THRESHOLD = 48;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStart.current) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStart.current.x;
+    const dy = t.clientY - touchStart.current.y;
+    touchStart.current = null;
+    if (Math.abs(dx) < SWIPE_THRESHOLD) return;
+    if (Math.abs(dx) < Math.abs(dy)) return; // vertical scroll wins
+    if (dx > 0) {
+      // swipe right → previous post
+      if (hasPrevPost) goPrevPost();
+    } else {
+      // swipe left → next post
+      if (hasNextPost) goNextPost();
+    }
+  };
+
   if (typeof document === "undefined") return null;
 
   const authorHref = resolveAuthorHref(post.authorId);
@@ -151,7 +179,11 @@ export function PostLightbox({
       )}
 
       <div className="post-lightbox-frame">
-        <div className="post-lightbox-photo-area">
+        <div
+          className="post-lightbox-photo-area"
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
           <img
             src={post.photos[photoIdx]}
             alt={post.caption ?? `Post by ${post.authorName}`}

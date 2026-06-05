@@ -269,3 +269,17 @@ When the editable-post store lands, the action should mutate `Post.tags[]` direc
 **Refs:** `components/posts/PostKebabMenu.tsx`, `lib/useUntagStore.ts`, `app/dogs/[id]/page.tsx:DogPhotosBundle` (consumption-layer filter), `docs/features/profiles.md` → Untag-as-suppression note. Surfaced 2026-06-04 (Photos & Galleries walkthrough O2).
 
 **Added:** 2026-06-04
+
+---
+
+## FC14. Instagram-style drag-over-photo sheet on PostLightbox (mobile)
+
+**Trigger:** When a Demo Presentation polish pass opens pre-tester sit-down. Or when user testing surfaces "feels truncated" on the photo area below 55dvh.
+
+**Context:** V1 mobile `PostLightbox` (Photos & Galleries phase, 2026-06-04) stacks photo (top, 55dvh cap) + sidebar (below, scrollable) vertically. Caption + comments read fine but the photo loses the immersive feel a full-bleed image gives. Instagram-style alternative: photo fills the screen, the bottom content sheet starts collapsed (showing just author + caption preview), drags up to overlay the photo as the user reads / scrolls through comments. Snap points: collapsed (bottom ~30%) / expanded (covers ~90%, photo visible behind a slight blur).
+
+**Effort:** ~3-4 hours. Needs (a) a draggable sheet primitive with snap points + spring physics, (b) pointer-event coordination so the photo area still gets swipe-nav events when the sheet is collapsed, (c) backdrop-blur applied to the photo when the sheet expands beyond 50%, (d) keyboard / a11y story (Escape collapses then closes; tab order respects the sheet state).
+
+**Refs:** `components/posts/PostLightbox.tsx` (current mobile layout), `app/globals.css` → `.post-lightbox-*` mobile breakpoint, `components/overlays/ModalSheet.tsx` (potential primitive to share with). Surfaced 2026-06-04 during Photos & Galleries mobile testing.
+
+**Added:** 2026-06-04
