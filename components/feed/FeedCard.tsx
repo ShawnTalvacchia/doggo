@@ -33,6 +33,10 @@ interface FeedCardProps {
   comments?: PostComment[];
   /** Generic children for non-post cards (activity, nudges, etc.) */
   children?: React.ReactNode;
+  /** Optional kebab menu node rendered top-right of the card. Used
+   *  by post surfaces for the per-post three-dots menu
+   *  (Untag / Report / Block — Photos & Galleries D1). */
+  headerMenu?: React.ReactNode;
 }
 
 function formatRelativeDate(iso: string): string {
@@ -63,6 +67,7 @@ export function FeedCard({
   children,
   isCareProvider,
   isGroupAdmin,
+  headerMenu,
 }: FeedCardProps) {
   const currentUserId = useCurrentUserId();
   const [localReactions, setLocalReactions] = useState(reactions ?? []);
@@ -87,6 +92,7 @@ export function FeedCard({
   if (authorName) {
     return (
       <article className="feed-card">
+        {headerMenu && <div className="feed-card-menu-slot">{headerMenu}</div>}
         <div className="feed-card-body">
           {/* Left column: avatar */}
           <div className="feed-card-col-avatar">

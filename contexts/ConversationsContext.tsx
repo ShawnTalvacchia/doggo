@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useCallback } from "react";
-import { mockConversations } from "@/lib/mockConversations";
+import { mockConversations, CONVERSATIONS_SEED_VERSION } from "@/lib/mockConversations";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { usePersistedState } from "@/lib/usePersistedState";
 import type {
@@ -83,6 +83,7 @@ export function ConversationsProvider({ children }: { children: React.ReactNode 
   const [conversations, setConversations] = usePersistedState<Conversation[]>(
     "doggo-conversations",
     mockConversations,
+    { seedVersion: CONVERSATIONS_SEED_VERSION },
   );
   // Use useCurrentUser to honor `?as=` URL preview / sticky session
   // overrides. Without this, conversations filter by picker persona only,

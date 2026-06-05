@@ -50,6 +50,7 @@ import { getGroupById, getGroupMeets } from "@/lib/mockGroups";
 import { getPostsByGroup } from "@/lib/mockPosts";
 import { getConnectionState } from "@/lib/mockConnections";
 import { useConnections } from "@/contexts/ConnectionsContext";
+import { useGroups } from "@/contexts/GroupsContext";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import { getUserById } from "@/lib/mockUsers";
 import { getCarerIdentity, type CarerIdentity } from "@/lib/identityBadges";
@@ -160,9 +161,13 @@ function GroupDetailInner() {
   const { requireAuth } = useAuthGate();
   const { addNotification, notifications } = useNotifications();
   const wt = useWalkthrough();
+  // Persisted membership overrides (P43, 2026-06-02) — joins / leaves /
+  // pending requests now survive reloads and propagate across surfaces.
+  // Previous local-state flags (`joinRequested`, `joinedOpenOptimistic`)
+  // were the bug fixed by this wire-up.
+  const { isMember: isMemberInCtx, hasRequestedJoin, joinGroup, requestJoin, leaveGroup } = useGroups();
 
   const group = getGroupById(params.id as string);
-  const [joinRequested, setJoinRequested] = useState(false);
   const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [leaveMenuOpen, setLeaveMenuOpen] = useState(false);
   const [inviteSheetOpen, setInviteSheetOpen] = useState(false);
@@ -230,13 +235,13 @@ function GroupDetailInner() {
   // false is what makes the FeedTab render the "Join community" action row
   // (with a guest-mode AuthGate trigger) and the MembersTab fall to the
   // public-info view. Demo Presentation D3, 2026-05-05.
-  // Optimistic open-group join — flips local state so "Join community"
-  // doesn't feel like a dead-end in the prototype. Approval-only groups
-  // route through `joinRequested` + the request-to-join modal; open
-  // groups have no approval step, so a single state flip is enough.
-  // Pre-existing gap — wired during CCFT E4.4 verification (2026-05-11).
-  const [joinedOpenOptimistic, setJoinedOpenOptimistic] = useState(false);
-  const isMember = !isGuest && (group.members.some((m) => m.userId === currentUserId) || joinedOpenOptimistic);
+  // Membership now reads from GroupsContext — joins/leaves persist via
+  // localStorage and propagate to other surfaces using the same context.
+  // P43, 2026-06-02. Admin status still derives from the seed only —
+  // overrides can't elevate a member to admin, so we read `group.members`
+  // directly for the admin check.
+  const isMember = !isGuest && isMemberInCtx(currentUserId, group.id);
+  const joinRequested = !isGuest && hasRequestedJoin(currentUserId, group.id);
   const isAdmin = !isGuest && group.members.some((m) => m.userId === currentUserId && m.role === "admin");
   // Private groups are invite-only. The viewer counts as invited iff they
   // hold a group_invite notification for this group (`notifications` is
@@ -379,11 +384,14 @@ function GroupDetailInner() {
               // E4.4 walkthrough iteration.
               if (isGuest) return requireAuth("join this community");
               if (group.visibility === "approval") return setJoinModalOpen(true);
-              setJoinedOpenOptimistic(true);
+              joinGroup(currentUserId, group.id);
             }}
             leaveMenuOpen={leaveMenuOpen}
             onLeaveMenuToggle={() => setLeaveMenuOpen((v) => !v)}
-            onLeave={() => setLeaveMenuOpen(false)}
+            onLeave={() => {
+              leaveGroup(currentUserId, group.id);
+              setLeaveMenuOpen(false);
+            }}
             onOpenInvite={() => setInviteSheetOpen(true)}
             isGuest={isGuest}
             onGuestAction={requireAuth}
@@ -426,8 +434,9 @@ function GroupDetailInner() {
           // Note text is captured by the modal's state but not persisted
           // anywhere yet — the demo doesn't have an admin-side queue to
           // surface it on. The note shape lives in the modal for when that
-          // pipeline lands.
-          setJoinRequested(true);
+          // pipeline lands. P43 (2026-06-02): pending state now lives in
+          // GroupsContext so it survives reloads + propagates.
+          requestJoin(currentUserId, group.id);
           setJoinModalOpen(false);
         }}
       />

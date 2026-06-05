@@ -16,13 +16,16 @@ import {
   EnvelopeSimple,
   CheckCircle,
   Timer,
+  TagSimple,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { LayoutList } from "@/components/layout/LayoutList";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import { useConnections } from "@/contexts/ConnectionsContext";
+import { usePostDetail } from "@/contexts/PostDetailContext";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { usePendingTagsStore } from "@/lib/usePendingTagsStore";
 import type { AppNotification } from "@/lib/types";
 import type { NotificationType } from "@/lib/types";
 import { formatRelativeTime } from "@/lib/dateUtils";
@@ -99,6 +102,7 @@ const TYPE_ICONS: Record<NotificationType, typeof Bell> = {
   booking_message: EnvelopeSimple,
   meet_rsvp: UserPlus,
   post_comment: ChatCircle,
+  tag_pending: TagSimple,
 };
 
 const TYPE_LABELS: Record<NotificationType, string> = {
@@ -119,6 +123,7 @@ const TYPE_LABELS: Record<NotificationType, string> = {
   booking_message: "Message",
   meet_rsvp: "Meet",
   post_comment: "Comment",
+  tag_pending: "Tag",
 };
 
 /* ── Notification row ── */
@@ -129,6 +134,10 @@ function NotificationRow({
   requestStatus,
   onAccept,
   onDecline,
+  tagStatus,
+  onTagApprove,
+  onTagReject,
+  onOpenPost,
 }: {
   group: NotificationGroup;
   onTap: (ids: string[]) => void;
@@ -136,10 +145,19 @@ function NotificationRow({
   requestStatus?: "accepted" | "declined";
   onAccept?: () => void;
   onDecline?: () => void;
+  /** For `tag_pending` rows — the viewer's resolution, if any. */
+  tagStatus?: "approved" | "rejected";
+  onTagApprove?: () => void;
+  onTagReject?: () => void;
+  /** For `tag_pending` rows — opens the parent post in the global
+   *  post-detail modal. Wraps the avatar+body in a tap target;
+   *  Approve/Reject buttons stay independent. */
+  onOpenPost?: () => void;
 }) {
   const n = group.latest;
   const isGrouped = group.count > 1;
   const isConnReq = n.type === "connection_request";
+  const isTagPending = n.type === "tag_pending";
   const TypeIcon = TYPE_ICONS[n.type] || Bell;
   const label = TYPE_LABELS[n.type] || "Notification";
   const title = isGrouped && GROUP_TITLES[n.type]
@@ -174,11 +192,48 @@ function NotificationRow({
     )
   ) : null;
 
+  const tagPendingFooter = isTagPending ? (
+    tagStatus === "approved" ? (
+      <span className="flex items-center gap-xs text-sm font-semibold text-brand-main mt-xs">
+        <CheckCircle size={14} weight="fill" aria-hidden="true" />
+        Tag approved
+      </span>
+    ) : tagStatus === "rejected" ? (
+      <span className="text-sm text-fg-tertiary mt-xs">Tag rejected</span>
+    ) : (
+      // Approve / Reject buttons stop propagation so they don't bubble
+      // to the row-level "open post" tap target.
+      <div className="flex gap-sm mt-sm" onClick={(e) => e.stopPropagation()}>
+        <ButtonAction variant="primary" size="sm" onClick={onTagApprove}>
+          Approve
+        </ButtonAction>
+        <ButtonAction variant="outline" size="sm" onClick={onTagReject}>
+          Reject
+        </ButtonAction>
+      </div>
+    )
+  ) : null;
+
+  const tappableRow = isTagPending && !!onOpenPost && !tagStatus;
+
   const inner = (
     <div
       className={`flex items-start gap-md w-full p-lg border-b border-edge-regular${
         group.hasUnread ? " bg-surface-popout" : ""
-      }`}
+      }${tappableRow ? " notif-row-tappable" : ""}`}
+      onClick={tappableRow ? onOpenPost : undefined}
+      role={tappableRow ? "button" : undefined}
+      tabIndex={tappableRow ? 0 : undefined}
+      onKeyDown={
+        tappableRow
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onOpenPost?.();
+              }
+            }
+          : undefined
+      }
     >
       {/* Avatar(s) — wrapped in relative so we can corner-badge the
           unread state. Replaces the older left-side dot, which fought
@@ -235,16 +290,16 @@ function NotificationRow({
           {n.body}
         </span>
         {connReqFooter}
+        {tagPendingFooter}
       </div>
     </div>
   );
 
   const allIds = group.notifications.map((notif) => notif.id);
 
-  // Connection-request rows host inline buttons, so they can't be wrapped
-  // in a Link — render the row as-is; the Accept / Decline buttons carry
-  // the interaction.
-  if (isConnReq) {
+  // Inline-button rows (connection_request, tag_pending) host their own
+  // actions, so they can't be wrapped in a Link — render as-is.
+  if (isConnReq || isTagPending) {
     return inner;
   }
 
@@ -269,6 +324,8 @@ export default function NotificationsPage() {
   const { notifications, unreadCount, markRead, markAllRead } = useNotifications();
   const { getConnection, markConnected } = useConnections();
   const viewerId = useCurrentUserId();
+  const pendingTags = usePendingTagsStore(viewerId);
+  const { openPost } = usePostDetail();
   // Session-scoped record of connection requests resolved on this visit —
   // drives each row's post-action state. Accept also writes the real
   // Connected state through ConnectionsContext (persisted), so a reload
@@ -276,10 +333,42 @@ export default function NotificationsPage() {
   const [requestState, setRequestState] = useState<
     Record<string, "accepted" | "declined">
   >({});
-  const groups = useMemo(() => groupNotifications(notifications), [notifications]);
+  // Session-scoped record of tag_pending resolutions, mirroring the
+  // connection-request pattern. The persisted decision lives in
+  // usePendingTagsStore; this state drives the row's "approved/rejected"
+  // confirmation copy for the current session.
+  const [tagState, setTagState] = useState<
+    Record<string, "approved" | "rejected">
+  >({});
+
+  // Suppress tag_pending notifications whose underlying tag has already
+  // been decided in the store (cross-session persistence — the decision
+  // sticks even if the notification entry stays in the seed).
+  const visibleNotifications = useMemo(
+    () =>
+      notifications.filter((n) => {
+        if (n.type !== "tag_pending") return true;
+        if (!n.postId || !n.dogId) return true;
+        return pendingTags.getDecision(n.postId, n.dogId) === "pending";
+      }),
+    [notifications, pendingTags],
+  );
+  const groups = useMemo(() => groupNotifications(visibleNotifications), [visibleNotifications]);
 
   const handleTap = (ids: string[]) => {
     for (const id of ids) markRead(id);
+  };
+
+  const handleTagApprove = (n: AppNotification) => {
+    if (n.postId && n.dogId) pendingTags.approve(n.postId, n.dogId);
+    setTagState((s) => ({ ...s, [n.id]: "approved" }));
+    markRead(n.id);
+  };
+
+  const handleTagReject = (n: AppNotification) => {
+    if (n.postId && n.dogId) pendingTags.reject(n.postId, n.dogId);
+    setTagState((s) => ({ ...s, [n.id]: "rejected" }));
+    markRead(n.id);
   };
 
   // Accept — mutual Connected (both directions) + mark the row resolved.
@@ -332,6 +421,15 @@ export default function NotificationsPage() {
                     ? "accepted"
                     : undefined)
                 : undefined;
+            const tagStatus =
+              n.type === "tag_pending"
+                ? tagState[n.id] ??
+                  (n.postId &&
+                  n.dogId &&
+                  pendingTags.getDecision(n.postId, n.dogId) === "approved"
+                    ? "approved"
+                    : undefined)
+                : undefined;
             return (
               <NotificationRow
                 key={group.key}
@@ -340,6 +438,14 @@ export default function NotificationsPage() {
                 requestStatus={requestStatus}
                 onAccept={() => handleAccept(n)}
                 onDecline={() => handleDecline(n)}
+                tagStatus={tagStatus}
+                onTagApprove={() => handleTagApprove(n)}
+                onTagReject={() => handleTagReject(n)}
+                onOpenPost={
+                  n.type === "tag_pending" && n.postId
+                    ? () => openPost(n.postId!)
+                    : undefined
+                }
               />
             );
           })}

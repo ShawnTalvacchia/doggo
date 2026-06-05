@@ -733,6 +733,14 @@ const puppyBasicsJana: Booking = {
 
 // ── Exports ─────────────────────────────────────────────────────────────────────
 
+/**
+ * Seed version for the `doggo-bookings` persisted store. Bump this any
+ * time a new entry is added (or an existing one is meaningfully edited)
+ * that should appear without requiring testers to hit /demo Reset.
+ * P55, 2026-06-02. See `lib/usePersistedState.ts` → `seedVersion`.
+ */
+export const BOOKINGS_SEED_VERSION = 1;
+
 export const mockBookings: Booking[] = [
   olgaBooking,
   nikolaBooking,

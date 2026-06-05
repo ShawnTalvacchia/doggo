@@ -201,42 +201,43 @@ export function ParticipantList({
   const going = tiered.filter((a) => (a.rsvpStatus ?? "going") === "going");
   const interested = tiered.filter((a) => a.rsvpStatus === "interested");
 
-  // Private (tier 3) attendees + followers — render as compact PrivateProfileRow
-  // (smaller than tier-1/2 cards but still actionable when the viewer can act).
-  // Dedup on userId so someone who both attended and follows doesn't double up.
-  // Mock World Building 2026-04-30: replaced the chip-list-only treatment with
-  // small actionable rows so Private subjects can be marked Familiar from
-  // surfaces where the viewer has shared context (the meet itself IS context).
-  const lockedSet = new Map<string, TieredAttendee>();
-  for (const a of tiered) if (a.tier === 3) lockedSet.set(a.userId, a);
-  for (const f of tieredFollowers) if (f.tier === 3) lockedSet.set(f.userId, f);
-  const locked = Array.from(lockedSet.values());
-  const canActOnRows = rowActions === "auto";
+  // Private (tier 3) attendees split per RSVP status so each PeopleSection
+  // can render its own "Private profiles" sub-list. Previously all locked
+  // attendees (going + interested + followers) rendered in a single chip
+  // list between Going and Interested — visually that grouped everyone
+  // with Going while the count under Interested would still include them,
+  // producing empty-looking Interested sections with a non-zero header
+  // count. Split + nest fixes that: counts and visible rows align inside
+  // each section. 2026-06-03.
+  const lockedGoing = going.filter((a) => a.tier === 3);
+  const lockedInterested = interested.filter((a) => a.tier === 3);
 
-  // Followers subsection renders only tier 1/2 — locked followers fall to the
-  // chip list above. Dedup against attendees so someone who both follows and
-  // is RSVP'd doesn't appear in two places (attendee section wins).
+  // Followers — dedup against attendees (someone who both follows + RSVP'd
+  // appears in the attendee section, not here). Then split into visible
+  // (tier 1/2) and locked-followers (tier 3) — the latter renders inside
+  // the "Following this series" section as Private profiles.
   const attendeeIds = new Set(tiered.map((a) => a.userId));
-  const followersVisible = tieredFollowers.filter(
-    (f) => f.tier !== 3 && !attendeeIds.has(f.userId),
-  );
+  const dedupedFollowers = tieredFollowers.filter((f) => !attendeeIds.has(f.userId));
+  const followersVisible = dedupedFollowers.filter((f) => f.tier !== 3);
+  const lockedFollowers = dedupedFollowers.filter((f) => f.tier === 3);
 
   const goingHeading =
     headingOverride ?? (isCompleted ? "Who attended" : "Who’s going");
 
-  // Meta-section ordering: Going block (Connected/Familiar/Other + Locked
-  // chips) → MetaDivider → Interested → MetaDivider → Following this series.
-  // The divider + larger gap signal that we're crossing from one meta-section
-  // to another (different RSVP commitment levels), versus the smaller
-  // SectionHeader/in-block boundaries within a section.
+  // Meta-section ordering: Going block (visible rows + Private profiles
+  // sub-list) → MetaDivider → Interested → MetaDivider → Following this
+  // series. The divider + larger gap signal that we're crossing from one
+  // meta-section to another (different RSVP commitment levels), versus
+  // the smaller SectionHeader/in-block boundaries within a section.
   const showInterested = interested.length > 0;
-  const showFollowers = followersVisible.length > 0;
+  const showFollowers = followersVisible.length > 0 || lockedFollowers.length > 0;
 
   return (
     <section className="flex flex-col gap-md">
       <PeopleSection
         title={goingHeading}
         attendees={going}
+        lockedAttendees={lockedGoing}
         viewerId={viewerId}
         rowActions={rowActions}
         marks={localMarks}
@@ -245,28 +246,13 @@ export function ParticipantList({
         onUndoMark={handleUndoMark}
       />
 
-      {locked.length > 0 && (
-        <div className="flex flex-col gap-sm">
-          <SectionHeader label="Private profiles" />
-          {locked.map((a) => (
-            <PrivateProfileRow
-              key={a.userId}
-              userId={a.userId}
-              name={a.userName}
-              avatarUrl={a.avatarUrl}
-              dogNames={a.dogNames}
-              canAct={canActOnRows}
-            />
-          ))}
-        </div>
-      )}
-
       {showInterested && (
         <>
           <MetaDivider />
           <PeopleSection
             title="Interested"
             attendees={interested}
+            lockedAttendees={lockedInterested}
             viewerId={viewerId}
             rowActions={rowActions}
             marks={localMarks}
@@ -284,6 +270,7 @@ export function ParticipantList({
           <PeopleSection
             title="Following this series"
             attendees={followersVisible}
+            lockedAttendees={lockedFollowers}
             viewerId={viewerId}
             rowActions={rowActions}
             marks={localMarks}
@@ -303,6 +290,7 @@ export function ParticipantList({
 function PeopleSection({
   title,
   attendees,
+  lockedAttendees = [],
   viewerId,
   rowActions,
   subdued = false,
@@ -312,7 +300,15 @@ function PeopleSection({
   onUndoMark,
 }: {
   title: string;
+  /** All RSVP'd attendees for this section (going OR interested), including
+   *  tier-3. Used for the section's `(N)` count and as the source of the
+   *  visible rows (after tier-3 is filtered out for the card subsections). */
   attendees: TieredAttendee[];
+  /** Tier-3 attendees for this section (subset of `attendees`), rendered as
+   *  a "Private profiles" sub-list at the bottom of this section. Splitting
+   *  the locked attendees per parent section so counts + visible rows align
+   *  within each heading. 2026-06-03. */
+  lockedAttendees?: TieredAttendee[];
   viewerId: string;
   rowActions: PersonAction[] | "auto";
   subdued?: boolean;
@@ -321,6 +317,7 @@ function PeopleSection({
   onDowngrade: (userId: string) => void;
   onUndoMark: (userId: string) => void;
 }) {
+  const canActOnRows = rowActions === "auto";
   // Connected first (with viewer pinned to top of that subsection),
   // then Familiar (outbound only — labeled), then everything else flat
   // (Pending / Open / inbound theyMarkedFamiliar — unlabeled to preserve
@@ -413,6 +410,26 @@ function PeopleSection({
         <div className="flex flex-col gap-sm">
           <SectionHeader label="Other attendees" />
           {other.map(renderRow)}
+        </div>
+      )}
+
+      {lockedAttendees.length > 0 && (
+        // Per-section Private profiles sub-list — locked attendees rolled
+        // up under their own RSVP-status section so the heading count
+        // matches the visible rows below. Was a single sibling chip list
+        // between Going and Interested until 2026-06-03.
+        <div className="flex flex-col gap-sm">
+          <SectionHeader label="Private profiles" />
+          {lockedAttendees.map((a) => (
+            <PrivateProfileRow
+              key={a.userId}
+              userId={a.userId}
+              name={a.userName}
+              avatarUrl={a.avatarUrl}
+              dogNames={a.dogNames}
+              canAct={canActOnRows}
+            />
+          ))}
         </div>
       )}
     </div>

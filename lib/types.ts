@@ -623,7 +623,16 @@ export type NotificationType =
   | "group_invite"
   | "group_activity"
   | "post_comment"
-  | "care_review";
+  | "care_review"
+  /**
+   * Fired when someone tags a dog the viewer owns AND the viewer has
+   * `tagApproval === "approve"`. The /notifications surface renders
+   * inline Approve / Reject — mirrors the `connection_request` pattern.
+   * Resolved (already approved/rejected via `usePendingTagsStore`)
+   * notifications are filtered out of the list at render time.
+   * Photos & Galleries phase, 2026-06-04.
+   */
+  | "tag_pending";
 
 export interface AppNotification {
   id: string;
@@ -645,6 +654,12 @@ export interface AppNotification {
   href?: string;
   createdAt: string;
   read: boolean;
+  /** For `tag_pending` — the post containing the dog tag awaiting
+   *  the recipient's approval. Wired to the inline Approve/Reject
+   *  actions on the notification row. */
+  postId?: string;
+  /** For `tag_pending` — the recipient's dog the post tags. */
+  dogId?: string;
 }
 
 // ── Reviews ────────────────────────────────────────────────────────────────────
@@ -1273,7 +1288,24 @@ export interface PetProfile {
     triggers?: string[];
     playPreferences?: string[];
   };
-  photoGallery?: string[];    // additional photo URLs beyond imageUrl
+  /**
+   * **Highlights** — owner-curated pinned photo URLs surfaced as a small
+   * horizontal strip above the auto-album on `/dogs/[id]`. Owner picks
+   * what represents the dog at a glance (Instagram-style editorial
+   * control on top of the chronological auto-album).
+   *
+   * The auto-album itself is derived from posts tagging this dog via
+   * `getPostsByDog` in `lib/dogPosts.ts` — it does NOT read this field.
+   *
+   * Capped at ~5–6 visible in the strip with "See all →" if longer.
+   * Pin/unpin happens via long-press on auto-album photos (Workstream C3);
+   * reorder happens in the Edit Highlights modal (Workstream C4).
+   *
+   * Parallel to `UserProfile.highlights` for the owner-profile Posts tab —
+   * same shape, same semantics, different subject. Renamed from the
+   * legacy `photoGallery` 2026-06-04 for name/semantic alignment.
+   */
+  highlights?: string[];
 
   // ── Shelter-only fields (Shelter Foundation, 2026-06-01) ─────────────
   // Present on dogs contained in `ShelterProfile.dogs[]`. Ownership is
@@ -1567,6 +1599,26 @@ export interface CarerMeetServiceConfig {
  */
 export type AppointmentCategory = "grooming" | "training";
 
+/**
+ * Sub-types within `appointmentCategory: "training"` — Roman's PO interview
+ * (2026-06-02) flagged 11 worth representing. Lets a trainer's 1-on-1
+ * service signal what KIND of training it is, which is information the
+ * owner of an anxious / reactive / sport / agility dog needs to filter
+ * for. Only meaningful when `appointmentCategory === "training"`. P73.
+ */
+export type TrainingType =
+  | "obedience"
+  | "manners"
+  | "behaviour"
+  | "agility"
+  | "tracking"
+  | "protection"
+  | "therapy"
+  | "service"
+  | "retriever"
+  | "sports"
+  | "puppy_socialisation";
+
 export interface CarerAppointmentServiceConfig {
   kind: "appointment";
   /** Stable id within the provider's catalogue (e.g. "premiumvet-checkup"). */
@@ -1582,6 +1634,11 @@ export interface CarerAppointmentServiceConfig {
    *  neither pure Care (drop-off, no specific time) nor pure Meet (specific
    *  time, social roster) — they're appointment-type. */
   appointmentCategory: AppointmentCategory;
+  /** Training-specific sub-type (only meaningful when
+   *  `appointmentCategory === "training"`). Renders as a chip on the
+   *  service card so owners filtering for "agility" vs "behaviour" vs
+   *  "puppy socialisation" can find the right match. P73, 2026-06-03. */
+  trainingType?: TrainingType;
   notes?: string;
   /**
    * Soft-archive marker — same semantics as `CarerMeetServiceConfig.softDeletedAt`.
@@ -1616,6 +1673,25 @@ export interface CarerCredentials {
   identityVerified?: boolean;
 }
 
+/**
+ * Carer sub-specialization — the explicit "what kind of carer" tag a user
+ * sets on their profile. Drives the sub-spec on the Carer Identity badge
+ * (`Carer · Trainer`, etc.) when present. Highest-priority sub-spec source
+ * — beats the inferred-from-care-group and inferred-from-credential paths.
+ *
+ * Multi-value: a trainer-walker hybrid (Klára) carries both. V1 of the
+ * badge surfaces only the first entry; multi-spec rendering ("Trainer +
+ * Walker") is a future enhancement once a multi-spec carer is real demo
+ * material. P60, 2026-06-03.
+ */
+export type CarerSpecialization =
+  | "trainer"
+  | "walker"
+  | "sitter"
+  | "boarder"
+  | "daycare"
+  | "groomer";
+
 export interface CarerProfile {
   bio: string;
   location: string;
@@ -1628,6 +1704,11 @@ export interface CarerProfile {
   /** Repeat-booking metric — count of distinct owners who've booked 3+ times.
    *  Mock data field for demo; production derives from booking history. */
   repeatClients?: number;
+  /** Sub-specializations the carer offers (Trainer, Walker, etc.). Renders
+   *  as a sub-spec on the Carer Identity badge — "Carer · Trainer" etc.
+   *  Direct-set field; takes priority over inferred sub-spec sources. See
+   *  [[lib/identityBadges]] → resolveCarerSubSpec. P60, 2026-06-03. */
+  specializations?: CarerSpecialization[];
 }
 
 export type TagApproval = "auto" | "approve" | "none";
@@ -1655,6 +1736,14 @@ export interface UserProfile {
   profileVisibility?: ProfileVisibility;
   /** Short code for share-profile link (e.g. "shawn-abc123") */
   shareCode?: string;
+  /**
+   * Owner-curated photo URLs surfaced as a Highlights strip above the
+   * Posts tab on `/profile/[id]`. Parallel to `PetProfile.highlights`
+   * for dogs. V1 is a flat list; future Albums (§12 open item) extend
+   * this into named sub-collections with a dropdown switcher on the
+   * Highlights header. Photos & Galleries phase, 2026-06-04.
+   */
+  highlights?: string[];
 }
 
 // ── Shelters (Institutional Accounts) ─────────────────────────────────────────

@@ -22,7 +22,8 @@ import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { Slider } from "@/components/ui/Slider";
 import { ButtonAction } from "@/components/ui/ButtonAction";
-import { getAllPublicGroups, getUserGroups } from "@/lib/mockGroups";
+import { getAllPublicGroups } from "@/lib/mockGroups";
+import { useGroups } from "@/contexts/GroupsContext";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { Group, GroupType } from "@/lib/types";
 
@@ -370,8 +371,11 @@ function DiscoverGroupsInner() {
   const [filters, setFilters] = useState<GroupFilters>(DEFAULT_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
   const currentUserId = useCurrentUserId();
+  // Override-aware membership read (P43, 2026-06-02) so a group joined on
+  // the detail page disappears from Discover without a page reload.
+  const { getUserGroupIds } = useGroups();
 
-  const userGroupIds = useMemo(() => new Set(getUserGroups(currentUserId).map((g) => g.id)), [currentUserId]);
+  const userGroupIds = useMemo(() => getUserGroupIds(currentUserId), [getUserGroupIds, currentUserId]);
   const allGroups = useMemo(() => getAllPublicGroups().filter((g) => !userGroupIds.has(g.id)), [userGroupIds]);
   const results = useMemo(() => applyFilters(allGroups, activeType, filters), [allGroups, activeType, filters]);
 

@@ -1,4 +1,4 @@
-import type { UserProfile } from "./types";
+import type { CarerSpecialization, UserProfile } from "./types";
 import { mockGroups } from "./mockGroups";
 
 /**
@@ -19,8 +19,9 @@ import { mockGroups } from "./mockGroups";
  * not by intensity. If you can see the pill, you can act on the services.
  *
  * **Sub-spec resolution priority:**
- *   1. (Future) `carerProfile.specializations` — direct user-set field. Not
- *      built; tracked in punch list P60.
+ *   1. `carerProfile.specializations` — direct user-set field (P60, 2026-06-03).
+ *      Takes the FIRST entry when multiple are set; multi-spec rendering
+ *      ("Trainer + Walker") is a future enhancement.
  *   2. Care group `careCategory` — when the carer runs or co-runs a Care
  *      group, the group's category becomes the sub-spec ("training" → "Dog
  *      Trainer", "grooming" → "Groomer", etc.). This is how Klára gets "Dog Trainer."
@@ -44,6 +45,18 @@ const CARE_CATEGORY_LABELS: Record<string, string> = {
   other: "Carer",
 };
 
+/** `CarerSpecialization` → singular display label for the badge sub-spec.
+ *  Distinct from `CARE_CATEGORY_LABELS` (group-shaped, e.g. "Grooming
+ *  Salon") — these are individual-shaped ("Groomer"). P60, 2026-06-03. */
+const SPECIALIZATION_LABELS: Record<CarerSpecialization, string> = {
+  trainer: "Dog Trainer",
+  walker: "Dog Walker",
+  sitter: "Pet Sitter",
+  boarder: "Boarder",
+  daycare: "Day Care",
+  groomer: "Groomer",
+};
+
 export interface CarerIdentity {
   /** `"open"` = `publicProfile === true` (public to anyone).
    *  `"circle"` = `publicProfile === false` AND viewer is Connected
@@ -64,7 +77,14 @@ function resolveCarerSubSpec(
   subjectUserId: string,
   subject: UserProfile,
 ): string | undefined {
-  // 1. Future field would be `subject.carerProfile?.specializations` — see P60.
+  // 1. Direct specialization field (P60, 2026-06-03) — highest priority
+  //    because it's the user's explicit choice. Takes the first entry
+  //    when multiple specs are set; "Trainer + Walker" multi-spec
+  //    rendering is filed as a future enhancement.
+  const specs = subject.carerProfile?.specializations ?? [];
+  if (specs.length > 0) {
+    return SPECIALIZATION_LABELS[specs[0]!];
+  }
 
   // 2. Care group careCategory — carer runs or co-runs a Care group.
   const group = mockGroups.find(

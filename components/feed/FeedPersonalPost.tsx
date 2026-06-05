@@ -3,6 +3,7 @@
 import { FeedCard } from "./FeedCard";
 import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
 import { TagPillRow } from "@/components/posts/TagPill";
+import { PostKebabMenu } from "@/components/posts/PostKebabMenu";
 import type { Post } from "@/lib/types";
 
 export function FeedPersonalPost({ post, connectionContext }: { post: Post; connectionContext?: string }) {
@@ -18,6 +19,7 @@ export function FeedPersonalPost({ post, connectionContext }: { post: Post; conn
       caption={post.caption}
       reactions={post.reactions}
       comments={post.comments}
+      headerMenu={<PostKebabMenu post={post} />}
     />
   );
 }

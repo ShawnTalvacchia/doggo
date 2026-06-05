@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-06-01
+last-reviewed: 2026-06-04
 tags: [privacy, visibility, content, groups, photos]
 review-trigger: "when touching content sharing, photo features, feed logic, or group visibility"
 ---
@@ -163,7 +163,9 @@ When Viewer visits Author's profile, they see a filtered gallery. This is the sc
 | Author's meet photos from meets Viewer didn't attend (in shared group) | **Yes** | Context gate: shared group membership |
 | Author's meet photos from private group Viewer isn't in | **No** | Context gate: private group, not a member |
 
-**Profile gallery is filterable:** Viewer can filter by "All (visible to me)" / by specific shared group / by personal posts only. The filter options themselves reveal only contexts the Viewer has access to — they never see a filter label for a private group they're not in.
+**Profile gallery is filterable:** Filter UI sits at the top of the Posts tab as **tag-type pill-dropdowns** (`Dog ▾`, `Person ▾`, `Place ▾`, `Community ▾`, `Meet ▾`). Each pill opens a popover menu with checkbox rows; multi-select within a type, AND across types. The pill renders only when ≥1 viewer-visible option exists for that type — the dropdown lists, the visible-post count, and both view modes (List + Grid) all read from `isPostVisibleTo`-gated posts. Viewers never see a filter label for a private group they're not in.
+
+**Implementation note (Photos & Galleries, 2026-06-04).** Auto-album surface on `/dogs/[id]` consumes the gated set via `getPostsByDog(dogId, viewerId)` in `lib/dogPosts.ts`. Owner sees ALL tagged posts on their own dog (owner is the dog's authority); other viewers see only posts passing the two-gate. The Posts-tab grid view (`PhotoGrid` component) reuses the same resolver pattern scoped by author. Both surfaces stop at the gate — tags do not expand audience.
 
 ---
 

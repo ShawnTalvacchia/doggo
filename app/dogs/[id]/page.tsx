@@ -13,6 +13,9 @@ import {
   PencilSimple,
   X,
   Check,
+  Camera,
+  GenderMale,
+  GenderFemale,
 } from "@phosphor-icons/react";
 import { DetailHeader } from "@/components/layout/DetailHeader";
 import { TabBar } from "@/components/ui/TabBar";
@@ -20,7 +23,7 @@ import { Spacer } from "@/components/layout/Spacer";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
-import { MomentCardFromPost } from "@/components/feed/MomentCard";
+import { PostsCollectionView } from "@/components/posts/PostsCollectionView";
 import { PetEditCard } from "@/components/profile/PetEditCard";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
@@ -28,6 +31,15 @@ import { useConnections } from "@/contexts/ConnectionsContext";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { getShelterDog, getDogPosts } from "@/lib/mockShelters";
 import { getOwnedDogWithOwner } from "@/lib/mockUsers";
+import { getPostsByDog } from "@/lib/dogPosts";
+import { PhotoGrid } from "@/components/photos/PhotoGrid";
+import { HighlightsStrip } from "@/components/photos/HighlightsStrip";
+import { EditHighlightsModal } from "@/components/photos/EditHighlightsModal";
+import { PhotosSettingsMenu } from "@/components/photos/PhotosSettingsMenu";
+import { usePhotoAlbumOverrides } from "@/lib/usePhotoAlbumOverrides";
+import { useUntagStore } from "@/lib/useUntagStore";
+import { usePendingTagsStore } from "@/lib/usePendingTagsStore";
+import { usePostComposer } from "@/contexts/PostComposerContext";
 import {
   VACCINATION_LABELS,
   deriveAutoTags,
@@ -40,6 +52,7 @@ import type {
   PetProfile,
   Post,
   ShelterProfile,
+  TagApproval,
   UserProfile,
   VetInfo,
 } from "@/lib/types";
@@ -310,7 +323,11 @@ function DogProfileInner() {
   // block below so JSX can deref freely.
   const dog = maybeDog as PetProfile;
   const shelter = shelterResolved?.shelter;
-  const posts = getDogPosts(dog.id);
+  // Viewer-aware: owner sees ALL tagged posts on their own dog; other
+  // viewers see only posts that pass the two-gate Content Visibility
+  // Model. The previous ungated `getDogPosts` is reserved for the
+  // RecentWalkers component (walker activity is public-ish surface).
+  const posts = getPostsByDog(dog.id, currentUserId);
   // Shelter-care stats (In care, Last walked) only render while the dog
   // is actively being cared for at the shelter. Once adopted, the dog
   // has gone home and those numbers stop being meaningful. Owned dogs
@@ -412,14 +429,7 @@ function DogProfileInner() {
                 )}
               </div>
               <div className="dog-profile-line">
-                {[
-                  dog.breed,
-                  dog.sex === "male" ? "Male" : dog.sex === "female" ? "Female" : null,
-                  dog.ageLabel,
-                  dog.weightLabel,
-                ]
-                  .filter(Boolean)
-                  .join(" · ")}
+                <DogMetaLine dog={dog} />
               </div>
 
               {/* Tag row lives inside the hero (moved from the next
@@ -525,17 +535,18 @@ function DogProfileInner() {
               phase. */}
           {shelter && <RecentWalkers shelter={shelter} dogId={dog.id} />}
 
-          {/* Photos landing slot (Dog Profile phase, 2026-06-02). Reserves
-              the surface for the Photos & Galleries phase, which will
-              populate an auto-album from tagged posts. V1 surfaces only
-              the existing curated `photoGallery` field; the auto-album +
-              owner moderation + Highlights pinning belong to the next
-              phase. See [[phases/photos-and-galleries]] (draft). */}
-          <DogPhotoGallerySection dog={dog} />
-
-          {/* Posts about this dog. Works identically for owned + shelter
-              dogs — `getDogPosts(id)` matches posts tagging the dog id. */}
-          <DogPostsSection dog={dog} posts={posts} />
+          {/* Highlights + Posts surface — symmetric with the owner
+              profile Posts tab. Highlights strip on top, then the
+              shared `PostsCollectionView` (filter pills + List ⇄ Grid
+              toggle + the rendered set). Pre-2026-06-04 this was split
+              into Photos + Posts-about sections; the unification keeps
+              the dog page and owner profile reading the same. */}
+          <DogPhotosBundle
+            dog={dog}
+            posts={posts}
+            isOwnerView={isOwnerView}
+            ownerTagApproval={owner?.tagApproval}
+          />
 
           {/* Backlink: shelter (shelter dog) or owner (owned dog). */}
           {shelter && <ShelterBacklink shelter={shelter} />}
@@ -549,6 +560,46 @@ function DogProfileInner() {
 }
 
 /* ── Sub-components ────────────────────────────────────────────────── */
+
+/**
+ * Hero meta line — mirrors `PetSummaryCard`'s order + sex-icon treatment
+ * so the dog reads the same way across the owner profile card and the
+ * dog profile page hero. Breed · age · sex-icon+letter · weight; each
+ * field is optional and only renders when present. 2026-06-04.
+ */
+function DogMetaLine({ dog }: { dog: PetProfile }) {
+  const SexIcon =
+    dog.sex === "male" ? GenderMale : dog.sex === "female" ? GenderFemale : null;
+  const sexLetter = dog.sex === "male" ? "M" : dog.sex === "female" ? "F" : "";
+  const sexAria = dog.sex === "male" ? "Male" : dog.sex === "female" ? "Female" : "";
+
+  return (
+    <span className="dog-profile-meta-row">
+      {dog.breed && <span>{dog.breed}</span>}
+      {dog.ageLabel && (
+        <>
+          <span aria-hidden="true">·</span>
+          <span>{dog.ageLabel}</span>
+        </>
+      )}
+      {SexIcon && (
+        <>
+          <span aria-hidden="true">·</span>
+          <span className="dog-profile-meta-sex" aria-label={sexAria}>
+            <SexIcon size={14} weight="bold" />
+            {sexLetter}
+          </span>
+        </>
+      )}
+      {dog.weightLabel && (
+        <>
+          <span aria-hidden="true">·</span>
+          <span>{dog.weightLabel}</span>
+        </>
+      )}
+    </span>
+  );
+}
 
 function DogStatTile({
   icon,
@@ -709,70 +760,152 @@ function RecentWalkers({ shelter, dogId }: { shelter: ShelterProfile; dogId: str
 }
 
 /**
- * Photos landing slot (Dog Profile phase, 2026-06-02). Renders the
- * existing curated `photoGallery` thumbnails in a 3-column grid. The
- * Photos & Galleries phase will replace this with an auto-album drawn
- * from posts tagged with the dog id, plus owner moderation + Highlights
- * pinning. V1 reserves the surface so testers see the section structure.
+ * Photos bundle (Photos & Galleries phase, 2026-06-04). Composes:
  *
- * Always renders the header so the upcoming auto-album feels in-place;
- * the body shows thumbs if seeded, an empty caption otherwise.
+ *  1. **Highlights strip** — owner-curated photo URLs above the grid.
+ *  2. **Auto-album grid** — viewer-gated post-tagged photos. Tap → post
+ *     modal. Long-press (owner only) → Pin / Hide action sheet.
+ *  3. **Edit Highlights modal** — reorder + unpin from a single screen.
+ *
+ * All three surfaces share `usePhotoAlbumOverrides` so Pin / Hide /
+ * reorder all flow through one persisted state per dog.
+ *
+ * Owner sees ALL tagged posts on their own dog (owner is the dog's
+ * authority — Open Q §12). Other viewers see only posts that pass the
+ * Content Visibility Model two-gate (already enforced by
+ * `getPostsByDog`). Hide-from-album filter is owner-side and only
+ * applies for the owner's own view.
+ *
+ * Empty state: own-dog gets a "Post your first photo" CTA opening the
+ * composer with the dog tag picker pre-active. Non-owner viewers with
+ * zero visible posts see nothing — the bundle returns null.
  */
-function DogPhotoGallerySection({ dog }: { dog: PetProfile }) {
-  const photos = dog.photoGallery ?? [];
-  return (
-    <div className="dog-profile-section">
-      <h2 className="dog-profile-section-title">Photos</h2>
-      <p className="text-xs text-fg-tertiary">
-        Coming soon — photos from posts tagging {dog.name} will surface here.
-      </p>
-      {photos.length > 0 ? (
-        <div
-          className="grid gap-xs"
-          style={{ gridTemplateColumns: "repeat(3, 1fr)", marginTop: "var(--space-sm)" }}
-        >
-          {photos.map((url, i) => (
-            <img
-              key={i}
-              src={url}
-              alt={`${dog.name} photo ${i + 1}`}
-              className="rounded-sm"
-              style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover" }}
-            />
-          ))}
-        </div>
-      ) : null}
-    </div>
-  );
-}
+function DogPhotosBundle({
+  dog,
+  posts,
+  isOwnerView,
+  ownerTagApproval,
+}: {
+  dog: PetProfile;
+  posts: Post[];
+  isOwnerView: boolean;
+  ownerTagApproval?: TagApproval;
+}) {
+  const { openComposer } = usePostComposer();
+  const overrides = usePhotoAlbumOverrides(dog.id, dog.highlights ?? []);
+  const viewerId = useCurrentUserId();
+  const untagStore = useUntagStore(viewerId);
+  const pendingStore = usePendingTagsStore(viewerId);
+  const [editOpen, setEditOpen] = useState(false);
 
-function DogPostsSection({ dog, posts }: { dog: PetProfile; posts: Post[] }) {
-  if (posts.length === 0) {
-    return (
+  // Apply owner-side filters (only on owner view — all three filter
+  // lists are per-owner per-dog state):
+  //   1. Hide-from-album (long-press → "Hide from album")
+  //   2. Untag-this-dog (per-post kebab → "Untag {Dog}")
+  //   3. Pending-or-rejected approval (when owner.tagApproval === "approve")
+  // Any of the three exclude the post from the auto-album surface.
+  //
+  // Approval rule (2026-06-04 fix): pending stays pending forever until
+  // the owner decides. No aging out. Pre-existing dog-tag pairs default
+  // to approved (grandfathered) via `usePendingTagsStore` — only the
+  // explicit `DEMO_PENDING_TAGS` carve-out flips to pending.
+  const approvalMode = ownerTagApproval === "approve";
+  const surfacedPosts = isOwnerView
+    ? posts.filter((p) => {
+        if (overrides.hiddenPostIds.has(p.id)) return false;
+        if (untagStore.isUntagged(p.id, dog.id)) return false;
+        if (approvalMode) {
+          const decision = pendingStore.getDecision(p.id, dog.id);
+          if (decision === "pending" || decision === "rejected") return false;
+        }
+        return true;
+      })
+    : posts;
+
+  // Non-owner viewers see nothing when there are no visible posts AND
+  // no Highlights to show. Owners always see the surface so they can
+  // post / edit.
+  const hasAnything = surfacedPosts.length > 0 || overrides.highlights.length > 0;
+  if (!hasAnything && !isOwnerView) return null;
+
+  const emptyState =
+    surfacedPosts.length === 0 ? (
       <div className="dog-profile-section">
-        <h2 className="dog-profile-section-title">Posts about {dog.name}</h2>
-        <EmptyState
-          icon={<PawPrint size={28} weight="light" />}
-          title={`No posts about ${dog.name} yet`}
-          subtitle="Walks and updates from her shelter and walkers will appear here."
-        />
+        <div className="flex items-center justify-between">
+          <h2 className="dog-profile-section-title">Posts</h2>
+          {isOwnerView && (
+            <PhotosSettingsMenu
+              dogName={dog.name}
+              hiddenPosts={posts.filter((p) => overrides.hiddenPostIds.has(p.id))}
+              highlightsCount={overrides.highlights.length}
+              ownerTagApproval={ownerTagApproval}
+              onUnhide={overrides.unhidePost}
+              onClearHighlights={overrides.clearHighlights}
+            />
+          )}
+        </div>
+        <div className="flex flex-col items-center gap-md text-center" style={{ padding: "var(--space-lg) 0" }}>
+          <Camera size={32} weight="light" className="text-fg-tertiary" />
+          <p className="text-sm text-fg-secondary m-0">
+            No posts about {dog.name} yet.
+          </p>
+          {isOwnerView && (
+            <ButtonAction
+              variant="secondary"
+              size="sm"
+              onClick={() => openComposer({ initialTagPicker: "dog" })}
+              leftIcon={<Camera size={14} weight="light" />}
+            >
+              Post your first photo
+            </ButtonAction>
+          )}
+        </div>
       </div>
-    );
-  }
-  // Title in a header strip (keeps the section chrome — padding,
-  // border-bottom). Posts render below as full-width MomentCards, no
-  // outer padding — drops the card-in-card visual that was crowding
-  // each post (2026-06-03 walkthrough B-ish).
+    ) : null;
+
   return (
     <>
-      <div className="dog-profile-section dog-profile-section--header-only">
-        <h2 className="dog-profile-section-title">Posts about {dog.name}</h2>
+      <HighlightsStrip
+        highlights={overrides.highlights}
+        subjectLabel={dog.name}
+        isOwnerView={isOwnerView}
+        onEdit={() => setEditOpen(true)}
+      />
+
+      <div className="dog-profile-section">
+        <div className="flex items-center justify-between">
+          <h2 className="dog-profile-section-title">Posts</h2>
+          {isOwnerView && (
+            <PhotosSettingsMenu
+              dogName={dog.name}
+              hiddenPosts={posts.filter((p) => overrides.hiddenPostIds.has(p.id))}
+              highlightsCount={overrides.highlights.length}
+              ownerTagApproval={ownerTagApproval}
+              onUnhide={overrides.unhidePost}
+              onClearHighlights={overrides.clearHighlights}
+            />
+          )}
+        </div>
+        <PostsCollectionView
+          posts={surfacedPosts}
+          subjectLabel={dog.name}
+          urlBase={`/dogs/${dog.id}`}
+          // The Dog filter would always be redundant (the page already
+          // scopes to one dog). Suppress its pill.
+          excludeFilterTypes={["dog"]}
+          listCardVariant="moment"
+          emptyState={emptyState}
+        />
       </div>
-      <div className="dog-profile-posts">
-        {posts.map((post) => (
-          <MomentCardFromPost key={post.id} post={post} />
-        ))}
-      </div>
+
+      <EditHighlightsModal
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        subjectLabel={dog.name}
+        highlights={overrides.highlights}
+        onReorder={overrides.reorderHighlights}
+        onUnpin={overrides.unpinHighlight}
+      />
     </>
   );
 }

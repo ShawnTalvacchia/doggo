@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useCallback, useMemo } from "react";
-import { mockNotifications } from "@/lib/mockNotifications";
+import { mockNotifications, NOTIFICATIONS_SEED_VERSION } from "@/lib/mockNotifications";
 import { usePersistedState } from "@/lib/usePersistedState";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import type { AppNotification } from "@/lib/types";
@@ -48,6 +48,7 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
   const [allNotifications, setAllNotifications] = usePersistedState<AppNotification[]>(
     STORAGE_KEY,
     mockNotifications,
+    { seedVersion: NOTIFICATIONS_SEED_VERSION },
   );
   const currentUserId = useCurrentUserId();
 

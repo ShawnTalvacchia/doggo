@@ -468,7 +468,19 @@ export function getShelterFeed(shelter: ShelterProfile): Post[] {
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 }
 
-/** Posts tagged with a specific shelter dog. Sorted newest-first. */
+/**
+ * All posts tagged with the given dog, ungated. Use only for surfaces
+ * that don't apply viewer visibility — e.g. the shelter-dog RecentWalkers
+ * card (walker activity surfaces public-ish; the shelter profile itself
+ * is the privacy boundary).
+ *
+ * For viewer-gated reads (auto-album, profile photo grid), call
+ * `getPostsByDog(dogId, viewerId)` in `lib/dogPosts.ts` — it layers the
+ * two-gate Content Visibility Model on top, plus the owner-bypass rule
+ * (owner sees ALL tagged posts on their own dog).
+ *
+ * Sorted newest-first.
+ */
 export function getDogPosts(dogId: string): Post[] {
   return mockPosts
     .filter((p) => p.tags.some((t) => t.type === "dog" && t.id === dogId))

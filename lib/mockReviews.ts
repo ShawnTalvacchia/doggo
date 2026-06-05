@@ -1,5 +1,12 @@
 import type { UserReview } from "./types";
 
+/**
+ * Seed version for the `doggo-care-reviews` persisted store. Bump this
+ * any time review seeds change so testers see the new ones without a
+ * /demo Reset. P55, 2026-06-02.
+ */
+export const REVIEWS_SEED_VERSION = 1;
+
 export const mockReviews: UserReview[] = [
   /* ── Klára (4 seeded reviews, avg 4.75) — social proof on her profile.
         Both `review-klara-1` (Daniel) and `review-klara-4` (Shawn) were

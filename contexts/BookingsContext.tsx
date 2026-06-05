@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useCallback } from "react";
-import { mockBookings } from "@/lib/mockBookings";
+import { mockBookings, BOOKINGS_SEED_VERSION } from "@/lib/mockBookings";
 import type { Booking, ContractStatus, BookingSession } from "@/lib/types";
 import { usePersistedState } from "@/lib/usePersistedState";
 
@@ -44,6 +44,7 @@ export function BookingsProvider({ children }: { children: React.ReactNode }) {
   const [bookings, setBookings] = usePersistedState<Booking[]>(
     "doggo-bookings",
     mockBookings,
+    { seedVersion: BOOKINGS_SEED_VERSION },
   );
 
   const getBooking = useCallback(

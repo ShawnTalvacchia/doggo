@@ -103,6 +103,7 @@ import type {
   Meet,
   MeetType,
   MeetMessage,
+  MeetAttendee,
   CarerMeetServiceConfig,
   CarerCareServiceConfig,
   UserProfile,
@@ -1848,6 +1849,74 @@ function RecurringUpcomingDates({
    People tab
    ═══════════════════════════════════════════════════════════════ */
 
+/**
+ * Host mini-row on the People tab. Surfaces the meet's organiser at the
+ * top of the roster so a locked host (e.g. Daniel hosting
+ * `meet-reactive-spring`) doesn't silently collapse into the bottom
+ * Locked chip list. NOT a privacy violation — the host's profile stays
+ * locked; the row only identifies them in the host slot, no expanded
+ * data. P61, 2026-06-02.
+ *
+ * The Details tab's "Organised by" section is the longer-form sibling
+ * (with the "X meets hosted" sub-line); the People-tab variant is a
+ * compact row since the host already won the byline elsewhere on the
+ * page chrome.
+ */
+function PeopleTabOrganiserRow({ meet }: { meet: Meet }) {
+  const currentUserId = useCurrentUserId();
+  const isSelf = meet.creatorId === currentUserId;
+  const organiserConn = isSelf ? null : getConnState(meet.creatorId, currentUserId);
+  const connLabel =
+    organiserConn?.state === "connected" ? "Connected"
+    : organiserConn?.state === "familiar" ? "Familiar"
+    : organiserConn?.state === "pending" ? "Request sent"
+    : null;
+  // Heading style + outer wrapper now mirror ParticipantList's section so
+  // "Organised by" reads at the same hierarchy as "Who's going" / "Interested"
+  // below it. Earlier version used `.meet-section` (which adds horizontal xl
+  // padding on top of the parent LayoutSection's lg padding, and uses a
+  // smaller subdued heading style) — that competed with the participant
+  // section visually + offset the card from the rows below. Bug feedback
+  // 2026-06-03.
+  return (
+    <section className="flex flex-col gap-sm">
+      <h2 className="font-heading text-base font-semibold text-fg-primary m-0">
+        Organised by
+      </h2>
+      <div className="meet-context-card">
+        <Link
+          href={isSelf ? "/profile" : `/profile/${meet.creatorId}`}
+          className="meet-context-row"
+          style={{ textDecoration: "none" }}
+        >
+          <img src={meet.creatorAvatarUrl} alt={meet.creatorName} className="meet-organiser-avatar" />
+          <div className="flex flex-col flex-1 gap-xs">
+            <div className="flex items-center gap-xs flex-wrap">
+              <span className="text-sm font-semibold text-fg-primary">{meet.creatorName}</span>
+              {connLabel && (
+                <span
+                  className="text-xs font-semibold rounded-pill px-xs"
+                  style={{
+                    background: "var(--brand-subtle)",
+                    color: "var(--brand-strong)",
+                    padding: "2px 8px",
+                  }}
+                >
+                  {connLabel}
+                </span>
+              )}
+            </div>
+            <span className="text-xs text-fg-tertiary">
+              {isSelf ? "That's you!" : "Organiser"}
+            </span>
+          </div>
+          <CaretRight size={16} weight="bold" className="text-fg-tertiary" />
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 function PeopleTab({ meet }: { meet: Meet }) {
   const recurring = isRecurring(meet);
 
@@ -1865,16 +1934,29 @@ function PeopleTab({ meet }: { meet: Meet }) {
   const defaultLens: "all" | string = upcomingDates[0] ?? "all";
   const [lens, setLens] = useState<"all" | string>(defaultLens);
 
+  // Host dedupe: the organiser owns the top row, so they're stripped from
+  // the attendee groupings (going/interested + the Locked chip list) and
+  // from followers (defensive — a host following their own series would
+  // be data noise anyway). P61, 2026-06-02.
+  const withoutHost = (list: MeetAttendee[]) =>
+    list.filter((a) => a.userId !== meet.creatorId);
+
   // One-off meets: skip the pill row, render the single roster as today.
+  // Inner flex-col + gap-xl: LayoutSection adds padding but no gap, so
+  // without this the organiser section sits directly under the participant
+  // list with no breathing room. Bug feedback 2026-06-03.
   if (!recurring) {
     return (
       <div className="meet-detail-content">
         <LayoutSection>
-          <ParticipantList
-            meet={meet}
-            attendees={meet.attendees}
-            isCompleted={meet.status === "completed"}
-          />
+          <div className="flex flex-col gap-xl">
+            <PeopleTabOrganiserRow meet={meet} />
+            <ParticipantList
+              meet={meet}
+              attendees={withoutHost(meet.attendees)}
+              isCompleted={meet.status === "completed"}
+            />
+          </div>
         </LayoutSection>
       </div>
     );
@@ -1912,13 +1994,16 @@ function PeopleTab({ meet }: { meet: Meet }) {
       />
       <div className="meet-detail-content">
         <LayoutSection>
-          <ParticipantList
-            meet={meet}
-            attendees={lensRoster}
-            followers={lensFollowers}
-            isCompleted={isDateInPast}
-            headingOverride={heading}
-          />
+          <div className="flex flex-col gap-xl">
+            <PeopleTabOrganiserRow meet={meet} />
+            <ParticipantList
+              meet={meet}
+              attendees={withoutHost(lensRoster)}
+              followers={withoutHost(lensFollowers)}
+              isCompleted={isDateInPast}
+              headingOverride={heading}
+            />
+          </div>
         </LayoutSection>
       </div>
     </>

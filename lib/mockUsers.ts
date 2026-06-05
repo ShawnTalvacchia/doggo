@@ -80,6 +80,14 @@ export const tereza: UserProfile = {
   tagApproval: "auto",
   openToHelping: true,
   shareCode: "tereza-r4m2",
+  // Owner-curated Highlights on /profile (Photos & Galleries, 2026-06-04).
+  // Mirrors the dog-profile `highlights` shape; surfaces above Posts tab.
+  highlights: [
+    "/images/generated/post-dog-park-sunset.jpeg",
+    "/images/generated/evening-walk-group.jpeg",
+    "/images/generated/post-matching-outfits.jpeg",
+    "/images/generated/park-hangout-riegrovy.jpeg",
+  ],
   pets: [
     {
       id: "franta",
@@ -114,6 +122,11 @@ export const tereza: UserProfile = {
         spayedNeutered: true,
         conditions: "None. Tendency to overeat — measured portions only.",
       },
+      highlights: [
+        "/images/generated/franta-portrait.jpeg",
+        "/images/generated/post-franta-stick.jpeg",
+        "/images/generated/post-adoption-anniversary.jpeg",
+      ],
     },
     {
       id: "bella",
@@ -149,6 +162,10 @@ export const tereza: UserProfile = {
         spayedNeutered: true,
         conditions: "Healthy. Some startle response to loud noises (still settling post-adoption).",
       },
+      highlights: [
+        "/images/generated/bella-portrait.jpeg",
+        "/images/generated/post-dog-park-sunset.jpeg",
+      ],
     },
   ],
   carerProfile: {
@@ -234,6 +251,11 @@ export const daniel: UserProfile = {
   profileVisibility: "locked",
   tagApproval: "approve",
   openToHelping: false,
+  highlights: [
+    "/images/generated/post-karlin-morning.jpeg",
+    "/images/generated/bara-portrait.jpeg",
+    "/images/generated/post-reactive-walk.jpeg",
+  ],
   shareCode: "daniel-w9k7",
   pets: [
     {
@@ -273,6 +295,11 @@ export const daniel: UserProfile = {
         medications: "Half a Trazodone before high-stimulus walks. Otherwise none.",
         conditions: "Mild leash reactivity. No food allergies. Sensitive stomach with novel proteins.",
       },
+      highlights: [
+        "/images/generated/bara-portrait.jpeg",
+        "/images/generated/post-first-swim.jpeg",
+        "/images/generated/post-reactive-walk.jpeg",
+      ],
     },
   ],
 };
@@ -291,6 +318,13 @@ export const klara: UserProfile = {
   tagApproval: "auto",
   openToHelping: true,
   shareCode: "klara-p3n8",
+  highlights: [
+    "/images/generated/post-stromovka-walk.jpeg",
+    "/images/generated/post-training-recall.jpeg",
+    "/images/generated/care-klara-training.jpeg",
+    "/images/generated/post-reactive-walk.jpeg",
+    "/images/generated/group-walk-stromovka.jpeg",
+  ],
   pets: [
     {
       id: "eda",
@@ -447,6 +481,11 @@ export const tomas: UserProfile = {
   tagApproval: "auto",
   openToHelping: false,
   shareCode: "tomas-x6q4",
+  highlights: [
+    "/images/generated/post-sunset-vitkov.jpeg",
+    "/images/generated/hugo-portrait.jpeg",
+    "/images/generated/post-karlin-morning.jpeg",
+  ],
   pets: [
     {
       id: "hugo",
@@ -482,6 +521,11 @@ export const tomas: UserProfile = {
         spayedNeutered: true,
         conditions: "None. Watch food intake — will eat anything not nailed down.",
       },
+      highlights: [
+        "/images/generated/hugo-portrait.jpeg",
+        "/images/generated/post-sunset-vitkov.jpeg",
+        "/images/generated/post-karlin-morning.jpeg",
+      ],
     },
   ],
 };
@@ -1290,7 +1334,7 @@ export const shawn: UserProfile = {
         medications: "",
         conditions: "Mild skin allergies (seasonal). Managed with diet.",
       },
-      photoGallery: [
+      highlights: [
         "/images/generated/spot-park-walk.jpeg",
         "/images/generated/spot-resting.jpeg",
         "/images/generated/spot-portrait.jpeg",
@@ -1324,7 +1368,7 @@ export const shawn: UserProfile = {
         medications: "",
         conditions: "",
       },
-      photoGallery: [
+      highlights: [
         "/images/generated/goldie-playing.jpeg",
         "/images/generated/goldie-leash.jpeg",
       ],

@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useCallback } from "react";
-import { mockReviews } from "@/lib/mockReviews";
+import { mockReviews, REVIEWS_SEED_VERSION } from "@/lib/mockReviews";
 import { usePersistedState } from "@/lib/usePersistedState";
 import type { UserReview } from "@/lib/types";
 
@@ -24,6 +24,7 @@ export function ReviewsProvider({ children }: { children: React.ReactNode }) {
   const [reviews, setReviews] = usePersistedState<UserReview[]>(
     "doggo-care-reviews",
     mockReviews,
+    { seedVersion: REVIEWS_SEED_VERSION },
   );
 
   const hasReview = useCallback(

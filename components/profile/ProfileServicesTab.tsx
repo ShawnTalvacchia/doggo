@@ -19,7 +19,7 @@ import { MeetServiceEditCard } from "@/components/profile/MeetServiceEditCard";
 import { AppointmentServiceEditCard } from "@/components/profile/AppointmentServiceEditCard";
 import { DeleteServiceModal } from "@/components/profile/DeleteServiceModal";
 import { ArchivedServiceStrip } from "@/components/profile/ArchivedServiceStrip";
-import { SERVICE_LABELS, SUB_SERVICES } from "@/lib/constants/services";
+import { SERVICE_LABELS, SUB_SERVICES, TRAINING_TYPE_LABELS } from "@/lib/constants/services";
 import { defaultModifiers } from "@/lib/pricing";
 import { mockMeets, getHostedMeets } from "@/lib/mockMeets";
 import { meetScheduleSummary } from "@/lib/meetUtils";
@@ -1279,6 +1279,13 @@ export function ProfileServicesTab({
                       {APPOINTMENT_CATEGORY_LABEL[svc.appointmentCategory] ??
                         svc.appointmentCategory}
                     </span>
+                    {/* Training sub-type chip — only renders for training
+                        appointments with a focus set. P73, 2026-06-03. */}
+                    {svc.appointmentCategory === "training" && svc.trainingType && (
+                      <span className="chip">
+                        {TRAINING_TYPE_LABELS[svc.trainingType]}
+                      </span>
+                    )}
                     <span className="chip">{svc.durationMinutes} min</span>
                   </div>
                   {svc.notes && (

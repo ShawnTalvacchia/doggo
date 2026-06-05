@@ -584,6 +584,10 @@ export function ProfileAboutTab({
         />
       </section>
 
+      {/* Pending tag approvals (Photos & Galleries D4) live in
+          /notifications as `tag_pending` rows — matches how social
+          platforms surface tag review. Moved here 2026-06-04. */}
+
       {/* Connections — Familiar explainer moved out 2026-05-11 to nest
           inside Profile visibility (Familiar IS the visibility mechanism;
           the teaching belongs with the setting). */}

@@ -55,6 +55,14 @@ interface ConnectionsContextValue {
    *  walkthrough 2026-05-05 (resolves Open Q §2 inquiry-driven trust
    *  transitions for the contract-accept case). */
   markConnected: (viewerUserId: string, targetUserId: string) => void;
+  /** Send a connect request — viewer→target moves to Pending. The button
+   *  "Connect with {name}" on profile heroes wires here. Pending is the
+   *  one-sided "request sent" state; the receiver side approving turns it
+   *  into mutual Connected (handled elsewhere via `markConnected`). Wired
+   *  2026-06-03 — the button had been a no-op stub since the leftSlot/
+   *  rightSlot ladder shipped. Surfaced after P54 made it possible to
+   *  unconnect back into a Connect-eligible state. */
+  requestConnect: (viewerUserId: string, targetUserId: string) => void;
   /** Drop a relationship entirely — viewer→target has no connection. Backs
    *  the "Unconnect" menu item on profile heroes (P54, 2026-06-02). Sets a
    *  `cleared` override that bypasses the state-rank floor so a Connected
@@ -81,6 +89,7 @@ const noopContext: ConnectionsContextValue = {
   markFamiliar: () => {},
   unmarkFamiliar: () => {},
   markConnected: () => {},
+  requestConnect: () => {},
   clearConnection: () => {},
   overrides: {},
 };
@@ -237,6 +246,17 @@ export function ConnectionsProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const requestConnect = useCallback(
+    (viewerUserId: string, targetUserId: string) => {
+      const k = key(viewerUserId, targetUserId);
+      setOverrides((prev) => ({
+        ...prev,
+        [k]: { state: "pending", markedAt: new Date().toISOString() },
+      }));
+    },
+    [],
+  );
+
   const clearConnection = useCallback(
     (viewerUserId: string, targetUserId: string) => {
       const k = key(viewerUserId, targetUserId);
@@ -249,8 +269,8 @@ export function ConnectionsProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ getConnection, markFamiliar, unmarkFamiliar, markConnected, clearConnection, overrides }),
-    [getConnection, markFamiliar, unmarkFamiliar, markConnected, clearConnection, overrides],
+    () => ({ getConnection, markFamiliar, unmarkFamiliar, markConnected, requestConnect, clearConnection, overrides }),
+    [getConnection, markFamiliar, unmarkFamiliar, markConnected, requestConnect, clearConnection, overrides],
   );
 
   return <ConnectionsContext.Provider value={value}>{children}</ConnectionsContext.Provider>;

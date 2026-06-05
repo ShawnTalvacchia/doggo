@@ -756,6 +756,13 @@ const lenaPawelMessages: ChatMessage[] = [
   },
 ];
 
+/**
+ * Seed version for the `doggo-conversations` persisted store. Bump this
+ * any time a new conversation or seeded message is added so testers
+ * pick up the new content without a /demo Reset. P55, 2026-06-02.
+ */
+export const CONVERSATIONS_SEED_VERSION = 1;
+
 export const mockConversations: Conversation[] = [
   // ── Jana (merged: social + booking) ──
   {

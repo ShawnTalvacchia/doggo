@@ -1,8 +1,8 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-03
-tags: [shelters, institutional-accounts, walkers, dogs, cold-start]
+last-reviewed: 2026-06-04
+tags: [shelters, institutional-accounts, walkers, dogs, cold-start, photos]
 review-trigger: "when modifying shelter surfaces, walker tier model, or non-owned dog handling"
 ---
 
@@ -157,7 +157,11 @@ Lives at `/dogs/[id]`. Shipped (Dog Profile phase, 2026-06-03) for both shelter 
 
 **Recent walkers** — Avatar stack with names below. Shelter dogs only. Derived from posts tagging this dog whose author is a walker at the shelter. Falls back to no row when there are none.
 
-**Photos landing slot** — Reserved section between Recent walkers / Health and Posts. V1 surfaces existing `photoGallery` thumbs (if any) + a "Coming soon" subline. Auto-album from tagged posts is the Photos & Galleries phase.
+**Photos auto-album** — Section between Recent walkers / Health and Posts (Photos & Galleries phase, 2026-06-04). Renders posts tagging this dog as a square-tile grid via `PhotoGrid`; tap → opens the parent post in a ModalSheet. Viewer-gated via `getPostsByDog(dogId, viewerId)`. Long-press a tile (owner only) → Pin to Highlights / Hide from album. Owner-side per-dog settings (Auto-approve, View hidden, Clear pinned) live in a gear icon next to the section title.
+
+For shelter dogs, `ShelterProfile.tagApproval` is the authority instead of an owner's `UserProfile.tagApproval` — same inheritance model, different authority. V1 enforces it read-only (no shelter operator moderation UI; that's V3+).
+
+**Highlights strip** — Renders above the auto-album when `dog.highlights` is non-empty. Owner-curated horizontal scroll; "See all" opens a full grid modal. Reorder + unpin via Edit Highlights modal (`PencilSimple` affordance on the strip header).
 
 **Posts about [Dog]** — Dog-tagged posts from `getDogPosts(dog.id)`. Renders full-width below a header strip (no surrounding card chrome — the post's own card chrome is enough; nesting was redundant). Empty state when none.
 

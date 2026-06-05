@@ -1,8 +1,8 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-03
-tags: [profile, pets, carer, edit, posts, tagging]
+last-reviewed: 2026-06-04
+tags: [profile, pets, carer, edit, posts, tagging, photos]
 review-trigger: "when modifying profile pages, pet cards, posts, or carer sections"
 ---
 
@@ -179,7 +179,7 @@ The `userId` field on `ProviderCard` bridges between provider catalog IDs (e.g. 
 | Socialisation notes | textarea | How they are with other dogs, people, kids |
 | Standing preferences | fieldset | Four chip groups — Likes / Dislikes / Triggers / Play preferences *(see below)* |
 | Vet info | fieldset | Clinic name, phone, last checkup, vaccinations *(structured — see below)*, spayed/neutered, medications, conditions |
-| Photo gallery | image array | Multiple photos beyond the primary |
+| Highlights | image array | **Highlights** — owner-curated pinned photos surfaced above the auto-album on `/dogs/[id]`. Field is `PetProfile.highlights: string[]` (renamed from `photoGallery` 2026-06-04 for symmetry with `UserProfile.highlights`). Pin via long-press on auto-album tiles; reorder/unpin via Edit Highlights modal. |
 
 ### Standing preferences (2026-06-02)
 
@@ -215,7 +215,21 @@ Added in Phase 10. Users can post photos (1-4 required) with optional captions a
 - **Community posts:** visible to community members (posted within a community)
 - **Tags:** dogs, people, communities, places — rendered as tappable pills
 - **Reactions:** paw-print with count ("Paw it" / "X Paws")
-- **Post composer:** accessible from profile Posts tab, home page "Add Post" CTA, and community detail pages
+- **Post composer:** accessible from profile Posts tab header action ("Post" button — mirrors Communities pattern; Photos & Galleries 2026-06-04 retired the in-panel ShareMomentBar), home page "Add Post" CTA, and community detail pages
+
+### Posts tab — List ⇄ Grid views + multi-select filters (Photos & Galleries 2026-06-04)
+
+The Posts tab carries a section-header icon-pair toggle (`List` / `Grid`). Grid renders each post as its first-photo tile, tap → opens the parent post in a `ModalSheet` with the full `MomentCard`. Default = list.
+
+Above the toggle: **tag-type pill-dropdowns** — `Dog ▾`, `Person ▾`, `Place ▾`, `Community ▾`, `Meet ▾`. Each pill opens a popover menu (`.dropdown-menu` pattern) with checkbox rows; multi-select within a type. Active pill collapses the count: "Dog · 2 ×". Across types the predicates AND; within a type they OR. The pill renders only when ≥1 viewer-visible option exists for that type (Content Visibility Model line 166 — never leak group/value existence). The "All / Personal" pills from the V1 design were dropped — tag-type filtering covers the same scoping intent without per-value pill noise.
+
+URL state: `?view=grid` for the toggle, `?f_<type>=<id,id,...>` per active filter (comma-separated). Both default to no-param.
+
+Visibility filtering: `isPostVisibleTo` is applied to every post BEFORE the dropdown lists, the filter pills, or either view render. Pre-Photos & Galleries, the Posts surface showed `getPostsByUser` unfiltered; that visibility leak is now closed.
+
+Per-post **three-dots menu** ("Untag {Dog}" / Report / Block) renders top-right of every post via `PostKebabMenu`. Untag is visible only when the post tags a dog the viewer owns; Report + Block are stubs (visible options, no-op in V1). Untag persistence is per-viewer via `useUntagStore` and feeds into the `/dogs/[id]` auto-album filter; mutating `Post.tags` itself is deferred until an editable-post context lands.
+
+**Forward direction (Open Q §12 — V2+):** "Albums" become saved filter compositions. The pill-dropdown multi-select shape IS the foundation; an Album = "this filter state, saved with a name." Auto-link from contextual surfaces ("View posts from this booking") then becomes a pre-filled album. Not built in this phase.
 
 ### Tag approval setting
 
@@ -226,6 +240,14 @@ Located in the About tab under "Tagging preferences":
 | Auto-approve | Tags appear immediately (default) |
 | Review first | Tags need owner approval before showing |
 | Don't allow | Others can't tag this user or their dogs |
+
+When the owner is in **Review first** mode, pending tags surface on `/notifications` as `tag_pending` rows with inline **Approve / Reject** buttons — same surface affinity as `connection_request`. Decisions persist per viewer via `usePendingTagsStore`; resolved notifications filter out of the list at render time so already-decided tags don't reappear on reload. Matches the standard pattern across Instagram / Twitter / Facebook tag review flows.
+
+**Default rule** (Photos & Galleries 2026-06-04 model): every dog-tag-on-owned-dog pair resolves to approved unless explicitly listed in `DEMO_PENDING_TAGS` (in `lib/usePendingTagsStore.ts`). Pre-existing tags are grandfathered to avoid forcing review-mode users to wade through historical content; only the explicit carve-out (and, in production, newly-arriving tags) routes through the queue. Pending stays pending forever — no aging-out, no auto-approval from inaction. Decisions the owner explicitly makes override the default.
+
+Demo curation is a one-line edit to the constant — add/remove `(postId, dogId)` pairs to control what surfaces in the queue (and pair the carve-out with a `tag_pending` entry in `lib/mockNotifications.ts` so the notification row appears).
+
+Pending or rejected tags are excluded from the dog's auto-album on `/dogs/[id]` when the owner is in approve mode.
 
 ---
 

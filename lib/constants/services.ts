@@ -1,4 +1,44 @@
-import type { ServiceType, Booking, AppointmentRef } from "@/lib/types";
+import type { ServiceType, Booking, AppointmentRef, TrainingType } from "@/lib/types";
+
+/**
+ * Display labels for the 11 training sub-types Roman flagged in his PO
+ * interview (2026-06-02). Use these everywhere a training service surfaces
+ * a chip / label / picker option so the wording stays consistent. P73.
+ */
+export const TRAINING_TYPE_LABELS: Record<TrainingType, string> = {
+  obedience: "Obedience",
+  manners: "Manners & skills",
+  behaviour: "Behaviour",
+  agility: "Agility",
+  tracking: "Tracking & SAR",
+  protection: "Protection",
+  therapy: "Therapy dogs",
+  service: "Service dogs",
+  retriever: "Retriever",
+  sports: "Dog sports",
+  puppy_socialisation: "Puppy socialisation",
+};
+
+/**
+ * Picker order — owner-facing demand first (Puppy socialisation, Manners,
+ * Behaviour, Obedience are the most common asks per Roman), specialist
+ * categories after. Matches the order the chips render in the
+ * service-edit picker so trainers see the common types up front.
+ */
+export const TRAINING_TYPE_PICKER_ORDER: TrainingType[] = [
+  "puppy_socialisation",
+  "manners",
+  "obedience",
+  "behaviour",
+  "agility",
+  "retriever",
+  "sports",
+  "tracking",
+  "therapy",
+  "service",
+  "protection",
+];
+
 
 /**
  * Canonical display labels for the four Care service types. Resolved

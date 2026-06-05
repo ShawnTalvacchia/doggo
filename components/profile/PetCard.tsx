@@ -79,7 +79,7 @@ interface PetCardProps {
 export function PetCard({ pet, defaultExpanded = true }: PetCardProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
 
-  const hasDetails = pet.energyLevel || pet.playStyles?.length || pet.notes || pet.socialisationNotes || pet.vetInfo || pet.photoGallery?.length;
+  const hasDetails = pet.energyLevel || pet.playStyles?.length || pet.notes || pet.socialisationNotes || pet.vetInfo || pet.highlights?.length;
 
   return (
     <div className="pet-profile-card">
@@ -92,10 +92,10 @@ export function PetCard({ pet, defaultExpanded = true }: PetCardProps) {
       >
         <div className="pet-profile-avatar-wrap">
           <img src={pet.imageUrl} alt={pet.name} className="pet-profile-avatar" />
-          {pet.photoGallery && pet.photoGallery.length > 0 && (
+          {pet.highlights && pet.highlights.length > 0 && (
             <span className="pet-profile-photo-count">
               <Camera size={11} weight="fill" />
-              {pet.photoGallery.length + 1}
+              {pet.highlights.length + 1}
             </span>
           )}
         </div>
@@ -234,9 +234,9 @@ export function PetCard({ pet, defaultExpanded = true }: PetCardProps) {
           )}
 
           {/* Photo gallery thumbnails */}
-          {pet.photoGallery && pet.photoGallery.length > 0 && (
+          {pet.highlights && pet.highlights.length > 0 && (
             <div className="pet-profile-gallery">
-              {[pet.imageUrl, ...pet.photoGallery].map((url, i) => (
+              {[pet.imageUrl, ...pet.highlights].map((url, i) => (
                 <img
                   key={i}
                   src={url}

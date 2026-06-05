@@ -6,7 +6,9 @@ import { ArchivedServiceStrip } from "@/components/profile/ArchivedServiceStrip"
 import type {
   CarerAppointmentServiceConfig,
   AppointmentCategory,
+  TrainingType,
 } from "@/lib/types";
+import { TRAINING_TYPE_LABELS, TRAINING_TYPE_PICKER_ORDER } from "@/lib/constants/services";
 
 // ── Option table ─────────────────────────────────────────────────────────────
 
@@ -121,13 +123,55 @@ export function AppointmentServiceEditCard({
               key={opt.key}
               type="button"
               className={`pill pill-sm${service.appointmentCategory === opt.key ? " active" : ""}`}
-              onClick={() => patch({ appointmentCategory: opt.key })}
+              onClick={() => {
+                // Switching category clears `trainingType` — it's only
+                // meaningful in the training branch. Otherwise an old
+                // training selection would silently follow a grooming
+                // service it doesn't apply to.
+                if (opt.key === "training") {
+                  patch({ appointmentCategory: opt.key });
+                } else {
+                  patch({ appointmentCategory: opt.key, trainingType: undefined });
+                }
+              }}
             >
               {opt.label}
             </button>
           ))}
         </div>
       </div>
+
+      {/* Training sub-type — only shown when this Appointment is training.
+          Single-select for V1 (one type per service entry); a trainer who
+          offers multiple types creates multiple service entries. P73. */}
+      {service.appointmentCategory === "training" && (
+        <div className="input-block">
+          <label className="label">
+            <span className="label-primary-group">
+              <span>Training focus</span>
+            </span>
+          </label>
+          <div className="pill-group" style={{ flexWrap: "wrap" }}>
+            {TRAINING_TYPE_PICKER_ORDER.map((key) => (
+              <button
+                key={key}
+                type="button"
+                className={`pill pill-sm${service.trainingType === key ? " active" : ""}`}
+                onClick={() =>
+                  patch({
+                    // Tap the active one to clear — lets a trainer leave
+                    // the focus unset if their visit is general-purpose.
+                    trainingType:
+                      service.trainingType === key ? undefined : (key as TrainingType),
+                  })
+                }
+              >
+                {TRAINING_TYPE_LABELS[key as TrainingType]}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       <InputField
         id={`appt-duration-${service.id}`}

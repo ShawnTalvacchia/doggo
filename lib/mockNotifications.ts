@@ -2,6 +2,13 @@ import type { AppNotification } from "./types";
 import { daysAgoIso, daysFromNowIso } from "./mockDate";
 export type { AppNotification } from "./types";
 
+/**
+ * Seed version for the `doggo-notifications` persisted store. Bump this
+ * any time a new notification seed is added so testers see it without
+ * a /demo Reset. P55, 2026-06-02.
+ */
+export const NOTIFICATIONS_SEED_VERSION = 2;
+
 export const mockNotifications: AppNotification[] = [
   // Series-update notification — Shawn follows meet-7 (Thursday morning Vinohrady walk).
   // Stubbed entry to confirm the UI handles the new notification type. Full delivery
@@ -218,6 +225,39 @@ export const mockNotifications: AppNotification[] = [
     href: "/profile/petra",
     createdAt: "2026-03-27T11:00:00Z",
     read: true,
+  },
+  // tag_pending notifications for Daniel — match the DEMO_PENDING_TAGS
+  // entries in lib/usePendingTagsStore.ts. The /notifications surface
+  // renders inline Approve/Reject buttons; resolved notifications are
+  // filtered out at render time via the store's getDecision. Photos &
+  // Galleries phase, 2026-06-04.
+  {
+    id: "notif-tag-pending-bara-klara",
+    recipientId: "daniel",
+    actorId: "klara",
+    type: "tag_pending",
+    title: "Klára tagged Bára in a post",
+    body: "\"Bára and I worked on parallel walking with a calm helper dog…\"",
+    avatarUrl: "/images/generated/klara-profile.jpeg",
+    href: "/communities/group-reactive-dogs",
+    createdAt: daysAgoIso(5, "11:30"),
+    read: false,
+    postId: "post-bara-klara-progress",
+    dogId: "bara",
+  },
+  {
+    id: "notif-tag-pending-bara-hana",
+    recipientId: "daniel",
+    actorId: "hana",
+    type: "tag_pending",
+    title: "Hana tagged Bára in a post",
+    body: "\"Franta did the gentleman bow to Bára this morning…\"",
+    avatarUrl: "/images/generated/hana-profile.jpeg",
+    href: "/profile/hana",
+    createdAt: daysAgoIso(14, "09:30"),
+    read: false,
+    postId: "post-franta-hana-meet",
+    dogId: "bara",
   },
   {
     id: "notif-16",

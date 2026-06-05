@@ -6,7 +6,9 @@ import {
   PencilSimple,
   Check,
   X,
+  CameraPlus,
 } from "@phosphor-icons/react";
+import { usePostComposer } from "@/contexts/PostComposerContext";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { TabBar } from "@/components/ui/TabBar";
 import { ButtonAction } from "@/components/ui/ButtonAction";
@@ -54,6 +56,7 @@ function ProfileInner() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const activeTab = searchParams.get("tab") ?? "about";
+  const { openComposer } = usePostComposer();
 
   const handleTabChange = useCallback((key: string) => {
     if (key === "about") {
@@ -249,7 +252,24 @@ function ProfileInner() {
   // must Save or Cancel to leave the page. Posts tab suppresses the
   // create icon entirely since "+ New post" lives in-panel. 2026-05-11.
   const pageActionNode = useMemo(() => {
-    if (activeTab === "posts") return null;
+    if (activeTab === "posts") {
+      // Composer affordance for own-profile Posts tab — outline Post
+      // button matches the Communities pattern (mirrored from
+      // app/communities/[id]/page.tsx). ShareMomentBar was retired
+      // from in-panel 2026-06-04; the create-post entry point lives
+      // here instead. AppNav Camera+ stays suppressed so we don't
+      // double up.
+      return (
+        <ButtonAction
+          variant="outline"
+          size="sm"
+          leftIcon={<CameraPlus size={14} weight="bold" />}
+          onClick={() => openComposer()}
+        >
+          Post
+        </ButtonAction>
+      );
+    }
     const editing = activeTab === "about" ? aboutEditing : servicesEditing;
     const onStart = activeTab === "about" ? startAboutEdit : startServicesEdit;
     const onCancel = activeTab === "about" ? cancelAboutEdit : cancelServicesEdit;
@@ -296,11 +316,12 @@ function ProfileInner() {
     startServicesEdit,
     cancelServicesEdit,
     saveServicesEdit,
+    openComposer,
   ]);
 
   useEffect(() => {
     if (activeTab === "posts") {
-      setPageAction(null, { suppressCreate: true });
+      setPageAction(pageActionNode, { suppressCreate: true });
     } else {
       setPageAction(pageActionNode, { navLockedIn: isEditing });
     }

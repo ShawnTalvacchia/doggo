@@ -6,19 +6,15 @@ review-trigger: "Update as items are walked, edit as scope adjusts"
 
 # Phase Name — Walkthrough
 
-Verification checklist for the Phase Name phase. **This document is primarily for checking** — most decisions, follow-ups, and findings belong in the phase board, Open Questions log, or feature docs. The exception is the **"Decisions surfaced during walkthrough"** section at the bottom, which exists specifically to catch emergent decisions in the moment and ensure they propagate to feature docs at phase close.
-
-**Scope rule.** Walkthroughs verify the **phase thesis** — the structural / behavioral change the phase delivered. They are NOT for edge cases, regression checks, cross-persona permutations, or every filter/state combo. Rule of thumb: if you find yourself adding a 5th sub-scenario, or "verify the same thing from the other side," that item goes in `verification-checklist.md` instead. Aim for 8–15 items per workstream — if a workstream is sprawling, split it or trim it.
-
-**Structure rule.** Top of each workstream is verification items only — persona + URL + what to look for. Pre-loaded phase scope can have a short framing preamble if it helps the tester know what to expect ("here's what was seeded; here's what should be visible"). Emergent decisions from walkthrough discussion DO NOT belong inside workstream items or as workstream preambles — they go in the **"Decisions surfaced during walkthrough"** log at the bottom. If a discussion produces a code/design change mid-walk, update the affected verification item to describe the new behavior, and log the *why* in the bottom section.
+Verification checklist for the Phase Name phase. **Concise by design** — three priority categories instead of an exhaustive per-workstream checklist. Trust that automated checks + visual sanity passes ran during the build; surface only what's worth the reader's judgment, what risks regression, and what they should glance at to confirm the phase thesis lands.
 
 **How to use:**
 
 1. Run the dev server (`npm run dev`, port 3000).
 2. Switch personas via the profile-page name dropdown, the `/demo` route, or the `?as=<personaId>` URL param.
-3. Tick items as you go.
+3. Walk top-to-bottom — the categories are ordered by "needs your eyeballs most" → "least."
 
-**Status legend:** `[ ]` not yet walked · `[x]` walked, no issues. Checkboxes apply to verification items only — the Decisions section at the bottom is a plain log.
+**Status legend:** `[ ]` not yet walked · `[x]` walked, no issues. Checkboxes apply to the three category sections; the Decisions log at the bottom is a plain log.
 
 **Available personas:** Tereza (Vinohrady connector), Daniel (anxious new owner, locked profile), Klára (trainer with Care group), Tomáš (Karlín professional), New User.
 
@@ -26,18 +22,36 @@ Verification checklist for the Phase Name phase. **This document is primarily fo
 
 ---
 
-## Workstream A — Name
+## Open for your call
 
-One-line context if helpful.
+Decisions the author made that warrant a second look — direction, not bug-hunt. Each one should describe a real call the author made that someone else might land differently, and tell the reader the quickest URL/persona path to see it in context.
 
-- [ ] **A1. {Persona} → `{URL}`.** What to verify.
-- [ ] **A2. ...**
+Identifier prefix: **`O`** (O1, O2, ...). Use these in conversation to point at items.
+
+- [ ] **O1. {One-line framing of the call.}** Why it could go another way. (Persona → `/url` to see it.)
+- [ ] **O2. ...**
 
 ---
 
-## Workstream B — Name
+## Worth verifying
 
-- [ ] **B1. ...**
+Interaction nuance, complex state, persona-switching round-trips, anything author-confidence is genuinely uncertain about. Each item should describe a behavior the reader needs to drive themselves — an automated check or a static screenshot wouldn't have caught it.
+
+Identifier prefix: **`V`** (V1, V2, ...).
+
+- [ ] **V1. {Behavior to verify, with the steps to drive it.}**
+- [ ] **V2. ...**
+
+---
+
+## Surfaces to glance
+
+Phase-thesis confirmation. One look each. These are the surfaces the phase shipped — bullet list, no checkboxes, no expected-result spelling. Flag anything that reads off.
+
+Identifier prefix: **`G`** (G1, G2, ...).
+
+- **G1.** {Persona} → `/url` — one-line description of what should be there.
+- **G2.** ...
 
 ---
 
@@ -48,7 +62,7 @@ A running **log** (not a checklist) of decisions, design changes, or rationale t
 Format:
 ```
 - **{Decision in one line.}** {Optional one-line context.} → `features/foo.md`
-- **{Implementation-only change}** {What/why.} → no feature-doc update needed
+- **{Implementation-only change.}** {What/why.} → no feature-doc update needed
 ```
 
 Examples of what belongs here:
@@ -63,17 +77,91 @@ Examples of what does NOT belong here:
 - Decisions captured elsewhere (phase board, Open Questions, punch list)
 
 <!--
-Conventions:
-- Each verification item starts with a bold persona + URL anchor so the reader knows where to go without reading the rest.
-- Expected outcomes use sub-bullets when there are multiple things to confirm; one-line item otherwise.
-- Use `**bold**` for the things that should match, `*italic*` for trigger notes / explanatory copy.
-- DO NOT add "Findings & follow-ups" sections to individual workstreams — those belong in the phase board, Open Questions log, or a relevant feature doc. Workstreams are verification-only. The Decisions section above is the ONE place where emergent stuff is captured inline.
+================================================================================
+Authoring conventions — read before writing or expanding this walkthrough.
+================================================================================
 
-Drift rules — the two failure modes this template is fighting:
+THE THREE CATEGORIES — what belongs where:
 
-1. **Code change → update the walkthrough item in the same edit.** When you refactor or restyle something the active walkthrough already describes, edit the item's description to match the new behaviour as part of the same change. Stale walkthrough text is worse than no walkthrough — verifiers look for what isn't there, get confused, and either tick items that don't match what they see or stall mid-walk. Rule of thumb: if a code change would make an existing walkthrough item's description inaccurate, the walkthrough edit is part of finishing that code change.
+  Open for your call
+    Calls the author made where another reasonable person would land
+    differently. Magic numbers, semantic compromises, "kept X instead of
+    renaming" decisions, V1 stubs (visible-but-no-op affordances), scope
+    cuts the reader should ratify or reverse. Lead with the call itself
+    so the reader doesn't have to read the rest to know what's being
+    asked. If you have zero of these, the category section can be a
+    one-line "No open calls — everything landed per spec."
 
-2. **Decisions are current-state, not an event log.** If a decision logged in "Decisions surfaced" gets superseded by a better one as the work evolves (e.g. "switched conditions text to amber" became "dropped pill chrome entirely, conditions is body copy now"), **edit the existing entry** to describe the final landing — don't append a new entry alongside the stale one. The section should describe what shipped, not the trail of intermediate calls.
+  Worth verifying
+    Behaviors that need a human at the keyboard. Multi-step round-trips
+    (e.g. "approve in queue A → appears in surface B"), interaction
+    nuance (multi-select, long-press, drag), privacy/visibility gates
+    that depend on persona context, anything you genuinely couldn't be
+    sure of from automated checks. NOT for things that work-or-don't at
+    a glance — those go in "Surfaces to glance."
 
-   The signal you got this wrong: at phase-close sweep, the same surface has multiple Decisions entries with contradictory descriptions.
+  Surfaces to glance
+    The phase shipped these surfaces; confirming they render correctly
+    is the phase-thesis check. ONE line each, no expected-result
+    spelling, no checkboxes (this is a list, not a test plan). If the
+    reader has to read a paragraph to know what to look for, the item
+    belongs in "Worth verifying" instead.
+
+ANTI-PATTERNS the structure exists to fight:
+
+  1. Listing every persona × surface permutation.
+     If verifying behavior X with Tereza implies it works with Daniel
+     too (same code path, no persona-specific logic), list it once. Use
+     "Worth verifying" when the persona switch IS the test.
+
+  2. Spelling out what would naturally be exercised by another item.
+     If "B5: tap × to clear" would be done in passing while verifying
+     "B4: pill multi-select," don't list B5 separately. Trust the
+     reader to clear a pill they just set.
+
+  3. Pure-visual checks dressed up as verification items.
+     "Filter row reads light enough that pill borders are visible" is
+     either fine (don't list it) or it isn't (fix it, don't ask the
+     reader to flag it). The exception: a glance bullet under
+     "Surfaces to glance" if the visual choice is worth a second
+     opinion.
+
+  4. Decisions buried in workstream items.
+     If a verification item contains "we landed on X because Y" framing,
+     promote the decision to the Decisions log and shrink the item to
+     "verify X behaves correctly." The walkthrough is for the reader's
+     use, not for narrating the build's history.
+
+  5. Stale items after mid-build refactors.
+     When a code change makes an existing verification item inaccurate,
+     edit the item in the same change. Stale items confuse verifiers
+     into ticking what they don't see.
+
+LENGTH TARGETS (rough — adjust per phase scope):
+
+  - Open for your call: 0–6 items. Often the smallest section.
+  - Worth verifying: 4–10 items. The substantive middle.
+  - Surfaces to glance: 4–10 bullets. The fast bottom pass.
+
+  A walkthrough that runs past ~25 items total has almost certainly
+  drifted into anti-pattern 1 or 2. Cut.
+
+DRIFT RULES — the two failure modes this template fights at phase-close:
+
+  1. Code change → update the walkthrough item in the same edit.
+     When you refactor or restyle something the active walkthrough
+     already describes, edit the item's description to match the new
+     behaviour as part of the same change. Stale walkthrough text is
+     worse than no walkthrough.
+
+  2. Decisions are current-state, not an event log.
+     If a logged decision gets superseded by a better one (e.g.
+     "switched conditions text to amber" became "dropped pill chrome
+     entirely"), EDIT the existing entry — don't append a new entry
+     alongside the stale one. The section should describe what shipped,
+     not the trail of intermediate calls.
+
+     The signal you got this wrong: at phase-close sweep, the same
+     surface has multiple Decisions entries with contradictory
+     descriptions.
 -->

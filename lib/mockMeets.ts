@@ -2628,6 +2628,69 @@ export function viewerSharedMeetWith(viewerId: string, subjectId: string): boole
 }
 
 /**
+ * List-returning companion to `viewerSharedMeetWith`. Walks the same past-
+ * attendance graph but accumulates every (meet, date) instance where both
+ * viewer and subject went, sorted most-recent first.
+ *
+ * Powers the SharedContextCard's second line on the locked-profile surface
+ * — "You attended N meets together, most recently {title} on {date}" —
+ * which the boolean helper couldn't carry. P66, 2026-06-02.
+ *
+ * Returns an empty array when viewer === subject.
+ */
+export function getSharedMeetsBetween(
+  viewerId: string,
+  subjectId: string,
+): MeetOccurrence[] {
+  if (viewerId === subjectId) return [];
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayMs = todayStart.getTime();
+
+  const shared: MeetOccurrence[] = [];
+
+  for (const meet of mockMeets) {
+    if (meet.cadence === "one_off") {
+      if (meet.status !== "completed") continue;
+      const list = meet.attendees;
+      const viewerWent = list.some(
+        (a) => a.userId === viewerId && (a.rsvpStatus ?? "going") === "going",
+      );
+      if (!viewerWent) continue;
+      const subjectWent = list.some(
+        (a) => a.userId === subjectId && (a.rsvpStatus ?? "going") === "going",
+      );
+      if (subjectWent) {
+        shared.push({ meet, date: meet.date, attendees: list });
+      }
+      continue;
+    }
+
+    const byDate = meet.attendeesByDate ?? {};
+    for (const [date, list] of Object.entries(byDate)) {
+      const [y, m, d] = date.split("-").map(Number);
+      const occMs = new Date(y, m - 1, d).getTime();
+      if (occMs >= todayMs) continue;
+      const viewerWent = list.some(
+        (a) => a.userId === viewerId && (a.rsvpStatus ?? "going") === "going",
+      );
+      if (!viewerWent) continue;
+      const subjectWent = list.some(
+        (a) => a.userId === subjectId && (a.rsvpStatus ?? "going") === "going",
+      );
+      if (subjectWent) {
+        shared.push({ meet, date, attendees: list });
+      }
+    }
+  }
+
+  // Most recent first — descending by occurrence date.
+  shared.sort((a, b) => b.date.localeCompare(a.date));
+  return shared;
+}
+
+/**
  * Helper: every (meet, occurrenceDate) instance the user has an RSVP on.
  *
  * Drives the per-instance Schedule views (Upcoming, Meets → Going, Meets →

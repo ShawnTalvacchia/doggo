@@ -7,6 +7,7 @@ import { TagPillRow } from "@/components/posts/TagPill";
 import { getDogById, getUserById } from "@/lib/mockUsers";
 import { getGroupById } from "@/lib/mockGroups";
 import { getShelterById, findShelterWalker } from "@/lib/mockShelters";
+import { PostKebabMenu } from "@/components/posts/PostKebabMenu";
 import type { Post, PostTag, PostReaction, PostComment } from "@/lib/types";
 
 /**
@@ -15,7 +16,7 @@ import type { Post, PostTag, PostReaction, PostComment } from "@/lib/types";
  * walkers (no profile yet — return undefined so the name renders as plain
  * text). Shelter Foundation, 2026-06-01.
  */
-function resolveAuthorHref(authorId: string): string | undefined {
+export function resolveAuthorHref(authorId: string): string | undefined {
   if (getShelterById(authorId)) return `/shelters/${authorId}`;
   if (getUserById(authorId)) return `/profile/${authorId}`;
   return undefined;
@@ -27,7 +28,7 @@ function resolveAuthorHref(authorId: string): string | undefined {
  * fall out of sync as we iterate on walker portraits. Falls back to
  * the post's denormalized value for non-walker authors.
  */
-function resolveAuthorAvatarUrl(authorId: string, fallback: string): string {
+export function resolveAuthorAvatarUrl(authorId: string, fallback: string): string {
   const walker = findShelterWalker(authorId);
   if (walker?.avatarUrl) return walker.avatarUrl;
   return fallback;
@@ -48,6 +49,9 @@ interface MomentCardProps {
   meetTitle?: string;
   meetId?: string;
   connectionContext?: string;
+  /** Optional kebab menu (Untag / Report / Block) — wired by
+   *  MomentCardFromPost when a Post object is available. */
+  kebabMenu?: React.ReactNode;
 }
 
 /**
@@ -136,6 +140,7 @@ export function MomentCard({
   groupName,
   groupId,
   connectionContext,
+  kebabMenu,
 }: MomentCardProps) {
   const { headerContext, remainingTags } = buildHeaderContext(tags, groupName, groupId);
   const authorUser = getUserById(authorId);
@@ -164,6 +169,7 @@ export function MomentCard({
       tags={remainingTags.length > 0 ? <TagPillRow tags={remainingTags} /> : undefined}
       reactions={reactions}
       comments={comments}
+      headerMenu={kebabMenu}
     />
   );
 }
@@ -190,6 +196,7 @@ export function MomentCardFromPost({
       groupName={post.groupName}
       groupId={post.groupId}
       connectionContext={connectionContext}
+      kebabMenu={<PostKebabMenu post={post} />}
     />
   );
 }

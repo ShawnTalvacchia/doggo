@@ -4,6 +4,7 @@ import { FeedCard } from "./FeedCard";
 import { buildHeaderContext } from "./MomentCard";
 import { PostPhotoGrid } from "@/components/posts/PostPhotoGrid";
 import { TagPillRow } from "@/components/posts/TagPill";
+import { PostKebabMenu } from "@/components/posts/PostKebabMenu";
 import { getUserById } from "@/lib/mockUsers";
 import { getGroupById } from "@/lib/mockGroups";
 import type { Post } from "@/lib/types";
@@ -39,6 +40,7 @@ export function FeedCommunityPost({ post }: { post: Post }) {
       caption={post.caption}
       reactions={post.reactions}
       comments={post.comments}
+      headerMenu={<PostKebabMenu post={post} />}
     />
   );
 }

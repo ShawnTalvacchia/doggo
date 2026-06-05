@@ -1,6 +1,6 @@
 ---
 status: living
-last-reviewed: 2026-06-03
+last-reviewed: 2026-06-04
 review-trigger: "Append when a 'noted for later' idea surfaces; promote out when triggered"
 ---
 
@@ -253,3 +253,19 @@ The trade-off: convenience of inline reference vs. cleanness of "dog page is the
 **Refs:** `components/people/OwnerDogAvatar.tsx`, `app/bookings/[bookingId]/page.tsx:PetInfoSection`, `docs/features/explore-and-care.md` → Booking detail surfaces. Discussed during Dog Profile phase walkthrough C3 (2026-06-03).
 
 **Added:** 2026-06-03
+
+---
+
+## FC13. "Untag my dog" — mutate `Post.tags[]` instead of per-viewer suppression
+
+**Trigger:** When an editable-post store lands. Today posts live as a static array in `lib/mockPosts.ts`; once posts become mutable (real backend, or a session-scoped persisted store for composed posts), this can flip from a per-viewer suppression filter to a real tag removal.
+
+**Context:** The per-post three-dot menu's "Untag {Dog}" action (Photos & Galleries D1, 2026-06-04) is labeled as if it removes the dog tag from the post — but in V1 it actually records "this viewer doesn't want this post in their dog's album" via `useUntagStore` and filters at the consumption layer. The post's `Post.tags[]` is unchanged; the dog tag chip still renders on the post chrome everywhere it appears. The label was kept because §12 calls for "Untag" semantics and the moderation intent is correct; only the mutation backing is the V1 shortcut.
+
+When the editable-post store lands, the action should mutate `Post.tags[]` directly: filter out the `{type: "dog", id: dogId}` entry. The auto-album filter via `useUntagStore` can stay as a one-tap revert path (or drop entirely if the mutation is atomic).
+
+**Effort:** ~1-2 hours once the post store exists. The kebab menu UI + store-aware filter all stay; just swap the mutation site from store-write to post-mutation.
+
+**Refs:** `components/posts/PostKebabMenu.tsx`, `lib/useUntagStore.ts`, `app/dogs/[id]/page.tsx:DogPhotosBundle` (consumption-layer filter), `docs/features/profiles.md` → Untag-as-suppression note. Surfaced 2026-06-04 (Photos & Galleries walkthrough O2).
+
+**Added:** 2026-06-04

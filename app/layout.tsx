@@ -7,6 +7,7 @@ import { CurrentUserProvider } from "@/contexts/CurrentUserContext";
 import { AuthGateProvider } from "@/contexts/AuthGateContext";
 import { ConversationsProvider } from "@/contexts/ConversationsContext";
 import { ConnectionsProvider } from "@/contexts/ConnectionsContext";
+import { GroupsProvider } from "@/contexts/GroupsContext";
 import { BookingsProvider } from "@/contexts/BookingsContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { ReviewsProvider } from "@/contexts/ReviewsContext";
@@ -15,6 +16,8 @@ import { NavigationMemoryProvider } from "@/contexts/NavigationMemoryContext";
 import { PostComposerProvider } from "@/contexts/PostComposerContext";
 import { MeetComposerProvider } from "@/contexts/MeetComposerContext";
 import { PostMeetReviewProvider } from "@/contexts/PostMeetReviewContext";
+import { StubFeatureProvider } from "@/contexts/StubFeatureContext";
+import { PostDetailProvider } from "@/contexts/PostDetailContext";
 import { GuestLayout } from "@/components/layout/GuestLayout";
 import { AppNav } from "@/components/layout/AppNav";
 import { BottomNav } from "@/components/layout/BottomNav";
@@ -57,12 +60,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <ReviewsProvider>
                 <ConversationsProvider>
                   <ConnectionsProvider>
+                  <GroupsProvider>
                   <BookingsProvider>
                     <PageHeaderProvider>
                     <NavigationMemoryProvider>
                       <PostComposerProvider>
                         <MeetComposerProvider>
                           <PostMeetReviewProvider>
+                            <StubFeatureProvider>
+                            <PostDetailProvider>
                             <GuestLayout>
                               <AppNav />
                               {children}
@@ -96,12 +102,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                             <Suspense fallback={null}>
                               <WalkthroughCard />
                             </Suspense>
+                            </PostDetailProvider>
+                            </StubFeatureProvider>
                           </PostMeetReviewProvider>
                         </MeetComposerProvider>
                       </PostComposerProvider>
                     </NavigationMemoryProvider>
                     </PageHeaderProvider>
                   </BookingsProvider>
+                  </GroupsProvider>
                   </ConnectionsProvider>
                 </ConversationsProvider>
               </ReviewsProvider>
