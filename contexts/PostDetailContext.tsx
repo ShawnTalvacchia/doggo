@@ -14,6 +14,18 @@ interface OpenPostOptions {
    *  Lets a click on photo #3 in a list view open the lightbox at #3
    *  instead of always resetting to the first photo. */
   photoIndex?: number;
+  /** Optional parallel array to `collection` — when provided, each
+   *  post in the collection navigates to that index's photo within
+   *  the post. Used by Highlights, where each curated entry points to
+   *  a specific photo (not the first) of its source post. When absent,
+   *  cross-post navigation resets to photo 0. */
+  photoIndices?: number[];
+  /** When false, the lightbox hides within-post nav (the small `< >`
+   *  arrows on the photo edges and the "1/4" counter). Used by
+   *  Highlights — each highlight points to a single curated photo, not
+   *  a way to browse all photos in its parent post. Default true.
+   *  Cross-post nav (the larger arrows / swipe) is unaffected. */
+  withinPostNav?: boolean;
 }
 
 interface PostDetailContextValue {
@@ -45,12 +57,16 @@ export function PostDetailProvider({ children }: { children: React.ReactNode }) 
   const [postId, setPostId] = useState<string | null>(null);
   const [collection, setCollection] = useState<Post[] | undefined>(undefined);
   const [initialPhotoIndex, setInitialPhotoIndex] = useState<number | undefined>(undefined);
+  const [photoIndices, setPhotoIndices] = useState<number[] | undefined>(undefined);
+  const [withinPostNav, setWithinPostNav] = useState(true);
 
   const openPost = useCallback(
     (id: string, opts?: OpenPostOptions) => {
       setPostId(id);
       setCollection(opts?.collection);
       setInitialPhotoIndex(opts?.photoIndex);
+      setPhotoIndices(opts?.photoIndices);
+      setWithinPostNav(opts?.withinPostNav ?? true);
     },
     [],
   );
@@ -59,6 +75,8 @@ export function PostDetailProvider({ children }: { children: React.ReactNode }) 
     setPostId(null);
     setCollection(undefined);
     setInitialPhotoIndex(undefined);
+    setPhotoIndices(undefined);
+    setWithinPostNav(true);
   }, []);
 
   const post = postId ? getPostById(postId) : undefined;
@@ -71,13 +89,23 @@ export function PostDetailProvider({ children }: { children: React.ReactNode }) 
           post={post}
           collection={collection}
           initialPhotoIndex={initialPhotoIndex}
+          withinPostNav={withinPostNav}
           onClose={closePost}
           onNavigate={(nextId) => {
             setPostId(nextId);
-            // Reset photo index when navigating to a new post — the
-            // initialPhotoIndex only applies to the post the user
-            // opened from outside, not to subsequent navigation.
-            setInitialPhotoIndex(undefined);
+            // On cross-post navigation, the initial photo for the new
+            // post comes from `photoIndices` (if the caller provided
+            // a parallel array — Highlights does) or falls back to
+            // photo 0. The single-shot `initialPhotoIndex` only
+            // applies to the post the user opened from outside.
+            if (collection && photoIndices) {
+              const nextIdx = collection.findIndex((p) => p.id === nextId);
+              setInitialPhotoIndex(
+                nextIdx >= 0 ? photoIndices[nextIdx] : undefined,
+              );
+            } else {
+              setInitialPhotoIndex(undefined);
+            }
           }}
         />
       )}

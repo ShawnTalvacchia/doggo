@@ -29,9 +29,17 @@ interface PostLightboxProps {
   collection?: Post[];
   /** Starting photo index within a multi-photo post. Lets a list-view
    *  photo click open the lightbox at the clicked photo instead of
-   *  always resetting to photo 0. Only applies to the initial post;
-   *  subsequent navigation resets to 0. */
+   *  always resetting to photo 0. Cross-post navigation updates this
+   *  from the parent (PostDetailContext) when the caller provides a
+   *  `photoIndices` array — used by Highlights so each curated entry
+   *  lands on its specific photo within its source post. */
   initialPhotoIndex?: number;
+  /** When false, hides the within-post navigation chrome (small `< >`
+   *  arrows on the photo edges + "1/4" counter). Used by Highlights
+   *  where each entry is a single curated photo, not a way to browse
+   *  the post's other photos. Cross-post navigation is unaffected.
+   *  Default true. */
+  withinPostNav?: boolean;
   onClose: () => void;
   /** Called when the user navigates to a different post in the
    *  collection — lets the parent context update its tracked active
@@ -60,6 +68,7 @@ export function PostLightbox({
   post,
   collection,
   initialPhotoIndex,
+  withinPostNav = true,
   onClose,
   onNavigate,
 }: PostLightboxProps) {
@@ -200,7 +209,7 @@ export function PostLightbox({
             alt={post.caption ?? `Post by ${post.authorName}`}
             className="post-lightbox-photo"
           />
-          {photoCount > 1 && (
+          {withinPostNav && photoCount > 1 && (
             <>
               {hasPrevPhoto && (
                 <button

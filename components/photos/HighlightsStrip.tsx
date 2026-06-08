@@ -92,16 +92,26 @@ export function HighlightsStrip({
 
   // Collection for the lightbox = the resolvable highlight posts, in
   // highlight order. Skips unresolved entries so the carousel doesn't
-  // try to render them.
-  const collection: Post[] = resolved
-    .map((r) => r.post)
-    .filter((p): p is Post => p !== null);
+  // try to render them. Parallel `photoIndices` array carries each
+  // highlight's specific photo position within its source post — the
+  // lightbox uses this on cross-highlight navigation so ←/→ lands on
+  // the right photo for each curated entry, not photo 0.
+  const resolvedItems = resolved.filter(
+    (r): r is ResolvedHighlight & { post: Post } => r.post !== null,
+  );
+  const collection: Post[] = resolvedItems.map((r) => r.post);
+  const photoIndices: number[] = resolvedItems.map((r) => r.photoIndex);
 
   const handleTap = (item: ResolvedHighlight) => {
     if (!item.post) return;
     openPost(item.post.id, {
       collection,
+      photoIndices,
       photoIndex: item.photoIndex,
+      // Highlights are curated single photos — ← → moves between
+      // highlights, not within a post. Hide the within-post chrome
+      // (small arrows + "1/4" counter) since it doesn't apply.
+      withinPostNav: false,
     });
     setSeeAllOpen(false);
   };
