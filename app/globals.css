@@ -15902,6 +15902,17 @@ a.shelter-intro-social:hover {
   border-color: var(--border-strong);
 }
 
+/* Scoped specificity bump — defeats the later `.dropdown-menu-wrap`
+   rule (`flex: 1`) which would otherwise grow each pill to equal
+   share and space them out across the row. The pill+wrap pair needs
+   to behave as an intrinsically-sized chip in these surfaces.
+   2026-06-04. */
+.posts-tab-filter-active-row .posts-tab-filter-pill-wrap,
+.posts-tab-controls-primary .posts-tab-filter-pill-wrap {
+  flex: 0 0 auto;
+  display: inline-flex;
+}
+
 .posts-tab-filter-pill-wrap {
   flex: 0 0 auto;
   display: inline-flex;

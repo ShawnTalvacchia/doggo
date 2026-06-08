@@ -164,33 +164,37 @@ export function PostLightbox({
         <X size={20} weight="bold" />
       </button>
 
-      {hasPrevPost && (
-        <button
-          type="button"
-          className="post-lightbox-post-nav post-lightbox-post-nav--prev"
-          onClick={goPrevPost}
-          aria-label="Previous post"
-        >
-          <CaretLeft size={24} weight="bold" />
-        </button>
-      )}
-      {hasNextPost && (
-        <button
-          type="button"
-          className="post-lightbox-post-nav post-lightbox-post-nav--next"
-          onClick={goNextPost}
-          aria-label="Next post"
-        >
-          <CaretRight size={24} weight="bold" />
-        </button>
-      )}
-
       <div className="post-lightbox-frame">
         <div
           className="post-lightbox-photo-area"
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
+          {/* Cross-post nav lives INSIDE the photo-area so its
+              `top: 50%` resolves against the photo-area's actual
+              height rather than the full overlay. Keeps the arrows
+              vertically centered on the photo regardless of how
+              tall the photo-area renders. 2026-06-04. */}
+          {hasPrevPost && (
+            <button
+              type="button"
+              className="post-lightbox-post-nav post-lightbox-post-nav--prev"
+              onClick={goPrevPost}
+              aria-label="Previous post"
+            >
+              <CaretLeft size={24} weight="bold" />
+            </button>
+          )}
+          {hasNextPost && (
+            <button
+              type="button"
+              className="post-lightbox-post-nav post-lightbox-post-nav--next"
+              onClick={goNextPost}
+              aria-label="Next post"
+            >
+              <CaretRight size={24} weight="bold" />
+            </button>
+          )}
           <img
             src={post.photos[photoIdx]}
             alt={post.caption ?? `Post by ${post.authorName}`}
