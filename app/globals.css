@@ -15652,39 +15652,6 @@ a.shelter-intro-social:hover {
   margin-top: var(--space-md);
 }
 
-/* Mobile: stack vertically — photo at top, sidebar fills below.
-   Close + nav buttons stay positioned over the overlay. */
-@media (max-width: 720px) {
-  .post-lightbox-frame {
-    flex-direction: column;
-    width: 100vw;
-    height: 100vh;
-    border-radius: 0;
-  }
-
-  .post-lightbox-photo-area {
-    /* Tightened from 55vh — combined with the photo's own 75vh cap,
-       this keeps the sidebar (caption + comments) above the fold on
-       portrait phones even when the post photo is tall. */
-    flex: 0 0 45vh;
-  }
-
-  .post-lightbox-sidebar {
-    flex: 1 1 auto;
-    border-left: 0;
-    border-top: 1px solid var(--border-light);
-    min-height: 0;
-  }
-
-  .post-lightbox-post-nav {
-    /* Move post-nav arrows into the photo area on mobile so they
-       don't sit awkwardly outside the (now full-width) frame.
-       22.5vh ≈ midpoint of the 45vh photo area. */
-    top: 22.5vh;
-    transform: translateY(-50%);
-  }
-}
-
 /* ─── Alert / toast — error / warning / info / success ───────────── */
 
 /* Tinted alert card: icon + title + optional description, with
