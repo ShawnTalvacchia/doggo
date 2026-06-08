@@ -12575,6 +12575,19 @@ body:has(.bottom-nav) .inbox-page {
 .notif-avatar-stack-item:nth-child(2) { left: 12px; }
 .notif-avatar-stack-item:nth-child(3) { left: 24px; }
 
+/* Tag-pending preview thumbnail — glanceable view of the photo the
+   viewer is being asked to approve. Lives on the far right of the
+   notification row, parallel to the avatar on the far left.
+   2026-06-04. */
+.notif-tag-thumb {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  align-self: flex-start;
+}
+
 /* Unread badge — corner pip overlaid on the avatar in the
    /notifications page. Border in the surface color so the badge reads as
    overlapping the avatar edge. 2026-05-08. */

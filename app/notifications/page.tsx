@@ -26,6 +26,7 @@ import { useConnections } from "@/contexts/ConnectionsContext";
 import { usePostDetail } from "@/contexts/PostDetailContext";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { usePendingTagsStore } from "@/lib/usePendingTagsStore";
+import { getPostById } from "@/lib/mockPosts";
 import type { AppNotification } from "@/lib/types";
 import type { NotificationType } from "@/lib/types";
 import { formatRelativeTime } from "@/lib/dateUtils";
@@ -292,6 +293,25 @@ function NotificationRow({
         {connReqFooter}
         {tagPendingFooter}
       </div>
+
+      {/* Tag-pending preview thumbnail — gives the owner a glanceable
+          view of the photo they're approving. Matches Instagram /
+          Facebook tag-review patterns where you don't need to tap to
+          see the image. Same tap target as the row body (opens the
+          post in the lightbox). 2026-06-04. */}
+      {isTagPending && n.postId && (() => {
+        const post = getPostById(n.postId);
+        const photo = post?.photos[0];
+        if (!photo) return null;
+        return (
+          <img
+            src={photo}
+            alt=""
+            className="notif-tag-thumb"
+            loading="lazy"
+          />
+        );
+      })()}
     </div>
   );
 
