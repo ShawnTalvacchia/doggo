@@ -104,6 +104,7 @@ Foundational rules that shape decisions across the app. Implementation details (
 - **Lock + Carer audience are two orthogonal axes.** Lock = privacy (who can see the profile). Carer audience (`carerProfile.publicProfile`) = action eligibility (who can act on services — circle vs anyone). One Carer role, two settings. See `docs/features/profiles.md` → "Lock + Carer audience."
 - **Three visibility paths for circle-scoped Carer offerings:** Lock (profile visibility), 1:1 Connection (Services tab gate), and **group co-membership** (private-group members see other members' circle-scoped Care via the "Care from neighbours" surface — group membership grants visibility without 1:1 Connection). See `docs/strategy/Groups & Care Model.md` → "Group co-membership as a third visibility path."
 - **Two-gate content visibility:** context gate + relationship gate. Tags never expand audience. See `docs/strategy/Content Visibility Model.md`.
+- **Posts and photos are the same collection.** Every Post has 1–4 photos; no separate Photos tab/route exists. Profile Posts tab + dog page Posts section both mount the shared `PostsCollectionView` (List ⇄ Grid view toggle + +Filter tag-type pills); both surface tap-targets that open `PostLightbox` via `usePostDetail().openPost()`. Highlights (`UserProfile.highlights` / `PetProfile.highlights`) is a curated layer ON TOP of the same posts, not a parallel collection. See `docs/features/profiles.md` → "Post detail surface" + "Posts tab".
 
 ### Identity & Architecture
 

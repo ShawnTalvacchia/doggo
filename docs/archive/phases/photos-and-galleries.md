@@ -1,7 +1,7 @@
 ---
-status: active
-last-reviewed: 2026-06-04
-review-trigger: When any task is completed or blocked; when prerequisite Open Questions resolve
+status: archived
+last-reviewed: 2026-06-07
+review-trigger: "Closed phase — historical record only"
 ---
 
 # Photos & Galleries

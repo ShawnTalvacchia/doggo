@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-04
+last-reviewed: 2026-06-07
 tags: [shelters, institutional-accounts, walkers, dogs, cold-start, photos]
 review-trigger: "when modifying shelter surfaces, walker tier model, or non-owned dog handling"
 ---
@@ -157,13 +157,11 @@ Lives at `/dogs/[id]`. Shipped (Dog Profile phase, 2026-06-03) for both shelter 
 
 **Recent walkers** — Avatar stack with names below. Shelter dogs only. Derived from posts tagging this dog whose author is a walker at the shelter. Falls back to no row when there are none.
 
-**Photos auto-album** — Section between Recent walkers / Health and Posts (Photos & Galleries phase, 2026-06-04). Renders posts tagging this dog as a square-tile grid via `PhotoGrid`; tap → opens the parent post in a ModalSheet. Viewer-gated via `getPostsByDog(dogId, viewerId)`. Long-press a tile (owner only) → Pin to Highlights / Hide from album. Owner-side per-dog settings (Auto-approve, View hidden, Clear pinned) live in a gear icon next to the section title.
+**Highlights strip** — Renders above the Posts section when `dog.highlights` is non-empty. Owner-curated horizontal scroll; "See all" opens a full grid modal. Tappable thumbnails open the lightbox in "Highlights mode" — carousel scopes to the highlights themselves (each URL resolved globally so cross-author entries work), within-post nav hidden. Reorder + unpin via Edit Highlights modal (pencil affordance on the strip header). Add via the per-post kebab → "Pin to {Dog}'s Highlights" — universal (any viewer can pin photos from any author's post, since Highlights is about the curator's surfaces, not authorship).
+
+**Posts** — Single section combining the per-dog auto-album + the chronological feed (Photos & Galleries 2026-06-04, after the unification with owner profile's PostsTab). Uses the shared `PostsCollectionView` — List ⇄ Grid view toggle in the header, tag-type filter pills (+Filter pattern). Viewer-gated via `getPostsByDog(dogId, viewerId)`. Owner-side per-dog settings (Auto-approve, View hidden, Clear pinned) live in a gear icon next to the section title. Per-post actions (Pin to {Dog}'s Highlights, Hide from {Dog}'s album, Untag, Report, Block) live in the per-post kebab on every card / lightbox header — see [[features/profiles]] → "Per-post kebab menu" for the unified action surface spec.
 
 For shelter dogs, `ShelterProfile.tagApproval` is the authority instead of an owner's `UserProfile.tagApproval` — same inheritance model, different authority. V1 enforces it read-only (no shelter operator moderation UI; that's V3+).
-
-**Highlights strip** — Renders above the auto-album when `dog.highlights` is non-empty. Owner-curated horizontal scroll; "See all" opens a full grid modal. Reorder + unpin via Edit Highlights modal (`PencilSimple` affordance on the strip header).
-
-**Posts about [Dog]** — Dog-tagged posts from `getDogPosts(dog.id)`. Renders full-width below a header strip (no surrounding card chrome — the post's own card chrome is enough; nesting was redundant). Empty state when none.
 
 **Backlink** — Shelter dogs: `Cared for by Útulek Liběň →` with shelter logo (circle avatar — institutional entity). Owned dogs: owner backlink reads "Your dog · You" for self or "Lives with {Owner Name}" for cross-persona view, with owner avatar (circle — person).
 

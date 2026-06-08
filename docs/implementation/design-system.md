@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-06-01
+last-reviewed: 2026-06-07
 tags: [design-system, components, patterns, css]
 review-trigger: "when building or refactoring components, adding CSS patterns, or consolidating styles"
 ---
@@ -59,6 +59,7 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 | `BookingRow` | Booking list item (My Bookings + My Services) | `booking`, `perspective` |
 | `FilterPillRow` | Unified horizontal scrollable filter pills | `pills`, `activePill`, `onChange` |
 | `CameraPlusFill` | Camera icon with plus badge (photo upload prompt) | `size`, `className` |
+| `Alert` | Tinted callout card with icon + title + optional description + optional dismiss × | `kind` (info/success/warning/error), `title`, `description`, `onDismiss`. Photos & Galleries 2026-06-04. Used inline for page-level callouts AND as the body of transient toasts via `<ToastHost>` / `useStubNotice()`. Tone-matched fill + border per variant; icon picked per kind (Info / CheckCircle / WarningCircle / XCircle). |
 
 ## Layout (`components/layout/`)
 
@@ -156,6 +157,43 @@ Active list of things to merge, simplify, or remove. Work these down over time.
 | Duplicate CSS for single-panel pages | Community and Schedule shells follow the same pattern but have separate CSS | Consider a shared `.single-panel-shell` base class |
 | `.feed-card-body--simple` variant | Only used for authorless cards; may be removable | Audit usage, consider removing if unused |
 | `discover-type-pill` CSS | Consolidated into `.filter-pill-row` | Remove old class if no remaining references |
+
+---
+
+## Recurring patterns
+
+### Section rhythm — tight header, larger body gap
+
+Shared by `.profile-tab-stack > section` AND `.dog-profile-section` (the two parallel "header + body" section surfaces). Implemented as a comma-separated selector list so future section surfaces can opt in by extending it.
+
+```css
+.profile-tab-stack > section,
+.dog-profile-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);                                /* header → first body item: tight */
+}
+
+.profile-tab-stack > section > :nth-child(n+3),
+.dog-profile-section > :nth-child(n+3) {
+  margin-top: calc(var(--space-md) - var(--space-sm)); /* body → body: larger */
+}
+```
+
+Assumes the section's first child is the header. CSS-only — no JSX wrapper needed. Visual chrome (padding / background / border) stays per-class because the two surfaces render in different layout contexts. Photos & Galleries 2026-06-04.
+
+### Stub-action toast
+
+Pattern for any in-prototype action that isn't wired up yet but should LOOK present (e.g., Edit post, Delete post, Report). Stub buttons call `useStubNotice().notify({ feature, note })` instead of silently closing — a non-modal toast slides in from the top-right (top on mobile), auto-dismisses after ~6s, manually × dismissible.
+
+- **For demo viewers:** clear signal the action is intentionally inert, not broken. Non-blocking so they can keep exploring.
+- **For the team:** a self-documenting bookmark while walking the app — every stub announces itself.
+
+Lives in `contexts/StubFeatureContext.tsx`, mounted at the app root. Renders the `<Alert kind="info">` (see Primitives table). Photos & Galleries 2026-06-04.
+
+### Post detail surface — modal lightbox, not a route
+
+Doggo deliberately has no `/posts/[id]` route — comments aren't a primary platform thread. Any caller that wants to show a single post uses `usePostDetail().openPost(postId, opts)` from `PostDetailContext`; a global lightbox at the app root renders the post photo-led. Cross-post navigation via `collection` (with optional `photoIndices` for per-item starting photo), within-post nav togglable via `withinPostNav`. Used by PhotoGrid tiles, PostPhotoGrid photos in feed cards, Highlights thumbs, tag-pending notifications. See `features/profiles.md` → "Post detail surface".
 
 ---
 

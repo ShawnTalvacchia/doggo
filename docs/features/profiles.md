@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-04
+last-reviewed: 2026-06-07
 tags: [profile, pets, carer, edit, posts, tagging, photos]
 review-trigger: "when modifying profile pages, pet cards, posts, or carer sections"
 ---
@@ -87,7 +87,12 @@ The Chat tab embeds the full messaging thread directly on the profile page using
 - Tag approval setting: auto-approve / review first / don't allow tagging
 - Care CTAs: Find Care + Offer Care / Manage Services. CTA row uses `flex flex-wrap gap-sm` + `grow basis-[140px]` per button so the pair wraps to stacked full-width on narrow viewports (`.btn` has `white-space: nowrap` so `flex-1` alone can't shrink — the basis pattern earns the row the right behavior).
 - **Connections — three summary cards + View all modal** (Profiles Deep Pass 2026-05-11 / refactored 2026-05-13). In-tab summary renders one `ConnectionGroupCard` per non-empty state (Connected / Familiar / Pending) — avatar stack (cap 5 + "+N" overflow chip) on the left, label + count line on the right; non-interactive. "View all (N)" lives in the section header action slot; opens a `ModalSheet` titled "Connections · N" rendering the full uncapped list using shared meet-list primitives (`SectionHeader` from `components/people/PersonSections.tsx` + `PersonRow` variant `default`). Modal rows surface actions automatically (Connected → Message; Familiar → Connect; Pending → inline status pill) via PersonRow's default `actions="auto"` matrix. Search + filter pills deferred until rosters grow past ~50 — logged in `Future Considerations.md` FC1.
-- **Posts tab:** `ShareMomentBar` 3-part inviting-affordance strip at the top of the panel (Profiles Deep Pass B5, 2026-05-11 / redesigned 2026-05-13). Self-contained `--surface-top` strip with top + bottom borders. Three parts: (1) current-user avatar (40px circle) on the left, establishing card grammar; (2) sunken pill input prompt ("Share a moment...") — primary tap target, opens `PostComposer`; (3) shortcut row of `Photo · Dog · Location · Group` light tertiary buttons. Each shortcut opens the composer with that tag picker auto-active via `PostComposerContext.openComposer({ initialTagPicker })` — Photo opens plain (composer surfaces the photo-add affordance prominently); Dog/Location/Group route to `"dog"` / `"place"` / `"community"` pickers. AppNav Camera+ is suppressed here via `suppressCreate` — the strip is the affordance. **Propagated to the community feed** (`app/home/page.tsx` feed view, between sticky tabs and feed list) — same component, same affordances. Suppressed in newUserMode where DogsNearYou leads the feed.
+- **Posts tab** (Photos & Galleries 2026-06-04). Two contained sections — **Highlights** + **Posts** — both using `.dog-profile-section` chrome so the layout mirrors `/dogs/[id]` exactly. ShareMomentBar retired from the panel; the "Post" button moved to the page-action slot (outline + CameraPlus icon, registered via `setPageAction` — same pattern as Communities). AppNav Camera+ stays suppressed via `suppressCreate: true`. The community-feed surface (`app/home/page.tsx`) still uses ShareMomentBar.
+  - **Highlights strip** — owner-curated photos (`UserProfile.highlights: string[]`) above the Posts collection. New field 2026-06-04, parallel to `PetProfile.highlights`. Renders nothing when empty; tappable thumbnails resolve to source posts via global `mockPosts` scan and open the lightbox (see Post detail surface below). Edit pencil opens the reorder/unpin modal. Add via the per-post kebab — "Pin to your Highlights" — same as for dog Highlights.
+  - **PostsCollectionView** (`components/posts/PostsCollectionView.tsx`) carries List ⇄ Grid view toggle + tag-type filter pills. List = chronological MomentCards (unchanged from prior surface); Grid = first-photo tiles, tap → opens the parent post in the lightbox with the visible-posts collection for cross-post nav.
+  - **+Filter pattern** for the filter pills. Default state shows just a dashed-border `+ Filter ▾` button on the top row alongside the view toggle (right-aligned). Tap → menu of available types (Dog / Person / Place / Community / Meet — `shelter` excluded as reserved infrastructure). Pick a type → `pendingType` set → that type's pill renders in `defaultOpen` mode → user lands in the values picker. Multi-select via checkbox rows; multiple types AND together; multiple values within a type OR together. Active filter pills wrap to a SECOND row below; top row stays anchored regardless of how many filters are active. Filter dropdown options reveal only contexts the viewer can see (Content Visibility Model line 166). URL: `?view=grid&f_dog=bella,franta&f_community=group-1`.
+  - **Visibility filter** — `isPostVisibleTo` is applied to every post BEFORE filter dropdowns render, so dropdown options, view counts, and both view modes all read from the gated set.
+  - The same PostsCollectionView mounts on `/dogs/[id]` for the dog's Posts section, scoped to dog-tagged posts instead of by-author. Single source of truth across the two surfaces.
 - **Services tab:** editable services, availability, audience toggle. **Comprehensive catalogue** — Care-type offerings (Walking, Sitting, Boarding), Meet-type offerings (Training sessions, Workshops, paid Group meets), and Appointment offerings (grooming / training visits) all live here in one list. See [[Groups & Care Model]] → Services as Catalog for the split.
   - Care-service edit rows use `Select` for service type, `ButtonIcon` for the remove action, and `InputField` with the `trailing` prop for the price unit suffix ("Kč / visit"). All inputs are design-system-aligned (Profile Deep Pass).
   - **Meet + Appointment service authoring (Service ↔ Meet Linkage 2026-05-17).** The Services edit list holds all three service kinds — Care, Meet, Appointment — in one "Services" section (cards grouped Care → Meet → Appointment). The dishonest "managed separately" footnote is gone. `MeetServiceEditCard` carries title / price-per-session / format / cadence / duration / notes + a **linked-meets picker** — search-and-add, not list-all: it shows only the *linked* meets as rows (each with an × to unlink) plus a "+ Link a meet" control that filter-searches the carer's other hosted meets. Each linked meet gets a per-link "Booking required to RSVP" toggle (persists to `Meet.linkedServices[].required`). `AppointmentServiceEditCard` carries name / price / type (grooming · training) / duration / notes — no meets picker (appointments have no roster). "+ Session offering" + "+ Appointment" add buttons sit alongside the per-Care-type buttons. Delete: a service with bookings soft-archives to a muted strip with Undo; a fresh service hard-deletes. Components: `components/profile/MeetServiceEditCard.tsx`, `AppointmentServiceEditCard.tsx`.
@@ -179,7 +184,7 @@ The `userId` field on `ProviderCard` bridges between provider catalog IDs (e.g. 
 | Socialisation notes | textarea | How they are with other dogs, people, kids |
 | Standing preferences | fieldset | Four chip groups — Likes / Dislikes / Triggers / Play preferences *(see below)* |
 | Vet info | fieldset | Clinic name, phone, last checkup, vaccinations *(structured — see below)*, spayed/neutered, medications, conditions |
-| Highlights | image array | **Highlights** — owner-curated pinned photos surfaced above the auto-album on `/dogs/[id]`. Field is `PetProfile.highlights: string[]` (renamed from `photoGallery` 2026-06-04 for symmetry with `UserProfile.highlights`). Pin via long-press on auto-album tiles; reorder/unpin via Edit Highlights modal. |
+| Highlights | image array | **Highlights** — owner-curated pinned photos surfaced above the auto-album on `/dogs/[id]`. Field is `PetProfile.highlights: string[]` (renamed from `photoGallery` 2026-06-04 for symmetry with `UserProfile.highlights`). Pin via the per-post kebab → "Pin to {Dog}'s Highlights" (universal — any viewer can pin photos from any author's post, since Highlights is about the curator's surfaces, not authorship). Reorder/unpin via Edit Highlights modal. Tapping a thumbnail opens the lightbox in "Highlights mode" — carousel scopes to the highlights themselves (URL resolved globally so cross-author entries work), within-post nav hidden (each highlight is a single curated photo). |
 
 ### Standing preferences (2026-06-02)
 
@@ -217,19 +222,51 @@ Added in Phase 10. Users can post photos (1-4 required) with optional captions a
 - **Reactions:** paw-print with count ("Paw it" / "X Paws")
 - **Post composer:** accessible from profile Posts tab header action ("Post" button — mirrors Communities pattern; Photos & Galleries 2026-06-04 retired the in-panel ShareMomentBar), home page "Add Post" CTA, and community detail pages
 
+### Post detail surface — PostLightbox (Photos & Galleries 2026-06-04)
+
+Doggo has no `/posts/[id]` route by design — comments aren't a primary platform thread, so a modal-scoped lightbox is sufficient and keeps "tap → see → close" consistent across surfaces.
+
+`PostLightbox` (`components/posts/PostLightbox.tsx`) is opened via the global `usePostDetail().openPost(postId, opts)` context. Photo-led layout: dark backdrop overlay, photo dominant on the left (~60% desktop width) with the post sidebar on the right (author + caption + tag pills + reactions + comments + the `PostKebabMenu` in the header). On mobile (≤768px): photo + sidebar stack vertically (photo 55dvh top, sidebar flows below); the whole overlay scrolls as a document; close × pins via `position: fixed` so it remains reachable after scrolling. Touch swipe ←/→ on the photo area triggers cross-post nav (with edge-attached chevron hints as a discoverability cue).
+
+`openPost` accepts:
+- `collection?: Post[]` — when present, ←/→ keys and on-screen prev/next traverse the collection. Photo-area-anchored cross-post arrows. Esc closes.
+- `photoIndex?: number` — open at a specific photo within a multi-photo post (e.g., user clicked photo #3 in a list-view post's photo grid).
+- `photoIndices?: number[]` — parallel to `collection`. When provided, each cross-post navigation step seeds the new post's photo from this array (not always 0). Used by Highlights so each curated entry lands on its specific photo.
+- `withinPostNav?: boolean` (default true) — when false, hides the small `< >` + "N/M" counter on the photo. Used by Highlights, where each entry is a single curated photo, not a way to browse the post's other photos.
+
+`PhotoGrid` tiles (auto-album / Posts-tab grid) and `PostPhotoGrid` photos inside feed list cards both open the lightbox via `openPost(postId, { collection: filteredPosts, photoIndex })`. Tag-pending notification rows open without a collection.
+
+FC14 logs the Instagram-style drag-over-photo bottom sheet as eventual mobile polish.
+
+### Per-post kebab menu — PostKebabMenu (Photos & Galleries 2026-06-04)
+
+Top-right of every post card, in the lightbox sidebar header, and on every album/grid tile. Floating popover (`.dropdown-menu` pattern), click-outside to close. Three layers of items:
+
+**Curation actions** — available regardless of authorship. Highlights and the per-dog album are about the VIEWER's surfaces, not about who took the photo:
+- **Pin / Unpin to Highlights** — destination is context-aware via `usePathname()`. On `/dogs/[id]` for a viewer-owned dog → that dog's Highlights. Anywhere else (feed, owner profile) → the viewer's own Highlights. Single state-toggling row.
+- **Hide / Show in album** — only renders when in a dog-page context for an owned dog. Adds the post to a per-dog hide list that the auto-album filters out.
+
+**Author-only** — Edit post, Delete post. Both stubs (Photos & Galleries D1 didn't ship the editable-post store; clicking the row pops a toast via `useStubNotice()` naming FC13 as the trigger).
+
+**Non-author-only** — Untag {Dog} (per owned dog the post tags), Report, Block {Author}. Untag is REAL (records suppression via `useUntagStore`; the dog's auto-album filters that post out for the owner). Report/Block are stubs pointing at the moderation backend.
+
+`AlbumTileLongPressMenu` was the prior approach; retired 2026-06-04 because long-press read as finicky and forked the action surface from the post card's kebab. The kebab is now the single unified action surface.
+
 ### Posts tab — List ⇄ Grid views + multi-select filters (Photos & Galleries 2026-06-04)
 
-The Posts tab carries a section-header icon-pair toggle (`List` / `Grid`). Grid renders each post as its first-photo tile, tap → opens the parent post in a `ModalSheet` with the full `MomentCard`. Default = list.
+The Posts tab body has two contained sections: **Highlights** strip (above) and **Posts** collection (below). Both use `.dog-profile-section` chrome so the layout mirrors the dog page exactly.
 
-Above the toggle: **tag-type pill-dropdowns** — `Dog ▾`, `Person ▾`, `Place ▾`, `Community ▾`, `Meet ▾`. Each pill opens a popover menu (`.dropdown-menu` pattern) with checkbox rows; multi-select within a type. Active pill collapses the count: "Dog · 2 ×". Across types the predicates AND; within a type they OR. The pill renders only when ≥1 viewer-visible option exists for that type (Content Visibility Model line 166 — never leak group/value existence). The "All / Personal" pills from the V1 design were dropped — tag-type filtering covers the same scoping intent without per-value pill noise.
+The Posts section carries a section-header icon-pair toggle (`List` / `Grid`). Grid renders each post as its first-photo tile, tap → opens the parent post in the lightbox with the visible-posts collection. Default = list.
 
-URL state: `?view=grid` for the toggle, `?f_<type>=<id,id,...>` per active filter (comma-separated). Both default to no-param.
+**Filter row — `+ Filter` pattern.** Top row anchors `+ Filter ▾` (dashed-border chip) left + view toggle right. Tap +Filter → menu of available types (Dog / Person / Place / Community / Meet — `shelter` excluded). Pick a type → its TagFilterPill mounts in `defaultOpen` mode → user lands directly in the values picker. Active pills wrap to a SECOND row below; top row stays stable regardless of how many filters are active. Pill + toggle matched to 32px height.
+
+Multi-select: tick multiple values in one type's menu to widen (OR within type). Add filters across types to narrow (AND across types). Tap an active pill to re-open its values picker; tap × to clear that filter. Each pill renders only its viewer-visible options (Content Visibility Model line 166 — never leak group/value existence).
+
+URL state: `?view=grid` for the toggle, `?f_<type>=<id,id,...>` per active filter. Both default to no-param.
 
 Visibility filtering: `isPostVisibleTo` is applied to every post BEFORE the dropdown lists, the filter pills, or either view render. Pre-Photos & Galleries, the Posts surface showed `getPostsByUser` unfiltered; that visibility leak is now closed.
 
-Per-post **three-dots menu** ("Untag {Dog}" / Report / Block) renders top-right of every post via `PostKebabMenu`. Untag is visible only when the post tags a dog the viewer owns; Report + Block are stubs (visible options, no-op in V1). Untag persistence is per-viewer via `useUntagStore` and feeds into the `/dogs/[id]` auto-album filter; mutating `Post.tags` itself is deferred until an editable-post context lands.
-
-**Forward direction (Open Q §12 — V2+):** "Albums" become saved filter compositions. The pill-dropdown multi-select shape IS the foundation; an Album = "this filter state, saved with a name." Auto-link from contextual surfaces ("View posts from this booking") then becomes a pre-filled album. Not built in this phase.
+**Forward direction (Open Q §12 — V2+):** "Albums" become saved filter compositions. The pill-dropdown multi-select shape IS the foundation; an Album = "this filter state, saved with a name." Auto-link from contextual surfaces ("View posts from this booking") then becomes a pre-filled album. Highlights becomes one album in a dropdown switcher next to the strip header. Not built in this phase.
 
 ### Tag approval setting
 

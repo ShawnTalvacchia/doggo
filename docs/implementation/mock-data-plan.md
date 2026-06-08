@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-05-14
+last-reviewed: 2026-06-07
 tags: [mock-data, demo, prototype, data-model]
 review-trigger: "before creating or modifying mock data files"
 ---
