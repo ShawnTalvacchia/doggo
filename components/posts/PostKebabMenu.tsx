@@ -40,11 +40,18 @@ interface PostKebabMenuProps {
  *   - On `/dogs/[id]` for a dog the viewer owns → that dog's Highlights.
  *   - Anywhere else (feed, owner profile, etc.) → viewer's own Highlights.
  *
- * Items adapt to viewer × post × surface:
+ * Items adapt to viewer × post × surface. Curation actions are
+ * available regardless of authorship — Highlights and the per-dog
+ * album are about the VIEWER's surfaces, not about who took the photo.
+ * Edit / Delete are author-only; Untag / Report / Block are
+ * non-author-only.
+ *
+ * **All viewers (when applicable):**
+ *   - Pin / Unpin to Highlights (1 row, context-aware destination) — REAL
+ *   - Hide / Show in album (1 row, only in a dog-page context for a
+ *     dog the viewer owns) — REAL
  *
  * **Own post:**
- *   - Pin / Unpin to Highlights (1 row, context-aware destination) — REAL
- *   - Hide / Show in album (1 row, only when on a dog-page context) — REAL
  *   - Edit post — STUB (toast via StubFeatureContext, FC13)
  *   - Delete post — STUB (same)
  *
@@ -131,40 +138,67 @@ export function PostKebabMenu({ post }: PostKebabMenuProps) {
 
       {open && (
         <div className="dropdown-menu post-kebab-menu" role="menu">
+          {/* Curation actions — available regardless of authorship.
+              Highlights is "photos I want to feature on my surface"
+              and Hide is "exclude from my dog's album"; neither depends
+              on who took the photo. The dog-page context already
+              implies ownership (useDogContext only fires when the
+              viewer owns the dog being viewed). 2026-06-04. */}
+          {firstPhoto && (
+            <button
+              type="button"
+              role="menuitem"
+              className="dropdown-menu-item"
+              onClick={togglePin}
+            >
+              <Star size={16} weight={isPinned ? "fill" : "light"} />
+              <span>
+                {isPinned ? "Unpin from " : "Pin to "}
+                {highlightsSubjectLabel} Highlights
+              </span>
+            </button>
+          )}
+          {dogContext && (
+            <button
+              type="button"
+              role="menuitem"
+              className="dropdown-menu-item"
+              onClick={toggleHide}
+            >
+              {isHidden ? (
+                <Eye size={16} weight="light" />
+              ) : (
+                <EyeSlash size={16} weight="light" />
+              )}
+              <span>
+                {isHidden ? "Show in " : "Hide from "}
+                {dogContext.name}'s album
+              </span>
+            </button>
+          )}
+
+          {/* Untag — non-author only, when the post tags a dog the
+              viewer owns. */}
+          {!isAuthor &&
+            untaggableDogs.map((tag) => (
+              <button
+                key={tag.id}
+                type="button"
+                role="menuitem"
+                className="dropdown-menu-item"
+                onClick={() => {
+                  untagStore.untagDog(post.id, tag.id);
+                  close();
+                }}
+              >
+                <TagSimple size={16} weight="light" />
+                <span>Untag {tag.label}</span>
+              </button>
+            ))}
+
+          {/* Authorship-gated actions. */}
           {isAuthor ? (
             <>
-              {firstPhoto && (
-                <button
-                  type="button"
-                  role="menuitem"
-                  className="dropdown-menu-item"
-                  onClick={togglePin}
-                >
-                  <Star size={16} weight={isPinned ? "fill" : "light"} />
-                  <span>
-                    {isPinned ? "Unpin from " : "Pin to "}
-                    {highlightsSubjectLabel} Highlights
-                  </span>
-                </button>
-              )}
-              {dogContext && (
-                <button
-                  type="button"
-                  role="menuitem"
-                  className="dropdown-menu-item"
-                  onClick={toggleHide}
-                >
-                  {isHidden ? (
-                    <Eye size={16} weight="light" />
-                  ) : (
-                    <EyeSlash size={16} weight="light" />
-                  )}
-                  <span>
-                    {isHidden ? "Show in " : "Hide from "}
-                    {dogContext.name}'s album
-                  </span>
-                </button>
-              )}
               <button
                 type="button"
                 role="menuitem"
@@ -192,21 +226,6 @@ export function PostKebabMenu({ post }: PostKebabMenuProps) {
             </>
           ) : (
             <>
-              {untaggableDogs.map((tag) => (
-                <button
-                  key={tag.id}
-                  type="button"
-                  role="menuitem"
-                  className="dropdown-menu-item"
-                  onClick={() => {
-                    untagStore.untagDog(post.id, tag.id);
-                    close();
-                  }}
-                >
-                  <TagSimple size={16} weight="light" />
-                  <span>Untag {tag.label}</span>
-                </button>
-              ))}
               <button
                 type="button"
                 role="menuitem"
