@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Pencil } from "@phosphor-icons/react";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
+import { usePostDetail } from "@/contexts/PostDetailContext";
+import type { Post } from "@/lib/types";
 
 interface HighlightsStripProps {
   /** Curated photo URLs. On dog pages this comes from `PetProfile.highlights`;
@@ -24,6 +26,15 @@ interface HighlightsStripProps {
    * shares the panel's flat surface with the Posts collection below.
    */
   variant?: "section" | "bare";
+  /**
+   * Posts collection the highlights live within. Used to resolve each
+   * pinned URL back to its parent post so tapping a thumbnail opens
+   * the lightbox at that exact photo, with cross-post nav scoped to
+   * the main collection (NOT a "highlights-only" carousel). Without
+   * a collection, thumbnails fall back to non-interactive (legacy
+   * behavior). 2026-06-04.
+   */
+  collection?: Post[];
 }
 
 /**
@@ -32,11 +43,15 @@ interface HighlightsStripProps {
  * scroll on overflow; first 5 visible before "See all" opens a full
  * grid modal.
  *
- * Hidden entirely when `highlights` is empty. Owners populate Highlights
- * via long-press → "Pin to Highlights" on auto-album photos (Workstream C3).
+ * Tapping a thumbnail opens the post it was pinned from in the global
+ * lightbox, positioned at that exact photo. Cross-post navigation is
+ * scoped to the underlying collection (the dog's posts, or the user's
+ * posts) — matches what tapping the same photo from the grid does. We
+ * deliberately don't run a "highlights-only" carousel because
+ * highlights are pointers, not a distinct collection.
  *
- * Photos & Galleries phase (2026-06-04). Generalized 2026-06-04 from
- * dog-only to dog OR user subject when the Posts/Photos pattern unified.
+ * Hidden entirely when `highlights` is empty. Owners populate Highlights
+ * via the per-post kebab → "Pin to Highlights" (Photos & Galleries 2026-06-04).
  */
 export function HighlightsStrip({
   highlights,
@@ -44,8 +59,10 @@ export function HighlightsStrip({
   isOwnerView,
   onEdit,
   variant = "section",
+  collection,
 }: HighlightsStripProps) {
   const [seeAllOpen, setSeeAllOpen] = useState(false);
+  const { openPost } = usePostDetail();
 
   if (highlights.length === 0) return null;
 
@@ -55,6 +72,58 @@ export function HighlightsStrip({
 
   const wrapperClass =
     variant === "section" ? "dog-profile-section" : "highlights-bare";
+
+  /**
+   * Find the post (and photo index within it) that contains this URL.
+   * If multiple posts include the URL, the first match wins.
+   */
+  const resolveTap = (url: string): { postId: string; photoIndex: number } | null => {
+    if (!collection) return null;
+    for (const post of collection) {
+      const idx = post.photos.indexOf(url);
+      if (idx !== -1) return { postId: post.id, photoIndex: idx };
+    }
+    return null;
+  };
+
+  const handleThumbTap = (url: string) => {
+    const target = resolveTap(url);
+    if (!target) return;
+    openPost(target.postId, {
+      collection,
+      photoIndex: target.photoIndex,
+    });
+    setSeeAllOpen(false);
+  };
+
+  const renderThumb = (url: string, i: number, className: string) => {
+    const target = resolveTap(url);
+    const img = (
+      <img
+        src={url}
+        alt={`${subjectLabel} highlight ${i + 1}`}
+        loading="lazy"
+      />
+    );
+    if (target) {
+      return (
+        <button
+          key={`${url}-${i}`}
+          type="button"
+          className={`${className} highlights-thumb-button`}
+          onClick={() => handleThumbTap(url)}
+          aria-label={`Open highlight ${i + 1}`}
+        >
+          {img}
+        </button>
+      );
+    }
+    return (
+      <div key={`${url}-${i}`} className={className}>
+        {img}
+      </div>
+    );
+  };
 
   return (
     <div className={wrapperClass}>
@@ -74,15 +143,7 @@ export function HighlightsStrip({
       </div>
 
       <div className="highlights-strip">
-        {visible.map((url, i) => (
-          <div key={`${url}-${i}`} className="highlights-thumb">
-            <img
-              src={url}
-              alt={`${subjectLabel} highlight ${i + 1}`}
-              loading="lazy"
-            />
-          </div>
-        ))}
+        {visible.map((url, i) => renderThumb(url, i, "highlights-thumb"))}
         {hiddenCount > 0 && (
           <button
             type="button"
@@ -102,16 +163,7 @@ export function HighlightsStrip({
         title={`${subjectLabel}'s Highlights`}
       >
         <div className="photo-grid">
-          {highlights.map((url, i) => (
-            <div key={`${url}-${i}`} className="photo-grid-tile">
-              <img
-                src={url}
-                alt={`${subjectLabel} highlight ${i + 1}`}
-                className="photo-grid-tile-img"
-                loading="lazy"
-              />
-            </div>
-          ))}
+          {highlights.map((url, i) => renderThumb(url, i, "photo-grid-tile"))}
         </div>
       </ModalSheet>
     </div>

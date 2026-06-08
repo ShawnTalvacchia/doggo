@@ -15637,6 +15637,10 @@ a.shelter-intro-social:hover {
 }
 
 .post-lightbox-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
   margin-bottom: var(--space-md);
 }
 
@@ -15864,6 +15868,26 @@ a.shelter-intro-social:hover {
 
 .dog-profile-section .feed-card:last-child {
   border-bottom: 0;
+}
+
+/* Highlights thumb as a tap-target — preserves the existing
+   `.highlights-thumb` chrome (background, rounded corners) while
+   stripping default button styling. 2026-06-04. */
+.highlights-thumb-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: block;
+}
+
+.highlights-thumb-button:hover img {
+  filter: brightness(0.95);
+}
+
+.highlights-thumb-button:focus-visible {
+  outline: 2px solid var(--brand-main);
+  outline-offset: 2px;
 }
 
 /* "+ Filter" chip styling — slightly subtler than active pills
