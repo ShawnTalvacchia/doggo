@@ -170,38 +170,45 @@ export function PostsCollectionView({
   // Active pills (selectedIds.length > 0) always render and let the
   // user re-open the values picker by tapping the pill to modify.
 
+  const viewToggle = (
+    <div className="posts-tab-view-toggle" role="group" aria-label="View mode">
+      <button
+        type="button"
+        className={`posts-tab-view-btn ${!isGrid ? "is-active" : ""}`}
+        onClick={() => setView("list")}
+        aria-label="List view"
+        aria-pressed={!isGrid}
+      >
+        <ListBullets size={16} weight="light" />
+      </button>
+      <button
+        type="button"
+        className={`posts-tab-view-btn ${isGrid ? "is-active" : ""}`}
+        onClick={() => setView("grid")}
+        aria-label="Grid view"
+        aria-pressed={isGrid}
+      >
+        <GridFour size={16} weight="light" />
+      </button>
+    </div>
+  );
+
   return (
     <div className="posts-collection-view">
-      <div className="posts-tab-controls">
-        {hasAnyFilterableType && (
-          <FilterRow
-            filterTypes={filterTypes}
-            optionsByType={optionsByType}
-            filterState={filterState}
-            setTagFilter={setTagFilter}
-          />
-        )}
-        <div className="posts-tab-view-toggle" role="group" aria-label="View mode">
-          <button
-            type="button"
-            className={`posts-tab-view-btn ${!isGrid ? "is-active" : ""}`}
-            onClick={() => setView("list")}
-            aria-label="List view"
-            aria-pressed={!isGrid}
-          >
-            <ListBullets size={16} weight="light" />
-          </button>
-          <button
-            type="button"
-            className={`posts-tab-view-btn ${isGrid ? "is-active" : ""}`}
-            onClick={() => setView("grid")}
-            aria-label="Grid view"
-            aria-pressed={isGrid}
-          >
-            <GridFour size={16} weight="light" />
-          </button>
+      {hasAnyFilterableType ? (
+        <FilterControls
+          filterTypes={filterTypes}
+          optionsByType={optionsByType}
+          filterState={filterState}
+          setTagFilter={setTagFilter}
+          trailing={viewToggle}
+        />
+      ) : (
+        <div className="posts-tab-controls posts-tab-controls--single-row">
+          <div />
+          {viewToggle}
         </div>
-      </div>
+      )}
 
       {filteredPosts.length === 0 ? (
         <p className="text-sm text-fg-secondary text-center" style={{ padding: "var(--space-xl)" }}>
@@ -232,34 +239,44 @@ export function PostsCollectionView({
   );
 }
 
-/* ─── Filter row (+Filter pattern, 2026-06-04) ───────────────────── */
+/* ─── Filter controls (+Filter pattern, 2026-06-04) ──────────────── */
 
-interface FilterRowProps {
+interface FilterControlsProps {
   filterTypes: FilterableTagType[];
   optionsByType: Record<FilterableTagType, { id: string; label: string }[]>;
   filterState: FilterState;
   setTagFilter: (type: FilterableTagType, ids: string[]) => void;
+  /** Renders to the right of the +Filter button on the top row.
+   *  Used to anchor the view toggle alongside the filter affordance
+   *  without pushing it around when active pills appear (those wrap
+   *  to a new row below). */
+  trailing?: React.ReactNode;
 }
 
-function FilterRow({
+/**
+ * Two-row filter controls. Top row anchors the +Filter button on the
+ * left and the trailing slot (view toggle) on the right. When the
+ * user has active filters (or a pending type from the +Filter menu),
+ * a second row renders the active TagFilterPills below — they never
+ * push the toggle around horizontally.
+ */
+function FilterControls({
   filterTypes,
   optionsByType,
   filterState,
   setTagFilter,
-}: FilterRowProps) {
+  trailing,
+}: FilterControlsProps) {
   // Type the user just picked from the +Filter menu — renders that
   // type's TagFilterPill in `defaultOpen` mode so they land directly
   // in its values picker. Cleared once the picker closes (whether or
   // not the user committed to any values).
   const [pendingType, setPendingType] = useState<FilterableTagType | null>(null);
 
-  // Types that have a non-empty selection — these render as active pills.
   const activeTypes = filterTypes.filter(
     (t) => (filterState[t]?.length ?? 0) > 0,
   );
 
-  // Types eligible for the +Filter menu: have options to pick from AND
-  // aren't already active AND aren't currently pending.
   const addableTypes = filterTypes.filter(
     (t) =>
       optionsByType[t].length > 0 &&
@@ -267,31 +284,36 @@ function FilterRow({
       t !== pendingType,
   );
 
-  // The set of types to actually render as pills: active + pending.
   const renderedTypes = pendingType && !activeTypes.includes(pendingType)
     ? [...activeTypes, pendingType]
     : activeTypes;
 
   return (
-    <div className="posts-tab-filter-pills">
-      {renderedTypes.map((type) => (
-        <TagFilterPill
-          key={type}
-          label={TAG_TYPE_LABELS[type]}
-          options={optionsByType[type]}
-          selectedIds={filterState[type] ?? []}
-          onChange={(next) => setTagFilter(type, next)}
-          defaultOpen={pendingType === type}
-          onClose={() => {
-            if (pendingType === type) setPendingType(null);
-          }}
+    <div className="posts-tab-controls">
+      <div className="posts-tab-controls-primary">
+        <AddFilterButton
+          addableTypes={addableTypes}
+          onPick={(type) => setPendingType(type)}
         />
-      ))}
-
-      <AddFilterButton
-        addableTypes={addableTypes}
-        onPick={(type) => setPendingType(type)}
-      />
+        {trailing}
+      </div>
+      {renderedTypes.length > 0 && (
+        <div className="posts-tab-filter-active-row">
+          {renderedTypes.map((type) => (
+            <TagFilterPill
+              key={type}
+              label={TAG_TYPE_LABELS[type]}
+              options={optionsByType[type]}
+              selectedIds={filterState[type] ?? []}
+              onChange={(next) => setTagFilter(type, next)}
+              defaultOpen={pendingType === type}
+              onClose={() => {
+                if (pendingType === type) setPendingType(null);
+              }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

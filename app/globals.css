@@ -15822,17 +15822,41 @@ a.shelter-intro-social:hover {
    Owner profile: panel-level horizontal padding via these targets.
    Dog page: overridden to 0, since `.dog-profile-section` provides
    its own outer padding. 2026-06-04. */
+/* Two-row controls (2026-06-04): top row anchors +Filter (left) +
+   view toggle (right). Active filter pills render in a second row
+   below so they never push the toggle around. When no filters can be
+   added (no addable types AND no active selections), the row gracefully
+   collapses (--single-row keeps just the toggle aligned right). */
 .posts-tab-controls {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: var(--space-sm);
   padding: 0 var(--space-md);
 }
 
 .dog-profile-section .posts-tab-controls {
   padding: 0;
+}
+
+.posts-tab-controls-primary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.posts-tab-controls--single-row {
+  /* When there's no FilterControls block (no filterable types at all),
+     the toggle still anchors right via the placeholder spacer div. */
+}
+
+.posts-tab-filter-active-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+  row-gap: var(--space-xs);
+  min-width: 0;
 }
 
 /* Outer wrapper of `PostsCollectionView` — only provides the
@@ -15865,23 +15889,9 @@ a.shelter-intro-social:hover {
   border-bottom: 0;
 }
 
-.posts-tab-filter-pills {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  /* +Filter pattern (2026-06-04): default state is just the +Filter
-     button + the view toggle (no auto-rendered empty type pills),
-     so the row easily fits without horizontal scroll. When the user
-     adds many filters, the row wraps gracefully — gap stays consistent
-     across rows so it doesn't read as "auto-spaced." */
-  flex: 1;
-  min-width: 0;
-  flex-wrap: wrap;
-  row-gap: var(--space-xs);
-}
-
-/* "+ Filter" chip styling — slightly subtler than active pills (dashed
-   border + tinted icon) so it reads as "add" rather than "value." */
+/* "+ Filter" chip styling — slightly subtler than active pills
+   (dashed border + tinted icon) so it reads as "add" rather than
+   "value." 2026-06-04. */
 .posts-tab-add-filter-btn {
   border-style: dashed;
   color: var(--text-tertiary);
@@ -15901,7 +15911,10 @@ a.shelter-intro-social:hover {
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
-  padding: var(--space-xs) var(--space-sm);
+  /* Match the view-toggle height (32px) so the pill + toggle read
+     as siblings on the same row. 2026-06-04. */
+  height: 32px;
+  padding: 0 var(--space-sm);
   border-radius: var(--radius-pill);
   border: 1px solid var(--border-regular);
   background: var(--surface-base);
@@ -15999,8 +16012,10 @@ a.shelter-intro-social:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 28px;
+  width: 36px;
+  /* Match the pill height (32px) so the controls row reads even.
+     2026-06-04. */
+  height: 32px;
   border: 0;
   background: var(--surface-base);
   color: var(--text-secondary);
