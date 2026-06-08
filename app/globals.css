@@ -15525,11 +15525,15 @@ a.shelter-intro-social:hover {
   align-items: center;
   gap: var(--space-sm);
   min-width: 0;
-  /* Grow into available space so the sibling kebab is pushed to the
-     far right of the header (justify-content: space-between alone left
-     it hugging the content when the author block was narrower than
-     the header). 2026-06-04. */
   flex: 1;
+}
+
+/* Defeat `.dropdown-menu-wrap { flex: 1 }` inside the lightbox header —
+   the kebab wrap was fighting the author block for equal flex share,
+   landing the menu at the center instead of the far right. Same
+   class-collision pattern as the filter pills (P76). 2026-06-04. */
+.post-lightbox-sidebar-header .post-kebab-wrap {
+  flex: 0 0 auto;
 }
 
 .post-lightbox-sidebar-avatar {
@@ -15542,6 +15546,12 @@ a.shelter-intro-social:hover {
 
 .post-lightbox-sidebar-body {
   flex: 1;
+  /* `min-height: 0` is the classic flexbox-overflow fix — without it,
+     the default `min-height: auto` on a flex item lets the body grow
+     to its content's intrinsic size and the `overflow-y: auto` never
+     engages. Comments with any real volume become unreachable.
+     2026-06-04. */
+  min-height: 0;
   overflow-y: auto;
   padding: var(--space-md);
 }
