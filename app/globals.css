@@ -15869,19 +15869,27 @@ a.shelter-intro-social:hover {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
-  /* One row, horizontal scroll if pills exceed available width.
-     Scrollbar hidden so the narrow scroll surface doesn't read as
-     broken chrome; touch + trackpad swipe still works.
-     2026-06-04. */
+  /* +Filter pattern (2026-06-04): default state is just the +Filter
+     button + the view toggle (no auto-rendered empty type pills),
+     so the row easily fits without horizontal scroll. When the user
+     adds many filters, the row wraps gracefully — gap stays consistent
+     across rows so it doesn't read as "auto-spaced." */
   flex: 1;
   min-width: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  flex-wrap: wrap;
+  row-gap: var(--space-xs);
 }
 
-.posts-tab-filter-pills::-webkit-scrollbar {
-  display: none;
+/* "+ Filter" chip styling — slightly subtler than active pills (dashed
+   border + tinted icon) so it reads as "add" rather than "value." */
+.posts-tab-add-filter-btn {
+  border-style: dashed;
+  color: var(--text-tertiary);
+}
+
+.posts-tab-add-filter-btn:hover {
+  color: var(--text-secondary);
+  border-color: var(--border-strong);
 }
 
 .posts-tab-filter-pill-wrap {

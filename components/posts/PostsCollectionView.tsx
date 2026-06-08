@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useCallback } from "react";
+import { useEffect, useMemo, useCallback, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { GridFour, ListBullets } from "@phosphor-icons/react";
+import { GridFour, ListBullets, Plus, CaretDown } from "@phosphor-icons/react";
 import { FeedCommunityPost } from "@/components/feed/FeedCommunityPost";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { PhotoGrid } from "@/components/photos/PhotoGrid";
@@ -160,21 +160,26 @@ export function PostsCollectionView({
 
   const hasAnyFilterableType = filterTypes.some((t) => optionsByType[t].length > 0);
 
+  // +Filter pattern (2026-06-04): default state shows just an "+ Filter"
+  // button + the view toggle. Picking a type from the +Filter menu sets
+  // `pendingType`, which renders that type's TagFilterPill in
+  // `defaultOpen` mode — the user lands directly in the values picker.
+  // If they pick values, filterState updates and the pill stays as an
+  // active pill. If they cancel, pendingType clears via onClose and
+  // the pill disappears (filterState.<type> is still empty).
+  // Active pills (selectedIds.length > 0) always render and let the
+  // user re-open the values picker by tapping the pill to modify.
+
   return (
     <div className="posts-collection-view">
       <div className="posts-tab-controls">
         {hasAnyFilterableType && (
-          <div className="posts-tab-filter-pills">
-            {filterTypes.map((type) => (
-              <TagFilterPill
-                key={type}
-                label={TAG_TYPE_LABELS[type]}
-                options={optionsByType[type]}
-                selectedIds={filterState[type] ?? []}
-                onChange={(next) => setTagFilter(type, next)}
-              />
-            ))}
-          </div>
+          <FilterRow
+            filterTypes={filterTypes}
+            optionsByType={optionsByType}
+            filterState={filterState}
+            setTagFilter={setTagFilter}
+          />
         )}
         <div className="posts-tab-view-toggle" role="group" aria-label="View mode">
           <button
@@ -221,6 +226,141 @@ export function PostsCollectionView({
               />
             ),
           )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Filter row (+Filter pattern, 2026-06-04) ───────────────────── */
+
+interface FilterRowProps {
+  filterTypes: FilterableTagType[];
+  optionsByType: Record<FilterableTagType, { id: string; label: string }[]>;
+  filterState: FilterState;
+  setTagFilter: (type: FilterableTagType, ids: string[]) => void;
+}
+
+function FilterRow({
+  filterTypes,
+  optionsByType,
+  filterState,
+  setTagFilter,
+}: FilterRowProps) {
+  // Type the user just picked from the +Filter menu — renders that
+  // type's TagFilterPill in `defaultOpen` mode so they land directly
+  // in its values picker. Cleared once the picker closes (whether or
+  // not the user committed to any values).
+  const [pendingType, setPendingType] = useState<FilterableTagType | null>(null);
+
+  // Types that have a non-empty selection — these render as active pills.
+  const activeTypes = filterTypes.filter(
+    (t) => (filterState[t]?.length ?? 0) > 0,
+  );
+
+  // Types eligible for the +Filter menu: have options to pick from AND
+  // aren't already active AND aren't currently pending.
+  const addableTypes = filterTypes.filter(
+    (t) =>
+      optionsByType[t].length > 0 &&
+      (filterState[t]?.length ?? 0) === 0 &&
+      t !== pendingType,
+  );
+
+  // The set of types to actually render as pills: active + pending.
+  const renderedTypes = pendingType && !activeTypes.includes(pendingType)
+    ? [...activeTypes, pendingType]
+    : activeTypes;
+
+  return (
+    <div className="posts-tab-filter-pills">
+      {renderedTypes.map((type) => (
+        <TagFilterPill
+          key={type}
+          label={TAG_TYPE_LABELS[type]}
+          options={optionsByType[type]}
+          selectedIds={filterState[type] ?? []}
+          onChange={(next) => setTagFilter(type, next)}
+          defaultOpen={pendingType === type}
+          onClose={() => {
+            if (pendingType === type) setPendingType(null);
+          }}
+        />
+      ))}
+
+      <AddFilterButton
+        addableTypes={addableTypes}
+        onPick={(type) => setPendingType(type)}
+      />
+    </div>
+  );
+}
+
+interface AddFilterButtonProps {
+  addableTypes: FilterableTagType[];
+  onPick: (type: FilterableTagType) => void;
+}
+
+/**
+ * "+ Filter" chip that opens a small menu of types the user can add to
+ * the filter set. Picking a type hands off to `onPick` — the parent
+ * sets that type as pending, which renders its TagFilterPill in
+ * defaultOpen mode (taking the user straight to the values picker).
+ *
+ * Hides when no addable types remain (all types either already active
+ * or have no visible options).
+ */
+function AddFilterButton({ addableTypes, onPick }: AddFilterButtonProps) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (!wrapRef.current) return;
+      if (!wrapRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  if (addableTypes.length === 0) return null;
+
+  return (
+    <div
+      ref={wrapRef}
+      className="posts-tab-filter-pill-wrap dropdown-menu-wrap"
+    >
+      <button
+        type="button"
+        className="posts-tab-filter-pill posts-tab-add-filter-btn"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        <Plus size={12} weight="bold" />
+        <span>Filter</span>
+        <CaretDown size={12} weight="light" />
+      </button>
+
+      {open && (
+        <div className="dropdown-menu posts-tab-filter-menu" role="menu">
+          {addableTypes.map((type) => (
+            <button
+              key={type}
+              type="button"
+              role="menuitem"
+              className="dropdown-menu-item posts-tab-filter-menu-item"
+              onClick={() => {
+                onPick(type);
+                setOpen(false);
+              }}
+            >
+              <span style={{ flex: 1 }}>{TAG_TYPE_LABELS[type]}</span>
+            </button>
+          ))}
         </div>
       )}
     </div>

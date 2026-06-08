@@ -20,6 +20,14 @@ interface TagFilterPillProps {
   selectedIds: string[];
   /** Called with the new selection list after a checkbox toggle. */
   onChange: (next: string[]) => void;
+  /** When true, the values picker opens on mount. Used by the +Filter
+   *  flow in PostsCollectionView — picking a type from the Add menu
+   *  takes the user directly into that type's values picker. */
+  defaultOpen?: boolean;
+  /** Fires when the values picker transitions from open to closed.
+   *  Lets the parent clear its pending-type state when the user
+   *  finishes (or cancels) the +Filter flow. */
+  onClose?: () => void;
 }
 
 /**
@@ -45,9 +53,22 @@ export function TagFilterPill({
   options,
   selectedIds,
   onChange,
+  defaultOpen = false,
+  onClose,
 }: TagFilterPillProps) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpenRaw] = useState(defaultOpen);
   const wrapRef = useRef<HTMLDivElement>(null);
+
+  // Wrap setOpen so onClose fires on the open → closed transition.
+  // Used by the parent's +Filter flow to clear pending-type state
+  // when the values picker closes (whether or not values were picked).
+  const setOpen = (next: boolean | ((prev: boolean) => boolean)) => {
+    setOpenRaw((prev) => {
+      const computed = typeof next === "function" ? next(prev) : next;
+      if (prev && !computed) onClose?.();
+      return computed;
+    });
+  };
 
   // Click-outside to close. Mousedown rather than click so the menu
   // closes before any other element receives the click — matches the
