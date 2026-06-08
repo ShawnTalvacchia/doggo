@@ -91,7 +91,6 @@ export function PostsTab({ userId, isOwnProfile = false }: PostsTabProps) {
         subjectLabel={subjectLabel}
         isOwnerView={isOwnerView}
         onEdit={() => setEditOpen(true)}
-        collection={surfacedPosts}
       />
 
       <div className="dog-profile-section">

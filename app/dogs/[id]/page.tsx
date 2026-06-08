@@ -870,7 +870,6 @@ function DogPhotosBundle({
         subjectLabel={dog.name}
         isOwnerView={isOwnerView}
         onEdit={() => setEditOpen(true)}
-        collection={surfacedPosts}
       />
 
       <div className="dog-profile-section">

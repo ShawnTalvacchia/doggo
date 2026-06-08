@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Pencil } from "@phosphor-icons/react";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { usePostDetail } from "@/contexts/PostDetailContext";
+import { mockPosts } from "@/lib/mockPosts";
 import type { Post } from "@/lib/types";
 
 interface HighlightsStripProps {
@@ -26,15 +27,12 @@ interface HighlightsStripProps {
    * shares the panel's flat surface with the Posts collection below.
    */
   variant?: "section" | "bare";
-  /**
-   * Posts collection the highlights live within. Used to resolve each
-   * pinned URL back to its parent post so tapping a thumbnail opens
-   * the lightbox at that exact photo, with cross-post nav scoped to
-   * the main collection (NOT a "highlights-only" carousel). Without
-   * a collection, thumbnails fall back to non-interactive (legacy
-   * behavior). 2026-06-04.
-   */
-  collection?: Post[];
+}
+
+interface ResolvedHighlight {
+  url: string;
+  post: Post | null;
+  photoIndex: number;
 }
 
 /**
@@ -43,12 +41,19 @@ interface HighlightsStripProps {
  * scroll on overflow; first 5 visible before "See all" opens a full
  * grid modal.
  *
- * Tapping a thumbnail opens the post it was pinned from in the global
- * lightbox, positioned at that exact photo. Cross-post navigation is
- * scoped to the underlying collection (the dog's posts, or the user's
- * posts) — matches what tapping the same photo from the grid does. We
- * deliberately don't run a "highlights-only" carousel because
- * highlights are pointers, not a distinct collection.
+ * Tapping a thumbnail opens the lightbox at that exact photo. The
+ * lightbox's cross-post carousel scopes to the **Highlights themselves**
+ * (each resolved to its source post): tapping highlight #3 opens
+ * highlight #3 and ←/→ moves through the other highlights in order.
+ * This generalizes cleanly across the cases where a highlight points
+ * to a photo from a post the subject didn't author (a friend's pic of
+ * your dog, a walker's post pinned to a shelter dog), since the
+ * carousel is anchored to the curated set itself, not to whichever
+ * collection backs the surface.
+ *
+ * Resolution scans `mockPosts` globally — Highlights URLs that don't
+ * resolve to any post (rare; possible if seed data ever inserts an
+ * orphan URL) render as non-clickable thumbs.
  *
  * Hidden entirely when `highlights` is empty. Owners populate Highlights
  * via the per-post kebab → "Pin to Highlights" (Photos & Galleries 2026-06-04).
@@ -59,59 +64,63 @@ export function HighlightsStrip({
   isOwnerView,
   onEdit,
   variant = "section",
-  collection,
 }: HighlightsStripProps) {
   const [seeAllOpen, setSeeAllOpen] = useState(false);
   const { openPost } = usePostDetail();
 
+  // Resolve every highlight URL → its source post + photo index. Done
+  // once for the whole strip; the resolved set IS the lightbox
+  // collection when a thumb is tapped. Posts may come from any author.
+  const resolved: ResolvedHighlight[] = useMemo(() => {
+    return highlights.map((url) => {
+      for (const post of mockPosts) {
+        const idx = post.photos.indexOf(url);
+        if (idx !== -1) return { url, post, photoIndex: idx };
+      }
+      return { url, post: null, photoIndex: 0 };
+    });
+  }, [highlights]);
+
   if (highlights.length === 0) return null;
 
   const VISIBLE_CAP = 5;
-  const visible = highlights.slice(0, VISIBLE_CAP);
-  const hiddenCount = Math.max(0, highlights.length - VISIBLE_CAP);
+  const visible = resolved.slice(0, VISIBLE_CAP);
+  const hiddenCount = Math.max(0, resolved.length - VISIBLE_CAP);
 
   const wrapperClass =
     variant === "section" ? "dog-profile-section" : "highlights-bare";
 
-  /**
-   * Find the post (and photo index within it) that contains this URL.
-   * If multiple posts include the URL, the first match wins.
-   */
-  const resolveTap = (url: string): { postId: string; photoIndex: number } | null => {
-    if (!collection) return null;
-    for (const post of collection) {
-      const idx = post.photos.indexOf(url);
-      if (idx !== -1) return { postId: post.id, photoIndex: idx };
-    }
-    return null;
-  };
+  // Collection for the lightbox = the resolvable highlight posts, in
+  // highlight order. Skips unresolved entries so the carousel doesn't
+  // try to render them.
+  const collection: Post[] = resolved
+    .map((r) => r.post)
+    .filter((p): p is Post => p !== null);
 
-  const handleThumbTap = (url: string) => {
-    const target = resolveTap(url);
-    if (!target) return;
-    openPost(target.postId, {
+  const handleTap = (item: ResolvedHighlight) => {
+    if (!item.post) return;
+    openPost(item.post.id, {
       collection,
-      photoIndex: target.photoIndex,
+      photoIndex: item.photoIndex,
     });
     setSeeAllOpen(false);
   };
 
-  const renderThumb = (url: string, i: number, className: string) => {
-    const target = resolveTap(url);
+  const renderThumb = (item: ResolvedHighlight, i: number, className: string) => {
     const img = (
       <img
-        src={url}
+        src={item.url}
         alt={`${subjectLabel} highlight ${i + 1}`}
         loading="lazy"
       />
     );
-    if (target) {
+    if (item.post) {
       return (
         <button
-          key={`${url}-${i}`}
+          key={`${item.url}-${i}`}
           type="button"
           className={`${className} highlights-thumb-button`}
-          onClick={() => handleThumbTap(url)}
+          onClick={() => handleTap(item)}
           aria-label={`Open highlight ${i + 1}`}
         >
           {img}
@@ -119,7 +128,7 @@ export function HighlightsStrip({
       );
     }
     return (
-      <div key={`${url}-${i}`} className={className}>
+      <div key={`${item.url}-${i}`} className={className}>
         {img}
       </div>
     );
@@ -143,7 +152,7 @@ export function HighlightsStrip({
       </div>
 
       <div className="highlights-strip">
-        {visible.map((url, i) => renderThumb(url, i, "highlights-thumb"))}
+        {visible.map((item, i) => renderThumb(item, i, "highlights-thumb"))}
         {hiddenCount > 0 && (
           <button
             type="button"
@@ -163,7 +172,7 @@ export function HighlightsStrip({
         title={`${subjectLabel}'s Highlights`}
       >
         <div className="photo-grid">
-          {highlights.map((url, i) => renderThumb(url, i, "photo-grid-tile"))}
+          {resolved.map((item, i) => renderThumb(item, i, "photo-grid-tile"))}
         </div>
       </ModalSheet>
     </div>
