@@ -208,9 +208,17 @@ export function PostsCollectionView({
         <div className="flex flex-col">
           {filteredPosts.map((post) =>
             listCardVariant === "moment" ? (
-              <MomentCardFromPost key={post.id} post={post} />
+              <MomentCardFromPost
+                key={post.id}
+                post={post}
+                collection={filteredPosts}
+              />
             ) : (
-              <FeedCommunityPost key={post.id} post={post} />
+              <FeedCommunityPost
+                key={post.id}
+                post={post}
+                collection={filteredPosts}
+              />
             ),
           )}
         </div>

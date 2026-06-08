@@ -10,6 +10,10 @@ interface OpenPostOptions {
    *  posts in this collection. Without it, only one post is shown
    *  (with no cross-post nav — close × is the only exit). */
   collection?: Post[];
+  /** Optional starting photo within a multi-photo post (zero-indexed).
+   *  Lets a click on photo #3 in a list view open the lightbox at #3
+   *  instead of always resetting to the first photo. */
+  photoIndex?: number;
 }
 
 interface PostDetailContextValue {
@@ -40,11 +44,13 @@ const PostDetailContext = createContext<PostDetailContextValue | null>(null);
 export function PostDetailProvider({ children }: { children: React.ReactNode }) {
   const [postId, setPostId] = useState<string | null>(null);
   const [collection, setCollection] = useState<Post[] | undefined>(undefined);
+  const [initialPhotoIndex, setInitialPhotoIndex] = useState<number | undefined>(undefined);
 
   const openPost = useCallback(
     (id: string, opts?: OpenPostOptions) => {
       setPostId(id);
       setCollection(opts?.collection);
+      setInitialPhotoIndex(opts?.photoIndex);
     },
     [],
   );
@@ -52,6 +58,7 @@ export function PostDetailProvider({ children }: { children: React.ReactNode }) 
   const closePost = useCallback(() => {
     setPostId(null);
     setCollection(undefined);
+    setInitialPhotoIndex(undefined);
   }, []);
 
   const post = postId ? getPostById(postId) : undefined;
@@ -63,8 +70,15 @@ export function PostDetailProvider({ children }: { children: React.ReactNode }) 
         <PostLightbox
           post={post}
           collection={collection}
+          initialPhotoIndex={initialPhotoIndex}
           onClose={closePost}
-          onNavigate={(nextId) => setPostId(nextId)}
+          onNavigate={(nextId) => {
+            setPostId(nextId);
+            // Reset photo index when navigating to a new post — the
+            // initialPhotoIndex only applies to the post the user
+            // opened from outside, not to subsequent navigation.
+            setInitialPhotoIndex(undefined);
+          }}
         />
       )}
     </PostDetailContext.Provider>

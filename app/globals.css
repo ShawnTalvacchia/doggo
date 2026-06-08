@@ -15525,6 +15525,11 @@ a.shelter-intro-social:hover {
   align-items: center;
   gap: var(--space-sm);
   min-width: 0;
+  /* Grow into available space so the sibling kebab is pushed to the
+     far right of the header (justify-content: space-between alone left
+     it hugging the content when the author block was narrower than
+     the header). 2026-06-04. */
+  flex: 1;
 }
 
 .post-lightbox-sidebar-avatar {
@@ -15541,19 +15546,31 @@ a.shelter-intro-social:hover {
   padding: var(--space-md);
 }
 
-/* ── Mobile: stack photo + sidebar vertically ──────────────────────
-   At narrow widths the row layout fights both axes — the photo gets
-   crushed AND the sidebar feels confined. Stacking vertically gives
-   the photo full-width breathing room (capped at ~55vh so caption /
-   comments aren't pushed below the fold) and lets the sidebar scroll
-   naturally for longer content. Cross-post nav buttons hide on touch;
-   swipe ←/→ on the photo area takes over (see PostLightbox.tsx).
-   Close × stays top-right. 2026-06-04. */
+/* ── Mobile: stack photo + sidebar, full-document scroll ──────────
+   The whole overlay scrolls as one document — photo at top, caption +
+   comments below. Trade-off: scrolling pushes the photo (and the
+   cross-post chrome) out of view, but the user can scroll back up for
+   the carousel. Cleaner than locking the photo and scrolling a tiny
+   sidebar viewport.
+
+   Cross-post nav stays visible on mobile as **subtle edge hints** —
+   slim, low-opacity chevrons at the photo's left/right edges. They
+   discover the swipe affordance for users who don't think to try it,
+   and remain tappable for users who prefer not to swipe. Close ×
+   pins via `position: fixed` so it's always reachable.
+   2026-06-04. */
 @media (max-width: 768px) {
+  .post-lightbox-overlay {
+    align-items: flex-start;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   .post-lightbox-frame {
     flex-direction: column;
     width: 100vw;
-    height: 100dvh;
+    height: auto;
+    min-height: 100dvh;
     max-height: none;
     border-radius: 0;
   }
@@ -15568,16 +15585,37 @@ a.shelter-intro-social:hover {
   }
 
   .post-lightbox-sidebar {
-    flex: 1;
-    min-height: 0;
+    flex: 0 0 auto;
     border-left: 0;
     border-top: 1px solid var(--border-light);
   }
 
-  /* Hide chrome that fights mobile real estate. Swipe gestures replace
-     the cross-post buttons; keyboard nav doesn't apply on touch. */
+  .post-lightbox-sidebar-body {
+    /* Let parent overlay handle scroll; sidebar flows naturally. */
+    overflow-y: visible;
+  }
+
+  .post-lightbox-close {
+    position: fixed;
+  }
+
+  /* Subtle edge-attached chevron hints — discover the swipe
+     affordance, stay tappable. Slim, low-opacity; don't fight the
+     photo for attention. */
   .post-lightbox-post-nav {
-    display: none;
+    width: 28px;
+    height: 56px;
+    border-radius: 0;
+    background: rgba(0, 0, 0, 0.22);
+  }
+  .post-lightbox-post-nav:hover {
+    background: rgba(0, 0, 0, 0.45);
+  }
+  .post-lightbox-post-nav--prev {
+    left: 0;
+  }
+  .post-lightbox-post-nav--next {
+    right: 0;
   }
 }
 
@@ -15831,8 +15869,19 @@ a.shelter-intro-social:hover {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
-  flex-wrap: wrap;
+  /* One row, horizontal scroll if pills exceed available width.
+     Scrollbar hidden so the narrow scroll surface doesn't read as
+     broken chrome; touch + trackpad swipe still works.
+     2026-06-04. */
+  flex: 1;
   min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.posts-tab-filter-pills::-webkit-scrollbar {
+  display: none;
 }
 
 .posts-tab-filter-pill-wrap {
@@ -15962,6 +16011,28 @@ a.shelter-intro-social:hover {
 .posts-tab-view-btn.is-active {
   background: var(--surface-popout);
   color: var(--text-primary);
+}
+
+/* Tap-target wrapper for individual photos in the feed-card photo
+   grid. Inherits sizing from the parent; styles the button as a
+   transparent shell that defers to the inner <img>. 2026-06-04. */
+.post-photo-grid-tap {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  display: block;
+}
+
+.post-photo-grid-tap:hover .post-photo-grid-img {
+  filter: brightness(0.95);
+}
+
+.post-photo-grid-tap:focus-visible {
+  outline: 2px solid var(--brand-main);
+  outline-offset: 2px;
 }
 
 /* ─── Post kebab menu — top-right per-post three-dots ──────────── */

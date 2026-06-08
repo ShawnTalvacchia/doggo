@@ -27,6 +27,11 @@ interface PostLightboxProps {
    *  Without a collection, the lightbox shows just one post with no
    *  cross-post nav (only the close × surfaces). */
   collection?: Post[];
+  /** Starting photo index within a multi-photo post. Lets a list-view
+   *  photo click open the lightbox at the clicked photo instead of
+   *  always resetting to photo 0. Only applies to the initial post;
+   *  subsequent navigation resets to 0. */
+  initialPhotoIndex?: number;
   onClose: () => void;
   /** Called when the user navigates to a different post in the
    *  collection — lets the parent context update its tracked active
@@ -54,6 +59,7 @@ interface PostLightboxProps {
 export function PostLightbox({
   post,
   collection,
+  initialPhotoIndex,
   onClose,
   onNavigate,
 }: PostLightboxProps) {
@@ -69,10 +75,11 @@ export function PostLightbox({
   const hasNextPost =
     !!collection && collectionIndex >= 0 && collectionIndex < collection.length - 1;
 
-  // Within-post photo navigation.
-  const [photoIdx, setPhotoIdx] = useState(0);
-  // Reset photo index when the post changes.
-  useEffect(() => setPhotoIdx(0), [post.id]);
+  // Within-post photo navigation. Seeded from initialPhotoIndex when
+  // the lightbox is opened from a specific photo click; resets to 0
+  // on subsequent cross-post navigation.
+  const [photoIdx, setPhotoIdx] = useState(initialPhotoIndex ?? 0);
+  useEffect(() => setPhotoIdx(initialPhotoIndex ?? 0), [post.id]);
 
   const photoCount = post.photos.length;
   const hasPrevPhoto = photoIdx > 0;

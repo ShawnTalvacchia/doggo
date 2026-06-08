@@ -52,6 +52,12 @@ interface MomentCardProps {
   /** Optional kebab menu (Untag / Report / Block) — wired by
    *  MomentCardFromPost when a Post object is available. */
   kebabMenu?: React.ReactNode;
+  /** Post id — when set, photos in the body become tap-targets that
+   *  open the post in the global lightbox (see PostPhotoGrid). */
+  postId?: string;
+  /** Optional collection — passed through to the lightbox so the
+   *  viewer can swipe / arrow-key through neighbouring posts. */
+  collection?: Post[];
 }
 
 /**
@@ -141,6 +147,8 @@ export function MomentCard({
   groupId,
   connectionContext,
   kebabMenu,
+  postId,
+  collection,
 }: MomentCardProps) {
   const { headerContext, remainingTags } = buildHeaderContext(tags, groupName, groupId);
   const authorUser = getUserById(authorId);
@@ -165,7 +173,11 @@ export function MomentCard({
       isCareProvider={isCareProvider}
       isGroupAdmin={isGroupAdmin}
       caption={caption}
-      media={photos.length > 0 ? <PostPhotoGrid photos={photos} /> : undefined}
+      media={
+        photos.length > 0 ? (
+          <PostPhotoGrid photos={photos} postId={postId} collection={collection} />
+        ) : undefined
+      }
       tags={remainingTags.length > 0 ? <TagPillRow tags={remainingTags} /> : undefined}
       reactions={reactions}
       comments={comments}
@@ -178,9 +190,11 @@ export function MomentCard({
 export function MomentCardFromPost({
   post,
   connectionContext,
+  collection,
 }: {
   post: Post;
   connectionContext?: string;
+  collection?: Post[];
 }) {
   return (
     <MomentCard
@@ -197,6 +211,8 @@ export function MomentCardFromPost({
       groupId={post.groupId}
       connectionContext={connectionContext}
       kebabMenu={<PostKebabMenu post={post} />}
+      postId={post.id}
+      collection={collection}
     />
   );
 }

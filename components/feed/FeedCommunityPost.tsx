@@ -9,7 +9,13 @@ import { getUserById } from "@/lib/mockUsers";
 import { getGroupById } from "@/lib/mockGroups";
 import type { Post } from "@/lib/types";
 
-export function FeedCommunityPost({ post }: { post: Post }) {
+export function FeedCommunityPost({
+  post,
+  collection,
+}: {
+  post: Post;
+  collection?: Post[];
+}) {
   const { headerContext, remainingTags } = buildHeaderContext(
     post.tags,
     post.groupName,
@@ -36,7 +42,7 @@ export function FeedCommunityPost({ post }: { post: Post }) {
       isCareProvider={isCareProvider}
       isGroupAdmin={isGroupAdmin}
       tags={remainingTags.length > 0 ? <TagPillRow tags={remainingTags} /> : undefined}
-      media={<PostPhotoGrid photos={post.photos} />}
+      media={<PostPhotoGrid photos={post.photos} postId={post.id} collection={collection} />}
       caption={post.caption}
       reactions={post.reactions}
       comments={post.comments}

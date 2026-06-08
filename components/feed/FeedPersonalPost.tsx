@@ -6,7 +6,15 @@ import { TagPillRow } from "@/components/posts/TagPill";
 import { PostKebabMenu } from "@/components/posts/PostKebabMenu";
 import type { Post } from "@/lib/types";
 
-export function FeedPersonalPost({ post, connectionContext }: { post: Post; connectionContext?: string }) {
+export function FeedPersonalPost({
+  post,
+  connectionContext,
+  collection,
+}: {
+  post: Post;
+  connectionContext?: string;
+  collection?: Post[];
+}) {
   return (
     <FeedCard
       authorName={post.authorName}
@@ -15,7 +23,7 @@ export function FeedPersonalPost({ post, connectionContext }: { post: Post; conn
       timestamp={post.createdAt}
       connectionContext={connectionContext}
       tags={post.tags.length > 0 ? <TagPillRow tags={post.tags} /> : undefined}
-      media={<PostPhotoGrid photos={post.photos} />}
+      media={<PostPhotoGrid photos={post.photos} postId={post.id} collection={collection} />}
       caption={post.caption}
       reactions={post.reactions}
       comments={post.comments}
