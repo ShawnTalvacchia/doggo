@@ -281,11 +281,17 @@ function NotificationRow({
           >
             {title}
           </span>
-          <span className="flex items-center gap-1.5 shrink-0 text-xs text-fg-tertiary">
-            <span className="notif-cat-tag">{label}</span>
-            <span aria-hidden="true">·</span>
-            <span>{formatRelativeTime(n.createdAt)}</span>
-          </span>
+          {/* Non-tag_pending rows keep the timestamp pillar in the
+              title row. Tag_pending rows move it into a right column
+              (below) so it stays the row's rightmost element while
+              still pairing with the preview thumbnail. */}
+          {!isTagPending && (
+            <span className="flex items-center gap-1.5 shrink-0 text-xs text-fg-tertiary">
+              <span className="notif-cat-tag">{label}</span>
+              <span aria-hidden="true">·</span>
+              <span>{formatRelativeTime(n.createdAt)}</span>
+            </span>
+          )}
         </div>
         <span className="text-sm text-fg-tertiary leading-snug line-clamp-2">
           {n.body}
@@ -294,22 +300,30 @@ function NotificationRow({
         {tagPendingFooter}
       </div>
 
-      {/* Tag-pending preview thumbnail — gives the owner a glanceable
-          view of the photo they're approving. Matches Instagram /
-          Facebook tag-review patterns where you don't need to tap to
-          see the image. Same tap target as the row body (opens the
-          post in the lightbox). 2026-06-04. */}
-      {isTagPending && n.postId && (() => {
-        const post = getPostById(n.postId);
+      {/* Tag-pending right pillar — timestamp on top, preview
+          thumbnail below. Keeps the timestamp as the row's rightmost-
+          most-top element (rather than sitting to the left of the
+          thumbnail) while still giving the owner a glanceable view
+          of the photo they're approving. 2026-06-04. */}
+      {isTagPending && (() => {
+        const post = n.postId ? getPostById(n.postId) : undefined;
         const photo = post?.photos[0];
-        if (!photo) return null;
         return (
-          <img
-            src={photo}
-            alt=""
-            className="notif-tag-thumb"
-            loading="lazy"
-          />
+          <div className="notif-tag-right">
+            <span className="flex items-center gap-1.5 shrink-0 text-xs text-fg-tertiary">
+              <span className="notif-cat-tag">{label}</span>
+              <span aria-hidden="true">·</span>
+              <span>{formatRelativeTime(n.createdAt)}</span>
+            </span>
+            {photo && (
+              <img
+                src={photo}
+                alt=""
+                className="notif-tag-thumb"
+                loading="lazy"
+              />
+            )}
+          </div>
         );
       })()}
     </div>

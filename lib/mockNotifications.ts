@@ -268,7 +268,7 @@ export const mockNotifications: AppNotification[] = [
     avatarUrl:
       "/images/generated/klara-profile.jpeg",
     href: "/communities/group-klara-training",
-    createdAt: "2026-03-26T09:00:00Z",
+    createdAt: daysAgoIso(6, "09:00"),
     read: true,
   },
   {

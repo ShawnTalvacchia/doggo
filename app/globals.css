@@ -12575,17 +12575,24 @@ body:has(.bottom-nav) .inbox-page {
 .notif-avatar-stack-item:nth-child(2) { left: 12px; }
 .notif-avatar-stack-item:nth-child(3) { left: 24px; }
 
-/* Tag-pending preview thumbnail — glanceable view of the photo the
-   viewer is being asked to approve. Lives on the far right of the
-   notification row, parallel to the avatar on the far left.
-   2026-06-04. */
-.notif-tag-thumb {
+/* Tag-pending right pillar — stacks timestamp + preview thumbnail
+   vertically on the far right of the notification row. Keeps the
+   timestamp as the top-right element (matching the convention used
+   across all other notification rows) while still giving the owner
+   a glanceable view of the photo they're approving. 2026-06-04. */
+.notif-tag-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-xs);
   flex-shrink: 0;
+}
+
+.notif-tag-thumb {
   width: 56px;
   height: 56px;
   border-radius: var(--radius-sm);
   object-fit: cover;
-  align-self: flex-start;
 }
 
 /* Unread badge — corner pip overlaid on the avatar in the
