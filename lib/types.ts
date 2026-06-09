@@ -1896,6 +1896,10 @@ export interface WalkerApplication {
   appliedAt: string;
   invitedAt?: string;
   vouchedAt?: string;
+  /** Walks logged at this shelter since vouching. Drives tier
+   *  progression (10 → experienced, 25 → trusted) per D1. Production:
+   *  derived from completed shelter-walk Bookings. */
+  walkCount?: number;
 }
 
 export interface ShelterSupporter {

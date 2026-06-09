@@ -15,7 +15,25 @@
 
 import { createContext, useContext, useCallback } from "react";
 import { usePersistedState } from "@/lib/usePersistedState";
-import type { WalkerApplication, WalkerApplicationState } from "@/lib/types";
+import type { WalkerApplication, WalkerApplicationState, WalkerTier } from "@/lib/types";
+
+/**
+ * Derive a WalkerTier from accumulated walkCount per the Shelter
+ * Foundation D1 thresholds:
+ *   0-9   → vetted (Volunteer)
+ *   10-24 → experienced (Volunteer)
+ *   25+   → trusted (Super Volunteer)
+ *
+ * Trusted tier is also gated on coordinator sign-off in production;
+ * the demo treats the walk-count threshold as sufficient for the
+ * narrative arc. Static walkers (seeded in mockShelters) keep their
+ * authored tier rather than deriving from walkCount.
+ */
+export function deriveWalkerTier(walkCount: number): WalkerTier {
+  if (walkCount >= 25) return "trusted";
+  if (walkCount >= 10) return "experienced";
+  return "vetted";
+}
 
 const APPLICATIONS_SEED_VERSION = 1;
 const STORAGE_KEY = "doggo-walker-applications";
@@ -30,6 +48,8 @@ interface WalkerApplicationsContextValue {
   advance: (userId: string, shelterId: string) => void;
   /** Withdraw / drop the application entirely. */
   withdraw: (userId: string, shelterId: string) => void;
+  /** Increment walkCount for the vouched walker. No-op when not vouched. */
+  logWalk: (userId: string, shelterId: string) => void;
 }
 
 const WalkerApplicationsContext = createContext<WalkerApplicationsContextValue | undefined>(undefined);
@@ -90,8 +110,21 @@ export function WalkerApplicationsProvider({ children }: { children: React.React
     [setApplications],
   );
 
+  const logWalk = useCallback(
+    (userId: string, shelterId: string) => {
+      setApplications((prev) =>
+        prev.map((a) => {
+          if (a.userId !== userId || a.shelterId !== shelterId) return a;
+          if (a.state !== "vouched") return a;
+          return { ...a, walkCount: (a.walkCount ?? 0) + 1 };
+        }),
+      );
+    },
+    [setApplications],
+  );
+
   return (
-    <WalkerApplicationsContext.Provider value={{ applications, getApplication, apply, advance, withdraw }}>
+    <WalkerApplicationsContext.Provider value={{ applications, getApplication, apply, advance, withdraw, logWalk }}>
       {children}
     </WalkerApplicationsContext.Provider>
   );

@@ -48,7 +48,7 @@ import type {
   WalkerApplicationState,
 } from "@/lib/types";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
-import { useWalkerApplications } from "@/contexts/WalkerApplicationsContext";
+import { useWalkerApplications, deriveWalkerTier } from "@/contexts/WalkerApplicationsContext";
 import { getUserById } from "@/lib/mockUsers";
 
 /* ── Page wrapper (Suspense for useSearchParams) ───────────────────── */
@@ -145,7 +145,7 @@ function ShelterDetailInner() {
 function FeedTab({ shelter }: { shelter: ShelterProfile }) {
   const posts = getShelterFeed(shelter);
   const currentUserId = useCurrentUserId();
-  const { getApplication, apply, advance, withdraw } = useWalkerApplications();
+  const { getApplication, apply, advance, withdraw, logWalk } = useWalkerApplications();
   const application = currentUserId ? getApplication(currentUserId, shelter.id) : undefined;
   const applicationState = application?.state;
   const [isFollowing, setIsFollowing] = useState(false);
@@ -183,6 +183,10 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
         }}
         onAdvanceState={() => {
           if (currentUserId) advance(currentUserId, shelter.id);
+          setWalkerMenuOpen(false);
+        }}
+        onLogWalk={() => {
+          if (currentUserId) logWalk(currentUserId, shelter.id);
           setWalkerMenuOpen(false);
         }}
         onWithdraw={() => {
@@ -340,6 +344,7 @@ interface ShelterActionRowProps {
   onUnfollow: () => void;
   onToggleWalker: () => void;
   onAdvanceState: () => void;
+  onLogWalk: () => void;
   onWithdraw: () => void;
 }
 
@@ -359,6 +364,7 @@ function ShelterActionRow({
   onUnfollow,
   onToggleWalker,
   onAdvanceState,
+  onLogWalk,
   onWithdraw,
 }: ShelterActionRowProps) {
   return (
@@ -409,6 +415,16 @@ function ShelterActionRow({
               >
                 <Check size={16} weight="light" />
                 Advance state (demo)
+              </button>
+            )}
+            {applicationState === "vouched" && (
+              <button
+                type="button"
+                className="dropdown-menu-item"
+                onClick={onLogWalk}
+              >
+                <PawPrint size={16} weight="light" />
+                Log walk (demo)
               </button>
             )}
             <button
@@ -708,13 +724,14 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
       .filter((a) => !shelter.walkers.some((w) => w.userId === a.userId))
       .map((a) => {
         const u = getUserById(a.userId);
+        const walkCount = a.walkCount ?? 0;
         return {
           userId: a.userId,
           displayName: u ? `${u.firstName} ${u.lastName}` : a.userId,
           avatarUrl: u?.avatarUrl,
-          tier: "vetted" as const,
+          tier: deriveWalkerTier(walkCount),
           vouchedAt: a.vouchedAt ?? a.appliedAt,
-          walkCount: 0,
+          walkCount,
         };
       });
   }, [applications, shelter]);
