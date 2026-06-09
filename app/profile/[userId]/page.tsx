@@ -18,6 +18,7 @@ import {
   Tree,
   Dog,
   CaretDown,
+  Star,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { DetailHeader } from "@/components/layout/DetailHeader";
@@ -30,6 +31,7 @@ import { TrustSignalBadges } from "@/components/profile/TrustSignalBadges";
 import { SharedContextCard } from "@/components/profile/SharedContextCard";
 import { TrustBadgeStrip } from "@/components/badges/TrustBadgeStrip";
 import { getTrustBadges, userProfileToTrustSubject, getCircleAttribution } from "@/lib/trustBadges";
+import { useReviews } from "@/contexts/ReviewsContext";
 import { getCarerIdentity } from "@/lib/identityBadges";
 import { PetSummaryCard } from "@/components/profile/PetSummaryCard";
 import { PostsTab } from "@/components/profile/PostsTab";
@@ -201,6 +203,7 @@ function UserProfileInner() {
   }, [router, userId]);
 
   const currentUserId = useCurrentUserId();
+  const { reviews: allReviews } = useReviews();
   const currentUser = useCurrentUser();
   const isGuest = useIsGuest();
   const { requireAuth } = useAuthGate();
@@ -983,6 +986,42 @@ function UserProfileInner() {
                 </p>
               )}
             </section>
+
+            {/* Reviews section (F4) — lists reviews of this carer pulled
+                from ReviewsContext (live + seeded). Section omitted entirely
+                when this user has no reviews. Date sorted newest-first. */}
+            {userProfile?.carerProfile && (() => {
+              const carerReviews = allReviews
+                .filter((r) => r.authorId !== userId)
+                .filter((r) => {
+                  const u = getUserById(userId);
+                  if (!u) return false;
+                  const fullName = `${u.firstName} ${u.lastName}`;
+                  return r.carerName === fullName;
+                })
+                .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+              if (carerReviews.length === 0) return null;
+              return (
+                <section>
+                  <h3 className="profile-card-subtitle">Reviews ({carerReviews.length})</h3>
+                  <div className="flex flex-col gap-md" style={{ marginTop: "var(--space-sm)" }}>
+                    {carerReviews.map((r) => (
+                      <div key={r.id} className="flex flex-col gap-xs">
+                        <div className="flex items-center gap-xs">
+                          <Star size={14} weight="fill" className="text-[var(--status-warning-main)]" />
+                          <span className="text-sm font-semibold">{r.rating.toFixed(1)}</span>
+                          <span className="text-sm text-fg-secondary">· {r.authorName}</span>
+                          <span className="text-xs text-fg-tertiary">
+                            · {new Date(r.createdAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
+                          </span>
+                        </div>
+                        {r.text && <p className="text-sm text-fg-secondary m-0">{r.text}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              );
+            })()}
 
             {/* Booked by people you know — circle attribution per E3.
                 Renders when at least one of the viewer's Connected
