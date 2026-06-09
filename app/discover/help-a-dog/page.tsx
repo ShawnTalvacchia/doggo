@@ -31,6 +31,9 @@ import {
   getAllShelterDogs,
 } from "@/lib/mockShelters";
 import { PERSONALITY_TAG_LABELS } from "@/lib/constants/dogs";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { useWalkerApplications } from "@/contexts/WalkerApplicationsContext";
+import { getConnectionsForViewer } from "@/lib/mockConnections";
 import type {
   EnergyLevel,
   PersonalityTag,
@@ -401,10 +404,25 @@ function DogsResults({
   );
 }
 
-function SheltersResults({ shelters }: { shelters: ShelterProfile[] }) {
+function SheltersResults({
+  shelters,
+  elevationByShelterId,
+}: {
+  shelters: ShelterProfile[];
+  elevationByShelterId: Record<string, number>;
+}) {
+  // Sort by elevation (your-shelter > circle-volunteer > other), stable
+  // within each bucket so the default order is preserved per K.
+  const sorted = useMemo(() => {
+    return [...shelters].sort((a, b) => {
+      const ea = elevationByShelterId[a.id] ?? 0;
+      const eb = elevationByShelterId[b.id] ?? 0;
+      return eb - ea;
+    });
+  }, [shelters, elevationByShelterId]);
   return (
     <div className="help-a-dog-shelters-list">
-      {shelters.map((s) => (
+      {sorted.map((s) => (
         <DiscoverShelterCard key={s.id} shelter={s} />
       ))}
     </div>
@@ -418,9 +436,43 @@ function DiscoverHelpADogInner() {
   const [sortKey, setSortKey] = useState<DogsSortKey>("needs-walks");
   const [filters, setFilters] = useState<DogsFilters>(DEFAULT_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
+  const currentUserId = useCurrentUserId();
+  const { applications } = useWalkerApplications();
 
   const allShelters = useMemo(() => getAllShelters(), []);
   const allDogs = useMemo(() => getAllShelterDogs(), []);
+
+  // Shelter-membership elevation (K, 2026-06-09) — sort priority by:
+  //   1. Shelters you walk at (vouched WalkerApplications)
+  //   2. Shelters your circle volunteers at (Connected users with
+  //      vouched applications)
+  //   3. Everything else
+  // Computed once per render; per-shelter score keyed by shelter id.
+  const elevationByShelterId = useMemo(() => {
+    const scores: Record<string, number> = {};
+    if (!currentUserId) return scores;
+    const yourShelters = new Set(
+      applications
+        .filter((a) => a.userId === currentUserId && a.state === "vouched")
+        .map((a) => a.shelterId),
+    );
+    const connectedIds = new Set(
+      getConnectionsForViewer(currentUserId)
+        .filter((c) => c.state === "connected")
+        .map((c) => c.userId),
+    );
+    const circleShelters = new Set(
+      applications
+        .filter((a) => connectedIds.has(a.userId) && a.state === "vouched")
+        .map((a) => a.shelterId),
+    );
+    for (const s of allShelters) {
+      if (yourShelters.has(s.id)) scores[s.id] = 2;
+      else if (circleShelters.has(s.id)) scores[s.id] = 1;
+      else scores[s.id] = 0;
+    }
+    return scores;
+  }, [currentUserId, applications, allShelters]);
 
   // Filter + sort the dog list. Sort applies to the filtered subset so
   // counts and ordering stay consistent.
@@ -452,8 +504,16 @@ function DiscoverHelpADogInner() {
     }
     // Re-attach shelter context (lookups keyed off dog.id)
     const shelterByDog = new Map(filteredDogs.map((e) => [e.dog.id, e.shelter]));
-    return sortedList.map((dog) => ({ dog, shelter: shelterByDog.get(dog.id)! }));
-  }, [filteredDogs, sortKey]);
+    const attached = sortedList.map((dog) => ({ dog, shelter: shelterByDog.get(dog.id)! }));
+    // Apply shelter-membership elevation as a stable secondary sort —
+    // dogs from elevated shelters float to the top, preserving the
+    // primary sort within each elevation bucket.
+    return attached.sort((a, b) => {
+      const ea = elevationByShelterId[a.shelter.id] ?? 0;
+      const eb = elevationByShelterId[b.shelter.id] ?? 0;
+      return eb - ea;
+    });
+  }, [filteredDogs, sortKey, elevationByShelterId]);
 
   const dogsCount = allDogs.length;
   const sheltersCount = allShelters.length;
@@ -523,7 +583,7 @@ function DiscoverHelpADogInner() {
             </>
           )
         ) : (
-          <SheltersResults shelters={allShelters} />
+          <SheltersResults shelters={allShelters} elevationByShelterId={elevationByShelterId} />
         )}
 
         <Spacer size="sm" />

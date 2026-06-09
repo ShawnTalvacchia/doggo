@@ -40,6 +40,7 @@ import { usePhotoAlbumOverrides } from "@/lib/usePhotoAlbumOverrides";
 import { useUntagStore } from "@/lib/useUntagStore";
 import { usePendingTagsStore } from "@/lib/usePendingTagsStore";
 import { usePostComposer } from "@/contexts/PostComposerContext";
+import { useWalkerApplications, deriveWalkerTier } from "@/contexts/WalkerApplicationsContext";
 import {
   VACCINATION_LABELS,
   deriveAutoTags,
@@ -569,6 +570,13 @@ function DogProfileInner() {
             ownerTagApproval={owner?.tagApproval}
           />
 
+          {/* Walker affordance (J) — shelter dogs only. Three states:
+              vouched walker at this shelter → "Book a walk" (deferred —
+              full booking flow is post-this-phase); applied/invited →
+              "Application in progress" status; no application → CTA to
+              apply at the shelter. */}
+          {shelter && <WalkAffordance shelter={shelter} dog={dog} />}
+
           {/* Backlink: shelter (shelter dog) or owner (owned dog). */}
           {shelter && <ShelterBacklink shelter={shelter} />}
           {owner && <OwnerBacklink owner={owner} isSelf={owner.id === currentUserId} />}
@@ -928,6 +936,123 @@ function DogPhotosBundle({
         onUnpin={overrides.unpinHighlight}
       />
     </>
+  );
+}
+
+/**
+ * Walker affordance (J) — eligibility-gated CTA on shelter dog profiles.
+ *
+ * Three-axis composition per D8:
+ *   1. Walker tier (vouched or not, derived from WalkerApplications)
+ *   2. Per-shelter policy (ShelterPolicy.groupWalksPermitted —
+ *      surfaces in the booking flow, not this gate)
+ *   3. Per-dog policy overrides (soloOnly, experiencedHandlersOnly —
+ *      gates which tier can walk this specific dog)
+ *
+ * V1 surfaces: state-aware copy + apply CTA for non-walkers; the
+ * actual "Book a walk" booking flow is deferred until shelter-walk
+ * Bookings carry the `ownerKind: "shelter"` discriminator end-to-end.
+ */
+function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetProfile }) {
+  const currentUserId = useCurrentUserId();
+  const { getApplication } = useWalkerApplications();
+  const application = currentUserId ? getApplication(currentUserId, shelter.id) : undefined;
+  const state = application?.state;
+  const walkCount = application?.walkCount ?? 0;
+
+  // Per-dog eligibility: experiencedHandlersOnly requires tier ≥ experienced.
+  const tier = state === "vouched" ? deriveWalkerTier(walkCount) : null;
+  const eligibleForDog = (() => {
+    if (state !== "vouched") return false;
+    if (dog.experiencedHandlersOnly && tier === "vetted") return false;
+    return true;
+  })();
+
+  if (!state) {
+    return (
+      <Link
+        href={`/shelters/${shelter.id}`}
+        className="flex items-center gap-md rounded-panel"
+        style={{
+          background: "var(--surface-top)",
+          border: "1px solid var(--border-regular)",
+          padding: "var(--space-md)",
+          textDecoration: "none",
+        }}
+      >
+        <PawPrint size={20} weight="fill" className="text-brand-strong" />
+        <div className="flex flex-col flex-1 min-w-0">
+          <span className="text-sm font-semibold text-fg-primary">Walk dogs at {shelter.name}</span>
+          <span className="text-xs text-fg-tertiary">Apply at the shelter to be paired with the right dog →</span>
+        </div>
+      </Link>
+    );
+  }
+
+  if (state === "applied" || state === "invited") {
+    return (
+      <div
+        className="flex items-center gap-md rounded-panel"
+        style={{
+          background: "var(--surface-inset)",
+          border: "1px solid var(--border-regular)",
+          padding: "var(--space-md)",
+        }}
+      >
+        <Clock size={20} weight="fill" className="text-fg-secondary" />
+        <div className="flex flex-col flex-1 min-w-0">
+          <span className="text-sm font-semibold text-fg-primary">
+            {state === "applied" ? "Application sent" : "Invited to visit"}
+          </span>
+          <span className="text-xs text-fg-tertiary">
+            {state === "applied"
+              ? `${shelter.name} will be in touch to schedule your intro visit.`
+              : `Visit ${shelter.name} to meet the team. You'll be cleared to walk after.`}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // Vouched. Eligible-for-dog (vouched + dog policy passes) vs not.
+  if (!eligibleForDog) {
+    return (
+      <div
+        className="flex items-center gap-md rounded-panel"
+        style={{
+          background: "var(--surface-inset)",
+          border: "1px solid var(--border-regular)",
+          padding: "var(--space-md)",
+        }}
+      >
+        <PawPrint size={20} weight="fill" className="text-fg-secondary" />
+        <div className="flex flex-col flex-1 min-w-0">
+          <span className="text-sm font-semibold text-fg-primary">{dog.name} needs an experienced walker</span>
+          <span className="text-xs text-fg-tertiary">
+            Keep walking with {shelter.name} — once you've passed 10 walks you'll be cleared for {dog.name}.
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="flex items-center gap-md rounded-panel"
+      style={{
+        background: "var(--brand-subtle)",
+        border: "1px solid var(--brand-main)",
+        padding: "var(--space-md)",
+      }}
+    >
+      <PawPrint size={20} weight="fill" className="text-brand-strong" />
+      <div className="flex flex-col flex-1 min-w-0">
+        <span className="text-sm font-semibold text-fg-primary">You walk at {shelter.name}</span>
+        <span className="text-xs text-fg-tertiary">
+          Book a walk → (booking flow ships in the credentialing-moat follow-up).
+        </span>
+      </div>
+    </div>
   );
 }
 
