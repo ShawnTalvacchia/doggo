@@ -1075,11 +1075,23 @@ function UserProfileInner() {
               const previewAuthor = getUserById(preview.authorId);
               return (
                 <section>
-                  <div className="flex items-baseline gap-xs">
-                    <h3 className="profile-card-subtitle m-0">Reviews</h3>
-                    <span className="text-sm text-fg-secondary inline-flex items-baseline gap-xs">
-                      · <Star size={12} weight="fill" className="text-[var(--status-warning-main)]" /> {avg.toFixed(1)} · {carerReviews.length}
-                    </span>
+                  <div className="flex items-baseline justify-between gap-sm">
+                    <div className="flex items-baseline gap-xs">
+                      <h3 className="profile-card-subtitle m-0">Reviews</h3>
+                      <span className="text-sm text-fg-secondary inline-flex items-baseline gap-xs">
+                        · <Star size={12} weight="fill" className="text-[var(--status-warning-main)]" /> {avg.toFixed(1)} · {carerReviews.length}
+                      </span>
+                    </div>
+                    {carerReviews.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setReviewsModalOpen(true)}
+                        className="text-sm font-semibold text-brand-strong shrink-0"
+                        style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
+                      >
+                        See all →
+                      </button>
+                    )}
                   </div>
                   {/* Single preview — newest review */}
                   <div className="flex gap-sm" style={{ marginTop: "var(--space-sm)" }}>
@@ -1107,16 +1119,6 @@ function UserProfileInner() {
                       {preview.text && <p className="text-sm text-fg-secondary m-0">{preview.text}</p>}
                     </div>
                   </div>
-                  {carerReviews.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => setReviewsModalOpen(true)}
-                      className="text-sm font-semibold text-brand-strong"
-                      style={{ background: "none", border: "none", padding: 0, cursor: "pointer", marginTop: "var(--space-sm)" }}
-                    >
-                      See all {carerReviews.length} reviews →
-                    </button>
-                  )}
                   <ModalSheet
                     open={reviewsModalOpen}
                     onClose={() => setReviewsModalOpen(false)}
