@@ -79,16 +79,24 @@ export function TrustBadgeStrip({ badges, limit, variant = "standard" }: Props) 
         // carry the meaning; specific counts are surfaced where they
         // matter (carer-portfolio gets the "47 sessions" subtitle on
         // profile hero per the credentialing-moat walkthrough).
+        //
+        // Sizing aligned to .credential-pill (2026-06-09): same 3px 10px
+        // padding + 12px font + 1px border matching the fill (invisible
+        // outline; preserves consistent height). Previously rendered
+        // ~8px taller than the credential pill on profile hero — visual
+        // mismatch across the same row.
         return (
           <span
             key={badge.kind}
-            className={`flex items-center gap-xs rounded-pill ${compact ? "px-xs py-xs" : "px-sm py-xs"}`}
+            className="flex items-center gap-xs rounded-pill"
             style={{
               background: tinted ? "var(--brand-subtle)" : "var(--surface-base)",
               color: tinted ? "var(--brand-strong)" : "var(--text-secondary)",
-              fontSize: compact ? 10 : 11,
+              fontSize: 12,
               fontWeight: 600,
-              border: tinted ? "none" : "1px solid var(--border-regular)",
+              padding: "3px 10px",
+              lineHeight: 1.2,
+              border: tinted ? "1px solid var(--brand-subtle)" : "1px solid var(--surface-base)",
             }}
           >
             {ICON[badge.kind]}
