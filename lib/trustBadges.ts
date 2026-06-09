@@ -177,6 +177,10 @@ export interface TrustSubject {
   firstName: string;
   credentials?: CarerCredentials;
   repeatClients?: number;
+  /** Carrier of subject's Carer audience setting — feeds the
+   *  carer-portfolio privacy gate (circle-Carers' aggregate hides
+   *  from non-Connected viewers, mirroring `getCarerIdentity`). */
+  carerPublicProfile?: boolean;
 }
 
 /** Adapter: extract a TrustSubject from a UserProfile (preferred path
@@ -187,7 +191,19 @@ export function userProfileToTrustSubject(user: UserProfile): TrustSubject {
     firstName: user.firstName,
     credentials: user.carerProfile?.credentials,
     repeatClients: user.carerProfile?.repeatClients,
+    carerPublicProfile: user.carerProfile?.publicProfile,
   };
+}
+
+/** Whether viewer is Connected to subject. Same pattern as the Identity
+ *  badge's privacy gate — used by the carer-portfolio aggregate to
+ *  respect circle-Carer privacy. Self always counts as Connected. */
+function isViewerConnectedTo(viewerId: string | null | undefined, subjectId: string): boolean {
+  if (!viewerId) return false;
+  if (viewerId === subjectId) return true;
+  return getConnectionsForViewer(viewerId).some(
+    (c) => c.userId === subjectId && c.state === "connected",
+  );
 }
 
 /**
@@ -202,17 +218,25 @@ export function getTrustBadges(
   const out: TrustBadge[] = [];
 
   // ── Carer Portfolio aggregate ──
-  const engagements = getCompletedEngagements(subject.id);
-  const carerTier = getCarerPortfolioTier(engagements.sessions);
-  if (carerTier !== null) {
-    out.push({
-      kind: "carer-portfolio",
-      category: "community",
-      label: carerTier === 3 ? "Trusted Carer" : "Carer",
-      detail: `${engagements.sessions} completed sessions.`,
-      tier: carerTier,
-      sessionCount: engagements.sessions,
-    });
+  // Privacy gate (C1): circle-Carers' aggregate hides from non-Connected
+  // viewers — same rule as the Identity badge (see lib/identityBadges.ts).
+  // Open-Carers (publicProfile === true) and undefined (non-Carers fall
+  // through to the threshold check anyway) skip the gate.
+  const isCircleCarer = subject.carerPublicProfile === false;
+  const carerVisible = !isCircleCarer || isViewerConnectedTo(viewerId, subject.id);
+  if (carerVisible) {
+    const engagements = getCompletedEngagements(subject.id);
+    const carerTier = getCarerPortfolioTier(engagements.sessions);
+    if (carerTier !== null) {
+      out.push({
+        kind: "carer-portfolio",
+        category: "community",
+        label: carerTier === 3 ? "Trusted Carer" : "Carer",
+        detail: `${engagements.sessions} completed sessions.`,
+        tier: carerTier,
+        sessionCount: engagements.sessions,
+      });
+    }
   }
 
   // ── Community-earned ──
