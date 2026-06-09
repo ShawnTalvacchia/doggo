@@ -14934,6 +14934,10 @@ a.shelter-intro-social:hover {
   gap: var(--space-xs);
   padding: 3px 10px;
   border-radius: var(--radius-pill);
+  /* Universal 1px border keeps all three tiers at the same physical
+     footprint. Tier 1 + Tier 2 use a soft family-color stroke; Tier 3's
+     border matches its fill (invisible but preserves size consistency). */
+  border: 1px solid transparent;
   font-size: var(--text-xs);
   font-weight: 600;
   line-height: 1.2;
@@ -14962,30 +14966,34 @@ a.shelter-intro-social:hover {
   --credential-pill-text-inverse: #eff6ff;                    /* blue-50, near-white for Tier 3 */
 }
 
-/* Tier 1 — entry: neutral inset surface + family-color text only
-   slightly muted via color-mix. The strong family color is mixed
-   80%/20% with --text-tertiary — the BG is doing the "this is the
-   baseline tier" work, so the text can stay close to the family
-   hue (just enough mute to distinguish from Tier 2's pure strong
-   color). */
+/* Tier 1 — entry: mostly-neutral inset surface with a barely-there
+   family tint (~8% mix); family-color text muted 80%/20%; soft
+   family-color border (30% saturation). The hint of family color
+   reads through three quiet signals (BG, text, border) rather than
+   one assertive one. */
 .credential-pill--tier-1 {
-  background: var(--surface-inset);
+  background: color-mix(in srgb, var(--credential-pill-text-strong) 8%, var(--surface-inset));
   color: color-mix(in srgb, var(--credential-pill-text-strong) 80%, var(--text-tertiary));
+  border-color: color-mix(in srgb, var(--credential-pill-text-strong) 30%, transparent);
 }
 
-/* Tier 2 — established: soft family fill + strong family text.
-   First tier where the family color shows up assertively. */
+/* Tier 2 — established: soft family fill + strong family text +
+   slightly-stronger family border. First tier where the family
+   color shows up assertively. */
 .credential-pill--tier-2 {
   background: var(--credential-pill-bg-tier-2);
   color: var(--credential-pill-text-strong);
+  border-color: color-mix(in srgb, var(--credential-pill-text-strong) 45%, transparent);
 }
 
-/* Tier 3 — trusted: dark fill, inverse text. The flip carries the
-   "this is the top" signal without changing footprint. Paired with
-   icon weight="fill" in JSX for the strongest jump. */
+/* Tier 3 — trusted: dark fill, inverse text. Border matches the fill
+   (invisible) — keeps the pill at the same physical footprint as
+   Tier 1/Tier 2. The flip + filled icon carry the "this is the top"
+   signal without changing size. */
 .credential-pill--tier-3 {
   background: var(--credential-pill-bg-tier-3);
   color: var(--credential-pill-text-inverse);
+  border-color: var(--credential-pill-bg-tier-3);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
