@@ -14966,13 +14966,15 @@ a.shelter-intro-social:hover {
   --credential-pill-text-inverse: #eff6ff;                    /* blue-50, near-white for Tier 3 */
 }
 
-/* Tier 1 — entry: mostly-neutral inset surface with a barely-there
-   family tint (~8% mix); family-color text muted 80%/20%; soft
-   family-color border (30% saturation). The hint of family color
-   reads through three quiet signals (BG, text, border) rather than
-   one assertive one. */
+/* Tier 1 — entry: light surface with a barely-there family tint
+   (~5% mix into --surface-base); family-color text muted 80%/20%;
+   soft family-color border (30% saturation). The hint of family
+   color reads through three quiet signals (BG, text, border) rather
+   than one assertive one. Surface base is the lighter --surface-base
+   (#f4f4f4) — the prior --surface-inset (#ececec) read too dark once
+   the family tint was layered on top. */
 .credential-pill--tier-1 {
-  background: color-mix(in srgb, var(--credential-pill-text-strong) 8%, var(--surface-inset));
+  background: color-mix(in srgb, var(--credential-pill-text-strong) 5%, var(--surface-base));
   color: color-mix(in srgb, var(--credential-pill-text-strong) 80%, var(--text-tertiary));
   border-color: color-mix(in srgb, var(--credential-pill-text-strong) 30%, transparent);
 }
