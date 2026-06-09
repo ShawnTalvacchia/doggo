@@ -14962,14 +14962,15 @@ a.shelter-intro-social:hover {
   --credential-pill-text-inverse: #eff6ff;                    /* blue-50, near-white for Tier 3 */
 }
 
-/* Tier 1 — entry: neutral inset surface + family-color text muted
-   via color-mix. The strong family color (--credential-pill-text-
-   strong, also used by Tier 2) is mixed 55%/45% with neutral
-   --text-tertiary, producing a muted-but-recognizable family hue
-   in the text alone. Background stays fully neutral. */
+/* Tier 1 — entry: neutral inset surface + family-color text only
+   slightly muted via color-mix. The strong family color is mixed
+   80%/20% with --text-tertiary — the BG is doing the "this is the
+   baseline tier" work, so the text can stay close to the family
+   hue (just enough mute to distinguish from Tier 2's pure strong
+   color). */
 .credential-pill--tier-1 {
   background: var(--surface-inset);
-  color: color-mix(in srgb, var(--credential-pill-text-strong) 55%, var(--text-tertiary));
+  color: color-mix(in srgb, var(--credential-pill-text-strong) 80%, var(--text-tertiary));
 }
 
 /* Tier 2 — established: soft family fill + strong family text.
