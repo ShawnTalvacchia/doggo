@@ -74,10 +74,14 @@ export function TrustBadgeStrip({ badges, limit, variant = "standard" }: Props) 
         }
 
         const tinted = compact && badge.category === "community";
+        // `title` (tooltip) dropped 2026-06-09 — tooltips don't work on
+        // mobile and aren't discoverable on desktop. The badge labels
+        // carry the meaning; specific counts are surfaced where they
+        // matter (carer-portfolio gets the "47 sessions" subtitle on
+        // profile hero per the credentialing-moat walkthrough).
         return (
           <span
             key={badge.kind}
-            title={badge.detail}
             className={`flex items-center gap-xs rounded-pill ${compact ? "px-xs py-xs" : "px-sm py-xs"}`}
             style={{
               background: tinted ? "var(--brand-subtle)" : "var(--surface-base)",

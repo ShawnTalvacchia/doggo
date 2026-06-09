@@ -19,6 +19,7 @@ import {
   Dog,
   CaretDown,
   Star,
+  Sparkle,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { DetailHeader } from "@/components/layout/DetailHeader";
@@ -1010,9 +1011,36 @@ function UserProfileInner() {
               {userProfile?.carerProfile && (() => {
                 const badges = getTrustBadges(userProfileToTrustSubject(userProfile), currentUserId);
                 if (badges.length === 0) return null;
+                // Per O1 + walkthrough discussion (2026-06-09): the
+                // carer-portfolio aggregate is the headline credential and
+                // gets pulled OUT of the strip so the session count can
+                // render as a label to its right without disrupting the
+                // wrapped layout. Supporting trust badges flow below in
+                // the existing TrustBadgeStrip.
+                const carerAggregate = badges.find((b) => b.kind === "carer-portfolio");
+                const supportingBadges = badges.filter((b) => b.kind !== "carer-portfolio");
+                const tierClass = carerAggregate?.tier ? `credential-pill--tier-${carerAggregate.tier}` : "";
+                const iconWeight = carerAggregate?.tier === 3 ? "fill" : "regular";
                 return (
-                  <div style={{ marginTop: "var(--space-md)" }}>
-                    <TrustBadgeStrip badges={badges} />
+                  <div style={{ marginTop: "var(--space-md)" }} className="flex flex-col gap-sm">
+                    {carerAggregate && (
+                      <div className="flex items-center gap-sm flex-wrap">
+                        <span className={`credential-pill credential-pill--carer ${tierClass}`}>
+                          {carerAggregate.tier && carerAggregate.tier >= 2 && (
+                            <Sparkle size={14} weight={iconWeight} />
+                          )}
+                          {carerAggregate.label}
+                        </span>
+                        {carerAggregate.sessionCount != null && (
+                          <span className="text-xs text-fg-secondary">
+                            {carerAggregate.sessionCount} completed sessions
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {supportingBadges.length > 0 && (
+                      <TrustBadgeStrip badges={supportingBadges} />
+                    )}
                   </div>
                 );
               })()}
