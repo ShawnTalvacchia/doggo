@@ -8,10 +8,11 @@ import {
   Stethoscope,
   Clock,
   ShieldCheck,
+  Sparkle,
 } from "@phosphor-icons/react";
 import type { TrustBadge, TrustBadgeKind } from "@/lib/trustBadges";
 
-const ICON: Record<TrustBadgeKind, React.ReactNode> = {
+const ICON: Record<Exclude<TrustBadgeKind, "carer-portfolio">, React.ReactNode> = {
   "community-regular": <PawPrint size={12} weight="fill" />,
   "trusted-by-network": <Users size={12} weight="fill" />,
   "repeat-clients": <Repeat size={12} weight="fill" />,
@@ -50,6 +51,28 @@ export function TrustBadgeStrip({ badges, limit, variant = "standard" }: Props) 
   return (
     <div className="flex items-center gap-xs flex-wrap">
       {visible.map((badge) => {
+        // Carer Portfolio uses the shared credential-pill family
+        // (credentialing-moat phase B4 / 2026-06-09). Tier metadata
+        // resolves the `--tier-N` modifier; Sparkle icon appears at
+        // Tier 2 (regular weight) and Tier 3 (fill weight); Tier 1
+        // renders with no icon. The aggregate session count surfaces
+        // via the `detail` field on hover/tap; profile-hero callers
+        // can also render a subtitle line below the strip (B5+).
+        if (badge.kind === "carer-portfolio" && badge.tier) {
+          const tierClass = `credential-pill--tier-${badge.tier}`;
+          const iconWeight = badge.tier === 3 ? "fill" : "regular";
+          return (
+            <span
+              key={badge.kind}
+              title={badge.detail}
+              className={`credential-pill credential-pill--carer ${tierClass}`}
+            >
+              {badge.tier >= 2 && <Sparkle size={14} weight={iconWeight} />}
+              {badge.label}
+            </span>
+          );
+        }
+
         const tinted = compact && badge.category === "community";
         return (
           <span
