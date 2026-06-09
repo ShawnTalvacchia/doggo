@@ -989,11 +989,12 @@ function UserProfileInner() {
             </section>
 
             {/* Reviews section (F4) — leads with aggregate, shows ONE preview
-                review, opens a modal for the full list. Aggregate is computed
-                from live + seeded reviews. Marketing aggregate (provider.rating
-                + provider.reviewCount) lives separately on the provider-stats
-                card and represents a higher directory number. Both honest;
-                different concepts. */}
+                review, opens a modal for the full list. Aggregate computed
+                from live + seeded UserReview entries. This is the
+                authoritative review-count source on the profile; the
+                provider-stats card's reviewCount was dropped 2026-06-09
+                because it had drifted from the real entries (was 31 vs.
+                actually-seeded 4). */}
             {userProfile?.carerProfile && (() => {
               const carerReviews = allReviews
                 .filter((r) => r.authorId !== userId)
@@ -1057,7 +1058,7 @@ function UserProfileInner() {
                     onClose={() => setReviewsModalOpen(false)}
                     title={`Reviews · ${avg.toFixed(1)} ★ · ${carerReviews.length}`}
                   >
-                    <div className="flex flex-col gap-lg" style={{ padding: "var(--space-sm) 0" }}>
+                    <div className="flex flex-col gap-lg" style={{ padding: "var(--space-md) var(--space-lg)" }}>
                       {carerReviews.map((r) => {
                         const author = getUserById(r.authorId);
                         return (
@@ -1134,14 +1135,14 @@ function UserProfileInner() {
               );
             })()}
 
-            {/* Provider stats */}
-            {provider && (
+            {/* Provider stats — distance only. Review count + rating moved
+                to the Reviews section header above (computed from actual
+                UserReview entries instead of the inflated directory number
+                that didn't match the real seeded reviews). 2026-06-09. */}
+            {provider?.distanceKm && (
               <section className="profile-info-card">
                 <div className="flex items-center gap-sm text-sm text-fg-secondary">
-                  <span>{provider.rating} ★ · {provider.reviewCount} reviews</span>
-                  {provider.distanceKm && (
-                    <span className="text-fg-tertiary">· {provider.distanceKm} km away</span>
-                  )}
+                  <span className="text-fg-tertiary">{provider.distanceKm} km away</span>
                 </div>
               </section>
             )}
