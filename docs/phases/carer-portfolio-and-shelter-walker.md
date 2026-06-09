@@ -173,7 +173,7 @@ Pes v nouzi + Druhá šance shipped with empty walker rosters. Demo can stay hon
 | # | Description | Refs | Status |
 |---|-------------|------|--------|
 | B1 | Add the badge to `TrustBadge` taxonomy (`lib/trustBadges.ts`). Type: community-earned. Threshold: ≥3 (per §8). | [[badges]] | todo |
-| B2 | Three visual states per D2: outlined (3–9) / filled (10–24) / filled+ring (25+). Implement via `.credential-pill--{tier}` modifier set, designed for reuse by Workstream H. | D2 | todo |
+| B2 | Three visual states per D2: outlined (3–9) / filled (10–24) / filled+ring (25+). Implement via `.credential-pill--{tier}` modifier set, designed for reuse by Workstream H. **Also render the three states in `/styleguide/components`** so the user can sign off on the visual jump (especially top-tier filled+ring) before B4 lands the badge on profile surfaces — per walkthrough O1 resolution. | D2 | todo |
 | B3 | Copy format `"{tier-label} · {N} sessions"` per §8 (a-resolved). Tier labels: Carer / Experienced Carer / Trusted Carer. | | todo |
 | B4 | Render in `TrustBadgeStrip` on carer profile hero. | | todo |
 | B5 | PersonRow + Discover card propagation per existing priority rule (top 1 / top 2 slots). | | todo |
@@ -327,7 +327,7 @@ Sequenced for the Carer Portfolio half first. Each line is one focused commit (o
 2. **A2** — `getCompletedEngagementsAllTime` exported as the V1 default.
 3. **A3** — Log persona aggregates during seeded data + sanity-check against D1.
 4. **B1** — Add badge entry to `TrustBadge` taxonomy.
-5. **B2** — `.credential-pill--{tier}` modifier set. Build the CSS now so H1 inherits.
+5. **B2** — `.credential-pill--{tier}` modifier set + render the three states in `/styleguide/components` for user sign-off before B4. Build the CSS now so H1 inherits.
 6. **B3** — Copy format `"{tier-label} · {N} sessions"`. Wire the three tier labels.
 7. **B4 + B5** — Render in TrustBadgeStrip; PersonRow + Discover card propagation via existing priority rule.
 8. **B6 + C1 + C2 + C3** — Threshold + visibility audit, in one commit.
