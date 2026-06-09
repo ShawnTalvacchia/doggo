@@ -27,7 +27,7 @@ review-trigger: When any task is completed or blocked; at the mid-phase Carer-Po
 - Help a Dog Discover door (2026-06-08) — front door exists; this phase ships the journey behind it.
 - Sessions & Service Execution (2026-05-08) — Start → Finish → Visit Report flow reused for shelter walks.
 
-**Refs:** [[badges]], [[shelters]], [[Trust & Connection Model]], [[Groups & Care Model]], [[Cold-Start Playbook]], `Open Questions §7 + §8 + §14`.
+**Refs:** [[implementation/badges]], [[features/shelters]], [[strategy/Trust & Connection Model]], [[strategy/Groups & Care Model]], [[strategy/Cold-Start Playbook]], [[planning/Open Questions & Assumptions Log]] §7 + §8 + §14.
 
 **Not in scope:**
 - **Photo-tag-based portfolio** (rejected by §8 resolution — engagement records only).
