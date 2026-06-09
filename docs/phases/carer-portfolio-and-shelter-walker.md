@@ -168,9 +168,21 @@ Strictest rule wins. Surfaces as: the "Book a walk" affordance on `/dogs/[id]` c
 
 ### D9 — Cross-shelter affiliation on /profile/[id]
 
-New "Volunteer work" section on user profiles (between Carer info and Posts). Renders per-shelter affiliation chips with tier label (e.g. `Volunteer at Útulek Liběň · 14 walks` for Tier 2; `Super Volunteer at Druhá šance · 32 walks` for Tier 3). Multi-shelter walkers render a chip stack; single-shelter renders one chip. Section omitted entirely when the user has zero shelter affiliations.
+**Revised at walkthrough O6 sign-off (2026-06-09).** Originally per-shelter chips only on strict anti-scoreboard grounds. Anti-scoreboard discipline relaxed at sign-off: accumulation signals are acceptable if they don't read as competition.
 
-Open detail per §14: whether the section header carries an aggregate ("Volunteered at 3 shelters · 47 walks") or stays per-shelter only. Decide in Workstream L design — recommend per-shelter only for V1 (matches anti-scoreboard discipline; aggregate framing risks reading as a leaderboard signal).
+New "Volunteer work" section on user profiles (between Carer info and Posts). Two layers:
+
+1. **Per-shelter chips** — stack vertically as the primary content. Each chip: `{tier-label} at {shelter} · {N} walks` (e.g. `Volunteer at Útulek Liběň · 14 walks` for Tier 2; `Super Volunteer at Druhá šance · 32 walks` for Tier 3). Chips link to the shelter detail page.
+
+2. **Conditional aggregate section header** — renders ONLY for walkers affiliated with 2+ shelters. Format: `Volunteer work · {N} shelters · {N} walks total`. Single-shelter walkers render the chips without an aggregate (would be redundant against the chip that already carries the walk count).
+
+Aggregate framing constraints (preserve anti-scoreboard spirit):
+- No percentile ranks ("Top X% volunteers").
+- No streaks or recency callouts.
+- No comparison against other walkers.
+- The number is information about cumulative effort; it doesn't position the walker against anyone else.
+
+Section omitted entirely when the user has zero shelter affiliations.
 
 ### D10 — Thin-shelter walker rosters
 
@@ -307,7 +319,7 @@ Run before opening the Shelter Walker side:
 |---|-------------|------|--------|
 | L1 | "Volunteer work" section on `/profile/[id]` — between Carer info and Posts. Per-shelter chips per D9: `{tier-label} at {shelter} · {N} walks`. | D9, G4 | todo |
 | L2 | Per-shelter chips link to the shelter detail page. Multi-shelter walkers render a chip stack; section omitted entirely for zero affiliations. | L1 | todo |
-| L3 | Section header treatment — V1 stays per-shelter (no aggregate framing). Doc decision in `features/profiles.md`. | D9 | todo |
+| L3 | Conditional aggregate section header — renders ONLY when affiliations.length ≥ 2. Format: `Volunteer work · {N} shelters · {N} walks total`. Single-shelter walkers render chips without an aggregate header. No percentile ranks, streaks, or comparative framing. Doc final treatment in `features/profiles.md`. | D9 | todo |
 
 ### Workstream M — Mock data + walker-side seeding
 
