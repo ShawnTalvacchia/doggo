@@ -24,7 +24,7 @@ Verification checklist for the Phase Name phase. **Concise by design** — three
 
 ## Open for your call
 
-Decisions the author made that warrant a second look — direction, not bug-hunt. Each one should describe a real call the author made that someone else might land differently, and tell the reader the quickest URL/persona path to see it in context.
+Decisions the author made that warrant a second look — direction, not bug-hunt. These are the calls made during the build instead of stopping to ask — surfaced so the reviewer can ratify or redirect (see `CONTRIBUTING.md` → "During a Phase" → decide-and-flag). Each one should describe a real call the author made that someone else might land differently, and tell the reader the quickest URL/persona path to see it in context.
 
 Identifier prefix: **`O`** (O1, O2, ...). Use these in conversation to point at items.
 

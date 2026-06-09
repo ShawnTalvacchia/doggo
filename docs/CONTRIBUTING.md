@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-05-27
+last-reviewed: 2026-06-09
 tags: [rules, workflow, css, conventions]
 review-trigger: "always — read before any working session"
 ---
@@ -24,10 +24,10 @@ Before writing any code for a new phase, complete the **Opening Checklist** on t
 
 1. **Read the phase board** in `phases/`. Understand every task and its references.
 2. **Read all referenced docs** — strategy, feature, and implementation docs cited by the phase.
-3. **Review Open Questions** (`phases/Open Questions & Assumptions Log.md`). Check if any unresolved questions affect this phase. Resolve or flag them before building.
+3. **Review Open Questions** (`planning/Open Questions & Assumptions Log.md`). Check if any unresolved questions affect this phase. Resolve or flag them before building.
 4. **Audit for conflicts.** Compare what the phase proposes against what's currently built. Raise anything that contradicts existing code, strategy docs, or feature docs. Don't assume the phase board is correct — it may have been written before recent changes.
 5. **Update stale docs.** If any referenced doc has a `last-reviewed` date older than 2 weeks, review and update it now.
-6. **Scan the Punch List** (`phases/punch-list.md`). Check if any open items overlap with the new phase's scope — adopt them into the phase board or note the overlap.
+6. **Scan the Punch List** (`planning/punch-list.md`). Check if any open items overlap with the new phase's scope — adopt them into the phase board or note the overlap.
 7. **Confirm scope.** If the phase has tasks that feel like they belong in a different phase, or if scope has grown, discuss before starting.
 
 **Enforcement:** The opening checklist items must be checked off on the phase board before the first task moves to `in_progress`. If an agent or human starts building without completing the checklist, stop and finish it first.
@@ -35,6 +35,13 @@ Before writing any code for a new phase, complete the **Opening Checklist** on t
 ### During a Phase
 
 - Work only on tasks from the **current phase board**.
+- **Decide-and-flag — bias toward action.** Make reasonable design and implementation calls during the build instead of stopping at every fork to ask. Two things still get raised mid-build:
+  - **(a) True blockers** — you can't take the next step and can't unblock yourself.
+  - **(b) Scope or strategy shifts** — anything that contradicts the phase board, expands what the phase ships, affects another phase, or touches a paused phase (default for paused phases is "ask first," per "Side Tasks").
+
+  Everything else — token choices, copy variants, mock-data values, component naming, structural picks where multiple answers are reasonable — gets MADE during the build and surfaced as an **"Open for your call"** item on the phase walkthrough. The reviewer ratifies or redirects there. "No feature sprawl" still applies: if the call would EXPAND scope, that's a scope shift and gets raised.
+
+  The walkthrough's "Open for your call" section is the build-time audit trail — it leads the walkthrough because the build-time discipline (decide + flag) and the review-time artifact (ratify or redirect) point at each other.
 - When you finish a task, update the phase board status immediately.
 - If you change a feature, update its **feature doc** in `features/`.
 - If you add/change a component, update **design-system.md**.
@@ -53,7 +60,7 @@ Before marking a phase complete, work through the **Closing Checklist** on the p
 4. **Update the Open Questions log.** Close any questions this phase resolved. Add any new ones that emerged.
 5. **Update ROADMAP.md only if upcoming scope shifted.** Adjust the Upcoming Phases table if this phase's close changes what comes next (reordered, added, cut, re-scoped). Do NOT add a completion summary or a list of recent closes — the archived phase board is the record. The Roadmap tracks objectives and what's next, not what shipped.
 6. **Review CLAUDE.md.** If the phase changed navigation, key components, or project structure, update the project instructions.
-7. **Review Punch List changes.** Read completed items and change reports in `phases/punch-list.md` since the last phase close. Check if any completed fixes affected feature docs, design-system.md, or design-tokens.md — update anything that was missed.
+7. **Review Punch List changes.** Read completed items and change reports in `planning/punch-list.md` since the last phase close. Check if any completed fixes affected feature docs, design-system.md, or design-tokens.md — update anything that was missed.
 8. **Archive the phase board AND walkthrough.** Mark `status: archived` in the frontmatter on both, then `git mv docs/phases/<name>.md docs/archive/phases/` and the same for the walkthrough. Single atomic moves.
 9. **Trim pass.** Skim the Roadmap, CLAUDE.md, and touched docs. Cut anything stale, redundant, or duplicated. See Doc Hygiene Rules.
 9a. **Structural audit.** Run these three checks — any hits get fixed before phase close:
@@ -79,7 +86,7 @@ Some work doesn't fit a phase board. It's bigger than a punch-list nit, smaller 
 
 | Size | Where it lives | Touches phase state? |
 |------|----------------|---------------------|
-| ≤30 min, isolated fix | Punch list (`phases/punch-list.md`) | No |
+| ≤30 min, isolated fix | Punch list (`planning/punch-list.md`) | No |
 | ~30 min – few hours, contained scope | Side task (worktree session) | No |
 | Multi-task scope, design thinking | Phase (open/close checklist) | Yes |
 
@@ -171,9 +178,10 @@ When updating existing styles:
 | Folder | What goes here |
 |--------|---------------|
 | `strategy/` | Product direction, user models, trust, groups, care, scope |
+| `planning/` | Cross-phase running lists that feed scheduling: `Open Questions & Assumptions Log.md`, `Future Considerations.md`, `punch-list.md`, `verification-checklist.md` |
 | `features/` | Feature specs — what's built, key decisions, future plans |
 | `implementation/` | Technical references, coding standards, component catalog |
-| `phases/` | Active phase boards + cross-phase running lists (`punch-list.md`, `verification-checklist.md`). Completed phase boards → archive. |
+| `phases/` | Active phase boards + walkthroughs, plus the `_phase-template.md` / `_walkthrough-template.md` molds. Completed boards → archive. |
 | `archive/` | Completed/superseded docs kept for reference |
 | root | Meta docs (this file, ROADMAP, CLAUDE.md) |
 

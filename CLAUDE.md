@@ -64,8 +64,8 @@ See `docs/CONTRIBUTING.md` for full details, including the phase open/close life
 | `docs/strategy/Trust & Connection Model.md` | Connection states, trust principles, safety & privacy |
 | `docs/strategy/Groups & Care Model.md` | Group taxonomy, provider types, config model, user journeys |
 | `docs/strategy/Content Visibility Model.md` | Two-gate visibility system, tagging privacy rules |
-| `docs/phases/Open Questions & Assumptions Log.md` | Unresolved questions affecting upcoming work — review before each phase. Lives in `phases/` (alongside punch list) because it's a work-tracker, not strategy itself. |
-| `docs/strategy/Future Considerations.md` | Long-term ideas + possible add-ons waiting for a trigger (data scale, user feedback, related work). Distinct from Open Questions (those are questions to answer; these are known-direction items waiting to land). Distinct from punch list (those are concrete fixes; these are speculative). Items graduate out — to punch list, phase board, or feature scope — when triggered. |
+| `docs/planning/Open Questions & Assumptions Log.md` | Unresolved questions affecting upcoming work — review before each phase. Lives in `planning/` with the other work-trackers (it's a work-tracker, not strategy itself). |
+| `docs/planning/Future Considerations.md` | Long-term ideas + possible add-ons waiting for a trigger (data scale, user feedback, related work). Distinct from Open Questions (those are questions to answer; these are known-direction items waiting to land). Distinct from punch list (those are concrete fixes; these are speculative). Items graduate out — to punch list, phase board, or feature scope — when triggered. |
 | `docs/strategy/Competitive Research - Prague Dog Care Scene.md` | Prague provider trust patterns, trust badge taxonomy, cold-start seeding strategy |
 | `docs/strategy/Competitive Research - Fluv.md` | Fluv analysis, hybrid trust model question, pre-booking meet-and-greet |
 | `docs/strategy/Competitive Research - Time To Pet.md` | TTP analysis, visit report cards, real-time session updates, in-session UI |
@@ -81,7 +81,7 @@ See `docs/CONTRIBUTING.md` for full details, including the phase open/close life
 
 See `docs/ROADMAP.md` for current phase, upcoming work, and recent closes. Archived phase boards in `docs/archive/phases/`.
 
-**Punch List:** `docs/phases/punch-list.md` — running list of UI tweaks and small fixes. Self-contained workflow instructions inside the file. Work from it in any session — read the file and follow its workflow section.
+**Punch List:** `docs/planning/punch-list.md` — running list of UI tweaks and small fixes. Self-contained workflow instructions inside the file. Work from it in any session — read the file and follow its workflow section.
 
 ## Strategic Context
 
@@ -127,8 +127,9 @@ Foundational rules that shape decisions across the app. Implementation details (
 
 ### Workflow
 
+- **Decide-and-flag.** During the build, make reasonable design and implementation calls and keep moving. Raise true blockers and anything that shifts phase scope or strategy. Ordinary judgment calls get MADE during the build and surfaced in the walkthrough's "Open for your call" — that section is the build-time audit trail; the reviewer ratifies or redirects there. Deciding fast + explaining the choice beats pausing for approval. "No feature sprawl" still applies: if a call would EXPAND scope, that's a scope shift and gets raised. See `docs/CONTRIBUTING.md` → "During a Phase."
 - **Side-task scope.** A side task lands as one focused PR, updates only the feature docs it touches, and does NOT modify CLAUDE.md, ROADMAP, phase boards, or the Open Questions log. Default for "should I resume a paused phase?" is **no — ask the user first.** See `docs/CONTRIBUTING.md` → "Side Tasks."
-- **Verification checklist scope.** Phase walkthroughs verify the **phase thesis** (the structural change the phase delivered), not every edge case. Items that should work but weren't worth the walkthrough's time go in `docs/phases/verification-checklist.md`. Distinct from punch list (fix vs check).
+- **Verification checklist scope.** Phase walkthroughs verify the **phase thesis** (the structural change the phase delivered), not every edge case. Items that should work but weren't worth the walkthrough's time go in `docs/planning/verification-checklist.md`. Distinct from punch list (fix vs check).
 
 ### Demo Affordances
 
