@@ -204,6 +204,7 @@ function UserProfileInner() {
 
   const currentUserId = useCurrentUserId();
   const { reviews: allReviews } = useReviews();
+  const [reviewsModalOpen, setReviewsModalOpen] = useState(false);
   const currentUser = useCurrentUser();
   const isGuest = useIsGuest();
   const { requireAuth } = useAuthGate();
@@ -987,9 +988,12 @@ function UserProfileInner() {
               )}
             </section>
 
-            {/* Reviews section (F4) — lists reviews of this carer pulled
-                from ReviewsContext (live + seeded). Section omitted entirely
-                when this user has no reviews. Date sorted newest-first. */}
+            {/* Reviews section (F4) — leads with aggregate, shows ONE preview
+                review, opens a modal for the full list. Aggregate is computed
+                from live + seeded reviews. Marketing aggregate (provider.rating
+                + provider.reviewCount) lives separately on the provider-stats
+                card and represents a higher directory number. Both honest;
+                different concepts. */}
             {userProfile?.carerProfile && (() => {
               const carerReviews = allReviews
                 .filter((r) => r.authorId !== userId)
@@ -1001,24 +1005,91 @@ function UserProfileInner() {
                 })
                 .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
               if (carerReviews.length === 0) return null;
+              const avg = carerReviews.reduce((s, r) => s + r.rating, 0) / carerReviews.length;
+              const preview = carerReviews[0]!;
+              const previewAuthor = getUserById(preview.authorId);
               return (
                 <section>
-                  <h3 className="profile-card-subtitle">Reviews ({carerReviews.length})</h3>
-                  <div className="flex flex-col gap-md" style={{ marginTop: "var(--space-sm)" }}>
-                    {carerReviews.map((r) => (
-                      <div key={r.id} className="flex flex-col gap-xs">
-                        <div className="flex items-center gap-xs">
-                          <Star size={14} weight="fill" className="text-[var(--status-warning-main)]" />
-                          <span className="text-sm font-semibold">{r.rating.toFixed(1)}</span>
-                          <span className="text-sm text-fg-secondary">· {r.authorName}</span>
-                          <span className="text-xs text-fg-tertiary">
-                            · {new Date(r.createdAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
-                          </span>
-                        </div>
-                        {r.text && <p className="text-sm text-fg-secondary m-0">{r.text}</p>}
-                      </div>
-                    ))}
+                  <div className="flex items-baseline gap-xs">
+                    <h3 className="profile-card-subtitle m-0">Reviews</h3>
+                    <span className="text-sm text-fg-secondary inline-flex items-baseline gap-xs">
+                      · <Star size={12} weight="fill" className="text-[var(--status-warning-main)]" /> {avg.toFixed(1)} · {carerReviews.length}
+                    </span>
                   </div>
+                  {/* Single preview — newest review */}
+                  <div className="flex gap-sm" style={{ marginTop: "var(--space-sm)" }}>
+                    {previewAuthor?.avatarUrl ? (
+                      <img
+                        src={previewAuthor.avatarUrl}
+                        alt={preview.authorName}
+                        className="avatar"
+                        style={{ width: 28, height: 28, flexShrink: 0 }}
+                      />
+                    ) : (
+                      <div style={{ width: 28, height: 28, flexShrink: 0 }}>
+                        <DefaultAvatar name={preview.authorName} size={28} />
+                      </div>
+                    )}
+                    <div className="flex flex-col gap-xs flex-1 min-w-0">
+                      <div className="flex items-center gap-xs">
+                        <Star size={12} weight="fill" className="text-[var(--status-warning-main)]" />
+                        <span className="text-sm font-semibold">{preview.rating.toFixed(1)}</span>
+                        <span className="text-sm text-fg-secondary">· {preview.authorName}</span>
+                        <span className="text-xs text-fg-tertiary">
+                          · {new Date(preview.createdAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
+                        </span>
+                      </div>
+                      {preview.text && <p className="text-sm text-fg-secondary m-0">{preview.text}</p>}
+                    </div>
+                  </div>
+                  {carerReviews.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => setReviewsModalOpen(true)}
+                      className="text-sm font-semibold text-brand-strong"
+                      style={{ background: "none", border: "none", padding: 0, cursor: "pointer", marginTop: "var(--space-sm)" }}
+                    >
+                      See all {carerReviews.length} reviews →
+                    </button>
+                  )}
+                  <ModalSheet
+                    open={reviewsModalOpen}
+                    onClose={() => setReviewsModalOpen(false)}
+                    title={`Reviews · ${avg.toFixed(1)} ★ · ${carerReviews.length}`}
+                  >
+                    <div className="flex flex-col gap-lg" style={{ padding: "var(--space-sm) 0" }}>
+                      {carerReviews.map((r) => {
+                        const author = getUserById(r.authorId);
+                        return (
+                          <div key={r.id} className="flex gap-sm">
+                            {author?.avatarUrl ? (
+                              <img
+                                src={author.avatarUrl}
+                                alt={r.authorName}
+                                className="avatar"
+                                style={{ width: 28, height: 28, flexShrink: 0 }}
+                              />
+                            ) : (
+                              <div style={{ width: 28, height: 28, flexShrink: 0 }}>
+                                <DefaultAvatar name={r.authorName} size={28} />
+                              </div>
+                            )}
+                            <div className="flex flex-col gap-xs flex-1 min-w-0">
+                              <div className="flex items-center gap-xs">
+                                <Star size={12} weight="fill" className="text-[var(--status-warning-main)]" />
+                                <span className="text-sm font-semibold">{r.rating.toFixed(1)}</span>
+                                <span className="text-sm text-fg-secondary">· {r.authorName}</span>
+                                <span className="text-xs text-fg-tertiary">
+                                  · {new Date(r.createdAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
+                                </span>
+                              </div>
+                              {r.text && <p className="text-sm text-fg-secondary m-0">{r.text}</p>}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </ModalSheet>
                 </section>
               );
             })()}
