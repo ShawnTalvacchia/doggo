@@ -14941,43 +14941,42 @@ a.shelter-intro-social:hover {
 }
 
 /* Volunteer family — violet hue ramp.
-   Tier 1: pale family-tinted fill + mid-saturation family text
-   (baseline credential, hints at the family color without
-   committing). Tier 2: soft family fill + strong family text (the
-   "established" sweet spot — full family color showing up). Tier 3:
-   dark family fill + near-white text (the inverted "top tier" jump). */
+   Tier 1: neutral inset surface + family-color text muted via
+   color-mix with --text-tertiary (the family hue hints through the
+   text alone; BG stays fully neutral). Tier 2: soft family fill +
+   strong family text (the "established" sweet spot — full family
+   color showing up). Tier 3: dark family fill + near-white text
+   (the inverted "top tier" jump). */
 .credential-pill--volunteer {
-  --credential-pill-bg-tier-1: #f5f3ff;                       /* violet-50 — barely-there tint */
   --credential-pill-bg-tier-2: #ede9fe;                       /* violet-100 — soft family color */
   --credential-pill-bg-tier-3: #6d28d9;                       /* violet-700 — saturated, inverts text */
-  --credential-pill-text-tier-1: #8b5cf6;                     /* violet-500 — muted family color */
-  --credential-pill-text-tier-2: #5b21b6;                     /* violet-800 — strong family color */
-  --credential-pill-text-tier-3: #faf5ff;                     /* violet-50, near-white */
+  --credential-pill-text-strong: #5b21b6;                     /* violet-800 — Tier 2 text + source for Tier 1 mix */
+  --credential-pill-text-inverse: #faf5ff;                    /* violet-50, near-white for Tier 3 */
 }
 
 /* Carer family — info-blue hue ramp, parallel structure. */
 .credential-pill--carer {
-  --credential-pill-bg-tier-1: #eff6ff;                       /* blue-50 — barely-there tint */
   --credential-pill-bg-tier-2: var(--status-info-light);      /* soft family color */
   --credential-pill-bg-tier-3: #1d4ed8;                       /* blue-700 — saturated, inverts text */
-  --credential-pill-text-tier-1: #3b82f6;                     /* blue-500 — muted family color */
-  --credential-pill-text-tier-2: var(--status-info-strong);   /* strong family color */
-  --credential-pill-text-tier-3: #eff6ff;                     /* blue-50, near-white */
+  --credential-pill-text-strong: var(--status-info-strong);   /* strong family color */
+  --credential-pill-text-inverse: #eff6ff;                    /* blue-50, near-white for Tier 3 */
 }
 
-/* Tier 1 — entry: pale family-tinted fill + muted family text.
-   Reads as "credential present, baseline" — the family color hints
-   through but doesn't assert yet. */
+/* Tier 1 — entry: neutral inset surface + family-color text muted
+   via color-mix. The strong family color (--credential-pill-text-
+   strong, also used by Tier 2) is mixed 55%/45% with neutral
+   --text-tertiary, producing a muted-but-recognizable family hue
+   in the text alone. Background stays fully neutral. */
 .credential-pill--tier-1 {
-  background: var(--credential-pill-bg-tier-1);
-  color: var(--credential-pill-text-tier-1);
+  background: var(--surface-inset);
+  color: color-mix(in srgb, var(--credential-pill-text-strong) 55%, var(--text-tertiary));
 }
 
 /* Tier 2 — established: soft family fill + strong family text.
    First tier where the family color shows up assertively. */
 .credential-pill--tier-2 {
   background: var(--credential-pill-bg-tier-2);
-  color: var(--credential-pill-text-tier-2);
+  color: var(--credential-pill-text-strong);
 }
 
 /* Tier 3 — trusted: dark fill, inverse text. The flip carries the
@@ -14985,7 +14984,7 @@ a.shelter-intro-social:hover {
    icon weight="fill" in JSX for the strongest jump. */
 .credential-pill--tier-3 {
   background: var(--credential-pill-bg-tier-3);
-  color: var(--credential-pill-text-tier-3);
+  color: var(--credential-pill-text-inverse);
 }
 
 /* ═══════════════════════════════════════════════════════════════════
