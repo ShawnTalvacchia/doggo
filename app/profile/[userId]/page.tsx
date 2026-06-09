@@ -1058,33 +1058,42 @@ function UserProfileInner() {
                     onClose={() => setReviewsModalOpen(false)}
                     title={`Reviews · ${avg.toFixed(1)} ★ · ${carerReviews.length}`}
                   >
-                    <div className="flex flex-col gap-lg" style={{ padding: "var(--space-md) var(--space-lg)" }}>
-                      {carerReviews.map((r) => {
+                    <div style={{ padding: "var(--space-sm) var(--space-lg)" }}>
+                      {carerReviews.map((r, i) => {
                         const author = getUserById(r.authorId);
+                        const isLast = i === carerReviews.length - 1;
                         return (
-                          <div key={r.id} className="flex gap-sm">
+                          <div
+                            key={r.id}
+                            className="flex gap-md"
+                            style={{
+                              paddingTop: "var(--space-lg)",
+                              paddingBottom: "var(--space-lg)",
+                              borderBottom: isLast ? "none" : "1px solid var(--border-regular)",
+                            }}
+                          >
                             {author?.avatarUrl ? (
                               <img
                                 src={author.avatarUrl}
                                 alt={r.authorName}
                                 className="avatar"
-                                style={{ width: 28, height: 28, flexShrink: 0 }}
+                                style={{ width: 40, height: 40, flexShrink: 0 }}
                               />
                             ) : (
-                              <div style={{ width: 28, height: 28, flexShrink: 0 }}>
-                                <DefaultAvatar name={r.authorName} size={28} />
+                              <div style={{ width: 40, height: 40, flexShrink: 0 }}>
+                                <DefaultAvatar name={r.authorName} size={40} />
                               </div>
                             )}
                             <div className="flex flex-col gap-xs flex-1 min-w-0">
                               <div className="flex items-center gap-xs">
-                                <Star size={12} weight="fill" className="text-[var(--status-warning-main)]" />
+                                <Star size={13} weight="fill" className="text-[var(--status-warning-main)]" />
                                 <span className="text-sm font-semibold">{r.rating.toFixed(1)}</span>
                                 <span className="text-sm text-fg-secondary">· {r.authorName}</span>
                                 <span className="text-xs text-fg-tertiary">
                                   · {new Date(r.createdAt).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}
                                 </span>
                               </div>
-                              {r.text && <p className="text-sm text-fg-secondary m-0">{r.text}</p>}
+                              {r.text && <p className="text-sm text-fg-secondary m-0" style={{ lineHeight: 1.5 }}>{r.text}</p>}
                             </div>
                           </div>
                         );
