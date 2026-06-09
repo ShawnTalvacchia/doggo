@@ -86,6 +86,41 @@ function MutualConnectionsSection({
   const preview = users.slice(0, previewCount);
   const overflow = Math.max(0, users.length - previewCount);
 
+  // Single-mutual: inline the user row instead of a modal trigger.
+  // Mirrors the Reviews pattern — collapse-when-single avoids a click
+  // for a modal that has only one item.
+  if (users.length === 1) {
+    const u = users[0]!;
+    return (
+      <section>
+        <h3 className="profile-card-subtitle">Mutual connections</h3>
+        <Link
+          href={`/profile/${u.id}`}
+          className="flex items-center gap-md rounded-panel"
+          style={{
+            background: "var(--surface-top)",
+            border: "1px solid var(--border-regular)",
+            padding: "var(--space-sm) var(--space-md)",
+            textDecoration: "none",
+          }}
+        >
+          <img
+            src={u.avatarUrl}
+            alt={`${u.firstName} ${u.lastName}`}
+            className="rounded-full object-cover shrink-0"
+            style={{ width: 40, height: 40 }}
+          />
+          <div className="flex flex-col flex-1 min-w-0">
+            <span className="text-sm font-medium text-fg-primary">
+              {u.firstName} {u.lastName}
+            </span>
+            <span className="text-xs text-fg-tertiary">{u.location}</span>
+          </div>
+        </Link>
+      </section>
+    );
+  }
+
   return (
     <>
       <section>
@@ -132,9 +167,7 @@ function MutualConnectionsSection({
             )}
           </div>
           <span className="text-sm text-fg-primary flex-1">
-            {users.length === 1
-              ? "1 mutual connection"
-              : `${users.length} mutual connections`}
+            {`${users.length} mutual connections`}
           </span>
           <span className="text-xs text-fg-tertiary">View →</span>
         </button>
