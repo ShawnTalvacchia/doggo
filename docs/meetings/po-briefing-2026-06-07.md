@@ -1,190 +1,126 @@
 ---
 category: meetings
 status: active
-last-reviewed: 2026-06-07
-tags: [po, briefing, user-interviews, shelter-angle, status]
+last-reviewed: 2026-06-08
+tags: [po, briefing, strategic-threads, status]
 ---
 
-# Doggo — PO Briefing: Post-Interview Build Recap
-
-**For:** Alyssa
-**From:** Shawn
-**Date:** 2026-06-07
-**Purpose:** Trace the consolidated three-interview feedback + the shelter-angle brainstorm against what's actually built, surface what's on-deck, and flag the strategic calls worth discussing.
-
-**Source note:** "Feedback" below refers to the consolidated points from the three user interviews. Specific individuals are named only when the original attribution did (Roman → training-demand signal + dog-tax example).
-
-References: `meetings/po-briefing-2026-06-02.md` (interview synthesis) · `ROADMAP.md` · `phases/Open Questions & Assumptions Log.md` · `strategy/Vets as a Credentialing Layer.md`
-
----
+# Doggo — PO Briefing
 
 ## TL;DR
 
-Of the ~13 distinct feedback points: **5 shipped**, **5 sized + queued**, **3 are deliberate research/open-question threads** (vets, vaccine gating, forum). Training was the strongest landed thread — Discover filters surface training across both care + meets, structured sub-types are wired, two new trainer carers seeded, and the demo's anchor persona (Daniel) has training framed as the capstone.
+Three strategic threads define the platform right now: **dog community**, **trainer-walker**, and **shelter**. Each is at a different validation maturity:
 
-Shelter angle has a strong foundation (Útulek Liběň + dog roster + Members + tier badges + "Needs walks now" sort) but the **volunteer journey itself — waiver, approval, booking a walk — is deliberately deferred to a merged credentialing-moat phase**. Your brainstorm lands cleanly against that.
+- **Dog community** — *already validated* in earlier testing; we're deepening the surfaces.
+- **Trainer-walker** — *unique to Doggo, unvalidated with real trainers*. The biggest open question on the platform.
+- **Shelter** — *foundational design landed*; the volunteer journey itself is the next big build, and worth a real shelter conversation before we commit to detail.
 
----
-
-## What shipped (visible in the demo today)
-
-**Discover surfaces**
-- **Training filter pill on `/discover/care`** narrows the **providers list** (Klára, Šárka, Radek).
-- **Training filter pill on `/discover/meets`** narrows the **meets list** (Klára's group session, puppy meets). Independent surface from Care.
-- **Three trainers** with distinct positioning: community-anchored / mobile puppy specialist / facility-based agility specialist.
-- **Sub-type chips on service cards** — Behaviour / Puppy socialisation / Agility. All 11 interview sub-types wired as `TrainingType` enum + picker in the service-edit form.
-- **Carer identity sub-specs** — Klára now reads "Dog Trainer," Tereza now reads "Pet Sitter" (was plain "Carer").
-
-**Profile interactions**
-- **Familiar pill on locked profiles** → tappable, opens an Unmark menu (friction-by-design).
-- **Connected pill** → drops a menu (Unconnect / Block / Report).
-- **"Connect with X" button** wires through `requestConnect` + persists Pending state.
-- **Locked-profile prose** restructured as a two-line question-with-footnote treatment.
-- **Shared meets line** on the locked-profile SharedContextCard — "You were both at *Spring reactive dog community walk* on 28 May 2026" as social proof.
-
-**Meet detail**
-- **Organised by row** on the People tab — locked hosts no longer disappear into Private Profiles.
-- **Private Profiles split per RSVP section** — counts and visible rows align inside each heading.
-
-**Filters / dates / membership**
-- **Monday as first day of week** in every date picker.
-- **Group size slider "no max"** with explicit "Any size" affordance.
-- **"Any" filter pill mutual exclusivity** — selecting Any deselects specifics.
-- **Focus accordion interactive + active count** ("Focus · 2" when collapsed with selections).
-- **Group join/leave persistence** via a new `GroupsContext`.
-
-**Plumbing**
-- localStorage `seedVersion` (fresh seeds for testers without `/demo` reset).
-- localStorage key naming consistency.
-- Orphan-file + CSS cleanup.
-- Panel chrome opacity (kills the inconsistent glassmorphism).
+Everything else (privacy, private groups, vaccines, booking-flow polish, posts experience) is supporting infrastructure. The interview-feedback table at the bottom tracks the specific asks from the three interviews — **8 shipped, 3 queued, 5 still open or in research**.
 
 ---
 
-## Strategic doc work
+## Thread 1 — Dog community
 
-Doc-level scaffolding for upcoming phases. Not demo-visible but load-bearing:
+**The bet.** This is the original Doggo thesis: owners want to connect with other owners around their dogs, share walks, and build a familiar local group. The trust earned there is what makes the rest of the platform work.
 
-- **New phase board:** Service Options & Booking Clarity (3 workstreams — walking pickup/dropoff addresses, half-day day-care SKU, appointment meeting-options design).
-- **New research doc:** Vets as a Credentialing Layer — multi-sided value loop, four entity-model options, three tiers of commitment. For your decision.
-- **Carer Portfolio scope-up:** Workstreams E (circle attribution) + F (review form) added to serve the ratings + "circle has booked them" signals.
-- **Dog Profile scope expansion:** vaccines V1 + pet-level standing preferences ("Bára loves fetch, hates loud dogs").
-- **Cold-Start Playbook** gained "The vet angle" parallel to the shelter angle.
-- **Demo Narrative + User Archetypes** updated with the training-demand signal + new "Anxious New Owner" archetype (maps to Daniel).
-- **Open Questions §15-§18** filed: vaccines, vets-as-credentialing, appointment meeting-options, training-as-5th-Care-type.
-- **Future Considerations FC10:** forum / regulatory info for Czech owners (dog-tax example).
+**Status.** *Validated and built out.* The core surfaces are live — groups (open / neighbourhood / interest), meets with RSVP and post-meet review, the Familiar → Connected gradient, Discover Groups + Discover Meets. Ondra's interview reinforced the thesis directly:
+
+> "I think planning or joining community walks would be something I would very much like to do, especially with people that — if I could have a group of people that I know that with each of whom I'm familiar enough and I want to spend time with, and then could have like out of these people see if they're going somewhere or even organizing a group walk."
+
+Remaining work is densification (more groups and meets seeded so the network feels alive in demo), not structural. The open strategic questions live in threads 2 and 3.
+
+---
+
+## Thread 2 — The trainer-walker
+
+**The bet.** A trainer-walker will run social meets as a community-building play AND as a lead-gen play. They get to know dogs and owners through free / low-cost walks, then convert that trust into paid training, daycare, or boarding. This pattern is not offered on any other platform we've looked at.
+
+**Validation status.** *Unvalidated with real trainers.* This is the biggest open question on the platform. We've assumed Prague trainers will want to do this — the assumption needs ground-truthing.
+
+**What's built.**
+- Klára as the anchor persona; her arc anchors the V2 walkthrough (free walks → trust → paid bookings).
+- Three trainer carers with distinct positioning — Klára (puppy + reactive specialist), Šárka (group-walk regular), Radek (one-on-one appointment trainer).
+- Training filter pill on Discover Care + Discover Meets. Training sub-type chips on service cards. Carer identity sub-specs ("Dog Trainer" / "Pet Sitter" instead of plain "Carer").
+- Services-as-catalog: Care + Meet + Appointment offering shapes via the same `CarerServiceConfig` discriminated union. Half-day day-care SKU shipped end-to-end (Tereza seeded with full-day / half-day pricing).
+- Daniel's archetype recast as Anxious New Owner — his journey lands on training as the resolution.
+
+**What's next.**
+- Trust signals — ratings (stars + text) and "people in your circle have booked them" on Discover.
+- Trainer-walker journey polish — the path from social meet → paid appointment booking with the same trainer.
+- Trust-badge taxonomy with real teeth (Community Regular / Trusted by Network / Repeat Clients / Certified Trainer / etc.).
+
+**What we need to validate.**
+- **Real conversations with 2-3 Prague trainers.** Does the trainer-led-walks-as-funnel model match how they actually find clients today? Would they use a tool like this? What do they list on their own sites today, and what do clients actually ask about? (The last question directly informs which badges matter in the trust-signal work.)
+
+---
+
+## Thread 3 — The shelter
+
+**The bet.** Shelters can use the platform to onboard volunteers and intake/track walk requests. Some people who'd never seek out shelter dogs will be inspired to check on and walk one because the tool makes it easy. Shelter dogs become an always-on walking inventory for the broader community.
+
+**Validation status.** *Foundational design landed; unvalidated with a real shelter.* Útulek Liběň is fictional. Before we design the volunteer-journey surfaces in detail, a real Prague shelter conversation would sharpen the design considerably.
+
+**What's built.**
+- ShelterProfile as a top-level institutional entity (parallel to UserProfile, not a Group type). Route at `/shelters/[id]`.
+- Útulek Liběň with four tabs — Feed / Dogs / Members / Gallery.
+- Dogs tab sorted by **"Needs walks now"** (longest-since-walked first).
+- Each shelter dog has its own profile on the same surface as owned dogs — backstory, kennel stats, tags, Posts, Highlights, Recent walkers.
+- Members tab with **Volunteer tier badges** (Leaf / Plant / Tree in violet — growth-metaphor icons that scale with tier).
+- "Walk a dog" hero affordance (today flips to a placeholder "Interest sent" state).
+
+**What's next.**
+- **"Help a Dog" Discover door** — the fourth entry point in Discover, surfacing nearby shelters and their dogs. Today the shelter is reachable only by direct URL; this is the front door that actually opens the thread.
+- **The volunteer journey itself** — non-owner taps "Walk a dog," signs a waiver, gets approved, picks a dog, books a one-off or recurring walk. The walk side reuses the Start → Finish → seal-the-visit-report pattern from paid care; the new piece is the approval flow.
+- **Shelter-dog signals in walker-led public meets** — when a walker brings a shelter dog to a meet, the meet surfaces it explicitly ("Bára from Útulek will be there too"). More surfaces for shelter dogs is the right direction.
+- **Admin/coordinator view** (approving walkers, queuing applications, managing the roster) — depends on multi-user state we don't have yet, intentionally out of demo scope.
+
+**What we need to validate.**
+- **A real Prague shelter conversation.** What paperwork their volunteers sign, how they vet new walkers (interview, trial walk, both?), what their group-walk policies look like, how the coordinator role actually works.
+
+**Open decision on this thread:**
+- "Volunteer" vs "Walker" — Members tab uses "Volunteer"; the dog profile uses "Walker." Easy converge before the journey gets built.
+
+---
+
+## Adjacent work
+
+Supporting surfaces that span the three threads:
+
+- **Privacy + Familiar/Connected machinery** — the connection gradient powers all three threads. Locked profile is default; Familiar is one-sided and silent; Connected is mutual.
+- **Private groups** — neighbourhood and interest groups with member-only visibility. Powers thread 1 directly; also where trainer-walker community-building happens.
+- **Vaccines V1 + health data** — structured per-vaccine records, pet-level standing preferences (likes / dislikes / triggers / play). Vaccine gating is open pending the vets thread.
+- **Booking-flow improvements** — half-day day-care shipped today; separate pickup/dropoff still queued.
+- **Posts + photo experience** — list / gallery / lightbox views, Highlights, filter pills, per-post kebab, tag-approval notifications.
 
 ---
 
 ## Interview feedback — point-by-point status
 
-| # | Feedback point | Status | Where it lives |
+| # | Feedback point | Status | Note |
 |---|---|---|---|
 | 1 | Monday as first day of week | ✅ Shipped | Date pickers app-wide |
-| 2 | Walking: separate pickup & drop-off addresses | 🗺 Queued | Service Options phase, Workstream C |
-| 3 | Walking: half-day option | 🗺 Queued | Service Options phase, Workstream A |
-| 4 | Walking: solo-walk request | 🗺 Queued | Pet-level standing prefs → Dog Profile; per-booking deferred |
-| 5 | Walking: dog preferences (likes fetch, triggers) | 🗺 Queued | Pet-level structured fields → Dog Profile |
+| 2 | Walking: separate pickup & drop-off addresses | 🗺 Queued | Walking-flow improvements |
+| 3 | Walking: half-day option | ✅ Shipped | Day-care durationOptions; Tereza seeded |
+| 4 | Walking: solo-walk request | 💡 Open | Standing prefs shipped; per-booking version still open |
+| 5 | Walking: dog preferences (likes fetch, triggers) | ✅ Shipped | Standing preferences on each dog |
 | 6 | Puppy-only meets | ✅ Shipped | "Puppies" filter pill + seeded puppy meets |
 | 6b | Puppy-only **groups** | 💡 Open | Different surface from puppy meets; small design call |
-| 7 | Vaccines: structured record + acknowledgement | 🗺 Queued | Dog Profile, V1 scope |
-| 8 | Vaccines: gating meets on vax status | 💡 Open | OQ §15 — depends on §16 verification path |
-| 9 | Ratings (stars + text) | 🗺 Queued | Carer Portfolio, Workstream F |
-| 10 | "Has anyone in my circle booked them" + their review | 🗺 Queued | Carer Portfolio, Workstream E |
-| 11 | Training prominence (Roman) | ✅ Shipped | Filter pills, sub-types, two trainer seeds, identity badges |
-| 11b | Training framing in demo narrative | ✅ Doc | Demo Narrative + "Anxious New Owner" archetype |
-| 12 | Forum / regulatory info (Roman, dog-tax example) | 💡 Future | FC10 — post-demo |
+| 7 | Vaccines: structured record + acknowledgement | ✅ Shipped | Syringe-icon chips on the dog profile |
+| 8 | Vaccines: gating meets on vax status | 💡 Open | Depends on verification path — see vets thread |
+| 9 | Ratings (stars + text) | 🗺 Queued | Trust-signal work (thread 2) |
+| 10 | "Has anyone in my circle booked them" + their review | 🗺 Queued | Trust-signal work (thread 2) |
+| 11 | Training prominence (Roman) | ✅ Shipped | Filter pills, sub-types, three trainer carers, identity badges |
+| 11b | Training framing in demo narrative | ✅ Doc | "Anxious New Owner" archetype anchors Daniel's arc |
+| 12 | Forum / regulatory info (Roman, dog-tax example) | 💡 Future | Parked; surfaces post-demo if it earns it |
 | 13 | Grooming services | ✅ Live | Lenka Nováková at Mánesova Grooming Salon |
-| 14 | Vet/medical services | 💡 Research ready | `strategy/Vets as a Credentialing Layer.md` |
-
-**Reading the table:** training was the strongest landed thread, mapping directly to Daniel as the demo archetype. The walking-detail asks cluster into one upcoming phase. The trust-signal asks cluster into Carer Portfolio. Vaccines + vets are deliberately gated on strategic input.
+| 14 | Vet/medical services | 💡 Research ready | Research doc lays out three tiers — for your call |
 
 ---
 
-## Shelter angle
+## Other open product decisions
 
-### Built today (Shelter Foundation, 2026-06-02)
-
-- `/shelters/[id]` is a real surface; Útulek Liběň is the demo shelter.
-- Four tabs (Feed / Dogs / Members / Gallery) mirroring Communities.
-- Dog roster, default sort **"Needs walks now"** — matched your brainstorm exactly.
-- `/dogs/[id]` per dog: backstory, kennel stats, tags, "Recent walkers" row, tagged posts.
-- Members tab with All / Walkers / Supporters / Team filter pills.
-- **Volunteer tier badges** — Leaf 🍃 / Plant 🌱 / Tree 🌳 (violet color category, growth-metaphor icons; recognition rather than rank).
-- "Walk a dog" affordance with placeholder Interest-sent state.
-
-### Deliberately deferred
-
-- **Walker journey** (waiver → approval → pick dog → book walk → start/finish + visit report) → merged Carer Portfolio + Shelter Walker Credentialing phase.
-- **Admin / operator view** (approvals, queue, notifications) → V3+; depends on multi-user state.
-- **Multi-shelter discovery** — Útulek reachable today by direct URL only.
-
-### Your brainstorm mapped against the build
-
-| Idea | Status | Notes |
-|---|---|---|
-| New volunteering section/module | 💡 Foundation IS this | Built as a top-level entity (not a Group type) — shelters carry institutional identity (non-owned dogs, vetted walker pool, per-shelter policy) that the Group model can't carry cleanly. |
-| List of shelters, closest first | ❌ Not yet | Demo has one; "Help a Dog" 4th Discover door is an open call (see Q3). |
-| Click shelter → admin + dogs | ✅ Built | Page chrome is in place. |
-| Click Volunteer → waiver modal | ❌ Deferred | Walker journey work. |
-| Admin approve/reject + notifications | ❌ V3+ | Admin view. |
-| Approved walker books a dog walk | ❌ Deferred | Walker journey. |
-| Recurring walks | ❌ Deferred | Pattern exists (recurring meets, recurring care). |
-| Dogs with least-recent walks first | ✅ Built | Default Dogs-tab sort. |
-| Joining a meet with a shelter dog | 💡 Open | Touches walker-led public meets — see Q5. |
-| Walk started/ended | ❌ Deferred | Reuses care-session pattern. |
-| Tag/pill in Schedule | 🗺 Queued | Lands when walker journey ships. |
-| Type of group with filter pill | ❌ Rejected | Shelters need entity-shape, not group-shape. Worth restating in the meeting. |
-| Profile badges | ✅ Shipped (shelter side) | Travelling to UserProfile is FC9. |
-| 4th Discover door ("Help a Dog") | 💡 Open | See Q3. |
-
----
-
-## On deck — phases queued
-
-| Phase | Interview touch points | Sizing |
-|---|---|---|
-| **Dog Profile** *(next)* | Vaccines V1, pet-level standing prefs, vet info display | Medium-large. Deepens shelter dog profile + builds owned-dog profile from scratch. |
-| **Photos & Galleries** | (strategic) | Medium. Per-dog auto-album + curated highlights. |
-| **Carer Portfolio + Shelter Walker Credentialing** *(merged)* | Ratings + text reviews, circle attribution, walker journey, tier badges, visit reports attaching to dogs | Large. Credentialing-moat phase. |
-| **Service Options & Booking Clarity** | Pickup/dropoff addresses, half-day, appointment meeting-options | Medium. Three workstreams. |
-| **Onboarding & Communication** *(paused)* | (strategic) | Re-scope pending. |
-| **Design System Cleanup** | (hygiene) | Component consolidation pre-demo polish. |
-
-Side-tasks (not phases): inline add-pet + location lookup (P65), component-consolidation audit (P67), connection rosters fill-out (P69).
-
----
-
-## Open questions worth discussing
-
-Ordered by how blocking they are:
-
-1. **Vets as a credentialing layer.** Research doc ready. Three tiers — Tier 1 (owner self-declared vaccines, already in Dog Profile), Tier 2 (photo-confirmed), Tier 3 (full `VetProfile` entity, Shelter-Foundation-sized phase). Tier 3 trigger = a real Prague vet conversation, mirroring how shelters graduated. Your appetite?
-2. **Vaccine gating.** Without verification, gating meets on vax is theatre. Tier-1 ships informational display in Dog Profile; real gating depends on Q1.
-3. **Multi-shelter Discover door ("Help a Dog").** Útulek is reachable by direct URL only. Does the 4th Discover door land before demo, or do we keep the single-shelter exemplar pattern?
-4. **Volunteer vs Walker terminology.** Build currently uses "Volunteer" badges on shelter Members tab but "Walker" elsewhere. Your brainstorm consistently uses "Volunteer." Easy converge; worth a call.
-5. **Walker-led meets with shelter dogs.** Should walker-led public meets carry shelter-dog roster status ("Bára from Útulek will be there")?
-6. **Appointment meeting-options model.** Filed in Service Options phase as Pre-build scope calls: generalise across walks + appointments, or keep separate? Curated tuples or carer-defined free-form?
-7. **Per-booking special requests vs pet-level standing preferences.** Pet-level is committed to Dog Profile. Per-booking ("solo walk today") currently deferred — earlier?
-8. **Training as a 5th Care service type?** Training is split across Meet + Appointment with a filter pill aggregating both. Defer until user-testing surfaces "I couldn't find training" as a real pain.
-
----
-
-## Suggested meeting structure (~45 min)
-
-- **5 min — context.** What landed since the interview + what's queued.
-- **15 min — demo walkthrough.** Training filter + the three trainers; locked-profile flow (Familiar + shared meets line); group join persisting.
-- **10 min — shelter angle.** Map brainstorm against build; resolve Volunteer-vs-Walker terminology; align on Q3 (Help a Dog door before demo).
-- **10 min — vets thread.** Walk through the research doc; ask about Q1 (Prague vet conversation appetite).
-- **5 min — open questions.** Pick top 2-3 worth resolving this cycle.
-
----
-
-## Appendix
-
-- Demo Narrative → `strategy/Demo Narrative.md`
-- Cold-Start Playbook → `strategy/Cold-Start Playbook.md`
-- Shelter feature doc → `features/shelters.md`
-- Interview synthesis → `meetings/po-briefing-2026-06-02.md`
-- Vets research doc → `strategy/Vets as a Credentialing Layer.md`
-- Punch list → `phases/punch-list.md`
+- **Vets as a category.** Self-declared vaccines shipped. Research doc lays out three tiers if we want to go further (photo-confirmed records, or a full Vet entity parallel to Shelter). The biggest unlock is a real Prague vet conversation.
+- **Vaccine gating.** Depends on the vets thread above.
+- **Per-booking special requests.** Pet-level prefs shipped; the "solo walk today" overrides were deferred. Earlier?
+- **Training as its own service category?** Currently surfaces across meets + appointments via a shared filter pill. Promotion is possible but worth waiting for trainer-validation signal (thread 2) first.
+- **Forum / regulatory info.** The dog-tax example. Parked.
