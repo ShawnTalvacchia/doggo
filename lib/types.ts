@@ -1750,6 +1750,12 @@ export interface CarerProfile {
   /** Repeat-booking metric — count of distinct owners who've booked 3+ times.
    *  Mock data field for demo; production derives from booking history. */
   repeatClients?: number;
+  /** Carer Portfolio aggregate — additional completed-session count
+   *  seeded for demo purposes (added on top of real booking + meet
+   *  history). Mock data field; production derives from booking +
+   *  meet-host history entirely. Same precedent as `repeatClients`.
+   *  Credentialing-moat phase A3, 2026-06-09. */
+  seededCompletedSessions?: number;
   /** Sub-specializations the carer offers (Trainer, Walker, etc.). Renders
    *  as a sub-spec on the Carer Identity badge — "Carer · Trainer" etc.
    *  Direct-set field; takes priority over inferred sub-spec sources. See

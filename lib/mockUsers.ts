@@ -243,6 +243,9 @@ export const tereza: UserProfile = {
     // plain "Carer". Setting specs explicitly so her badge reads as the
     // shape she actually offers (sitting + day-care at her flat). P60.
     specializations: ["sitter", "daycare"],
+    // Carer Portfolio aggregate — modest count for an informal
+    // neighbour-Carer. Lands her at Tier 1 ("Carer"). A3, 2026-06-09.
+    seededCompletedSessions: 6,
   },
 };
 
@@ -467,6 +470,10 @@ export const klara: UserProfile = {
       identityVerified: true,
     },
     repeatClients: 12,
+    // Carer Portfolio aggregate — Klára anchors the V2 narrative as
+    // the "Trusted Carer" example (47 sessions matches the styleguide
+    // demo). A3, 2026-06-09.
+    seededCompletedSessions: 45,
     // Walker-trainer hybrid (per V2 Demo Narrative). The Care group's
     // careCategory already resolves to "Dog Trainer" via path #2, so this
     // is explicit confirmation rather than a behaviour change. Multi-spec

@@ -2,6 +2,7 @@ import type { CarerCredentials, UserProfile } from "./types";
 import { getConnectionsForViewer } from "./mockConnections";
 import { mockMeets } from "./mockMeets";
 import { mockBookings } from "./mockBookings";
+import { getUserById } from "./mockUsers";
 
 /**
  * Trust badge MVP — Discover & Care D3 (2026-05-02).
@@ -102,12 +103,14 @@ function countRecentMeets(userId: string, withinDays: number): number {
  *   - Bookings where `status === "completed"` AND `carerId === userId`
  *   - Past meet occurrences hosted by `userId` (one-off in the past;
  *     recurring with at least one past occurrence date)
+ *   - Plus any `carerProfile.seededCompletedSessions` topped up for
+ *     demo purposes (same precedent as `repeatClients`; production
+ *     derives the full count from booking + meet history)
  *
  * Returns `{ bookings, sessions }` where `sessions = bookings + hosted
- * meet occurrences` — the headline number rendered as the badge
- * subtitle. Per §8 (2026-06-01), the aggregate combines both because
- * both are two-sided ground-truth engagement (owner engaged → carer
- * delivered → record exists).
+ * meet occurrences + seeded`. Per §8 (2026-06-01), the aggregate
+ * combines bookings and meets because both are two-sided ground-truth
+ * engagement (owner engaged → carer delivered → record exists).
  */
 export function getCompletedEngagements(userId: string): { bookings: number; sessions: number } {
   const bookings = mockBookings.filter(
@@ -130,7 +133,8 @@ export function getCompletedEngagements(userId: string): { bookings: number; ses
     }
   }
 
-  return { bookings, sessions: bookings + hostedOccurrences };
+  const seeded = getUserById(userId)?.carerProfile?.seededCompletedSessions ?? 0;
+  return { bookings, sessions: bookings + hostedOccurrences + seeded };
 }
 
 /** Map a session count to the Carer Portfolio tier (1/2/3) or null
