@@ -11,6 +11,7 @@ import { GroupsProvider } from "@/contexts/GroupsContext";
 import { BookingsProvider } from "@/contexts/BookingsContext";
 import { NotificationsProvider } from "@/contexts/NotificationsContext";
 import { ReviewsProvider } from "@/contexts/ReviewsContext";
+import { WalkerApplicationsProvider } from "@/contexts/WalkerApplicationsContext";
 import { PageHeaderProvider } from "@/contexts/PageHeaderContext";
 import { NavigationMemoryProvider } from "@/contexts/NavigationMemoryContext";
 import { PostComposerProvider } from "@/contexts/PostComposerContext";
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <AuthGateProvider>
             <NotificationsProvider>
               <ReviewsProvider>
+              <WalkerApplicationsProvider>
                 <ConversationsProvider>
                   <ConnectionsProvider>
                   <GroupsProvider>
@@ -113,6 +115,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   </GroupsProvider>
                   </ConnectionsProvider>
                 </ConversationsProvider>
+              </WalkerApplicationsProvider>
               </ReviewsProvider>
             </NotificationsProvider>
             </AuthGateProvider>

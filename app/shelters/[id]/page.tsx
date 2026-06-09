@@ -45,7 +45,11 @@ import type {
   ShelterProfile,
   ShelterSupporter,
   ShelterWalker,
+  WalkerApplicationState,
 } from "@/lib/types";
+import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { useWalkerApplications } from "@/contexts/WalkerApplicationsContext";
+import { getUserById } from "@/lib/mockUsers";
 
 /* ── Page wrapper (Suspense for useSearchParams) ───────────────────── */
 
@@ -140,8 +144,11 @@ function ShelterDetailInner() {
 
 function FeedTab({ shelter }: { shelter: ShelterProfile }) {
   const posts = getShelterFeed(shelter);
+  const currentUserId = useCurrentUserId();
+  const { getApplication, apply, advance, withdraw } = useWalkerApplications();
+  const application = currentUserId ? getApplication(currentUserId, shelter.id) : undefined;
+  const applicationState = application?.state;
   const [isFollowing, setIsFollowing] = useState(false);
-  const [walkerInterestSent, setWalkerInterestSent] = useState(false);
   const [walkSheetOpen, setWalkSheetOpen] = useState(false);
   const [followMenuOpen, setFollowMenuOpen] = useState(false);
   const [walkerMenuOpen, setWalkerMenuOpen] = useState(false);
@@ -159,7 +166,7 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
       <ShelterSocialsRow shelter={shelter} />
       <ShelterActionRow
         isFollowing={isFollowing}
-        walkerInterestSent={walkerInterestSent}
+        applicationState={applicationState}
         followMenuOpen={followMenuOpen}
         walkerMenuOpen={walkerMenuOpen}
         onToggleFollow={() => {
@@ -171,11 +178,15 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
           setFollowMenuOpen(false);
         }}
         onToggleWalker={() => {
-          if (walkerInterestSent) setWalkerMenuOpen((v) => !v);
+          if (applicationState) setWalkerMenuOpen((v) => !v);
           else setWalkSheetOpen(true);
         }}
-        onWithdrawInterest={() => {
-          setWalkerInterestSent(false);
+        onAdvanceState={() => {
+          if (currentUserId) advance(currentUserId, shelter.id);
+          setWalkerMenuOpen(false);
+        }}
+        onWithdraw={() => {
+          if (currentUserId) withdraw(currentUserId, shelter.id);
           setWalkerMenuOpen(false);
         }}
       />
@@ -200,8 +211,8 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
         open={walkSheetOpen}
         shelter={shelter}
         onClose={() => setWalkSheetOpen(false)}
-        onConfirm={() => {
-          setWalkerInterestSent(true);
+        onConfirm={(message) => {
+          if (currentUserId) apply(currentUserId, shelter.id, message);
           setWalkSheetOpen(false);
         }}
       />
@@ -321,24 +332,34 @@ function ShelterSocialsRow({ shelter }: { shelter: ShelterProfile }) {
 
 interface ShelterActionRowProps {
   isFollowing: boolean;
-  walkerInterestSent: boolean;
+  /** Walker application state — undefined when the user hasn't applied. */
+  applicationState?: WalkerApplicationState;
   followMenuOpen: boolean;
   walkerMenuOpen: boolean;
   onToggleFollow: () => void;
   onUnfollow: () => void;
   onToggleWalker: () => void;
-  onWithdrawInterest: () => void;
+  onAdvanceState: () => void;
+  onWithdraw: () => void;
 }
+
+const WALKER_BUTTON_LABEL: Record<WalkerApplicationState | "none", string> = {
+  none: "Walk a dog",
+  applied: "Application sent",
+  invited: "Invited to visit",
+  vouched: "Vouched walker",
+};
 
 function ShelterActionRow({
   isFollowing,
-  walkerInterestSent,
+  applicationState,
   followMenuOpen,
   walkerMenuOpen,
   onToggleFollow,
   onUnfollow,
   onToggleWalker,
-  onWithdrawInterest,
+  onAdvanceState,
+  onWithdraw,
 }: ShelterActionRowProps) {
   return (
     <div className="shelter-action-row">
@@ -369,24 +390,34 @@ function ShelterActionRow({
 
       <div className="shelter-action-button-wrap dropdown-menu-wrap">
         <ButtonAction
-          variant={walkerInterestSent ? "brand-subtle" : "primary"}
+          variant={applicationState ? "brand-subtle" : "primary"}
           size="md"
           cta
-          leftIcon={walkerInterestSent ? <Check size={16} weight="bold" /> : undefined}
-          rightIcon={walkerInterestSent ? <CaretDown size={12} weight="bold" /> : undefined}
+          leftIcon={applicationState ? <Check size={16} weight="bold" /> : undefined}
+          rightIcon={applicationState ? <CaretDown size={12} weight="bold" /> : undefined}
           onClick={onToggleWalker}
         >
-          {walkerInterestSent ? "Interest sent" : "Walk a dog"}
+          {WALKER_BUTTON_LABEL[applicationState ?? "none"]}
         </ButtonAction>
-        {walkerMenuOpen && walkerInterestSent && (
+        {walkerMenuOpen && applicationState && (
           <div className="dropdown-menu" role="menu">
+            {applicationState !== "vouched" && (
+              <button
+                type="button"
+                className="dropdown-menu-item"
+                onClick={onAdvanceState}
+              >
+                <Check size={16} weight="light" />
+                Advance state (demo)
+              </button>
+            )}
             <button
               type="button"
               className="dropdown-menu-item dropdown-menu-item--destructive"
-              onClick={onWithdrawInterest}
+              onClick={onWithdraw}
             >
               <X size={16} weight="light" />
-              Withdraw interest
+              {applicationState === "vouched" ? "Leave shelter" : "Withdraw application"}
             </button>
           </div>
         )}
@@ -404,21 +435,32 @@ function WalkInterestSheet({
   open: boolean;
   shelter: ShelterProfile;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (message: string) => void;
 }) {
+  const [message, setMessage] = useState("");
+  const canSubmit = message.trim().length >= 10;
   return (
     <ModalSheet
       open={open}
       onClose={onClose}
-      title="Walk a dog"
+      title="Apply to walk dogs"
       compact
       footer={
         <div className="flex gap-sm justify-end px-md py-md">
           <ButtonAction variant="neutral" size="md" onClick={onClose}>
             Not yet
           </ButtonAction>
-          <ButtonAction variant="primary" size="md" cta onClick={onConfirm}>
-            Express interest
+          <ButtonAction
+            variant="primary"
+            size="md"
+            cta
+            disabled={!canSubmit}
+            onClick={() => {
+              onConfirm(message.trim());
+              setMessage("");
+            }}
+          >
+            Send application
           </ButtonAction>
         </div>
       }
@@ -433,11 +475,31 @@ function WalkInterestSheet({
             <em>{shelter.policy.vouchingNote}</em>
           </p>
         )}
-        <p className="text-xs text-fg-tertiary m-0">
-          We&rsquo;ll be in touch via the email on your profile to schedule
-          your visit. The full walker journey (booking walks, visit reports,
-          tier progression) arrives in a later phase.
-        </p>
+        <div className="flex flex-col gap-xs">
+          <label htmlFor="walker-application-message" className="text-sm font-semibold text-fg-primary">
+            Why do you want to walk here?
+          </label>
+          <textarea
+            id="walker-application-message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            rows={4}
+            placeholder="A few sentences about your experience with dogs and why this shelter."
+            className="text-sm"
+            style={{
+              width: "100%",
+              padding: "var(--space-sm)",
+              border: "1px solid var(--border-regular)",
+              borderRadius: "var(--radius-form)",
+              background: "var(--surface-top)",
+              fontFamily: "inherit",
+              resize: "vertical",
+            }}
+          />
+          <span className="text-xs text-fg-tertiary">
+            Required — 10 characters minimum.
+          </span>
+        </div>
       </div>
     </ModalSheet>
   );
@@ -631,18 +693,45 @@ type MembersFilterKey = "all" | "walkers" | "supporters" | "team";
 
 function MembersTab({ shelter }: { shelter: ShelterProfile }) {
   const teamCount = shelter.team?.length ?? 0;
+  const { applications } = useWalkerApplications();
+
+  // Vouched-but-not-yet-seeded walkers (I, 2026-06-09). When a user
+  // completes the walker journey through to "vouched," they appear on
+  // the shelter's Members tab as a Volunteer (vetted tier) even if
+  // they aren't in the static mock roster. Their walkCount starts at
+  // 0 — increments via the demo's hidden "Log a walk" affordance on
+  // the walker journey.
+  const vouchedDynamicWalkers = useMemo<ShelterWalker[]>(() => {
+    return applications
+      .filter((a) => a.shelterId === shelter.id && a.state === "vouched")
+      // Skip if already in the static roster (avoid double-render).
+      .filter((a) => !shelter.walkers.some((w) => w.userId === a.userId))
+      .map((a) => {
+        const u = getUserById(a.userId);
+        return {
+          userId: a.userId,
+          displayName: u ? `${u.firstName} ${u.lastName}` : a.userId,
+          avatarUrl: u?.avatarUrl,
+          tier: "vetted" as const,
+          vouchedAt: a.vouchedAt ?? a.appliedAt,
+          walkCount: 0,
+        };
+      });
+  }, [applications, shelter]);
+
+  const allWalkers = [...shelter.walkers, ...vouchedDynamicWalkers];
 
   const filters = useMemo(() => {
     const base: { key: MembersFilterKey; label: string }[] = [
       { key: "all", label: "All" },
-      { key: "walkers", label: `Walkers · ${shelter.walkers.length}` },
+      { key: "walkers", label: `Walkers · ${allWalkers.length}` },
       { key: "supporters", label: `Supporters · ${shelter.supporters.length}` },
     ];
     if (teamCount > 0) {
       base.push({ key: "team", label: `Team · ${teamCount}` });
     }
     return base;
-  }, [shelter, teamCount]);
+  }, [shelter, teamCount, allWalkers.length]);
 
   const [filter, setFilter] = useState<MembersFilterKey>("all");
 
@@ -652,7 +741,7 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
   type Entry = WalkerEntry | SupporterEntry;
 
   const entries = useMemo<Entry[]>(() => {
-    const walkerEntries: Entry[] = shelter.walkers.map((w) => ({
+    const walkerEntries: Entry[] = allWalkers.map((w) => ({
       kind: "walker",
       data: w,
       // Sort by most-recent walk for active walkers; fall back to vouchedAt.
@@ -672,7 +761,7 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
 
     // Sort by recency (newest sortAt first). Anti-scoreboard discipline.
     return list.sort((a, b) => b.sortAt.localeCompare(a.sortAt));
-  }, [shelter, filter]);
+  }, [allWalkers, shelter.supporters, filter]);
 
   return (
     <div className="shelter-members">

@@ -484,6 +484,14 @@ export interface BookingSession {
 export interface Booking {
   id: string;
   conversationId: string | null;  // links to inbox thread (null for seeded data with no thread)
+  /** Booking party discriminator (O3 resolution, 2026-06-08). When
+   *  `ownerKind === "shelter"`, `ownerId` is a `ShelterProfile.id` and
+   *  the booked dog comes from `ShelterProfile.dogs[]`. Defaults to
+   *  `"user"` when omitted — preserves existing paid-care bookings.
+   *  Surfaces that branch on this: booking-detail Sessions tab (owner
+   *  resolves to shelter logo/name), pricing (zero for shelter walks),
+   *  dog lookup (checks shelter rosters in addition to UserProfile.pets[]). */
+  ownerKind?: "user" | "shelter";
   // Parties
   ownerId: string;
   ownerName: string;
@@ -1864,6 +1872,32 @@ export interface ShelterWalker {
  * Followers, sponsors, adoption-curious. Surfaces on the Members tab
  * under the "Supporters" filter.
  */
+/**
+ * Walker application state machine (I, 2026-06-09).
+ *
+ * A user applying to walk at a shelter moves through:
+ *   applied → invited → vouched
+ *
+ * Per the O4 resolution, the demo advances state via a hidden affordance
+ * (state-toggle) — not a theatrical fake. Once `state === "vouched"`,
+ * the helper surfaces the user as a Volunteer on the shelter's roster
+ * even if they weren't seeded there.
+ */
+export type WalkerApplicationState = "applied" | "invited" | "vouched";
+
+export interface WalkerApplication {
+  id: string;
+  userId: string;
+  shelterId: string;
+  state: WalkerApplicationState;
+  /** What the applicant said about why they want to walk. Free text. */
+  message: string;
+  /** ISO of state transitions, for the demo's "history" feel. */
+  appliedAt: string;
+  invitedAt?: string;
+  vouchedAt?: string;
+}
+
 export interface ShelterSupporter {
   /** UserProfile id when bridged; otherwise a directory-style id. */
   userId: string;
