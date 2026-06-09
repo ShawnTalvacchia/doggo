@@ -14901,27 +14901,33 @@ a.shelter-intro-social:hover {
   color: var(--text-tertiary);
 }
 
-/* ─── Credential pill — three-state escalation ─────────────────────
+/* ─── Credential pill — three-tier saturation ramp ─────────────────
    Shared visual ladder for the credentialing-moat phase. Carries the
    Carer Portfolio aggregate badge (Carer / Experienced Carer / Trusted
    Carer) AND the shelter walker tier badge (Volunteer / Regular
-   Volunteer / Super Volunteer). Same intensification (outlined →
-   filled → filled+ring), two color families.
+   Volunteer / Super Volunteer).
 
-   Compose three modifiers: layout (`.credential-pill`) + family
-   (`--volunteer` / `--carer`) + intensity (`--outlined` / `--filled`
-   / `--filled-ring`). The family supplies the color tokens via custom
-   properties; the intensity supplies the fill/stroke treatment.
+   Pattern: same chrome (size, border-radius, padding, icon position)
+   across all three tiers; tier conveyed by SATURATION of the family
+   color, ramped along a single hue. Documented production precedent:
+   Red Hat partner badges Ready / Advanced / Premier (same gray outer
+   container, inner secondary box recolored along a single red ramp).
 
-   The filled+ring state uses a two-layer box-shadow trick to render
-   a thin outer ring with a transparent gap between the fill and the
-   ring. First shadow (transparent) occupies the gap; second shadow
-   (solid) draws the ring. Net result: a 2px gap + 1.5px ring outside
-   the chip edge, regardless of the surface beneath.
+   Compose two modifiers: family (`--volunteer` violet / `--carer`
+   info-blue) supplies the per-tier color custom properties + the text
+   color; tier (`--tier-1` / `--tier-2` / `--tier-3`) selects which
+   custom property fills the background. Top tier (`--tier-3`) flips
+   to dark fill + white text for the strongest jump, but the OUTER
+   pill dimensions stay bit-identical across all three.
 
-   See `_walkthrough.md` O1 — render in /styleguide/components first
-   so the user signs off on the visual jump before B4 lands the badge
-   on real profile surfaces. */
+   Icon ladder (Leaf/Plant/Tree for walkers, static Sparkle for Carer)
+   is retained as a secondary signal — saturation does the primary
+   work; icons reinforce.
+
+   In dense list contexts (PersonRow, Discover cards), surfaces render
+   the pill at tier-1 saturation uniformly (no tier distinction) per
+   walkthrough O1 resolution — "uniform in lists, tier on profile."
+   Profile hero gets the saturation ramp + session count subtitle. */
 .credential-pill {
   display: inline-flex;
   align-items: center;
@@ -14934,37 +14940,45 @@ a.shelter-intro-social:hover {
   white-space: nowrap;
 }
 
-/* Color families — supply --credential-pill-fill + text color. */
+/* Volunteer family — violet hue ramp. Tiers 1 & 2 keep dark violet
+   text on a light/medium fill; tier 3 flips to white text on a
+   saturated fill so the jump reads at chip scale. */
 .credential-pill--volunteer {
-  --credential-pill-fill: #ede9fe;  /* violet-100 */
-  color: #5b21b6;                    /* violet-800 */
+  --credential-pill-bg-tier-1: #ede9fe;  /* violet-100 — lightest, current shipped tone */
+  --credential-pill-bg-tier-2: #c4b5fd;  /* violet-300 — clearly more saturated */
+  --credential-pill-bg-tier-3: #6d28d9;  /* violet-700 — dark, inverts text */
+  --credential-pill-text-default: #5b21b6;  /* violet-800 */
+  --credential-pill-text-inverse: #faf5ff;  /* violet-50, near-white */
 }
 
+/* Carer family — info-blue hue ramp, parallel structure. */
 .credential-pill--carer {
-  --credential-pill-fill: var(--status-info-light);
-  color: var(--status-info-strong);
+  --credential-pill-bg-tier-1: var(--status-info-light);
+  --credential-pill-bg-tier-2: #93c5fd;  /* blue-300, mid-saturation */
+  --credential-pill-bg-tier-3: #1d4ed8;  /* blue-700, dark inversion */
+  --credential-pill-text-default: var(--status-info-strong);
+  --credential-pill-text-inverse: #eff6ff;  /* blue-50, near-white */
 }
 
-/* Intensity — outlined: transparent fill, 1.5px inset stroke. */
-.credential-pill--outlined {
-  background: transparent;
-  box-shadow: inset 0 0 0 1.5px currentColor;
+/* Tier 1 — entry: lightest fill, default text. The "you've started"
+   tier; warm and welcoming, not assertive. */
+.credential-pill--tier-1 {
+  background: var(--credential-pill-bg-tier-1);
+  color: var(--credential-pill-text-default);
 }
 
-/* Intensity — filled: solid fill, no stroke. The current shipped
-   walker pill treatment matches this state. */
-.credential-pill--filled {
-  background: var(--credential-pill-fill);
+/* Tier 2 — established: medium fill, default text. Clear escalation
+   from tier 1 but stays in the same readability mode. */
+.credential-pill--tier-2 {
+  background: var(--credential-pill-bg-tier-2);
+  color: var(--credential-pill-text-default);
 }
 
-/* Intensity — filled+ring: solid fill + outer ring with a 2px
-   transparent gap. The transparent shadow stacks above the solid one
-   to mask the inner 0–2px region. */
-.credential-pill--filled-ring {
-  background: var(--credential-pill-fill);
-  box-shadow:
-    0 0 0 2px transparent,
-    0 0 0 3.5px currentColor;
+/* Tier 3 — trusted: dark fill, inverse text. The flip carries the
+   "this is the top" signal without changing footprint. */
+.credential-pill--tier-3 {
+  background: var(--credential-pill-bg-tier-3);
+  color: var(--credential-pill-text-inverse);
 }
 
 /* ═══════════════════════════════════════════════════════════════════

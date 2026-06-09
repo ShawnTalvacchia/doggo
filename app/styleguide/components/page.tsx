@@ -688,51 +688,72 @@ export default function ComponentsPage() {
       <section className="sg-section">
         <h2 className="sg-section-title">CredentialPill</h2>
         <p className="sg-body-copy" style={{ maxWidth: "64ch" }}>
-          Shared three-state visual ladder for the credentialing-moat phase. Carries the
-          Carer Portfolio aggregate badge (Carer / Experienced Carer / Trusted Carer)
-          AND the shelter walker tier badge (Volunteer / Regular Volunteer / Super
-          Volunteer). Same intensification — <strong>outlined → filled → filled+ring</strong>
-          — across two color families (violet for walker credentials, info-blue for Carer
-          credentials).
+          Shared tier ladder for the credentialing-moat phase. Carries the Carer Portfolio
+          aggregate badge (Carer / Experienced Carer / Trusted Carer) AND the shelter walker
+          tier badge (Volunteer / Regular Volunteer / Super Volunteer). Same chrome — pill
+          size, padding, border-radius, icon position — across all three tiers; tier
+          conveyed by <strong>saturation ramp</strong> of the family hue. Production
+          precedent: Red Hat partner badges Ready / Advanced / Premier (identical outer
+          container, secondary inner color ramped along a single red).
         </p>
         <p className="sg-body-copy" style={{ maxWidth: "64ch" }}>
-          Top-tier <strong>filled+ring</strong> uses a 2px transparent gap + 1.5px outer ring
-          (via two-layer box-shadow) so the ring sits outside the chip edge instead of
-          thickening the existing border. Per walkthrough O1 — render here for visual
-          sign-off before B4 lands the badge on real profile surfaces.
+          Top tier (<code>tier-3</code>) flips to dark fill + light text — the most
+          visually distinct jump without altering the chip's bounding box. Tiers 1 and 2
+          keep the dark-text-on-light-fill mode. Icon ladder (Leaf/Plant/Tree for walkers,
+          static Sparkle for Carer) stays as a secondary signal.
+        </p>
+        <p className="sg-body-copy" style={{ maxWidth: "64ch" }}>
+          In dense list contexts (PersonRow, Discover cards), pills render at tier-1
+          saturation uniformly — the badge says "this person is a Carer / Volunteer"
+          without revealing tier. Profile hero gets the saturation ramp + session count.
+          See walkthrough O1.
         </p>
         <PropTable>
-          <PropRow name="family" type='".credential-pill--volunteer" | ".credential-pill--carer"' note="Color family. Supplies fill + text color via custom properties." />
-          <PropRow name="intensity" type='".credential-pill--outlined" | ".credential-pill--filled" | ".credential-pill--filled-ring"' note="Three tier states. Compose with the base + family classes." />
+          <PropRow name="family" type='".credential-pill--volunteer" | ".credential-pill--carer"' note="Color family. Supplies the three-step tier color palette via custom properties." />
+          <PropRow name="tier" type='".credential-pill--tier-1" | ".credential-pill--tier-2" | ".credential-pill--tier-3"' note="Three saturation steps. Compose with the base + family classes." />
         </PropTable>
         <div className="sg-demo-group">
-          <Demo label="Shelter walker (violet) — three tiers">
-            <span className="credential-pill credential-pill--volunteer credential-pill--outlined">
+          <Demo label="Shelter walker (violet) — three tiers, profile-hero density">
+            <span className="credential-pill credential-pill--volunteer credential-pill--tier-1">
               <Leaf size={14} weight="regular" /> Volunteer
             </span>
-            <span className="credential-pill credential-pill--volunteer credential-pill--filled">
+            <span className="credential-pill credential-pill--volunteer credential-pill--tier-2">
               <Plant size={14} weight="regular" /> Regular Volunteer
             </span>
-            <span className="credential-pill credential-pill--volunteer credential-pill--filled-ring">
+            <span className="credential-pill credential-pill--volunteer credential-pill--tier-3">
               <Tree size={14} weight="regular" /> Super Volunteer
             </span>
           </Demo>
-          <Demo label="Carer aggregate (info-blue) — three tiers">
-            <span className="credential-pill credential-pill--carer credential-pill--outlined">
+          <Demo label="Carer aggregate (info-blue) — three tiers + session counts">
+            <span className="credential-pill credential-pill--carer credential-pill--tier-1">
               <Sparkle size={14} weight="regular" /> Carer · 5 sessions
             </span>
-            <span className="credential-pill credential-pill--carer credential-pill--filled">
+            <span className="credential-pill credential-pill--carer credential-pill--tier-2">
               <Sparkle size={14} weight="regular" /> Experienced Carer · 18 sessions
             </span>
-            <span className="credential-pill credential-pill--carer credential-pill--filled-ring">
+            <span className="credential-pill credential-pill--carer credential-pill--tier-3">
               <Sparkle size={14} weight="regular" /> Trusted Carer · 47 sessions
             </span>
           </Demo>
-          <Demo label="Side-by-side comparison (same intensity, both families)">
-            <span className="credential-pill credential-pill--volunteer credential-pill--filled-ring">
+          <Demo label="List-context rendering — uniform tier-1 across all carers/walkers">
+            <span className="credential-pill credential-pill--volunteer credential-pill--tier-1">
+              <Leaf size={14} weight="regular" /> Volunteer
+            </span>
+            <span className="credential-pill credential-pill--volunteer credential-pill--tier-1">
+              <Leaf size={14} weight="regular" /> Volunteer
+            </span>
+            <span className="credential-pill credential-pill--carer credential-pill--tier-1">
+              <Sparkle size={14} weight="regular" /> Carer
+            </span>
+            <span className="credential-pill credential-pill--carer credential-pill--tier-1">
+              <Sparkle size={14} weight="regular" /> Carer
+            </span>
+          </Demo>
+          <Demo label="Side-by-side top tier (both families)">
+            <span className="credential-pill credential-pill--volunteer credential-pill--tier-3">
               <Tree size={14} weight="regular" /> Super Volunteer
             </span>
-            <span className="credential-pill credential-pill--carer credential-pill--filled-ring">
+            <span className="credential-pill credential-pill--carer credential-pill--tier-3">
               <Sparkle size={14} weight="regular" /> Trusted Carer · 47 sessions
             </span>
           </Demo>
