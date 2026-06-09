@@ -29,7 +29,7 @@ import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import { TrustSignalBadges } from "@/components/profile/TrustSignalBadges";
 import { SharedContextCard } from "@/components/profile/SharedContextCard";
 import { TrustBadgeStrip } from "@/components/badges/TrustBadgeStrip";
-import { getTrustBadges, userProfileToTrustSubject } from "@/lib/trustBadges";
+import { getTrustBadges, userProfileToTrustSubject, getCircleAttribution } from "@/lib/trustBadges";
 import { getCarerIdentity } from "@/lib/identityBadges";
 import { PetSummaryCard } from "@/components/profile/PetSummaryCard";
 import { PostsTab } from "@/components/profile/PostsTab";
@@ -983,6 +983,46 @@ function UserProfileInner() {
                 </p>
               )}
             </section>
+
+            {/* Booked by people you know — circle attribution per E3.
+                Renders when at least one of the viewer's Connected
+                connections has a completed Booking with this carer.
+                Review excerpts come later (F4); V1 surfaces named
+                attribution + a count tagline. Silent absence at
+                count===0 per E5. */}
+            {userProfile?.carerProfile && (() => {
+              const attribution = getCircleAttribution(currentUserId, userId);
+              if (attribution.count === 0) return null;
+              const knownMembers = attribution.members
+                .map((m) => getUserById(m.reviewerId))
+                .filter((u): u is NonNullable<typeof u> => u !== undefined);
+              return (
+                <section>
+                  <h3 className="profile-card-subtitle">Booked by people you know</h3>
+                  <div className="flex flex-col gap-sm" style={{ marginTop: "var(--space-sm)" }}>
+                    {knownMembers.map((m) => (
+                      <Link
+                        key={m.id}
+                        href={`/profile/${m.id}`}
+                        className="flex items-center gap-sm"
+                        style={{ textDecoration: "none", color: "inherit" }}
+                      >
+                        <img
+                          src={m.avatarUrl}
+                          alt={`${m.firstName} ${m.lastName}`}
+                          className="avatar"
+                          style={{ width: 36, height: 36 }}
+                        />
+                        <div className="flex flex-col">
+                          <span className="text-sm font-semibold">{m.firstName} {m.lastName}</span>
+                          <span className="text-xs text-fg-tertiary">Booked with {firstName}</span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              );
+            })()}
 
             {/* Provider stats */}
             {provider && (

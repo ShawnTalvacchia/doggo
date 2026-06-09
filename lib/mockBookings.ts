@@ -223,6 +223,45 @@ const shawnCarerActiveBooking: Booking = {
 
 // ── Klára training — Filip, one-off sessions ─────────────────────────────────
 
+// ── Klára training — Anežka's Nela, completed ────────────────────────────────
+// Seeded for E4 (Circle attribution) so Daniel viewing Klára sees at least
+// one of his Connected friends has booked her. Anežka is in Daniel's circle
+// per mockConnections (both active in Prague Reactive Dog Support); this
+// gives the "1 in your circle has booked them" signal a real source.
+// 2026-06-09.
+
+const klaraTrainingAnezka: Booking = {
+  id: "booking-klara-anezka",
+  conversationId: null,
+  ownerId: "anezka",
+  ownerName: "Anežka Veselá",
+  ownerAvatarUrl: "/images/generated/anezka-profile.jpeg",
+  carerId: "klara",
+  carerName: "Klára Horáčková",
+  carerAvatarUrl: "/images/generated/klara-profile.jpeg",
+  type: "one_off",
+  serviceType: "day_care",
+  subService: "Calm-handling session",
+  pets: ["Nela"],
+  startDate: "2026-03-05",
+  endDate: "2026-03-26",
+  sessions: [
+    { id: "ka-1", date: "2026-03-05", status: "completed", note: "Nela is reactive on leash — starting with desensitization basics." },
+    { id: "ka-2", date: "2026-03-12", status: "completed" },
+    { id: "ka-3", date: "2026-03-19", status: "completed", note: "Good progress — Nela held a sit through two passing dogs." },
+    { id: "ka-4", date: "2026-03-26", status: "completed", note: "Anežka's homework is paying off. We're good to wrap." },
+  ],
+  price: {
+    lineItems: [{ label: "1-on-1 training session", amount: 600, unit: "per session" }],
+    total: 2400,
+    currency: "Kč",
+    billingCycle: "total",
+  },
+  status: "completed",
+  signedAt: "2026-03-03T18:00:00Z",
+  paymentStatus: "paid",
+};
+
 const klaraTrainingFilip: Booking = {
   id: "booking-klara-filip",
   conversationId: "klara-filip-conv",
@@ -747,6 +786,7 @@ export const mockBookings: Booking[] = [
   petraBooking,
   shawnCarerCompletedBooking,
   shawnCarerActiveBooking,
+  klaraTrainingAnezka,
   klaraTrainingFilip,
   klaraDropoffToby,
   petraSittingTomas,

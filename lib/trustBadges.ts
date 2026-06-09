@@ -146,6 +146,64 @@ export function getCarerPortfolioTier(sessions: number): 1 | 2 | 3 | null {
   return 3;
 }
 
+/** Per-circle-member booking trail used by the Discover-card row and the
+ *  profile "Booked by people you know" section (Workstream E). */
+export interface CircleAttributionMember {
+  /** Owner's userId. */
+  reviewerId: string;
+  /** One of their completed bookings with the provider — `bookingId` is
+   *  the anchor for surfacing a review excerpt later in F. */
+  bookingId: string;
+}
+
+export interface CircleAttribution {
+  /** Distinct Connected-to-viewer owners with at least one completed
+   *  booking against `providerId`. Empty array (NOT null) when none —
+   *  caller renders silent absence at count===0 per E5. */
+  count: number;
+  members: CircleAttributionMember[];
+}
+
+/**
+ * Circle attribution helper (E1).
+ *
+ * Returns the subset of `viewer`'s Connected connections who have a
+ * completed Booking with `providerId` as the carer. Privacy: only
+ * surfaces members the viewer is Connected to — no Familiar leakage,
+ * no inference about other Connected-Connected relationships beyond
+ * what the viewer can already see.
+ *
+ * Caller decides surface: Discover Card renders count only ("{N} in
+ * your circle have booked them"); provider profile renders the named
+ * PersonRow stack for Connected members (review excerpt comes later
+ * via F's BookingReview model).
+ */
+export function getCircleAttribution(
+  viewerId: string | null | undefined,
+  providerId: string,
+): CircleAttribution {
+  if (!viewerId || viewerId === providerId) {
+    return { count: 0, members: [] };
+  }
+  const connectedIds = new Set(
+    getConnectionsForViewer(viewerId)
+      .filter((c) => c.state === "connected")
+      .map((c) => c.userId),
+  );
+  if (connectedIds.size === 0) return { count: 0, members: [] };
+  const seen = new Set<string>();
+  const members: CircleAttributionMember[] = [];
+  for (const b of mockBookings) {
+    if (b.status !== "completed") continue;
+    if (b.carerId !== providerId) continue;
+    if (!connectedIds.has(b.ownerId)) continue;
+    if (seen.has(b.ownerId)) continue;
+    seen.add(b.ownerId);
+    members.push({ reviewerId: b.ownerId, bookingId: b.id });
+  }
+  return { count: members.length, members };
+}
+
 /** How many of viewer's Connected connections are also Connected to subject. */
 function countMutualConnections(viewerId: string, subjectId: string): number {
   if (!viewerId || viewerId === subjectId) return 0;

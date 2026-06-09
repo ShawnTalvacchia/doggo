@@ -11,7 +11,7 @@ import {
 } from "@/lib/types";
 import { getConnectionState } from "@/lib/mockConnections";
 import { getUserById } from "@/lib/mockUsers";
-import { getTrustBadges, userProfileToTrustSubject } from "@/lib/trustBadges";
+import { getTrustBadges, userProfileToTrustSubject, getCircleAttribution } from "@/lib/trustBadges";
 import { TrustBadgeStrip } from "@/components/badges/TrustBadgeStrip";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 
@@ -185,6 +185,13 @@ export function CardExploreResult({
       };
   const trustBadges = getTrustBadges(trustSubject, currentUserId).slice(0, 2);
 
+  // Circle attribution (E2) — "{N} in your circle have booked them."
+  // When count >= 1, this row REPLACES the "Met at N walks" row per E2
+  // (booking-specific signal wins over the meet-level one). Network
+  // overlap stays as a separate signal.
+  const circleAttribution = getCircleAttribution(currentUserId, profileId);
+  const showCircleBookings = circleAttribution.count > 0;
+
   // Per-service price resolution — see helper. Falls back gracefully.
   const displayPrice = resolveDisplayPrice(provider, activeService, activeFilterCategory);
 
@@ -263,9 +270,15 @@ export function CardExploreResult({
         {trustBadges.length > 0 && (
           <TrustBadgeStrip badges={trustBadges} variant="compact" />
         )}
-        {(provider.distanceKm !== undefined || meetsShared > 0 || networkOverlap > 0) && (
+        {(provider.distanceKm !== undefined || meetsShared > 0 || networkOverlap > 0 || showCircleBookings) && (
           <div className="trust-row">
-            {meetsShared > 0 && (
+            {showCircleBookings && (
+              <span className="trust-item trust-item--match">
+                <Users size={12} weight="fill" aria-hidden />
+                {circleAttribution.count} in your circle {circleAttribution.count === 1 ? "has" : "have"} booked them
+              </span>
+            )}
+            {meetsShared > 0 && !showCircleBookings && (
               <span className="trust-item trust-item--match">
                 <PawPrint size={12} weight="fill" aria-hidden />
                 Met at {meetsShared} {meetsShared === 1 ? "walk" : "walks"}
