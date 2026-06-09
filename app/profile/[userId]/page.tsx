@@ -1144,17 +1144,13 @@ function UserProfileInner() {
               );
             })()}
 
-            {/* Provider stats — distance only. Review count + rating moved
-                to the Reviews section header above (computed from actual
-                UserReview entries instead of the inflated directory number
-                that didn't match the real seeded reviews). 2026-06-09. */}
-            {provider?.distanceKm && (
-              <section className="profile-info-card">
-                <div className="flex items-center gap-sm text-sm text-fg-secondary">
-                  <span className="text-fg-tertiary">{provider.distanceKm} km away</span>
-                </div>
-              </section>
-            )}
+            {/* Provider-stats card retired 2026-06-09. It previously carried
+                rating + review count + distance; rating + count moved to the
+                Reviews section header (computed from real entries), and
+                distance was demoted because a whole bordered card for a
+                single meta line read as unnecessary. The hero's location
+                pin already conveys where the carer is; precise distance
+                is a Discover-surface concern. */}
 
             {/* Carer bio — shown when user has carerProfile but isn't in provider catalog */}
             {!provider && userProfile?.carerProfile?.bio && (
