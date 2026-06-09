@@ -137,16 +137,25 @@ Four states per §14: `applied → invited → vouched → vetted`. Demo ships:
 
 Real implementation post-demo. The state-machine shape is honest about what's faked.
 
-### D7 — In-circle elevation on /discover/help-a-dog
+### D7 — Shelter-membership elevation on /discover/help-a-dog
 
-Section-level pattern (matches Discover Care). Two sections:
+**Revised at walkthrough O5 sign-off (2026-06-08).** Originally section-level matching Discover Care ("In your circle" header above "Other"). Reframed because per-dog walker-relationship elevation is a thin signal (shelter dogs don't belong to walkers; Klára walking Bára 6 times doesn't tell viewers anything Bára's profile doesn't already say).
 
-```
-[ In your circle ]      ← Dogs you've walked + Shelters your circle volunteers at
-[ Other shelter dogs ]  ← everything else
-```
+**Mechanic:** sort priority on both pills, no section headers. Two elevation reasons:
 
-Uses the same `ResultsSectionHeader` `in-circle` variant. Lights up once walker → UserProfile bridge exists (depends on G). Pre-builds a placeholder slot in the page layout so the wire-up at the end of Workstream K is one-line.
+1. **Shelters you walk at** — your home base (only relevant once you're a walker somewhere).
+2. **Shelters your circle volunteers at** — the social-proof hook for not-yet-walkers (strongest signal for the demo's main journey).
+
+Sort priority applied:
+
+- **Dogs pill** — dogs sort by their shelter's elevation reason (your-shelter > circle-volunteer > other).
+- **Shelters pill** — shelters sort directly (same priority).
+
+Small inline meta-label on elevated cards explains the reason (e.g. `Klára volunteers here` / `You walk here`). No section box, no `ResultsSectionHeader` use — dropping section headers dissolves the "empty section reads as broken" concern.
+
+Lights up once walker → UserProfile bridge ships (depends on G). Pre-builds the meta-label slot in the page layout so the wire-up at the end of Workstream K is one-line.
+
+**Per-dog "Walked by N in your circle" elevation explicitly out.**
 
 ### D8 — Walk eligibility check
 
@@ -287,10 +296,10 @@ Run before opening the Shelter Walker side:
 
 | # | Description | Refs | Status |
 |---|-------------|------|--------|
-| K1 | Pre-build a placeholder section slot in `/discover/help-a-dog/page.tsx` (Dogs view). Empty until G ships. | D7 | todo |
-| K2 | Implement section-level elevation per D7: "In your circle" section (dogs the viewer's circle has walked + shelters they volunteer at) + "Other shelter dogs" section. Uses `ResultsSectionHeader` `in-circle` variant. | G4, D7 | todo |
-| K3 | Shelters pill equivalent — "Shelters your circle volunteers at" section above other shelters. | G4, D7 | todo |
-| K4 | Resolve §14 open item — close the row-level-vs-section-level question with the section-level resolution + reference this workstream. | D7 | todo |
+| K1 | Pre-build a meta-label slot on `ShelterDogCard` + `DiscoverShelterCard` for the "elevation reason" inline label (`Klára volunteers here` / `You walk here`). Empty until G ships. | D7 | todo |
+| K2 | Implement sort-based elevation on the Dogs pill per D7: dogs sort by their shelter's elevation reason (your-shelter > circle-volunteer > other). Meta-label renders on elevated cards only. NO `ResultsSectionHeader`. | G4, D7 | todo |
+| K3 | Shelters pill equivalent — shelters sort by the same priority (your-shelter > circle-volunteer > other), meta-label on elevated cards. | G4, D7 | todo |
+| K4 | Resolve §14 open item — close row-level-vs-section-level question with "neither — sort priority." Drop per-dog walker-relationship elevation; retain "Shelters your circle volunteers at"; add "Shelters you walk at." Reference this workstream. | D7 | todo |
 
 ### Workstream L — Profile cross-shelter affiliation
 
