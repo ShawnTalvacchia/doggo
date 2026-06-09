@@ -1,14 +1,18 @@
 ---
 category: implementation
-status: active
+status: archived
 last-reviewed: 2026-06-08
 tags: [enrichment, images, shelters, content]
-review-trigger: "after each enrichment batch is generated; revise prompts that produced weak results"
+review-trigger: "n/a — enrichment pass complete"
 ---
 
 # Image Prompts — Shelter Content Enrichment
 
-Generation guide for the shelter content enrichment pass. The Help a Dog Discover door (shipped 2026-06-08) reuses existing portrait + community-cover assets across three shelters and 17 shelter dogs. This doc enumerates the prompts and file destinations for a dedicated image pass that replaces those placeholders with shelter-specific assets.
+> **Archived 2026-06-08.** The enrichment pass landed alongside the Help a Dog Discover door close — 3 banners + 3 logos + 17 dog portraits + 4 post heroes generated and wired through `lib/mockShelters.ts` and `lib/mockPosts.ts`. Kept as reference for prompt patterns (banner-must-read-as-shelter, dog-portrait facility framing, no-text-or-signage in backgrounds) that future enrichment passes can borrow. Not a live tracking doc.
+
+---
+
+Generation guide for the shelter content enrichment pass. The Help a Dog Discover door (shipped 2026-06-08) reused existing portrait + community-cover assets across three shelters and 17 shelter dogs. This doc enumerated the prompts and file destinations for a dedicated image pass that replaced those placeholders with shelter-specific assets.
 
 **Approach.** Per the demo-content-iteration principle, structural surfaces shipped first with thin reused content. This is the enrichment pass — generation happens outside this codebase (the user runs image generation), files land at the paths specified below, references in `lib/mockShelters.ts` + `lib/mockPosts.ts` update to match.
 

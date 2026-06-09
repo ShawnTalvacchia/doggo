@@ -19,7 +19,8 @@
  * same as user profiles + communities). Dogs are rounded-panel squares.
  *
  * Image assets: shelter-specific banners, logos, and dog portraits
- * generated 2026-06-08 per `docs/implementation/image-prompts-shelters.md`.
+ * generated 2026-06-08 per the shelter image enrichment pass
+ * (prompts archived at `docs/archive/image-prompts/image-prompts-shelters.md`).
  * Each shelter has its own banner + logo; each dog has a purpose-shot
  * portrait anchored in its home shelter's facility context.
  */
