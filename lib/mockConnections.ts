@@ -828,7 +828,10 @@ export const mockConnectionsByViewer: Record<string, Connection[]> = {
       avatarUrl: "/images/generated/tereza-profile.jpeg",
       dogNames: ["Franta"],
       location: "Prague 2",
-      state: "none",
+      // Symmetric flip of conn-tereza-klara (2026-06-09) — both V2
+      // anchor personas; plausible community overlap. Lets V1 walkthrough
+      // verify the C1 privacy gate with a Connected viewer.
+      state: "connected",
       updatedAt: "2026-03-08T09:00:00Z",
       meetsShared: 2,
       firstMetDate: "2026-01-10",
