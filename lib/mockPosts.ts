@@ -1699,8 +1699,8 @@ export const mockPosts: Post[] = [
     id: "post-shelter-theo-arrival",
     authorId: "utulek-liben",
     authorName: "Útulek Liběň",
-    authorAvatarUrl: "/images/generated/community-cover-karlin.jpeg",
-    photos: ["/images/generated/toby-portrait.jpeg"],
+    authorAvatarUrl: "/images/generated/shelter-utulek-liben-logo.jpeg",
+    photos: ["/images/generated/shelter-post-utulek-theo-arrival.jpeg"],
     caption:
       "Meet Theo. Five months old, just arrived with two siblings. He's already a goofball. He'll be ready for short outings once he's settled in.",
     tags: [
@@ -1733,8 +1733,8 @@ export const mockPosts: Post[] = [
     id: "post-shelter-berta-needs-home",
     authorId: "utulek-liben",
     authorName: "Útulek Liběň",
-    authorAvatarUrl: "/images/generated/community-cover-karlin.jpeg",
-    photos: ["/images/generated/daisy-portrait.jpeg"],
+    authorAvatarUrl: "/images/generated/shelter-utulek-liben-logo.jpeg",
+    photos: ["/images/generated/shelter-post-utulek-berta-call.jpeg"],
     caption:
       "Berta has been with us for four months. She's wary, she's careful, and she's been completely overlooked. Looking for someone who understands that some dogs need a slow start. No other pets, no kids. Just a quiet sofa and a steady person.",
     tags: [
@@ -1757,7 +1757,7 @@ export const mockPosts: Post[] = [
     id: "post-shelter-walker-recruit",
     authorId: "utulek-liben",
     authorName: "Útulek Liběň",
-    authorAvatarUrl: "/images/generated/community-cover-karlin.jpeg",
+    authorAvatarUrl: "/images/generated/shelter-utulek-liben-logo.jpeg",
     photos: ["/images/generated/group-walk-stromovka.jpeg"],
     caption:
       "We're a small team and our dogs need walks every day. If you can spare an hour a week, we'd love to meet you. First-time walkers come in for a 30-minute intro visit so we can match you with a dog who fits your pace. Czech or English, both fine.",
@@ -1778,6 +1778,52 @@ export const mockPosts: Post[] = [
         createdAt: daysAgoIso(16, "13:20"),
       },
     ],
+  },
+
+  /* ── Pes v nouzi (thin shelter) ────────────────────────────────────
+   *
+   * One shelter-authored post so the Feed tab isn't empty on the
+   * thin-shelter chrome. Walker-authored posts skipped intentionally —
+   * no walker roster yet (per the Help a Dog Discover door scope:
+   * thin shelters seeded for density; walker journey is the next phase).
+   */
+  {
+    id: "post-shelter-pvn-baron",
+    authorId: "pes-v-nouzi",
+    authorName: "Pes v nouzi",
+    authorAvatarUrl: "/images/generated/shelter-pes-v-nouzi-logo.jpeg",
+    photos: ["/images/generated/shelter-post-pvn-baron-call.jpeg"],
+    caption:
+      "Baron has been with us seven weeks now. He's the calmest dog you'll meet — and he's been overlooked because he's older. If you have a quiet home and time for an undemanding companion, come say hello.",
+    tags: [
+      { type: "shelter", id: "pes-v-nouzi", label: "Pes v nouzi" },
+      { type: "dog", id: "pvn-dog-baron", label: "Baron" },
+    ],
+    createdAt: daysAgoIso(4, "11:00"),
+    reactions: [],
+    comments: [],
+  },
+
+  /* ── Druhá šance (thin shelter) ────────────────────────────────────
+   *
+   * Same shape as Pes v nouzi — one shelter-authored post for the Feed
+   * tab. Walker-authored posts deferred to the walker journey phase.
+   */
+  {
+    id: "post-shelter-ds-mila",
+    authorId: "druha-sance",
+    authorName: "Druhá šance",
+    authorAvatarUrl: "/images/generated/shelter-druha-sance-logo.jpeg",
+    photos: ["/images/generated/shelter-post-ds-mila-waiting.jpeg"],
+    caption:
+      "Mila has been waiting two and a half months. She is gentle, quiet, and would be the easiest dog in any household. We're sharing her again because the right person hasn't found her yet.",
+    tags: [
+      { type: "shelter", id: "druha-sance", label: "Druhá šance" },
+      { type: "dog", id: "ds-dog-mila", label: "Mila" },
+    ],
+    createdAt: daysAgoIso(8, "15:00"),
+    reactions: [],
+    comments: [],
   },
 
   /* ── Walker-authored (9 posts) ─────────────────────────────────────

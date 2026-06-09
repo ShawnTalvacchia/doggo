@@ -89,7 +89,7 @@ See `docs/ROADMAP.md` for current phase, upcoming work, and recent closes. Archi
 
 **Community-first thesis.** Meets build trust → trust enables care → care is booked and tracked. The prototype demonstrates this full funnel. Full strategy in `docs/strategy/Product Vision.md`.
 
-**Ways In:** Find Your Park (open groups) → Find Your People (neighbourhood/interest groups) → Find Your Help (provider-run care groups) → **Help a Dog** (shelter dogs; Shelter Foundation phase shipped 2026-06-02, top-level Discover entry still pending). All doors lead to the same place: a network of people who know each other and each other's dogs. See `docs/strategy/Product Vision.md`.
+**Ways In:** Find Your Park (open groups) → Find Your People (neighbourhood/interest groups) → Find Your Help (provider-run care groups) → **Help a Dog** (shelter dogs; Shelter Foundation shipped 2026-06-02, Discover door at `/discover/help-a-dog` shipped 2026-06-08 with three seeded shelters). All doors lead to the same place: a network of people who know each other and each other's dogs. See `docs/strategy/Product Vision.md`.
 
 **User Journeys deck** (`docs/strategy/User Journeys.pptx`): Four personas — Tereza (routine owner/neighbourhood anchor), Daniel (anxious new owner), Klára (professional trainer), Tomáš (busy professional). Each journey demonstrates the community→trust→care funnel.
 

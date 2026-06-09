@@ -7,11 +7,20 @@ import {
   GenderMale,
   GenderFemale,
 } from "@phosphor-icons/react";
-import type { PetProfile } from "@/lib/types";
+import type { PetProfile, ShelterProfile } from "@/lib/types";
 import { deriveAutoTags } from "@/lib/petUtils";
 
 interface ShelterDogCardProps {
   dog: PetProfile;
+  /**
+   * When provided, render a shelter attribution row at the bottom of the
+   * card body (small circular logo + shelter name + neighbourhood). Used
+   * on the Help a Dog Discover surface where the same card pattern shows
+   * dogs across multiple shelters; the shelter's own Dogs tab leaves this
+   * undefined since the shelter context is already established by the
+   * page chrome.
+   */
+  shelter?: ShelterProfile;
 }
 
 /**
@@ -30,7 +39,7 @@ interface ShelterDogCardProps {
  * "Male" / "Female" word in the breed/age row was redundant with the
  * universally-understood symbol.
  */
-export function ShelterDogCard({ dog }: ShelterDogCardProps) {
+export function ShelterDogCard({ dog, shelter }: ShelterDogCardProps) {
   // The card shows at most one auto-derived chip overlaid on the photo,
   // ordered by priority (Adoption pending > New arrival > Long-stayer).
   // Energy chips never surface here — they live on the full dog profile
@@ -102,6 +111,20 @@ export function ShelterDogCard({ dog }: ShelterDogCardProps) {
             </span>
           </span>
         </div>
+
+        {shelter && (
+          <div className="shelter-dog-card-attribution">
+            <span
+              className="shelter-dog-card-attribution-logo"
+              style={{ backgroundImage: `url(${shelter.logoUrl})` }}
+              aria-hidden="true"
+            />
+            <span className="shelter-dog-card-attribution-text">
+              <span className="shelter-dog-card-attribution-name">{shelter.name}</span>
+              <span className="shelter-dog-card-attribution-meta">{shelter.location}</span>
+            </span>
+          </div>
+        )}
       </div>
     </Link>
   );

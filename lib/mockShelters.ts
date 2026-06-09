@@ -15,13 +15,13 @@
  * "Needs walks now" sort always finds something to surface and long-stayer
  * tags stay accurate against the demo clock.
  *
- * Avatar Rule B: shelter logo renders as a rounded-panel square
- * (institutional, not a person). Dogs are rounded-panel squares.
+ * Avatar Rule B: shelter logo renders as a circle (institutional entity,
+ * same as user profiles + communities). Dogs are rounded-panel squares.
  *
- * Image placeholders: lacking shelter-specific assets, the demo reuses
- * existing community-cover and dog-portrait images. A real production
- * seed pass should generate `shelter-utulek-liben-logo.jpeg` and
- * `shelter-utulek-liben-banner.jpeg`.
+ * Image assets: shelter-specific banners, logos, and dog portraits
+ * generated 2026-06-08 per `docs/implementation/image-prompts-shelters.md`.
+ * Each shelter has its own banner + logo; each dog has a purpose-shot
+ * portrait anchored in its home shelter's facility context.
  */
 
 import type {
@@ -58,7 +58,7 @@ const UTULEK_DOGS: PetProfile[] = [
     weightLabel: "22 kg",
     ageLabel: "4 years",
     sex: "male",
-    imageUrl: "/images/generated/max-portrait.jpeg",
+    imageUrl: "/images/generated/shelter-dog-tonda-portrait.jpeg",
     daysInKennel: 27,
     lastWalkedAt: daysAgoIso(5, "08:30"),
     backstory:
@@ -86,7 +86,7 @@ const UTULEK_DOGS: PetProfile[] = [
     weightLabel: "16 kg",
     ageLabel: "6 years",
     sex: "female",
-    imageUrl: "/images/generated/luna-portrait.jpeg",
+    imageUrl: "/images/generated/shelter-dog-maja-portrait.jpeg",
     daysInKennel: 45,
     lastWalkedAt: daysAgoIso(3, "16:00"),
     backstory:
@@ -104,7 +104,7 @@ const UTULEK_DOGS: PetProfile[] = [
     weightLabel: "34 kg",
     ageLabel: "8 years",
     sex: "male",
-    imageUrl: "/images/generated/eda-portrait.jpeg",
+    imageUrl: "/images/generated/shelter-dog-simon-portrait.jpeg",
     daysInKennel: 91,
     lastWalkedAt: daysAgoIso(8, "10:00"),
     backstory:
@@ -135,7 +135,7 @@ const UTULEK_DOGS: PetProfile[] = [
     weightLabel: "20 kg",
     ageLabel: "3 years",
     sex: "female",
-    imageUrl: "/images/generated/mia-portrait.jpeg",
+    imageUrl: "/images/generated/shelter-dog-liza-portrait.jpeg",
     daysInKennel: 8,
     lastWalkedAt: daysAgoIso(0, "11:30"),
     backstory:
@@ -153,7 +153,7 @@ const UTULEK_DOGS: PetProfile[] = [
     weightLabel: "9 kg",
     ageLabel: "2 years",
     sex: "female",
-    imageUrl: "/images/generated/nela-portrait.jpeg",
+    imageUrl: "/images/generated/shelter-dog-edda-portrait.jpeg",
     daysInKennel: 14,
     lastWalkedAt: daysAgoIso(1, "09:00"),
     backstory:
@@ -173,7 +173,7 @@ const UTULEK_DOGS: PetProfile[] = [
     weightLabel: "12 kg",
     ageLabel: "5 years",
     sex: "female",
-    imageUrl: "/images/generated/runa-portrait.jpeg",
+    imageUrl: "/images/generated/shelter-dog-kata-portrait.jpeg",
     daysInKennel: 62,
     lastWalkedAt: daysAgoIso(4, "14:00"),
     backstory:
@@ -190,7 +190,7 @@ const UTULEK_DOGS: PetProfile[] = [
     weightLabel: "28 kg",
     ageLabel: "7 years",
     sex: "female",
-    imageUrl: "/images/generated/daisy-portrait.jpeg",
+    imageUrl: "/images/generated/shelter-dog-berta-portrait.jpeg",
     daysInKennel: 120,
     // Never walked through Doggo yet — sorts to the top of "Needs walks now."
     lastWalkedAt: undefined,
@@ -223,7 +223,7 @@ const UTULEK_DOGS: PetProfile[] = [
     weightLabel: "11 kg",
     ageLabel: "5 months",
     sex: "male",
-    imageUrl: "/images/generated/toby-portrait.jpeg",
+    imageUrl: "/images/generated/shelter-dog-theo-portrait.jpeg",
     daysInKennel: 3,
     lastWalkedAt: daysAgoIso(0, "13:00"),
     backstory:
@@ -352,14 +352,186 @@ const UTULEK_SUPPORTERS: ShelterSupporter[] = [
   { userId: "supporter-alena-t", displayName: "Alena T.", avatarUrl: "/images/generated/adela-profile.jpeg", since: daysAgo(6) },
 ];
 
-/* ── The shelter ─────────────────────────────────────────────────────────── */
+/* ── Pes v nouzi (thin shelter) ──────────────────────────────────────────── */
+
+/**
+ * Thin shelter seed for the Help a Dog Discover door (added 2026-06-08).
+ * Five dogs, no walker roster, no supporter roster, single shelter-authored
+ * post. Renders /shelters/pes-v-nouzi with the same chrome, but Members tab
+ * empty-states and Feed is sparse. Content quality is intentionally thin
+ * per the demo-content-iteration feedback — enrichment pass later.
+ */
+const PES_V_NOUZI_DOGS: PetProfile[] = [
+  {
+    id: "pvn-dog-cira",
+    name: "Círa",
+    breed: "Beagle mix",
+    weightLabel: "14 kg",
+    ageLabel: "3 years",
+    sex: "female",
+    imageUrl: "/images/generated/shelter-dog-cira-portrait.jpeg",
+    daysInKennel: 18,
+    lastWalkedAt: daysAgoIso(2, "11:00"),
+    backstory:
+      "Surrendered when her family moved into a no-pets building. Curious, friendly, would suit an active home.",
+    personalityTags: ["affectionate", "loves-walks", "good-with-dogs"],
+    adoptionStatus: "available",
+    intakeDate: daysAgo(18),
+    energyLevel: "moderate",
+  },
+  {
+    id: "pvn-dog-baron",
+    name: "Baron",
+    breed: "German shepherd mix",
+    weightLabel: "30 kg",
+    ageLabel: "6 years",
+    sex: "male",
+    imageUrl: "/images/generated/shelter-dog-baron-portrait.jpeg",
+    daysInKennel: 52,
+    lastWalkedAt: daysAgoIso(4, "14:00"),
+    backstory:
+      "Came in after his owner passed away. Calm, devoted, gets along with everyone once introduced.",
+    personalityTags: ["gentle", "calm", "senior"],
+    adoptionStatus: "available",
+    intakeDate: daysAgo(52),
+    experiencedHandlersOnly: true,
+    energyLevel: "low",
+  },
+  {
+    id: "pvn-dog-rosa",
+    name: "Rosa",
+    breed: "Pinscher",
+    weightLabel: "6 kg",
+    ageLabel: "4 years",
+    sex: "female",
+    imageUrl: "/images/generated/shelter-dog-rosa-portrait.jpeg",
+    daysInKennel: 9,
+    lastWalkedAt: daysAgoIso(0, "10:00"),
+    backstory:
+      "Small but bossy. Likes long sniffy walks and a sunny windowsill.",
+    personalityTags: ["independent", "smart"],
+    adoptionStatus: "available",
+    intakeDate: daysAgo(9),
+    energyLevel: "moderate",
+  },
+  {
+    id: "pvn-dog-archie",
+    name: "Archie",
+    breed: "Mixed breed",
+    weightLabel: "20 kg",
+    ageLabel: "2 years",
+    sex: "male",
+    imageUrl: "/images/generated/shelter-dog-archie-portrait.jpeg",
+    daysInKennel: 38,
+    lastWalkedAt: daysAgoIso(1, "16:00"),
+    backstory:
+      "Found wandering in Holešovice. High-energy, would thrive with someone who runs or bikes.",
+    personalityTags: ["playful", "loves-walks", "good-with-strangers"],
+    adoptionStatus: "available",
+    intakeDate: daysAgo(38),
+    energyLevel: "very_high",
+  },
+  {
+    id: "pvn-dog-tina",
+    name: "Tina",
+    breed: "Spaniel cross",
+    weightLabel: "11 kg",
+    ageLabel: "8 months",
+    sex: "female",
+    imageUrl: "/images/generated/shelter-dog-tina-portrait.jpeg",
+    daysInKennel: 5,
+    lastWalkedAt: daysAgoIso(0, "13:30"),
+    backstory:
+      "Puppy from an unplanned litter. Sweet, social, ready to learn everything.",
+    personalityTags: ["puppy", "playful", "affectionate"],
+    adoptionStatus: "available",
+    intakeDate: daysAgo(5),
+    energyLevel: "high",
+  },
+];
+
+/* ── Druhá šance (thin shelter) ──────────────────────────────────────────── */
+
+const DRUHA_SANCE_DOGS: PetProfile[] = [
+  {
+    id: "ds-dog-jasper",
+    name: "Jasper",
+    breed: "Labrador mix",
+    weightLabel: "25 kg",
+    ageLabel: "5 years",
+    sex: "male",
+    imageUrl: "/images/generated/shelter-dog-jasper-portrait.jpeg",
+    daysInKennel: 22,
+    lastWalkedAt: daysAgoIso(3, "09:30"),
+    backstory:
+      "Surrendered after his family moved abroad. Loyal, food-motivated, would do well with kids.",
+    personalityTags: ["affectionate", "good-with-kids", "good-with-strangers"],
+    adoptionStatus: "available",
+    intakeDate: daysAgo(22),
+    energyLevel: "moderate",
+  },
+  {
+    id: "ds-dog-mila",
+    name: "Mila",
+    breed: "Mixed breed",
+    weightLabel: "15 kg",
+    ageLabel: "7 years",
+    sex: "female",
+    imageUrl: "/images/generated/shelter-dog-mila-portrait.jpeg",
+    daysInKennel: 75,
+    lastWalkedAt: daysAgoIso(6, "12:00"),
+    backstory:
+      "A long-stayer the team has come to love. Gentle, quiet, and waiting for someone to notice her.",
+    personalityTags: ["gentle", "calm", "shy"],
+    adoptionStatus: "available",
+    intakeDate: daysAgo(75),
+    soloOnly: true,
+    energyLevel: "low",
+  },
+  {
+    id: "ds-dog-bruno",
+    name: "Bruno",
+    breed: "Boxer mix",
+    weightLabel: "27 kg",
+    ageLabel: "4 years",
+    sex: "male",
+    imageUrl: "/images/generated/shelter-dog-bruno-portrait.jpeg",
+    daysInKennel: 11,
+    lastWalkedAt: daysAgoIso(1, "08:00"),
+    backstory:
+      "Bouncy, playful, and very keen on tennis balls. Looking for an active family.",
+    personalityTags: ["playful", "loves-walks", "good-with-dogs"],
+    adoptionStatus: "available",
+    intakeDate: daysAgo(11),
+    energyLevel: "high",
+  },
+  {
+    id: "ds-dog-vera",
+    name: "Věra",
+    breed: "Terrier mix",
+    weightLabel: "8 kg",
+    ageLabel: "9 years",
+    sex: "female",
+    imageUrl: "/images/generated/shelter-dog-vera-portrait.jpeg",
+    daysInKennel: 4,
+    lastWalkedAt: daysAgoIso(0, "11:30"),
+    backstory:
+      "An older lady who just wants a quiet sofa. Knows her routines.",
+    personalityTags: ["senior", "calm", "gentle"],
+    adoptionStatus: "pending",
+    intakeDate: daysAgo(4),
+    energyLevel: "low",
+  },
+];
+
+/* ── The shelters ────────────────────────────────────────────────────────── */
 
 export const mockShelters: ShelterProfile[] = [
   {
     id: "utulek-liben",
     name: "Útulek Liběň",
-    logoUrl: "/images/generated/community-cover-karlin.jpeg",
-    bannerUrl: "/images/generated/community-cover-stromovka.jpeg",
+    logoUrl: "/images/generated/shelter-utulek-liben-logo.jpeg",
+    bannerUrl: "/images/generated/shelter-utulek-liben-banner.jpeg",
     location: "Libeň, Prague 8",
     neighbourhood: "Libeň",
     bio:
@@ -385,12 +557,93 @@ export const mockShelters: ShelterProfile[] = [
     // Shared-credential-only operation in V1 — no linked staff.
     team: [],
   },
+  /* ── Pes v nouzi (thin) ────────────────────────────────────────────── */
+  {
+    id: "pes-v-nouzi",
+    name: "Pes v nouzi",
+    logoUrl: "/images/generated/shelter-pes-v-nouzi-logo.jpeg",
+    bannerUrl: "/images/generated/shelter-pes-v-nouzi-banner.jpeg",
+    location: "Holešovice, Prague 7",
+    neighbourhood: "Holešovice",
+    bio:
+      "A small private rescue in Holešovice. We focus on dogs who slipped through cracks — abandonments, surrenders, late-in-life loss of an owner. Working with a handful of volunteer walkers and foster families.",
+    establishedYear: 2014,
+    website: "",
+    socialLinks: {
+      email: "info@pesvnouzi.cz",
+    },
+    tagApproval: "auto",
+    policy: {
+      groupWalksPermitted: false,
+      minimumTier: "vetted",
+      vouchingNote:
+        "We meet every volunteer for a short walk-along before the first solo outing.",
+      workingLanguages: ["cs"],
+    },
+    dogs: PES_V_NOUZI_DOGS,
+    walkers: [],
+    supporters: [],
+    team: [],
+  },
+  /* ── Druhá šance (thin) ────────────────────────────────────────────── */
+  {
+    id: "druha-sance",
+    name: "Druhá šance",
+    logoUrl: "/images/generated/shelter-druha-sance-logo.jpeg",
+    bannerUrl: "/images/generated/shelter-druha-sance-banner.jpeg",
+    location: "Karlín, Prague 8",
+    neighbourhood: "Karlín",
+    bio:
+      "A community-run rescue helping seniors and special-needs dogs find homes. We're small by design — every dog gets a careful match.",
+    establishedYear: 2018,
+    website: "",
+    socialLinks: {
+      email: "ahoj@druhasance.cz",
+    },
+    tagApproval: "auto",
+    policy: {
+      groupWalksPermitted: false,
+      minimumTier: "vetted",
+      vouchingNote:
+        "Walkers join after a coordinator-led intro session. Solo walks only for our seniors.",
+      workingLanguages: ["cs", "en"],
+    },
+    dogs: DRUHA_SANCE_DOGS,
+    walkers: [],
+    supporters: [],
+    team: [],
+  },
 ];
 
 /* ── Lookups ─────────────────────────────────────────────────────────────── */
 
 export function getShelterById(id: string): ShelterProfile | undefined {
   return mockShelters.find((s) => s.id === id);
+}
+
+/**
+ * All seeded shelters. Powers the Help a Dog Discover door's cross-shelter
+ * surfaces (Shelters pill list + flat shelter-dog feed). Named explicitly
+ * so the eventual `OrgProfile` generalization (see Open Questions §14
+ * "ShelterProfile → OrgProfile generalization") is mechanical when the
+ * second institutional type lands — a future `getAllOrgs()` is a clear
+ * follow-on, not a quiet rename.
+ */
+export function getAllShelters(): ShelterProfile[] {
+  return mockShelters;
+}
+
+/** All shelter dogs across all seeded shelters, with shelter context attached
+ *  for surfaces that need attribution (Discover dog card). Stable across
+ *  re-renders; no sort applied — callers sort by the user's selected key. */
+export function getAllShelterDogs(): { dog: PetProfile; shelter: ShelterProfile }[] {
+  const out: { dog: PetProfile; shelter: ShelterProfile }[] = [];
+  for (const shelter of mockShelters) {
+    for (const dog of shelter.dogs) {
+      out.push({ dog, shelter });
+    }
+  }
+  return out;
 }
 
 /** Find a non-owned dog by id across all shelters. */

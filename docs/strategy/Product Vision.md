@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-06-01
+last-reviewed: 2026-06-08
 tags: [vision, principles, strategy, monetization]
 review-trigger: "before any major feature decision or strategic discussion"
 ---
@@ -29,7 +29,7 @@ Groups are the connective tissue. Doors expand as the platform grows; here are t
 | **Find Your Park** | Auto-generated groups for major dog parks. Open, no admin, anyone posts a walk. | Lowest — just show up | "Riegrovy Sady Dog Walks", "Letná Off-Leash" |
 | **Find Your People** | Neighbourhood circles, breed groups, activity crews. Small, trusted, high-utility. Where mutual aid lives. | Medium — request to join | "Vinohrady Evening Walkers", "Prague Reactive Dog Support" |
 | **Find Your Help** | Provider-run groups with booking CTAs on meets. Your walker's schedule, your trainer's sessions. Community-wrapped service. | Low-Medium — join or book | "Klára's Calm Dog Sessions", "Olga's Walking Group" |
-| **Help a Dog** *(Shelter Foundation phase pending)* | Shelter dogs available to walk. Institutional accounts (`ShelterProfile`) parallel to UserProfile. Non-ownership entry point: walkers earn institutional credentials at vetted shelters and become community anchors through documented dog-handling. | Low to browse + become a Supporter; vouching at the shelter to walk | "Útulek Liběň", "Pes v nouzi" |
+| **Help a Dog** | Shelter dogs available to walk. Institutional accounts (`ShelterProfile`) parallel to UserProfile. Non-ownership entry point: walkers earn institutional credentials at vetted shelters and become community anchors through documented dog-handling. Discover door at `/discover/help-a-dog` (Dogs/Shelters pill split) shipped 2026-06-08. | Low to browse + become a Supporter; vouching at the shelter to walk | "Útulek Liběň", "Pes v nouzi", "Druhá šance" |
 
 All doors lead to the same place: a network of people who know each other and each other's dogs. The booking system exists to protect the friendships that form — clear rates, clear records, no scorekeeping. See [[Open Questions & Assumptions Log]] §14 for the full shelter design.
 

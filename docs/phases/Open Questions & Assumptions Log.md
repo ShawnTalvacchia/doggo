@@ -1,7 +1,7 @@
 ---
 category: work-tracking
 status: active
-last-reviewed: 2026-06-07
+last-reviewed: 2026-06-08
 tags: [questions, risks, assumptions, work-on-deck]
 review-trigger: "before starting a new phase, after any strategic discussion"
 ---
@@ -313,6 +313,8 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 **Shipped 2026-06-02 (Shelter Foundation phase close).** Útulek Liběň seeded as the demo shelter; `/shelters/[id]` page with Feed/Dogs/Members/Gallery tabs; minimal `/dogs/[id]` profile; volunteer badge system on Members tab; Follow + Walk-a-dog action row. Build delivered against the 2026-06-01 resolutions with two notable evolutions: (a) walker tier naming shifted from "Vetted/Experienced/Trusted Walker" to **"Volunteer / Regular Volunteer / Super Volunteer"** with violet + growth-icon visual system (paw-weight progression and info-blue were too subtle / wrong semantic), (b) icon shape progression (Leaf → Plant → Tree) replaced weight variation as the tier signal. See `features/shelters.md` for the shipped state, and FC9 + FC11 for the deferred work (cross-shelter aggregation, tier visual intensification, violet→tokens promotion).
 
+**Shipped 2026-06-08 (Help a Dog Discover door phase close).** Fourth Ways In door wired at `/discover/help-a-dog`. Dogs/Shelters pill toggle on a single surface (Dogs default, photo-led, "Needs walks now" sort; Shelters lists the three rescues). Two thin shelters seeded for density — **Pes v nouzi** (Holešovice, 5 dogs) and **Druhá šance** (Karlín, 4 dogs) — each with empty walker + supporter rosters, one shelter-authored post, and the same `/shelters/[id]` chrome handled by thin-shelter empty-state adjustments. Source-aware back from `/dogs/[id]` now prefers `lastListPath` when the source was a `/discover/` route, falling back to the shelter Dogs tab. In-circle elevation deliberately skipped — walkers don't bridge to UserProfile yet; that hook lights up with the credentialing-moat walker journey. See `features/shelters.md` → "Discovery" for the shipped state.
+
 **Assumption:** Doggo will support institutional accounts (starting with shelters) as a parallel entity type to `UserProfile`. Shelter accounts have shared-credential ("the shelter's account") access by default, with optional individual-staff linking ("Team"). Walkers are individual users vouched per-shelter with tiered permissions. Dogs are non-owned `PetProfile` records (containment in `ShelterProfile.dogs[]`, no `shelterId` discriminator field). Shelter page surfaces mirror the Communities tab pattern (Feed / Dogs / Members / Gallery). See [[Cold-Start Playbook]] → "The shelter angle" + the 2026-06-01 strategy conversation.
 
 **Refs:** `Cold-Start Playbook.md` (shelter angle, dog-as-unit framing, walker tiering), `Trust & Connection Model.md` (shelter walker credentials — forward cross-reference), `features/shelters.md` (shipped state).
@@ -351,6 +353,10 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 - **Incident reporting from visit reports.** Visit reports support flagging in principle; the institutional side (does the shelter see the flag, does it auto-impact walker tier, does it require coordinator review, what happens to the dog's record, does the dog's per-dog policy auto-tighten in response to repeated incidents) is real design work. Sized small for V2; demo can show that the flag exists without the full workflow. **Adjacent:** §5 Safety & Liability "trust regression" question applies here — incident-driven tier demotion is a real instance of trust regression we'd need to handle.
 
 - **Bilingual surfaces (Czech/expat).** Útulek Liběň's coordination is in Czech; the expat dog community is English-first. A bilingual coordination layer (shelter posts in both languages, dog-profile content in both, vouching process notes in both) is unusually valuable for shelter onboarding specifically. Probably out of V2 scope but worth logging so we don't bake English-only assumptions into shelter post-authoring surfaces.
+
+- **Walker-circle elevation on Discover Help a Dog** *(opened 2026-06-08 with the Discover door close)*. The Discover Care surface elevates carers the viewer has connection to (`Carers in your circle` / `Other carers`). Help a Dog ships flat — walkers don't bridge to `UserProfile` yet, so there's no honest circle relation to elevate. When the walker journey ships (credentialing-moat phase), this lights up: "Dogs you've walked" and "Shelters your circle volunteers at" become the elevation hooks, sharing the same `ResultsSectionHeader` `in-circle` variant. Worth deciding ahead: is the elevation row-level (each dog/shelter card carries a "Walked by N people in your circle" line) or section-level (split the feed into two groups)? Section-level matches Discover Care; row-level might be lighter given how thin the shelter-dog social graph will be even after the walker journey.
+
+- **Thin-shelter content-authoring authority** *(opened 2026-06-08)*. Pes v nouzi and Druhá šance shipped with empty walker + supporter rosters by design — the walker journey doesn't exist yet, and bridging directory-style walkers per-shelter would multiply the seeding burden. **Open:** when the walker journey ships, do the two thin shelters get walker rosters seeded, or do they stay as "small operations, no walker pool"? The latter is more honest demographically (small rescues genuinely run on the founder + a handful of volunteers, sometimes zero credentialed walkers); the former carries more demo richness. Either lands cleanly — pick when scoping the walker journey.
 
 ---
 

@@ -272,6 +272,35 @@ When the editable-post store lands, the action should mutate `Post.tags[]` direc
 
 ---
 
+## FC15. Shared `<SortMenu />` primitive
+
+**Trigger:** Design System Cleanup phase opens. Or a third consumer is about to copy the same component inline — extract first instead of fan-out.
+
+**Context:** The custom-styled sort dropdown (label + caret trigger + outside-click + Esc handlers + `.dropdown-menu` listbox) lives inlined in two places as of 2026-06-08:
+- `app/shelters/[id]/page.tsx` — shelter Dogs tab toolbar
+- `app/discover/help-a-dog/page.tsx` — Help a Dog Dogs view toolbar
+
+The two copies are near-identical. The only meaningful divergence is the trigger's CSS class (`.shelter-sort-trigger` — shelter-prefixed, which would need generalizing as part of the extraction). Effort beyond that: thin — the component shape is already stable.
+
+**Proposed API:**
+```tsx
+<SortMenu
+  value={sortKey}
+  options={SORT_OPTIONS}
+  onChange={setSortKey}
+/>
+```
+
+Move the trigger styling to a generic class (e.g. `.sort-menu-trigger`) and re-point the existing shelter consumer at it. The `dropdown-menu` / `dropdown-menu-item` classes are already generic; reuse those.
+
+**Effort:** ~30-45 min. New `components/ui/SortMenu.tsx`; generalize `.shelter-sort-trigger` → `.sort-menu-trigger` in `app/globals.css`; two migration call sites; document in design-system.md under primitives.
+
+**Refs:** `app/shelters/[id]/page.tsx:496` (current inline copy + helper context), `app/discover/help-a-dog/page.tsx` (second copy), `.dropdown-menu` pattern in `app/globals.css`, P67 (component-consolidation audit — fits the same recurring-pattern theme). Surfaced 2026-06-08 during Help a Dog Discover door build.
+
+**Added:** 2026-06-08
+
+---
+
 ## FC14. Instagram-style drag-over-photo sheet on PostLightbox (mobile)
 
 **Trigger:** When a Demo Presentation polish pass opens pre-tester sit-down. Or when user testing surfaces "feels truncated" on the photo area below 55dvh.

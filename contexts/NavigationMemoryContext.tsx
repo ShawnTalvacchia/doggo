@@ -34,6 +34,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
   Suspense,
   type ReactNode,
@@ -64,18 +65,28 @@ interface NavigationMemoryContextValue {
    *  preserved, e.g. `/discover/groups?tab=neighbour`). Null on first
    *  load or after a deep link with no in-app history. */
   lastListPath: string | null;
+  /** The full URL immediately before the current one — INCLUDING detail
+   *  paths. Lets consumers disambiguate arrival source when `lastListPath`
+   *  doesn't carry enough signal (e.g. did the viewer reach `/dogs/[id]`
+   *  directly from a Discover surface, or via a shelter detail page in
+   *  between?). One-render delay vs the current pathname — `previousPath`
+   *  is "the URL the viewer was on a render ago." */
+  previousPath: string | null;
 }
 
-/** Internal context shape — exposes the setter to the PathTracker child.
+/** Internal context shape — exposes the setters to the PathTracker child.
  *  Consumers go through `useNavigationMemory()`, which returns only the
  *  read-only state. */
 interface InternalContextValue extends NavigationMemoryContextValue {
   _setLastListPath: (path: string) => void;
+  _setPreviousPath: (path: string) => void;
 }
 
 const NavigationMemoryContext = createContext<InternalContextValue>({
   lastListPath: null,
+  previousPath: null,
   _setLastListPath: () => {},
+  _setPreviousPath: () => {},
 });
 
 /**
@@ -87,13 +98,27 @@ function PathTracker() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const ctx = useContext(NavigationMemoryContext);
+  // Tracks the FULL path of the previous render so we can publish it as
+  // `previousPath` on the next pathname change. A ref (not state) because
+  // we only care about its value during the effect, not for re-rendering.
+  const lastFullPathRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!pathname) return;
-    if (isDetailPath(pathname)) return;
     const search = searchParams.toString();
     const full = search ? `${pathname}?${search}` : pathname;
-    ctx._setLastListPath(full);
+
+    // Publish the BEFORE-this-change full path as `previousPath`. Includes
+    // detail paths (shelter / dog / community / etc.) — that's the point;
+    // `lastListPath` already filters those out.
+    if (lastFullPathRef.current && lastFullPathRef.current !== full) {
+      ctx._setPreviousPath(lastFullPathRef.current);
+    }
+    lastFullPathRef.current = full;
+
+    if (!isDetailPath(pathname)) {
+      ctx._setLastListPath(full);
+    }
   }, [pathname, searchParams, ctx]);
 
   return null;
@@ -101,10 +126,16 @@ function PathTracker() {
 
 export function NavigationMemoryProvider({ children }: { children: ReactNode }) {
   const [lastListPath, setLastListPath] = useState<string | null>(null);
+  const [previousPath, setPreviousPath] = useState<string | null>(null);
 
   return (
     <NavigationMemoryContext.Provider
-      value={{ lastListPath, _setLastListPath: setLastListPath }}
+      value={{
+        lastListPath,
+        previousPath,
+        _setLastListPath: setLastListPath,
+        _setPreviousPath: setPreviousPath,
+      }}
     >
       <Suspense fallback={null}>
         <PathTracker />
@@ -127,6 +158,6 @@ export function NavigationMemoryProvider({ children }: { children: ReactNode }) 
  * ```
  */
 export function useNavigationMemory(): NavigationMemoryContextValue {
-  const { lastListPath } = useContext(NavigationMemoryContext);
-  return { lastListPath };
+  const { lastListPath, previousPath } = useContext(NavigationMemoryContext);
+  return { lastListPath, previousPath };
 }

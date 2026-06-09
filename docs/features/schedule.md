@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-05-17
+last-reviewed: 2026-06-08
 tags: [schedule, meets, bookings, timeline]
 review-trigger: "when modifying the My Schedule page or unified timeline"
 ---

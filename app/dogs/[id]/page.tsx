@@ -73,7 +73,7 @@ function DogProfileInner() {
   const searchParams = useSearchParams();
   const { setDetailHeader, clearDetailHeader, setPageAction, clearPageAction } =
     usePageHeader();
-  const { lastListPath } = useNavigationMemory();
+  const { lastListPath, previousPath } = useNavigationMemory();
   const currentUserId = useCurrentUserId();
   const { getConnection } = useConnections();
 
@@ -115,11 +115,32 @@ function DogProfileInner() {
     return state === "connected" || state === "pending";
   })();
 
-  // Back-nav target. Shelter dogs go up to their shelter's Dogs tab
-  // (tree-hierarchy). Owned dogs go to the owner's profile (or `/profile`
-  // for self). Unknown dogs use source-aware nav memory.
+  // Back-nav target. Shelter dogs default to their shelter's Dogs tab
+  // (tree-hierarchy), but prefer source-aware nav memory when the viewer
+  // came directly from a Discover surface — the Help a Dog door
+  // (2026-06-08) and any future Discover entry that surfaces shelter dogs
+  // directly. If the viewer traversed a shelter detail page on the way to
+  // the dog (Discover → shelter → dog), the tree-hierarchy default wins
+  // because that shelter Dogs tab is what the viewer was just browsing.
+  // `previousPath` disambiguates: `lastListPath` stays at the Discover URL
+  // through detail-page hops, so it alone can't tell the two flows apart.
+  // Owned dogs go to the owner's profile (or `/profile` for self). Unknown
+  // dogs fall through to the list-level memory.
   const parentHref = (() => {
-    if (shelterResolved) return `/shelters/${shelterResolved.shelter.id}?tab=dogs`;
+    if (shelterResolved) {
+      const shelterDogsTab = `/shelters/${shelterResolved.shelter.id}?tab=dogs`;
+      // Came via a shelter detail → tree-hierarchy wins regardless of the
+      // earlier Discover entry. Match on any /shelters/* path so it covers
+      // the Feed / Members / Gallery tabs too.
+      if (previousPath && previousPath.startsWith("/shelters/")) {
+        return shelterDogsTab;
+      }
+      // Direct arrival from a Discover surface → source-aware.
+      if (lastListPath && lastListPath.startsWith("/discover/")) {
+        return lastListPath;
+      }
+      return shelterDogsTab;
+    }
     if (ownedResolved) {
       if (ownedResolved.owner.id === currentUserId) return "/profile";
       return `/profile/${ownedResolved.owner.id}`;

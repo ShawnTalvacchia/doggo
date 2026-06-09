@@ -11238,6 +11238,13 @@ body:has(.bottom-nav) .inbox-page {
 
 .inq-service-card {
   text-align: center;
+  /* The row stretches all cards to match the tallest (when "Walks &
+     Check-ins" wraps to 2 lines, the 1-line cards inherit that height).
+     Without this, the strong sits at the top of each grid cell, so the
+     shorter labels look top-aligned next to the wrapped one. Center
+     vertically within the cell. 2026-06-08. */
+  align-content: center;
+  justify-content: center;
 }
 
 .inq-service-card strong {
@@ -11952,46 +11959,38 @@ body:has(.bottom-nav) .inbox-page {
    pills aren't interactive on the viewer side, so they get their own
    class to avoid suggesting the wrong contract. Pricing & Proposals
    walkthrough 2026-05-04. */
+/* Availability slot — view-mode pill. Active = soft surface + clear
+   border + primary text (so it reads as "this is on" at a glance).
+   Off = transparent, very faded text, no border. The contrast between
+   the two needs to be immediate; the prior treatment used a too-subtle
+   border + too-readable off state and the difference washed out. 2026-06-08. */
 .profile-avail-slot {
   padding: 6px 14px;
   border-radius: var(--radius-pill);
-  background: var(--surface-inset);
-  color: var(--text-secondary);
+  background: var(--surface-popout);
+  border: 1px solid var(--border-stronger);
+  color: var(--text-primary);
   font-size: var(--font-size-body-sm);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-semibold);
   white-space: nowrap;
 }
 
 .profile-avail-slot--off {
   background: transparent;
+  border-color: transparent;
   color: var(--text-tertiary);
-  opacity: 0.4;
+  font-weight: var(--weight-medium);
+  opacity: 0.28;
 }
 
-/* Availability slot pills (ProfileServicesTab — own profile). The shared
-   `.pill` base reads too strong for unselected slots, so the *selected*
-   ones should carry the row. Edit mode renders each slot as a <button>
-   (clickable); view mode renders a <span> (static label) — that element
-   split drives the two unselected treatments below. Selected (.active)
-   keeps the shared brand treatment in both modes. 2026-05-16. */
-
-/* Edit, unselected — a clickable outline chip: transparent fill + a defined
-   border + readable text, so it reads as a tappable target. */
+/* Edit-mode availability slot — the togglable variant. Inline
+   `.pill`/`.pill.active` rendering on the buttons in ProfileServicesTab.
+   The unselected outline + selected brand treatment communicates
+   tappability + active state during composition, distinct from the
+   muted view-mode label above. 2026-05-16. */
 .profile-avail-slots button.pill:not(.active) {
   background: transparent;
   border-color: var(--border-stronger);
-}
-
-/* View, unselected — a flat, non-interactive label: a soft filled chip with
-   muted text and no real border, so it recedes and the selected (brand)
-   slots carry the row. */
-.profile-avail-slots span.pill {
-  cursor: default;
-}
-.profile-avail-slots span.pill:not(.active) {
-  background: var(--surface-base);
-  border-color: var(--surface-base);
-  color: var(--text-tertiary);
 }
 
 /* Narrow-screen compression — 320px viewports overflow the row at default
@@ -14653,6 +14652,166 @@ a.shelter-intro-social:hover {
   /* Comfortable icon-to-text breathing room. `xxs` was too tight and
      made the chip read as "icontext" rather than "icon · text". */
   gap: var(--space-xs);
+}
+
+/* ── Help a Dog Discover door ─────────────────────────────────────── */
+
+/* Toolbar above the Dogs grid — holds the "Sort by" label + SortMenu.
+   Mirrors the shelter Dogs-tab toolbar exactly so behaviour and visual
+   rhythm match between the two surfaces. */
+.help-a-dog-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-md) 0;
+}
+
+.help-a-dog-toolbar-label {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+}
+
+/* Dogs grid — mirrors `.shelter-dogs-grid` for layout consistency
+   between the shelter Dogs tab and the Discover door. 2-up on
+   desktop (within the panel width), 1-up on narrow viewports. */
+.help-a-dog-dogs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-md) var(--space-xl);
+}
+
+.help-a-dog-shelters-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-md);
+}
+
+/* DiscoverShelterCard — banner + logo + name + meta + caret tail. */
+.discover-shelter-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-popout);
+  border: 1px solid var(--border-regular);
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+  color: var(--text-primary);
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.discover-shelter-card:hover {
+  background: var(--surface-top);
+  box-shadow: var(--shadow-sm);
+}
+
+.discover-shelter-card-banner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 1;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--surface-base);
+}
+
+.discover-shelter-card-logo {
+  position: absolute;
+  left: var(--space-md);
+  bottom: -16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid var(--surface-popout);
+  background-color: var(--surface-base);
+}
+
+.discover-shelter-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: calc(16px + var(--space-md)) var(--space-md) var(--space-md);
+}
+
+.discover-shelter-card-headline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.discover-shelter-card-name {
+  font-family: var(--font-heading);
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-lg);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.discover-shelter-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs) var(--space-xs);
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+}
+
+.discover-shelter-card-meta-dogs {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.discover-shelter-card-meta-need {
+  color: var(--text-secondary);
+  font-weight: var(--weight-semibold);
+}
+
+/* Shelter attribution row — only renders on Discover's Help a Dog
+   surface where dogs come from multiple shelters. The shelter's own
+   Dogs tab leaves this off (shelter context is the page chrome). */
+.shelter-dog-card-attribution {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+  padding-top: var(--space-xs);
+  border-top: 1px solid var(--border-regular);
+}
+
+.shelter-dog-card-attribution-logo {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  flex-shrink: 0;
+}
+
+.shelter-dog-card-attribution-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.shelter-dog-card-attribution-name {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shelter-dog-card-attribution-meta {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── Shelter Members tab ──────────────────────────────────────────── */

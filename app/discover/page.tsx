@@ -5,6 +5,7 @@ import {
   PawPrint,
   UsersThree,
   Heart,
+  HandHeart,
   MapPin,
   CaretRight,
 } from "@phosphor-icons/react";
@@ -32,6 +33,13 @@ const CATEGORIES = [
     description: "Find trusted walkers, sitters, and boarding from people you know",
     icon: Heart,
     href: "/discover/care",
+  },
+  {
+    key: "help-a-dog",
+    label: "Help a Dog",
+    description: "Walk shelter dogs nearby and meet your local rescue",
+    icon: HandHeart,
+    href: "/discover/help-a-dog",
   },
 ] as const;
 

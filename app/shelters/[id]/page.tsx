@@ -237,18 +237,28 @@ function ShelterIntro({ shelter }: { shelter: ShelterProfile }) {
  * card and in the Walk-a-dog sheet's vouching note).
  */
 function ShelterMetaRow({ shelter }: { shelter: ShelterProfile }) {
+  // Walkers/supporters line hides entirely when both are zero — "0 walkers,
+  // 0 supporters" reads as broken on thin shelters. When only one side has
+  // entries, render just that side. Surfaced 2026-06-08 (Help a Dog
+  // Discover door — thin-shelter audit).
+  const walkerCount = shelter.walkers.length;
+  const supporterCount = shelter.supporters.length;
+  const peopleLineParts: string[] = [];
+  if (walkerCount > 0) peopleLineParts.push(`${walkerCount} walkers`);
+  if (supporterCount > 0) peopleLineParts.push(`${supporterCount} supporters`);
+
   return (
     <div className="shelter-meta-row">
       <span className="shelter-meta-item">
         <MapPin size={14} weight="light" />
         <span>{shelter.location}</span>
       </span>
-      <span className="shelter-meta-item">
-        <Users size={14} weight="light" />
-        <span>
-          {shelter.walkers.length} walkers, {shelter.supporters.length} supporters
+      {peopleLineParts.length > 0 && (
+        <span className="shelter-meta-item">
+          <Users size={14} weight="light" />
+          <span>{peopleLineParts.join(", ")}</span>
         </span>
-      </span>
+      )}
       {shelter.establishedYear && (
         <span className="shelter-meta-item">
           <Clock size={14} weight="light" />
@@ -682,12 +692,16 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
             title={
               filter === "team"
                 ? "No team members linked yet"
-                : "No members in this view"
+                : shelter.walkers.length + shelter.supporters.length === 0
+                  ? "Walkers and supporters coming soon"
+                  : "No members in this view"
             }
             subtitle={
               filter === "team"
-                ? "Útulek Liběň operates as a shared-account team. Individual staff can opt to link their profiles."
-                : "Switch the filter to see walkers or supporters."
+                ? `${shelter.name} operates as a shared-account team. Individual staff can opt to link their profiles.`
+                : shelter.walkers.length + shelter.supporters.length === 0
+                  ? `${shelter.name} is small. Walkers join through a coordinator-led intro session.`
+                  : "Switch the filter to see walkers or supporters."
             }
           />
         </div>

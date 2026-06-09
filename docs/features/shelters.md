@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-07
+last-reviewed: 2026-06-08
 tags: [shelters, institutional-accounts, walkers, dogs, cold-start, photos]
 review-trigger: "when modifying shelter surfaces, walker tier model, or non-owned dog handling"
 ---
@@ -248,12 +248,37 @@ Source-aware backs are wired so that visiting a shelter from `/discover/care` (w
 
 ## Discovery
 
-V1 ships **no top-level Discover entry** for shelters. Users reach a shelter via:
-- Direct URL (`/shelters/utulek-liben`)
-- Author link on a shelter-authored post in any feed
+The **Help a Dog Discover door** ships at `/discover/help-a-dog` (2026-06-08, fourth Ways In door). The hub card on `/discover` uses the `HandHeart` icon and the copy "Walk shelter dogs nearby and meet your local rescue."
+
+The door surface uses a `FilterPillRow` view toggle:
+
+- **Dogs pill (default)** — photo-led 2-up grid of all shelter dogs across all seeded shelters (mirrors the shelter Dogs tab's `.shelter-dogs-grid` formula — `repeat(auto-fit, minmax(220px, 1fr))`). Reuses `ShelterDogCard` with the `shelter` prop set so each card renders a small attribution row (logo + shelter name + location). Sort dropdown mirrors the shelter Dogs tab: `Needs walks now` (default) / `Longest in care` / `Smallest first` / `A–Z`. Filter panel (behind the Filters float button): dog size, energy level, adoption status, personality (subset of the `PersonalityTag` vocabulary — `gentle / good-with-strangers / good-with-dogs / good-with-kids / loves-walks / puppy / senior / calm` — picked as adopter lenses; eligibility-flavored tags like `reactive-on-leash` deliberately excluded).
+- **Shelters pill** — single-column list of `DiscoverShelterCard` rows (banner + circular logo overlap + name + `location · dogs in care · X need walks now` meta). Tap routes to `/shelters/[id]`.
+
+In-circle elevation (the "Carers in your circle" pattern from Discover Care) is deliberately skipped in V1 — walkers don't bridge to `UserProfile` yet, so there's no honest circle relation to elevate. The hook ("Dogs you've walked," "Shelters your circle volunteers at") lights up with the credentialing-moat phase's walker journey.
+
+Three shelters seeded at this phase to make "browse rescues" earn its keep — Útulek Liběň (full roster), Pes v nouzi (thin), Druhá šance (thin). The two thin shelters have empty walker + supporter rosters and one shelter-authored post each; their `/shelters/[id]` pages use the same chrome with content-aware empty states (see "Thin-shelter rendering" below).
+
+Source-aware back: `/shelters/[id]` reached from `/discover/help-a-dog` returns to the door via the existing source-aware `lastListPath`. `/dogs/[id]` for a shelter dog uses a two-signal rule:
+
+1. If the **immediately previous URL** (`previousPath`) starts with `/shelters/`, the viewer was inside the shelter context — return to the shelter Dogs tab (tree-hierarchy default wins).
+2. Else if `lastListPath` starts with `/discover/`, the viewer came directly from a Discover surface — return there.
+3. Otherwise tree-hierarchy default.
+
+`previousPath` is a new field on `NavigationMemoryContext` (2026-06-08) that tracks the immediately-previous full URL including detail paths — `lastListPath` alone can't disambiguate "Discover → dog directly" from "Discover → shelter → dog" because shelter detail visits don't update list memory.
+
+Other entry surfaces still work:
+- Direct URL (`/shelters/utulek-liben`, `/shelters/pes-v-nouzi`, `/shelters/druha-sance`)
+- Author link on a shelter-authored post
 - The `shelter` tag pill on a tagged post
 
-A cold-start "Help a Dog" door in Discover is referenced in [[Cold-Start Playbook]] as a future thread; it's not on this phase or roadmap.
+### Thin-shelter rendering
+
+Three small adjustments on `/shelters/[id]` so the chrome doesn't read as broken with an empty walker roster:
+
+- **Meta row** — the `N walkers, M supporters` line hides entirely when both counts are zero, and renders just the populated side when only one is zero.
+- **Members tab empty state** — when `walkers + supporters === 0`, the title becomes "Walkers and supporters coming soon" and the subtitle uses the shelter's name plus a forward-looking line about how walkers join (instead of "Switch the filter to see walkers or supporters," which implies switching to a populated view that doesn't exist).
+- **Team filter** — was already conditionally hidden when `team.length === 0`; the staff-linking line in the Walk-a-dog sheet was already shelter-agnostic via `${shelter.name}`.
 
 ---
 
