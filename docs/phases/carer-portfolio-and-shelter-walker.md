@@ -317,9 +317,9 @@ Run before opening the Shelter Walker side:
 
 ---
 
-## Build punch list — for the next session
+## Build sequence
 
-Sequenced for the Carer Portfolio half first. Each line is one focused commit (or close to it). Walk down the list — don't reshuffle.
+Sequenced for the Carer Portfolio half first. Each line is one focused commit (or close to it). Walk down the list — don't reshuffle. (Note: this is the in-phase build order, NOT the cross-phase punch list at `planning/punch-list.md`.)
 
 **Carer Portfolio half (ship target — phase mid-point):**
 
