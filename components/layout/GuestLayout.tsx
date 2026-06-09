@@ -19,6 +19,13 @@ export function GuestLayout({ children }: { children: React.ReactNode }) {
     pathname === "/unlock" ||
     pathname.startsWith("/pages");
 
+  // Styleguide gets AppNav at the top + its own sg-layout chrome below,
+  // but no Sidebar and no BottomNav. styleguide.css computes content
+  // height as `calc(100vh - var(--nav-height))` and expects AppNav to be
+  // the only outer chrome. Without this branch the route fell through to
+  // the logged-in case below and rendered a second logo via Sidebar.
+  const isStyleguideRoute = pathname.startsWith("/styleguide");
+
   useEffect(() => {
     document.body.classList.toggle("guest-route", isGuestRoute);
     document.body.classList.toggle("standalone-route", isStandaloneRoute);
@@ -34,6 +41,17 @@ export function GuestLayout({ children }: { children: React.ReactNode }) {
   if (isStandaloneRoute) {
     // Pure content — no global chrome.
     return <>{mainContent}</>;
+  }
+
+  if (isStyleguideRoute) {
+    // AppNav at top + styleguide layout below. No Sidebar (that's the
+    // duplicate-logo bug), no BottomNav. Bottom-nav arg dropped silently.
+    return (
+      <>
+        {nav}
+        {mainContent}
+      </>
+    );
   }
 
   if (!isGuestRoute) {
