@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import { Plant, Tree } from "@phosphor-icons/react";
+import { getUserById } from "@/lib/mockUsers";
 import type { ShelterSupporter, ShelterWalker, WalkerTier } from "@/lib/types";
 
 /**
@@ -54,11 +56,24 @@ const TIER_CLASS: Record<WalkerTier, string> = {
 export function ShelterMemberRow({ entry }: ShelterMemberRowProps) {
   const { kind, data } = entry;
   const displayName = data.displayName;
+  // Walker → UserProfile bridge (G). When data.userId resolves to a
+  // real UserProfile, the row links to their profile. Directory-style
+  // walkers (fabricated slug ids that don't resolve) stay non-clickable.
+  const bridgedUser = getUserById(data.userId);
+  const profileHref = bridgedUser ? `/profile/${data.userId}` : undefined;
 
   return (
     <div className="shelter-member-row">
       <div className="shelter-member-avatar">
-        {data.avatarUrl ? (
+        {profileHref ? (
+          <Link href={profileHref} aria-label={`Open ${displayName}'s profile`}>
+            {data.avatarUrl ? (
+              <img src={data.avatarUrl} alt={displayName} />
+            ) : (
+              <DefaultAvatar name={displayName} size={40} />
+            )}
+          </Link>
+        ) : data.avatarUrl ? (
           <img src={data.avatarUrl} alt={displayName} />
         ) : (
           <DefaultAvatar name={displayName} size={40} />
@@ -67,7 +82,13 @@ export function ShelterMemberRow({ entry }: ShelterMemberRowProps) {
 
       <div className="shelter-member-body">
         <div className="shelter-member-name-row">
-          <span className="shelter-member-name">{displayName}</span>
+          {profileHref ? (
+            <Link href={profileHref} className="shelter-member-name" style={{ textDecoration: "none", color: "inherit" }}>
+              {displayName}
+            </Link>
+          ) : (
+            <span className="shelter-member-name">{displayName}</span>
+          )}
           {kind === "walker" && (() => {
             const TierIcon = TIER_ICON[data.tier];
             const iconWeight = data.tier === "trusted" ? "fill" : "regular";

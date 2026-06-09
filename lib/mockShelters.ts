@@ -259,7 +259,10 @@ const UTULEK_DOGS: PetProfile[] = [
 const UTULEK_WALKERS: ShelterWalker[] = [
   // Trusted — 1 walker, deeply embedded
   {
-    userId: "walker-pavel-d",
+    // Bridged walker (G, 2026-06-09) — pavel-d is a real UserProfile
+    // already in the supporting cast (carer-side bridged provider).
+    // Name click on Members tab now routes to /profile/pavel-d.
+    userId: "pavel-d",
     displayName: "Pavel D.",
     avatarUrl: "/images/generated/marek-profile.jpeg",
     tier: "trusted",
@@ -269,7 +272,9 @@ const UTULEK_WALKERS: ShelterWalker[] = [
   },
   // Experienced — 3 walkers
   {
-    userId: "walker-marie-b",
+    // Bridged walker (G, 2026-06-09) — marie is a real UserProfile in
+    // the supporting cast. Name click routes to /profile/marie.
+    userId: "marie",
     displayName: "Marie B.",
     avatarUrl: "/images/generated/marie-profile.jpeg",
     tier: "experienced",
@@ -306,7 +311,9 @@ const UTULEK_WALKERS: ShelterWalker[] = [
     lastWalkedAt: daysAgoIso(3, "10:00"),
   },
   {
-    userId: "walker-jakub-v",
+    // Bridged walker (G, 2026-06-09) — jakub is a real UserProfile in
+    // the supporting cast. Name click routes to /profile/jakub.
+    userId: "jakub",
     displayName: "Jakub V.",
     avatarUrl: "/images/generated/jakub-profile.jpeg",
     tier: "vetted",
