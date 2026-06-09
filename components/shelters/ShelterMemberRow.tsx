@@ -1,22 +1,19 @@
 "use client";
 
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
-import { Leaf, Plant, Tree } from "@phosphor-icons/react";
+import { Plant, Tree } from "@phosphor-icons/react";
 import type { ShelterSupporter, ShelterWalker, WalkerTier } from "@/lib/types";
 
 /**
  * A single row on the shelter Members tab.
  *
- * Walkers carry a tier-labeled volunteer badge ("New Volunteer" /
- * "Regular Volunteer" / "Trusted Volunteer"). The chip uses a violet
- * fill ("earned recognition") which sits outside the existing semantic
- * ladder (info = paid care, brand = community) so the badge stays
- * distinct as it appears on more surfaces (user profiles, etc.) in
- * the credentialing-moat phase.
- *
- * Tier escalation reads through icon SHAPE — Leaf → Plant → Tree —
- * not through weight or chip styling. Distinct shapes are far more
- * legible at small sizes than weight progression on a single icon.
+ * Walkers carry a tier-labeled credential pill via the shared
+ * `.credential-pill` family (violet variant). Tier escalation rides
+ * three signals stacked: surface saturation (neutral → soft → dark),
+ * icon presence (none → Plant → Tree fill), and label distinction
+ * (T1 and T2 both read "Volunteer"; T3 distinguishes as "Super
+ * Volunteer"). Same mechanic as the Carer aggregate badge in the
+ * credentialing-moat phase — see credential-pill in /styleguide/components.
  *
  * Supporters carry no chip; the walker badge is the differentiator.
  */
@@ -27,27 +24,31 @@ interface ShelterMemberRowProps {
   shelterName?: string;
 }
 
-// Working titles — see FC9. The ladder is:
-//  - Entry: just "Volunteer" (no modifier — the real thing, not a
-//    probationary "New" status).
-//  - Middle: "Regular Volunteer" — modest, descriptive of cadence.
-//  - Top: "Super Volunteer" — praise rather than rank, doesn't imply
-//    other tiers are "untrusted" the way "Trusted" did.
-// "Volunteer" travels cleanly across shelters; the chip doesn't need
-// shelter context appended.
+// T1 and T2 share the short label "Volunteer" — the style escalation
+// (saturation + icon) does the work between them; only T3 earns a
+// distinguishing word. "Regular Volunteer" was dropped during the
+// credentialing-moat walkthrough (O1) because it didn't read as a step
+// up from "Volunteer" — could even read as "regular/not special."
 const TIER_LABEL: Record<WalkerTier, string> = {
   vetted: "Volunteer",
-  experienced: "Regular Volunteer",
+  experienced: "Volunteer",
   trusted: "Super Volunteer",
 };
 
-// Growth metaphor: leaf (smallest unit of life) → plant (a small thing
-// growing) → tree (established, rooted). Reads as time accumulating
-// through volunteering, not as a leaderboard rank.
-const TIER_ICON: Record<WalkerTier, typeof Leaf> = {
-  vetted: Leaf,
+// T1 has NO icon (escalation starts adding signals at T2). Growth
+// metaphor at T2+T3 — Plant (growing) → Tree (established). Tree at
+// T3 uses weight="fill" for the strongest jump (paired with the dark
+// surface flip).
+const TIER_ICON: Record<WalkerTier, typeof Plant | null> = {
+  vetted: null,
   experienced: Plant,
   trusted: Tree,
+};
+
+const TIER_CLASS: Record<WalkerTier, string> = {
+  vetted: "credential-pill--tier-1",
+  experienced: "credential-pill--tier-2",
+  trusted: "credential-pill--tier-3",
 };
 
 export function ShelterMemberRow({ entry }: ShelterMemberRowProps) {
@@ -69,9 +70,10 @@ export function ShelterMemberRow({ entry }: ShelterMemberRowProps) {
           <span className="shelter-member-name">{displayName}</span>
           {kind === "walker" && (() => {
             const TierIcon = TIER_ICON[data.tier];
+            const iconWeight = data.tier === "trusted" ? "fill" : "regular";
             return (
-              <span className="shelter-member-chip shelter-member-chip--volunteer">
-                <TierIcon size={12} weight="bold" />
+              <span className={`credential-pill credential-pill--volunteer ${TIER_CLASS[data.tier]}`}>
+                {TierIcon && <TierIcon size={14} weight={iconWeight} />}
                 {TIER_LABEL[data.tier]}
               </span>
             );

@@ -14350,10 +14350,11 @@ a.shelter-intro-social:hover {
 }
 
 /* Dogs-in-care summary card uses the volunteer-violet pair (matches
-   the badge color). Was info-blue, which per CLAUDE.md is reserved
-   for paid care — wrong semantic for a card that primes the volunteer
-   journey. Hex values kept in sync with .shelter-member-chip--volunteer;
-   promote to a token family together when violet gets more uses. */
+   the credential-pill --volunteer family). Was info-blue, which per
+   CLAUDE.md is reserved for paid care — wrong semantic for a card
+   that primes the volunteer journey. Hex values kept in sync with
+   the .credential-pill--volunteer family modifier; promote to a
+   token family together when violet gets more uses. */
 .shelter-summary-card-icon {
   display: inline-flex;
   align-items: center;
@@ -14863,35 +14864,11 @@ a.shelter-intro-social:hover {
   color: var(--text-primary);
 }
 
-/* Tier-labeled walker chip on shelter Members rows. Uniform style for
-   all three tiers in V1 (label carries the tier); tier-coded visual
-   intensification (outlined → filled → filled+ring) lands with the
-   credentialing-moat phase per FC9. */
-.shelter-member-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: 3px 10px;
-  border-radius: var(--radius-pill);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  line-height: 1.2;
-  white-space: nowrap;
-}
-
-/* Volunteer badge — earned recognition for shelter walkers. Single
-   uniform chip style across all tiers; the icon shape carries the tier
-   (Leaf → Plant → Tree).
-   Violet fill sits outside the existing semantic ladder (info = paid
-   care, brand = community) so the badge reads as its own category:
-   "time given to shelter dogs." Cooler (more indigo-leaning) violet
-   so it doesn't drift toward pink at small chip sizes. Hex values
-   inlined for now — promote to a `--violet-*` token family when the
-   chip lands on more surfaces. See FC9. */
-.shelter-member-chip--volunteer {
-  background: #ede9fe; /* violet-100 — cool lavender */
-  color: #5b21b6;      /* violet-800 — deep indigo-violet, less rose */
-}
+/* `.shelter-member-chip` + `.shelter-member-chip--volunteer` retired
+   2026-06-09 (credentialing-moat phase H1) — walker pills now use the
+   shared `.credential-pill` family (`--volunteer` modifier + per-tier
+   `--tier-N` modifier). See the CredentialPill section in
+   `/styleguide/components` and the credential-pill CSS rules below. */
 
 .shelter-member-subline {
   display: flex;
