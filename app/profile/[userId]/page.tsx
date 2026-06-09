@@ -32,6 +32,8 @@ import { SharedContextCard } from "@/components/profile/SharedContextCard";
 import { TrustBadgeStrip } from "@/components/badges/TrustBadgeStrip";
 import { getTrustBadges, userProfileToTrustSubject, getCircleAttribution } from "@/lib/trustBadges";
 import { useReviews } from "@/contexts/ReviewsContext";
+import { useWalkerApplications } from "@/contexts/WalkerApplicationsContext";
+import { getUserShelterAffiliations } from "@/lib/mockShelters";
 import { getCarerIdentity } from "@/lib/identityBadges";
 import { PetSummaryCard } from "@/components/profile/PetSummaryCard";
 import { PostsTab } from "@/components/profile/PostsTab";
@@ -237,6 +239,7 @@ function UserProfileInner() {
 
   const currentUserId = useCurrentUserId();
   const { reviews: allReviews } = useReviews();
+  const { applications: walkerApplications } = useWalkerApplications();
   const [reviewsModalOpen, setReviewsModalOpen] = useState(false);
   const currentUser = useCurrentUser();
   const isGuest = useIsGuest();
@@ -1133,6 +1136,68 @@ function UserProfileInner() {
                       })}
                     </div>
                   </ModalSheet>
+                </section>
+              );
+            })()}
+
+            {/* Volunteer work (L) — cross-shelter affiliation section.
+                Combines static walker entries (mockShelters.walkers) with
+                dynamic vouched WalkerApplication records for this user.
+                Per O6: per-shelter chips + conditional aggregate header
+                (renders only when affiliations.length ≥ 2). Anti-
+                scoreboard discipline preserved: factual cumulative
+                numbers only, no percentile/streak/comparison framing. */}
+            {(() => {
+              const dynamicVouched = walkerApplications
+                .filter((a) => a.userId === userId && a.state === "vouched")
+                .map((a) => ({
+                  shelterId: a.shelterId,
+                  walkCount: a.walkCount ?? 0,
+                  vouchedAt: a.vouchedAt ?? a.appliedAt,
+                }));
+              const affiliations = getUserShelterAffiliations(userId, dynamicVouched);
+              if (affiliations.length === 0) return null;
+              const totalWalks = affiliations.reduce((sum, a) => sum + a.walkCount, 0);
+              const TIER_LABEL: Record<string, string> = {
+                vetted: "Volunteer",
+                experienced: "Volunteer",
+                trusted: "Super Volunteer",
+              };
+              return (
+                <section>
+                  <div className="flex items-baseline gap-xs">
+                    <h3 className="profile-card-subtitle m-0">Volunteer work</h3>
+                    {affiliations.length >= 2 && (
+                      <span className="text-sm text-fg-secondary">
+                        · {affiliations.length} shelters · {totalWalks} walks total
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-sm" style={{ marginTop: "var(--space-sm)" }}>
+                    {affiliations.map(({ shelter, tier, walkCount }) => (
+                      <Link
+                        key={shelter.id}
+                        href={`/shelters/${shelter.id}`}
+                        className="flex items-center gap-md"
+                        style={{ textDecoration: "none", color: "inherit" }}
+                      >
+                        <span
+                          className={`credential-pill credential-pill--volunteer ${
+                            tier === "trusted"
+                              ? "credential-pill--tier-3"
+                              : tier === "experienced"
+                              ? "credential-pill--tier-2"
+                              : "credential-pill--tier-1"
+                          }`}
+                        >
+                          {TIER_LABEL[tier]} at {shelter.name}
+                        </span>
+                        <span className="text-xs text-fg-tertiary">
+                          · {walkCount} {walkCount === 1 ? "walk" : "walks"}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
                 </section>
               );
             })()}

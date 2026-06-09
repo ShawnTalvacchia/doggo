@@ -31,6 +31,7 @@ import type {
   ShelterProfile,
   ShelterSupporter,
   ShelterWalker,
+  WalkerTier,
 } from "./types";
 import { daysAgo, daysAgoIso } from "./mockDate";
 import { mockPosts } from "./mockPosts";
@@ -639,6 +640,39 @@ export function getShelterById(id: string): ShelterProfile | undefined {
  */
 export function getAllShelters(): ShelterProfile[] {
   return mockShelters;
+}
+
+/**
+ * All shelters where `userId` is a walker — combines static roster
+ * entries (mockShelters.walkers) with vouched WalkerApplication
+ * records (callers pass those in, since this helper is sync mock).
+ *
+ * Returns a per-shelter entry with the walker's tier + walk count for
+ * the "Volunteer work" section on user profiles (L per O6).
+ */
+export function getUserShelterAffiliations(
+  userId: string,
+  dynamicVouchedShelters: { shelterId: string; walkCount: number; vouchedAt: string }[] = [],
+): { shelter: ShelterProfile; tier: WalkerTier; walkCount: number }[] {
+  const out: { shelter: ShelterProfile; tier: WalkerTier; walkCount: number }[] = [];
+  for (const shelter of mockShelters) {
+    // Static roster — seeded mockShelters entry.
+    const staticEntry = shelter.walkers.find((w) => w.userId === userId);
+    if (staticEntry) {
+      out.push({ shelter, tier: staticEntry.tier, walkCount: staticEntry.walkCount });
+      continue;
+    }
+    // Dynamic — from a vouched WalkerApplication.
+    const dyn = dynamicVouchedShelters.find((d) => d.shelterId === shelter.id);
+    if (dyn) {
+      // Derive tier from walkCount per D1 thresholds; can't import the
+      // helper here without a circular dep, so duplicate the rule.
+      const tier: WalkerTier =
+        dyn.walkCount >= 25 ? "trusted" : dyn.walkCount >= 10 ? "experienced" : "vetted";
+      out.push({ shelter, tier, walkCount: dyn.walkCount });
+    }
+  }
+  return out;
 }
 
 /** All shelter dogs across all seeded shelters, with shelter context attached
