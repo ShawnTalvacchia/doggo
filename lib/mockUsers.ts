@@ -184,6 +184,14 @@ export const tereza: UserProfile = {
         priceUnit: "per_visit",
         subServices: ["Special feeding", "Medication"],
         notes: "Small/medium dogs only at my flat in Vinohrady. Familiar dogs only.",
+        // Half-day option (P75 / Half-day Care, 2026-06-07). Full-day base
+        // is the same 150 Kč; half-day is offered at 90 Kč. Owner picks at
+        // booking time and the choice persists on the Booking. Tereza is
+        // the canonical example of a casual-carer who offers both.
+        durationOptions: [
+          { duration: "full_day", price: 150 },
+          { duration: "half_day", price: 90 },
+        ],
         modifiers: [
           { kind: "weekend", enabled: true, pct: 15 },
           { kind: "multi_pet", enabled: true, flatPerExtra: 80 },

@@ -236,6 +236,7 @@ export function ThreadClient({
       startDate: proposal.startDate,
       endDate: proposal.endDate,
       recurringSchedule: proposal.recurringSchedule,
+      dayCareDuration: proposal.dayCareDuration,
       price: proposal.price,
       status: "proposed",
     });
@@ -389,6 +390,7 @@ export function ThreadClient({
         startDate: p.startDate,
         endDate: p.endDate,
         recurringSchedule: p.recurringSchedule,
+        dayCareDuration: p.dayCareDuration,
         price: p.price,
         status: "upcoming",
         sessions: p.bookingType === "ongoing" ? [] : undefined,

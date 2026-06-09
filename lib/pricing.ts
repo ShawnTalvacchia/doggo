@@ -136,6 +136,34 @@ function resolveBaseRate(
       deliveryLabel: fallback.method === "pickup" ? "pickup" : "drop-off",
     };
   }
+  // Day care: resolve the chosen duration against `durationOptions[]`.
+  // Mirrors the walks `deliveryOptions` pattern. Falls back to full_day
+  // (or the first option) when the inquiry hasn't picked yet — the
+  // live-estimate path can read this before the owner toggles; the
+  // booking path always sets `inquiry.dayCareDuration`. Half-day Care,
+  // 2026-06-07.
+  if (
+    config.serviceType === "day_care" &&
+    config.durationOptions &&
+    config.durationOptions.length > 0
+  ) {
+    const chosen = inquiry.dayCareDuration
+      ? config.durationOptions.find((d) => d.duration === inquiry.dayCareDuration)
+      : null;
+    if (chosen) {
+      return {
+        rate: chosen.price,
+        deliveryLabel: chosen.duration === "half_day" ? "Half day" : "Full day",
+      };
+    }
+    const fallback =
+      config.durationOptions.find((d) => d.duration === "full_day") ??
+      config.durationOptions[0];
+    return {
+      rate: fallback.price,
+      deliveryLabel: fallback.duration === "half_day" ? "Half day" : "Full day",
+    };
+  }
   return { rate: config.pricePerUnit, deliveryLabel: null };
 }
 

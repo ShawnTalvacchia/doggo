@@ -104,6 +104,7 @@ export function InquiryFormModal({
       startDate: resolvedStartDate,
       endDate: data.bookingType === "one_off" ? data.dateRange.end : null,
       recurringSchedule: data.recurringSchedule ?? undefined,
+      dayCareDuration: data.dayCareDuration,
       message: data.message,
     });
 
@@ -120,6 +121,7 @@ export function InquiryFormModal({
         startDate: resolvedStartDate,
         endDate: data.bookingType === "one_off" ? data.dateRange.end : null,
         recurringSchedule: data.recurringSchedule ?? undefined,
+        dayCareDuration: data.dayCareDuration,
         notes: data.message?.trim() || undefined,
         status: "pending",
       },

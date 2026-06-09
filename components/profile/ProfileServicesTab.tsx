@@ -15,6 +15,7 @@ import {
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { InputField } from "@/components/ui/InputField";
 import { Toggle } from "@/components/ui/Toggle";
+import { AvailabilityGrid } from "@/components/profile/AvailabilityGrid";
 import { MeetServiceEditCard } from "@/components/profile/MeetServiceEditCard";
 import { AppointmentServiceEditCard } from "@/components/profile/AppointmentServiceEditCard";
 import { DeleteServiceModal } from "@/components/profile/DeleteServiceModal";
@@ -304,33 +305,12 @@ function PricingModifiersEditor({
   );
 }
 
-// ── Availability grid (view mode) ────────────────────────────────────────────
-
-function AvailabilityGrid({ carer }: { carer: CarerProfile }) {
-  return (
-    <div className="profile-avail-grid">
-      {ALL_DAYS.map((day) => {
-        const dayData = carer.availability.find((a) => a.day === day);
-        const activeSlots = dayData?.slots ?? [];
-        return (
-          <div key={day} className="profile-avail-row">
-            <span className="profile-avail-day">{day}</span>
-            <div className="pill-group profile-avail-slots">
-              {TIME_SLOTS.map(({ key, label }) => (
-                <span
-                  key={key}
-                  className={`pill${activeSlots.includes(key) ? " active" : ""}`}
-                >
-                  {label}
-                </span>
-              ))}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
+// View-mode availability grid lives in `components/profile/AvailabilityGrid`
+// (imported above). Was a local duplicate that drifted from the shared
+// component — own profile rendered `.pill`/`.pill.active`, other-user
+// profile rendered `.profile-avail-slot`. Unified 2026-06-08 so both
+// surfaces look identical. Edit mode still uses an inline render below
+// (interactive togglable buttons — distinct contract from view).
 
 // ── Props ────────────────────────────────────────────────────────────────────
 
@@ -1196,7 +1176,12 @@ export function ProfileServicesTab({
                   {svc.subServices.length > 0 && (
                     <div className="profile-service-subs">
                       {svc.subServices.map((sub) => (
-                        <span key={sub} className="chip">{sub}</span>
+                        <span
+                          key={sub}
+                          className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary"
+                        >
+                          {sub}
+                        </span>
                       ))}
                     </div>
                   )}
@@ -1302,7 +1287,7 @@ export function ProfileServicesTab({
       {carer && (
         <section>
           <h3 className="profile-card-subtitle">Availability</h3>
-          <AvailabilityGrid carer={carer} />
+          <AvailabilityGrid availability={carer.availability} />
         </section>
       )}
 

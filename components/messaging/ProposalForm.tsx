@@ -71,6 +71,7 @@ export function ProposalForm({
       startDate: conv.inquiry.startDate,
       endDate: conv.inquiry.endDate,
       recurringSchedule: conv.inquiry.recurringSchedule,
+      dayCareDuration: conv.inquiry.dayCareDuration,
       notes: conv.inquiry.message?.trim() || undefined,
       status: "pending",
     };
@@ -172,6 +173,7 @@ export function ProposalForm({
       endDate: sourceInquiry.bookingType === "one_off" ? sourceInquiry.endDate : null,
       recurringSchedule:
         sourceInquiry.bookingType === "ongoing" ? sourceInquiry.recurringSchedule : undefined,
+      dayCareDuration: sourceInquiry.dayCareDuration,
       price,
       status: "pending",
       isOverride,

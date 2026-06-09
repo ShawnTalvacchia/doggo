@@ -7,6 +7,7 @@ import type {
   BookingType,
   RecurringSchedule,
   CarerCareServiceConfig,
+  DayCareDuration,
   InquiryDetails,
 } from "@/lib/types";
 import { SUB_SERVICES } from "@/lib/constants/services";
@@ -48,6 +49,10 @@ export type InquirySubmitData = {
    *  2026-05-05. */
   ongoingStart: string | null;
   recurringSchedule: RecurringSchedule | null;
+  /** Day-care only: chosen duration when the carer offers a half-day
+   *  price. Carried into the inquiry → proposal → booking chain.
+   *  Half-day Care, 2026-06-07. */
+  dayCareDuration?: DayCareDuration;
   message: string;
 };
 
@@ -104,6 +109,13 @@ export function InquiryForm({
   const [bookingType, setBookingType] = useState<BookingType>(
     conv.inquiry.bookingType ?? "one_off"
   );
+  // Day-care duration — only meaningful when the active service is day_care
+  // AND the carer offers a half-day price via `durationOptions`. Defaults
+  // to full_day so the live estimate has something to compute against;
+  // owner can toggle to half_day. Half-day Care, 2026-06-07.
+  const [dayCareDuration, setDayCareDuration] = useState<DayCareDuration>(
+    conv.inquiry.dayCareDuration ?? "full_day",
+  );
   const [dateRange, setDateRange] = useState<DateRange>({
     start: initialStart ?? conv.inquiry.startDate,
     end: initialEnd ?? conv.inquiry.endDate,
@@ -126,9 +138,14 @@ export function InquiryForm({
   const [message, setMessage] = useState("");
 
   // Reset sub-service when the service axis changes — the previous sub no
-  // longer applies.
+  // longer applies. When the new service offers exactly one sub-option,
+  // auto-select it so the picker (now hidden — see render below) doesn't
+  // leave canSubmit unsatisfied. 2026-06-08.
   useEffect(() => {
-    setSubService(null);
+    const carerSubs =
+      carerCareServices.find((s) => s.serviceType === service)?.subServices ?? [];
+    const opts = carerSubs.length > 0 ? carerSubs : SUB_SERVICES[service];
+    setSubService(opts.length === 1 ? opts[0]! : null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [service]);
 
@@ -174,6 +191,14 @@ export function InquiryForm({
   // provider's "Send proposal" then becomes confirmation, not composition.
   // Pricing & Proposals walkthrough 2026-05-05.
   const careConfig = carerCareServices.find((s) => s.serviceType === service);
+  // Day care: does this carer offer a half-day price? Drives the duration
+  // picker visibility — single-rate day-care carers don't see one. Half-day
+  // Care, 2026-06-07.
+  const offersHalfDay =
+    service === "day_care" &&
+    !!careConfig?.durationOptions &&
+    careConfig.durationOptions.length > 1 &&
+    careConfig.durationOptions.some((o) => o.duration === "half_day");
   const todayISO = new Date().toISOString().slice(0, 10);
   const estimate = useMemo(() => {
     if (!careConfig || !canSubmit) return null;
@@ -185,12 +210,13 @@ export function InquiryForm({
       startDate: bookingType === "one_off" ? dateRange.start : null,
       endDate: bookingType === "one_off" ? dateRange.end : null,
       recurringSchedule: bookingType === "ongoing" ? recurringSchedule : undefined,
+      dayCareDuration: service === "day_care" ? dayCareDuration : undefined,
       status: "pending",
     };
     return computeQuote(careConfig, draftInquiry, todayISO);
     // canSubmit captures all the input deps; explicit list for clarity.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [careConfig, canSubmit, bookingType, service, subService, selectedPets, dateRange.start, dateRange.end, recurringSchedule, todayISO]);
+  }, [careConfig, canSubmit, bookingType, service, subService, selectedPets, dateRange.start, dateRange.end, recurringSchedule, dayCareDuration, todayISO]);
 
   const triggeredModifiers = estimate?.lineItems.filter((li) => li.isModifier) ?? [];
   const cycleLabel =
@@ -215,32 +241,54 @@ export function InquiryForm({
         </div>
       </div>
 
-      {/* Service type — only render when the carer offers more than one Care
-          service. With one (or zero — directory-only fallback), the entry CTA
-          already established which service this is, so a one-option picker
-          is just visual clutter. Pricing & Proposals, 2026-05-04. */}
-      {carerServiceTypes.length > 1 && (
+      {/* Service type — only render when the carer offers more than one
+          Care service AND the entry wasn't already service-specific. When
+          the owner clicked "Book a session" on a specific service card,
+          `initialService` is set and the picker hides — they already
+          chose. Generic "Ask about care" entry (no service preselected)
+          falls through to the picker. Each tile shows the carer's
+          per-unit price so the choices read as distinct offerings rather
+          than equivalent labels. 2026-06-08. */}
+      {carerServiceTypes.length > 1 && initialService == null && (
         <div className="filter-field">
           <div className="label">Service</div>
           <div className="inq-service-row">
-            {carerServiceTypes.map((value) => (
-              <button
-                key={value}
-                type="button"
-                className={`filter-option-card inq-service-card${service === value ? " active" : ""}`}
-                onClick={() => {
-                  setService(value);
-                  setSubService(null);
-                }}
-              >
-                <strong>{SERVICE_TYPE_LABELS[value]}</strong>
-              </button>
-            ))}
+            {carerServiceTypes.map((value) => {
+              const cfg = carerCareServices.find((s) => s.serviceType === value);
+              const minPrice = cfg?.durationOptions?.length
+                ? Math.min(...cfg.durationOptions.map((o) => o.price))
+                : cfg?.deliveryOptions?.length
+                  ? Math.min(...cfg.deliveryOptions.map((o) => o.price))
+                  : cfg?.pricePerUnit;
+              const unitLabel = cfg?.priceUnit === "per_night" ? "night" : "visit";
+              return (
+                <button
+                  key={value}
+                  type="button"
+                  className={`filter-option-card inq-service-card${service === value ? " active" : ""}`}
+                  onClick={() => {
+                    setService(value);
+                    setSubService(null);
+                  }}
+                >
+                  <strong>{SERVICE_TYPE_LABELS[value]}</strong>
+                  {minPrice !== undefined && (
+                    <span className="text-xs text-fg-tertiary">
+                      From {minPrice} Kč / {unitLabel}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* Sub-service */}
+      {/* Sub-service — hidden when the carer only offers one sub-option
+          for this service (single-choice picker is just friction). The
+          lone option is auto-selected via the useEffect above so canSubmit
+          stays satisfied. 2026-06-08. */}
+      {subOptions.length > 1 && (
       <div className="filter-field">
         <div className="label">What specifically?</div>
         <div className="inq-sub-row">
@@ -256,6 +304,32 @@ export function InquiryForm({
           ))}
         </div>
       </div>
+      )}
+
+      {/* Day-care duration — only when the carer offers a half-day price.
+          Half-day Care, 2026-06-07. */}
+      {offersHalfDay && (
+        <div className="filter-field">
+          <div className="label">Duration</div>
+          <div className="filter-visit-row">
+            {(["full_day", "half_day"] as const).map((d) => {
+              const opt = careConfig?.durationOptions?.find((o) => o.duration === d);
+              if (!opt) return null;
+              return (
+                <button
+                  key={d}
+                  type="button"
+                  className={`filter-option-card${dayCareDuration === d ? " active" : ""}`}
+                  onClick={() => setDayCareDuration(d)}
+                >
+                  <strong>{d === "full_day" ? "Full day" : "Half day"}</strong>
+                  <span>{opt.price} Kč</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* How often? — markup mirrors Discover's filter pattern (filter-visit-row
           + filter-option-card with strong + span). Same shared CSS, same
@@ -404,6 +478,7 @@ export function InquiryForm({
             dateRange,
             ongoingStart: bookingType === "ongoing" ? ongoingStart : null,
             recurringSchedule: bookingType === "ongoing" ? recurringSchedule : null,
+            dayCareDuration: service === "day_care" && offersHalfDay ? dayCareDuration : undefined,
             message,
           })
         }

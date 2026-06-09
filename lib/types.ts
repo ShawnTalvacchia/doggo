@@ -271,6 +271,10 @@ export interface InquiryDetails {
    *  `computeQuote` when the carer's service has `deliveryOptions[]`.
    *  Walk Service Delivery, 2026-05-20. */
   delivery?: WalkDeliveryMethod;
+  /** Day-care only: chosen duration. Drives the base-price lookup in
+   *  `computeQuote` when the carer's service has `durationOptions[]`.
+   *  Half-day Care, 2026-06-07. */
+  dayCareDuration?: DayCareDuration;
   /** Optional free-text from the owner (additional context, not the
    *  templated stuff that's now structured above). */
   notes?: string;
@@ -300,6 +304,9 @@ export interface BookingProposal {
   /** Walks-only: chosen delivery method, carried into the resulting Booking
    *  on sign. Walk Service Delivery, 2026-05-20. */
   delivery?: WalkDeliveryMethod;
+  /** Day-care only: chosen duration, carried into the resulting Booking on
+   *  sign. Half-day Care, 2026-06-07. */
+  dayCareDuration?: DayCareDuration;
   price: BookingPrice;
   status: BookingProposalStatus;
   /** True when the provider deviated from the auto-computed quote. Surfaced
@@ -351,6 +358,9 @@ export interface ConversationInquiry {
   startDate: string | null;
   endDate: string | null;
   recurringSchedule?: RecurringSchedule;
+  /** Day-care only: chosen duration if the carer offers half-day pricing.
+   *  Half-day Care, 2026-06-07. */
+  dayCareDuration?: DayCareDuration;
   /** Free-text dog name(s) for display when pets array is not enough */
   dogName: string;
   message: string;
@@ -550,6 +560,14 @@ export interface Booking {
    * Walk Service Delivery, 2026-05-20.
    */
   delivery?: WalkDeliveryMethod;
+  /**
+   * Day-care duration on a `day_care` booking. Set when the owner picked
+   * a half-day rate at booking time. Drives the "Half day" / "Full day"
+   * label on schedule + booking surfaces.
+   *
+   * Day-care only; optional everywhere. Half-day Care, 2026-06-07.
+   */
+  dayCareDuration?: DayCareDuration;
   subService: string | null;
   pets: string[];
   // Dates
@@ -1482,6 +1500,26 @@ export interface WalkDeliveryOption {
   price: number;
 }
 
+/**
+ * Day-care duration — full day at the carer's place vs a half-day stay.
+ * Mirrors the `WalkDeliveryMethod` pattern but for the day-care duration
+ * axis. Only meaningful when `serviceType === "day_care"`. Half-day Care,
+ * 2026-06-07.
+ */
+export type DayCareDuration = "full_day" | "half_day";
+
+/**
+ * A priced duration option on a `day_care` Care service. Carer opts in to
+ * a half-day price separately from full-day; owner picks at booking time;
+ * the choice persists on `Booking.dayCareDuration`. When the carer doesn't
+ * offer a half-day price the booking flow stays single-rate as today.
+ */
+export interface DayCareDurationOption {
+  duration: DayCareDuration;
+  /** Kč per visit. Same unit as `CarerCareServiceConfig.pricePerUnit`. */
+  price: number;
+}
+
 export interface CarerCareServiceConfig {
   kind: "care";
   /** Stable id — set **only** when this Care service is linked to a meet
@@ -1526,6 +1564,14 @@ export interface CarerCareServiceConfig {
    * Walk Service Delivery, 2026-05-20.
    */
   deliveryOptions?: WalkDeliveryOption[];
+  /**
+   * Day care: priced duration options (full-day, optional half-day).
+   * Absent = single-rate via `pricePerUnit` (today's legacy world).
+   * Present (with at least one half-day entry) = owner picks at booking
+   * time and the choice persists on `Booking.dayCareDuration`. Mirrors
+   * the `deliveryOptions` pattern for walks. Half-day Care, 2026-06-07.
+   */
+  durationOptions?: DayCareDurationOption[];
   /** Sitting / Boarding: type of home the carer offers. */
   homeType?: HomeType;
   /** Sitting / Boarding: carer has own dog(s) on premises. */

@@ -717,6 +717,7 @@ export default function BookingDetailPage() {
         startDate: p.startDate,
         endDate: p.endDate,
         recurringSchedule: p.recurringSchedule,
+        dayCareDuration: p.dayCareDuration,
         price: p.price,
         status: "upcoming",
         sessions: p.bookingType === "ongoing" ? [] : undefined,
@@ -1050,7 +1051,8 @@ export default function BookingDetailPage() {
                 style={{
                   padding: "var(--space-md) var(--space-lg)",
                   borderBottom:
-                    booking.serviceType === "walks_checkins" && booking.delivery
+                    (booking.serviceType === "walks_checkins" && booking.delivery) ||
+                    (booking.serviceType === "day_care" && booking.dayCareDuration)
                       ? "1px solid var(--border-subtle)"
                       : "none",
                 }}>
@@ -1080,6 +1082,21 @@ export default function BookingDetailPage() {
                     <span className="text-xs text-fg-tertiary">
                       {booking.delivery === "pickup" ? "Pickup" : "Drop-off"}
                     </span>
+                  </div>
+                </div>
+              )}
+              {/* Day-care duration row — only on day-care bookings where the
+                  owner picked between a full-day and half-day rate. Half-day
+                  Care, 2026-06-07. */}
+              {booking.serviceType === "day_care" && booking.dayCareDuration && (
+                <div className="flex items-center gap-md bg-surface-top"
+                  style={{ padding: "var(--space-md) var(--space-lg)" }}>
+                  <Clock size={18} weight="light" className="text-fg-tertiary shrink-0" />
+                  <div className="flex flex-col flex-1">
+                    <span className="text-sm font-medium text-fg-primary">
+                      {booking.dayCareDuration === "half_day" ? "Half day" : "Full day"}
+                    </span>
+                    <span className="text-xs text-fg-tertiary">Duration</span>
                   </div>
                 </div>
               )}
