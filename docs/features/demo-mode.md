@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-01
+last-reviewed: 2026-06-09
 tags: [demo, persona-switching, testing, infrastructure, narrative]
 review-trigger: "when adding a new persona, when changing persona-switching surfaces, when wiring per-persona mock data, when the Demo Narrative changes"
 ---
@@ -409,6 +409,19 @@ The `viewerId = "shawn"` default is intentional — pre-existing callers that do
 
 ---
 
+## Hidden-affordance pattern (state-toggle demos)
+
+Some shipped features model a real state machine (Walker apply → invited → vouched, future Connect → Familiar bumps, etc.) where the demo can't reasonably WAIT for the real trigger (a shelter coordinator vouching, a meet getting hosted, days passing). The pattern: surface a small dropdown affordance on the same action button that holds the canonical "state advances" action — `Advance state (demo)`. Honest about being faked, survives persona switching (state lives in the persisted context, not in simulated time), inspectable in localStorage.
+
+**Where this pattern lives today:**
+
+- **Walker journey** (`contexts/WalkerApplicationsContext.tsx`, 2026-06-09) — shelter-page action row + dog-page Walk button. Same dropdown carries `Advance state (demo)` / `Log walk (demo)` / `Withdraw application` depending on current state.
+- **Pre-existing reference:** the "Walk a dog" → "Interest sent ▾" single-flip pattern on the shelter action row predates this — same demo principle.
+
+**Why not a theatrical fake (simulated delays + auto-notifications)?** Tested poorly across persona switching: the simulated time gets confused when testers swap personas mid-flow. Toggle keeps the state machine honest and testable. A richer fake-time layer (time-passage interstitials, notification timing) can sit on top of the state machine later without changing the machine itself.
+
+---
+
 ## Known limitations
 
 Two accepted limitations remain. The pre-Mock-World-Building list of six was resolved during that phase — connections, conversations, posts, and share codes are all per-persona now. See the highlight reels above for verification surfaces.
@@ -423,5 +436,5 @@ Two accepted limitations remain. The pre-Mock-World-Building list of six was res
 
 - `docs/strategy/User Archetypes.md` — behavioural profiles each persona maps to
 - `docs/implementation/mock-data-plan.md` — Mock World Building scope (per-persona content)
-- `docs/phases/Open Questions & Assumptions Log.md` §10 — closed by this phase; see for original framing
+- `docs/planning/Open Questions & Assumptions Log.md` §10 — closed by this phase; see for original framing
 - `docs/archive/phases/persona-wiring.md` — full phase board (workstreams, decisions, closing summary)

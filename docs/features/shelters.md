@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-08
+last-reviewed: 2026-06-09
 tags: [shelters, institutional-accounts, walkers, dogs, cold-start, photos]
 review-trigger: "when modifying shelter surfaces, walker tier model, or non-owned dog handling"
 ---
@@ -10,7 +10,7 @@ review-trigger: "when modifying shelter surfaces, walker tier model, or non-owne
 
 Top-level institutional accounts on Doggo. Parallel to `UserProfile` — NOT a Group type. Shipped with the Shelter Foundation phase (closed 2026-06-02) seeded with one demo shelter (Útulek Liběň). Walker journey, credentialing UX, and shelter operator/admin views are deferred to later phases.
 
-See [[Cold-Start Playbook]] (strategic rationale) and [[phases/Open Questions & Assumptions Log]] §14 (resolutions log).
+See [[Cold-Start Playbook]] (strategic rationale) and [[planning/Open Questions & Assumptions Log]] §14 (resolutions log).
 
 ---
 
@@ -82,24 +82,23 @@ Top-to-bottom inside the Feed tab body (which begins below the sticky tabs):
 
 ## Volunteer badge
 
-The single most distinctive surface on the shelter Members tab. Walkers carry a `[Tier] Volunteer` badge using:
+The single most distinctive surface on the shelter Members tab. Walkers carry a tier-aware credential pill using the shared three-tier saturation ramp (see [[badges]] → "Credential pill family"):
 
-- **Color: violet** (`#ede9fe` background / `#5b21b6` text). Sits outside the existing semantic ladder (`info` blue = paid care; `brand` green = community) so it reads as its own category: "time given to shelter dogs." Volunteer-recognition without rank framing.
-- **Icon shape: growth metaphor** (`Leaf → Plant → Tree`). Distinct shapes carry the tier escalation — shape progression is far more legible at 12px than weight variation on a single icon (the original paw-weight approach was barely visible).
-- **Label: `[Tier] Volunteer`** (working titles):
-
-| Tier | Icon | Label | Threshold (typical) |
-|---|---|---|---|
-| `vetted` | 🍃 Leaf | `Volunteer` | Default after vouching |
-| `experienced` | 🌱 Plant | `Regular Volunteer` | ~10 walks at this shelter |
-| `trusted` | 🌳 Tree | `Super Volunteer` | ~25 walks + coordinator sign-off |
+| Tier | Icon | Label | Threshold (typical) | Visual |
+|---|---|---|---|---|
+| `vetted` | (none) | `Volunteer` | Default after vouching | T1 — near-white surface, soft border, family-tinted text |
+| `experienced` | 🌱 Plant | `Volunteer` | ~10 walks at this shelter | T2 — soft violet fill, strong violet text |
+| `trusted` | 🌳 Tree (filled) | `Super Volunteer` | ~25 walks + coordinator sign-off | T3 — dark violet fill, near-white text |
 
 Notes on the label ladder:
-- Entry tier is just `Volunteer` (no "New" prefix). "New" implied probationary status; just "Volunteer" reads as the real thing.
-- Top tier is `Super Volunteer`, not "Trusted." Trust is binary, so "Trusted Volunteer" made the lower tiers sound untrusted by implication. "Super" is praise rather than rank.
-- Middle stays `Regular Volunteer` — modest and descriptive of cadence.
+- T1 and T2 share the short label `Volunteer`. Earlier "Regular Volunteer" middle name was dropped at the credentialing-moat walkthrough (2026-06-08) — the visual escalation (soft fill + Plant icon) carries the tier signal, so the label can stay short. Only T3 distinguishes (`Super Volunteer`).
+- Entry tier is just `Volunteer` (no "New" prefix). "New" implied probationary status.
+- Top tier is `Super Volunteer`, not "Trusted." Trust is binary, so "Trusted Volunteer" made the lower tiers sound untrusted by implication.
+- T1 dropped its Leaf icon to make the icon-less tier the visual "you've been vouched" baseline; icons start at T2 to signal escalation, not entry.
 
-The chip travels cleanly to out-of-context surfaces (user profiles, feed mentions) without needing shelter context appended. A multi-shelter volunteer just wears two badges of (possibly) different tiers; no single-shelter naming required. This explicit design choice supports encouraging multi-shelter volunteering.
+**Color: violet `--volunteer-*` family** (in `app/globals.css`). Sits outside the existing semantic ladder (`info` blue = paid care; `brand` green = community) so it reads as its own category: "time given to shelter dogs."
+
+The pill travels cleanly to out-of-context surfaces (user profiles, feed mentions) without needing shelter context appended. A multi-shelter volunteer wears one row per shelter on their profile's Volunteer-work section — see "Volunteer work on user profiles" below.
 
 **Three-axis composition for walk eligibility** (independent of the visible badge):
 1. Walker tier
@@ -108,7 +107,16 @@ The chip travels cleanly to out-of-context surfaces (user profiles, feed mention
 
 Strictest rule wins.
 
-**Visual escalation deferred to the credentialing-moat phase.** V1 ships one uniform chip style across all tiers (the icon does the work). Final tier naming, cross-shelter badge aggregation on user profiles, and any heavier visual treatment for the top tier come with the merged Carer Portfolio + Shelter Walker Credentialing phase. See FC9 + FC11.
+## Volunteer work on user profiles
+
+When a walker bridges to a `UserProfile`, their profile renders a "Volunteer work" section between the Carer info and the dogs section. One row per shelter the user is vouched at, each carrying:
+
+- The credential pill (tier label only — `Volunteer` for T1/T2, `Super Volunteer` for T3)
+- A right-side context line: `at {Shelter name} · N walks`
+
+Multi-shelter walkers stack rows. **No aggregate header** — an earlier spec (2026-06-08 walkthrough O6 resolution) had a conditional `Volunteer work · 3 shelters · 47 walks total` aggregate when affiliations ≥ 2; dropped during walkthrough (2026-06-09) because per-row tier already varies per shelter, so an aggregate either hides that distinction or duplicates it. If a "total walks" signal ever proves needed, it belongs as a section subtitle (`3 shelters · 120 walks`), not on the pill.
+
+The single source for affiliation data is `getUserShelterAffiliations(userId, dynamicVouched)` — combines static `mockShelters.walkers` entries with dynamic `WalkerApplication` records the demo created at walkthrough.
 
 ---
 
@@ -255,7 +263,15 @@ The door surface uses a `FilterPillRow` view toggle:
 - **Dogs pill (default)** — photo-led 2-up grid of all shelter dogs across all seeded shelters (mirrors the shelter Dogs tab's `.shelter-dogs-grid` formula — `repeat(auto-fit, minmax(220px, 1fr))`). Reuses `ShelterDogCard` with the `shelter` prop set so each card renders a small attribution row (logo + shelter name + location). Sort dropdown mirrors the shelter Dogs tab: `Needs walks now` (default) / `Longest in care` / `Smallest first` / `A–Z`. Filter panel (behind the Filters float button): dog size, energy level, adoption status, personality (subset of the `PersonalityTag` vocabulary — `gentle / good-with-strangers / good-with-dogs / good-with-kids / loves-walks / puppy / senior / calm` — picked as adopter lenses; eligibility-flavored tags like `reactive-on-leash` deliberately excluded).
 - **Shelters pill** — single-column list of `DiscoverShelterCard` rows (banner + circular logo overlap + name + `location · dogs in care · X need walks now` meta). Tap routes to `/shelters/[id]`.
 
-In-circle elevation (the "Carers in your circle" pattern from Discover Care) is deliberately skipped in V1 — walkers don't bridge to `UserProfile` yet, so there's no honest circle relation to elevate. The hook ("Dogs you've walked," "Shelters your circle volunteers at") lights up with the credentialing-moat phase's walker journey.
+**Shelter-membership elevation (credentialing-moat 2026-06-09).** Two elevation reasons sort dogs + shelters by priority — NOT via section headers, just stable sort within each pill's primary sort:
+
+1. **Shelters you walk at** (priority 2) — your home base. Computed from your own vouched `WalkerApplication` records.
+2. **Shelters your circle volunteers at** (priority 1) — social-proof hook. Computed from vouched applications belonging to your Connected connections.
+3. Everything else (priority 0).
+
+Applied as a stable secondary sort on top of the user-chosen primary sort (`Needs walks now` / `Longest in care` / etc.), so dogs from elevated shelters float to the top within their primary-sort bucket. No section headers — the original O5 framing considered them but dropped during walkthrough: empty sections read as broken, and the "different sections" structure overstates a signal that's really just "this shelter is closer to your network."
+
+**What was deliberately NOT built:** per-dog walker-relationship elevation ("Dogs you've walked," "Dogs your circle walked"). The per-dog signal is thin — shelter dogs don't belong to walkers, and the same content surfaces more naturally at the shelter level. A small inline meta-label on elevated cards explaining the reason (`Klára volunteers here` / `You walk here`) is specced but deferred as polish — sort works; the inline label is a future enrichment pass.
 
 Three shelters seeded at this phase to make "browse rescues" earn its keep — Útulek Liběň (full roster), Pes v nouzi (thin), Druhá šance (thin). The two thin shelters have empty walker + supporter rosters and one shelter-authored post each; their `/shelters/[id]` pages use the same chrome with content-aware empty states (see "Thin-shelter rendering" below).
 
@@ -286,8 +302,8 @@ Three small adjustments on `/shelters/[id]` so the chrome doesn't read as broken
 
 Items named in §14 but explicitly out of scope for Shelter Foundation:
 
-- **Walker journey.** Booking a walk, active session, visit-report attaching back to a dog. → Merged Carer Portfolio + Shelter Walker Credentialing phase.
-- **Walker credentialing visual escalation.** Tier-coded heavier treatments on the volunteer badge for the top tier. → Same merged phase. See FC9.
+- ~~**Walker journey.** Booking a walk, active session, visit-report attaching back to a dog.~~ → **State machine + tier escalation shipped 2026-06-09** (Carer Portfolio + Shelter Walker Credentialing phase). Booking creation surface for shelter walks (Schedule integration + visit reports attaching to the shelter dog) deferred to Cross-Shelter Mentor Network phase.
+- ~~**Walker credentialing visual escalation.** Tier-coded heavier treatments on the volunteer badge for the top tier.~~ → **Shipped 2026-06-09** via the shared three-tier credential-pill family. See [[badges]] → "Credential pill family."
 - **Shelter operator/admin view.** Dashboard, dog edit affordances, walker application queue, vouching state machine UX. → V3+ pending real shelter conversations.
 - **Adopted-dog transition pattern.** Celebration card → archived state → potentially transitioning the profile to a new owner's `UserProfile.pets[]`. → V2.
 - **`ShelterEvent` escape valve.** For open days / adoption fairs. Different from Meets (no Familiar marking, no post-meet review). → If/when a real shelter raises the need.
@@ -296,7 +312,7 @@ Items named in §14 but explicitly out of scope for Shelter Foundation:
 - **Incident reporting workflow.** Visit reports support flagging in principle; the institutional impact (does the shelter see, does it auto-impact walker tier, does the per-dog policy auto-tighten) is real design work. → Adjacent to §5 Safety & Liability.
 - **`ShelterProfile` → `OrgProfile` generalization.** Premature until a second institutional type lands.
 - **Per-service visibility on shelter affiliation.** Shelter affiliation could become a third visibility path (alongside Lock, Connection, Group co-membership) for circle-scoped Carer offerings. Open question — not scoped.
-- **Promote violet to design tokens.** Inlined hex pair (`#ede9fe` / `#5b21b6`) used in `.shelter-member-chip--volunteer` and `.shelter-summary-card-icon`. Promote together when a third surface picks up violet. See FC11.
+- **Promote violet to design tokens.** ~~Inlined hex pair~~ — promoted to `--volunteer-*` family during credentialing-moat phase (2026-06-09) when the saturation-ramp pill family landed. Remaining: audit any straggling inline hex.
 
 ---
 

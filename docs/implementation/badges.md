@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-06-02
+last-reviewed: 2026-06-09
 
 tags: [badges, person-row, trust, design-system]
 review-trigger: "when adding a new badge, changing display rules, or modifying carer-status semantics"
@@ -84,6 +84,7 @@ Derived from platform activity. Can't be faked because the data is the platform'
 
 | Badge | How it's earned |
 |---|---|
+| **Carer Portfolio (aggregate)** | Accumulated completed engagements (bookings + carer-hosted meets). Three tiers: T1 `Carer` / T2 `Carer` / T3 `Trusted Carer` via the shared credential-pill family. Priority 0 — leads the TrustBadgeStrip when earned. See `lib/trustBadges.ts:carer-portfolio`. |
 | **Community Regular** | Attended X+ meets in the last 3 months |
 | **Neighbourhood Anchor** | Connected to X+ people in the same neighbourhood |
 | **Trusted by Your Network** | X of viewer's connections use this provider |
@@ -104,17 +105,19 @@ See `strategy/Competitive Research - Prague Dog Care Scene.md` → "Trust Badges
 
 ### Volunteer (parallel — earned through shelter walking)
 
-A separate badge family sitting outside the three trust tiers, introduced with the Shelter Foundation phase (2026-06-02). Renders on the shelter Members tab and travels to user profiles when walkers bridge to UserProfiles (credentialing-moat phase). Three tiers, label-led with growth-icon shape progression:
+A separate badge family sitting outside the three trust tiers, introduced with the Shelter Foundation phase (2026-06-02) and visually escalated with the Carer Portfolio + Shelter Walker Credentialing phase (2026-06-09). Renders on the shelter Members tab AND on user profiles' Volunteer-work section (one row per shelter the walker is vouched at). Three tiers, label-led with growth-icon shape progression, ramped via the shared credential-pill family:
 
-| Tier | Icon | Label | Threshold (typical) |
-|---|---|---|---|
-| `vetted` | 🍃 Leaf | `Volunteer` | Default after vouching |
-| `experienced` | 🌱 Plant | `Regular Volunteer` | ~10 walks at this shelter |
-| `trusted` | 🌳 Tree | `Super Volunteer` | ~25 walks + coordinator sign-off |
+| Tier | Icon | Label | Threshold (typical) | Visual |
+|---|---|---|---|---|
+| `vetted` | (none) | `Volunteer` | Default after vouching | T1 — near-white surface, soft border, family-tinted text |
+| `experienced` | 🌱 Plant | `Volunteer` | ~10 walks at this shelter | T2 — soft violet fill, strong violet text, Plant icon |
+| `trusted` | 🌳 Tree (filled) | `Super Volunteer` | ~25 walks + coordinator sign-off | T3 — dark violet fill, near-white text, filled Tree icon |
 
-**Color:** violet (`#ede9fe` background / `#5b21b6` text). Sits outside the existing semantic ladder — `info` blue = paid care, `brand` green = community. Violet carries "earned recognition for time given to shelter dogs" as its own category. Hex inlined for now; promote to `--violet-*` tokens or semantic `--volunteer-*` aliases when a third surface picks up the color (FC11).
+T1 and T2 share the short label (`Volunteer`); only T3 distinguishes (`Super Volunteer`). The Leaf icon from the original V1 spec was dropped when T1 went icon-less.
 
-**Visual escalation deferred to credentialing-moat phase.** V1 uses one uniform chip style across all tiers — the icon shape carries the tier signal. The visual intensification (outlined → filled → filled+ring) shared with the Carer Portfolio aggregate badge ships when the merged phase opens (FC9).
+**Profile rendering (Volunteer-work section, refactored 2026-06-09):** Pill carries the tier label ONLY. Shelter name + walk count live in the right-side context line (`at {Shelter} · N walks`). Multi-shelter walkers stack rows; aggregate header was specced earlier in the phase but dropped at walkthrough — per-row tier already varies per shelter, so an aggregate would either hide the distinction or duplicate it.
+
+**Color:** violet `--volunteer-*` family in `app/globals.css`. Sits outside the existing semantic ladder — `info` blue = paid care, `brand` green = community. Violet carries "earned recognition for time given to shelter dogs" as its own category.
 
 See `features/shelters.md` → "Volunteer badge" for the full surface treatment and `mockShelters.ts:ShelterWalker.tier` for the data shape.
 
@@ -157,6 +160,20 @@ The previous tier-pill classes (`.person-row-pill--helper`, `--provider`, `--car
 
 **Trust badges** have their own visual treatment in `components/badges/TrustBadgeStrip.tsx` — small icon + label, grouped in a horizontal strip. Two variants: `standard` (profile hero, all earned) and `compact` (Discover cards, top 2 by priority).
 
+### Credential pill family (shared T1/T2/T3 saturation ramp)
+
+The Carer Portfolio aggregate (carer family) and Volunteer badge (volunteer family) share a single CSS family `.credential-pill` with two axes: family color (`--carer` / `--volunteer`) and tier modifier (`--tier-1` / `--tier-2` / `--tier-3`). Ramp:
+
+| Tier | Surface | Text | Icon |
+|---|---|---|---|
+| T1 | Near-white inset, soft 1px border | ~80% family color | None (icon-less tier) |
+| T2 | Soft family fill (mixed surface + family) | Strong family color | Family icon, light weight |
+| T3 | Dark family fill | Near-white | Family icon, FILLED weight |
+
+Labels: T1 + T2 share the short label (`Carer` / `Volunteer`); T3 distinguishes (`Trusted Carer` / `Super Volunteer`). Session counts and shelter names live OUTSIDE the pill — consuming surface owns its own context line. The saturation ramp runs in both list (Members tab) and profile-hero (TrustBadgeStrip lead) contexts.
+
+Why this ramp: an earlier outlined → filled → filled+ring escalation was rejected during walkthrough (2026-06-08) because the ring extended past the pill's bounding box, varying its size across tiers. Saturation ramp keeps pill dimensions constant across tiers — the eye reads tier via fill intensity + icon presence, not size.
+
 ---
 
 ## What's built today
@@ -164,9 +181,10 @@ The previous tier-pill classes (`.person-row-pill--helper`, `--provider`, `--car
 - **Role:** Admin (PersonRow group-member variant only).
 - **Identity (Discover Refinement walkthrough, 2026-05-10):** Carer with two audience variants (open / circle). Renders on PersonRow (meet-attendee + group-member variants) and profile hero. Implementation: `lib/identityBadges.ts:getCarerIdentity` + `.person-row-pill--carer` / `--carer-circle` classes.
 - **Trust (MVP shipped Discover & Care D3, 2026-05-02):**
-  - Community-earned: Community Regular, Trusted by Your Network, Repeat Clients
+  - Community-earned: Carer Portfolio (aggregate, credentialing-moat 2026-06-09 — priority 0), Community Regular, Trusted by Your Network, Repeat Clients
   - Credential: Certified Trainer, X Years Experience
   - Platform: Verified Identity (stub — production verification flow not built)
+- **Volunteer (Shelter Foundation 2026-06-02, escalated 2026-06-09):** Three-tier credential-pill family on shelter Members tab AND Volunteer-work profile section. Implementation: `lib/trustBadges.ts:getCarerPortfolioTier`, `deriveWalkerTier` in `contexts/WalkerApplicationsContext.tsx`, `.credential-pill.--volunteer` family in `app/globals.css`.
 
   Implementation: `lib/trustBadges.ts` (catalogue + earning rules) and `components/badges/TrustBadgeStrip.tsx` (renderer). Two variants: `standard` (profile hero, all earned) and `compact` (Discover cards, top 2 by priority).
 
@@ -186,6 +204,7 @@ The previous tier-pill classes (`.person-row-pill--helper`, `--provider`, `--car
 
 - Trust: Neighbourhood Anchor, Care Veteran (community), First Aid Trained, Vet Background, Force-Free Methods, Insured (credential), Responsive, Consistent (platform). All require either richer per-user mock data or production data.
 - Role: Host on PersonRow meet-attendee (deferred — banner is sufficient for now).
+- PersonRow propagation of Carer Portfolio aggregate: explicitly deferred (credentialing-moat phase, B5 deferral). PersonRow caps at 2 badges (Role + Identity); the aggregate as a 3rd would break that rule AND compete with the Carer Identity sub-spec ("Dog Trainer") which carries more meaning at row density. Open for a future surface need (e.g. a meet-attendee list where viewers benefit from tier nuance).
 
 ---
 

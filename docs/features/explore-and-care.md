@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-01
+last-reviewed: 2026-06-09
 
 tags: [discover, care, booking, carers, map, payment, trust-gating]
 review-trigger: "when modifying Discover Care tab, Carer profiles, booking flows, payment, or map"
@@ -69,7 +69,7 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 - **Rolling weekly billing:** Recurring bookings use `billingCycle: "weekly"` with rolling session generation (one upcoming session at a time). No fixed session count for ongoing arrangements.
 - **Care instructions:** Owner notes (`ownerNotes`) and provider notes (`carerNotes`) on bookings. Displayed on Info tab as a care instructions section.
 - **Booking list cards:** Avatar combos, Tag icon for price, weekly billing labels, divider removed for cleaner recurring cards.
-- **Booking actions:** Owner can cancel (with reason via CancelBookingModal) or message. Provider can start/complete sessions and add notes. "Leave a review" stub on completed bookings. **Pending bookings (Discover & Care G5, 2026-05-04):** owner sees Message + **Review & sign** (primary) which opens the SigningModal in-place; provider sees Message-only (they sent the proposal, they wait).
+- **Booking actions:** Owner can cancel (with reason via CancelBookingModal) or message. Provider can start/complete sessions and add notes. "Leave a review" on completed bookings opens the `CareReviewSheet` modal (5★ + text); submission lands on the carer's profile + threads a system message in the conversation (credentialing-moat phase, 2026-06-09). **Pending bookings (Discover & Care G5, 2026-05-04):** owner sees Message + **Review & sign** (primary) which opens the SigningModal in-place; provider sees Message-only (they sent the proposal, they wait).
 - **My Services tab:** Provider's active clients and upcoming sessions on `/bookings?tab=services`.
 - **Schedule integration (Phase 11):** Active care bookings appear on the Schedule page alongside meets
 
@@ -277,8 +277,8 @@ Booking conversation → Proposal card (dates, service, price, dog) [not yet bui
 → Booking created (status: Active, billingCycle: weekly for recurring)
 → Sessions generated rolling (one upcoming at a time for recurring)
 → Provider: Start session → In-progress → Complete → Add note
-→ All sessions done → Completed → "Leave a review" CTA
-→ Review submitted → visible on provider profile [review form not yet built]
+→ All sessions done → Completed → "Leave a review" CTA opens CareReviewSheet (modal — 5★ rating + free-text)
+→ Submit → review lands on provider's profile in the Reviews section + becomes preview + count increments + system message threads in conversation
 ```
 
 ### Owner booking management
@@ -314,7 +314,7 @@ Booking detail (Info tab) → "You're providing" pill shown
 - **Discover Refinement (closed 2026-05-10):** community-first Discover ordering shipped — Carers in viewer's circle render distinctly above the broader marketplace. Helper/Provider tier collapsed into a single Carer role with an audience setting (`publicProfile`). Appointment filter pill, per-service pricing, service-aware filters, ProviderCard ↔ UserProfile bridging, vet sunset → grooming repurpose all landed. See `docs/archive/phases/discover-refinement.md`.
 - **Care Catalog Taxonomy & Filter Redesign (active phase, opened 2026-05-10):** four-service taxonomy resolved (Walks & Check-ins / House sitting / Day care / Boarding) replacing the drifted three-service model. Filter panel redesign in progress — functional Pets checkboxes, real address picker, sub-services accordion, time-of-day granularity, header pattern, service-aware filter shapes per the resolved taxonomy. See [[ROADMAP]] and [[care-catalog-taxonomy-and-filter-redesign]].
 - **Inquiry-driven trust transitions:** the auto-Familiar shipped here is a stop-gap. Full model — mutual Familiar on inquiry send, mutual Connected on contract accept, first-service-message detection, decline rollback rules — logged in [[Open Questions & Assumptions Log]] §2 for Inbox & Notifications.
-- **Review form** — full review submission flow after completed bookings (currently stub button only).
+- ~~**Review form** — full review submission flow after completed bookings (currently stub button only).~~ → **Shipped 2026-06-09** (Carer Portfolio + Shelter Walker Credentialing phase, F1–F7). `BookingReview` shape on `Booking`, `CareReviewSheet` modal, system-message integration in the conversation thread, aggregate review count + average on the Reviews section header.
 - **Provider dashboard** — earnings view, availability calendar, incoming requests management.
 - **Session photos** — `photoUrl` field exists on BookingSession type, UI not yet built.
 - **Native camera trigger for in-session photos.** Today the "Send a photo update" button on the Active panel opens a generic file picker (works fine, lets the provider grab a photo from gallery or camera). On mobile, the HTML `capture="environment"` attribute on the file input would prompt the rear camera directly — a small no-cost improvement. Beyond that, a true camera-first flow (full-screen camera UI with shutter, gallery toggle, retake) matches Time To Pet's pattern and feels much more "in-session" than a file dialog. Worth a mock-screen pass during Demo Presentation if we want the in-session flow to feel native; full implementation is post-prototype. Sessions & Service Execution walkthrough B4, 2026-05-05.

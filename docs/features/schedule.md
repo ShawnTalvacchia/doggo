@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-08
+last-reviewed: 2026-06-09
 tags: [schedule, meets, bookings, timeline]
 review-trigger: "when modifying the My Schedule page or unified timeline"
 ---
@@ -57,6 +57,7 @@ Meet discovery moved to `/discover` (Discover hub > Meets door). Care services/p
 
 - **Per-occurrence rendering for meets.** With the recurrence model (see [[meets]] → Recurrence model), Schedule renders one card per (meet, occurrence-date) instance rather than one card per series. A user Going to a weekly walk on three consecutive Wednesdays sees three cards under three date headers. Driven by `getUserMeetInstances(userId)` from `lib/mockMeets.ts`. The Interested sub-pill folds in followed series + per-instance Interested + group-suggested upcoming meets. Review-recent dismissals are scoped per occurrence (`meet:${meetId}::${date}`) so dismissing one Wednesday doesn't dismiss them all.
 - **Unified timeline.** Meets and care bookings appear together, sorted by date. BookingBlock renders bookings inline alongside CardMyMeet cards. Recurring bookings use rolling weekly billing — only one upcoming session shown at a time.
+- **Booking shape extends to shelter walks via `ownerKind` discriminator (2026-06-09, credentialing-moat phase).** `Booking.ownerKind: "user" | "shelter"` lets paid care and shelter walks share the same lifecycle (states, session flow Start → Finish → Visit Report, My Schedule rendering, status badges, conversation system messages). Discriminator branches stay concentrated: the booking-detail "owner" tile resolves to a `ShelterProfile` (logo + name) instead of a `UserProfile`, `getDogById` checks `ShelterProfile.dogs[]` alongside `UserProfile.pets[]`, pricing override produces zero. **Booking creation surface for shelter walks is not wired yet** — the type extension landed but consumer wiring (Schedule integration, visit reports attaching to the shelter dog) follows in the Cross-Shelter Mentor Network phase. Fork to a parallel `ShelterWalkBooking` was considered and rejected: ~80% structural overlap with paid care means fork doubles maintenance, and a discriminated split is much cheaper later (if shelter walks diverge) than merging two parallel types.
 - **Single-panel layout.** Schedule is a simple scrollable list using PageColumn. Tapping a card navigates to the meet/booking detail page.
 - **Upcoming / Interested / Care filters.** Replaces the Upcoming/History toggle and type pills. "Upcoming" shows meets you've RSVP'd to (joining or hosting), "Interested" shows meets you've saved/starred (auto-populated from joined groups), "Care" shows care bookings with sub-filter pills (All / Getting Care / Providing).
 - **No location filter.** Unlike Discover, My Schedule shows everything you've committed to regardless of location.
