@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: draft
-last-reviewed: 2026-06-02
+last-reviewed: 2026-06-09
 tags: [cold-start, trainers, shelter, foster, community, account-types, credentialing, future]
 review-trigger: "before any phase touching cold-start, monetization, account types, or category strategy"
 ---
@@ -253,6 +253,32 @@ Both coexist. The mentor path doesn't replace the direct path; it adds a doorway
 **Strategic positioning this implies.** Doggo isn't just a coordination layer for the dog community — Doggo is the place where **trust gets BUILT in the dog community**. Trainer-walkers are the keystone (community credibility + professional expertise); the platform's value is enabling THEM to extend trust to others; the credentialing accumulates across shelters; the network effects compound. The cold-start unlock is finally clear: trainer-walkers (already self-interested in growing their training clientele) become the engine that grows the volunteer pool that grows the adoption pipeline. Everything routes through the people we've already identified as the keystone archetype.
 
 This needs real shelter conversations to validate, but it's the most concrete strategic mechanism the playbook now has for closing the credentialing-gap moat.
+
+### Assumptions to validate
+
+The mentor-vouching model above is built from first principles + competitive research + market observation — not from shelter-coordinator interviews. The Cross-Shelter Mentor Network phase ships with these assumptions baked in; each one needs validation before going beyond demo state. Before each PO interview, scan this section and pick the highest-impact items to test; after the interview, edit entries IN PLACE — confirmed assumptions promote into the playbook proper, refuted ones trigger feature-doc updates in the surfaces they affect.
+
+**Format per entry:** claim · confidence · affected surfaces · what would refute it.
+
+1. **Shelter coordinators will accept a mentor's vouch + platform tier resolution as substitutes for their own assessment.** Confidence: **medium-low** — this is the load-bearing assumption of the whole model. Affected surfaces: the entire vouching state machine; `acceptsMentorVouches?: boolean` on `ShelterPolicy`; the walker journey end-to-end. Refuted if: shelter coordinators say "we have to do our own walk-throughs regardless of who vouches" — in which case the mentor session becomes a credibility booster but NOT a substitute, and the shelter's existing process still gates.
+
+2. **A platform-wide baseline waiver (identity + emergency contact + general liability) is acceptable to most shelters.** Confidence: **medium-low** — Czech liability law and shelter-specific policies may force per-shelter waivers from scratch. Affected surfaces: profile's shelter-affiliations section; the "sign once, carry across shelters" experience. Refuted if: shelters say their lawyers require their specific language at minimum, no shared baseline — in which case the three-layer model collapses to two layers (no platform baseline; shelter waiver per affiliation; mentor minimum still works).
+
+3. **Super Volunteer should be a platform-level tier that ports across shelters.** Confidence: **medium** — strategically necessary for the network effects, but shelter operators may insist on per-shelter earning ("the dogs are different here"). Affected surfaces: cross-shelter affiliation rendering on profiles; Discover Help a Dog elevation; the Mentor Network's value prop. Refuted if: shelters reject the portability framing — fallback is platform-recognized tier with per-shelter override (shelter can decline to recognize incoming Super Volunteers and require fresh earning).
+
+4. **Paid mentor sessions filter for committed walkers without filtering out serious-but-budget-constrained ones.** Confidence: **low** — fee filter is a double-edged sword. Affected surfaces: pricing model; mentor-session pricing range defaults; Multi-Path Demo's adoption-curious persona affordability. Refuted if: target walker population is income-constrained and even modest fees price them out — fallback options include shelter-subsidized mentor sessions, sliding-scale pricing, or shelter-funded "first mentor session free" credits.
+
+5. **Trainer-walkers want to be mentors as a third service line.** Confidence: **medium** — the keystone-archetype thesis depends on it; some trainers may see mentor work as low-margin coordinator work below their professional rate. Affected surfaces: mentor-session as a Carer service config kind; profile rendering of mentor offerings; the entire "trainer-walker as engine" framing. Refuted if: trainers consistently price mentor sessions out of reach OR decline to offer them — fallback: dedicate "Senior Volunteer mentor" role (Super Volunteers who aren't paid trainers) as the primary mentor pool, and trainer mentorship becomes a niche subset.
+
+6. **3–5 mentor sessions is a reasonable graduation threshold.** Confidence: **low** (it's a guess). Affected surfaces: `mentorSessionMinimum` per-shelter default; user-facing copy ("X sessions to walk solo"); financial commitment for mentees. Refuted if: shelters say "5 is way too few" or "1 is plenty if the mentor signs off" — easy fix per `ShelterPolicy` override; the demo just needs to land at a defensible default.
+
+7. **Shelter coordinators will do the work to credit historical real-world walks for bootstrap.** Confidence: **medium** — they have reputational skin in the game and want the network effects, but it's still admin work they may not prioritize. Affected surfaces: the bootstrap affordance on shelter admin surface (stubbed in demo); initial seeded Super Volunteer count; the Mentor Network's launchability. Refuted if: shelters won't allocate time — fallback: Doggo-side concierge service for the first 3–5 shelters (Doggo's team does the data entry from shelter-provided lists during the rollout window).
+
+8. **The fundamental demand thesis holds.** Confidence: **medium-high** — the latent-demand argument (people who'd walk shelter dogs on weekends but not Mon–Fri 9–5) feels strong intuitively, but the assumption that current shelter intake friction is the BINDING CONSTRAINT (vs other factors like fear of dog-handling, time scarcity, transportation, dog allergies) isn't established. Affected surfaces: the existence of the entire Multi-Path Demo phase, the adoption-curious doorway, the model's expected adoption rate. Refuted if: shelter coordinators report that current intake reflects actual capacity and demand IS the binding constraint (not friction) — fallback: smaller-scope value prop (better tooling for existing walkers, not new walker acquisition).
+
+9. **Adoption is a natural endpoint to the volunteer journey at meaningful scale.** Confidence: **medium** — there's anecdotal evidence (shelters report volunteer-to-adopter conversion), but the rate matters. Affected surfaces: Multi-Path Demo's adoption-curious narrative; pitch framing to shelters ("we'll grow your adoptions"); the volunteer→adoption funnel as a strategic anchor. Refuted if: shelter conversion data shows volunteer-to-adopter is rare (< 5% over a year) — the funnel framing loosens to "volunteers as community-builders" without the adoption-anchor.
+
+10. **Shelters' resistance is about trust, not control.** Confidence: **medium-low** — the playbook assumes the binding constraint is "we don't trust unknown walkers" so a credentialing layer solves it. Alternative: the binding constraint is "we want to control who handles our dogs as an exercise of organizational identity" — in which case credentialing changes nothing because it bypasses the felt-need for control. Affected surfaces: the value prop framing to shelters; whether Mentor Network reads as helpful or threatening. Refuted if: shelter coordinators frame their friction in terms of "our culture" / "our way of doing things" rather than "we have to be careful who we trust" — fallback: position Doggo as a tool shelters configure, not a layer they delegate to.
 
 ---
 
