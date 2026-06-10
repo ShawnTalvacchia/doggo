@@ -5410,15 +5410,18 @@ body.guest-route {
 /* ── Trust row ──────────────────────────────────────── */
 .trust-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
 
-/* Wraps the credential-badge strip + connection-signals row into a single
-   flex-wrap container. On wider viewports they sit side-by-side; on narrow
-   they stack. Reduces vertical "bands" on the card. Discover & Care
-   2026-05-04. */
+/* Stacks the credential-badge strip + connection-signals row vertically.
+   Previously a flex-wrap container that shared a single row when space
+   allowed (Discover & Care 2026-05-04) — that produced inconsistent
+   layouts across cards depending on content length: cards with a circle-
+   booking signal (E2 — wider) wrapped the meta items to a new row, while
+   shorter cards kept everything inline. Walkthrough call (2026-06-09):
+   always stack so pills (credentials) stay visually distinct from the
+   meta row (situational signals). */
 .result-trust-stack {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  column-gap: 16px;
+  flex-direction: column;
+  align-items: flex-start;
   row-gap: 6px;
 }
 .result-trust-stack .trust-row { margin-top: 0; }
