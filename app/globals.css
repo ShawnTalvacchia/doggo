@@ -17140,7 +17140,8 @@ a.shelter-intro-social:hover {
    menu inherits left/right: 0 from `.dropdown-menu`. A min-width on these
    wraps lets items read on one line each. */
 .unmark-familiar-menu-wrap .dropdown-menu,
-.connected-menu-wrap .dropdown-menu {
+.connected-menu-wrap .dropdown-menu,
+.walk-affordance-menu-wrap .dropdown-menu {
   min-width: 180px;
 }
 

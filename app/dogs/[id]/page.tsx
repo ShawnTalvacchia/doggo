@@ -1013,7 +1013,7 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
     <>
       <div className="flex flex-col gap-xs" style={{ marginTop: "var(--space-sm)" }}>
         <div className="flex gap-sm flex-wrap">
-          <div className="dropdown-menu-wrap grow basis-[140px]">
+          <div className="dropdown-menu-wrap walk-affordance-menu-wrap grow basis-[140px]">
             <ButtonAction
               variant="primary"
               size="sm"
