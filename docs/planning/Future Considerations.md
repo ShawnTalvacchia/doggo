@@ -1,6 +1,6 @@
 ---
 status: living
-last-reviewed: 2026-06-04
+last-reviewed: 2026-06-10
 review-trigger: "Append when a 'noted for later' idea surfaces; promote out when triggered"
 ---
 
@@ -337,3 +337,23 @@ The full admin/operator side becomes meaningful when (a) a real shelter wants to
 **Refs:** `Cold-Start Playbook.md` → "Mentor-vouching as the scalable trust mechanism" (bootstrap affordance), `Open Questions §14` → shelter operator/admin view (already flagged as V3+), `Open Questions §5` → safety + liability + incident reporting integration.
 
 **Added:** 2026-06-09
+
+---
+
+## FC17. Feature-focused guided walkthroughs (beyond the V2 concept story)
+
+**Trigger:** After the current feature/surface flesh-out arc settles (Mentor Network closed + Adoption-Curious Doorway / Multi-Path Demo landed, or whenever a demo-packaging pass opens). PO direction given 2026-06-10 during the Mentor Network build.
+
+**Context:** The guided-walkthrough infrastructure (auto-switching personas, interstitials, step cards — `WalkthroughContext`, Demo Narrative V2) currently carries ONE story: the 3-beat Daniel → Klára → Daniel concept narrative. The Mentor Network phase chose to drive its shelter-facing demo LIVE from fresh state via the hidden state-toggles (walkthrough O9) rather than pre-staging — right for coordinator interviews, but it leaves the mentor journey without a self-running guided version. Direction: build **two or more feature-focused guided walkthroughs**, each highlighting a particular feature thread (e.g. the mentor-vouching journey, the credentialing/portfolio layer, the booking funnel), selectable from the `/` launcher alongside the main concept story. The V2 narrative stays the flagship; feature walkthroughs are deeper cuts for audiences who already bought the concept.
+
+**Scope sketch when triggered:**
+- Walkthrough registry — multiple named walkthroughs with their own beat lists; launcher UI to pick one.
+- Per-walkthrough pre-staged state (the pre-staging the Mentor Network deliberately skipped) — likely seeded context snapshots keyed by walkthrough id, so a guided run starts mid-world without hand-driving toggles.
+- A mentor-network walkthrough is the first candidate — the shelter-facing demo doc (`cross-shelter-mentor-network-shelter-demo.md`) already scripts its beats; converting script → guided steps is mostly mechanical.
+- Keep each path tight (the Multi-Path Demo phase's "cut each individual demo path tighter" discipline applies).
+
+**Effort:** Medium — the step-card/interstitial machinery exists; the new work is the registry, per-walkthrough state staging, and beat authoring.
+
+**Refs:** `features/demo-mode.md` (guided walkthrough spec), `strategy/Demo Narrative.md`, `phases/cross-shelter-mentor-network-shelter-demo.md` (beat script to convert), ROADMAP → Adoption-Curious Doorway + Multi-Path Demo (parallel-paths discipline).
+
+**Added:** 2026-06-10
