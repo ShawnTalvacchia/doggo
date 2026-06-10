@@ -99,7 +99,9 @@ export function TrustBadgeStrip({ badges, limit, variant = "standard" }: Props) 
               border: tinted ? "1px solid var(--brand-subtle)" : "1px solid var(--surface-base)",
             }}
           >
-            {ICON[badge.kind]}
+            {/* carer-portfolio returned early above, so the index is safe —
+                TS just can't see the narrowing through the early return. */}
+            {ICON[badge.kind as Exclude<TrustBadgeKind, "carer-portfolio">]}
             {badge.label}
           </span>
         );

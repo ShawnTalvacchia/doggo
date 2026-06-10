@@ -24,6 +24,7 @@ import { SERVICE_LABELS, SUB_SERVICES, TRAINING_TYPE_LABELS } from "@/lib/consta
 import { defaultModifiers } from "@/lib/pricing";
 import { mockMeets, getHostedMeets } from "@/lib/mockMeets";
 import { meetScheduleSummary } from "@/lib/meetUtils";
+import { getShelterById } from "@/lib/mockShelters";
 import type {
   UserProfile,
   CarerProfile,
@@ -99,6 +100,7 @@ const SERVICE_KIND_RANK: Record<CarerServiceConfig["kind"], number> = {
   care: 0,
   meet: 1,
   appointment: 2,
+  mentor_session: 3,
 };
 
 const APPOINTMENT_CATEGORY_LABEL: Record<string, string> = {
@@ -495,7 +497,7 @@ export function ProfileServicesTab({
 
   function wasPreExisting(id: string): boolean {
     return (user.carerProfile?.services ?? []).some(
-      (s) => (s.kind === "meet" || s.kind === "appointment") && s.id === id,
+      (s) => s.kind !== "care" && s.id === id,
     );
   }
 
@@ -505,10 +507,7 @@ export function ProfileServicesTab({
   // stays inline (with its Undo) so the just-done action stays recoverable.
   function wasArchivedBefore(id: string): boolean {
     return (user.carerProfile?.services ?? []).some(
-      (s) =>
-        (s.kind === "meet" || s.kind === "appointment") &&
-        s.id === id &&
-        !!s.softDeletedAt,
+      (s) => s.kind !== "care" && s.id === id && !!s.softDeletedAt,
     );
   }
 
@@ -517,10 +516,11 @@ export function ProfileServicesTab({
     return !!svc.softDeletedAt && wasArchivedBefore(svc.id);
   }
 
-  // Display name for a service across all three kinds.
+  // Display name for a service across all four kinds.
   function serviceDisplayTitle(svc: CarerServiceConfig): string {
     if (svc.kind === "care") return SERVICE_LABELS[svc.serviceType];
     if (svc.kind === "appointment") return svc.title || "Untitled appointment";
+    if (svc.kind === "mentor_session") return svc.title || "Mentored shelter walk";
     return svc.title || "Untitled session";
   }
 
@@ -530,7 +530,11 @@ export function ProfileServicesTab({
   function willSoftArchive(svc: CarerServiceConfig): boolean {
     if (svc.kind === "care") return false;
     const fresh = !wasPreExisting(svc.id);
-    return !fresh && (svc.kind === "appointment" || meetServiceHasRoster(svc));
+    if (fresh) return false;
+    if (svc.kind === "meet") return meetServiceHasRoster(svc);
+    // Appointment + mentor-session bookings reference the service id, so
+    // a pre-existing entry archives rather than hard-deletes.
+    return true;
   }
 
   function deleteServiceAt(idx: number) {
@@ -750,6 +754,27 @@ export function ProfileServicesTab({
                           onUndoArchive={() => undoArchiveAt(idx)}
                           isNew={justAddedId === `svc-card-${svc.id}`}
                         />
+                      );
+                    }
+                    if (svc.kind === "mentor_session") {
+                      // Mentor offerings are read-only in edit mode —
+                      // authoring UI is deferred (Cross-Shelter Mentor
+                      // Network: eligibility gates on platform Super
+                      // Volunteer status + per-shelter participation,
+                      // which the self-serve editor doesn't model yet).
+                      return (
+                        <div key={svc.id} className="profile-service-card">
+                          <div className="flex items-center justify-between">
+                            <h3 className="profile-card-subtitle m-0">{svc.title}</h3>
+                            <span className="text-xs text-fg-tertiary">
+                              {svc.pricePerSession.toLocaleString()} Kč / session
+                            </span>
+                          </div>
+                          <p className="text-xs text-fg-tertiary m-0">
+                            Mentor offering — managed with the shelters you mentor
+                            at. Editing arrives with the mentor tools.
+                          </p>
+                        </div>
                       );
                     }
                     // Care service — inline card (PetEditCard-style: header
@@ -1154,6 +1179,10 @@ export function ProfileServicesTab({
         const appointmentServices = liveServices.filter(
           (s): s is CarerAppointmentServiceConfig => s.kind === "appointment",
         );
+        const mentorServices = liveServices.filter(
+          (s): s is import("@/lib/types").CarerMentorSessionServiceConfig =>
+            s.kind === "mentor_session",
+        );
         return (
           <section>
             <h3 className="profile-card-subtitle">Services</h3>
@@ -1272,6 +1301,35 @@ export function ProfileServicesTab({
                       </span>
                     )}
                     <span className="chip">{svc.durationMinutes} min</span>
+                  </div>
+                  {svc.notes && (
+                    <p className="profile-service-notes">{svc.notes}</p>
+                  )}
+                </div>
+              ))}
+              {/* Mentor-session offerings — supervised first walks at
+                  participating shelters (Cross-Shelter Mentor Network).
+                  Shelter chips link the offering to where it runs. */}
+              {mentorServices.map((svc) => (
+                <div key={svc.id} className="profile-service-card">
+                  <div className="profile-service-top">
+                    <span className="profile-service-name">{svc.title}</span>
+                    <div className="profile-service-price-wrap">
+                      <span className="profile-service-price">
+                        {svc.pricePerSession.toLocaleString()} Kč
+                        <span className="profile-service-unit">{" "}/ session</span>
+                      </span>
+                    </div>
+                  </div>
+                  <div className="profile-service-subs">
+                    <span className="chip">Shelter mentoring</span>
+                    <span className="chip">{svc.durationMinutes} min</span>
+                    {svc.shelterIds.map((sid) => {
+                      const shelter = getShelterById(sid);
+                      return shelter ? (
+                        <span key={sid} className="chip">{shelter.name}</span>
+                      ) : null;
+                    })}
                   </div>
                   {svc.notes && (
                     <p className="profile-service-notes">{svc.notes}</p>

@@ -258,7 +258,25 @@ const UTULEK_DOGS: PetProfile[] = [
 // real portraits, and the bridges to real personas will be wired in
 // the credentialing-moat phase. See FC9.
 const UTULEK_WALKERS: ShelterWalker[] = [
-  // Trusted — 1 walker, deeply embedded
+  // Trusted — 2 walkers, deeply embedded
+  {
+    // Klára — the keystone trainer-walker (Cross-Shelter Mentor Network
+    // F3, 2026-06-09). Her Super Volunteer status is the BOOTSTRAP case:
+    // she walked at Útulek for years before Doggo existed, so the shelter
+    // credited 60 historical walks (creditedWalkCount) when she joined —
+    // reputational skin in the game per ASSUMPTION A7. The provenance
+    // split renders as "64 walks · 60 credited by the shelter" wherever
+    // counts surface; only 4 are platform-logged. This is what unlocks
+    // her mentor-session offering (platform Super Volunteer gate).
+    userId: "klara",
+    displayName: "Klára H.",
+    avatarUrl: "/images/generated/klara-profile.jpeg",
+    tier: "trusted",
+    vouchedAt: daysAgo(95),
+    walkCount: 64,
+    creditedWalkCount: 60,
+    lastWalkedAt: daysAgoIso(2, "07:45"),
+  },
   {
     // Bridged walker (G, 2026-06-09) — pavel-d is a real UserProfile
     // already in the supporting cast (carer-side bridged provider).
@@ -559,6 +577,11 @@ export const mockShelters: ShelterProfile[] = [
       vouchingNote:
         "First-time walkers come in for a 30-minute intro visit so we can match you with the right dog. Walks are solo only. Even our calmest dogs do best one-on-one.",
       workingLanguages: ["cs", "en"],
+      // Mentor-vouching pilot shelter (Cross-Shelter Mentor Network D2).
+      // Accepts the mentor path at the platform-suggested 3-session
+      // minimum — the demo's primary graduation arc runs here.
+      acceptsMentorVouches: true,
+      mentorSessionMinimum: 3,
     },
     dogs: UTULEK_DOGS,
     walkers: UTULEK_WALKERS,
@@ -588,6 +611,11 @@ export const mockShelters: ShelterProfile[] = [
       vouchingNote:
         "We meet every volunteer for a short walk-along before the first solo outing.",
       workingLanguages: ["cs"],
+      // Accepts mentor-vouches but overrides the minimum upward (5 — a
+      // small rescue wanting more supervised time). Demonstrates the
+      // per-shelter override per D2; ASSUMPTION A6.
+      acceptsMentorVouches: true,
+      mentorSessionMinimum: 5,
     },
     dogs: PES_V_NOUZI_DOGS,
     walkers: [],
@@ -616,6 +644,13 @@ export const mockShelters: ShelterProfile[] = [
       vouchingNote:
         "Walkers join after a coordinator-led intro session. Solo walks only for our seniors.",
       workingLanguages: ["cs", "en"],
+      // Does NOT accept mentor-vouches — the demo's non-accepting
+      // contrast case (D2 + C3). Completed mentor sessions elsewhere
+      // surface as a "Mentor-recommended" credibility line on the
+      // standard apply path; the coordinator still gates. ASSUMPTION A10
+      // (resistance may be about control, not trust) — this posture has
+      // to be first-class, not a fallback.
+      acceptsMentorVouches: false,
     },
     dogs: DRUHA_SANCE_DOGS,
     walkers: [],
@@ -652,14 +687,19 @@ export function getAllShelters(): ShelterProfile[] {
  */
 export function getUserShelterAffiliations(
   userId: string,
-  dynamicVouchedShelters: { shelterId: string; walkCount: number; vouchedAt: string }[] = [],
-): { shelter: ShelterProfile; tier: WalkerTier; walkCount: number }[] {
-  const out: { shelter: ShelterProfile; tier: WalkerTier; walkCount: number }[] = [];
+  dynamicVouchedShelters: { shelterId: string; walkCount: number; vouchedAt: string; creditedWalkCount?: number }[] = [],
+): { shelter: ShelterProfile; tier: WalkerTier; walkCount: number; creditedWalkCount?: number }[] {
+  const out: { shelter: ShelterProfile; tier: WalkerTier; walkCount: number; creditedWalkCount?: number }[] = [];
   for (const shelter of mockShelters) {
     // Static roster — seeded mockShelters entry.
     const staticEntry = shelter.walkers.find((w) => w.userId === userId);
     if (staticEntry) {
-      out.push({ shelter, tier: staticEntry.tier, walkCount: staticEntry.walkCount });
+      out.push({
+        shelter,
+        tier: staticEntry.tier,
+        walkCount: staticEntry.walkCount,
+        creditedWalkCount: staticEntry.creditedWalkCount,
+      });
       continue;
     }
     // Dynamic — from a vouched WalkerApplication.
@@ -669,7 +709,7 @@ export function getUserShelterAffiliations(
       // helper here without a circular dep, so duplicate the rule.
       const tier: WalkerTier =
         dyn.walkCount >= 25 ? "trusted" : dyn.walkCount >= 10 ? "experienced" : "vetted";
-      out.push({ shelter, tier, walkCount: dyn.walkCount });
+      out.push({ shelter, tier, walkCount: dyn.walkCount, creditedWalkCount: dyn.creditedWalkCount });
     }
   }
   return out;
@@ -686,6 +726,20 @@ export function getAllShelterDogs(): { dog: PetProfile; shelter: ShelterProfile 
     }
   }
   return out;
+}
+
+/**
+ * Find a shelter dog by display name within one shelter. Booking records
+ * carry pet NAMES (not ids) in `Booking.pets`, so shelter-walk surfaces
+ * resolve the dog's portrait/profile through this. Case-insensitive.
+ * Cross-Shelter Mentor Network G, 2026-06-09.
+ */
+export function getShelterDogByName(
+  shelterId: string,
+  name: string,
+): PetProfile | undefined {
+  const shelter = getShelterById(shelterId);
+  return shelter?.dogs.find((d) => d.name.toLowerCase() === name.toLowerCase());
 }
 
 /** Find a non-owned dog by id across all shelters. */

@@ -543,6 +543,28 @@ export interface Booking {
     occurrenceDate: string;
   };
   /**
+   * Set when this booking is a **mentor session** (Cross-Shelter Mentor
+   * Network, 2026-06-09) — a paid supervised first walk at a shelter,
+   * carer = mentor (Super Volunteer), owner = mentee. Mutually exclusive
+   * with `serviceType` / `appointment` / `meetBooking`. `pets` is empty —
+   * the mentee may have no dog; the walked dog belongs to the shelter and
+   * is picked on the day. Completing the session advances
+   * `WalkerApplication.mentorship.sessionsCompleted` at the shelter.
+   */
+  mentorSession?: {
+    /** The `CarerMentorSessionServiceConfig.id` this booking is for. */
+    serviceId: string;
+    /** Service title, denormalised so rows render without a carer lookup. */
+    serviceTitle: string;
+    /** Shelter where the supervised walk happens. */
+    shelterId: string;
+    /** Denormalised shelter name for rendering without a lookup. */
+    shelterName: string;
+    /** 1-based position in the mentee's session sequence at this shelter
+     *  at booking time (e.g. session 2 of a 3-session minimum). */
+    sessionNumber: number;
+  };
+  /**
    * Set when this **Care** booking is a drop-off on a linked free meet
    * (Service ↔ Meet Linkage, config #2). The owner booked the carer to
    * walk their dog on a community walk's schedule — but **book ≠ attend**,
@@ -1400,8 +1422,17 @@ export interface CarerAvailabilitySlot {
  *   dogs (no roster). Booking produces a Booking record like Care, but is
  *   tied to a fixed time like Meet — solo. Specialised category (vet vs.
  *   grooming) influences card icon and copy.
+ * - **Mentor-session-type** (`kind: "mentor_session"`) — A Super Volunteer
+ *   takes a new walker to a participating shelter for a supervised first
+ *   walk (Cross-Shelter Mentor Network, 2026-06-09). Books like an
+ *   Appointment (specific time, solo, fixed price) but is its own kind
+ *   because the session produces GRADUATION PROGRESS at a shelter — after
+ *   `ShelterPolicy.mentorSessionMinimum` sessions at an accepting shelter,
+ *   the mentee is vouched to walk solo there. The mentee may have no dog
+ *   of their own, so no pet selection applies. ASSUMPTION A5 (trainers
+ *   want this as a service line) per Cold-Start Playbook → Assumptions.
  *
- * The Services tab on a profile renders all three kinds in a single catalogue;
+ * The Services tab on a profile renders all four kinds in a single catalogue;
  * tap routing differs by `kind`.
  *
  * **Service ↔ Meet linkage.** Meet-type services link to meets via
@@ -1421,7 +1452,8 @@ export interface CarerAvailabilitySlot {
 export type CarerServiceConfig =
   | CarerCareServiceConfig
   | CarerMeetServiceConfig
-  | CarerAppointmentServiceConfig;
+  | CarerAppointmentServiceConfig
+  | CarerMentorSessionServiceConfig;
 
 /**
  * Per-service pricing modifiers. Discriminated union — each modifier kind
@@ -1703,6 +1735,43 @@ export interface CarerAppointmentServiceConfig {
   softDeletedAt?: string;
 }
 
+/**
+ * Mentor-session offering — the fourth `CarerServiceConfig` kind
+ * (Cross-Shelter Mentor Network D1, 2026-06-09). A platform Super
+ * Volunteer offers paid supervised first walks at participating shelters.
+ *
+ * Routing tests stay coherent: *sign up to a specific time?* yes; *other
+ * dogs / a roster?* no — but unlike Appointment, completing sessions
+ * produces graduation progress on the mentee's `WalkerApplication`
+ * (mentor-vouched path). Mentee pays mentor; shelter pays nothing.
+ *
+ * Pricing: mentor-set, fixed per session — no modifier stack. Platform
+ * recommends a range (`MENTOR_SESSION_PRICE_RANGE` in
+ * `lib/constants/services.ts`). ASSUMPTION A4 (fee filters commitment
+ * without pricing out serious walkers) + A5 (mentors want this line).
+ *
+ * Authoring UI is deferred — demo offerings are seeded only. Eligibility
+ * to offer gates on platform Super Volunteer tier
+ * (`getPlatformVolunteerTier` in `lib/volunteerTier.ts`).
+ */
+export interface CarerMentorSessionServiceConfig {
+  kind: "mentor_session";
+  /** Stable id within the provider's catalogue (e.g. "klara-mentor"). */
+  id: string;
+  /** Display title (e.g. "Mentored shelter walk"). */
+  title: string;
+  enabled: boolean;
+  /** Mentor-set price per session, Kč. */
+  pricePerSession: number;
+  durationMinutes: number;
+  /** Shelters this mentor runs sessions at. Each session is booked at one
+   *  of these; graduation progress accrues per-shelter. */
+  shelterIds: string[];
+  notes?: string;
+  /** Soft-archive marker — same semantics as the meet/appointment kinds. */
+  softDeletedAt?: string;
+}
+
 export type CarerVisibility = "open" | "connected_only" | "familiar_and_above";
 
 /**
@@ -1862,6 +1931,14 @@ export interface ShelterWalker {
   /** Total walks logged at this shelter. Drives tier-progression hints
    *  and recency ordering. Production: derived from visit reports. */
   walkCount: number;
+  /**
+   * How many of `walkCount` were credited by the shelter (bootstrap of
+   * historical real-world walks) rather than logged through the platform.
+   * Provenance split keeps the audit trail clean — credited counts feed
+   * tier resolution but render distinctly ("64 walks · 60 credited").
+   * Cross-Shelter Mentor Network D5, 2026-06-09. ASSUMPTION A7.
+   */
+  creditedWalkCount?: number;
   /** ISO timestamp of most recent walk at this shelter. Drives the
    *  Members tab "recency" sort. */
   lastWalkedAt?: string;
@@ -1900,6 +1977,45 @@ export interface WalkerApplication {
    *  progression (10 → experienced, 25 → trusted) per D1. Production:
    *  derived from completed shelter-walk Bookings. */
   walkCount?: number;
+  /**
+   * Shelter-credited historical walks included in `walkCount` —
+   * provenance split per D5 (mirrors `ShelterWalker.creditedWalkCount`).
+   * ASSUMPTION A7.
+   */
+  creditedWalkCount?: number;
+  /**
+   * Set when this application runs through the mentor-vouched path
+   * (Cross-Shelter Mentor Network, 2026-06-09): the applicant is taking
+   * paid mentor sessions with a Super Volunteer instead of the shelter's
+   * own intake. `sessionsCompleted` counts completed mentor sessions at
+   * THIS shelter; reaching `ShelterPolicy.mentorSessionMinimum` at an
+   * accepting shelter auto-advances the application to `vouched`,
+   * attributed to the mentor. At non-accepting shelters the same record
+   * renders as a "Mentor-recommended" credibility signal on the standard
+   * path instead. ASSUMPTION A1 — the substitution is the load-bearing
+   * claim of the mentor model.
+   */
+  mentorship?: {
+    /** UserProfile id of the mentor (a platform Super Volunteer). */
+    mentorId: string;
+    /** Denormalised mentor display name for rendering without a lookup. */
+    mentorName: string;
+    /** Completed mentor sessions at this shelter. */
+    sessionsCompleted: number;
+  };
+  /**
+   * How the vouch happened — `"shelter"` (direct intake: applied →
+   * invited → vouched) or `"mentor"` (graduated from mentor sessions).
+   * Undefined on pre-mentor-phase records (treat as "shelter").
+   */
+  vouchedVia?: "shelter" | "mentor";
+  /**
+   * ISO timestamp the applicant signed THIS shelter's specific waiver
+   * (layer 2 of the three-layer requirements model per D4 — platform
+   * baseline lives on the user, per-shelter waiver lives here, mentor
+   * minimum lives on ShelterPolicy). ASSUMPTION A2.
+   */
+  shelterWaiverSignedAt?: string;
 }
 
 export interface ShelterSupporter {
@@ -1947,6 +2063,27 @@ export interface ShelterPolicy {
   /** Primary working language(s) for shelter coordination. Informational —
    *  bilingual surfaces are deferred per §14 open item. */
   workingLanguages?: ("cs" | "en" | "sk" | "de")[];
+  /**
+   * Does this shelter accept a mentor's vouch (+ the platform's session
+   * count) as a substitute for its own intake assessment? When `true`,
+   * a mentee who completes `mentorSessionMinimum` mentor sessions at this
+   * shelter auto-advances to `vouched`, attributed to the mentor. When
+   * `false`, completed mentor sessions still surface as a
+   * "Mentor-recommended" credibility signal on the standard apply path —
+   * the shelter's own process gates. Cross-Shelter Mentor Network D2,
+   * 2026-06-09. ASSUMPTION A1/A10 (Cold-Start Playbook → Assumptions to
+   * validate): whether shelters accept ANY vouching substitute is the
+   * load-bearing open question this field models both answers to.
+   */
+  acceptsMentorVouches: boolean;
+  /**
+   * Mentor sessions required before a mentee graduates to solo walker at
+   * this shelter. Platform-suggested default is `MENTOR_SESSION_DEFAULT_MINIMUM`
+   * (3); shelters override per-policy. Only meaningful when
+   * `acceptsMentorVouches` is true. ASSUMPTION A6 — the 3–5 default is a
+   * guess pending coordinator interviews.
+   */
+  mentorSessionMinimum?: number;
 }
 
 /**

@@ -11,6 +11,15 @@
  * Once an application reaches `vouched`, helpers elsewhere can treat
  * the user as a vetted Volunteer at the shelter even if they aren't
  * pre-seeded in the static roster (see lib/mockShelters.ts).
+ *
+ * Cross-Shelter Mentor Network (2026-06-09) adds:
+ *  - the mentor-vouched path (`beginMentorship` / `completeMentorSession`)
+ *    — sessions at an accepting shelter graduate the mentee to `vouched`
+ *    without the shelter's own intake (ASSUMPTION A1);
+ *  - shelter-credited historical walks (`creditWalks`) — the bootstrap
+ *    affordance, provenance-split from platform-logged walks (A7);
+ *  - the two waiver layers (platform baseline signed once per user;
+ *    per-shelter waiver on the application record) (A2).
  */
 
 import { createContext, useContext, useCallback } from "react";
@@ -37,6 +46,7 @@ export function deriveWalkerTier(walkCount: number): WalkerTier {
 
 const APPLICATIONS_SEED_VERSION = 1;
 const STORAGE_KEY = "doggo-walker-applications";
+const PLATFORM_WAIVER_KEY = "doggo-platform-waiver";
 
 interface WalkerApplicationsContextValue {
   applications: WalkerApplication[];
@@ -50,6 +60,45 @@ interface WalkerApplicationsContextValue {
   withdraw: (userId: string, shelterId: string) => void;
   /** Increment walkCount for the vouched walker. No-op when not vouched. */
   logWalk: (userId: string, shelterId: string) => void;
+  /**
+   * Start the mentor-vouched path at a shelter — upserts an application
+   * carrying a `mentorship` ref. Called when the mentee books their first
+   * mentor session. Existing non-mentorship applications gain the ref
+   * (the two paths converge on one record per (user, shelter)).
+   */
+  beginMentorship: (
+    userId: string,
+    shelterId: string,
+    mentor: { id: string; name: string },
+  ) => void;
+  /**
+   * Record a completed mentor session. When the shelter accepts
+   * mentor-vouches and the new count reaches `minimum`, the application
+   * auto-advances to `vouched` with `vouchedVia: "mentor"` — the
+   * graduation moment (D2). Caller detects graduation by comparing
+   * sessionsCompleted before/after against the minimum.
+   */
+  completeMentorSession: (
+    userId: string,
+    shelterId: string,
+    policy: { acceptsMentorVouches: boolean; minimum: number },
+  ) => void;
+  /**
+   * Bootstrap affordance (D5, operator stub): the shelter credits
+   * historical real-world walks. Upserts a vouched application with the
+   * credited count provenance-split from platform-logged walks. A user
+   * with no application is vouched in the same act — crediting IS the
+   * shelter staking its reputation on the walker (A7).
+   */
+  creditWalks: (userId: string, shelterId: string, count: number) => void;
+  /** Sign this shelter's specific waiver (layer 2 of D4). Updates the
+   *  existing application; no-op when none exists yet. */
+  signShelterWaiver: (userId: string, shelterId: string) => void;
+  /** ISO timestamp the user signed the platform baseline waiver (layer 1
+   *  of D4 — identity + emergency contact + general liability, signed
+   *  ONCE, carried across shelters). Undefined = not signed. */
+  getPlatformWaiverSignedAt: (userId: string) => string | undefined;
+  signPlatformWaiver: (userId: string) => void;
 }
 
 const WalkerApplicationsContext = createContext<WalkerApplicationsContextValue | undefined>(undefined);
@@ -59,6 +108,13 @@ export function WalkerApplicationsProvider({ children }: { children: React.React
     STORAGE_KEY,
     [],
     { seedVersion: APPLICATIONS_SEED_VERSION },
+  );
+  // Platform baseline waiver — keyed by userId, value is the ISO signing
+  // timestamp. Lives here (not on the static UserProfile mock) so the
+  // sign-once moment is drivable in the demo and survives reloads.
+  const [platformWaivers, setPlatformWaivers] = usePersistedState<Record<string, string>>(
+    PLATFORM_WAIVER_KEY,
+    {},
   );
 
   const getApplication = useCallback(
@@ -95,7 +151,7 @@ export function WalkerApplicationsProvider({ children }: { children: React.React
         prev.map((a) => {
           if (a.userId !== userId || a.shelterId !== shelterId) return a;
           if (a.state === "applied") return { ...a, state: "invited", invitedAt: new Date().toISOString() };
-          if (a.state === "invited") return { ...a, state: "vouched", vouchedAt: new Date().toISOString() };
+          if (a.state === "invited") return { ...a, state: "vouched", vouchedAt: new Date().toISOString(), vouchedVia: "shelter" as const };
           return a;
         }),
       );
@@ -123,8 +179,148 @@ export function WalkerApplicationsProvider({ children }: { children: React.React
     [setApplications],
   );
 
+  const beginMentorship = useCallback(
+    (userId: string, shelterId: string, mentor: { id: string; name: string }) => {
+      setApplications((prev) => {
+        const existing = prev.find((a) => a.userId === userId && a.shelterId === shelterId);
+        if (existing) {
+          if (existing.mentorship) return prev;
+          return prev.map((a) =>
+            a === existing
+              ? { ...a, mentorship: { mentorId: mentor.id, mentorName: mentor.name, sessionsCompleted: 0 } }
+              : a,
+          );
+        }
+        return [
+          ...prev,
+          {
+            id: `app-${userId}-${shelterId}-${Date.now()}`,
+            userId,
+            shelterId,
+            state: "applied" as WalkerApplicationState,
+            message: `Mentor-path application via ${mentor.name}.`,
+            appliedAt: new Date().toISOString(),
+            mentorship: { mentorId: mentor.id, mentorName: mentor.name, sessionsCompleted: 0 },
+          },
+        ];
+      });
+    },
+    [setApplications],
+  );
+
+  const completeMentorSession = useCallback(
+    (
+      userId: string,
+      shelterId: string,
+      policy: { acceptsMentorVouches: boolean; minimum: number },
+    ) => {
+      setApplications((prev) =>
+        prev.map((a) => {
+          if (a.userId !== userId || a.shelterId !== shelterId || !a.mentorship) return a;
+          const sessionsCompleted = a.mentorship.sessionsCompleted + 1;
+          const graduates =
+            policy.acceptsMentorVouches &&
+            a.state !== "vouched" &&
+            sessionsCompleted >= policy.minimum;
+          return {
+            ...a,
+            mentorship: { ...a.mentorship, sessionsCompleted },
+            ...(graduates
+              ? {
+                  state: "vouched" as WalkerApplicationState,
+                  vouchedAt: new Date().toISOString(),
+                  vouchedVia: "mentor" as const,
+                }
+              : {}),
+          };
+        }),
+      );
+    },
+    [setApplications],
+  );
+
+  const creditWalks = useCallback(
+    (userId: string, shelterId: string, count: number) => {
+      setApplications((prev) => {
+        const existing = prev.find((a) => a.userId === userId && a.shelterId === shelterId);
+        if (existing) {
+          return prev.map((a) =>
+            a === existing
+              ? {
+                  ...a,
+                  state: "vouched" as WalkerApplicationState,
+                  vouchedAt: a.vouchedAt ?? new Date().toISOString(),
+                  vouchedVia: a.vouchedVia ?? ("shelter" as const),
+                  walkCount: (a.walkCount ?? 0) + count,
+                  creditedWalkCount: (a.creditedWalkCount ?? 0) + count,
+                }
+              : a,
+          );
+        }
+        return [
+          ...prev,
+          {
+            id: `app-${userId}-${shelterId}-${Date.now()}`,
+            userId,
+            shelterId,
+            state: "vouched" as WalkerApplicationState,
+            message: "Shelter-credited historical walker (bootstrap).",
+            appliedAt: new Date().toISOString(),
+            vouchedAt: new Date().toISOString(),
+            vouchedVia: "shelter" as const,
+            walkCount: count,
+            creditedWalkCount: count,
+          },
+        ];
+      });
+    },
+    [setApplications],
+  );
+
+  const signShelterWaiver = useCallback(
+    (userId: string, shelterId: string) => {
+      setApplications((prev) =>
+        prev.map((a) =>
+          a.userId === userId && a.shelterId === shelterId && !a.shelterWaiverSignedAt
+            ? { ...a, shelterWaiverSignedAt: new Date().toISOString() }
+            : a,
+        ),
+      );
+    },
+    [setApplications],
+  );
+
+  const getPlatformWaiverSignedAt = useCallback(
+    (userId: string) => platformWaivers[userId],
+    [platformWaivers],
+  );
+
+  const signPlatformWaiver = useCallback(
+    (userId: string) => {
+      setPlatformWaivers((prev) =>
+        prev[userId] ? prev : { ...prev, [userId]: new Date().toISOString() },
+      );
+    },
+    [setPlatformWaivers],
+  );
+
   return (
-    <WalkerApplicationsContext.Provider value={{ applications, getApplication, apply, advance, withdraw, logWalk }}>
+    <WalkerApplicationsContext.Provider
+      value={{
+        applications,
+        getApplication,
+        apply,
+        advance,
+        withdraw,
+        logWalk,
+        beginMentorship,
+        completeMentorSession,
+        creditWalks,
+        signShelterWaiver,
+        getPlatformWaiverSignedAt,
+        signPlatformWaiver,
+      }}
+    >
       {children}
     </WalkerApplicationsContext.Provider>
   );

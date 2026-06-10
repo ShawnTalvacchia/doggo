@@ -457,6 +457,23 @@ export const klara: UserProfile = {
         notes: "Foundations course for puppies under 6 months — handling, recall, socialisation.",
         linkedMeetIds: ["meet-care-puppy-basics"],
       },
+      // Mentor-session offering (Cross-Shelter Mentor Network A3,
+      // 2026-06-09). Klára qualifies via her platform Super Volunteer
+      // status (bootstrapped at Útulek — see mockShelters UTULEK_WALKERS).
+      // Priced mid-band per D1: 450 Kč sits between a guided shelter
+      // intro (~300) and her 1-on-1 training rate (800) — supervised
+      // apprenticeship, not a training session. ASSUMPTION A4/A5.
+      {
+        kind: "mentor_session",
+        id: "klara-mentor",
+        title: "Mentored shelter walk",
+        enabled: true,
+        pricePerSession: 450,
+        durationMinutes: 60,
+        shelterIds: ["utulek-liben", "pes-v-nouzi"],
+        notes:
+          "New to shelter walking? I'll take you through your first walks at the shelter — dog handling, shelter routines, what the dogs need. After enough sessions, the shelter vouches you to walk solo.",
+      },
     ],
     publicProfile: true,
     visibility: "open",

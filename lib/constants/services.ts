@@ -41,6 +41,25 @@ export const TRAINING_TYPE_PICKER_ORDER: TrainingType[] = [
 
 
 /**
+ * Platform-recommended price range for mentor sessions, Kč per session
+ * (Cross-Shelter Mentor Network D1, 2026-06-09). Mentor sets the actual
+ * price on `CarerMentorSessionServiceConfig.pricePerSession`; this range
+ * is the platform's suggested band — between a guided shelter intro
+ * (~300 Kč) and a 1:1 training session (~600 Kč), signalling "supervised
+ * apprenticeship, not a training session." ASSUMPTION A4/A5 (Cold-Start
+ * Playbook → Assumptions to validate): the band is an interview probe,
+ * not a settled answer.
+ */
+export const MENTOR_SESSION_PRICE_RANGE = { min: 300, max: 600 } as const;
+
+/**
+ * Platform-suggested mentor-session minimum before a mentee graduates to
+ * solo walker at an accepting shelter. Shelters override per
+ * `ShelterPolicy.mentorSessionMinimum`. ASSUMPTION A6 — it's a guess.
+ */
+export const MENTOR_SESSION_DEFAULT_MINIMUM = 3;
+
+/**
  * Canonical display labels for the four Care service types. Resolved
  * 2026-05-10 (Care Catalog Taxonomy & Filter Redesign). Use these everywhere
  * instead of freeform titles. See [[Groups & Care Model]] →
@@ -77,7 +96,9 @@ export function serviceLabelFor(x: {
  */
 export function bookingServiceLabel(booking: Booking): string {
   if (booking.meetBooking) return booking.meetBooking.serviceTitle;
+  if (booking.mentorSession) return booking.mentorSession.serviceTitle;
   if (booking.appointment) return booking.appointment.title;
+  if (booking.ownerKind === "shelter") return "Volunteer walk";
   return booking.serviceType ? SERVICE_LABELS[booking.serviceType] : "Service";
 }
 
