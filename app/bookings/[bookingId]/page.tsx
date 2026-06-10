@@ -24,11 +24,13 @@ import {
   Ruler,
   Clock,
   MapPin,
+  Receipt,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { DetailHeader } from "@/components/layout/DetailHeader";
 import { Spacer } from "@/components/layout/Spacer";
 import { TabBar } from "@/components/ui/TabBar";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { CancelBookingModal } from "@/components/bookings/CancelBookingModal";
@@ -651,13 +653,17 @@ export default function BookingDetailPage() {
   if (!booking) {
     return (
       <PageColumn title="Booking">
-        <div className="page-column-panel-body">
-          <div className="flex flex-col items-center gap-md p-xl text-center">
-            <p className="text-fg-secondary">Booking not found.</p>
-            <ButtonAction variant="secondary" size="sm" onClick={() => router.push("/bookings")}>
-              Back to Bookings
-            </ButtonAction>
-          </div>
+        <div className="page-column-panel-body p-md">
+          <EmptyState
+            icon={<Receipt size={32} weight="light" />}
+            title="We couldn't find that booking"
+            subtitle="It might've been cancelled, withdrawn, or removed from your list."
+            action={
+              <ButtonAction variant="secondary" size="sm" onClick={() => router.push("/bookings")}>
+                Back to Bookings
+              </ButtonAction>
+            }
+          />
         </div>
       </PageColumn>
     );
