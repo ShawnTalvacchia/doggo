@@ -1,6 +1,6 @@
 ---
 status: active
-last-reviewed: 2026-06-09
+last-reviewed: 2026-06-10
 review-trigger: When any task is completed or blocked; at the mid-phase single-shelter-loop checkpoint
 ---
 
@@ -141,16 +141,16 @@ Consume `Booking.ownerKind: "shelter"` (type shipped last phase, no consumers):
 
 **Single-shelter loop first** (Workstreams A–C + G, all at Útulek): the mentor session kind, the mentee journey, the policy gate, and the real walk booking surface. This is the half that proves the mechanism.
 
-**Mid-phase checkpoint** — walk the loop end-to-end before opening the cross-shelter half:
+**Mid-phase checkpoint** — walked live in the preview during the build (2026-06-10); re-verify via walkthrough V1–V3:
 
-- [ ] Klára's profile carries a `mentor_session` offering at ~450 CZK (A)
-- [ ] Tomáš books a mentor session at Útulek from at least two entry points (B)
-- [ ] Progress surface counts sessions ("2 of 3 mentor sessions at Útulek") (B)
-- [ ] Third completed session auto-advances Tomáš to `vouched`, attributed to Klára (B, C)
-- [ ] Druhá šance shows the "Mentor-recommended" fallback instead of auto-vouch (C)
-- [ ] Tomáš books a real solo walk that lands in Schedule/Bookings; visit report seals to the dog (G)
-- [ ] P77 both halves fixed (G)
-- [ ] TypeScript compiles clean
+- [x] Klára's profile carries a `mentor_session` offering at ~450 CZK (A)
+- [x] Tomáš books a mentor session at Útulek from at least two entry points (B) — shelter MentorPathCard + profile service card + dog-page upsell link
+- [x] Progress surface counts sessions ("0 of 3 mentor sessions with Klára Horáčková") (B)
+- [x] Third completed session auto-advances Tomáš to `vouched`, attributed to Klára; graduation message lands in Inbox (B, C)
+- [x] Druhá šance shows the "Mentor-recommended" fallback instead of auto-vouch (C)
+- [x] Tomáš books a real solo walk that lands in Bookings (list + detail render the shelter party); session completes with a sealed report (G)
+- [x] P77 both halves fixed (G)
+- [x] TypeScript compiles clean
 
 Then the **cross-shelter half** (D–F) and the **two walkthroughs** (H–I).
 
@@ -164,77 +164,77 @@ Then the **cross-shelter half** (D–F) and the **two walkthroughs** (H–I).
 
 | # | Description | Refs | Status |
 |---|-------------|------|--------|
-| A1 | `CarerMentorSessionServiceConfig` added to the `CarerServiceConfig` union per D1. Inline JSDoc documents the routing rationale (specific time + no roster + graduation progress). | D1 | todo |
-| A2 | Platform-recommended price range constant in `lib/constants/services.ts` (~300–600 CZK) + fixed per-session quote path (no modifier engine). | D1 | todo |
-| A3 | Klára seeds a mentor offering (~450 CZK, `shelterIds: ["utulek-liben", "pes-v-nouzi"]`). | D1, D3 | todo |
-| A4 | `ProfileServicesTab` renders the mentor-session card. Visual family is an in-build call (care=blue vs volunteer=violet tension) — flag as O item. | D1 | todo |
+| A1 | `CarerMentorSessionServiceConfig` added to the `CarerServiceConfig` union per D1. Inline JSDoc documents the routing rationale (specific time + no roster + graduation progress). | D1 | done |
+| A2 | Platform-recommended price range constant in `lib/constants/services.ts` (~300–600 CZK) + fixed per-session quote path (no modifier engine). | D1 | done |
+| A3 | Klára seeds a mentor offering (~450 CZK, `shelterIds: ["utulek-liben", "pes-v-nouzi"]`). | D1, D3 | done |
+| A4 | `ProfileServicesTab` renders the mentor-session card. Visual family is an in-build call (care=blue vs volunteer=violet tension) — flag as O item. | D1 | done |
 
 ### Workstream B — Mentee journey: booking, progress, graduation *(A4, A6, A8)*
 
 | # | Description | Refs | Status |
 |---|-------------|------|--------|
-| B1 | Mentor-session Booking shape — reuses `Booking` with a `mentorSession?: { shelterId: string; sessionNumber: number }` reference; carer = mentor, owner = mentee (`ownerKind: "user"`). Books like an appointment (chat-based slot per prototype convention). | D1, D7 | todo |
-| B2 | Entry points: (a) mentor's Services tab card; (b) shelter-page affordance "New to walking here? Book a mentored first walk" when `acceptsMentorVouches` and viewer isn't vouched; (c) dog-page eligibility state upsell (the "needs an experienced walker" explanatory state gains a mentor-path pointer). | D2 | todo |
-| B3 | Progress surface — "N of M mentor sessions at {shelter}" on the shelter page (own application context) + own profile. | D2 | todo |
-| B4 | Graduation — Mth completed session at an accepting shelter auto-advances the `WalkerApplication` to `vouched`, attributed to the mentor; system message lands in the mentee's conversation. | D2, C2 | todo |
+| B1 | Mentor-session Booking shape — reuses `Booking` with a `mentorSession?: { shelterId: string; sessionNumber: number }` reference; carer = mentor, owner = mentee (`ownerKind: "user"`). Books like an appointment (chat-based slot per prototype convention). | D1, D7 | done |
+| B2 | Entry points: (a) mentor's Services tab card; (b) shelter-page affordance "New to walking here? Book a mentored first walk" when `acceptsMentorVouches` and viewer isn't vouched; (c) dog-page eligibility state upsell (the "needs an experienced walker" explanatory state gains a mentor-path pointer). | D2 | done |
+| B3 | Progress surface — "N of M mentor sessions at {shelter}" on the shelter page (own application context) + own profile. | D2 | done |
+| B4 | Graduation — Mth completed session at an accepting shelter auto-advances the `WalkerApplication` to `vouched`, attributed to the mentor; system message lands in the mentee's conversation. | D2, C2 | done |
 
 ### Workstream C — Vouching authority + ShelterPolicy *(A1, A6, A10)*
 
 | # | Description | Refs | Status |
 |---|-------------|------|--------|
-| C1 | `ShelterPolicy.acceptsMentorVouches` + `mentorSessionMinimum?` fields; seeds per D2 (Útulek 3 / Pes v nouzi 5 / Druhá šance does not accept). | D2 | todo |
-| C2 | `WalkerApplication` mentorship extension — `mentorship?: { mentorId: string; sessionsCompleted: number }`, coexisting with the direct-apply path (two paths in steady state per the Playbook). | D2 | todo |
-| C3 | Non-accepting fallback at Druhá šance — "Mentor-recommended · N sessions with {mentor}" credibility line on the standard application; shelter still gates via state-toggle. | D2 | todo |
-| C4 | Operator accept/decline as hidden state-toggles per scope discipline 2. | D2 | todo |
+| C1 | `ShelterPolicy.acceptsMentorVouches` + `mentorSessionMinimum?` fields; seeds per D2 (Útulek 3 / Pes v nouzi 5 / Druhá šance does not accept). | D2 | done |
+| C2 | `WalkerApplication` mentorship extension — `mentorship?: { mentorId: string; sessionsCompleted: number }`, coexisting with the direct-apply path (two paths in steady state per the Playbook). | D2 | done |
+| C3 | Non-accepting fallback at Druhá šance — "Mentor-recommended · N sessions with {mentor}" credibility line on the standard application; shelter still gates via state-toggle. | D2 | done |
+| C4 | Operator accept/decline as hidden state-toggles per scope discipline 2. | D2 | done |
 
 ### Workstream D — Cross-shelter portability *(A3)*
 
 | # | Description | Refs | Status |
 |---|-------------|------|--------|
-| D1 | `getPlatformVolunteerTier(userId)` resolver — cross-shelter walk total + vouch count per D3. | D3 | todo |
-| D2 | Profile rendering — platform tier with shelter context + vouched-by line; reconcile with the no-aggregate-header decision (O item per opening conflict 5). | D3 | todo |
-| D3 | New-shelter recognition flow — applying at a shelter you've never walked at surfaces the platform tier on the application; own waiver + orientation still required. Demo: Tomáš (or Pavel) arrives at Pes v nouzi with the portable credential. | D3, E2 | todo |
-| D4 | Mentor-eligibility gate — `mentor_session` authoring/visibility gated on platform Super Volunteer. | D3 | todo |
+| D1 | `getPlatformVolunteerTier(userId)` resolver — cross-shelter walk total + vouch count per D3. | D3 | done |
+| D2 | Profile rendering — platform tier with shelter context + vouched-by line; reconcile with the no-aggregate-header decision (O item per opening conflict 5). | D3 | done |
+| D3 | New-shelter recognition flow — applying at a shelter you've never walked at surfaces the platform tier on the application; own waiver + orientation still required. Demo: Tomáš (or Pavel) arrives at Pes v nouzi with the portable credential. | D3, E2 | done |
+| D4 | Mentor-eligibility gate — `mentor_session` authoring/visibility gated on platform Super Volunteer. | D3 | done |
 
 ### Workstream E — Layered waivers *(A2)*
 
 | # | Description | Refs | Status |
 |---|-------------|------|--------|
-| E1 | Data — `UserProfile.platformWaiver?` + per-shelter waiver flag on `WalkerApplication`; baseline item list as a constant. | D4 | todo |
-| E2 | Flow surfaces — waiver checklist rows in the mentor-booking + application flows ("signed once" vs "sign now" states); tap-to-sign demo behavior. | D4 | todo |
-| E3 | Own-view waiver status on the Volunteer-work / affiliations surface (quiet, self-only). | D4 | todo |
+| E1 | Data — `UserProfile.platformWaiver?` + per-shelter waiver flag on `WalkerApplication`; baseline item list as a constant. | D4 | done |
+| E2 | Flow surfaces — waiver checklist rows in the mentor-booking + application flows ("signed once" vs "sign now" states); tap-to-sign demo behavior. | D4 | done |
+| E3 | Own-view waiver status on the Volunteer-work / affiliations surface (quiet, self-only). | D4 | done |
 
 ### Workstream F — Bootstrap: credit historical walks *(A7)*
 
 | # | Description | Refs | Status |
 |---|-------------|------|--------|
-| F1 | Walk-count provenance split — `platformLogged` vs `shelterCredited`; tier resolution sums both; rendering marks credited counts distinctly. | D5 | todo |
-| F2 | Hidden "Credit historical walks (demo)" state-toggle on the shelter Members tab (operator stub). | D5 | todo |
-| F3 | Klára's bootstrap — shelter-credited walks at Útulek land her at Super Volunteer; storyline beat seeded so the shelter demo can SHOW the crediting moment. | D5, D3 | todo |
+| F1 | Walk-count provenance split — `platformLogged` vs `shelterCredited`; tier resolution sums both; rendering marks credited counts distinctly. | D5 | done |
+| F2 | Hidden "Credit historical walks (demo)" state-toggle on the shelter Members tab (operator stub). | D5 | done |
+| F3 | Klára's bootstrap — shelter-credited walks at Útulek land her at Super Volunteer; storyline beat seeded so the shelter demo can SHOW the crediting moment. | D5, D3 | done |
 
 ### Workstream G — Shelter walk Booking surface + P77 *(carried forward)*
 
 | # | Description | Refs | Status |
 |---|-------------|------|--------|
-| G1 | "Book a walk" on `/dogs/[id]` creates a real `Booking` with `ownerKind: "shelter"` per D7; gated by existing eligibility check. | D7 | todo |
-| G2 | Schedule/Bookings integration — shelter walks under the Bookings tab; owner slot resolves to shelter logo + name; Pet-as-protagonist hero. | D7 | todo |
-| G3 | Sessions flow reuse — Start → Finish → Visit Report sealing to the dog's profile; completed walk bookings feed tier escalation. | D7 | todo |
-| G4 | P77 — drop `Leave shelter` from the dog-page dropdown; `Log walk (demo)` becomes visible (walks land as bookings/reports); demo toggle retained for walkthrough speed. | D7 | todo |
+| G1 | "Book a walk" on `/dogs/[id]` creates a real `Booking` with `ownerKind: "shelter"` per D7; gated by existing eligibility check. | D7 | done |
+| G2 | Schedule/Bookings integration — shelter walks under the Bookings tab; owner slot resolves to shelter logo + name; Pet-as-protagonist hero. | D7 | done |
+| G3 | Sessions flow reuse — Start → Finish → Visit Report sealing to the dog's profile; completed walk bookings feed tier escalation. | D7 | done |
+| G4 | P77 — drop `Leave shelter` from the dog-page dropdown; `Log walk (demo)` becomes visible (walks land as bookings/reports); demo toggle retained for walkthrough speed. | D7 | done |
 
 ### Workstream H — Shelter-facing demo walkthrough *(A1, A8, A9 — and all)*
 
 | # | Description | Refs | Status |
 |---|-------------|------|--------|
-| H1 | Storyline seeding — Tomáš mentee path pre-staged; V2 Daniel→Klára narrative untouched (verify both run in parallel). | D6 | todo |
-| H2 | Write `docs/phases/cross-shelter-mentor-network-shelter-demo.md` — sales-demo narration: bootstrap beat (Útulek credits Klára) → mentor offering → Tomáš books → 3 sessions → graduation at Útulek → portability moment at Pes v nouzi → non-accepting contrast at Druhá šance. Inline **ASSUMPTION (A#)** callouts at every assumption-dependent beat; honest "operator side is faked here" notes. | D1–D7 | todo |
-| H3 | Interview-prep crosswalk — table mapping each demo beat → the Playbook assumption(s) it tests, so PO interview prep is "scan the crosswalk, pick the highest-impact probes." | H2 | todo |
+| H1 | Storyline — Tomáš mentee path drives LIVE from fresh state (pre-staging dropped: the state-toggles make live driving fast, and a pre-staged mid-mentorship state would collide with demonstrating the booking beat — walkthrough O9); V2 Daniel→Klára narrative untouched (smoke-checked; full check is walkthrough V8). | D6 | done |
+| H2 | Write `docs/phases/cross-shelter-mentor-network-shelter-demo.md` — sales-demo narration: bootstrap beat (Útulek credits Klára) → mentor offering → Tomáš books → 3 sessions → graduation at Útulek → portability moment at Pes v nouzi → non-accepting contrast at Druhá šance. Inline **ASSUMPTION (A#)** callouts at every assumption-dependent beat; honest "operator side is faked here" notes. | D1–D7 | done |
+| H3 | Interview-prep crosswalk — table mapping each demo beat → the Playbook assumption(s) it tests, so PO interview prep is "scan the crosswalk, pick the highest-impact probes." | H2 | done |
 
 ### Workstream I — Dev walkthrough + calibration
 
 | # | Description | Refs | Status |
 |---|-------------|------|--------|
-| I1 | Standard dev-facing walkthrough doc from `_walkthrough-template.md` — O items already queued: mentor-card visual family (A4), platform-tier rendering vs no-aggregate-header (D2 of Workstream D), Tomáš-as-mentee (D6). | | todo |
-| I2 | Mock data calibration + persona sanity across switcher; TypeScript compiles clean. | | todo |
+| I1 | Standard dev-facing walkthrough doc from `_walkthrough-template.md` — O items already queued: mentor-card visual family (A4), platform-tier rendering vs no-aggregate-header (D2 of Workstream D), Tomáš-as-mentee (D6). | | done |
+| I2 | Mock data calibration + persona sanity across switcher; TypeScript compiles clean. | | done |
 
 ---
 
