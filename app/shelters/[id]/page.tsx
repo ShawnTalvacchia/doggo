@@ -31,6 +31,7 @@ import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { ShelterDogCard } from "@/components/shelters/ShelterDogCard";
 import { ShelterMemberRow } from "@/components/shelters/ShelterMemberRow";
+import { WalkApplicationSheet } from "@/components/shelters/WalkApplicationSheet";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
 import {
@@ -211,7 +212,7 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
         </div>
       )}
 
-      <WalkInterestSheet
+      <WalkApplicationSheet
         open={walkSheetOpen}
         shelter={shelter}
         onClose={() => setWalkSheetOpen(false)}
@@ -442,84 +443,9 @@ function ShelterActionRow({
   );
 }
 
-function WalkInterestSheet({
-  open,
-  shelter,
-  onClose,
-  onConfirm,
-}: {
-  open: boolean;
-  shelter: ShelterProfile;
-  onClose: () => void;
-  onConfirm: (message: string) => void;
-}) {
-  const [message, setMessage] = useState("");
-  const canSubmit = message.trim().length >= 10;
-  return (
-    <ModalSheet
-      open={open}
-      onClose={onClose}
-      title="Apply to walk dogs"
-      compact
-      footer={
-        <div className="flex gap-sm justify-end px-md py-md">
-          <ButtonAction variant="neutral" size="md" onClick={onClose}>
-            Not yet
-          </ButtonAction>
-          <ButtonAction
-            variant="primary"
-            size="md"
-            cta
-            disabled={!canSubmit}
-            onClick={() => {
-              onConfirm(message.trim());
-              setMessage("");
-            }}
-          >
-            Send application
-          </ButtonAction>
-        </div>
-      }
-    >
-      <div className="flex flex-col gap-md p-md">
-        <p className="text-sm text-fg-secondary m-0">
-          {shelter.name} pairs new walkers with the right dog through a short
-          intro visit at the shelter.
-        </p>
-        {shelter.policy.vouchingNote && (
-          <p className="text-sm text-fg-primary m-0">
-            <em>{shelter.policy.vouchingNote}</em>
-          </p>
-        )}
-        <div className="flex flex-col gap-xs">
-          <label htmlFor="walker-application-message" className="text-sm font-semibold text-fg-primary">
-            Why do you want to walk here?
-          </label>
-          <textarea
-            id="walker-application-message"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            rows={4}
-            placeholder="A few sentences about your experience with dogs and why this shelter."
-            className="text-sm"
-            style={{
-              width: "100%",
-              padding: "var(--space-sm)",
-              border: "1px solid var(--border-regular)",
-              borderRadius: "var(--radius-form)",
-              background: "var(--surface-top)",
-              fontFamily: "inherit",
-              resize: "vertical",
-            }}
-          />
-          <span className="text-xs text-fg-tertiary">
-            Required — 10 characters minimum.
-          </span>
-        </div>
-      </div>
-    </ModalSheet>
-  );
-}
+// WalkInterestSheet extracted to components/shelters/WalkApplicationSheet.tsx
+// (2026-06-09) so the dog profile hero "Walk {dog.name}" button can open
+// the same surface without navigating to the shelter page first.
 
 /* ── Dogs-in-care summary card ─────────────────────────────────────── */
 

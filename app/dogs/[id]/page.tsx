@@ -43,6 +43,7 @@ import { useUntagStore } from "@/lib/useUntagStore";
 import { usePendingTagsStore } from "@/lib/usePendingTagsStore";
 import { usePostComposer } from "@/contexts/PostComposerContext";
 import { useWalkerApplications, deriveWalkerTier } from "@/contexts/WalkerApplicationsContext";
+import { WalkApplicationSheet } from "@/components/shelters/WalkApplicationSheet";
 import {
   VACCINATION_LABELS,
   deriveAutoTags,
@@ -967,10 +968,11 @@ function DogPhotosBundle({
 function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetProfile }) {
   const router = useRouter();
   const currentUserId = useCurrentUserId();
-  const { getApplication } = useWalkerApplications();
+  const { getApplication, apply } = useWalkerApplications();
   const application = currentUserId ? getApplication(currentUserId, shelter.id) : undefined;
   const state = application?.state;
   const walkCount = application?.walkCount ?? 0;
+  const [walkSheetOpen, setWalkSheetOpen] = useState(false);
 
   // Per-dog eligibility: experiencedHandlersOnly requires tier ≥ experienced.
   const tier = state === "vouched" ? deriveWalkerTier(walkCount) : null;
@@ -990,43 +992,67 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
     return null;
   })();
 
-  // Navigates to the shelter where the application sheet / sign-up
-  // flow lives. Both buttons route to the same place for now; the
-  // Mentor Network phase splits them (Adopt routes to adoption
-  // inquiry; Walk opens the application sheet directly here when
-  // the flow lifts to the dog page).
-  const goToShelter = () => router.push(`/shelters/${shelter.id}`);
+  // Walk button click — state-aware. No application → open the
+  // application sheet right here (no shelter-page detour). Applied/
+  // invited → no-op (status line below carries the context). Vouched +
+  // eligible → would open the booking flow (deferred to follow-up).
+  const onWalkClick = () => {
+    if (!state) {
+      setWalkSheetOpen(true);
+      return;
+    }
+    // For now, applied/invited/vouched states are no-op from this
+    // button; status line carries the message. Vouched booking flow
+    // lights up when the shelter-walk Booking discriminator wires
+    // end-to-end (Mentor Network phase territory).
+  };
+
+  // Adopt button click — stub navigation to the shelter for now.
+  // The adoption inquiry flow ships in a follow-up phase (likely
+  // alongside the Mentor Network adoption-curious doorway).
+  const onAdoptClick = () => router.push(`/shelters/${shelter.id}`);
 
   return (
-    <div className="flex flex-col gap-xs" style={{ marginTop: "var(--space-sm)" }}>
-      <div className="flex gap-sm flex-wrap">
-        <ButtonAction
-          variant="primary"
-          size="sm"
-          cta
-          className="grow basis-[140px]"
-          leftIcon={<Footprints size={16} weight="fill" />}
-          onClick={goToShelter}
-        >
-          Walk {dog.name}
-        </ButtonAction>
-        <ButtonAction
-          variant="outline"
-          size="sm"
-          cta
-          className="grow basis-[140px]"
-          leftIcon={<HandHeart size={16} weight="regular" />}
-          onClick={goToShelter}
-        >
-          Adopt {dog.name}
-        </ButtonAction>
+    <>
+      <div className="flex flex-col gap-xs" style={{ marginTop: "var(--space-sm)" }}>
+        <div className="flex gap-sm flex-wrap">
+          <ButtonAction
+            variant="primary"
+            size="sm"
+            cta
+            className="grow basis-[140px]"
+            leftIcon={<Footprints size={16} weight="fill" />}
+            onClick={onWalkClick}
+          >
+            Walk {dog.name}
+          </ButtonAction>
+          <ButtonAction
+            variant="outline"
+            size="sm"
+            cta
+            className="grow basis-[140px]"
+            leftIcon={<HandHeart size={16} weight="regular" />}
+            onClick={onAdoptClick}
+          >
+            Adopt {dog.name}
+          </ButtonAction>
+        </div>
+        {statusLine && (
+          <span className="text-xs text-fg-tertiary">
+            {statusLine}
+          </span>
+        )}
       </div>
-      {statusLine && (
-        <span className="text-xs text-fg-tertiary">
-          {statusLine}
-        </span>
-      )}
-    </div>
+      <WalkApplicationSheet
+        open={walkSheetOpen}
+        shelter={shelter}
+        onClose={() => setWalkSheetOpen(false)}
+        onConfirm={(message) => {
+          if (currentUserId) apply(currentUserId, shelter.id, message);
+          setWalkSheetOpen(false);
+        }}
+      />
+    </>
   );
 }
 
