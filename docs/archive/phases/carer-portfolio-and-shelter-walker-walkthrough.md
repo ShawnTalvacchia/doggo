@@ -1,6 +1,6 @@
 ---
-status: active
-last-reviewed: 2026-06-08
+status: archived
+last-reviewed: 2026-06-09
 review-trigger: "Update as items are walked, edit as scope adjusts"
 tags: [walkthrough, credentialing, carer-portfolio, shelter-walker]
 ---

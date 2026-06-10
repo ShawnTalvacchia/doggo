@@ -1,6 +1,6 @@
 ---
-status: active
-last-reviewed: 2026-06-08
+status: archived
+last-reviewed: 2026-06-09
 review-trigger: When any task is completed or blocked; at the mid-phase Carer-Portfolio-side ship
 ---
 
@@ -334,18 +334,62 @@ Run before opening the Shelter Walker side:
 
 ## Closing Checklist
 
-- [ ] Walk through every Carer Portfolio acceptance criterion against the running app (mid-phase checkpoint)
-- [ ] Walk through every Shelter Walker acceptance criterion against the running app (full phase close)
-- [ ] Update `badges.md` — aggregate badge spec + walker tier visual escalation update
-- [ ] Update `features/shelters.md` — Volunteer badge section, walker journey description, "Deferred" list trimmed
-- [ ] Update `features/profiles.md` — Volunteer work section spec
-- [ ] Update `features/explore-and-care.md` — review form no longer in Future
-- [ ] Update Open Questions log — close §8 Carer Portfolio entry, close §14 walker-circle elevation entry, update §14 thin-shelter content-authoring authority with the empty-by-design resolution
-- [ ] Update ROADMAP.md only if upcoming scope shifted (likely small adjustment — credentialing-moat phase complete)
-- [ ] Review CLAUDE.md — update if the merged credentialing layer affects key principles or trust model framing
-- [ ] Archive this phase board + walkthrough (`git mv` to `docs/archive/phases/`, status: archived in frontmatter)
-- [ ] Structural audit (per CONTRIBUTING.md → Closing Checklist 9a)
-- [ ] **Strategic review** — does this land the credentialing-layer moat? Does Klára's profile carry the credibility weight it should? Does the walker journey honor the anti-scoreboard discipline? Feed observations back into Cold-Start Playbook.
+- [x] Walk through every Carer Portfolio acceptance criterion against the running app (mid-phase checkpoint)
+- [x] Walk through every Shelter Walker acceptance criterion against the running app (full phase close) — V1–V8 walked 2026-06-09
+- [x] Update `badges.md` — aggregate badge spec + walker tier visual escalation update
+- [x] Update `features/shelters.md` — Volunteer badge section, walker journey description, "Deferred" list trimmed
+- [x] Update `features/profiles.md` — Volunteer work section spec + Carer Portfolio aggregate
+- [x] Update `features/explore-and-care.md` — review form no longer in Future
+- [x] Update Open Questions log — §8 + §14 entries closed/shipped
+- [x] Update ROADMAP.md (credentialing-moat phase complete; Service Options now next)
+- [x] Review CLAUDE.md — Ways In line updated for walker journey wired end-to-end
+- [x] Archive this phase board + walkthrough (`git mv` to `docs/archive/phases/`, status: archived in frontmatter)
+- [x] Structural audit (per CONTRIBUTING.md → Closing Checklist 9a)
+- [x] **Strategic review** — see Strategic Review section appended below.
+
+---
+
+## Strategic Review (2026-06-09)
+
+### What changed
+
+**The credentialing layer is real now, not a thesis.** Before this phase, the Cold-Start Playbook's "credentialing-as-deliberate-moat" argument was a slide, an Open Questions §7 resolution, and a few stubs in `lib/trustBadges.ts`. After this phase it's an end-to-end mechanism: a carer's profile carries a measurable credential weight ("Trusted Carer · 47 sessions" leads the trust strip), a walker's profile carries cross-shelter portable credentials ("Super Volunteer · at Útulek Liběň · 87 walks"), and the Discover door surfaces dogs through the lens of who in your circle vouches for which shelter. The moat is no longer abstract — it has surface area you can show a real shelter coordinator or a skeptical investor.
+
+**The shared `.credential-pill` family is more powerful than expected.** Authoring it for two families (carer / volunteer) and three tiers proved that the saturation-ramp pattern is general — Tier 1 reads as "earned the entry threshold," Tier 2 reads as "established," Tier 3 reads as "this is who you want." It works without the size or shape changing across tiers, which kept the strip clean and avoided the "ring overflow" failure mode of the original outlined → filled → filled+ring spec. This is now a reusable visual primitive for ANY tier-aware credential we add later — Mentor tier in the next phase, KYNOLOG.cz cert verification when it lands, methodology badges (Force-Free, LIMA). One family + tier modifier per badge gets a lot of mileage.
+
+**The walker journey revealed how thin the rest of the booking surface still is.** V4 walked beautifully through `applied → invited → vouched`, but at "vouched" the honest status line reads "booking flow ships in follow-up" — because the `Booking.ownerKind: "shelter"` extension is just a data shape change; nobody wired Schedule to render shelter walks, nobody wired visit reports to attach to the dog. That's the Cross-Shelter Mentor Network phase's job. The split was right (this phase delivered the credentialing layer; that phase delivers what the credentials unlock), but it makes the next phase load-bearing — the credentialing moat doesn't pay off until the bookings flow through.
+
+**Mentor-vouching emerged as the strategic anchor we didn't have at phase open.** The Open Questions log §14 originally framed walker credentialing as a per-shelter institutional credential — useful but bounded. The strategic conversation during this phase (logged in the Cold-Start Playbook 2026-06-09) reframed it: portable credentials + mentor-vouching turn Doggo into the platform shelters DEPEND ON for trust infrastructure, not just a directory of walkers. The Cross-Shelter Mentor Network phase's purpose is to build that mechanism. This is the most important strategic shift this phase produced and the most important next phase to get right.
+
+### Open questions worth resolving now
+
+Three open questions feel weight-bearing for the Mentor Network phase. All three deserve research/discussion BEFORE that phase opens, not during.
+
+1. **Mentor session pricing model** (Cold-Start Playbook references this; no §-entry yet). The mentor session is a paid carer service, but the pricing tier matters: is it priced like a 1:1 dog training session (~600 CZK/hour)? Like a guided shelter intro (~300 CZK)? Volunteer + tip (so shelters can promote it)? Each shape carries different second-order effects on mentor supply, walker affordability, and the platform's revenue share. **Recommend:** quick PO conversation + check on what Útulek-adjacent paid offerings exist in Prague today.
+
+2. **Mentor-vouching authority — does the shelter still have to approve?** Today vouching is institutional (the shelter signs off). If a Super Volunteer can vouch from a paid mentor session, who signs off? Three options: (a) mentor's vouch is binding, shelter sees it as notification, (b) mentor's vouch becomes a "recommended for vouching" status the shelter still approves, (c) shelter sets the policy (`acceptsMentorVouches: boolean` per shelter — already drafted in §14). Probably (c), but the UX shape for shelter operators who DON'T accept mentor-vouches matters. **Recommend:** sketch the shelter operator dashboard at low fidelity before the Mentor Network phase opens.
+
+3. **Adoption-curious persona shape** (sized 2026-06-09 phase entry, no Open Q yet). The Multi-Path Demo phase depends on a clear "adoption-curious user" archetype — someone walking shelter dogs to explore before committing. We don't have one in the persona list (`lib/personas.ts`). Their behavioral profile matters: do they engage with meets? Do they Connect with anyone? Are they on the fence about commitment in a way that affects the recommendation surface? **Recommend:** add a persona archetype to `strategy/User Archetypes.md` before the Multi-Path Demo phase opens.
+
+### Alternatives & challenges
+
+- **Anti-scoreboard discipline relaxed faster than planned, and that's probably right.** The phase opened with strict anti-scoreboard (D9: per-shelter chips only). At walkthrough sign-off, the user opened to accumulation signals — landed at "facts visible, no comparison framing" (walks counts shown, no percentile / streak). This is consistent with how real shelter operators talk about their volunteers (they DO know who has done 80 walks), so the relaxation aligns with ground truth. But: any future surface that introduces a tier delta or recent-activity signal should re-litigate the anti-scoreboard line. The discipline isn't a fixed setting; it's a principle that gets renegotiated per surface.
+
+- **The current "Volunteer work" section assumes one user per affiliation.** Multi-shelter walkers stack rows. But what about a walker who started at one shelter, switched to another (left the first)? Today the data shape supports it (multiple `WalkerApplication` records), but the UI doesn't distinguish active from past affiliations. Probably fine for now — most walkers are at one shelter at a time — but worth thinking about before the Mentor Network phase, since cross-shelter walkers will become more common when portable credentials land.
+
+- **The vouching state machine is honest but the demo affordance reads weird from the dog page.** P77 (added during walkthrough): `Leave shelter` on the dog-page dropdown is wrong-surface (relationship-level action, not dog-level), and `Log walk (demo)` is no-op from the dog page (escalation only shows on Members tab). Both deliberately deferred for the Mentor Network phase, which will rebuild the walker booking flow properly. Confirm that decision when the Mentor Network phase opens — don't ship the next phase without addressing this.
+
+### Research suggestions
+
+- **Czech shelter coordinator interview before Mentor Network opens.** This phase made up the mentor-vouching model from first principles + competitive research; before building it, talk to a real shelter (Útulek Liběň, Tlapky v Tlapě) about whether portable credentials and paid mentor sessions are something they'd ADOPT or REJECT. The user's existing PO connection might bridge here.
+
+- **Look at how Borrow My Doggy and Wag handle multi-host walkers.** Both have walkers who serve multiple "places" (households for BMD, dogs across customers for Wag). How they render credentials portably across contexts may inform the Mentor Network phase's cross-shelter UX. Light competitive research pass — not a deep audit.
+
+### Next phase readiness
+
+**Cross-Shelter Mentor Network is the right next phase.** It builds on every load-bearing piece this phase delivered (state machine, per-shelter affiliation, `ownerKind` discriminator, credential pill family). It's also the largest phase since Shelter Foundation — sizing it properly at open-time matters. The two big risks: (1) the mentor-session shape is new (third Carer service config kind alongside Care/Meet/Appointment per `Services as Catalog`), and (2) the shelter-side policy controls (`acceptsMentorVouches?: boolean`) cross into territory the shelter operator surface owns — which is V3+ deferred. Need to be careful not to scope-creep into operator-side UX.
+
+**Service Options & Booking Clarity might be the better immediate next.** The phase board has small remaining scope (Workstreams B + C — Appointment meeting-options + walks address specificity) and clears the deck before the much bigger Mentor Network. Recommend doing it first as a palate cleanser. **Decision needed at next phase open.**
 
 ---
 
