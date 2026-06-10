@@ -479,10 +479,25 @@ function DogProfileInner() {
             </div>
           </div>
 
+          {/* Walker affordance (J) — shelter dogs only. Three states:
+              vouched walker at this shelter → "Book a walk" (deferred —
+              full booking flow is post-this-phase); applied/invited →
+              "Application in progress" status; no application → CTA to
+              apply at the shelter. Sits immediately after the hero
+              (relocated 2026-06-09 from the bottom of the page) so the
+              primary action is visible at first scroll position rather
+              than buried under the dog info. Wrapped in .dog-profile-
+              section so it picks up the standard horizontal padding. */}
+          {shelter && (
+            <div className="dog-profile-section">
+              <WalkAffordance shelter={shelter} dog={dog} />
+            </div>
+          )}
+
           {/* Shelter-care stats band — facts row, sits between the
               hero and the about/story section so the rhythm is
-              hero → facts → story (2026-06-03 walkthrough). Only
-              renders while the dog is actively in shelter care
+              hero → CTA → facts → story (CTA inserted 2026-06-09).
+              Only renders while the dog is actively in shelter care
               (pre-adopted). Owned dogs hide it entirely. */}
           {showCareStats && (
             <div className="dog-profile-stats">
@@ -570,12 +585,10 @@ function DogProfileInner() {
             ownerTagApproval={owner?.tagApproval}
           />
 
-          {/* Walker affordance (J) — shelter dogs only. Three states:
-              vouched walker at this shelter → "Book a walk" (deferred —
-              full booking flow is post-this-phase); applied/invited →
-              "Application in progress" status; no application → CTA to
-              apply at the shelter. */}
-          {shelter && <WalkAffordance shelter={shelter} dog={dog} />}
+          {/* WalkAffordance relocated up to immediately after the hero
+              (see comment block by the hero). The old bottom placement
+              left it as the visual "page footer" instead of the primary
+              action. */}
 
           {/* Backlink: shelter (shelter dog) or owner (owned dog). */}
           {shelter && <ShelterBacklink shelter={shelter} />}

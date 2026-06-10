@@ -15049,7 +15049,10 @@ a.shelter-intro-social:hover {
   gap: var(--space-lg);
   padding: var(--space-lg) var(--space-xl);
   background: var(--surface-popout);
-  border-bottom: 1px solid var(--border-regular);
+  /* border-bottom retired 2026-06-09 — the adjacent .dog-profile-stats
+     row already carries a border-top, which combined with hero's
+     border-bottom produced a visibly doubled stroke. Stats row owns
+     the divider now. */
 }
 
 /* Photo wrapper carries 12px padding so the rounded-square doesn't
@@ -16081,7 +16084,14 @@ a.shelter-intro-social:hover {
 
 .posts-tab-controls--single-row {
   /* When there's no FilterControls block (no filterable types at all),
-     the toggle still anchors right via the placeholder spacer div. */
+     keep the row layout so the toggle anchors right. Parent .posts-tab-
+     controls is flex-direction: column by default; this variant
+     switches to row + space-between so the placeholder spacer + toggle
+     align horizontally instead of stacking and stretching the toggle
+     to full width. Fix 2026-06-09. */
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .posts-tab-filter-active-row {
