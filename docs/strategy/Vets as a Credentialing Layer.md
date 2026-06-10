@@ -179,6 +179,6 @@ If you're considering whether to graduate this from research to phase, these are
 - `docs/meetings/po-briefing-2026-06-02.md` — original PO interview synthesis where this thread surfaced
 - `docs/strategy/Cold-Start Playbook.md` — shelter precedent + framing principle this doc mirrors
 - `docs/features/shelters.md` — institutional entity pattern this doc generalises from
-- `docs/phases/Open Questions & Assumptions Log.md` §15 (vaccines V1) + §16 (Vets as credentialing layer) — formal question slots
+- `docs/planning/Open Questions & Assumptions Log.md` §15 (vaccines V1) + §16 (Vets as credentialing layer) — formal question slots
 - `docs/strategy/Trust & Connection Model.md` — credentialing layer fits within the three-tier badge architecture (community-earned > credential > platform)
 - Czech Veterinary Chamber (Komora veterinárních lékařů ČR) — institutional partner to map onto if we proceed

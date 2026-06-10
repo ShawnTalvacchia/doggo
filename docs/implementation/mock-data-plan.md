@@ -115,7 +115,7 @@ When seeding a new persona, target a connection count that matches their archety
 - **Marketplace Owners / Utility users**: 2–4, anchored on a Carer + a few residual community ties.
 - **New / Empty**: 0–2.
 
-P69 (close pending): supporting-cast personas without seeded rosters need inverses of every entry pointing at them. Demo-narrative personas (Magda, Veronika) have rosters; the broader sweep is partial — see [phases/punch-list.md](../phases/punch-list.md) → P69 for the canonical list.
+P69 (close pending): supporting-cast personas without seeded rosters need inverses of every entry pointing at them. Demo-narrative personas (Magda, Veronika) have rosters; the broader sweep is partial — see [planning/punch-list.md](../planning/punch-list.md) → P69 for the canonical list.
 
 ### Pricing realism
 

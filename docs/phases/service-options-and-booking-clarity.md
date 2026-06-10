@@ -17,7 +17,7 @@ review-trigger: When any task is completed or blocked
 - Existing pricing engine (`lib/pricing.ts`) + `deliveryOptions` precedent for walks
 - Existing booking sheets (`LinkedWalkBookingSheet`, `AppointmentBookingSheet`, `BookSessionSheet`, `ServiceBookingSheet`)
 
-**Refs:** [[meetings/po-briefing-2026-06-02]] (source of insights), [[features/explore-and-care]] (pricing engine + booking flow), [[strategy/Groups & Care Model]] (Services as Catalog), [[phases/Open Questions & Assumptions Log]] §17 (the appointment meeting-options design question)
+**Refs:** [[meetings/po-briefing-2026-06-02]] (source of insights), [[features/explore-and-care]] (pricing engine + booking flow), [[strategy/Groups & Care Model]] (Services as Catalog), [[planning/Open Questions & Assumptions Log]] §17 (the appointment meeting-options design question)
 
 **Not in scope:**
 - Half-day variants for walks_checkins, house_sitting, or boarding (only day_care this phase; revisit if needed)
