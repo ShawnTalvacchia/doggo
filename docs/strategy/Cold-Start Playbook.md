@@ -204,6 +204,56 @@ Risks specific to this thread:
 
 Unbuilt and pre-validation. Belongs in the same conversational territory as the trainer-credentialing thread — both wait on real shelter conversations before they become anything more concrete.
 
+### Mentor-vouching as the scalable trust mechanism
+
+Surfaced 2026-06-09 during walkthrough discussion of V4 (walker journey end-to-end). Direct extension of the credentialing-as-trust-layer thesis above — specific *mechanism* for how the platform produces walkers shelters can trust without the shelter doing the assessment work themselves.
+
+**The thesis.** There's more latent demand to walk shelter dogs (and ultimately adopt) than current shelter intake captures. Útulek Liběň's "1×/week, 3-month minimum, weekdays 9am–5pm" filter isn't a measure of what walking shelter dogs actually requires — it's a measure of what the shelter can afford to coordinate given today's tools. People with 9-to-5 jobs, people curious about dog ownership before committing, people who'd happily walk on weekends — all get filtered out. Doggo's job is to reduce the friction without sacrificing trust.
+
+**The mechanism: trusted walkers as the conduit.** A Super Volunteer (high tier, real engagement history) can offer paid "mentor sessions" — a Carer service type that runs them taking a new walker to a participating shelter for a supervised first walk. After N mentor sessions (per-shelter policy, typically 3–5), the mentee graduates to solo walker status at that shelter. The shelter accepts the mentor's vouch + the platform's tier resolution + the supervised-session count as substitutes for their own multi-month assessment.
+
+**Why this works as an unlock:**
+
+- **Shelter admin burden drops massively.** Today every new walker requires staff time for intake, orientation, supervised first walks. The mentor model offloads orientation + supervised-first-walks to external mentors (paid by the mentee, free to the shelter).
+- **Higher-quality walker pool through the fee filter.** People who pay for mentor sessions are committed. The fee filters out dabblers without the shelter using admin time on screening.
+- **Larger walker pool through schedule flexibility.** The mentor + platform credentials substitute for the long-commitment screening. Shelters can accept Saturday/Sunday/evening walkers because the mentor handles the orientation and the platform tracks reliability.
+- **Pre-vetted credibility.** Shelter sees a new applicant: "Super Volunteer at Útulek · 87 walks · vouched by Klára H. & Pavel D." Strong signal arriving for free.
+- **Cross-shelter network effects.** Walker earned through Útulek can route to Pes v nouzi without losing credibility (per the platform-level Super Volunteer tier — see "Cross-shelter recognition" below).
+
+**Why this works for the trainer-walker archetype (the platform's keystone persona):**
+
+- New revenue stream beyond paid care + community-builds-paid-training. "Mentor session" is a third Carer service type.
+- Aligns with their existing public-and-promoting profile shape — same architecture, new offering.
+- Compounds their community credibility — being chosen as a mentor reinforces their Super Volunteer status.
+- Voluntary — they opt in if they want this scope; they don't have to.
+
+**Why this works for the adoption-curious / pre-adopter persona:**
+
+This opens a doorway Doggo hasn't designed for yet. Someone considering ownership — anxious-new-owner archetype like Daniel, or pre-adoption-explorers who've never owned a dog — can walk shelter dogs in a low-stakes mentored context BEFORE committing to ownership. Adoption becomes a natural endpoint to the volunteer journey instead of an abstract goal. This is also where the "pay-to-volunteer" framing stops feeling odd: the mentee is paying for supervised dog-handling training that leads to credentialed access — a normal apprenticeship pattern (parallels: scuba instructor cert, beekeeping mentorship, wilderness guide apprenticeship).
+
+**Pricing model:** mentor sets the per-session price (matches existing Carer service config architecture). Platform offers recommended range as a default. Shelter doesn't pay anyone — mentee pays mentor, platform takes a marketplace cut.
+
+**Requirements model — three layers:**
+1. **Platform-wide baseline (Doggo sets):** verified identity, emergency contact, general dog-handling liability acknowledgment, age 18+. Signed ONCE; profile carries it across shelters.
+2. **Shelter-specific waiver (each shelter sets):** their specific liability language, bite-history disclosure rules, medication protocols. Signed per-shelter; lives in profile's shelter-affiliations section.
+3. **Mentor session minimum (platform-suggested, per-shelter overridable):** Doggo suggests baseline (e.g. 3 sessions before graduation); each shelter overrides up or down.
+
+**Cross-shelter recognition.** Super Volunteer is a **platform-level tier** (earned through real walks at any participating shelter + ≥2 trainer vouches), recognized at every shelter that participates. Profile shows "Super Volunteer · Útulek 87 walks · vouched by Klára H., Pavel D." A new shelter accepts the tier signal but still requires their own waiver + their own orientation walk for their specific dogs. Shelter-internal honorific roles ("Útulek Trusted," "head walker") can exist as a separate tagging layer above the platform tier if shelters want it.
+
+**Without this**, "Super Volunteer" becomes per-shelter status — every shelter is its own walled garden, the platform's just hosting separate logbooks, the credentialing moat collapses.
+
+**Bootstrapping problem.** At launch no walker has the walk count to be a Super Volunteer. Solution: shelter admins can credit historical real-world walks ("Pavel has been walking at Útulek 4×/week for 3 years") into the platform tier resolution. Shelter has reputational skin in the game (won't vouch for fake counts). Platform marks "shelter-credited" walks distinctly from "platform-logged" walks so the audit trail stays clean. Util becomes the bootstrap node for early Super Volunteer pool; those credentials then enable the mentor-vouching loop for the next wave of walkers.
+
+**Two paths in steady state:**
+1. **Self-directed apply** — experienced dog handlers self-apply at a shelter; shelter does the assessment; standard pathway. Still exists.
+2. **Mentor-vouched apply** — beginners come in through paid mentorship; mentor + platform credentials substitute for shelter's screening; new pathway, dominant case for new-to-volunteering users.
+
+Both coexist. The mentor path doesn't replace the direct path; it adds a doorway for users who'd otherwise never apply.
+
+**Strategic positioning this implies.** Doggo isn't just a coordination layer for the dog community — Doggo is the place where **trust gets BUILT in the dog community**. Trainer-walkers are the keystone (community credibility + professional expertise); the platform's value is enabling THEM to extend trust to others; the credentialing accumulates across shelters; the network effects compound. The cold-start unlock is finally clear: trainer-walkers (already self-interested in growing their training clientele) become the engine that grows the volunteer pool that grows the adoption pipeline. Everything routes through the people we've already identified as the keystone archetype.
+
+This needs real shelter conversations to validate, but it's the most concrete strategic mechanism the playbook now has for closing the credentialing-gap moat.
+
 ---
 
 ## The vet angle
