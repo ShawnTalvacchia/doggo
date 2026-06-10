@@ -14,7 +14,7 @@ Verification checklist for the Phase Name phase. **Concise by design** — three
 2. Switch personas via the profile-page name dropdown, the `/demo` route, or the `?as=<personaId>` URL param.
 3. Walk top-to-bottom — the categories are ordered by "needs your eyeballs most" → "least."
 
-**Status legend:** `[ ]` not yet walked · `[x]` walked, no issues. Checkboxes apply to the three category sections; the Decisions log at the bottom is a plain log.
+**Status legend:** `[ ]` not yet walked · `[x]` walked, no issues. Checkboxes apply to every walkthrough section that asks the reviewer to look at something. The Decisions log at the bottom is a plain log (append-only).
 
 **Available personas:** Tereza (Vinohrady connector), Daniel (anxious new owner, locked profile), Klára (trainer with Care group), Tomáš (Karlín professional), New User.
 
@@ -44,14 +44,13 @@ Identifier prefix: **`V`** (V1, V2, ...).
 
 ---
 
-## Surfaces to glance
+## Surfaces to glance _(usually skip)_
 
-Phase-thesis confirmation. One look each. These are the surfaces the phase shipped — bullet list, no checkboxes, no expected-result spelling. Flag anything that reads off.
+**Only include this section when V can't naturally exercise a shipped surface.** Driving a V item already lands you on the surface, so a separate "glance at it" pass is almost always redundant. Most phases should have 0 G items; some have 1–3 for genuinely glance-only surfaces V can't cover (a styleguide render, a static seeded feed, a print/export view, a CSS-only state that no behavioral test reaches). If you're tempted to write a G item that re-visits a surface V already drove, delete it instead. If this section ends up empty, delete the whole section before shipping.
 
 Identifier prefix: **`G`** (G1, G2, ...).
 
-- **G1.** {Persona} → `/url` — one-line description of what should be there.
-- **G2.** ...
+- [ ] **G1.** {Persona} → `/url` — one-line description of what should be there.
 
 ---
 
@@ -100,12 +99,15 @@ THE THREE CATEGORIES — what belongs where:
     sure of from automated checks. NOT for things that work-or-don't at
     a glance — those go in "Surfaces to glance."
 
-  Surfaces to glance
-    The phase shipped these surfaces; confirming they render correctly
-    is the phase-thesis check. ONE line each, no expected-result
-    spelling, no checkboxes (this is a list, not a test plan). If the
-    reader has to read a paragraph to know what to look for, the item
-    belongs in "Worth verifying" instead.
+  Surfaces to glance (usually skip)
+    Only for shipped surfaces that V can't naturally exercise — a
+    styleguide page render, a static seeded feed, a print/export view,
+    a CSS-only state no behavioral test reaches. Driving a V item
+    already lands the reviewer on the surface, so a separate glance
+    item that re-visits the same URL is redundant. Most phases have
+    0 G items; some have 1–3. If you wrote one and it overlaps with
+    any V, delete it. If the whole section ends up empty, delete the
+    section before shipping.
 
 ANTI-PATTERNS the structure exists to fight:
 
@@ -141,7 +143,7 @@ LENGTH TARGETS (rough — adjust per phase scope):
 
   - Open for your call: 0–6 items. Often the smallest section.
   - Worth verifying: 4–10 items. The substantive middle.
-  - Surfaces to glance: 4–10 bullets. The fast bottom pass.
+  - Surfaces to glance: 0–3 items. Often empty — only V-uncoverable surfaces.
 
   A walkthrough that runs past ~25 items total has almost certainly
   drifted into anti-pattern 1 or 2. Cut.

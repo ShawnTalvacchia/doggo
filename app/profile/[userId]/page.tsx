@@ -1173,10 +1173,11 @@ function UserProfileInner() {
             {/* Volunteer work (L) — cross-shelter affiliation section.
                 Combines static walker entries (mockShelters.walkers) with
                 dynamic vouched WalkerApplication records for this user.
-                Per O6: per-shelter chips + conditional aggregate header
-                (renders only when affiliations.length ≥ 2). Anti-
-                scoreboard discipline preserved: factual cumulative
-                numbers only, no percentile/streak/comparison framing. */}
+                Per-shelter rows: pill carries the tier label only ("Super
+                Volunteer" / "Volunteer"), context line carries shelter +
+                walk count. Aggregate header dropped 2026-06-09 — per-row
+                tier already varies by shelter, so an aggregate either
+                hides that distinction or duplicates it. */}
             {(() => {
               const dynamicVouched = walkerApplications
                 .filter((a) => a.userId === userId && a.state === "vouched")
@@ -1187,7 +1188,6 @@ function UserProfileInner() {
                 }));
               const affiliations = getUserShelterAffiliations(userId, dynamicVouched);
               if (affiliations.length === 0) return null;
-              const totalWalks = affiliations.reduce((sum, a) => sum + a.walkCount, 0);
               const TIER_LABEL: Record<string, string> = {
                 vetted: "Volunteer",
                 experienced: "Volunteer",
@@ -1195,14 +1195,7 @@ function UserProfileInner() {
               };
               return (
                 <section>
-                  <div className="flex items-baseline gap-xs">
-                    <h3 className="profile-card-subtitle m-0">Volunteer work</h3>
-                    {affiliations.length >= 2 && (
-                      <span className="text-sm text-fg-secondary">
-                        · {affiliations.length} shelters · {totalWalks} walks total
-                      </span>
-                    )}
-                  </div>
+                  <h3 className="profile-card-subtitle">Volunteer work</h3>
                   <div className="flex flex-col gap-sm" style={{ marginTop: "var(--space-sm)" }}>
                     {affiliations.map(({ shelter, tier, walkCount }) => (
                       <Link
@@ -1220,10 +1213,10 @@ function UserProfileInner() {
                               : "credential-pill--tier-1"
                           }`}
                         >
-                          {TIER_LABEL[tier]} at {shelter.name}
+                          {TIER_LABEL[tier]}
                         </span>
                         <span className="text-xs text-fg-tertiary">
-                          · {walkCount} {walkCount === 1 ? "walk" : "walks"}
+                          at {shelter.name} · {walkCount} {walkCount === 1 ? "walk" : "walks"}
                         </span>
                       </Link>
                     ))}
