@@ -85,9 +85,16 @@ export function getPlatformVolunteerTier(
  * carer profiles for enabled `mentor_session` services whose `shelterIds`
  * include the shelter. Single-mentor demo world: returns Klára for
  * Útulek + Pes v nouzi, empty for Druhá šance (non-accepting).
+ *
+ * Mentor ELIGIBILITY gates on the platform Super Volunteer tier (D4) —
+ * a seeded offering from someone who doesn't hold the tier is filtered
+ * out rather than rendered. Resolved against static rosters plus any
+ * `applications` the caller passes (callers without dynamic state get
+ * the static answer, which covers the seeded world).
  */
 export function getMentorsForShelter(
   shelterId: string,
+  applications: WalkerApplication[] = [],
 ): { mentor: UserProfile; service: CarerMentorSessionServiceConfig }[] {
   const out: { mentor: UserProfile; service: CarerMentorSessionServiceConfig }[] = [];
   for (const user of allUsers) {
@@ -97,7 +104,8 @@ export function getMentorsForShelter(
         svc.kind === "mentor_session" &&
         svc.enabled &&
         !svc.softDeletedAt &&
-        svc.shelterIds.includes(shelterId)
+        svc.shelterIds.includes(shelterId) &&
+        getPlatformVolunteerTier(user.id, applications).isSuperVolunteer
       ) {
         out.push({ mentor: user, service: svc });
       }

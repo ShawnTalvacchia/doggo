@@ -105,6 +105,11 @@ export function ShelterMemberRow({ entry }: ShelterMemberRowProps) {
           {kind === "walker" ? (
             <span>
               {data.walkCount} {data.walkCount === 1 ? "walk" : "walks"}
+              {/* Provenance split (Cross-Shelter Mentor Network D5/A7):
+                  shelter-credited bootstrap walks stay distinguishable
+                  from platform-logged ones — the audit trail is part of
+                  what makes crediting trustworthy. */}
+              {data.creditedWalkCount ? ` · ${data.creditedWalkCount} credited by the shelter` : ""}
             </span>
           ) : (
             <span>Following since {monthYear(data.since)}</span>

@@ -1003,7 +1003,10 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
 
   // Mentor-path door (B2): when the shelter accepts mentor vouching and a
   // mentor serves it, not-yet-vouched viewers get the mentored way in.
-  const mentors = getMentorsForShelter(shelter.id);
+  // Self excluded — mentors don't get offered their own mentorship.
+  const mentors = getMentorsForShelter(shelter.id).filter(
+    (m) => m.mentor.id !== currentUserId,
+  );
   const mentorEntry = mentors[0];
   const showMentorUpsell =
     !!mentorEntry &&

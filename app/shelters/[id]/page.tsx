@@ -175,8 +175,12 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
   const [followMenuOpen, setFollowMenuOpen] = useState(false);
   const [walkerMenuOpen, setWalkerMenuOpen] = useState(false);
   // Mentor path (Cross-Shelter Mentor Network B2): the shelter-side door
-  // into booking a mentored first walk. {mentor, service} drives the sheet.
-  const mentors = getMentorsForShelter(shelter.id);
+  // into booking a mentored first walk. {mentor, service} drives the
+  // sheet. Self excluded — a mentor doesn't get offered their own
+  // mentorship at shelters they serve.
+  const mentors = getMentorsForShelter(shelter.id).filter(
+    (m) => m.mentor.id !== currentUserId,
+  );
   const [mentorSheetTarget, setMentorSheetTarget] = useState<
     (typeof mentors)[number] | null
   >(null);
