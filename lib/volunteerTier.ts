@@ -42,16 +42,20 @@ export interface PlatformVolunteerStatus {
 }
 
 /** Map vouched WalkerApplications into the dynamic-affiliations shape
- *  `getUserShelterAffiliations` consumes. */
+ *  `getUserShelterAffiliations` consumes. Pass `bookings` to fold
+ *  completed shelter-walk Bookings into the per-shelter counts (G3 —
+ *  real walks feed tier escalation; derived at read time). */
 export function toDynamicVouched(
   userId: string,
   applications: WalkerApplication[],
+  bookings: Booking[] = [],
 ): { shelterId: string; walkCount: number; vouchedAt: string; creditedWalkCount?: number }[] {
   return applications
     .filter((a) => a.userId === userId && a.state === "vouched")
     .map((a) => ({
       shelterId: a.shelterId,
-      walkCount: a.walkCount ?? 0,
+      walkCount:
+        (a.walkCount ?? 0) + countCompletedShelterWalks(userId, a.shelterId, bookings),
       vouchedAt: a.vouchedAt ?? a.appliedAt,
       creditedWalkCount: a.creditedWalkCount,
     }));
@@ -61,10 +65,11 @@ export function toDynamicVouched(
 export function getPlatformVolunteerTier(
   userId: string,
   applications: WalkerApplication[],
+  bookings: Booking[] = [],
 ): PlatformVolunteerStatus {
   const affiliations = getUserShelterAffiliations(
     userId,
-    toDynamicVouched(userId, applications),
+    toDynamicVouched(userId, applications, bookings),
   );
   const totalWalks = affiliations.reduce((sum, a) => sum + a.walkCount, 0);
   const hasTrustedAffiliation = affiliations.some((a) => a.tier === "trusted");

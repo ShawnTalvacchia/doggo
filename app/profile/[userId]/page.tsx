@@ -34,6 +34,7 @@ import { TrustBadgeStrip } from "@/components/badges/TrustBadgeStrip";
 import { getTrustBadges, userProfileToTrustSubject, getCircleAttribution } from "@/lib/trustBadges";
 import { useReviews } from "@/contexts/ReviewsContext";
 import { useWalkerApplications } from "@/contexts/WalkerApplicationsContext";
+import { useBookings } from "@/contexts/BookingsContext";
 import { getUserShelterAffiliations, getShelterById } from "@/lib/mockShelters";
 import { getPlatformVolunteerTier, toDynamicVouched } from "@/lib/volunteerTier";
 import { getCarerIdentity } from "@/lib/identityBadges";
@@ -248,6 +249,9 @@ function UserProfileInner() {
   const currentUserId = useCurrentUserId();
   const { reviews: allReviews } = useReviews();
   const { applications: walkerApplications, getPlatformWaiverSignedAt } = useWalkerApplications();
+  // Completed shelter-walk Bookings fold into volunteer walk counts at
+  // read time (Cross-Shelter Mentor Network G3).
+  const { bookings: allBookings } = useBookings();
   const [reviewsModalOpen, setReviewsModalOpen] = useState(false);
   const currentUser = useCurrentUser();
   const isGuest = useIsGuest();
@@ -1192,7 +1196,7 @@ function UserProfileInner() {
             {(() => {
               const affiliations = getUserShelterAffiliations(
                 userId,
-                toDynamicVouched(userId, walkerApplications),
+                toDynamicVouched(userId, walkerApplications, allBookings),
               );
               if (affiliations.length === 0) return null;
               const TIER_LABEL: Record<string, string> = {
@@ -1206,7 +1210,7 @@ function UserProfileInner() {
               // at the 2026-06-09 walkthrough; the platform tier is a
               // status, not a stat). Per-shelter rows below keep carrying
               // the per-shelter tier + counts. ASSUMPTION A3.
-              const platform = getPlatformVolunteerTier(userId, walkerApplications);
+              const platform = getPlatformVolunteerTier(userId, walkerApplications, allBookings);
               const platformWaiverAt = isSelf
                 ? getPlatformWaiverSignedAt(userId)
                 : undefined;

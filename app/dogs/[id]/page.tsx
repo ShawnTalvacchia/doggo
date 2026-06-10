@@ -44,7 +44,18 @@ import { useUntagStore } from "@/lib/useUntagStore";
 import { usePendingTagsStore } from "@/lib/usePendingTagsStore";
 import { usePostComposer } from "@/contexts/PostComposerContext";
 import { useWalkerApplications, deriveWalkerTier } from "@/contexts/WalkerApplicationsContext";
+import { useBookings } from "@/contexts/BookingsContext";
 import { WalkApplicationSheet } from "@/components/shelters/WalkApplicationSheet";
+import { WalkBookingSheet } from "@/components/shelters/WalkBookingSheet";
+import { MentorSessionBookingSheet } from "@/components/shelters/MentorSessionBookingSheet";
+import { useMentorSessionCompletion } from "@/components/shelters/useMentorSessionCompletion";
+import {
+  countCompletedShelterWalks,
+  getMentorsForShelter,
+  getMentorshipHistory,
+  getPlatformVolunteerTier,
+} from "@/lib/volunteerTier";
+import { MENTOR_SESSION_DEFAULT_MINIMUM } from "@/lib/constants/services";
 import {
   VACCINATION_LABELS,
   deriveAutoTags,
@@ -962,19 +973,44 @@ function DogPhotosBundle({
  *   3. Per-dog policy overrides (soloOnly, experiencedHandlersOnly —
  *      gates which tier can walk this specific dog)
  *
- * V1 surfaces: state-aware copy + apply CTA for non-walkers; the
- * actual "Book a walk" booking flow is deferred until shelter-walk
- * Bookings carry the `ownerKind: "shelter"` discriminator end-to-end.
+ * Cross-Shelter Mentor Network G (2026-06-10) made "Walk {dog}" real for
+ * vouched walkers: it opens the WalkBookingSheet and the walk lands as
+ * an `ownerKind: "shelter"` Booking. P77 both halves fixed here: `Leave
+ * shelter` dropped (relationship-level action — lives on the shelter
+ * page), and the silent `Log walk (demo)` no-op replaced by the booking
+ * flow (the demo toggle remains on the shelter action row for
+ * walkthrough speed). Mentor-path applications get "Complete mentor
+ * session (demo)" instead of the shelter-intake "Advance state".
  */
 function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetProfile }) {
   const router = useRouter();
   const currentUserId = useCurrentUserId();
-  const { getApplication, apply, advance, withdraw, logWalk } = useWalkerApplications();
+  const { applications, getApplication, apply, advance, withdraw } = useWalkerApplications();
+  const { bookings } = useBookings();
+  const completeMentorSessionHere = useMentorSessionCompletion(shelter);
   const application = currentUserId ? getApplication(currentUserId, shelter.id) : undefined;
   const state = application?.state;
-  const walkCount = application?.walkCount ?? 0;
+  const inMentorship = !!application?.mentorship && state !== "vouched";
+  // Walk count combines the demo toggle + shelter credits + completed
+  // shelter-walk Bookings (real walks feed tier escalation, G3).
+  const walkCount =
+    (application?.walkCount ?? 0) +
+    (currentUserId ? countCompletedShelterWalks(currentUserId, shelter.id, bookings) : 0);
   const [walkSheetOpen, setWalkSheetOpen] = useState(false);
+  const [walkBookingOpen, setWalkBookingOpen] = useState(false);
   const [walkMenuOpen, setWalkMenuOpen] = useState(false);
+  const [mentorSheetOpen, setMentorSheetOpen] = useState(false);
+
+  // Mentor-path door (B2): when the shelter accepts mentor vouching and a
+  // mentor serves it, not-yet-vouched viewers get the mentored way in.
+  const mentors = getMentorsForShelter(shelter.id);
+  const mentorEntry = mentors[0];
+  const showMentorUpsell =
+    !!mentorEntry &&
+    shelter.policy.acceptsMentorVouches &&
+    state !== "vouched" &&
+    !inMentorship;
+  const minimum = shelter.policy.mentorSessionMinimum ?? MENTOR_SESSION_DEFAULT_MINIMUM;
 
   // Per-dog eligibility: experiencedHandlersOnly requires tier ≥ experienced.
   const tier = state === "vouched" ? deriveWalkerTier(walkCount) : null;
@@ -987,27 +1023,33 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
   // Optional context line below the buttons — surfaces application
   // state when relevant; suppressed entirely for the default case.
   const statusLine = (() => {
+    if (inMentorship && shelter.policy.acceptsMentorVouches)
+      return `${application!.mentorship!.sessionsCompleted} of ${minimum} mentor sessions with ${application!.mentorship!.mentorName}`;
     if (state === "applied") return `Application sent — ${shelter.name} will be in touch`;
     if (state === "invited") return `Invited to visit — meet the team at ${shelter.name}`;
     if (state === "vouched" && !eligibleForDog) return `${dog.name} needs an experienced walker (10+ walks)`;
-    if (state === "vouched" && eligibleForDog) return `You walk at ${shelter.name} · booking flow ships in follow-up`;
+    if (state === "vouched" && eligibleForDog) return `You walk at ${shelter.name}`;
     return null;
   })();
 
-  // Walk button click — state-aware. No application → open the
-  // application sheet right here (no shelter-page detour). Application
-  // exists → toggle the demo affordance dropdown (Advance state / Log
-  // walk / Withdraw). Mirrors the shelter-page action-row pattern so
-  // the walker journey advances from wherever the user started.
+  // Walk button click — state-aware. No application → application sheet
+  // right here (no shelter-page detour). Vouched + eligible → the REAL
+  // action: book the walk. Anything else with an application → the demo
+  // affordance dropdown.
   const onWalkClick = () => {
     if (!state) {
       setWalkSheetOpen(true);
+      return;
+    }
+    if (state === "vouched" && eligibleForDog) {
+      setWalkBookingOpen(true);
       return;
     }
     setWalkMenuOpen((v) => !v);
   };
 
   const onAdoptClick = () => router.push(`/shelters/${shelter.id}`);
+  const showMenuCaret = !!state && !(state === "vouched" && eligibleForDog);
 
   return (
     <>
@@ -1020,14 +1062,28 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
               cta
               className="w-full"
               leftIcon={<Footprints size={16} weight="fill" />}
-              rightIcon={state ? <CaretDown size={12} weight="bold" /> : undefined}
+              rightIcon={showMenuCaret ? <CaretDown size={12} weight="bold" /> : undefined}
               onClick={onWalkClick}
+              disabled={state === "vouched" && !eligibleForDog}
             >
               Walk {dog.name}
             </ButtonAction>
             {walkMenuOpen && state && (
               <div className="dropdown-menu" role="menu">
-                {state !== "vouched" && (
+                {inMentorship && (
+                  <button
+                    type="button"
+                    className="dropdown-menu-item"
+                    onClick={() => {
+                      completeMentorSessionHere();
+                      setWalkMenuOpen(false);
+                    }}
+                  >
+                    <Check size={16} weight="light" />
+                    Complete mentor session (demo)
+                  </button>
+                )}
+                {!inMentorship && state !== "vouched" && (
                   <button
                     type="button"
                     className="dropdown-menu-item"
@@ -1040,30 +1096,19 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
                     Advance state (demo)
                   </button>
                 )}
-                {state === "vouched" && (
+                {state !== "vouched" && (
                   <button
                     type="button"
-                    className="dropdown-menu-item"
+                    className="dropdown-menu-item dropdown-menu-item--destructive"
                     onClick={() => {
-                      if (currentUserId) logWalk(currentUserId, shelter.id);
+                      if (currentUserId) withdraw(currentUserId, shelter.id);
                       setWalkMenuOpen(false);
                     }}
                   >
-                    <PawPrint size={16} weight="light" />
-                    Log walk (demo)
+                    <X size={16} weight="light" />
+                    Withdraw application
                   </button>
                 )}
-                <button
-                  type="button"
-                  className="dropdown-menu-item dropdown-menu-item--destructive"
-                  onClick={() => {
-                    if (currentUserId) withdraw(currentUserId, shelter.id);
-                    setWalkMenuOpen(false);
-                  }}
-                >
-                  <X size={16} weight="light" />
-                  {state === "vouched" ? "Leave shelter" : "Withdraw application"}
-                </button>
               </div>
             )}
           </div>
@@ -1083,6 +1128,27 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
             {statusLine}
           </span>
         )}
+        {/* Mentored way in (B2) — the dog page is where the emotional hook
+            lands ("I want to walk HER"), so the mentor path answers the
+            "but I've never done this" hesitation right here. */}
+        {showMentorUpsell && (
+          <button
+            type="button"
+            className="text-xs text-fg-secondary"
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
+              textAlign: "left",
+              textDecoration: "underline",
+            }}
+            onClick={() => setMentorSheetOpen(true)}
+          >
+            New to shelter walking? Book a mentored first walk with{" "}
+            {mentorEntry.mentor.firstName} — {minimum} sessions and you walk solo here.
+          </button>
+        )}
       </div>
       <WalkApplicationSheet
         open={walkSheetOpen}
@@ -1092,7 +1158,34 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
           if (currentUserId) apply(currentUserId, shelter.id, message);
           setWalkSheetOpen(false);
         }}
+        mentorshipHistory={
+          currentUserId ? getMentorshipHistory(currentUserId, applications) : undefined
+        }
+        isSuperVolunteer={
+          currentUserId
+            ? getPlatformVolunteerTier(currentUserId, applications, bookings).isSuperVolunteer
+            : false
+        }
       />
+      <WalkBookingSheet
+        open={walkBookingOpen}
+        onClose={() => setWalkBookingOpen(false)}
+        shelter={shelter}
+        dog={dog}
+      />
+      {mentorEntry && (
+        <MentorSessionBookingSheet
+          open={mentorSheetOpen}
+          onClose={() => setMentorSheetOpen(false)}
+          mentor={{
+            id: mentorEntry.mentor.id,
+            name: `${mentorEntry.mentor.firstName} ${mentorEntry.mentor.lastName}`.trim(),
+            avatarUrl: mentorEntry.mentor.avatarUrl ?? "",
+          }}
+          service={mentorEntry.service}
+          defaultShelterId={shelter.id}
+        />
+      )}
     </>
   );
 }

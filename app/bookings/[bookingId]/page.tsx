@@ -47,6 +47,7 @@ import { useNotifications } from "@/contexts/NotificationsContext";
 import { useViewedReports } from "@/lib/useViewedReports";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { getUserById } from "@/lib/mockUsers";
+import { getShelterDogByName } from "@/lib/mockShelters";
 import { bookingServiceLabel } from "@/lib/constants/services";
 import {
   buildSessionStartedNotification,
@@ -72,6 +73,8 @@ function scheduleLabel(booking: Booking): string {
 }
 
 function perSessionPrice(booking: Booking): string {
+  // Volunteer shelter walks carry no charge (G2).
+  if (booking.ownerKind === "shelter") return "Volunteer · no charge";
   const first = booking.price.lineItems[0];
   if (!first) return `${booking.price.total.toLocaleString()} Kč`;
   return `${first.amount.toLocaleString()} Kč / ${first.unit}`;
@@ -103,8 +106,13 @@ function getServiceNoun(booking: Booking): string {
   return "sessions";
 }
 
-function getPetAvatarUrl(ownerId: string, petName: string): string | null {
-  const user = getUserById(ownerId);
+function getPetAvatarUrl(booking: Booking, petName: string): string | null {
+  // Shelter walks resolve the dog from the shelter roster — containment
+  // IS the ownership signal. Cross-Shelter Mentor Network G2, 2026-06-10.
+  if (booking.ownerKind === "shelter") {
+    return getShelterDogByName(booking.ownerId, petName)?.imageUrl ?? null;
+  }
+  const user = getUserById(booking.ownerId);
   if (!user) return null;
   const pet = user.pets.find((p) => p.name.toLowerCase() === petName.toLowerCase());
   return pet?.imageUrl ?? null;
@@ -669,13 +677,20 @@ export default function BookingDetailPage() {
     );
   }
 
+  // Shelter walks: the "owner" party is the shelter (ownerKind
+  // discriminator, Cross-Shelter Mentor Network G2) — the carer-side
+  // viewer sees the shelter's logo + name, and the partner link routes
+  // to /shelters/[id] instead of a user profile.
+  const ownerIsShelter = booking.ownerKind === "shelter";
   const other = isOwner
     ? { id: booking.carerId, name: booking.carerName, avatarUrl: booking.carerAvatarUrl, role: "Carer" }
-    : { id: booking.ownerId, name: booking.ownerName, avatarUrl: booking.ownerAvatarUrl, role: "Owner" };
+    : { id: booking.ownerId, name: booking.ownerName, avatarUrl: booking.ownerAvatarUrl, role: ownerIsShelter ? "Shelter" : "Owner" };
 
   // Profile link for the partner — booking detail keeps Info + Sessions only;
   // direct messaging lives on the profile chat tab (Mock World Building 2026-04-30).
-  const profileHref = `/profile/${other.id}`;
+  const profileHref = !isOwner && ownerIsShelter
+    ? `/shelters/${other.id}`
+    : `/profile/${other.id}`;
   const messageHref = `${profileHref}?tab=chat`;
 
   // For proposed bookings, surface the conversation's most recent pending
@@ -748,7 +763,7 @@ export default function BookingDetailPage() {
   const petNames = booking.pets.join(" & ");
   const verb = getServiceVerb(booking);
   const serviceNoun = getServiceNoun(booking);
-  const firstPetAvatar = booking.pets[0] ? getPetAvatarUrl(booking.ownerId, booking.pets[0]) : null;
+  const firstPetAvatar = booking.pets[0] ? getPetAvatarUrl(booking, booking.pets[0]) : null;
   const sessions = booking.sessions ?? [];
   // Upcoming list excludes the in-progress session — it has its own
   // prominent "Active now" panel above; showing it twice (banner +
@@ -769,15 +784,20 @@ export default function BookingDetailPage() {
   const activeSession = sessions.find((s) => s.status === "in_progress") ?? null;
 
   // Pet profile lookup. The owner's `pets[]` is the source of truth —
-  // booking.pets stores names only. Used by both the Sessions-tab pet
-  // header (visible to both sides) and the Pet info section
-  // (provider-only — vet info, medications, etc.).
-  const ownerForPetLookup = getUserById(booking.ownerId);
-  const petsForBooking = ownerForPetLookup
+  // booking.pets stores names only. Shelter walks resolve from the
+  // shelter roster instead (containment is the ownership signal). Used
+  // by both the Sessions-tab pet header (visible to both sides) and the
+  // Pet info section (provider-only — vet info, medications, etc.).
+  const ownerForPetLookup = ownerIsShelter ? undefined : getUserById(booking.ownerId);
+  const petsForBooking = ownerIsShelter
     ? booking.pets
-        .map((name) => ownerForPetLookup.pets.find((p) => p.name.toLowerCase() === name.toLowerCase()))
+        .map((name) => getShelterDogByName(booking.ownerId, name))
         .filter((p): p is NonNullable<typeof p> => !!p)
-    : [];
+    : ownerForPetLookup
+      ? booking.pets
+          .map((name) => ownerForPetLookup.pets.find((p) => p.name.toLowerCase() === name.toLowerCase()))
+          .filter((p): p is NonNullable<typeof p> => !!p)
+      : [];
   const petProfilesForSession = isProvider ? petsForBooking : [];
 
   return (

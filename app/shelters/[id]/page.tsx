@@ -61,7 +61,8 @@ import type {
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { useWalkerApplications, deriveWalkerTier } from "@/contexts/WalkerApplicationsContext";
 import { useBookings } from "@/contexts/BookingsContext";
-import { useConversations } from "@/contexts/ConversationsContext";
+import { useMentorSessionCompletion } from "@/components/shelters/useMentorSessionCompletion";
+import { countCompletedShelterWalks } from "@/lib/volunteerTier";
 import { getUserById } from "@/lib/mockUsers";
 
 /* ── Page wrapper (Suspense for useSearchParams) ───────────────────── */
@@ -165,11 +166,8 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
     advance,
     withdraw,
     logWalk,
-    completeMentorSession,
     creditWalks,
   } = useWalkerApplications();
-  const { bookings, updateStatus, updateSession } = useBookings();
-  const { getOrCreateDirectConversation, addMessage } = useConversations();
   const application = currentUserId ? getApplication(currentUserId, shelter.id) : undefined;
   const applicationState = application?.state;
   const [isFollowing, setIsFollowing] = useState(false);
@@ -188,64 +186,12 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
 
   const minimum = shelter.policy.mentorSessionMinimum ?? MENTOR_SESSION_DEFAULT_MINIMUM;
 
-  // Complete-session demo toggle (B4): increments the mentorship count,
-  // completes the matching upcoming mentor booking, and — when the count
-  // reaches the shelter's minimum at an accepting shelter — the context
-  // auto-vouches; we land the graduation note in the mentor conversation.
+  // Complete-session demo toggle (B4) — shared handler: increments the
+  // mentorship count, completes the matching mentor booking, and lands
+  // the mentor's graduation message when the minimum is reached.
+  const completeMentorSessionHere = useMentorSessionCompletion(shelter);
   const handleCompleteMentorSession = () => {
-    if (!currentUserId || !application?.mentorship) return;
-    const before = application.mentorship.sessionsCompleted;
-    const graduates =
-      shelter.policy.acceptsMentorVouches &&
-      application.state !== "vouched" &&
-      before + 1 >= minimum;
-    completeMentorSession(currentUserId, shelter.id, {
-      acceptsMentorVouches: shelter.policy.acceptsMentorVouches,
-      minimum,
-    });
-    // Mark the earliest upcoming mentor booking at this shelter completed
-    // (sessions + status) so /bookings tells the same story.
-    const upcoming = bookings
-      .filter(
-        (b) =>
-          b.ownerId === currentUserId &&
-          b.mentorSession?.shelterId === shelter.id &&
-          b.status === "upcoming",
-      )
-      .sort((a, b) => a.startDate.localeCompare(b.startDate))[0];
-    if (upcoming) {
-      updateStatus(upcoming.id, "completed");
-      const session = upcoming.sessions?.[0];
-      if (session) {
-        updateSession(upcoming.id, session.id, {
-          status: "completed",
-          report: {
-            photos: [],
-            notes: `Mentored walk at ${shelter.name} — handling basics, kennel routine, meet-and-greet protocol.`,
-            completedAt: new Date().toISOString(),
-          },
-        });
-      }
-    }
-    if (graduates) {
-      const mentor = getUserById(application.mentorship.mentorId);
-      if (mentor) {
-        const convId = getOrCreateDirectConversation({
-          id: mentor.id,
-          name: `${mentor.firstName} ${mentor.lastName}`.trim(),
-          avatarUrl: mentor.avatarUrl ?? "",
-        });
-        addMessage(convId, {
-          id: `msg-${Date.now()}-graduation`,
-          conversationId: convId,
-          sender: "provider",
-          type: "text",
-          text: `That's ${minimum} sessions — I've vouched for you at ${shelter.name}. You can book solo walks with their dogs now. 🎉`,
-          sentAt: new Date().toISOString(),
-          read: false,
-        });
-      }
-    }
+    completeMentorSessionHere();
     setWalkerMenuOpen(false);
   };
 
@@ -918,13 +864,15 @@ type MembersFilterKey = "all" | "walkers" | "supporters" | "team";
 function MembersTab({ shelter }: { shelter: ShelterProfile }) {
   const teamCount = shelter.team?.length ?? 0;
   const { applications } = useWalkerApplications();
+  const { bookings } = useBookings();
 
   // Vouched-but-not-yet-seeded walkers (I, 2026-06-09). When a user
   // completes the walker journey through to "vouched," they appear on
   // the shelter's Members tab as a Volunteer (vetted tier) even if
-  // they aren't in the static mock roster. Their walkCount starts at
-  // 0 — increments via the demo's hidden "Log a walk" affordance on
-  // the walker journey.
+  // they aren't in the static mock roster. Walk counts combine the
+  // demo "Log a walk" toggle, shelter-credited bootstrap walks, AND
+  // completed shelter-walk Bookings (Cross-Shelter Mentor Network G3 —
+  // real walks feed tier escalation, derived at read time).
   const vouchedDynamicWalkers = useMemo<ShelterWalker[]>(() => {
     return applications
       .filter((a) => a.shelterId === shelter.id && a.state === "vouched")
@@ -932,7 +880,8 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
       .filter((a) => !shelter.walkers.some((w) => w.userId === a.userId))
       .map((a) => {
         const u = getUserById(a.userId);
-        const walkCount = a.walkCount ?? 0;
+        const walkCount =
+          (a.walkCount ?? 0) + countCompletedShelterWalks(a.userId, shelter.id, bookings);
         return {
           userId: a.userId,
           displayName: u ? `${u.firstName} ${u.lastName}` : a.userId,
@@ -940,9 +889,10 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
           tier: deriveWalkerTier(walkCount),
           vouchedAt: a.vouchedAt ?? a.appliedAt,
           walkCount,
+          creditedWalkCount: a.creditedWalkCount,
         };
       });
-  }, [applications, shelter]);
+  }, [applications, shelter, bookings]);
 
   const allWalkers = [...shelter.walkers, ...vouchedDynamicWalkers];
 

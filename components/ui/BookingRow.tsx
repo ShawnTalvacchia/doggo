@@ -15,6 +15,7 @@ import { bookingServiceLabel } from "@/lib/constants/services";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatShortDate, formatDateRange } from "@/lib/dateUtils";
 import { getUserById } from "@/lib/mockUsers";
+import { getShelterDogByName } from "@/lib/mockShelters";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { useViewedReports } from "@/lib/useViewedReports";
 
@@ -46,6 +47,9 @@ function sessionProgress(booking: Booking): { completed: number; total: number }
 }
 
 function priceLabel(booking: Booking): string {
+  // Shelter walks are volunteer work — "0 Kč total" reads as a billing
+  // glitch, not a gift of time. Cross-Shelter Mentor Network G2.
+  if (booking.ownerKind === "shelter") return "Volunteer · no charge";
   const { total, billingCycle } = booking.price;
   if (billingCycle === "weekly") return `${total.toLocaleString()} Kč / week`;
   if (billingCycle === "per_session") return `${total.toLocaleString()} Kč / session`;
@@ -54,8 +58,13 @@ function priceLabel(booking: Booking): string {
   return `${total.toLocaleString()} Kč total`;
 }
 
-function getPetAvatarUrl(ownerId: string, petName: string): string | null {
-  const user = getUserById(ownerId);
+function getPetAvatarUrl(booking: Booking, petName: string): string | null {
+  // Shelter walks: the dog lives on the shelter roster, not a user's
+  // pets[] (containment IS the ownership signal). G2, 2026-06-10.
+  if (booking.ownerKind === "shelter") {
+    return getShelterDogByName(booking.ownerId, petName)?.imageUrl ?? null;
+  }
+  const user = getUserById(booking.ownerId);
   if (!user) return null;
   const pet = user.pets.find(
     (p) => p.name.toLowerCase() === petName.toLowerCase()
@@ -83,7 +92,7 @@ export function BookingRow({ booking }: { booking: Booking }) {
   const progress = sessionProgress(booking);
   const firstPetName = booking.pets[0] ?? null;
   const firstPetAvatar = firstPetName
-    ? getPetAvatarUrl(booking.ownerId, firstPetName)
+    ? getPetAvatarUrl(booking, firstPetName)
     : null;
 
   // Owner-side loop closure: surface a "new visit report" affordance
