@@ -37,14 +37,13 @@ export function WalkApplicationSheet({
       title="Apply to walk dogs"
       compact
       footer={
-        <div className="flex gap-sm justify-end px-md py-md">
-          <ButtonAction variant="neutral" size="md" onClick={onClose}>
+        <>
+          <ButtonAction variant="tertiary" size="md" onClick={onClose}>
             Not yet
           </ButtonAction>
           <ButtonAction
             variant="primary"
             size="md"
-            cta
             disabled={!canSubmit}
             onClick={() => {
               onConfirm(message.trim());
@@ -53,7 +52,7 @@ export function WalkApplicationSheet({
           >
             Send application
           </ButtonAction>
-        </div>
+        </>
       }
     >
       <div className="flex flex-col gap-md p-md">
@@ -76,16 +75,8 @@ export function WalkApplicationSheet({
             onChange={(e) => setMessage(e.target.value)}
             rows={4}
             placeholder="A few sentences about your experience with dogs and why this shelter."
-            className="text-sm"
-            style={{
-              width: "100%",
-              padding: "var(--space-sm)",
-              border: "1px solid var(--border-regular)",
-              borderRadius: "var(--radius-form)",
-              background: "var(--surface-top)",
-              fontFamily: "inherit",
-              resize: "vertical",
-            }}
+            className="textarea"
+            style={{ resize: "vertical", fontFamily: "inherit" }}
           />
           <span className="text-xs text-fg-tertiary">
             Required — 10 characters minimum.

@@ -18,6 +18,7 @@ import {
   GenderFemale,
   Footprints,
   HandHeart,
+  CaretDown,
 } from "@phosphor-icons/react";
 import { DetailHeader } from "@/components/layout/DetailHeader";
 import { TabBar } from "@/components/ui/TabBar";
@@ -968,11 +969,12 @@ function DogPhotosBundle({
 function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetProfile }) {
   const router = useRouter();
   const currentUserId = useCurrentUserId();
-  const { getApplication, apply } = useWalkerApplications();
+  const { getApplication, apply, advance, withdraw, logWalk } = useWalkerApplications();
   const application = currentUserId ? getApplication(currentUserId, shelter.id) : undefined;
   const state = application?.state;
   const walkCount = application?.walkCount ?? 0;
   const [walkSheetOpen, setWalkSheetOpen] = useState(false);
+  const [walkMenuOpen, setWalkMenuOpen] = useState(false);
 
   // Per-dog eligibility: experiencedHandlersOnly requires tier ≥ experienced.
   const tier = state === "vouched" ? deriveWalkerTier(walkCount) : null;
@@ -993,39 +995,78 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
   })();
 
   // Walk button click — state-aware. No application → open the
-  // application sheet right here (no shelter-page detour). Applied/
-  // invited → no-op (status line below carries the context). Vouched +
-  // eligible → would open the booking flow (deferred to follow-up).
+  // application sheet right here (no shelter-page detour). Application
+  // exists → toggle the demo affordance dropdown (Advance state / Log
+  // walk / Withdraw). Mirrors the shelter-page action-row pattern so
+  // the walker journey advances from wherever the user started.
   const onWalkClick = () => {
     if (!state) {
       setWalkSheetOpen(true);
       return;
     }
-    // For now, applied/invited/vouched states are no-op from this
-    // button; status line carries the message. Vouched booking flow
-    // lights up when the shelter-walk Booking discriminator wires
-    // end-to-end (Mentor Network phase territory).
+    setWalkMenuOpen((v) => !v);
   };
 
-  // Adopt button click — stub navigation to the shelter for now.
-  // The adoption inquiry flow ships in a follow-up phase (likely
-  // alongside the Mentor Network adoption-curious doorway).
   const onAdoptClick = () => router.push(`/shelters/${shelter.id}`);
 
   return (
     <>
       <div className="flex flex-col gap-xs" style={{ marginTop: "var(--space-sm)" }}>
         <div className="flex gap-sm flex-wrap">
-          <ButtonAction
-            variant="primary"
-            size="sm"
-            cta
-            className="grow basis-[140px]"
-            leftIcon={<Footprints size={16} weight="fill" />}
-            onClick={onWalkClick}
-          >
-            Walk {dog.name}
-          </ButtonAction>
+          <div className="dropdown-menu-wrap grow basis-[140px]">
+            <ButtonAction
+              variant="primary"
+              size="sm"
+              cta
+              className="w-full"
+              leftIcon={<Footprints size={16} weight="fill" />}
+              rightIcon={state ? <CaretDown size={12} weight="bold" /> : undefined}
+              onClick={onWalkClick}
+            >
+              Walk {dog.name}
+            </ButtonAction>
+            {walkMenuOpen && state && (
+              <div className="dropdown-menu" role="menu">
+                {state !== "vouched" && (
+                  <button
+                    type="button"
+                    className="dropdown-menu-item"
+                    onClick={() => {
+                      if (currentUserId) advance(currentUserId, shelter.id);
+                      setWalkMenuOpen(false);
+                    }}
+                  >
+                    <Check size={16} weight="light" />
+                    Advance state (demo)
+                  </button>
+                )}
+                {state === "vouched" && (
+                  <button
+                    type="button"
+                    className="dropdown-menu-item"
+                    onClick={() => {
+                      if (currentUserId) logWalk(currentUserId, shelter.id);
+                      setWalkMenuOpen(false);
+                    }}
+                  >
+                    <PawPrint size={16} weight="light" />
+                    Log walk (demo)
+                  </button>
+                )}
+                <button
+                  type="button"
+                  className="dropdown-menu-item dropdown-menu-item--destructive"
+                  onClick={() => {
+                    if (currentUserId) withdraw(currentUserId, shelter.id);
+                    setWalkMenuOpen(false);
+                  }}
+                >
+                  <X size={16} weight="light" />
+                  {state === "vouched" ? "Leave shelter" : "Withdraw application"}
+                </button>
+              </div>
+            )}
+          </div>
           <ButtonAction
             variant="outline"
             size="sm"
