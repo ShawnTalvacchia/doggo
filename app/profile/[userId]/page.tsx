@@ -754,7 +754,7 @@ function UserProfileInner() {
                     <div className="flex flex-wrap gap-sm w-full" style={{ marginTop: "var(--space-md)" }}>
                       <ButtonAction
                         variant="primary"
-                        size="md"
+                        size="sm"
                         cta
                         className="grow basis-[140px]"
                         leftIcon={<ChatCircleDots size={16} weight="fill" />}
@@ -816,7 +816,7 @@ function UserProfileInner() {
                         {leftSlot === "mark_familiar" && (
                           <ButtonAction
                             variant="outline"
-                            size="md"
+                            size="sm"
                             cta
                             className="grow basis-[140px]"
                             leftIcon={<Plus size={14} weight="bold" />}
@@ -842,7 +842,7 @@ function UserProfileInner() {
                           >
                             <ButtonAction
                               variant="outline"
-                              size="md"
+                              size="sm"
                               cta
                               className="w-full"
                               leftIcon={<Check size={14} weight="bold" />}
@@ -883,7 +883,7 @@ function UserProfileInner() {
                           >
                             <ButtonAction
                               variant="outline"
-                              size="md"
+                              size="sm"
                               cta
                               className="w-full"
                               leftIcon={<Check size={14} weight="bold" />}
@@ -936,7 +936,7 @@ function UserProfileInner() {
                         {rightSlot === "message" && (
                           <ButtonAction
                             variant="primary"
-                            size="md"
+                            size="sm"
                             cta
                             className="grow basis-[140px]"
                             leftIcon={<ChatCircleDots size={16} weight="fill" />}
@@ -948,7 +948,7 @@ function UserProfileInner() {
                         {rightSlot === "book_care" && (
                           <ButtonAction
                             variant="primary"
-                            size="md"
+                            size="sm"
                             cta
                             className="grow basis-[140px]"
                             leftIcon={<CalendarDots size={16} weight="light" />}
@@ -960,7 +960,7 @@ function UserProfileInner() {
                         {rightSlot === "connect" && (
                           <ButtonAction
                             variant="primary"
-                            size="md"
+                            size="sm"
                             cta
                             className="grow basis-[140px]"
                             onClick={() => {
@@ -978,7 +978,7 @@ function UserProfileInner() {
                         {rightSlot === "request_sent" && (
                           <ButtonAction
                             variant="outline"
-                            size="md"
+                            size="sm"
                             cta
                             className="grow basis-[140px]"
                             disabled
