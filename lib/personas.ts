@@ -92,7 +92,10 @@ export const personas: PersonaOption[] = [
   {
     user: tomas,
     archetype: "Busy Professional",
-    tagline: "Karlín commuter. Leans on care help.",
+    // Second clause sets up his Mentor Network mentee arc (Cross-Shelter
+    // Mentor Network, 2026-06-10) — the 9-to-6 schedule shelter intake
+    // filters out is exactly what the mentored path unlocks.
+    tagline: "Karlín commuter. Leans on care help; drawn to shelter dogs.",
   },
   {
     user: lena,

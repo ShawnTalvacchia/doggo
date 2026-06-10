@@ -60,7 +60,7 @@ const PERSONA_GOALS: Record<string, string> = {
   klara:
     "Hosts a free weekly walk at Stromovka; her paid training clients come from it.",
   tomas:
-    "Away for work often, so he boards Hugo overnight with a sitter he's come to trust.",
+    "Boards Hugo with a sitter he trusts when work travel hits — and wishes his 9-to-6 left room to walk shelter dogs.",
   lena:
     "Books a pro walker for Asha's weekday routine and skips the community side entirely.",
   magda:
@@ -75,8 +75,10 @@ const PERSONA_GOALS: Record<string, string> = {
  * /demo picker and the in-app switcher — just not as landing cards. Each id
  * is one distinct way into the product:
  *   daniel — new owner finding community
- *   klara  — trainer offering paid care
- *   tomas  — busy owner booking trusted boarding around travel
+ *   klara  — trainer offering paid care (and mentoring new shelter walkers)
+ *   tomas  — busy owner booking trusted boarding; the Mentor Network's
+ *            mentee (his 9-to-6 is exactly what shelter intake filters
+ *            out — the mentored path is his way in)
  *   lena   — marketplace-only owner booking recurring walks
  *   magda  — neighbour anchoring a private mutual-care circle
  */
