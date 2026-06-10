@@ -34,7 +34,8 @@ import { TrustBadgeStrip } from "@/components/badges/TrustBadgeStrip";
 import { getTrustBadges, userProfileToTrustSubject, getCircleAttribution } from "@/lib/trustBadges";
 import { useReviews } from "@/contexts/ReviewsContext";
 import { useWalkerApplications } from "@/contexts/WalkerApplicationsContext";
-import { getUserShelterAffiliations } from "@/lib/mockShelters";
+import { getUserShelterAffiliations, getShelterById } from "@/lib/mockShelters";
+import { getPlatformVolunteerTier, toDynamicVouched } from "@/lib/volunteerTier";
 import { getCarerIdentity } from "@/lib/identityBadges";
 import { PetSummaryCard } from "@/components/profile/PetSummaryCard";
 import { PostsTab } from "@/components/profile/PostsTab";
@@ -43,7 +44,13 @@ import { AvailabilityGrid } from "@/components/profile/AvailabilityGrid";
 import { InquiryFormModal } from "@/components/messaging/InquiryFormModal";
 import { BookSessionSheet } from "@/components/meets/BookSessionSheet";
 import { AppointmentBookingSheet } from "@/components/messaging/AppointmentBookingSheet";
-import type { ServiceType, CarerMeetServiceConfig, CarerAppointmentServiceConfig } from "@/lib/types";
+import { MentorSessionBookingSheet } from "@/components/shelters/MentorSessionBookingSheet";
+import type {
+  ServiceType,
+  CarerMeetServiceConfig,
+  CarerAppointmentServiceConfig,
+  CarerMentorSessionServiceConfig,
+} from "@/lib/types";
 import { getCommunityCarers, getMutualConnectedUserIds } from "@/lib/mockConnections";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { viewerSharedMeetWith, getSharedMeetsBetween, mockMeets } from "@/lib/mockMeets";
@@ -240,7 +247,7 @@ function UserProfileInner() {
 
   const currentUserId = useCurrentUserId();
   const { reviews: allReviews } = useReviews();
-  const { applications: walkerApplications } = useWalkerApplications();
+  const { applications: walkerApplications, getPlatformWaiverSignedAt } = useWalkerApplications();
   const [reviewsModalOpen, setReviewsModalOpen] = useState(false);
   const currentUser = useCurrentUser();
   const isGuest = useIsGuest();
@@ -359,6 +366,10 @@ function UserProfileInner() {
   // the AppointmentBookingSheet. Appointment booking flow, 2026-05-22.
   const [bookingAppointment, setBookingAppointment] =
     useState<CarerAppointmentServiceConfig | null>(null);
+  // Mentor-session service whose "Book a session" CTA was tapped. Drives
+  // the MentorSessionBookingSheet. Cross-Shelter Mentor Network B2, 2026-06-09.
+  const [bookingMentorSession, setBookingMentorSession] =
+    useState<CarerMentorSessionServiceConfig | null>(null);
 
   // Unmark-Familiar confirm popover (P40). Friction-by-design: tapping a
   // "Familiar ✓" tag opens a one-item menu rather than firing the unmark
@@ -1179,25 +1190,43 @@ function UserProfileInner() {
                 tier already varies by shelter, so an aggregate either
                 hides that distinction or duplicates it. */}
             {(() => {
-              const dynamicVouched = walkerApplications
-                .filter((a) => a.userId === userId && a.state === "vouched")
-                .map((a) => ({
-                  shelterId: a.shelterId,
-                  walkCount: a.walkCount ?? 0,
-                  vouchedAt: a.vouchedAt ?? a.appliedAt,
-                }));
-              const affiliations = getUserShelterAffiliations(userId, dynamicVouched);
+              const affiliations = getUserShelterAffiliations(
+                userId,
+                toDynamicVouched(userId, walkerApplications),
+              );
               if (affiliations.length === 0) return null;
               const TIER_LABEL: Record<string, string> = {
                 vetted: "Volunteer",
                 experienced: "Volunteer",
                 trusted: "Super Volunteer",
               };
+              // Platform-level Super Volunteer (D3) — the PORTABLE tier.
+              // Renders as a status pill on the section title row, NOT as
+              // an aggregate stats header (walk-count totals were dropped
+              // at the 2026-06-09 walkthrough; the platform tier is a
+              // status, not a stat). Per-shelter rows below keep carrying
+              // the per-shelter tier + counts. ASSUMPTION A3.
+              const platform = getPlatformVolunteerTier(userId, walkerApplications);
+              const platformWaiverAt = isSelf
+                ? getPlatformWaiverSignedAt(userId)
+                : undefined;
               return (
                 <section>
-                  <h3 className="profile-card-subtitle">Volunteer work</h3>
+                  <div className="flex items-center gap-sm flex-wrap">
+                    <h3 className="profile-card-subtitle m-0">Volunteer work</h3>
+                    {platform.isSuperVolunteer && (
+                      <span className="credential-pill credential-pill--volunteer credential-pill--tier-3">
+                        Super Volunteer
+                      </span>
+                    )}
+                  </div>
+                  {platform.isSuperVolunteer && (
+                    <p className="text-xs text-fg-tertiary m-0" style={{ marginTop: "var(--space-xs)" }}>
+                      Recognized at every participating shelter
+                    </p>
+                  )}
                   <div className="flex flex-col gap-sm" style={{ marginTop: "var(--space-sm)" }}>
-                    {affiliations.map(({ shelter, tier, walkCount }) => (
+                    {affiliations.map(({ shelter, tier, walkCount, creditedWalkCount }) => (
                       <Link
                         key={shelter.id}
                         href={`/shelters/${shelter.id}`}
@@ -1217,10 +1246,25 @@ function UserProfileInner() {
                         </span>
                         <span className="text-xs text-fg-tertiary">
                           at {shelter.name} · {walkCount} {walkCount === 1 ? "walk" : "walks"}
+                          {/* Provenance split (D5/A7) — shelter-credited
+                              bootstrap walks stay distinguishable from
+                              platform-logged ones. */}
+                          {creditedWalkCount ? ` · ${creditedWalkCount} credited by the shelter` : ""}
                         </span>
                       </Link>
                     ))}
                   </div>
+                  {platformWaiverAt && (
+                    <p className="text-xs text-fg-tertiary m-0" style={{ marginTop: "var(--space-sm)" }}>
+                      Platform waiver signed{" "}
+                      {new Date(platformWaiverAt).toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}{" "}
+                      — valid at all participating shelters. Only you see this.
+                    </p>
+                  )}
                 </section>
               );
             })()}
@@ -1489,6 +1533,85 @@ function UserProfileInner() {
                           )}
                         </div>
                       ))}
+                    {/* Mentor-session services — supervised first walks at
+                        participating shelters (Cross-Shelter Mentor Network
+                        B2). Renders right after the headline 1-on-1: both
+                        are Klára's "I work with YOU" offerings. The shelter
+                        chips ground where it runs; the in-progress line
+                        surfaces the viewer's own graduation arc. */}
+                    {userProfile.carerProfile.services
+                      .filter(
+                        (s): s is CarerMentorSessionServiceConfig =>
+                          s.kind === "mentor_session" && s.enabled && !s.softDeletedAt,
+                      )
+                      .map((svc) => {
+                        const mentorshipApp = walkerApplications.find(
+                          (a) =>
+                            a.userId === currentUserId &&
+                            svc.shelterIds.includes(a.shelterId) &&
+                            a.mentorship,
+                        );
+                        const mentorShelter = mentorshipApp
+                          ? getShelterById(mentorshipApp.shelterId)
+                          : undefined;
+                        return (
+                          <div key={svc.id} className="profile-service-card">
+                            <div className="profile-service-top">
+                              <span className="profile-service-name">{svc.title}</span>
+                              <div className="profile-service-price-wrap">
+                                <span className="profile-service-price">
+                                  {svc.pricePerSession.toLocaleString()} Kč
+                                  <span className="profile-service-unit">{" "}/ session</span>
+                                </span>
+                              </div>
+                            </div>
+                            <div className="profile-service-subs">
+                              <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
+                                Shelter mentoring
+                              </span>
+                              <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
+                                {svc.durationMinutes} min
+                              </span>
+                              {svc.shelterIds.map((sid) => {
+                                const s = getShelterById(sid);
+                                return s ? (
+                                  <span
+                                    key={sid}
+                                    className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary"
+                                  >
+                                    {s.name}
+                                  </span>
+                                ) : null;
+                              })}
+                            </div>
+                            {svc.notes && (
+                              <p className="profile-service-notes">{svc.notes}</p>
+                            )}
+                            {mentorshipApp && mentorShelter && mentorshipApp.state !== "vouched" && (
+                              <p className="text-xs text-fg-tertiary m-0">
+                                Your progress: {mentorshipApp.mentorship!.sessionsCompleted} of{" "}
+                                {mentorShelter.policy.mentorSessionMinimum ?? 3} sessions at{" "}
+                                {mentorShelter.name}
+                              </p>
+                            )}
+                            {!isSelf && (
+                              <ButtonAction
+                                variant="secondary"
+                                size="sm"
+                                cta
+                                className="self-start"
+                                onClick={() =>
+                                  isGuest
+                                    ? requireAuth(`book a mentored walk with ${firstName}`)
+                                    : setBookingMentorSession(svc)
+                                }
+                              >
+                                Book a session
+                              </ButtonAction>
+                            )}
+                          </div>
+                        );
+                      })}
                     {/* Care-type services — "I take the dog" shape (Walking,
                         Sitting, Day care, Boarding). Booking produces a
                         Booking record. Walks carry an additional delivery
@@ -1798,6 +1921,18 @@ function UserProfileInner() {
             onClose={() => setBookingAppointment(null)}
             provider={{ id: userId, name, avatarUrl }}
             service={bookingAppointment}
+          />
+        )}
+
+        {/* MentorSessionBookingSheet — opens from a mentor-session service
+            card's "Book a session" CTA. Direct booking + waiver checklist;
+            no proposal round-trip. Cross-Shelter Mentor Network B2. */}
+        {bookingMentorSession && (
+          <MentorSessionBookingSheet
+            open
+            onClose={() => setBookingMentorSession(null)}
+            mentor={{ id: userId, name, avatarUrl }}
+            service={bookingMentorSession}
           />
         )}
 

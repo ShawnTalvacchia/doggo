@@ -22,11 +22,23 @@ export function WalkApplicationSheet({
   shelter,
   onClose,
   onConfirm,
+  mentorshipHistory,
+  isSuperVolunteer,
 }: {
   open: boolean;
   shelter: ShelterProfile;
   onClose: () => void;
   onConfirm: (message: string) => void;
+  /** Applicant's mentor-session history across shelters. At a
+   *  non-accepting shelter it renders as the "Mentor-recommended"
+   *  credibility line (Cross-Shelter Mentor Network D2 fallback /
+   *  ASSUMPTION A10) — mentor work strengthens the standard
+   *  application even where the vouch isn't binding. */
+  mentorshipHistory?: { totalSessions: number; mentorNames: string[] };
+  /** Applicant holds the platform Super Volunteer tier — the portable
+   *  credential (D3 / ASSUMPTION A3). The shelter sees it arrive on the
+   *  application; their own waiver + orientation still apply. */
+  isSuperVolunteer?: boolean;
 }) {
   const [message, setMessage] = useState("");
   const canSubmit = message.trim().length >= 10;
@@ -65,6 +77,31 @@ export function WalkApplicationSheet({
             <em>{shelter.policy.vouchingNote}</em>
           </p>
         )}
+        {/* Portable-credential recognition (D3): the platform tier travels
+            with the applicant; the shelter's own waiver + orientation walk
+            still apply — recognition shortens trust-building, it doesn't
+            skip the shelter's process. */}
+        {isSuperVolunteer && (
+          <p className="text-sm text-fg-secondary m-0">
+            Your <strong>Super Volunteer</strong> status goes with your
+            application — {shelter.name} will still ask for their own waiver
+            and an orientation walk with their dogs.
+          </p>
+        )}
+        {/* Mentor-recommended credibility (D2 fallback): rendered at
+            shelters that DON'T accept mentor-vouches. The mentor work
+            still counts as documented experience. */}
+        {!shelter.policy.acceptsMentorVouches &&
+          mentorshipHistory &&
+          mentorshipHistory.totalSessions > 0 && (
+            <p className="text-sm text-fg-secondary m-0">
+              <strong>Mentor-recommended</strong> ·{" "}
+              {mentorshipHistory.totalSessions}{" "}
+              {mentorshipHistory.totalSessions === 1 ? "session" : "sessions"} with{" "}
+              {mentorshipHistory.mentorNames.join(", ")} — included with your
+              application. {shelter.name} reviews every walker directly.
+            </p>
+          )}
         <div className="flex flex-col gap-xs">
           <label htmlFor="walker-application-message" className="text-sm font-semibold text-fg-primary">
             Why do you want to walk here?

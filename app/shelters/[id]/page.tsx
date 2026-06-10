@@ -32,6 +32,7 @@ import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { ShelterDogCard } from "@/components/shelters/ShelterDogCard";
 import { ShelterMemberRow } from "@/components/shelters/ShelterMemberRow";
 import { WalkApplicationSheet } from "@/components/shelters/WalkApplicationSheet";
+import { MentorSessionBookingSheet } from "@/components/shelters/MentorSessionBookingSheet";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
 import {
@@ -41,15 +42,26 @@ import {
   countDogsNeedingWalks,
   countLongStayers,
 } from "@/lib/mockShelters";
+import {
+  getMentorsForShelter,
+  getMentorshipHistory,
+  getPlatformVolunteerTier,
+} from "@/lib/volunteerTier";
+import { MENTOR_SESSION_DEFAULT_MINIMUM } from "@/lib/constants/services";
 import type {
+  CarerMentorSessionServiceConfig,
   PetProfile,
   ShelterProfile,
   ShelterSupporter,
   ShelterWalker,
+  UserProfile,
+  WalkerApplication,
   WalkerApplicationState,
 } from "@/lib/types";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { useWalkerApplications, deriveWalkerTier } from "@/contexts/WalkerApplicationsContext";
+import { useBookings } from "@/contexts/BookingsContext";
+import { useConversations } from "@/contexts/ConversationsContext";
 import { getUserById } from "@/lib/mockUsers";
 
 /* ── Page wrapper (Suspense for useSearchParams) ───────────────────── */
@@ -146,13 +158,96 @@ function ShelterDetailInner() {
 function FeedTab({ shelter }: { shelter: ShelterProfile }) {
   const posts = getShelterFeed(shelter);
   const currentUserId = useCurrentUserId();
-  const { getApplication, apply, advance, withdraw, logWalk } = useWalkerApplications();
+  const {
+    applications,
+    getApplication,
+    apply,
+    advance,
+    withdraw,
+    logWalk,
+    completeMentorSession,
+    creditWalks,
+  } = useWalkerApplications();
+  const { bookings, updateStatus, updateSession } = useBookings();
+  const { getOrCreateDirectConversation, addMessage } = useConversations();
   const application = currentUserId ? getApplication(currentUserId, shelter.id) : undefined;
   const applicationState = application?.state;
   const [isFollowing, setIsFollowing] = useState(false);
   const [walkSheetOpen, setWalkSheetOpen] = useState(false);
   const [followMenuOpen, setFollowMenuOpen] = useState(false);
   const [walkerMenuOpen, setWalkerMenuOpen] = useState(false);
+  // Mentor path (Cross-Shelter Mentor Network B2): the shelter-side door
+  // into booking a mentored first walk. {mentor, service} drives the sheet.
+  const mentors = getMentorsForShelter(shelter.id);
+  const [mentorSheetTarget, setMentorSheetTarget] = useState<
+    (typeof mentors)[number] | null
+  >(null);
+  const mentorshipHistory = currentUserId
+    ? getMentorshipHistory(currentUserId, applications)
+    : { totalSessions: 0, mentorNames: [] };
+
+  const minimum = shelter.policy.mentorSessionMinimum ?? MENTOR_SESSION_DEFAULT_MINIMUM;
+
+  // Complete-session demo toggle (B4): increments the mentorship count,
+  // completes the matching upcoming mentor booking, and — when the count
+  // reaches the shelter's minimum at an accepting shelter — the context
+  // auto-vouches; we land the graduation note in the mentor conversation.
+  const handleCompleteMentorSession = () => {
+    if (!currentUserId || !application?.mentorship) return;
+    const before = application.mentorship.sessionsCompleted;
+    const graduates =
+      shelter.policy.acceptsMentorVouches &&
+      application.state !== "vouched" &&
+      before + 1 >= minimum;
+    completeMentorSession(currentUserId, shelter.id, {
+      acceptsMentorVouches: shelter.policy.acceptsMentorVouches,
+      minimum,
+    });
+    // Mark the earliest upcoming mentor booking at this shelter completed
+    // (sessions + status) so /bookings tells the same story.
+    const upcoming = bookings
+      .filter(
+        (b) =>
+          b.ownerId === currentUserId &&
+          b.mentorSession?.shelterId === shelter.id &&
+          b.status === "upcoming",
+      )
+      .sort((a, b) => a.startDate.localeCompare(b.startDate))[0];
+    if (upcoming) {
+      updateStatus(upcoming.id, "completed");
+      const session = upcoming.sessions?.[0];
+      if (session) {
+        updateSession(upcoming.id, session.id, {
+          status: "completed",
+          report: {
+            photos: [],
+            notes: `Mentored walk at ${shelter.name} — handling basics, kennel routine, meet-and-greet protocol.`,
+            completedAt: new Date().toISOString(),
+          },
+        });
+      }
+    }
+    if (graduates) {
+      const mentor = getUserById(application.mentorship.mentorId);
+      if (mentor) {
+        const convId = getOrCreateDirectConversation({
+          id: mentor.id,
+          name: `${mentor.firstName} ${mentor.lastName}`.trim(),
+          avatarUrl: mentor.avatarUrl ?? "",
+        });
+        addMessage(convId, {
+          id: `msg-${Date.now()}-graduation`,
+          conversationId: convId,
+          sender: "provider",
+          type: "text",
+          text: `That's ${minimum} sessions — I've vouched for you at ${shelter.name}. You can book solo walks with their dogs now. 🎉`,
+          sentAt: new Date().toISOString(),
+          read: false,
+        });
+      }
+    }
+    setWalkerMenuOpen(false);
+  };
 
   // Order mirrors the community-detail Feed: banner → title + bio →
   // primary "what's the special thing about this surface" card
@@ -167,7 +262,8 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
       <ShelterSocialsRow shelter={shelter} />
       <ShelterActionRow
         isFollowing={isFollowing}
-        applicationState={applicationState}
+        application={application}
+        mentorSessionMinimum={minimum}
         followMenuOpen={followMenuOpen}
         walkerMenuOpen={walkerMenuOpen}
         onToggleFollow={() => {
@@ -190,11 +286,40 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
           if (currentUserId) logWalk(currentUserId, shelter.id);
           setWalkerMenuOpen(false);
         }}
+        onCompleteMentorSession={handleCompleteMentorSession}
+        onCreditWalks={() => {
+          // Operator stub (D5): the shelter credits 25 historical
+          // real-world walks to the current user. Provenance-marked.
+          if (currentUserId) creditWalks(currentUserId, shelter.id, 25);
+          setWalkerMenuOpen(false);
+        }}
         onWithdraw={() => {
           if (currentUserId) withdraw(currentUserId, shelter.id);
           setWalkerMenuOpen(false);
         }}
       />
+
+      <MentorProgressLine
+        shelter={shelter}
+        application={application}
+        minimum={minimum}
+        mentorshipHistory={mentorshipHistory}
+      />
+
+      {/* Mentor-path door (B2): shown while the viewer isn't a vouched
+          walker here and a mentor serves this shelter. Doubles as the
+          "book your next session" surface mid-mentorship. */}
+      {mentors.length > 0 &&
+        shelter.policy.acceptsMentorVouches &&
+        applicationState !== "vouched" && (
+          <MentorPathCard
+            shelter={shelter}
+            mentorEntry={mentors[0]}
+            sessionsCompleted={application?.mentorship?.sessionsCompleted ?? 0}
+            minimum={minimum}
+            onBook={() => setMentorSheetTarget(mentors[0])}
+          />
+        )}
 
       {posts.length === 0 ? (
         <div className="px-lg py-xl">
@@ -220,7 +345,127 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
           if (currentUserId) apply(currentUserId, shelter.id, message);
           setWalkSheetOpen(false);
         }}
+        mentorshipHistory={mentorshipHistory}
+        isSuperVolunteer={
+          currentUserId
+            ? getPlatformVolunteerTier(currentUserId, applications).isSuperVolunteer
+            : false
+        }
       />
+
+      {mentorSheetTarget && (
+        <MentorSessionBookingSheet
+          open
+          onClose={() => setMentorSheetTarget(null)}
+          mentor={{
+            id: mentorSheetTarget.mentor.id,
+            name: `${mentorSheetTarget.mentor.firstName} ${mentorSheetTarget.mentor.lastName}`.trim(),
+            avatarUrl: mentorSheetTarget.mentor.avatarUrl ?? "",
+          }}
+          service={mentorSheetTarget.service}
+          defaultShelterId={shelter.id}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ── Mentor path pieces (Cross-Shelter Mentor Network, 2026-06-09) ──── */
+
+/**
+ * Quiet status line under the action row — the mentee's graduation arc
+ * (B3). Three shapes: in-mentorship progress at an accepting shelter;
+ * the "Mentor-recommended" credibility line on a standard application at
+ * a NON-accepting shelter (D2 fallback — mentor work elsewhere still
+ * counts, the coordinator still gates, ASSUMPTION A10); nothing.
+ */
+function MentorProgressLine({
+  shelter,
+  application,
+  minimum,
+  mentorshipHistory,
+}: {
+  shelter: ShelterProfile;
+  application?: WalkerApplication;
+  minimum: number;
+  mentorshipHistory: { totalSessions: number; mentorNames: string[] };
+}) {
+  let text: string | null = null;
+  if (
+    application?.mentorship &&
+    application.state !== "vouched" &&
+    shelter.policy.acceptsMentorVouches
+  ) {
+    const done = application.mentorship.sessionsCompleted;
+    text = `${done} of ${minimum} mentor sessions with ${application.mentorship.mentorName} — ${shelter.name} vouches you after that.`;
+  } else if (
+    application &&
+    application.state !== "vouched" &&
+    !shelter.policy.acceptsMentorVouches &&
+    mentorshipHistory.totalSessions > 0
+  ) {
+    text = `Mentor-recommended · ${mentorshipHistory.totalSessions} ${mentorshipHistory.totalSessions === 1 ? "session" : "sessions"} with ${mentorshipHistory.mentorNames.join(", ")} — strengthens your application; ${shelter.name} reviews walkers directly.`;
+  } else if (application?.state === "vouched" && application.vouchedVia === "mentor") {
+    text = `Vouched via mentor sessions with ${application.mentorship?.mentorName ?? "your mentor"}.`;
+  }
+  if (!text) return null;
+  return (
+    <p className="text-xs text-fg-tertiary m-0" style={{ padding: "0 var(--space-xl)" }}>
+      {text}
+    </p>
+  );
+}
+
+/**
+ * The mentor-path door card (B2): "new to walking here? there's a paid,
+ * mentored way in." Renders the mentor's identity + price + the
+ * graduation promise; CTA opens the booking sheet in place. ASSUMPTION
+ * A4 (the fee filters for commitment) + A8 (intake friction, not demand,
+ * is the binding constraint) live or die on this card's conversion.
+ */
+function MentorPathCard({
+  shelter,
+  mentorEntry,
+  sessionsCompleted,
+  minimum,
+  onBook,
+}: {
+  shelter: ShelterProfile;
+  mentorEntry: { mentor: UserProfile; service: CarerMentorSessionServiceConfig };
+  sessionsCompleted: number;
+  minimum: number;
+  onBook: () => void;
+}) {
+  const { mentor, service } = mentorEntry;
+  const mentorName = `${mentor.firstName} ${mentor.lastName}`.trim();
+  const inProgress = sessionsCompleted > 0;
+  const remaining = Math.max(minimum - sessionsCompleted, 0);
+  return (
+    <div className="shelter-mentor-card">
+      <img
+        src={mentor.avatarUrl}
+        alt={mentorName}
+        className="shelter-mentor-card-avatar"
+      />
+      <div className="flex flex-col gap-xs flex-1 min-w-0">
+        <span className="text-sm font-semibold text-fg-primary">
+          {inProgress
+            ? `Keep going — ${remaining} ${remaining === 1 ? "session" : "sessions"} to solo walking`
+            : "New to shelter walking?"}
+        </span>
+        <span className="text-sm text-fg-secondary">
+          {inProgress
+            ? `Book your next mentored walk with ${mentorName}.`
+            : `${mentorName}, a Super Volunteer here, runs paid mentored first walks — ${minimum} sessions and ${shelter.name} vouches you to walk solo.`}
+        </span>
+        <span className="text-xs text-fg-tertiary">
+          {service.pricePerSession.toLocaleString()} Kč / session · {service.durationMinutes} min ·
+          you pay the mentor, the shelter pays nothing
+        </span>
+      </div>
+      <ButtonAction variant="secondary" size="sm" cta onClick={onBook}>
+        {inProgress ? "Book next session" : "Book a mentored walk"}
+      </ButtonAction>
     </div>
   );
 }
@@ -337,8 +582,10 @@ function ShelterSocialsRow({ shelter }: { shelter: ShelterProfile }) {
 
 interface ShelterActionRowProps {
   isFollowing: boolean;
-  /** Walker application state — undefined when the user hasn't applied. */
-  applicationState?: WalkerApplicationState;
+  /** Walker application — undefined when the user hasn't applied. */
+  application?: WalkerApplication;
+  /** Resolved mentor-session minimum for this shelter. */
+  mentorSessionMinimum: number;
   followMenuOpen: boolean;
   walkerMenuOpen: boolean;
   onToggleFollow: () => void;
@@ -346,6 +593,8 @@ interface ShelterActionRowProps {
   onToggleWalker: () => void;
   onAdvanceState: () => void;
   onLogWalk: () => void;
+  onCompleteMentorSession: () => void;
+  onCreditWalks: () => void;
   onWithdraw: () => void;
 }
 
@@ -358,7 +607,8 @@ const WALKER_BUTTON_LABEL: Record<WalkerApplicationState | "none", string> = {
 
 function ShelterActionRow({
   isFollowing,
-  applicationState,
+  application,
+  mentorSessionMinimum,
   followMenuOpen,
   walkerMenuOpen,
   onToggleFollow,
@@ -366,8 +616,18 @@ function ShelterActionRow({
   onToggleWalker,
   onAdvanceState,
   onLogWalk,
+  onCompleteMentorSession,
+  onCreditWalks,
   onWithdraw,
 }: ShelterActionRowProps) {
+  const applicationState = application?.state;
+  const inMentorship = !!application?.mentorship && applicationState !== "vouched";
+  // Mentor-path applications read as mentorship progress, not "waiting
+  // for the shelter" — the button label carries the arc (B3).
+  const walkerLabel = inMentorship
+    ? `In mentorship · ${application!.mentorship!.sessionsCompleted}/${mentorSessionMinimum}`
+    : WALKER_BUTTON_LABEL[applicationState ?? "none"];
+
   return (
     <div className="shelter-action-row">
       <div className="shelter-action-button-wrap dropdown-menu-wrap">
@@ -404,11 +664,21 @@ function ShelterActionRow({
           rightIcon={applicationState ? <CaretDown size={12} weight="bold" /> : undefined}
           onClick={onToggleWalker}
         >
-          {WALKER_BUTTON_LABEL[applicationState ?? "none"]}
+          {walkerLabel}
         </ButtonAction>
         {walkerMenuOpen && applicationState && (
           <div className="dropdown-menu" role="menu">
-            {applicationState !== "vouched" && (
+            {inMentorship && (
+              <button
+                type="button"
+                className="dropdown-menu-item"
+                onClick={onCompleteMentorSession}
+              >
+                <Check size={16} weight="light" />
+                Complete mentor session (demo)
+              </button>
+            )}
+            {!inMentorship && applicationState !== "vouched" && (
               <button
                 type="button"
                 className="dropdown-menu-item"
@@ -428,6 +698,18 @@ function ShelterActionRow({
                 Log walk (demo)
               </button>
             )}
+            {/* Operator stub (D5): the shelter crediting historical
+                real-world walks. Lives behind the same hidden-affordance
+                dropdown as the other state toggles; the real authoring
+                surface is shelter-operator territory (V3+). */}
+            <button
+              type="button"
+              className="dropdown-menu-item"
+              onClick={onCreditWalks}
+            >
+              <Clock size={16} weight="light" />
+              Credit historical walks (demo)
+            </button>
             <button
               type="button"
               className="dropdown-menu-item dropdown-menu-item--destructive"
