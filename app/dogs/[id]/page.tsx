@@ -16,6 +16,8 @@ import {
   Camera,
   GenderMale,
   GenderFemale,
+  Footprints,
+  HandHeart,
 } from "@phosphor-icons/react";
 import { DetailHeader } from "@/components/layout/DetailHeader";
 import { TabBar } from "@/components/ui/TabBar";
@@ -476,23 +478,19 @@ function DogProfileInner() {
                   ))}
                 </div>
               )}
+
+              {/* Walker / Adopt actions — shelter dogs only. Inlined
+                  into the hero content column 2026-06-09 (matches the
+                  user-profile hero pattern: ButtonAction sm pair as
+                  the primary action surface). Replaces the earlier
+                  card-style affordance and resolves the
+                  double-border issue created by the standalone CTA
+                  section. State-aware status line surfaces below the
+                  buttons when an application is in progress / not
+                  yet eligible / vouched. */}
+              {shelter && <WalkAffordance shelter={shelter} dog={dog} />}
             </div>
           </div>
-
-          {/* Walker affordance (J) — shelter dogs only. Three states:
-              vouched walker at this shelter → "Book a walk" (deferred —
-              full booking flow is post-this-phase); applied/invited →
-              "Application in progress" status; no application → CTA to
-              apply at the shelter. Sits immediately after the hero
-              (relocated 2026-06-09 from the bottom of the page) so the
-              primary action is visible at first scroll position rather
-              than buried under the dog info. Wrapped in .dog-profile-
-              section so it picks up the standard horizontal padding. */}
-          {shelter && (
-            <div className="dog-profile-section">
-              <WalkAffordance shelter={shelter} dog={dog} />
-            </div>
-          )}
 
           {/* Shelter-care stats band — facts row, sits between the
               hero and the about/story section so the rhythm is
@@ -967,6 +965,7 @@ function DogPhotosBundle({
  * Bookings carry the `ownerKind: "shelter"` discriminator end-to-end.
  */
 function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetProfile }) {
+  const router = useRouter();
   const currentUserId = useCurrentUserId();
   const { getApplication } = useWalkerApplications();
   const application = currentUserId ? getApplication(currentUserId, shelter.id) : undefined;
@@ -981,90 +980,52 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
     return true;
   })();
 
-  if (!state) {
-    return (
-      <Link
-        href={`/shelters/${shelter.id}`}
-        className="flex items-center gap-md rounded-panel"
-        style={{
-          background: "var(--surface-top)",
-          border: "1px solid var(--border-regular)",
-          padding: "var(--space-md)",
-          textDecoration: "none",
-        }}
-      >
-        <PawPrint size={20} weight="fill" className="text-brand-strong" />
-        <div className="flex flex-col flex-1 min-w-0">
-          <span className="text-sm font-semibold text-fg-primary">Walk dogs at {shelter.name}</span>
-          <span className="text-xs text-fg-tertiary">Apply at the shelter to be paired with the right dog →</span>
-        </div>
-      </Link>
-    );
-  }
+  // Optional context line below the buttons — surfaces application
+  // state when relevant; suppressed entirely for the default case.
+  const statusLine = (() => {
+    if (state === "applied") return `Application sent — ${shelter.name} will be in touch`;
+    if (state === "invited") return `Invited to visit — meet the team at ${shelter.name}`;
+    if (state === "vouched" && !eligibleForDog) return `${dog.name} needs an experienced walker (10+ walks)`;
+    if (state === "vouched" && eligibleForDog) return `You walk at ${shelter.name} · booking flow ships in follow-up`;
+    return null;
+  })();
 
-  if (state === "applied" || state === "invited") {
-    return (
-      <div
-        className="flex items-center gap-md rounded-panel"
-        style={{
-          background: "var(--surface-inset)",
-          border: "1px solid var(--border-regular)",
-          padding: "var(--space-md)",
-        }}
-      >
-        <Clock size={20} weight="fill" className="text-fg-secondary" />
-        <div className="flex flex-col flex-1 min-w-0">
-          <span className="text-sm font-semibold text-fg-primary">
-            {state === "applied" ? "Application sent" : "Invited to visit"}
-          </span>
-          <span className="text-xs text-fg-tertiary">
-            {state === "applied"
-              ? `${shelter.name} will be in touch to schedule your intro visit.`
-              : `Visit ${shelter.name} to meet the team. You'll be cleared to walk after.`}
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  // Vouched. Eligible-for-dog (vouched + dog policy passes) vs not.
-  if (!eligibleForDog) {
-    return (
-      <div
-        className="flex items-center gap-md rounded-panel"
-        style={{
-          background: "var(--surface-inset)",
-          border: "1px solid var(--border-regular)",
-          padding: "var(--space-md)",
-        }}
-      >
-        <PawPrint size={20} weight="fill" className="text-fg-secondary" />
-        <div className="flex flex-col flex-1 min-w-0">
-          <span className="text-sm font-semibold text-fg-primary">{dog.name} needs an experienced walker</span>
-          <span className="text-xs text-fg-tertiary">
-            Keep walking with {shelter.name} — once you've passed 10 walks you'll be cleared for {dog.name}.
-          </span>
-        </div>
-      </div>
-    );
-  }
+  // Navigates to the shelter where the application sheet / sign-up
+  // flow lives. Both buttons route to the same place for now; the
+  // Mentor Network phase splits them (Adopt routes to adoption
+  // inquiry; Walk opens the application sheet directly here when
+  // the flow lifts to the dog page).
+  const goToShelter = () => router.push(`/shelters/${shelter.id}`);
 
   return (
-    <div
-      className="flex items-center gap-md rounded-panel"
-      style={{
-        background: "var(--brand-subtle)",
-        border: "1px solid var(--brand-main)",
-        padding: "var(--space-md)",
-      }}
-    >
-      <PawPrint size={20} weight="fill" className="text-brand-strong" />
-      <div className="flex flex-col flex-1 min-w-0">
-        <span className="text-sm font-semibold text-fg-primary">You walk at {shelter.name}</span>
-        <span className="text-xs text-fg-tertiary">
-          Book a walk → (booking flow ships in the credentialing-moat follow-up).
-        </span>
+    <div className="flex flex-col gap-xs" style={{ marginTop: "var(--space-sm)" }}>
+      <div className="flex gap-sm flex-wrap">
+        <ButtonAction
+          variant="primary"
+          size="sm"
+          cta
+          className="grow basis-[140px]"
+          leftIcon={<Footprints size={16} weight="fill" />}
+          onClick={goToShelter}
+        >
+          Walk {dog.name}
+        </ButtonAction>
+        <ButtonAction
+          variant="outline"
+          size="sm"
+          cta
+          className="grow basis-[140px]"
+          leftIcon={<HandHeart size={16} weight="regular" />}
+          onClick={goToShelter}
+        >
+          Adopt {dog.name}
+        </ButtonAction>
       </div>
+      {statusLine && (
+        <span className="text-xs text-fg-tertiary">
+          {statusLine}
+        </span>
+      )}
     </div>
   );
 }
