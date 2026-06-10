@@ -122,7 +122,7 @@ export function MentorSessionBookingSheet({
       avatarUrl: mentor.avatarUrl,
     });
 
-    createBooking({
+    const bookingId = createBooking({
       conversationId: convId,
       ownerKind: "user",
       ownerId: currentUser.id,
@@ -165,16 +165,24 @@ export function MentorSessionBookingSheet({
       ],
     });
 
-    // Short exchange in the mentor conversation — the booking
-    // confirmation lives in /bookings; this keeps the relationship
-    // surface (Inbox) in the loop. The mentor reply is the
+    // Confirmation card in the mentor conversation (O1 resolution,
+    // 2026-06-10): appointment-confirmation framing — nothing to
+    // approve, but the chronicle rule holds: the booking is findable
+    // from the chat thread via the card's "View booking" link, same as
+    // every other booked service. The mentor reply below is the
     // single-persona auto-response affordance.
     const bookedMsg: ChatMessage = {
       id: `msg-${Date.now()}-mentor-booked`,
       conversationId: convId,
       sender: "owner",
-      type: "text",
-      text: `Booked a mentored shelter walk at ${shelter.name} for ${formatShortDate(date)} — session ${nextSessionNumber}${accepts ? ` of ${minimum}` : ""}.`,
+      type: "booking_confirmation",
+      bookingRef: {
+        bookingId,
+        title: service.title,
+        contextLine: `${shelter.name} · session ${nextSessionNumber}${accepts ? ` of ${minimum}` : ""} · with ${mentorFirstName}`,
+        date,
+        priceLabel: `${service.pricePerSession.toLocaleString()} Kč / session`,
+      },
       sentAt: new Date().toISOString(),
       read: true,
     };

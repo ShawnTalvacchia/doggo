@@ -15,6 +15,7 @@ import type {
   BookingProposal,
 } from "@/lib/types";
 import { BookingProposalCard } from "@/components/messaging/BookingProposalCard";
+import { BookingConfirmationCard } from "@/components/messaging/BookingConfirmationCard";
 import { InquiryCard } from "@/components/messaging/InquiryCard";
 import { PaymentCard } from "@/components/messaging/PaymentCard";
 import { SigningModal } from "@/components/messaging/SigningModal";
@@ -558,6 +559,17 @@ export function ThreadClient({
                             linkedBooking ? `/bookings/${linkedBooking.id}` : undefined
                           }
                         />
+                        <span className="inbox-message-time">{formatTime(msg.sentAt)}</span>
+                      </div>
+                    );
+                  }
+                  if (msg.type === "booking_confirmation" && msg.bookingRef) {
+                    return (
+                      <div
+                        key={msg.id}
+                        className="inbox-message-wrap inbox-message-wrap--full"
+                      >
+                        <BookingConfirmationCard msg={msg} />
                         <span className="inbox-message-time">{formatTime(msg.sentAt)}</span>
                       </div>
                     );

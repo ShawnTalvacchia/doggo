@@ -211,7 +211,18 @@ export type MessageSender = "owner" | "provider";
  *  View booking →`) now carries the signing signal in the chat stream;
  *  Booking.signedAt is the canonical record. ContractCard.tsx + the
  *  `.inbox-contract-card` CSS were dropped at the same time. */
-export type MessageType = "text" | "inquiry" | "booking_proposal" | "payment_summary" | "payment_confirmed";
+export type MessageType =
+  | "text"
+  | "inquiry"
+  | "booking_proposal"
+  | "payment_summary"
+  | "payment_confirmed"
+  /** Confirmation artifact for direct-booked services (no proposal/sign
+   *  round-trip — fixed price, instant booking). First consumer: mentor
+   *  sessions (Cross-Shelter Mentor Network O1 resolution, 2026-06-10).
+   *  Appointment-confirmation framing, NOT contract framing — nothing to
+   *  approve; the card links to the live booking like the others do. */
+  | "booking_confirmation";
 
 export type BookingProposalStatus = "pending" | "accepted" | "declined" | "countered";
 
@@ -334,6 +345,20 @@ export interface ChatMessage {
   inquiry?: InquiryDetails;
   proposal?: BookingProposal;
   paymentSummary?: PaymentSummary;
+  /** Set when `type === "booking_confirmation"` — the denormalised
+   *  card content + the booking link target. Generic across any
+   *  direct-booked service shape. */
+  bookingRef?: {
+    bookingId: string;
+    /** Card title (e.g. "Mentored shelter walk"). */
+    title: string;
+    /** One context line under the title (e.g. "Útulek Liběň · session 1 of 3 · with Klára"). */
+    contextLine: string;
+    /** ISO YYYY-MM-DD of the booked slot. */
+    date: string;
+    /** Display-ready price (e.g. "450 Kč / session"). */
+    priceLabel: string;
+  };
   sentAt: string; // ISO timestamp
   read: boolean;
 }

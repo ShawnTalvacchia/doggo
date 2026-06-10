@@ -20,6 +20,7 @@
 import { useCallback } from "react";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useConversations } from "@/contexts/ConversationsContext";
+import { useConnections } from "@/contexts/ConnectionsContext";
 import { useWalkerApplications } from "@/contexts/WalkerApplicationsContext";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { getUserById } from "@/lib/mockUsers";
@@ -31,11 +32,20 @@ export function useMentorSessionCompletion(shelter: ShelterProfile | undefined) 
   const { getApplication, completeMentorSession } = useWalkerApplications();
   const { bookings, updateStatus, updateSession } = useBookings();
   const { getOrCreateDirectConversation, addMessage } = useConversations();
+  const { markConnected } = useConnections();
 
   return useCallback(() => {
     if (!shelter || !currentUserId) return;
     const application = getApplication(currentUserId, shelter.id);
     if (!application?.mentorship) return;
+
+    // A completed mentor session → mutual Connected (O1 follow-up,
+    // 2026-06-10). Hours of supervised in-person dog handling is a
+    // stronger trust event than the contract-sign that triggers
+    // Connected on other paid flows — and with no sign step here, this
+    // is the flow's Connected moment. Idempotent across sessions.
+    markConnected(currentUserId, application.mentorship.mentorId);
+    markConnected(application.mentorship.mentorId, currentUserId);
 
     const minimum = shelter.policy.mentorSessionMinimum ?? MENTOR_SESSION_DEFAULT_MINIMUM;
     const graduates =
@@ -100,5 +110,6 @@ export function useMentorSessionCompletion(shelter: ShelterProfile | undefined) 
     updateSession,
     getOrCreateDirectConversation,
     addMessage,
+    markConnected,
   ]);
 }

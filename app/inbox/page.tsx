@@ -62,6 +62,9 @@ function getPreview(conv: Conversation): { text: string; kind: PreviewKind } {
       kind: "proposal",
     };
   }
+  if (lastMsg.type === "booking_confirmation") {
+    return { text: "Booking confirmed", kind: "proposal" };
+  }
   if (lastMsg.type === "payment_summary" || lastMsg.type === "payment_confirmed") {
     return { text: "Payment", kind: "payment" };
   }
