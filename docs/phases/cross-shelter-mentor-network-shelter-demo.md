@@ -83,7 +83,7 @@ Open the **Inbox**: Klára's message — *"That's 3 sessions — I've vouched fo
 
 **Narrate:** *"Nobody at the shelter did anything. No intake interview, no orientation shift, no email thread. Your most trusted walker did the assessment — supervised, documented, paid for by the trainee — and your walker pool just grew by one vetted person with a weekend schedule."*
 
-Then open the **Members tab** and show the per-walker controls (the "(demo)" dots menu): *"And tiers are never the app's call alone. Walk counts only SUGGEST promotions — you promote or demote anyone, any time, right here, and the roster simply shows your call. Demote a mentor below trusted and their mentoring rights vanish everywhere — your judgment overrides the math, all the way up."*
+Then open the **Members tab** and show the per-walker controls (the dots menu on each walker row): *"And tiers are never the app's call alone. Walk counts only SUGGEST promotions — you promote or demote anyone, any time, right here, and the roster simply shows your call. Demote a mentor below trusted and their mentoring rights vanish everywhere — your judgment overrides the math, all the way up."*
 
 > **ASSUMPTION (A1) — the load-bearing one:** you'd accept Klára's vouch + the platform's session count as a substitute for your own assessment. **Probe:** what would have to be true about the mentor, the sessions, or the record for this to be a yes? If the answer is "we'd still do our own walk-through," the mentor session becomes a credibility booster instead — see Beat 8.
 

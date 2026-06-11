@@ -66,6 +66,7 @@ import {
   tierOverrideKey,
 } from "@/contexts/WalkerApplicationsContext";
 import { useBookings } from "@/contexts/BookingsContext";
+import { useStubNotice } from "@/contexts/StubFeatureContext";
 import { useMentorSessionCompletion } from "@/components/shelters/useMentorSessionCompletion";
 import { countCompletedShelterWalks } from "@/lib/volunteerTier";
 import { getUserById } from "@/lib/mockUsers";
@@ -878,8 +879,9 @@ const TIER_LADDER: WalkerTier[] = ["vetted", "experienced", "trusted"];
 
 function MembersTab({ shelter }: { shelter: ShelterProfile }) {
   const teamCount = shelter.team?.length ?? 0;
-  const { applications, tierOverrides, setTierOverride, creditWalks } = useWalkerApplications();
+  const { applications, tierOverrides, setTierOverride } = useWalkerApplications();
   const { bookings } = useBookings();
+  const { notify: notifyStub } = useStubNotice();
 
   // Vouched-but-not-yet-seeded walkers (I, 2026-06-09). When a user
   // completes the walker journey through to "vouched," they appear on
@@ -1033,7 +1035,16 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
               }
               onCreditWalks={
                 entry.kind === "walker"
-                  ? () => creditWalks(entry.data.userId, shelter.id, 25)
+                  ? // Stub toast, not a hidden +25 (PO call 2026-06-10):
+                    // the real crediting flow needs a count + period form
+                    // on the operator surface. The walker-button demo
+                    // dropdown still credits the current persona for
+                    // walkthrough bootstrap beats.
+                    () =>
+                      notifyStub({
+                        feature: "Credit walks",
+                        note: "Crediting a walker's pre-app history needs the shelter operator surface (how many walks, over what period). For walkthroughs, the Walk-a-dog button's demo dropdown credits the current persona.",
+                      })
                   : undefined
               }
             />

@@ -35,14 +35,15 @@ interface ShelterMemberRowProps {
   shelterName?: string;
   /** Operator-stub tier controls — present only for walker rows when the
    *  consuming surface wires them. Hidden per direction at the ladder
-   *  ends (no promote at trusted, no demote at vetted). */
+   *  ends (no promote at trusted, no demote at vetted). Labels carry no
+   *  "(demo)" suffix (PO call 2026-06-10) — Promote/Demote act for real
+   *  and their effect is immediately visible; Credit walks fires the
+   *  stub-feature toast (the real version needs a count form on the
+   *  operator surface). */
   onPromote?: () => void;
   onDemote?: () => void;
-  /** Operator stub: credit historical real-world walks to THIS walker
-   *  (+25, provenance-marked). The per-row placement is the honest
-   *  operator framing for the bootstrap affordance (O6 follow-up,
-   *  2026-06-10); the walker-button self-credit remains only for
-   *  thin-shelter storylines where no row exists yet. */
+  /** "Credit walks" item — consumer decides behavior (currently the
+   *  stub-feature toast; see MembersTab). */
   onCreditWalks?: () => void;
 }
 
@@ -186,7 +187,7 @@ export function ShelterMemberRow({
                   }}
                 >
                   <ArrowUp size={16} weight="light" />
-                  Promote (demo)
+                  Promote
                 </button>
               )}
               {onDemote && (
@@ -199,7 +200,7 @@ export function ShelterMemberRow({
                   }}
                 >
                   <ArrowDown size={16} weight="light" />
-                  Demote (demo)
+                  Demote
                 </button>
               )}
               {onCreditWalks && (
@@ -212,7 +213,7 @@ export function ShelterMemberRow({
                   }}
                 >
                   <ClockCounterClockwise size={16} weight="light" />
-                  Credit historical walks (demo)
+                  Credit walks
                 </button>
               )}
             </div>
