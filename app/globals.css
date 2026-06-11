@@ -14381,20 +14381,27 @@ a.shelter-intro-social:hover {
    rounded hover fill separate them). */
 .mentor-list-row {
   display: flex;
-  align-items: center;
+  /* Top-align so the avatar sits beside the name when the text column
+     wraps at narrow widths (long Czech names + price + availability);
+     a no-op on the single-line desktop case. */
+  align-items: flex-start;
   gap: var(--space-md);
   width: 100%;
   padding: var(--space-md);
-  background: none;
-  border: 1px solid transparent;
+  /* Resting container, not hover-only — these are selection targets, and
+     on touch there's no hover to reveal them. Matches .shelter-summary-card:
+     hairline border + base fill at rest, lift on hover. */
+  background: var(--surface-base);
+  border: 1px solid var(--border-regular);
   border-radius: var(--radius-panel);
   cursor: pointer;
-  transition: background 120ms ease, border-color 120ms ease;
+  transition: background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
 }
 
 .mentor-list-row:hover {
   background: var(--surface-top);
-  border-color: var(--border-regular);
+  border-color: var(--border-stronger);
+  box-shadow: var(--shadow-sm);
 }
 
 .mentor-list-row-avatar {
