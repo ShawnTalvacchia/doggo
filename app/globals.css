@@ -14381,10 +14381,7 @@ a.shelter-intro-social:hover {
    rounded hover fill separate them). */
 .mentor-list-row {
   display: flex;
-  /* Top-align so the avatar sits beside the name when the text column
-     wraps at narrow widths (long Czech names + price + availability);
-     a no-op on the single-line desktop case. */
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-md);
   width: 100%;
   padding: var(--space-md);
