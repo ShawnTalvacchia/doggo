@@ -1959,9 +1959,10 @@ export interface ShelterWalker {
   /**
    * How many of `walkCount` were credited by the shelter (bootstrap of
    * historical real-world walks) rather than logged through the platform.
-   * Provenance split keeps the audit trail clean — credited counts feed
-   * tier resolution but render distinctly ("64 walks · 60 credited").
-   * Cross-Shelter Mentor Network D5, 2026-06-09. ASSUMPTION A7.
+   * Provenance split keeps the audit trail clean (ASSUMPTION A7) — but
+   * it's a DATA-layer fact: public surfaces render the plain total and
+   * trust the badge (PO call 2026-06-10); the split surfaces on the
+   * future shelter admin view (FC16). Cross-Shelter Mentor Network D5.
    */
   creditedWalkCount?: number;
   /** ISO timestamp of most recent walk at this shelter. Drives the

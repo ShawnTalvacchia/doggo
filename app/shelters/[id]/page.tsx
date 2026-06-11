@@ -911,25 +911,21 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
 
   // Shelter tier authority (O4 resolution, 2026-06-10): the shelter's
   // explicit promote/demote call wins over both the seeded static tier
-  // and the walk-count derivation. `tierOverridden` drives the row's
-  // "tier set by shelter" provenance marker. Static walkers also accrue
-  // dynamic activity (row-kebab credits land on a WalkerApplication and
-  // sum on top of the seeded history).
+  // and the walk-count derivation. The row renders the RESULT only —
+  // provenance (credited vs logged, override vs derived) stays in the
+  // data per the 2026-06-10 PO call. Static walkers also accrue dynamic
+  // activity (row-kebab credits land on a WalkerApplication and sum on
+  // top of the seeded history).
   const allWalkers = [...shelter.walkers, ...vouchedDynamicWalkers].map((w) => {
     const override = tierOverrides[tierOverrideKey(shelter.id, w.userId)];
     const isStatic = shelter.walkers.some((s) => s.userId === w.userId);
     const dynForStatic = isStatic
       ? applications.find((a) => a.userId === w.userId && a.shelterId === shelter.id)
       : undefined;
-    const walkCount = w.walkCount + (dynForStatic?.walkCount ?? 0);
-    const creditedWalkCount =
-      ((w.creditedWalkCount ?? 0) + (dynForStatic?.creditedWalkCount ?? 0)) || undefined;
     return {
       ...w,
-      walkCount,
-      creditedWalkCount,
+      walkCount: w.walkCount + (dynForStatic?.walkCount ?? 0),
       tier: override ?? w.tier,
-      tierOverridden: override !== undefined,
     };
   });
 
@@ -948,11 +944,7 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
   const [filter, setFilter] = useState<MembersFilterKey>("all");
 
   // Sortable, typed entries that flow through ShelterMemberRow.
-  type WalkerEntry = {
-    kind: "walker";
-    data: ShelterWalker & { tierOverridden?: boolean };
-    sortAt: string;
-  };
+  type WalkerEntry = { kind: "walker"; data: ShelterWalker; sortAt: string };
   type SupporterEntry = { kind: "supporter"; data: ShelterSupporter; sortAt: string };
   type Entry = WalkerEntry | SupporterEntry;
 
@@ -1019,7 +1011,6 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
               shelterName={shelter.name}
               // Shelter tier authority (O4): operator-stub promote/demote
               // per walker row. Hidden per direction at the ladder ends.
-              tierOverridden={entry.kind === "walker" ? entry.data.tierOverridden : undefined}
               onPromote={
                 entry.kind === "walker" && entry.data.tier !== "trusted"
                   ? () =>

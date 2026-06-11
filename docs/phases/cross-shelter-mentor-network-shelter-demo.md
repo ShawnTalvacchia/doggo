@@ -22,9 +22,9 @@ review-trigger: "Before every shelter-coordinator or PO interview; after any int
 
 Show the shelter page: the dogs in care, "5 need walks now," the walker roster, the feed carried by walkers' walk photos — the shelter doesn't have to run a social account.
 
-Open the **Members tab**: walkers carry earned tiers (Volunteer → Super Volunteer), sorted by recent activity, no leaderboards. Point at **Klára H. — "64 walks · 60 credited by the shelter."**
+Open the **Members tab**: walkers carry earned tiers (Volunteer → Super Volunteer), sorted by recent activity, no leaderboards. Point at **Klára H. — Super Volunteer, 64 walks.**
 
-**Narrate:** *"Klára walked here for three years before this app existed. When Útulek joined, the shelter credited her history — that's the '60 credited' provenance. The platform never pretends credited walks are logged walks; you can always see which is which."*
+**Narrate:** *"Klára walked here for three years before this app existed. When Útulek joined, the shelter credited her history — 60 of those 64 walks. The roster just shows the total — nobody audits a walker row — but under the hood the platform keeps credited and logged walks separate, so the audit trail is always there if a question ever comes up."*
 
 > **ASSUMPTION (A7):** shelters will do the crediting work for their known walkers. The demo shows the result; the act itself is a one-tap "(demo)" toggle standing in for a real operator surface. **Probe:** would you spend 30 minutes crediting your 5 best walkers if it unlocked the rest of this?
 
@@ -83,7 +83,7 @@ Open the **Inbox**: Klára's message — *"That's 3 sessions — I've vouched fo
 
 **Narrate:** *"Nobody at the shelter did anything. No intake interview, no orientation shift, no email thread. Your most trusted walker did the assessment — supervised, documented, paid for by the trainee — and your walker pool just grew by one vetted person with a weekend schedule."*
 
-Then open the **Members tab** and show the per-walker controls (the "(demo)" dots menu): *"And tiers are never the app's call alone. Walk counts only SUGGEST promotions — you promote or demote anyone, any time, right here."* Demote someone and point at the **"tier set by shelter"** marker. *"Demote a mentor below trusted and their mentoring rights vanish everywhere — your judgment overrides the math, all the way up."*
+Then open the **Members tab** and show the per-walker controls (the "(demo)" dots menu): *"And tiers are never the app's call alone. Walk counts only SUGGEST promotions — you promote or demote anyone, any time, right here, and the roster simply shows your call. Demote a mentor below trusted and their mentoring rights vanish everywhere — your judgment overrides the math, all the way up."*
 
 > **ASSUMPTION (A1) — the load-bearing one:** you'd accept Klára's vouch + the platform's session count as a substitute for your own assessment. **Probe:** what would have to be true about the mentor, the sessions, or the record for this to be a yes? If the answer is "we'd still do our own walk-through," the mentor session becomes a credibility booster instead — see Beat 8.
 

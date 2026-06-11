@@ -264,10 +264,10 @@ const UTULEK_WALKERS: ShelterWalker[] = [
     // F3, 2026-06-09). Her Super Volunteer status is the BOOTSTRAP case:
     // she walked at Útulek for years before Doggo existed, so the shelter
     // credited 60 historical walks (creditedWalkCount) when she joined —
-    // reputational skin in the game per ASSUMPTION A7. The provenance
-    // split renders as "64 walks · 60 credited by the shelter" wherever
-    // counts surface; only 4 are platform-logged. This is what unlocks
-    // her mentor-session offering (platform Super Volunteer gate).
+    // reputational skin in the game per ASSUMPTION A7. The split is a
+    // data-layer audit fact (surfaces show the plain "64 walks" total —
+    // PO call 2026-06-10); only 4 are platform-logged. This is what
+    // unlocks her mentor-session offering (platform Super Volunteer gate).
     userId: "klara",
     displayName: "Klára H.",
     avatarUrl: "/images/generated/klara-profile.jpeg",

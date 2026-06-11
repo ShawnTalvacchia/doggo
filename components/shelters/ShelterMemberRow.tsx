@@ -23,18 +23,16 @@ import type { ShelterSupporter, ShelterWalker, WalkerTier } from "@/lib/types";
  * **Shelter tier authority (O4 resolution, 2026-06-10):** walk-count
  * thresholds are suggestions; the shelter promotes/demotes freely. The
  * per-row "(demo)" dropdown is the operator stub for that call — the
- * real surface is FC16's walker pool management. When the shown tier is
- * a shelter override (differs from what the numbers would say), the
- * subline marks it "tier set by shelter" so provenance stays readable.
+ * real surface is FC16's walker pool management. The row renders the
+ * RESULT only (tier pill + walk total) — no provenance annotations;
+ * credited-vs-logged and override-vs-derived live in the data and
+ * render on the admin surface when it exists.
  */
 interface ShelterMemberRowProps {
   entry:
     | { kind: "walker"; data: ShelterWalker; sortAt: string }
     | { kind: "supporter"; data: ShelterSupporter; sortAt: string };
   shelterName?: string;
-  /** True when the rendered tier comes from a shelter override rather
-   *  than the walk-count derivation / seeded value. */
-  tierOverridden?: boolean;
   /** Operator-stub tier controls — present only for walker rows when the
    *  consuming surface wires them. Hidden per direction at the ladder
    *  ends (no promote at trusted, no demote at vetted). */
@@ -77,7 +75,6 @@ const TIER_CLASS: Record<WalkerTier, string> = {
 
 export function ShelterMemberRow({
   entry,
-  tierOverridden,
   onPromote,
   onDemote,
   onCreditWalks,
@@ -150,16 +147,14 @@ export function ShelterMemberRow({
 
         <div className="shelter-member-subline">
           {kind === "walker" ? (
+            // Plain total — no provenance annotations (PO call,
+            // 2026-06-10): viewers shouldn't audit each row ("how many
+            // credited? is the tier shelter-set?"). The credited/override
+            // split stays in the DATA (A7's audit trail) and renders on
+            // the future admin surface (FC16), not here. Trust the
+            // number; trust the badge.
             <span>
               {data.walkCount} {data.walkCount === 1 ? "walk" : "walks"}
-              {/* Provenance split (Cross-Shelter Mentor Network D5/A7):
-                  shelter-credited bootstrap walks stay distinguishable
-                  from platform-logged ones — the audit trail is part of
-                  what makes crediting trustworthy. */}
-              {data.creditedWalkCount ? ` · ${data.creditedWalkCount} credited by the shelter` : ""}
-              {/* Override provenance (O4): the shown tier is the
-                  shelter's call, not the walk-count derivation. */}
-              {tierOverridden ? " · tier set by shelter" : ""}
             </span>
           ) : (
             <span>Following since {monthYear(data.since)}</span>

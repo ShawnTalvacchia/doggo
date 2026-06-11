@@ -1237,7 +1237,7 @@ function UserProfileInner() {
                     </p>
                   )}
                   <div className="flex flex-col gap-sm" style={{ marginTop: "var(--space-sm)" }}>
-                    {affiliations.map(({ shelter, tier, walkCount, creditedWalkCount }) => (
+                    {affiliations.map(({ shelter, tier, walkCount }) => (
                       <Link
                         key={shelter.id}
                         href={`/shelters/${shelter.id}`}
@@ -1256,11 +1256,11 @@ function UserProfileInner() {
                           {TIER_LABEL[tier]}
                         </span>
                         <span className="text-xs text-fg-tertiary">
+                          {/* Plain total — credited/override provenance
+                              stays in the data (A7 audit trail) and the
+                              future admin surface, not on public rows.
+                              PO call, 2026-06-10. */}
                           at {shelter.name} · {walkCount} {walkCount === 1 ? "walk" : "walks"}
-                          {/* Provenance split (D5/A7) — shelter-credited
-                              bootstrap walks stay distinguishable from
-                              platform-logged ones. */}
-                          {creditedWalkCount ? ` · ${creditedWalkCount} credited by the shelter` : ""}
                         </span>
                       </Link>
                     ))}
