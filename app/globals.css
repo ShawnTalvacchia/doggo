@@ -14375,6 +14375,37 @@ a.shelter-intro-social:hover {
   flex-shrink: 0;
 }
 
+/* Mentor-list rows (mentor-discovery rework, 2026-06-11) — the neutral
+   pick-a-mentor surface behind the shelter's mentor CTA. Row anatomy
+   mirrors .shelter-member-row at sheet density. */
+.mentor-list-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  width: 100%;
+  padding: var(--space-md) var(--space-xs);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border-regular);
+  cursor: pointer;
+}
+
+.mentor-list-row:last-child {
+  border-bottom: 0;
+}
+
+.mentor-list-row:hover {
+  background: var(--interaction-hover-subtle);
+}
+
+.mentor-list-row-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
 /* Dogs-in-care summary card uses the volunteer-violet pair (matches
    the credential-pill --volunteer family). Was info-blue, which per
    CLAUDE.md is reserved for paid care — wrong semantic for a card

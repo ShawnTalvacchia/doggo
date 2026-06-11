@@ -146,6 +146,40 @@ export function getMentorshipHistory(
 }
 
 /**
+ * Compact availability summary for mentor-list rows ("6 days a week ·
+ * mornings & afternoons"). Uses the carer profile's coarse day/slot
+ * grid — the prototype has no slot-level scheduling anywhere (the
+ * production direction is a slots calendar; see FC17), so the list
+ * carries the same informational payload every other booking surface
+ * uses. Mentor-discovery rework, 2026-06-11.
+ */
+export function summarizeAvailability(
+  availability: { day: string; slots: string[] }[] | undefined,
+): string | null {
+  if (!availability || availability.length === 0) return null;
+  const days = availability.filter((a) => a.slots.length > 0);
+  if (days.length === 0) return null;
+  const slotSet = new Set<string>();
+  for (const d of days) for (const s of d.slots) slotSet.add(s);
+  const SLOT_LABEL: Record<string, string> = {
+    morning: "mornings",
+    afternoon: "afternoons",
+    evening: "evenings",
+  };
+  const slots = ["morning", "afternoon", "evening"]
+    .filter((s) => slotSet.has(s))
+    .map((s) => SLOT_LABEL[s]);
+  const slotText =
+    slots.length === 3
+      ? "all day"
+      : slots.length === 2
+        ? `${slots[0]} & ${slots[1]}`
+        : slots[0] ?? "";
+  const dayText = days.length === 7 ? "every day" : `${days.length} days a week`;
+  return slotText ? `${dayText} · ${slotText}` : dayText;
+}
+
+/**
  * Completed shelter-walk bookings by this walker at this shelter —
  * real walks flow into the tier math alongside the application's
  * `walkCount` (which the "Log walk (demo)" toggle drives for

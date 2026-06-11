@@ -1,6 +1,6 @@
 ---
 status: active
-last-reviewed: 2026-06-10
+last-reviewed: 2026-06-11
 review-trigger: "Before every shelter-coordinator or PO interview; after any interview that confirms or refutes a Playbook assumption"
 ---
 
@@ -38,9 +38,9 @@ Open the **Members tab**: walkers carry earned tiers (Volunteer → Super Volunt
 
 Walk down her catalogue: paid walks, group training, 1-on-1 behaviour work — and the new one: **"Mentored shelter walk · 450 Kč/session"** with Útulek and Pes v nouzi chips.
 
-**Narrate:** *"Klára can offer this BECAUSE she's a Super Volunteer — the platform gates mentoring on earned, verifiable history. She sets her own price. The trainee pays her; the shelter pays nothing, ever."*
+**Narrate:** *"Klára can offer this BECAUSE she's a Super Volunteer — the platform gates mentoring on earned, verifiable history. She sets her own price. The trainee pays her; the shelter pays nothing, ever. And she's not the only one — Pavel, the long-time walker you saw on the roster, mentors here too at 350. Mentors don't have to be professional trainers; they have to have earned it."*
 
-> **ASSUMPTION (A5):** trainers want this as a service line at this price point. 450 Kč sits between a guided intro and her 1:1 training rate. **Probe (for trainers):** would you run these? At what price?
+> **ASSUMPTION (A5):** trainers want this as a service line at this price point. 450 Kč sits between a guided intro and her 1:1 training rate — and Pavel's 350 shows the senior-volunteer fallback if trainers pass. **Probe (for trainers):** would you run these? At what price?
 >
 > **ASSUMPTION (A4):** the fee filters for commitment without pricing out serious walkers. **Probe (for coordinators):** who would this fee exclude that you'd want?
 
@@ -52,7 +52,7 @@ Walk down her catalogue: paid walks, group training, 1-on-1 behaviour work — a
 
 **Narrate:** *"Tomáš works 9 to 6 in Karlín. Your current ask — weekday daytime, three-month minimum — was never about what walking dogs requires; it's what coordination by email can afford. So people like him never apply. He just found Tonda and wants to help."*
 
-On the dog page, point at the line under the Walk button: **"New to shelter walking? Book a mentored first walk with Klára — 3 sessions and you walk solo here."**
+On the dog page, point at the line under the Walk button: **"New to shelter walking? Book a mentored first walk — 3 sessions and you walk solo here."** Note what it does NOT say: no featured mentor. Tap it → **the mentor list**: every Super Volunteer mentoring at Útulek, each with their own price and availability. *"Your page never advertises a favorite — walkers pick their mentor; the shelter stays neutral."*
 
 > **ASSUMPTION (A8):** intake friction — not demand — is the binding constraint. There are more Tomášes than your current pipeline shows. **Probe:** is your current walker count limited by applicants, or by what you can afford to vet?
 
@@ -60,7 +60,7 @@ On the dog page, point at the line under the Walk button: **"New to shelter walk
 
 ## Beat 4 — Booking + the waiver moment *(sign once, carry everywhere)*
 
-Tap the mentor link → the booking sheet.
+Pick **Klára** from the mentor list → the booking sheet, locked to Útulek (the shelter was chosen by where Tomáš tapped — no shelter switcher here).
 
 Walk the room through it slowly — this screen carries the requirements model:
 1. **Doggo baseline waiver** — identity, emergency contact, general liability. Signed ONCE, valid at every participating shelter.

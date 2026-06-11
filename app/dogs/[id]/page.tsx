@@ -52,6 +52,7 @@ import { useBookings } from "@/contexts/BookingsContext";
 import { WalkApplicationSheet } from "@/components/shelters/WalkApplicationSheet";
 import { WalkBookingSheet } from "@/components/shelters/WalkBookingSheet";
 import { MentorSessionBookingSheet } from "@/components/shelters/MentorSessionBookingSheet";
+import { MentorListSheet } from "@/components/shelters/MentorListSheet";
 import { useMentorSessionCompletion } from "@/components/shelters/useMentorSessionCompletion";
 import {
   countCompletedShelterWalks,
@@ -69,6 +70,7 @@ import {
 } from "@/lib/petUtils";
 import { PERSONALITY_TAG_LABELS } from "@/lib/constants/dogs";
 import type {
+  CarerMentorSessionServiceConfig,
   PetProfile,
   Post,
   ShelterProfile,
@@ -1012,17 +1014,20 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
   const [walkSheetOpen, setWalkSheetOpen] = useState(false);
   const [walkBookingOpen, setWalkBookingOpen] = useState(false);
   const [walkMenuOpen, setWalkMenuOpen] = useState(false);
-  const [mentorSheetOpen, setMentorSheetOpen] = useState(false);
+  const [mentorListOpen, setMentorListOpen] = useState(false);
+  const [mentorSheetTarget, setMentorSheetTarget] = useState<
+    { mentor: UserProfile; service: CarerMentorSessionServiceConfig } | null
+  >(null);
 
-  // Mentor-path door (B2): when the shelter accepts mentor vouching and a
-  // mentor serves it, not-yet-vouched viewers get the mentored way in.
-  // Self excluded — mentors don't get offered their own mentorship.
+  // Mentor-path door (B2; list-first since 2026-06-11): when the shelter
+  // accepts mentor vouching and mentors serve it, not-yet-vouched viewers
+  // get the mentored way in — via the neutral mentor LIST, never a named
+  // mentor (framing principle). Self excluded.
   const mentors = getMentorsForShelter(shelter.id, applications, tierOverrides).filter(
     (m) => m.mentor.id !== currentUserId,
   );
-  const mentorEntry = mentors[0];
   const showMentorUpsell =
-    !!mentorEntry &&
+    mentors.length > 0 &&
     shelter.policy.acceptsMentorVouches &&
     state !== "vouched" &&
     !inMentorship;
@@ -1154,7 +1159,8 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
         )}
         {/* Mentored way in (B2) — the dog page is where the emotional hook
             lands ("I want to walk HER"), so the mentor path answers the
-            "but I've never done this" hesitation right here. */}
+            "but I've never done this" hesitation right here. Opens the
+            neutral mentor list, never a named mentor. */}
         {showMentorUpsell && (
           <button
             type="button"
@@ -1167,10 +1173,10 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
               textAlign: "left",
               textDecoration: "underline",
             }}
-            onClick={() => setMentorSheetOpen(true)}
+            onClick={() => setMentorListOpen(true)}
           >
-            New to shelter walking? Book a mentored first walk with{" "}
-            {mentorEntry.mentor.firstName} — {minimum} sessions and you walk solo here.
+            New to shelter walking? Book a mentored first walk — {minimum} sessions
+            and you walk solo here.
           </button>
         )}
       </div>
@@ -1198,17 +1204,28 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
         shelter={shelter}
         dog={dog}
       />
-      {mentorEntry && (
+      <MentorListSheet
+        open={mentorListOpen}
+        onClose={() => setMentorListOpen(false)}
+        shelter={shelter}
+        mentors={mentors}
+        onPick={(entry) => {
+          setMentorListOpen(false);
+          setMentorSheetTarget(entry);
+        }}
+      />
+      {mentorSheetTarget && (
         <MentorSessionBookingSheet
-          open={mentorSheetOpen}
-          onClose={() => setMentorSheetOpen(false)}
+          open
+          onClose={() => setMentorSheetTarget(null)}
           mentor={{
-            id: mentorEntry.mentor.id,
-            name: `${mentorEntry.mentor.firstName} ${mentorEntry.mentor.lastName}`.trim(),
-            avatarUrl: mentorEntry.mentor.avatarUrl ?? "",
+            id: mentorSheetTarget.mentor.id,
+            name: `${mentorSheetTarget.mentor.firstName} ${mentorSheetTarget.mentor.lastName}`.trim(),
+            avatarUrl: mentorSheetTarget.mentor.avatarUrl ?? "",
           }}
-          service={mentorEntry.service}
+          service={mentorSheetTarget.service}
           defaultShelterId={shelter.id}
+          lockShelter
         />
       )}
     </>

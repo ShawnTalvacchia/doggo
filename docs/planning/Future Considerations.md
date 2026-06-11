@@ -369,6 +369,7 @@ The full admin/operator side becomes meaningful when (a) a real shelter wants to
 - Per-walkthrough pre-staged state (the pre-staging the Mentor Network deliberately skipped) — likely seeded context snapshots keyed by walkthrough id, so a guided run starts mid-world without hand-driving toggles.
 - **Splitting the main demo** — belongs with the Multi-Path Demo phase's "cut each individual demo path tighter" discipline; the split decision is made there, this entry carries the direction.
 - **Assumption checkpoints in the shelter-mentor walkthrough** — the interview function: in-demo moments that pose the A# probes to a coordinator viewer and (ideally) capture their reaction.
+- **Mentor slots calendar** (production direction, noted 2026-06-11) — the mentor list currently summarizes coarse availability ("6 days a week · mornings & afternoons") + date-picker booking, consistent with every other booking surface. The real version is a calendar of mentors × bookable slots — but a slot model exists NOWHERE in the prototype, so it waits for a scheduling layer rather than being invented for one flow.
 
 **Effort:** Medium-plus — the step-card/interstitial machinery exists; the new work is the registry, per-walkthrough state staging, beat authoring ×3, and the checkpoint pattern.
 

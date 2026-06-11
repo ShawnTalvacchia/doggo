@@ -18,6 +18,7 @@ import {
   FacebookLogo,
   InstagramLogo,
   Envelope,
+  GraduationCap,
   SignOut,
   X,
 } from "@phosphor-icons/react";
@@ -33,6 +34,7 @@ import { ShelterDogCard } from "@/components/shelters/ShelterDogCard";
 import { ShelterMemberRow } from "@/components/shelters/ShelterMemberRow";
 import { WalkApplicationSheet } from "@/components/shelters/WalkApplicationSheet";
 import { MentorSessionBookingSheet } from "@/components/shelters/MentorSessionBookingSheet";
+import { MentorListSheet } from "@/components/shelters/MentorListSheet";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
 import {
@@ -181,18 +183,31 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
   const [walkSheetOpen, setWalkSheetOpen] = useState(false);
   const [followMenuOpen, setFollowMenuOpen] = useState(false);
   const [walkerMenuOpen, setWalkerMenuOpen] = useState(false);
-  // Mentor path (Cross-Shelter Mentor Network B2): the shelter-side door
-  // into booking a mentored first walk. {mentor, service} drives the
-  // sheet. Self excluded — a mentor doesn't get offered their own
-  // mentorship at shelters they serve. Tier overrides flow in so a
-  // shelter demoting a mentor's trusted tier revokes their mentor
-  // eligibility here too (O4).
+  // Mentor path (Cross-Shelter Mentor Network B2; list-first since
+  // 2026-06-11): the shelter-side door into booking a mentored first
+  // walk. The CTA opens the mentor LIST (no featured mentor — framing
+  // principle); picking one opens the booking sheet locked to this
+  // shelter. Self excluded — a mentor doesn't get offered their own
+  // mentorship. Tier overrides flow in so a shelter demoting a mentor's
+  // trusted tier revokes their mentor eligibility here too (O4).
   const mentors = getMentorsForShelter(shelter.id, applications, tierOverrides).filter(
     (m) => m.mentor.id !== currentUserId,
   );
+  const [mentorListOpen, setMentorListOpen] = useState(false);
   const [mentorSheetTarget, setMentorSheetTarget] = useState<
     (typeof mentors)[number] | null
   >(null);
+  // Mid-mentorship the card routes straight to the mentee's OWN mentor
+  // (continuing, not choosing); falls back to the list if that mentor
+  // no longer serves here (e.g. demoted below Super Volunteer).
+  const ownMentorEntry =
+    application?.mentorship && application.state !== "vouched"
+      ? mentors.find((m) => m.mentor.id === application.mentorship!.mentorId)
+      : undefined;
+  const handleMentorCardCta = () => {
+    if (ownMentorEntry) setMentorSheetTarget(ownMentorEntry);
+    else setMentorListOpen(true);
+  };
   const mentorshipHistory = currentUserId
     ? getMentorshipHistory(currentUserId, applications)
     : { totalSessions: 0, mentorNames: [] };
@@ -273,10 +288,18 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
         applicationState !== "vouched" && (
           <MentorPathCard
             shelter={shelter}
-            mentorEntry={mentors[0]}
+            mentors={mentors}
+            ownMentor={
+              ownMentorEntry
+                ? {
+                    name: application!.mentorship!.mentorName,
+                    price: ownMentorEntry.service.pricePerSession,
+                  }
+                : undefined
+            }
             sessionsCompleted={application?.mentorship?.sessionsCompleted ?? 0}
             minimum={minimum}
-            onBook={() => setMentorSheetTarget(mentors[0])}
+            onBook={handleMentorCardCta}
           />
         )}
 
@@ -312,6 +335,17 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
         }
       />
 
+      <MentorListSheet
+        open={mentorListOpen}
+        onClose={() => setMentorListOpen(false)}
+        shelter={shelter}
+        mentors={mentors}
+        onPick={(entry) => {
+          setMentorListOpen(false);
+          setMentorSheetTarget(entry);
+        }}
+      />
+
       {mentorSheetTarget && (
         <MentorSessionBookingSheet
           open
@@ -323,6 +357,7 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
           }}
           service={mentorSheetTarget.service}
           defaultShelterId={shelter.id}
+          lockShelter
         />
       )}
     </div>
@@ -376,54 +411,63 @@ function MentorProgressLine({
 }
 
 /**
- * The mentor-path door card (B2): "new to walking here? there's a paid,
- * mentored way in." Renders the mentor's identity + price + the
- * graduation promise; CTA opens the booking sheet in place. ASSUMPTION
- * A4 (the fee filters for commitment) + A8 (intake friction, not demand,
- * is the binding constraint) live or die on this card's conversion.
+ * The mentor-path door card (B2; mentor-neutral since 2026-06-11): "new
+ * to walking here? there's a paid, mentored way in." The card names NO
+ * specific mentor — a shelter surface spotlighting one provider's paid
+ * offering reads as the shelter advertising a favorite (framing
+ * principle). The CTA opens the mentor LIST; mid-mentorship it routes
+ * straight to booking the mentee's own mentor. ASSUMPTION A4 (the fee
+ * filters for commitment) + A8 (intake friction, not demand, is the
+ * binding constraint) live or die on this card's conversion.
  */
 function MentorPathCard({
   shelter,
-  mentorEntry,
+  mentors,
+  ownMentor,
   sessionsCompleted,
   minimum,
   onBook,
 }: {
   shelter: ShelterProfile;
-  mentorEntry: { mentor: UserProfile; service: CarerMentorSessionServiceConfig };
+  mentors: { mentor: UserProfile; service: CarerMentorSessionServiceConfig }[];
+  /** Set mid-mentorship — the mentee's own mentor entry; the card speaks
+   *  to continuing with them (their name, their price), not choosing. */
+  ownMentor?: { name: string; price: number };
   sessionsCompleted: number;
   minimum: number;
   onBook: () => void;
 }) {
-  const { mentor, service } = mentorEntry;
-  const mentorName = `${mentor.firstName} ${mentor.lastName}`.trim();
-  const inProgress = sessionsCompleted > 0;
+  // Mentorship begins at the first BOOKING (the mentorship ref exists),
+  // not the first completion — once a mentee has a mentor, the card
+  // speaks to continuing with them, never re-offers the list.
+  const inProgress = !!ownMentor;
   const remaining = Math.max(minimum - sessionsCompleted, 0);
+  const fromPrice = Math.min(...mentors.map((m) => m.service.pricePerSession));
   return (
     <div className="shelter-mentor-card">
-      <img
-        src={mentor.avatarUrl}
-        alt={mentorName}
-        className="shelter-mentor-card-avatar"
-      />
+      <span className="shelter-summary-card-icon">
+        <GraduationCap size={24} weight="light" />
+      </span>
       <div className="flex flex-col gap-xs flex-1 min-w-0">
         <span className="text-sm font-semibold text-fg-primary">
           {inProgress
-            ? `Keep going — ${remaining} ${remaining === 1 ? "session" : "sessions"} to solo walking`
+            ? `${sessionsCompleted > 0 ? "Keep going — " : "Mentorship started — "}${remaining} ${remaining === 1 ? "session" : "sessions"} to solo walking`
             : "New to shelter walking?"}
         </span>
         <span className="text-sm text-fg-secondary">
           {inProgress
-            ? `Book your next mentored walk with ${mentorName}.`
-            : `${mentorName}, a Super Volunteer here, runs paid mentored first walks — ${minimum} sessions and ${shelter.name} vouches you to walk solo.`}
+            ? `Book your next mentored walk with ${ownMentor!.name}`
+            : `Take your first walks with one of ${shelter.name}'s volunteer mentors — ${minimum} sessions and the shelter vouches you to walk solo.`}
         </span>
         <span className="text-xs text-fg-tertiary">
-          {service.pricePerSession.toLocaleString()} Kč / session · {service.durationMinutes} min ·
-          you pay the mentor, the shelter pays nothing
+          {inProgress
+            ? `${ownMentor!.price.toLocaleString()} Kč / session`
+            : `from ${fromPrice.toLocaleString()} Kč / session`}{" "}
+          · you pay the mentor, the shelter pays nothing
         </span>
       </div>
       <ButtonAction variant="secondary" size="sm" cta onClick={onBook}>
-        {inProgress ? "Book next session" : "Book a mentored walk"}
+        {inProgress ? "Book next session" : "See mentors"}
       </ButtonAction>
     </div>
   );

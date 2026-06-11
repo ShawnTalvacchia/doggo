@@ -39,12 +39,18 @@ export function MentorSessionBookingSheet({
   mentor,
   service,
   defaultShelterId,
+  lockShelter = false,
 }: {
   open: boolean;
   onClose: () => void;
   mentor: { id: string; name: string; avatarUrl: string };
   service: CarerMentorSessionServiceConfig;
   defaultShelterId?: string;
+  /** Entered from a shelter/dog page — the shelter IS the context, so
+   *  no shelter picker renders (presenting other shelters as peer
+   *  options there is incoherent; PO call 2026-06-11). Profile-entry
+   *  keeps the picker, since no shelter has been chosen yet. */
+  lockShelter?: boolean;
 }) {
   const currentUser = useCurrentUser();
   const router = useRouter();
@@ -229,16 +235,20 @@ export function MentorSessionBookingSheet({
         </div>
       ) : (
         <div className="inbox-inquiry-form">
-          {/* Service summary */}
+          {/* Service summary — locked entry carries the shelter as static
+              context (it was chosen by WHERE the user tapped). */}
           <div className="flex flex-col gap-xs border-b border-edge-regular pb-md">
             <span className="font-semibold text-fg-primary">{service.title}</span>
             <span className="text-sm text-fg-tertiary">
-              Supervised shelter walk · {service.durationMinutes} min
+              Supervised shelter walk{lockShelter && shelter ? ` at ${shelter.name}` : ""} ·{" "}
+              {service.durationMinutes} min
             </span>
           </div>
 
-          {/* Shelter picker — only when the mentor serves multiple shelters */}
-          {shelterOptions.length > 1 && (
+          {/* Shelter picker — only on mentor-profile entry (no shelter
+              chosen yet) AND when the mentor serves multiple shelters.
+              Shelter/dog-page entry locks the shelter as context. */}
+          {!lockShelter && shelterOptions.length > 1 && (
             <div className="filter-field">
               <div className="label">Shelter</div>
               <div className="pill-group" style={{ flexWrap: "wrap" }}>

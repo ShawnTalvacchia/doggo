@@ -2090,6 +2090,23 @@ export const pavelD: UserProfile = {
         hasYard: true,
         maxDogs: 2,
       },
+      // Second seeded mentor (mentor-discovery rework, 2026-06-11):
+      // Pavel is Útulek's longest-standing walker (87 walks, trusted) —
+      // a SENIOR-VOLUNTEER mentor, not a professional trainer, which
+      // demonstrates the Playbook A5 fallback (the mentor pool doesn't
+      // depend on trainers) and gives the shelter's mentor list real
+      // choice + mentor-set price variety (350 vs Klára's 450).
+      {
+        kind: "mentor_session",
+        id: "pavel-mentor",
+        title: "Mentored shelter walk",
+        enabled: true,
+        pricePerSession: 350,
+        durationMinutes: 60,
+        shelterIds: ["utulek-liben"],
+        notes:
+          "I've walked at Útulek for years — I'll show you the routines, the dogs, and how to read them. After enough sessions the shelter vouches you to walk on your own.",
+      },
     ],
     publicProfile: true,
     visibility: "open",
