@@ -1047,6 +1047,19 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
                       })
                   : undefined
               }
+              onRemove={
+                entry.kind === "walker"
+                  ? // Stubbed like Credit walks: removal needs reasons, a
+                    // reapply policy (the shelter-level "block"), and a
+                    // removed-walkers data layer (seeded rosters are
+                    // static). FC16.
+                    () =>
+                      notifyStub({
+                        feature: "Remove from walkers",
+                        note: "Removal needs the shelter operator surface — a reason, whether they can reapply (the shelter-level \"block\"), and what happens to their walk history.",
+                      })
+                  : undefined
+              }
             />
           ))}
         </div>

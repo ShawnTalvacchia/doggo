@@ -3,7 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
-import { ArrowDown, ArrowUp, ClockCounterClockwise, DotsThree, Plant, Tree } from "@phosphor-icons/react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ClockCounterClockwise,
+  DotsThree,
+  Plant,
+  Tree,
+  UserMinus,
+} from "@phosphor-icons/react";
 import { getUserById } from "@/lib/mockUsers";
 import type { ShelterSupporter, ShelterWalker, WalkerTier } from "@/lib/types";
 
@@ -45,6 +53,12 @@ interface ShelterMemberRowProps {
   /** "Credit walks" item — consumer decides behavior (currently the
    *  stub-feature toast; see MembersTab). */
   onCreditWalks?: () => void;
+  /** "Remove from walkers" item — destructive slot at the menu foot.
+   *  Currently the stub-feature toast (the real version needs a
+   *  removed-walkers layer + reason + reapply policy — FC16). The
+   *  shelter-level "block" concept folds into removal as a
+   *  don't-readmit flag, not a separate action. */
+  onRemove?: () => void;
 }
 
 // T1 and T2 share the short label "Volunteer" — the style escalation
@@ -79,6 +93,7 @@ export function ShelterMemberRow({
   onPromote,
   onDemote,
   onCreditWalks,
+  onRemove,
 }: ShelterMemberRowProps) {
   const { kind, data } = entry;
   const displayName = data.displayName;
@@ -88,7 +103,8 @@ export function ShelterMemberRow({
   const bridgedUser = getUserById(data.userId);
   const profileHref = bridgedUser ? `/profile/${data.userId}` : undefined;
 
-  const hasTierControls = kind === "walker" && (onPromote || onDemote || onCreditWalks);
+  const hasTierControls =
+    kind === "walker" && (onPromote || onDemote || onCreditWalks || onRemove);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuWrapRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -214,6 +230,19 @@ export function ShelterMemberRow({
                 >
                   <ClockCounterClockwise size={16} weight="light" />
                   Credit walks
+                </button>
+              )}
+              {onRemove && (
+                <button
+                  type="button"
+                  className="dropdown-menu-item dropdown-menu-item--destructive"
+                  onClick={() => {
+                    onRemove();
+                    setMenuOpen(false);
+                  }}
+                >
+                  <UserMinus size={16} weight="light" />
+                  Remove from walkers
                 </button>
               )}
             </div>
