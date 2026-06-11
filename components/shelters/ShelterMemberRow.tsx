@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
-import { ArrowDown, ArrowUp, DotsThree, Plant, Tree } from "@phosphor-icons/react";
+import { ArrowDown, ArrowUp, ClockCounterClockwise, DotsThree, Plant, Tree } from "@phosphor-icons/react";
 import { getUserById } from "@/lib/mockUsers";
 import type { ShelterSupporter, ShelterWalker, WalkerTier } from "@/lib/types";
 
@@ -40,6 +40,12 @@ interface ShelterMemberRowProps {
    *  ends (no promote at trusted, no demote at vetted). */
   onPromote?: () => void;
   onDemote?: () => void;
+  /** Operator stub: credit historical real-world walks to THIS walker
+   *  (+25, provenance-marked). The per-row placement is the honest
+   *  operator framing for the bootstrap affordance (O6 follow-up,
+   *  2026-06-10); the walker-button self-credit remains only for
+   *  thin-shelter storylines where no row exists yet. */
+  onCreditWalks?: () => void;
 }
 
 // T1 and T2 share the short label "Volunteer" — the style escalation
@@ -69,7 +75,13 @@ const TIER_CLASS: Record<WalkerTier, string> = {
   trusted: "credential-pill--tier-3",
 };
 
-export function ShelterMemberRow({ entry, tierOverridden, onPromote, onDemote }: ShelterMemberRowProps) {
+export function ShelterMemberRow({
+  entry,
+  tierOverridden,
+  onPromote,
+  onDemote,
+  onCreditWalks,
+}: ShelterMemberRowProps) {
   const { kind, data } = entry;
   const displayName = data.displayName;
   // Walker → UserProfile bridge (G). When data.userId resolves to a
@@ -78,7 +90,7 @@ export function ShelterMemberRow({ entry, tierOverridden, onPromote, onDemote }:
   const bridgedUser = getUserById(data.userId);
   const profileHref = bridgedUser ? `/profile/${data.userId}` : undefined;
 
-  const hasTierControls = kind === "walker" && (onPromote || onDemote);
+  const hasTierControls = kind === "walker" && (onPromote || onDemote || onCreditWalks);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuWrapRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -193,6 +205,19 @@ export function ShelterMemberRow({ entry, tierOverridden, onPromote, onDemote }:
                 >
                   <ArrowDown size={16} weight="light" />
                   Demote (demo)
+                </button>
+              )}
+              {onCreditWalks && (
+                <button
+                  type="button"
+                  className="dropdown-menu-item"
+                  onClick={() => {
+                    onCreditWalks();
+                    setMenuOpen(false);
+                  }}
+                >
+                  <ClockCounterClockwise size={16} weight="light" />
+                  Credit historical walks (demo)
                 </button>
               )}
             </div>

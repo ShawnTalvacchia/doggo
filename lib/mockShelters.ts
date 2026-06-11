@@ -696,19 +696,23 @@ export function getUserShelterAffiliations(
   const out: { shelter: ShelterProfile; tier: WalkerTier; walkCount: number; creditedWalkCount?: number }[] = [];
   for (const shelter of mockShelters) {
     const override = tierOverrides[`${shelter.id}::${userId}`];
-    // Static roster — seeded mockShelters entry.
+    const dyn = dynamicVouchedShelters.find((d) => d.shelterId === shelter.id);
+    // Static roster — seeded mockShelters entry. Dynamic activity
+    // (logged walks, shelter credits) accrues ON TOP of the seeded
+    // history — a static walker who gets credited 25 more walks shows
+    // the sum, not the frozen seed. 2026-06-10.
     const staticEntry = shelter.walkers.find((w) => w.userId === userId);
     if (staticEntry) {
       out.push({
         shelter,
         tier: override ?? staticEntry.tier,
-        walkCount: staticEntry.walkCount,
-        creditedWalkCount: staticEntry.creditedWalkCount,
+        walkCount: staticEntry.walkCount + (dyn?.walkCount ?? 0),
+        creditedWalkCount:
+          (staticEntry.creditedWalkCount ?? 0) + (dyn?.creditedWalkCount ?? 0) || undefined,
       });
       continue;
     }
     // Dynamic — from a vouched WalkerApplication.
-    const dyn = dynamicVouchedShelters.find((d) => d.shelterId === shelter.id);
     if (dyn) {
       // Derive tier from walkCount per D1 thresholds; can't import the
       // helper here without a circular dep, so duplicate the rule.

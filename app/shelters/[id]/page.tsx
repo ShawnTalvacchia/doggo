@@ -878,7 +878,7 @@ const TIER_LADDER: WalkerTier[] = ["vetted", "experienced", "trusted"];
 
 function MembersTab({ shelter }: { shelter: ShelterProfile }) {
   const teamCount = shelter.team?.length ?? 0;
-  const { applications, tierOverrides, setTierOverride } = useWalkerApplications();
+  const { applications, tierOverrides, setTierOverride, creditWalks } = useWalkerApplications();
   const { bookings } = useBookings();
 
   // Vouched-but-not-yet-seeded walkers (I, 2026-06-09). When a user
@@ -912,11 +912,22 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
   // Shelter tier authority (O4 resolution, 2026-06-10): the shelter's
   // explicit promote/demote call wins over both the seeded static tier
   // and the walk-count derivation. `tierOverridden` drives the row's
-  // "tier set by shelter" provenance marker.
+  // "tier set by shelter" provenance marker. Static walkers also accrue
+  // dynamic activity (row-kebab credits land on a WalkerApplication and
+  // sum on top of the seeded history).
   const allWalkers = [...shelter.walkers, ...vouchedDynamicWalkers].map((w) => {
     const override = tierOverrides[tierOverrideKey(shelter.id, w.userId)];
+    const isStatic = shelter.walkers.some((s) => s.userId === w.userId);
+    const dynForStatic = isStatic
+      ? applications.find((a) => a.userId === w.userId && a.shelterId === shelter.id)
+      : undefined;
+    const walkCount = w.walkCount + (dynForStatic?.walkCount ?? 0);
+    const creditedWalkCount =
+      ((w.creditedWalkCount ?? 0) + (dynForStatic?.creditedWalkCount ?? 0)) || undefined;
     return {
       ...w,
+      walkCount,
+      creditedWalkCount,
       tier: override ?? w.tier,
       tierOverridden: override !== undefined,
     };
@@ -1027,6 +1038,11 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
                         entry.data.userId,
                         TIER_LADDER[TIER_LADDER.indexOf(entry.data.tier) - 1],
                       )
+                  : undefined
+              }
+              onCreditWalks={
+                entry.kind === "walker"
+                  ? () => creditWalks(entry.data.userId, shelter.id, 25)
                   : undefined
               }
             />

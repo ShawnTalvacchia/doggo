@@ -330,6 +330,13 @@ The full admin/operator side becomes meaningful when (a) a real shelter wants to
 - **Per-shelter waiver authoring** — shelter admin can edit their shelter's waiver text (platform-baseline waiver stays Doggo-owned).
 - **Per-shelter mentor-acceptance policy** — toggle whether the shelter accepts mentor-vouched applications + minimum session count override.
 - **Walker pool management** — view all walkers affiliated with shelter, see their tier + recent activity, tag honorific roles ("Útulek Trusted," "head walker") if shelter wants the internal tagging layer. **Promote/demote freely** (O4 resolution, 2026-06-10: walk-count thresholds are suggestions; the shelter's explicit tier call wins — data + demo stub shipped as `tierOverrides` in `WalkerApplicationsContext` with a "(demo)" dropdown on Members-tab rows; this is the real surface for it). Demotion warning required: dropping a walker's only `trusted` affiliation revokes their platform Super Volunteer status and any mentor offerings.
+- **Per-walker actions beyond tier** (PO direction 2026-06-10 — candidate set for the real kebab, surfaced while reviewing the demo stub):
+  - **Credit historical walks** — shipped as a row-kebab demo stub (targets that walker, provenance-marked); real version takes a count + an optional note.
+  - **Remove from walker pool** — revoke the vouch entirely (destructive, reason required). Distinct from demote-to-vetted; needs a removed-walkers layer since seeded rosters are static.
+  - **Pause walker** — temporary suspension (incident under review, long absence) without the finality of removal. Pairs with §14's incident-reporting open item and §5 trust regression.
+  - **Coordinator notes** — private per-walker notes ("prefers small dogs," "no Sundays," "great with reactive dogs"). Shelter-internal; never rendered to the walker.
+  - **Per-walker dog restrictions** — mirror of the per-dog overrides from the walker side ("not Berta," "small dogs only"). Composes into the walk-eligibility check (strictest wins).
+  - **Message walker** — routes through the staff-linking layer once Team mode exists (institutional accounts can't chat today).
 - **Notification routing** — applications + walks-needing-approval + incident reports land in shelter's Inbox.
 
 **Effort:** Large — multi-phase work. Standalone phase, probably broken into Admin Foundation + Admin Operations.

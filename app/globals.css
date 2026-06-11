@@ -14864,9 +14864,19 @@ a.shelter-intro-social:hover {
 
 /* Operator-stub tier controls on a walker row (O4 resolution,
    2026-06-10). Quiet dots trigger — the demo affordance shouldn't
-   compete with the row's real content. */
-.shelter-member-tier-menu-wrap {
-  flex-shrink: 0;
+   compete with the row's real content. The descendant selector bumps
+   specificity to defeat the generic `.dropdown-menu-wrap { flex: 1 }`
+   rule, which appears LATER in the file (P76 class-collision pattern —
+   same fix as the lightbox kebab) — so the trigger hugs the row's
+   right edge; the menu opens leftward from it. */
+.shelter-member-row .shelter-member-tier-menu-wrap {
+  flex: 0 0 auto;
+}
+
+.shelter-member-row .shelter-member-tier-menu-wrap .dropdown-menu {
+  left: auto;
+  right: 0;
+  min-width: 240px;
 }
 
 .shelter-member-tier-trigger {
