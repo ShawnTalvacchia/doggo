@@ -6,7 +6,9 @@ review-trigger: "Before every shelter-coordinator or PO interview; after any int
 
 # The Mentor Network — Shelter-Facing Demo
 
-> **What this is.** A narrated demo script for showing the mentor-vouching mechanism to shelter coordinators and the PO — the artifact the Cross-Shelter Mentor Network phase exists to produce. It is a SALES demo with its assumptions on its sleeve: every beat that depends on an unvalidated assumption carries an **ASSUMPTION (A#)** callout referencing [[strategy/Cold-Start Playbook]] → "Assumptions to validate," and everything faked is labeled. Drive it live; don't screenshot it.
+> **What this is.** A narrated demo script for the mentor-vouching mechanism, with its assumptions on its sleeve: every beat that depends on an unvalidated assumption carries an **ASSUMPTION (A#)** callout referencing [[strategy/Cold-Start Playbook]] → "Assumptions to validate," and everything faked is labeled.
+>
+> **Role (re-pointed 2026-06-11): source material for the guided "Help a shelter dog" walkthrough (FC17).** The demo IS the interview — there's no separate live-presentation step before it. These beats convert into guided steps, the ASSUMPTION callouts become in-demo checkpoints posed to the coordinator viewer, and the crosswalk table becomes the checkpoint inventory. Until that conversion lands, the script still works driven live (a presenter clicking through with the demo toggles) — but that's a fallback mode, not the plan.
 >
 > **The one-sentence pitch.** *Your intake rules exist because you can't verify strangers. We built the verification layer — your most trusted walker does the assessment, gets paid by the trainee, and you get a bigger, better walker pool without lifting a finger. You keep every veto.*
 

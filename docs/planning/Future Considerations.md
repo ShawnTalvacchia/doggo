@@ -352,16 +352,25 @@ The full admin/operator side becomes meaningful when (a) a real shelter wants to
 
 **Trigger:** After the current feature/surface flesh-out arc settles (Mentor Network closed + Adoption-Curious Doorway / Multi-Path Demo landed, or whenever a demo-packaging pass opens). PO direction given 2026-06-10 during the Mentor Network build. **NOT gated on shelter interviews** (PO clarification 2026-06-11: interview timing is unknown, so the guided shelter-facing walkthrough — concise, clearly and strongly demonstrating the potential features — is on the build path regardless; the live-driven script doc remains the interview artifact for whenever those happen, not a prerequisite).
 
-**Context:** The guided-walkthrough infrastructure (auto-switching personas, interstitials, step cards — `WalkthroughContext`, Demo Narrative V2) currently carries ONE story: the 3-beat Daniel → Klára → Daniel concept narrative. The Mentor Network phase chose to drive its shelter-facing demo LIVE from fresh state via the hidden state-toggles (walkthrough O9) rather than pre-staging — right for coordinator interviews, but it leaves the mentor journey without a self-running guided version. Direction: build **two or more feature-focused guided walkthroughs**, each highlighting a particular feature thread (e.g. the mentor-vouching journey, the credentialing/portfolio layer, the booking funnel), selectable from the `/` launcher alongside the main concept story. The V2 narrative stays the flagship; feature walkthroughs are deeper cuts for audiences who already bought the concept.
+**Context:** The guided-walkthrough infrastructure (auto-switching personas, interstitials, step cards — `WalkthroughContext`, Demo Narrative V2) currently carries ONE story: the 3-beat Daniel → Klára → Daniel concept narrative. The Mentor Network phase drove its shelter-facing demo LIVE via the hidden state-toggles (walkthrough O9) — but per the 2026-06-11 PO direction, **the guided demo IS the interview**: there's no separate live-presentation step before it. The guided shelter walkthrough therefore carries the interview function itself — concise, clearly and strongly demonstrating the potential features, with the Playbook's assumption probes embedded as in-demo checkpoints (step cards / interstitials that pose the question to the viewer: "would your shelter accept this vouch?"), not as a separate crib sheet. The live-driven script doc (`cross-shelter-mentor-network-shelter-demo.md`) is the SOURCE MATERIAL for that conversion — its beats + ASSUMPTION callouts + crosswalk table translate nearly one-to-one — and stops being a standalone delivery plan.
+
+**Walkthrough taxonomy (PO direction 2026-06-11 — names are placeholders, bless at build time):** more than two, by splitting the current main demo. Today's 3-beat story shows the trainer-walker angle AND the private-group "Care from neighbours" surface — two unrelated, somewhat competing care models sharing one long tour. Proposed registry, each path tight and single-thesis, semantic ids + display names anchored to the Ways In doors:
+
+| id | Working name | Thesis | Source |
+|---|---|---|---|
+| `trainer-walker` | "Meet your trainer" | Community walk → trust → paid training (the keystone archetype; Daniel → Klára) | Split from the current main demo |
+| `neighbour-care` | "Care from your neighbours" | Private block group, neighbours minding each other's dogs (Magda/Tomáš world) | Split from the current main demo |
+| `shelter-mentor` | "Help a shelter dog" | Mentor-vouched path to walking shelter dogs + shelter authority (Tomáš's mentee arc) | Converted from the Mentor Network script doc |
+| *(later)* `adoption-curious` | "Try before you adopt" | Walk shelter dogs to explore ownership | Multi-Path Demo phase |
 
 **Scope sketch when triggered:**
-- **Landing-page restructure** (PO, 2026-06-10): the `/` launcher gets **two walkthrough journey openings** — distinct entry doors on the landing page itself, not just a picker behind the existing single "Start the walkthrough" CTA. The cast-card half likely reshuffles around them. (Deliberately deferred during the Mentor Network phase — only Tomáš's card copy was updated then.)
-- Walkthrough registry — multiple named walkthroughs with their own beat lists; launcher UI to pick one.
+- **Landing-page restructure** (PO, 2026-06-10): the `/` launcher gets walkthrough journey openings as distinct entry doors — not a picker behind the single "Start the walkthrough" CTA. The cast-card half likely reshuffles around them. (Deliberately deferred during the Mentor Network phase — only Tomáš's card copy was updated then.)
+- Walkthrough registry — named walkthroughs (semantic ids above) with their own beat lists; launcher doors map onto them.
 - Per-walkthrough pre-staged state (the pre-staging the Mentor Network deliberately skipped) — likely seeded context snapshots keyed by walkthrough id, so a guided run starts mid-world without hand-driving toggles.
-- A mentor-network walkthrough is the first candidate — the shelter-facing demo doc (`cross-shelter-mentor-network-shelter-demo.md`) already scripts its beats; converting script → guided steps is mostly mechanical.
-- Keep each path tight (the Multi-Path Demo phase's "cut each individual demo path tighter" discipline applies).
+- **Splitting the main demo** — belongs with the Multi-Path Demo phase's "cut each individual demo path tighter" discipline; the split decision is made there, this entry carries the direction.
+- **Assumption checkpoints in the shelter-mentor walkthrough** — the interview function: in-demo moments that pose the A# probes to a coordinator viewer and (ideally) capture their reaction.
 
-**Effort:** Medium — the step-card/interstitial machinery exists; the new work is the registry, per-walkthrough state staging, and beat authoring.
+**Effort:** Medium-plus — the step-card/interstitial machinery exists; the new work is the registry, per-walkthrough state staging, beat authoring ×3, and the checkpoint pattern.
 
 **Refs:** `features/demo-mode.md` (guided walkthrough spec), `strategy/Demo Narrative.md`, `phases/cross-shelter-mentor-network-shelter-demo.md` (beat script to convert), ROADMAP → Adoption-Curious Doorway + Multi-Path Demo (parallel-paths discipline).
 
