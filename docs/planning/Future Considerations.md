@@ -338,6 +338,7 @@ The full admin/operator side becomes meaningful when (a) a real shelter wants to
   - **Per-walker dog restrictions** — mirror of the per-dog overrides from the walker side ("not Berta," "small dogs only"). Composes into the walk-eligibility check (strictest wins).
   - **Message walker** — routes through the staff-linking layer once Team mode exists (institutional accounts can't chat today).
 - **Notification routing** — applications + walks-needing-approval + incident reports land in shelter's Inbox.
+- **Shelter-account messaging** (PO direction 2026-06-11) — institutional accounts can send/receive messages as "the shelter." Needs the `Conversation` party model widened beyond user-to-user (shelter id as a party, logo avatar, thread routes to `/shelters/[id]`), plus the who-reads-replies answer (shared account by default; staff attribution via Team mode). First consumer when it lands: the mentor-graduation vouch message migrates from mentor-sent to **shelter-sent with mentor attribution** ("vouched by Klára H.", linked) — the PO's preferred framing, deferred from the Mentor Network phase (walkthrough O8).
 
 **Effort:** Large — multi-phase work. Standalone phase, probably broken into Admin Foundation + Admin Operations.
 
