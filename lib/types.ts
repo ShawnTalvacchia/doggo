@@ -1792,6 +1792,14 @@ export interface CarerMentorSessionServiceConfig {
   /** Shelters this mentor runs sessions at. Each session is booked at one
    *  of these; graduation progress accrues per-shelter. */
   shelterIds: string[];
+  /**
+   * Short, human availability for THIS offering (e.g. "Sat mornings ·
+   * Thu evenings"). Mentor sessions are a side service of what's already
+   * likely a side hustle — far narrower than the carer's general
+   * availability grid, so the mentor list renders this instead of
+   * summarizing `carerProfile.availability` (PO call 2026-06-11).
+   */
+  availabilityLabel?: string;
   notes?: string;
   /** Soft-archive marker — same semantics as the meet/appointment kinds. */
   softDeletedAt?: string;

@@ -14376,26 +14376,25 @@ a.shelter-intro-social:hover {
 }
 
 /* Mentor-list rows (mentor-discovery rework, 2026-06-11) — the neutral
-   pick-a-mentor surface behind the shelter's mentor CTA. Row anatomy
-   mirrors .shelter-member-row at sheet density. */
+   pick-a-mentor surface behind the shelter's mentor CTA. Each option is
+   its own rounded card that lifts on hover (no dividers — the gap +
+   rounded hover fill separate them). */
 .mentor-list-row {
   display: flex;
   align-items: center;
   gap: var(--space-md);
   width: 100%;
-  padding: var(--space-md) var(--space-xs);
+  padding: var(--space-md);
   background: none;
-  border: none;
-  border-bottom: 1px solid var(--border-regular);
+  border: 1px solid transparent;
+  border-radius: var(--radius-panel);
   cursor: pointer;
-}
-
-.mentor-list-row:last-child {
-  border-bottom: 0;
+  transition: background 120ms ease, border-color 120ms ease;
 }
 
 .mentor-list-row:hover {
-  background: var(--interaction-hover-subtle);
+  background: var(--surface-top);
+  border-color: var(--border-regular);
 }
 
 .mentor-list-row-avatar {

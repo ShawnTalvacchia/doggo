@@ -2,7 +2,7 @@
 
 import { CaretRight } from "@phosphor-icons/react";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
-import { summarizeAvailability } from "@/lib/volunteerTier";
+import { MENTOR_SESSION_DEFAULT_MINIMUM } from "@/lib/constants/services";
 import type {
   CarerMentorSessionServiceConfig,
   ShelterProfile,
@@ -42,17 +42,20 @@ export function MentorListSheet({
   mentors: MentorListEntry[];
   onPick: (entry: MentorListEntry) => void;
 }) {
+  const minimum = shelter.policy.mentorSessionMinimum ?? MENTOR_SESSION_DEFAULT_MINIMUM;
+  const sessionWord = `${numberWord(minimum)} time${minimum === 1 ? "" : "s"}`;
   return (
     <ModalSheet open={open} onClose={onClose} title={`Mentors at ${shelter.name}`} compact>
       <div className="flex flex-col gap-md p-md">
         <p className="text-sm text-fg-secondary m-0">
-          Mentors are Super Volunteers — vetted walkers with a long track
-          record here. You pay the mentor directly; the shelter pays nothing.
+          Get certified to volunteer by walking with a mentor {sessionWord}. Mentor
+          walkers are experienced handlers who know {shelter.name}&rsquo;s dogs and
+          routines — they&rsquo;ll get you ready to walk on your own.
         </p>
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-xs">
           {mentors.map((entry) => {
             const name = `${entry.mentor.firstName} ${entry.mentor.lastName}`.trim();
-            const availability = summarizeAvailability(entry.mentor.carerProfile?.availability);
+            const availability = entry.service.availabilityLabel;
             return (
               <button
                 key={entry.mentor.id}
@@ -62,17 +65,14 @@ export function MentorListSheet({
               >
                 <img src={entry.mentor.avatarUrl} alt={name} className="mentor-list-row-avatar" />
                 <span className="flex flex-col gap-tiny flex-1 min-w-0 text-left">
-                  <span className="flex items-center gap-sm flex-wrap">
-                    <span className="text-sm font-semibold text-fg-primary">{name}</span>
-                    <span className="credential-pill credential-pill--volunteer credential-pill--tier-3">
-                      Super Volunteer
-                    </span>
-                  </span>
+                  <span className="text-sm font-semibold text-fg-primary">{name}</span>
                   <span className="text-xs text-fg-tertiary">
                     {entry.service.pricePerSession.toLocaleString()} Kč / session ·{" "}
                     {entry.service.durationMinutes} min
-                    {availability ? ` · ${availability}` : ""}
                   </span>
+                  {availability && (
+                    <span className="text-xs text-fg-tertiary">{availability}</span>
+                  )}
                 </span>
                 <CaretRight size={14} weight="bold" className="text-fg-tertiary shrink-0" />
               </button>
@@ -82,4 +82,11 @@ export function MentorListSheet({
       </div>
     </ModalSheet>
   );
+}
+
+/** Small whole numbers read better spelled out in prose ("three times"
+ *  not "3 times"). Falls back to the digit past the handful we'd ever
+ *  set as a session minimum. */
+function numberWord(n: number): string {
+  return ["zero", "one", "two", "three", "four", "five", "six"][n] ?? String(n);
 }
