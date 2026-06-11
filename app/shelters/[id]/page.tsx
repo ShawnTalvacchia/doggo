@@ -457,13 +457,12 @@ function MentorPathCard({
         <span className="text-sm text-fg-secondary">
           {inProgress
             ? `Book your next mentored walk with ${ownMentor!.name}`
-            : `Take your first walks with one of ${shelter.name}'s volunteer mentors — ${minimum} sessions and the shelter vouches you to walk solo.`}
+            : "A mentor walker will get you ready to walk solo."}
         </span>
         <span className="text-xs text-fg-tertiary">
           {inProgress
             ? `${ownMentor!.price.toLocaleString()} Kč / session`
-            : `from ${fromPrice.toLocaleString()} Kč / session`}{" "}
-          · you pay the mentor, the shelter pays nothing
+            : `from ${fromPrice.toLocaleString()} Kč / session`}
         </span>
       </div>
       <ButtonAction variant="secondary" size="sm" cta onClick={onBook}>
