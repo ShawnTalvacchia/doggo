@@ -43,7 +43,11 @@ import { usePhotoAlbumOverrides } from "@/lib/usePhotoAlbumOverrides";
 import { useUntagStore } from "@/lib/useUntagStore";
 import { usePendingTagsStore } from "@/lib/usePendingTagsStore";
 import { usePostComposer } from "@/contexts/PostComposerContext";
-import { useWalkerApplications, deriveWalkerTier } from "@/contexts/WalkerApplicationsContext";
+import {
+  useWalkerApplications,
+  deriveWalkerTier,
+  tierOverrideKey,
+} from "@/contexts/WalkerApplicationsContext";
 import { useBookings } from "@/contexts/BookingsContext";
 import { WalkApplicationSheet } from "@/components/shelters/WalkApplicationSheet";
 import { WalkBookingSheet } from "@/components/shelters/WalkBookingSheet";
@@ -985,16 +989,25 @@ function DogPhotosBundle({
 function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetProfile }) {
   const router = useRouter();
   const currentUserId = useCurrentUserId();
-  const { applications, getApplication, apply, advance, withdraw } = useWalkerApplications();
+  const { applications, getApplication, apply, advance, withdraw, tierOverrides } =
+    useWalkerApplications();
   const { bookings } = useBookings();
   const completeMentorSessionHere = useMentorSessionCompletion(shelter);
   const application = currentUserId ? getApplication(currentUserId, shelter.id) : undefined;
-  const state = application?.state;
+  // Static-roster fallback (coherence fix, 2026-06-10): seeded walkers
+  // (Klára at Útulek) have no WalkerApplication record but ARE vouched —
+  // treat a static roster entry as the vouched state so they can book
+  // walks like any dynamic walker.
+  const staticEntry = currentUserId
+    ? shelter.walkers.find((w) => w.userId === currentUserId)
+    : undefined;
+  const state = application?.state ?? (staticEntry ? "vouched" : undefined);
   const inMentorship = !!application?.mentorship && state !== "vouched";
-  // Walk count combines the demo toggle + shelter credits + completed
-  // shelter-walk Bookings (real walks feed tier escalation, G3).
+  // Walk count combines the seeded roster count OR the demo toggle +
+  // shelter credits, plus completed shelter-walk Bookings (real walks
+  // feed tier escalation, G3).
   const walkCount =
-    (application?.walkCount ?? 0) +
+    (application?.walkCount ?? staticEntry?.walkCount ?? 0) +
     (currentUserId ? countCompletedShelterWalks(currentUserId, shelter.id, bookings) : 0);
   const [walkSheetOpen, setWalkSheetOpen] = useState(false);
   const [walkBookingOpen, setWalkBookingOpen] = useState(false);
@@ -1004,7 +1017,7 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
   // Mentor-path door (B2): when the shelter accepts mentor vouching and a
   // mentor serves it, not-yet-vouched viewers get the mentored way in.
   // Self excluded — mentors don't get offered their own mentorship.
-  const mentors = getMentorsForShelter(shelter.id).filter(
+  const mentors = getMentorsForShelter(shelter.id, applications, tierOverrides).filter(
     (m) => m.mentor.id !== currentUserId,
   );
   const mentorEntry = mentors[0];
@@ -1015,8 +1028,16 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
     !inMentorship;
   const minimum = shelter.policy.mentorSessionMinimum ?? MENTOR_SESSION_DEFAULT_MINIMUM;
 
-  // Per-dog eligibility: experiencedHandlersOnly requires tier ≥ experienced.
-  const tier = state === "vouched" ? deriveWalkerTier(walkCount) : null;
+  // Per-dog eligibility: experiencedHandlersOnly requires tier ≥
+  // experienced. Tier = the shelter's explicit promote/demote call when
+  // one exists (O4), else seeded static tier, else walk-count derivation.
+  const override = currentUserId
+    ? tierOverrides[tierOverrideKey(shelter.id, currentUserId)]
+    : undefined;
+  const tier =
+    state === "vouched"
+      ? override ?? staticEntry?.tier ?? deriveWalkerTier(walkCount)
+      : null;
   const eligibleForDog = (() => {
     if (state !== "vouched") return false;
     if (dog.experiencedHandlersOnly && tier === "vetted") return false;
@@ -1166,7 +1187,8 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
         }
         isSuperVolunteer={
           currentUserId
-            ? getPlatformVolunteerTier(currentUserId, applications, bookings).isSuperVolunteer
+            ? getPlatformVolunteerTier(currentUserId, applications, bookings, tierOverrides)
+                .isSuperVolunteer
             : false
         }
       />

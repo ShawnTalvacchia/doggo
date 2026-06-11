@@ -28,6 +28,7 @@ import type {
   CarerMentorSessionServiceConfig,
   UserProfile,
   WalkerApplication,
+  WalkerTier,
 } from "./types";
 import { allUsers } from "./mockUsers";
 import { getUserShelterAffiliations } from "./mockShelters";
@@ -61,15 +62,21 @@ export function toDynamicVouched(
     }));
 }
 
-/** Resolve the platform-level volunteer tier for a user. */
+/** Resolve the platform-level volunteer tier for a user. Pass
+ *  `tierOverrides` (shelter promote/demote calls — O4 resolution) so the
+ *  shelter's lever reaches the platform tier: demoting a walker's only
+ *  trusted affiliation revokes platform Super Volunteer status AND
+ *  mentor eligibility. */
 export function getPlatformVolunteerTier(
   userId: string,
   applications: WalkerApplication[],
   bookings: Booking[] = [],
+  tierOverrides: Record<string, WalkerTier> = {},
 ): PlatformVolunteerStatus {
   const affiliations = getUserShelterAffiliations(
     userId,
     toDynamicVouched(userId, applications, bookings),
+    tierOverrides,
   );
   const totalWalks = affiliations.reduce((sum, a) => sum + a.walkCount, 0);
   const hasTrustedAffiliation = affiliations.some((a) => a.tier === "trusted");
@@ -95,6 +102,7 @@ export function getPlatformVolunteerTier(
 export function getMentorsForShelter(
   shelterId: string,
   applications: WalkerApplication[] = [],
+  tierOverrides: Record<string, WalkerTier> = {},
 ): { mentor: UserProfile; service: CarerMentorSessionServiceConfig }[] {
   const out: { mentor: UserProfile; service: CarerMentorSessionServiceConfig }[] = [];
   for (const user of allUsers) {
@@ -105,7 +113,7 @@ export function getMentorsForShelter(
         svc.enabled &&
         !svc.softDeletedAt &&
         svc.shelterIds.includes(shelterId) &&
-        getPlatformVolunteerTier(user.id, applications).isSuperVolunteer
+        getPlatformVolunteerTier(user.id, applications, [], tierOverrides).isSuperVolunteer
       ) {
         out.push({ mentor: user, service: svc });
       }

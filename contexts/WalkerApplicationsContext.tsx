@@ -47,6 +47,28 @@ export function deriveWalkerTier(walkCount: number): WalkerTier {
 const APPLICATIONS_SEED_VERSION = 1;
 const STORAGE_KEY = "doggo-walker-applications";
 const PLATFORM_WAIVER_KEY = "doggo-platform-waiver";
+const TIER_OVERRIDES_KEY = "doggo-walker-tier-overrides";
+
+/** Key for the per-(shelter, walker) tier-override map. */
+export function tierOverrideKey(shelterId: string, userId: string): string {
+  return `${shelterId}::${userId}`;
+}
+
+/**
+ * Effective tier = the shelter's explicit call when one exists, else the
+ * walk-count derivation. O4 resolution (2026-06-10): thresholds are
+ * SUGGESTIONS — auto-promotion is the zero-admin default, but the tier
+ * is ultimately the shelter's judgment, so shelters promote/demote
+ * freely and their call wins. Because the platform Super Volunteer tier
+ * requires a trusted affiliation, the shelter's lever transitively
+ * controls platform status and mentor eligibility too.
+ */
+export function effectiveWalkerTier(
+  walkCount: number,
+  override: WalkerTier | undefined,
+): WalkerTier {
+  return override ?? deriveWalkerTier(walkCount);
+}
 
 interface WalkerApplicationsContextValue {
   applications: WalkerApplication[];
@@ -99,6 +121,17 @@ interface WalkerApplicationsContextValue {
    *  ONCE, carried across shelters). Undefined = not signed. */
   getPlatformWaiverSignedAt: (userId: string) => string | undefined;
   signPlatformWaiver: (userId: string) => void;
+  /**
+   * Per-(shelter, walker) tier overrides — the shelter's explicit
+   * promote/demote calls (O4 resolution, 2026-06-10). Keyed by
+   * `tierOverrideKey(shelterId, userId)`. Applies to static-roster AND
+   * dynamic walkers; readers resolve via `effectiveWalkerTier`. Demo
+   * surface: the "(demo)" promote/demote dropdown on Members-tab rows —
+   * an operator stub per scope discipline 2; the real home is FC16's
+   * walker pool management.
+   */
+  tierOverrides: Record<string, WalkerTier>;
+  setTierOverride: (shelterId: string, userId: string, tier: WalkerTier) => void;
 }
 
 const WalkerApplicationsContext = createContext<WalkerApplicationsContextValue | undefined>(undefined);
@@ -114,6 +147,13 @@ export function WalkerApplicationsProvider({ children }: { children: React.React
   // sign-once moment is drivable in the demo and survives reloads.
   const [platformWaivers, setPlatformWaivers] = usePersistedState<Record<string, string>>(
     PLATFORM_WAIVER_KEY,
+    {},
+  );
+  // Shelter tier overrides — covers static-roster walkers too (their
+  // seeded records are module constants), so the map lives here rather
+  // than as a field on either record shape.
+  const [tierOverrides, setTierOverrides] = usePersistedState<Record<string, WalkerTier>>(
+    TIER_OVERRIDES_KEY,
     {},
   );
 
@@ -304,6 +344,16 @@ export function WalkerApplicationsProvider({ children }: { children: React.React
     [setPlatformWaivers],
   );
 
+  const setTierOverride = useCallback(
+    (shelterId: string, userId: string, tier: WalkerTier) => {
+      setTierOverrides((prev) => ({
+        ...prev,
+        [tierOverrideKey(shelterId, userId)]: tier,
+      }));
+    },
+    [setTierOverrides],
+  );
+
   return (
     <WalkerApplicationsContext.Provider
       value={{
@@ -319,6 +369,8 @@ export function WalkerApplicationsProvider({ children }: { children: React.React
         signShelterWaiver,
         getPlatformWaiverSignedAt,
         signPlatformWaiver,
+        tierOverrides,
+        setTierOverride,
       }}
     >
       {children}

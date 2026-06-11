@@ -57,9 +57,14 @@ import type {
   UserProfile,
   WalkerApplication,
   WalkerApplicationState,
+  WalkerTier,
 } from "@/lib/types";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
-import { useWalkerApplications, deriveWalkerTier } from "@/contexts/WalkerApplicationsContext";
+import {
+  useWalkerApplications,
+  deriveWalkerTier,
+  tierOverrideKey,
+} from "@/contexts/WalkerApplicationsContext";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useMentorSessionCompletion } from "@/components/shelters/useMentorSessionCompletion";
 import { countCompletedShelterWalks } from "@/lib/volunteerTier";
@@ -167,6 +172,7 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
     withdraw,
     logWalk,
     creditWalks,
+    tierOverrides,
   } = useWalkerApplications();
   const application = currentUserId ? getApplication(currentUserId, shelter.id) : undefined;
   const applicationState = application?.state;
@@ -177,8 +183,10 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
   // Mentor path (Cross-Shelter Mentor Network B2): the shelter-side door
   // into booking a mentored first walk. {mentor, service} drives the
   // sheet. Self excluded — a mentor doesn't get offered their own
-  // mentorship at shelters they serve.
-  const mentors = getMentorsForShelter(shelter.id).filter(
+  // mentorship at shelters they serve. Tier overrides flow in so a
+  // shelter demoting a mentor's trusted tier revokes their mentor
+  // eligibility here too (O4).
+  const mentors = getMentorsForShelter(shelter.id, applications, tierOverrides).filter(
     (m) => m.mentor.id !== currentUserId,
   );
   const [mentorSheetTarget, setMentorSheetTarget] = useState<
@@ -298,7 +306,7 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
         mentorshipHistory={mentorshipHistory}
         isSuperVolunteer={
           currentUserId
-            ? getPlatformVolunteerTier(currentUserId, applications).isSuperVolunteer
+            ? getPlatformVolunteerTier(currentUserId, applications, [], tierOverrides).isSuperVolunteer
             : false
         }
       />
@@ -865,9 +873,12 @@ function DogsTab({ shelter }: { shelter: ShelterProfile }) {
 
 type MembersFilterKey = "all" | "walkers" | "supporters" | "team";
 
+/** Tier ladder for the operator-stub promote/demote controls (O4). */
+const TIER_LADDER: WalkerTier[] = ["vetted", "experienced", "trusted"];
+
 function MembersTab({ shelter }: { shelter: ShelterProfile }) {
   const teamCount = shelter.team?.length ?? 0;
-  const { applications } = useWalkerApplications();
+  const { applications, tierOverrides, setTierOverride } = useWalkerApplications();
   const { bookings } = useBookings();
 
   // Vouched-but-not-yet-seeded walkers (I, 2026-06-09). When a user
@@ -898,7 +909,18 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
       });
   }, [applications, shelter, bookings]);
 
-  const allWalkers = [...shelter.walkers, ...vouchedDynamicWalkers];
+  // Shelter tier authority (O4 resolution, 2026-06-10): the shelter's
+  // explicit promote/demote call wins over both the seeded static tier
+  // and the walk-count derivation. `tierOverridden` drives the row's
+  // "tier set by shelter" provenance marker.
+  const allWalkers = [...shelter.walkers, ...vouchedDynamicWalkers].map((w) => {
+    const override = tierOverrides[tierOverrideKey(shelter.id, w.userId)];
+    return {
+      ...w,
+      tier: override ?? w.tier,
+      tierOverridden: override !== undefined,
+    };
+  });
 
   const filters = useMemo(() => {
     const base: { key: MembersFilterKey; label: string }[] = [
@@ -915,7 +937,11 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
   const [filter, setFilter] = useState<MembersFilterKey>("all");
 
   // Sortable, typed entries that flow through ShelterMemberRow.
-  type WalkerEntry = { kind: "walker"; data: ShelterWalker; sortAt: string };
+  type WalkerEntry = {
+    kind: "walker";
+    data: ShelterWalker & { tierOverridden?: boolean };
+    sortAt: string;
+  };
   type SupporterEntry = { kind: "supporter"; data: ShelterSupporter; sortAt: string };
   type Entry = WalkerEntry | SupporterEntry;
 
@@ -980,6 +1006,29 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
               key={`${entry.kind}-${entry.data.userId}`}
               entry={entry}
               shelterName={shelter.name}
+              // Shelter tier authority (O4): operator-stub promote/demote
+              // per walker row. Hidden per direction at the ladder ends.
+              tierOverridden={entry.kind === "walker" ? entry.data.tierOverridden : undefined}
+              onPromote={
+                entry.kind === "walker" && entry.data.tier !== "trusted"
+                  ? () =>
+                      setTierOverride(
+                        shelter.id,
+                        entry.data.userId,
+                        TIER_LADDER[TIER_LADDER.indexOf(entry.data.tier) + 1],
+                      )
+                  : undefined
+              }
+              onDemote={
+                entry.kind === "walker" && entry.data.tier !== "vetted"
+                  ? () =>
+                      setTierOverride(
+                        shelter.id,
+                        entry.data.userId,
+                        TIER_LADDER[TIER_LADDER.indexOf(entry.data.tier) - 1],
+                      )
+                  : undefined
+              }
             />
           ))}
         </div>

@@ -83,6 +83,8 @@ Open the **Inbox**: Klára's message — *"That's 3 sessions — I've vouched fo
 
 **Narrate:** *"Nobody at the shelter did anything. No intake interview, no orientation shift, no email thread. Your most trusted walker did the assessment — supervised, documented, paid for by the trainee — and your walker pool just grew by one vetted person with a weekend schedule."*
 
+Then open the **Members tab** and show the per-walker controls (the "(demo)" dots menu): *"And tiers are never the app's call alone. Walk counts only SUGGEST promotions — you promote or demote anyone, any time, right here."* Demote someone and point at the **"tier set by shelter"** marker. *"Demote a mentor below trusted and their mentoring rights vanish everywhere — your judgment overrides the math, all the way up."*
+
 > **ASSUMPTION (A1) — the load-bearing one:** you'd accept Klára's vouch + the platform's session count as a substitute for your own assessment. **Probe:** what would have to be true about the mentor, the sessions, or the record for this to be a yes? If the answer is "we'd still do our own walk-through," the mentor session becomes a credibility booster instead — see Beat 8.
 
 ---
@@ -123,7 +125,7 @@ Then go back and tap into **Šimon** (experienced-handlers-only): the Walk butto
 
 | Surface | Demo state | Real version |
 |---|---|---|
-| Shelter operator screens | "(demo)" state-toggle dropdowns (advance state, accept vouch, credit walks) | Operator dashboard + application queue — V3+, designed WITH shelters from these interviews |
+| Shelter operator screens | "(demo)" state-toggle dropdowns (advance state, accept vouch, credit walks, promote/demote tiers) | Operator dashboard + application queue + walker pool management — V3+, designed WITH shelters from these interviews |
 | Session completion | One tap stands in for weeks of real sessions | Real session check-ins by mentor + mentee |
 | Payments | Display-only price; no money moves | Platform-mediated payment with a marketplace cut |
 | Waiver text | Checkbox + placeholder language | Real legal text, per-shelter authoring |

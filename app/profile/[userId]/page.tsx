@@ -248,7 +248,8 @@ function UserProfileInner() {
 
   const currentUserId = useCurrentUserId();
   const { reviews: allReviews } = useReviews();
-  const { applications: walkerApplications, getPlatformWaiverSignedAt } = useWalkerApplications();
+  const { applications: walkerApplications, getPlatformWaiverSignedAt, tierOverrides } =
+    useWalkerApplications();
   // Completed shelter-walk Bookings fold into volunteer walk counts at
   // read time (Cross-Shelter Mentor Network G3).
   const { bookings: allBookings } = useBookings();
@@ -1197,6 +1198,7 @@ function UserProfileInner() {
               const affiliations = getUserShelterAffiliations(
                 userId,
                 toDynamicVouched(userId, walkerApplications, allBookings),
+                tierOverrides,
               );
               if (affiliations.length === 0) return null;
               const TIER_LABEL: Record<string, string> = {
@@ -1210,7 +1212,12 @@ function UserProfileInner() {
               // at the 2026-06-09 walkthrough; the platform tier is a
               // status, not a stat). Per-shelter rows below keep carrying
               // the per-shelter tier + counts. ASSUMPTION A3.
-              const platform = getPlatformVolunteerTier(userId, walkerApplications, allBookings);
+              const platform = getPlatformVolunteerTier(
+                userId,
+                walkerApplications,
+                allBookings,
+                tierOverrides,
+              );
               const platformWaiverAt = isSelf
                 ? getPlatformWaiverSignedAt(userId)
                 : undefined;

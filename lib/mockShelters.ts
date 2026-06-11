@@ -688,15 +688,20 @@ export function getAllShelters(): ShelterProfile[] {
 export function getUserShelterAffiliations(
   userId: string,
   dynamicVouchedShelters: { shelterId: string; walkCount: number; vouchedAt: string; creditedWalkCount?: number }[] = [],
+  /** Shelter promote/demote calls, keyed `${shelterId}::${userId}` (O4
+   *  resolution 2026-06-10) — the shelter's explicit tier wins over both
+   *  the seeded static tier and the walk-count derivation. */
+  tierOverrides: Record<string, WalkerTier> = {},
 ): { shelter: ShelterProfile; tier: WalkerTier; walkCount: number; creditedWalkCount?: number }[] {
   const out: { shelter: ShelterProfile; tier: WalkerTier; walkCount: number; creditedWalkCount?: number }[] = [];
   for (const shelter of mockShelters) {
+    const override = tierOverrides[`${shelter.id}::${userId}`];
     // Static roster — seeded mockShelters entry.
     const staticEntry = shelter.walkers.find((w) => w.userId === userId);
     if (staticEntry) {
       out.push({
         shelter,
-        tier: staticEntry.tier,
+        tier: override ?? staticEntry.tier,
         walkCount: staticEntry.walkCount,
         creditedWalkCount: staticEntry.creditedWalkCount,
       });
@@ -707,9 +712,14 @@ export function getUserShelterAffiliations(
     if (dyn) {
       // Derive tier from walkCount per D1 thresholds; can't import the
       // helper here without a circular dep, so duplicate the rule.
-      const tier: WalkerTier =
+      const derived: WalkerTier =
         dyn.walkCount >= 25 ? "trusted" : dyn.walkCount >= 10 ? "experienced" : "vetted";
-      out.push({ shelter, tier, walkCount: dyn.walkCount, creditedWalkCount: dyn.creditedWalkCount });
+      out.push({
+        shelter,
+        tier: override ?? derived,
+        walkCount: dyn.walkCount,
+        creditedWalkCount: dyn.creditedWalkCount,
+      });
     }
   }
   return out;

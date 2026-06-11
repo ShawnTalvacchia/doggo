@@ -14862,6 +14862,31 @@ a.shelter-intro-social:hover {
   border-bottom: 0;
 }
 
+/* Operator-stub tier controls on a walker row (O4 resolution,
+   2026-06-10). Quiet dots trigger — the demo affordance shouldn't
+   compete with the row's real content. */
+.shelter-member-tier-menu-wrap {
+  flex-shrink: 0;
+}
+
+.shelter-member-tier-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.shelter-member-tier-trigger:hover {
+  background: var(--interaction-hover-subtle);
+  color: var(--text-secondary);
+}
+
 .shelter-member-avatar img {
   width: 40px;
   height: 40px;

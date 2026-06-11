@@ -329,7 +329,7 @@ The full admin/operator side becomes meaningful when (a) a real shelter wants to
 - **Historical walk crediting** — shelter admin marks "Pavel has been walking here 4×/week for 3 years" → platform credits ~600 walks. Marked distinctly from platform-logged walks in the audit trail.
 - **Per-shelter waiver authoring** — shelter admin can edit their shelter's waiver text (platform-baseline waiver stays Doggo-owned).
 - **Per-shelter mentor-acceptance policy** — toggle whether the shelter accepts mentor-vouched applications + minimum session count override.
-- **Walker pool management** — view all walkers affiliated with shelter, see their tier + recent activity, tag honorific roles ("Útulek Trusted," "head walker") if shelter wants the internal tagging layer.
+- **Walker pool management** — view all walkers affiliated with shelter, see their tier + recent activity, tag honorific roles ("Útulek Trusted," "head walker") if shelter wants the internal tagging layer. **Promote/demote freely** (O4 resolution, 2026-06-10: walk-count thresholds are suggestions; the shelter's explicit tier call wins — data + demo stub shipped as `tierOverrides` in `WalkerApplicationsContext` with a "(demo)" dropdown on Members-tab rows; this is the real surface for it). Demotion warning required: dropping a walker's only `trusted` affiliation revokes their platform Super Volunteer status and any mentor offerings.
 - **Notification routing** — applications + walks-needing-approval + incident reports land in shelter's Inbox.
 
 **Effort:** Large — multi-phase work. Standalone phase, probably broken into Admin Foundation + Admin Operations.
