@@ -1,6 +1,6 @@
 ---
 status: living
-last-reviewed: 2026-06-10
+last-reviewed: 2026-06-12
 review-trigger: "Append when a 'noted for later' idea surfaces; promote out when triggered"
 ---
 
@@ -377,3 +377,36 @@ The full admin/operator side becomes meaningful when (a) a real shelter wants to
 **Refs:** `features/demo-mode.md` (guided walkthrough spec), `strategy/Demo Narrative.md`, `phases/cross-shelter-mentor-network-shelter-demo.md` (beat script to convert), ROADMAP → Adoption-Curious Doorway + Multi-Path Demo (parallel-paths discipline).
 
 **Added:** 2026-06-10
+
+---
+
+## FC18. Group shelter walk — a Meet that sources its dogs from a shelter (the social on-ramp + mentorship funnel)
+
+**Trigger:** After the Cross-Shelter Mentor Network closes and the solo-walk Booking surface (Workstream G) is solid. Or sooner if a shelter conversation surfaces "we'd rather host group walks than one-at-a-time hand-offs," or the Adoption-Curious Doorway / Multi-Path Demo phase wants a warmer entry than a cold solo shelter visit. PO idea, 2026-06-12.
+
+**Context:** A trainer-walker (Super Volunteer / mentor) promotes a **group walk where members pick up shelter dogs** — they collect a dog from the shelter, others sign up to collect one too. The insight: a friendly group walk is a far more inviting on-ramp than walking into a shelter cold and decoding its process. Volunteering + meeting people + visibly showing you volunteer all compound — the community grows and more dogs get cared for.
+
+This reuses a primitive we already have. "Meets" is the umbrella for organized dog social activities, and the **Meet** service shape is already "sessions with a roster → RSVP" (Services as Catalog). A group shelter walk *is* a Meet — the only new thing is that the roster's dogs come from a `ShelterProfile.dogs[]` instead of members' homes. Not a new concept; a Meet whose dogs are shelter dogs.
+
+What makes it strategically load-bearing is the **two-tier roster**, because walking a shelter dog gates on being vouched (the credentialing machine):
+- **Vouched walkers** → can pick up a dog and walk.
+- **Un-vouched newcomers** → can still *join the walk* (come along, meet people, see how it works) but can't take a dog yet — **and that slot is exactly where a "get mentored by me" CTA lands.** The group walk becomes the warm top-of-funnel; mentorship is the conversion. This is the cold-start answer: nobody walks into a shelter cold.
+
+Second-order unlocks:
+- **The mentor gets a recurring product + a retention mechanic.** Today mentoring is a one-time transaction (3 sessions → vouched → relationship's job is done). A standing group walk gives the Super Volunteer a durable role — newcomers to convert *and* graduates who come back for the social walk, instead of graduating and drifting off.
+- **Convergence surface.** A community Meet (green) that produces shelter care (Help a Dog) and runs on the credentialing layer (violet) — where the Ways In actually meet.
+- **Adoption engine.** A long-stayer (Maja) gets out, is seen on the trail, photographed, posted (posts/photos are one collection); a walker who bonds is the warmest adoption lead there is. Feeds the existing "Adopt {dog}" CTA. Overlaps the deferred adoption-curious / Multi-Path thread.
+
+**The shelter pitch it sharpens:** to a shelter this is **enrichment throughput + a managed, vetted pipeline + an adoption funnel** in one — one mentor enriches N dogs per outing and onboards newcomers simultaneously; it's credentialed, so it answers the liability objection up front; bonded walkers become adopters and advocates. The broader frame the PO is forming: Doggo promotes more dog care, more adoption, more dog knowledge — community grows, more dogs get cared for, and shelters see the appeal.
+
+**Two open tensions to resolve before pitching (not now):**
+1. **Newcomer-in-a-group liability** — an un-vouched person at a walk where dogs are out. Purely social (no dog contact) until vouched, or a "supervised handling" middle state? Shelter-policy question, A2-adjacent.
+2. **Checkout logistics** — a shelter releasing N dogs to a group at once is operationally heavier than one-at-a-time; the mentor-as-responsible-party likely matters here.
+
+**Color note:** both the mentored walk and a plain solo shelter walk sit in **violet (volunteer)**, distinguished by content (mentor present + session counter vs none), not a second color — see the booking-accent discussion. The group walk itself is a community Meet (green) at the top of funnel; the mentorship conversion inside it is violet. That green→violet boundary is the funnel, and it's a feature.
+
+**Effort:** Medium-to-large — likely its own phase (or a workstream within Multi-Path / Adoption-Curious). Reuses the Meet roster + RSVP machinery and the eligibility/vouch check; new work is the shelter-dog roster source, the two-tier roster rendering + newcomer CTA, and the group dog-checkout model. Demo-able earlier than fully built (the roster + CTA carry the story).
+
+**Refs:** `docs/strategy/Groups & Care Model.md` (Meet shape / Services as Catalog), `docs/strategy/Cold-Start Playbook.md` ("Help a Dog" thread + mentor-vouching engine), `docs/features/shelters.md` (`ShelterProfile.dogs[]`, walker eligibility), `phases/cross-shelter-mentor-network-shelter-demo.md` (shelter pitch framing), [[FC7]] (Dogs tab carousel for Help a Dog), [[FC17]] (`adoption-curious` walkthrough). Surfaced 2026-06-12 during Mentor Network booking-sheet polish.
+
+**Added:** 2026-06-12
