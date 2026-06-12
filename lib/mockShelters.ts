@@ -248,6 +248,43 @@ const UTULEK_DOGS: PetProfile[] = [
       spayedNeutered: false,
     },
   },
+  {
+    // The Adoption-Curious Journey focal dog (2026-06-12). A gentle,
+    // newcomer-walkable long-stayer — deliberately NOT soloOnly /
+    // experiencedHandlersOnly, so a freshly-vouched walker (Eliška) can
+    // take her. She's the research's advocacy archetype made concrete:
+    // wonderful on a walk, overlooked at the kennel, so the walk recap is
+    // exactly what gets her adopted. Both adoption endings hang off her —
+    // the network adopts her after a recap surfaces (primary), or the
+    // walker does (secondary). Placeholder portrait copied from Mila's
+    // pending the image-enrichment pass (own file slot).
+    id: "shelter-dog-nora",
+    name: "Nora",
+    breed: "Mixed breed",
+    weightLabel: "18 kg",
+    ageLabel: "5 years",
+    sex: "female",
+    imageUrl: "/images/generated/shelter-dog-nora-portrait.jpeg",
+    daysInKennel: 71,
+    lastWalkedAt: daysAgoIso(2, "09:30"),
+    backstory:
+      "Came in when her elderly owner went into care. She shrinks to the back of the kennel when people walk past, so she gets passed over again and again — but ten minutes into a walk she's a different dog, leaning into every scratch behind the ear. She just needs someone to see her outside these walls.",
+    personalityTags: ["gentle", "affectionate", "good-with-strangers", "good-with-dogs", "loves-walks"],
+    adoptionStatus: "available",
+    intakeDate: daysAgo(71),
+    energyLevel: "moderate",
+    vetInfo: {
+      vaccinations: [
+        { type: "rabies", lastGivenAt: "2026-04-08", confidence: "self-declared" },
+        { type: "parvovirus", lastGivenAt: "2026-04-08", confidence: "self-declared" },
+        { type: "distemper", lastGivenAt: "2026-04-08", confidence: "self-declared" },
+        { type: "hepatitis", lastGivenAt: "2026-04-08", confidence: "self-declared" },
+        { type: "parainfluenza", lastGivenAt: "2026-04-08", confidence: "self-declared" },
+      ],
+      vaccinationsAcknowledgedAt: "2026-04-08",
+      spayedNeutered: true,
+    },
+  },
 ];
 
 /* ── Walker roster ───────────────────────────────────────────────────────── */
@@ -377,6 +414,12 @@ const UTULEK_SUPPORTERS: ShelterSupporter[] = [
   { userId: "supporter-katerina-v", displayName: "Kateřina V.", avatarUrl: "/images/generated/lucie-profile.jpeg", since: daysAgo(31) },
   { userId: "supporter-stepan-m", displayName: "Štěpán M.", avatarUrl: "/images/generated/ondrej-profile.jpeg", since: daysAgo(18) },
   { userId: "supporter-alena-t", displayName: "Alena T.", avatarUrl: "/images/generated/adela-profile.jpeg", since: daysAgo(6) },
+  // Eliška — the adoption-curious persona. Bridged to her real UserProfile
+  // (userId "eliska"), so her Members-tab row links to her profile. She
+  // followed Útulek recently as her first step in; her journey escalates
+  // from here (Supporter → group walk → mentored → vouched Walker).
+  // Adoption-Curious Journey, 2026-06-12.
+  { userId: "eliska", displayName: "Eliška D.", avatarUrl: "/images/generated/eliska-profile.jpeg", since: daysAgo(12) },
 ];
 
 /* ── Pes v nouzi (thin shelter) ──────────────────────────────────────────── */

@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-06-02
+last-reviewed: 2026-06-12
 tags: [users, personas, trust, funnels]
 review-trigger: "when designing user-facing flows or onboarding"
 ---
@@ -399,6 +399,42 @@ Someone who joined Doggo to walk shelter dogs, not to manage their own pet. Prob
 
 **Product behaviour**
 Enters via the shelter page (`/shelters/[id]`) rather than the owner-side flow. Profile may or may not have a dog (the dog isn't the entry point). Heavy engagement on a small set of specific dog profiles (`/dogs/[id]`). May develop into a Connector at the shelter community level — running walking sessions, mentoring new walkers, advocating for specific dogs. Some will eventually open their own care services if a dog enters their life. The Shelter Walker is the cold-start engine's natural complement to the Trainer-led Walks playbook — both seed real community participation without requiring dog ownership as the entry token. See [[Cold-Start Playbook]] → "Walker credentialing as a shelter trust layer" and [[features/shelters]].
+
+---
+
+### The Adoption-Curious Explorer
+
+*Different door, same destination — walking shelter dogs to decide whether to adopt (Adoption-Curious Journey, 2026-06-12)*
+
+**Who they are**
+Someone who doesn't own a dog but is seriously considering it — and wants to find out before committing. Often a first-time-owner-to-be: grew up with a dog, has wanted one for years, but isn't sure their flat, hours, or life can give a dog what it deserves. Distinct from the Shelter Walker (who walks *instead of* owning) and the Anxious New Owner (who already took the leap): the Explorer is mid-decision, using low-stakes shelter walking as the way through it. Demo persona: **Eliška** (Žižkov, no dog yet).
+
+**Primary goals**
+
+- Find out what owning a dog actually asks of them, in reality rather than imagination
+- Spend real time with dogs without the pressure of a commitment they're not ready to make
+- Help while they're deciding — the walking is genuinely useful even if they never adopt
+- (Often unstated) Meet the dog that changes "should I?" into "this one."
+
+**Primary fears**
+
+- That walking a shelter dog *is* a commitment to adopt it — the single most-documented friction in this journey (see [[Competitive Research - Adoption-Curious Journeys]]). If entry copy doesn't say "no obligation," they don't start.
+- Getting it wrong — adopting a dog they can't actually care for, then having to return it
+- Walking into a shelter cold and not knowing the process
+- Being judged for exploring rather than committing
+
+**Trust threshold**
+
+- They trust a warm, social on-ramp (a group walk with people who'll show them how it works) far more than a cold solo shelter visit. They trust the shelter to be the honest curator of whether a given dog — and ownership at all — is right for them. The "explore before you commit" framing is what lets them in the door.
+
+**What success feels like**
+
+- A graceful path with no wrong exits: walk → walk again → maybe a sleepover/foster → adopt, each step a fine place to stop
+- Becoming an advocate for a dog they walked — the recap they shared is *why* it got adopted, even if the adopter was someone else
+- Arriving at a confident decision either way: the right dog at the right time, or "not yet" without guilt
+
+**Product behaviour**
+Enters via the adoption-curious doorway (`/discover/help-a-dog`, tuned "explore before you commit") and the group shelter walk (a Meet sourcing shelter dogs) rather than a cold solo visit. Starts as a shelter Supporter, converts through mentored walks to a vouched Walker, bonds with a specific long-stayer (`/dogs/[id]`), and shares walk recaps that feed the **advocacy loop** — the proven adoption engine (a walker surfaces the dog to *other* adopters). The journey's endpoint is open: the network adopts the dog (primary, ~5×/14× lift) or the Explorer does (secondary). Either way they often graduate into a Shelter Walker, a Connector, or — if a dog enters their life — an owner. See [[features/shelters]] and `docs/phases/adoption-curious-journey.md`.
 
 ---
 

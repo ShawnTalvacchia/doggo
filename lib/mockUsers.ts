@@ -57,6 +57,9 @@ const AV = {
   jana:    "/images/generated/jana-profile.jpeg",
   nikola:  "/images/generated/nikola-profile.jpeg",
   marie:   "/images/generated/marie-profile.jpeg",
+  // Placeholder portrait (copied from marie's) pending the image-enrichment
+  // pass — Eliška has her own file slot so enrichment regenerates just this one.
+  eliska:  "/images/generated/eliska-profile.jpeg",
   shawn:   "/images/generated/shawn-profile.jpg",
 } as const;
 
@@ -1042,6 +1045,41 @@ export const magda: UserProfile = {
       },
     },
   ],
+};
+
+/**
+ * Eliška Dvořáková — Adoption-Curious Explorer archetype (Adoption-Curious
+ * Journey phase, 2026-06-12). Žižkov, late twenties, has never owned a dog.
+ * Grew up with one and has wanted her own for years, but isn't sure her flat
+ * and her hours suit one — so instead of committing, she's come to Doggo to
+ * walk shelter dogs and find out. The "try before you commit" persona the
+ * Cold-Start Playbook and the Adoption-Curious research both point at.
+ *
+ * Why she exists: she's the non-owner doorway. Daniel is an anxious *new
+ * owner*; Tomáš is a busy *owner* drawn to shelter dogs; Eliška has no dog at
+ * all. Her arc is the phase spine — discover a shelter → join a group shelter
+ * walk → get mentored → vouched → walk a long-stayer → share the recap (the
+ * advocacy loop) → and either the network adopts the dog or she does. She
+ * starts thin on purpose (no pets, no carerProfile, locked, no connections);
+ * the journey fills her Volunteering tab and Volunteer-work section. See
+ * User Archetypes → "The Adoption-Curious Explorer" and
+ * `docs/phases/adoption-curious-journey.md`.
+ */
+export const eliska: UserProfile = {
+  id: "eliska",
+  firstName: "Eliška",
+  lastName: "Dvořáková",
+  email: "eliska.dvorakova@email.cz",
+  avatarUrl: AV.eliska,
+  bio: "Žižkov. No dog of my own yet — I grew up with one and I've wanted mine for years, but I want to be sure I can give a dog the life it deserves before I commit. So I'm starting by walking shelter dogs. No rush, just learning.",
+  location: "Prague 3, Czech Republic",
+  neighbourhood: "Žižkov",
+  memberSince: "2026-05",
+  profileVisibility: "locked",
+  tagApproval: "auto",
+  openToHelping: false,
+  shareCode: "eliska-z3k8",
+  pets: [],
 };
 
 /**

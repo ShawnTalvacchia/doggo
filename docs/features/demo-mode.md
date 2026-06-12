@@ -8,7 +8,7 @@ review-trigger: "when adding a new persona, when changing persona-switching surf
 
 # Demo Mode — Persona Switching
 
-Runtime persona switcher that lets reviewers and testers view the prototype as any of six personas without rebuilding or editing source. **Demo-only infrastructure** — none of these surfaces would ship in the real product.
+Runtime persona switcher that lets reviewers and testers view the prototype as any of eight personas without rebuilding or editing source. **Demo-only infrastructure** — none of these surfaces would ship in the real product.
 
 Implementation lives behind one rule: **product code reads `useCurrentUser()`**, never `mockUser` directly. The hook resolves to the active persona; switching is a one-click affordance.
 
@@ -33,7 +33,7 @@ What it didn't ship — see "Known limitations" below.
 
 **File:** `lib/personas.ts`
 
-Seven personas, ordered for the picker:
+Eight personas, ordered for the picker:
 
 | ID | Name | Archetype | Source |
 |----|------|-----------|--------|
@@ -43,6 +43,7 @@ Seven personas, ordered for the picker:
 | `tomas` | Tomáš Kovář | Busy Professional | `lib/mockUsers.ts` |
 | `lena` | Lena Marešová | Marketplace Owner | `lib/mockUsers.ts` |
 | `magda` | Magda Vondráková | Neighborhood Hub Member | `lib/mockUsers.ts` |
+| `eliska` | Eliška Dvořáková | Adoption-Curious Explorer | `lib/mockUsers.ts` |
 | `new-user` | New User | Just signed up | `lib/personas.ts` (synthetic) |
 
 Shawn was removed from the picker 2026-04-26 — the actual developer's name shouldn't double as a demo character. He still exists in mock-world data as a Vinohrady regular other personas encounter; he's just no longer a "view as" option.
@@ -104,7 +105,7 @@ const { user, isDefault, hydrated, setUserById, resetToDefault } = useDemoState(
 
 **File:** `components/profile/ProfileNameDropdown.tsx`
 
-The user's name on `/profile` is itself the dropdown trigger — `text-2xl` heading + small caret. Tap → 280px popover anchored below, listing the 7 personas with avatars, archetypes, and a checkmark on the active one. Footer links to `/demo` for the bigger surface.
+The user's name on `/profile` is itself the dropdown trigger — `text-2xl` heading + small caret. Tap → 280px popover anchored below, listing the 8 personas with avatars, archetypes, and a checkmark on the active one. Footer links to `/demo` for the bigger surface.
 
 Picking a persona writes to `localStorage` via `setUserById`, then calls `router.refresh()` so the profile page re-renders for the picked persona in place. Outside-click + Escape close the popover.
 
@@ -117,7 +118,7 @@ Picking a persona writes to `localStorage` via `setUserById`, then calls `router
 **Rebuilt 2026-05-19** (Demo Narrative V2 — `/demo` folded into the landing page). The standalone `/demo` route was deleted; the landing page is now the demo's single front door — a slim, chrome-free launcher with the new brand logo (`public/logo.svg`), no AppNav, and two paths:
 
 1. **Start the walkthrough** — primary CTA. Auto-resets demo state and launches the V2 Guided Walkthrough at Beat 1's interstitial.
-2. **Explore freely** — secondary persona picker, all 7 personas. Picking writes to localStorage and routes to `/home`; ends any active walkthrough.
+2. **Explore freely** — secondary persona picker, all 8 personas. Picking writes to localStorage and routes to `/home`; ends any active walkthrough.
 
 The prior 8-section marketing landing page was retired. `proxy.ts` now gates **everything** (the landing page included — nothing is public but the unlock page + its API + static assets). `exit()`, `AuthGateContext`, `AppNav`, and `ProfileNameDropdown` all route their "back to launcher" exits to `/`. The `/demo` URL no longer resolves.
 
@@ -199,6 +200,14 @@ The narrow-and-deep archetype. Holešovice resident, anchors a tight private nei
 2. **Profile** — `/profile?as=magda` — Open, Žofka the Schnauzer mix, Holešovice. Reads as "settled neighbour, not looking for more, plenty of community already."
 3. **Klára's training meet (the anchor)** — `/meets/meet-care-1?as=magda` — she's a pre-seeded attendee at the recurring Calm Dog Group Session. People tab shows Daniel as a fellow attendee post-Beat-1 demo (after his RSVP commits to her view).
 4. **Veronika's profile** — `/profile/veronika?as=magda` — fellow group member, peer Carer, casual rate. Magda books her here in Beat 3 of the demo (drop-in care, 200 Kč, same evening).
+
+### Eliška — Adoption-Curious Explorer
+
+The non-owner doorway (Adoption-Curious Journey, 2026-06-12). Žižkov, no dog of her own — she's walking shelter dogs to decide whether to adopt. Spine of the phase's narrative: Supporter → group shelter walk → mentored → vouched Walker → bonds with a long-stayer (Nora) → shares walk recaps (the advocacy loop) → the network adopts Nora, or Eliška does. The arc is built through this phase; drive it in Open View via `?as=eliska`.
+
+1. **Profile** — `/profile?as=eliska` — Locked, no dogs ("No dogs added yet"), no connections yet. Reads as a newcomer who just arrived — the empty surfaces fill as her journey progresses.
+2. **Útulek Liběň** — `/shelters/utulek-liben?as=eliska` — the shelter she's followed; her Members-tab row sits under Supporters (most-recent). The "explore before you commit" doorway and the group shelter walk are her warm on-ramp.
+3. **Nora** — `/dogs/shelter-dog-nora` — the long-stayer she bonds with. A gentle, newcomer-walkable dog overlooked at the kennel; her walk recaps are what get her adopted (the research's advocacy archetype). Both adoption endings hang off Nora.
 
 ### New User
 

@@ -182,6 +182,17 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
   const application = currentUserId ? getApplication(currentUserId, shelter.id) : undefined;
   const applicationState = application?.state;
   const [isFollowing, setIsFollowing] = useState(false);
+  // Reflect a seeded supporter relationship in the Follow button. The current
+  // user can already be on the shelter's Supporters roster (e.g. Eliška, the
+  // adoption-curious persona, follows Útulek as her first step in) — without
+  // this, the button reads "Follow" while her row sits on the Members tab.
+  // Keyed on currentUserId so it fires once the persona settles after
+  // hydration; only ever sets true, so an explicit Unfollow still sticks.
+  useEffect(() => {
+    if (currentUserId && shelter.supporters.some((s) => s.userId === currentUserId)) {
+      setIsFollowing(true);
+    }
+  }, [currentUserId, shelter.supporters]);
   const [walkSheetOpen, setWalkSheetOpen] = useState(false);
   // Single smart entry for an unverified walker (2026-06-11): "Walk a
   // dog" opens this routing sheet (mentor path or direct apply) instead

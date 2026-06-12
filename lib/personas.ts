@@ -9,6 +9,9 @@
  * Magda was added 2026-05-14 as the Neighborhood Hub Member archetype. In
  * Demo Narrative V2 she's a supporting character — the neighbour Daniel
  * meets on Klára's Stromovka walk — not a walkthrough POV persona.
+ * Eliška was added 2026-06-12 (Adoption-Curious Journey) as the non-owner
+ * "try before you commit" doorway — she walks shelter dogs to decide whether
+ * to adopt; the spine of that phase's narrative.
  * "New User" sits at the end as a deliberately empty profile so reviewers can
  * see what brand-new-account states look like across every surface.
  *
@@ -22,7 +25,7 @@
  */
 
 import type { UserProfile } from "@/lib/types";
-import { tereza, daniel, klara, tomas, lena, magda } from "@/lib/mockUsers";
+import { tereza, daniel, klara, tomas, lena, magda, eliska } from "@/lib/mockUsers";
 
 /** ID for the empty-state persona. Surfaces that gate on "new account?" check this. */
 export const NEW_USER_ID = "new-user";
@@ -106,6 +109,13 @@ export const personas: PersonaOption[] = [
     user: magda,
     archetype: "Neighborhood Hub Member",
     tagline: "Holešovice. Anchors a tight private block.",
+  },
+  {
+    user: eliska,
+    archetype: "Adoption-Curious Explorer",
+    // The non-owner doorway: walks shelter dogs to decide whether to adopt.
+    // Spine of the Adoption-Curious Journey phase (2026-06-12).
+    tagline: "Žižkov. No dog yet — walking shelter dogs to find out.",
   },
   {
     user: newUserPersona,
