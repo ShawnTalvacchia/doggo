@@ -53,6 +53,8 @@ import { useBookings } from "@/contexts/BookingsContext";
 import { WalkApplicationSheet } from "@/components/shelters/WalkApplicationSheet";
 import { WalkEntrySheet } from "@/components/shelters/WalkEntrySheet";
 import { WalkBookingSheet } from "@/components/shelters/WalkBookingSheet";
+import { AdoptInquirySheet } from "@/components/shelters/AdoptInquirySheet";
+import { useAdoptionStore } from "@/lib/useAdoptionStore";
 import { MentorSessionBookingSheet } from "@/components/shelters/MentorSessionBookingSheet";
 import { MentorListSheet } from "@/components/shelters/MentorListSheet";
 import { useMentorSessionCompletion } from "@/components/shelters/useMentorSessionCompletion";
@@ -101,6 +103,11 @@ function DogProfileInner() {
   const { lastListPath, previousPath } = useNavigationMemory();
   const currentUserId = useCurrentUserId();
   const { getConnection } = useConnections();
+  // Adoption capstone (Workstream E): demo override of adoption stage, read
+  // here so the hero pill + celebration + care-stats reflect a demo-advanced
+  // pending/adopted without seed edits. getStage is a stable callback —
+  // called below once `dog` resolves (this hook must precede early returns).
+  const { getStage: getAdoptionStage } = useAdoptionStore();
 
   const dogId = params.id as string;
 
@@ -378,8 +385,16 @@ function DogProfileInner() {
   // is actively being cared for at the shelter. Once adopted, the dog
   // has gone home and those numbers stop being meaningful. Owned dogs
   // never show them — daysInKennel + lastWalkedAt are shelter-only.
-  const showCareStats =
-    !!shelter && dog.adoptionStatus !== "adopted";
+  // Effective adoption status folds the demo override on top of the seed.
+  const adoptionEntry = getAdoptionStage(dog.id);
+  const effectiveAdoptionStatus =
+    adoptionEntry?.stage === "adopted"
+      ? "adopted"
+      : adoptionEntry?.stage === "pending"
+        ? "pending"
+        : dog.adoptionStatus;
+  const isAdopted = effectiveAdoptionStatus === "adopted";
+  const showCareStats = !!shelter && !isAdopted;
   // Tag taxonomy (FC8 formalization, 2026-06-02): auto-derived chips
   // (Adoption pending / New arrival / Long-stayer / energy) come from
   // `deriveAutoTags`; personality tags come from the typed
@@ -439,10 +454,29 @@ function DogProfileInner() {
       <DetailHeader backLabel="Back" title={headerTitle} backHref={parentHref} rightAction={ownerHeaderAction} />
       <div className="dog-profile-panel">
         <div className="dog-profile-body">
+          {/* Adoption capstone: "Happy endings" celebration when the dog has
+              been adopted (DR7 — celebration + archived state; the literal
+              PetProfile → new-owner migration stays deferred). */}
+          {shelter && isAdopted && (
+            <div className="flex flex-col gap-xs rounded-panel border border-edge-regular bg-surface-top p-md mb-md">
+              <p className="text-base font-semibold text-fg-primary m-0">
+                {dog.name} found a home 🎉
+              </p>
+              <p className="text-sm text-fg-secondary m-0">
+                After {dog.daysInKennel ?? "many"} days waiting, {dog.name} has
+                been adopted
+                {adoptionEntry?.adopterName ? ` by ${adoptionEntry.adopterName}` : ""}.
+                Thank you to everyone who walked her and shared her story — this
+                is what it's all for. The walkers who knew her keep her in their
+                gallery.
+              </p>
+            </div>
+          )}
+
           {/* Advocacy loop: post-walk "Share a moment" prompt (shelter dogs
               only; renders when arriving via ?finished=1 from a finished
-              shelter walk). */}
-          {shelter && <WalkFinishedBanner dog={dog} shelter={shelter} />}
+              shelter walk). Suppressed once adopted. */}
+          {shelter && !isAdopted && <WalkFinishedBanner dog={dog} shelter={shelter} />}
           {/* Sibling tab strip — sticks at top of the scrollable body
               so visitors can switch between an owner's dogs without
               scrolling back. Mirrors the shelter / community detail
@@ -474,7 +508,7 @@ function DogProfileInner() {
             <div className="dog-profile-hero-content">
               <div className="dog-profile-hero-name-row">
                 <h1 className="dog-profile-name">{dog.name}</h1>
-                {dog.adoptionStatus === "pending" && (
+                {effectiveAdoptionStatus === "pending" && (
                   <span className="dog-profile-status-pill">Adoption pending</span>
                 )}
               </div>
@@ -1070,7 +1104,10 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
   const [walkSheetOpen, setWalkSheetOpen] = useState(false);
   const [walkEntryOpen, setWalkEntryOpen] = useState(false);
   const [walkBookingOpen, setWalkBookingOpen] = useState(false);
+  const [adoptOpen, setAdoptOpen] = useState(false);
   const [walkMenuOpen, setWalkMenuOpen] = useState(false);
+  const { getStage: getAdoptionStage } = useAdoptionStore();
+  const adoptionStage = getAdoptionStage(dog.id)?.stage;
   const [mentorListOpen, setMentorListOpen] = useState(false);
   const [mentorSheetTarget, setMentorSheetTarget] = useState<
     { mentor: UserProfile; service: CarerMentorSessionServiceConfig } | null
@@ -1130,7 +1167,7 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
     setWalkMenuOpen((v) => !v);
   };
 
-  const onAdoptClick = () => router.push(`/shelters/${shelter.id}`);
+  const onAdoptClick = () => setAdoptOpen(true);
   const showMenuCaret = !!state && !(state === "vouched" && eligibleForDog);
 
   return (
@@ -1203,7 +1240,13 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
             leftIcon={<HandHeart size={16} weight="regular" />}
             onClick={onAdoptClick}
           >
-            Adopt {dog.name}
+            {adoptionStage === "adopted"
+              ? `${dog.name} found a home 🎉`
+              : adoptionStage === "pending"
+                ? "Adoption pending"
+                : adoptionStage === "interested"
+                  ? "Interest sent"
+                  : `Adopt ${dog.name}`}
           </ButtonAction>
         </div>
         {statusLine && (
@@ -1253,6 +1296,12 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
       <WalkBookingSheet
         open={walkBookingOpen}
         onClose={() => setWalkBookingOpen(false)}
+        shelter={shelter}
+        dog={dog}
+      />
+      <AdoptInquirySheet
+        open={adoptOpen}
+        onClose={() => setAdoptOpen(false)}
         shelter={shelter}
         dog={dog}
       />
