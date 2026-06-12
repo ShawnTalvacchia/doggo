@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: draft
-last-reviewed: 2026-06-02
+last-reviewed: 2026-06-12
 tags: [demo, narrative, walkthrough, personas]
 review-trigger: "before any change to the persona roster, the anchor meet, or the walkthrough beats"
 ---
@@ -253,3 +253,36 @@ What the V2 narrative needs seeded.
 - **Klára's V1 standalone session-execution beat → folded into Beat 2's config #2 linked-care booking.** The active-session surface still appears, reframed onto the funnel mechanic rather than shown as session mechanics for their own sake.
 - **The chronological backflip is gone.** V2 is linear: Daniel joins → the walk happens (Klára's POV) → Daniel reviews.
 - **Tereza / Tomáš / New User POVs** — not in the guided walkthrough; Open View covers them. Tereza stays the Open View default.
+
+---
+
+## The Adoption-Curious Arc (FC17 source material — built 2026-06-12)
+
+> A **second** guided arc, distinct from the V2 Daniel→Klára spine above. The **content** (persona, surfaces, seed data) shipped in the Adoption-Curious Journey phase (2026-06-12) and is drivable today in **Open View** via `?as=eliska`. The **guided-UI packaging** (interstitials, step card, registry entry, per-arc staging) is **FC17's job** — this section is the beat list FC17 wraps, so its work is authoring a guided shell around beats that already exist, not designing the arc. Registry id: `adoption-curious` ("Try before you adopt").
+
+**Persona:** Eliška Dvořáková — the Adoption-Curious Explorer (Žižkov, no dog). **Single-POV** spine, like Daniel's. The network-adoption payoff is shown through the feed + a recap comment, not a POV switch (FC17 may add a brief network-adopter cut if it earns its keep).
+
+**Focal dog:** Nora — a gentle, newcomer-walkable Útulek long-stayer, overlooked at the kennel but lovely on a walk (the research's advocacy archetype). Both adoption endings hang off her.
+
+**Thesis it carries:** the adoption engine is the **advocacy loop** (a walker surfaces the dog to *other* adopters — the proven ~5×/14× lift), not self-adoption. De-couple walking from commitment throughout ("no adoption obligation").
+
+### The beats
+
+**Beat 1 — Eliška finds a way in.** *Surfaces:* `/discover/help-a-dog` (the "walk a shelter dog — no adoption obligation" doorway) → `/shelters/utulek-liben` (she already follows Útulek; the Feed tab shows the group-walk callout). *Focus:* explore-before-you-commit; a warm on-ramp beats decoding a cold shelter process. *Hero action:* tap into the Saturday group walk.
+
+**Beat 2 — The group walk.** *Surfaces:* `/meets/meet-utulek-group-walk`. *Focus:* the two-tier roster — vouched walkers each take a shelter dog ("Dogs out today"); newcomers come along socially ("Coming along"). She meets Nora, who's out with Marie. The green→violet funnel: a community Meet that produces shelter care. *Hero action:* she's "coming along" (no dog yet) and taps **Walk with a mentor**.
+
+**Beat 3 — Mentored to vouched.** *Surfaces:* the shelter walk-entry → mentor session booking (the **shipped** Cross-Shelter Mentor Network flow — reused, not rebuilt). *Focus:* paid mentored first walks are the apprenticeship that earns the vouch; the shelter keeps authority. *Hero action:* book a mentor session (or advance via the demo state-toggle). *Outcome:* Eliška becomes a vouched Volunteer at Útulek.
+
+**Beat 4 — She walks Nora, and shares.** *Surfaces:* `/dogs/shelter-dog-nora` → Walk → active session → **Finish** → lands on Nora's page with the "Great walk with Nora! 🎉 Share a moment" banner → composer pre-tagged Nora + Útulek. *Focus:* the advocacy loop's first-class action — the walk recap **is** the adoption ad. No pressure ("Maybe later" dismisses). *Hero action:* finish the walk, share a moment.
+
+**Beat 5 — The recap reaches the network.** *Surfaces:* `/home?as=eliska` (the recap surfaces because she follows Útulek — the followed-shelter feed gate) + Nora's recap carrying **Kateřina's** interested comment. *Focus:* community exposure is the engine — the recap reaches someone who wasn't walking Nora. *Hero action:* read the network response (the interest the recap generated).
+
+**Beat 6 — Nora finds a home.** *Surfaces:* `/dogs/shelter-dog-nora` → **Adopt Nora** → the inquiry sheet (no-obligation framing, the escalation ladder walk → sleepover/foster → adopt with "never a failure" returns framing, a **shelter-curated** meet-and-greet — no auto-match) → `Adoption pending` → **adopted**. *Focus:* the capstone, as a state machine with graceful off-ramps. **Primary ending: the network adopts** (Kateřina, from the recap — the loop closed). **Secondary: Eliška adopts.** *Hero action:* express interest / drive the meet-and-greet → adoption; land on the "Happy endings" celebration.
+
+### Cuts & notes for FC17
+
+- **Single-POV, reuse the mentor mechanic.** Beat 3 leans entirely on the shipped mentor flow; don't re-author it. Keep the arc tight (the Multi-Path discipline: each path single-thesis).
+- **Network adoption without a POV switch.** Beats 5–6 show the network path via the feed gate + the seeded interested comment + the "network adopts" finalise. A POV cut to Kateřina is optional polish, not required.
+- **Pre-staging.** Like Tomáš's mentee arc, this drives from fresh state via demo toggles. FC17 decides whether to pre-stage mid-arc snapshots (e.g. start already-vouched for a shorter run).
+- **No-pressure is load-bearing.** Every entry surface repeats "no adoption obligation"; the share prompt has a gentle dismiss. Preserve that tone in the guided copy.

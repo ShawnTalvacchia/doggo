@@ -14,7 +14,7 @@ Verification checklist for the Adoption-Curious Journey phase. **Concise by desi
 2. Switch personas via the profile-name dropdown or `?as=<id>` (the new persona is `?as=eliska`).
 3. Walk top-to-bottom — ordered "needs your eyeballs most" → "least."
 
-**Build status (2026-06-12):** Workstream A shipped (persona + focal dog). B (doorway), C (group walk), D (advocacy loop), E (capstone), F (beats + this doc) are in progress — items below are tagged `[A ✓]` for shipped vs `[pending]` for not-yet-built so you know what's drivable.
+**Build status (2026-06-12):** All workstreams shipped — A (persona + focal dog), B (doorway), C (group walk / FC18), D (advocacy loop), E (capstone), F (arc beats → Demo Narrative + this doc). Items are tagged `[A ✓]` / `[B ✓]` etc. by the workstream that built them. The checkboxes are yours to tick as you walk each one.
 
 **New seed data this phase:**
 - **Eliška Dvořáková** (`?as=eliska`) — the Adoption-Curious Explorer persona. Žižkov, no dog, walking shelter dogs to decide whether to adopt.
