@@ -11,7 +11,6 @@ import {
   Heart,
   Clock,
   PawPrint,
-  Footprints,
   CaretRight,
   CaretDown,
   Check,
@@ -73,7 +72,6 @@ import { useStubNotice } from "@/contexts/StubFeatureContext";
 import { useMentorSessionCompletion } from "@/components/shelters/useMentorSessionCompletion";
 import { countCompletedShelterWalks } from "@/lib/volunteerTier";
 import { getUserById } from "@/lib/mockUsers";
-import { mockMeets } from "@/lib/mockMeets";
 
 /* ── Page wrapper (Suspense for useSearchParams) ───────────────────── */
 
@@ -247,7 +245,6 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
       <ShelterBanner shelter={shelter} />
       <ShelterIntro shelter={shelter} />
       <DogsInCareSummaryCard shelter={shelter} />
-      <GroupWalkCallout shelter={shelter} />
       <ShelterMetaRow shelter={shelter} />
       <ShelterSocialsRow shelter={shelter} />
       <ShelterActionRow
@@ -806,39 +803,6 @@ function ShelterActionRow({
 // the same surface without navigating to the shelter page first.
 
 /* ── Dogs-in-care summary card ─────────────────────────────────────── */
-
-/**
- * The warm on-ramp (FC18, Adoption-Curious Journey 2026-06-12). Surfaces the
- * shelter's trainer-led group walk on the Feed tab — the inviting social entry
- * for an adoption-curious explorer, far gentler than decoding a cold solo
- * intake. Renders only when an upcoming group walk is linked to this shelter.
- */
-function GroupWalkCallout({ shelter }: { shelter: ShelterProfile }) {
-  const walk = mockMeets.find(
-    (m) => m.shelterWalk?.shelterId === shelter.id && m.status !== "cancelled",
-  );
-  if (!walk) return null;
-
-  return (
-    <Link
-      href={`/meets/${walk.id}`}
-      className="shelter-summary-card"
-      style={{ textDecoration: "none" }}
-    >
-      <div className="shelter-summary-card-icon">
-        <Footprints size={24} weight="light" />
-      </div>
-      <div className="flex flex-col gap-tiny flex-1 min-w-0">
-        <span className="shelter-summary-card-headline">{walk.title}</span>
-        <span className="shelter-summary-card-sub">
-          New to shelter walking? Come along — no experience, no obligation.
-        </span>
-        <span className="shelter-summary-card-action">See the walk</span>
-      </div>
-      <CaretRight size={16} weight="bold" className="text-fg-tertiary flex-shrink-0" />
-    </Link>
-  );
-}
 
 function DogsInCareSummaryCard({ shelter }: { shelter: ShelterProfile }) {
   const dogCount = shelter.dogs.length;

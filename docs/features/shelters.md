@@ -164,6 +164,16 @@ All shelter-admin actions are demo state-toggles per the hidden-affordance patte
 
 ---
 
+## Group shelter walk (FC18)
+
+A **mixed community walk** (a Meet, green) where shelter dogs can join — the inviting social on-ramp from [[Future Considerations]] FC18, shipped in the Adoption-Curious Journey phase (2026-06-12). Most attendees bring their own dog; a **vouched** walker can pick up a shelter dog on the way; dogless newcomers come along. Hosted by a Super Volunteer / mentor (Klára), in their care group for discovery. Linked to a shelter via `Meet.shelterWalk?: { shelterId }`; the dog each walker brings rides in the existing `MeetAttendee.dogNames`. Surfaces: a "Shelter dogs joining" summary card on the meet's Details tab (avatar pile + count + a violet "Walk with a mentor" eyebrow link for un-vouched viewers), and the People tab roster, where a dog that resolves on the linked shelter's roster (`getShelterDogByName`) is badged as a shelter dog. Útulek's `groupWalksPermitted: true` is what allows shelter dogs to join; per-dog overrides still gate the genuinely-difficult ones (Berta stays solo).
+
+**Shelters do not list meets or specific mentors on their page** (PO direction 2026-06-12). The shelter page stays: browse dogs → become a supporter → the sign-up / pick-a-mentor flow (`WalkEntrySheet` → shelter-neutral mentor list). A "warm on-ramp" callout that listed this walk on the shelter Feed was **removed** — discovery comes from the community side (the host's group Meets tab, meets discovery, the adoption-curious doorway). Connecting meets to shelter pages is a deliberate "maybe later."
+
+**How a brought shelter dog connects — current state vs intended.** Today the link is **display-only and name-resolved**: an attendee row with `dogNames: ["Nora"]` is badged because the name matches the shelter roster at render time. It does **not** create a `Booking`, log a walk, touch the dog's walk count / `lastWalkedAt` / tier, seal a visit report, add the walker to "recent walkers," or trigger the advocacy "Share a moment" — all of those run off the **solo** shelter-walk `Booking` rails (the "Walk a dog" flow), not the group walk. For the demo this stays **instructed** (the meet description explains it) + the roster lists the dog. **Intended design** (not built): a brought shelter dog is the existing **shelter-walk `Booking`** (vouched-gated, waivers, shelter sign-off, checkout record) **linked to the meet occurrence** — the same `Booking.dropoffMeetId` linkage config #2 uses (Filip books Klára so Toby rides along on the Stromovka walk). That keeps every party on the surface they already own — walker RSVPs (community) + books the dog (credentialed flow); the shelter releases the dog through its own booking flow, not a meet-side picker — and the booking captures the walk for tier / report / advocacy "for free." An in-meet dog-*picker* (self-serve selection inside the Meet) is explicitly **not** the direction: it needs a new availability/checkout model and quietly bypasses the shelter. See [[planning/Open Questions & Assumptions Log]] (group-walk shelter-dog connection model + checkout — FC18 tension #2).
+
+---
+
 ## Anti-scoreboard discipline
 
 No leaderboards. No streaks. No "top walker this month." No public ranking of walker pools.
