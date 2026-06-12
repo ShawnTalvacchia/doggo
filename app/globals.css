@@ -14269,7 +14269,7 @@ body:has(.bottom-nav) .inbox-page {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-sm) var(--space-md);
-  padding: var(--space-xs) var(--space-xl) var(--space-md);
+  padding: var(--space-xs) var(--space-xl) var(--space-lg);
   background: var(--surface-popout);
 }
 
@@ -14285,7 +14285,7 @@ body:has(.bottom-nav) .inbox-page {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  padding: 0 var(--space-xl) var(--space-md);
+  padding: 0 var(--space-xl) var(--space-lg);
   background: var(--surface-popout);
 }
 
@@ -14311,7 +14311,7 @@ a.shelter-intro-social:hover {
 .shelter-action-row {
   display: flex;
   gap: var(--space-sm);
-  padding: 0 var(--space-xl) var(--space-md);
+  padding: 0 var(--space-xl) var(--space-lg);
   background: var(--surface-popout);
 }
 
@@ -14388,18 +14388,23 @@ a.shelter-intro-social:hover {
   padding: var(--space-xs) 0;
 }
 
-/* Volunteer-violet CTA — ties the mentored journey to its own colour
-   family (the stepper, credential pills, Volunteer badges all use
-   violet-700). Scoped to this surface, NOT a global ButtonAction
-   variant, so it doesn't add a colour to the app-wide button system —
-   it's the volunteer family applied to its own action. Violet hex kept
-   in sync with .credential-pill--volunteer (promote to --volunteer-*
-   tokens when violet earns more uses). */
-.mentor-violet-cta {
+/* Volunteer-violet split CTA in the action row (mid-mentorship). Main
+   segment books the next session; the caret tucks the demo toggles away.
+   Ties the mentored journey to its own colour family (stepper, credential
+   pills, Volunteer badges all use violet-700) WITHOUT adding a global
+   ButtonAction variant — it's the volunteer family applied to its own
+   action. Violet hex kept in sync with .credential-pill--volunteer. */
+.mentor-split {
+  display: flex;
   width: 100%;
-  padding: var(--space-sm) var(--space-md);
-  border: none;
+  min-height: 40px;
   border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.mentor-split-book {
+  flex: 1;
+  border: none;
   background: #6d28d9;                 /* violet-700 */
   color: #faf5ff;                      /* violet-50 */
   font-size: var(--text-sm);
@@ -14408,7 +14413,22 @@ a.shelter-intro-social:hover {
   transition: background 120ms ease;
 }
 
-.mentor-violet-cta:hover {
+.mentor-split-more {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  flex-shrink: 0;
+  border: none;
+  border-left: 1px solid rgba(250, 245, 255, 0.25);
+  background: #6d28d9;                 /* violet-700 */
+  color: #faf5ff;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.mentor-split-book:hover,
+.mentor-split-more:hover {
   background: #5b21b6;                 /* violet-800 */
 }
 

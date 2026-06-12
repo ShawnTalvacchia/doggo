@@ -234,7 +234,6 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
       <ShelterActionRow
         isFollowing={isFollowing}
         application={application}
-        mentorSessionMinimum={minimum}
         followMenuOpen={followMenuOpen}
         walkerMenuOpen={walkerMenuOpen}
         onToggleFollow={() => {
@@ -268,6 +267,7 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
           if (currentUserId) withdraw(currentUserId, shelter.id);
           setWalkerMenuOpen(false);
         }}
+        onBookNext={handleMentorCardCta}
       />
 
       <MentorProgressLine
@@ -426,9 +426,9 @@ function MentorPathCard({
   const remaining = Math.max(minimum - sessionsCompleted, 0);
   const fromPrice = Math.min(...mentors.map((m) => m.service.pricePerSession));
 
-  // Mid-mentorship: the stepper IS the status display, the CTA sits BELOW
-  // it (full width) in the volunteer-violet treatment that ties the
-  // journey together with the stepper + credential pills.
+  // Mid-mentorship: a CTA-less progress card — headline + stepper only.
+  // The "Book next session" action lives in the action row above (the
+  // violet split button), so the stepper card stays a calm visual.
   if (inMentorship) {
     return (
       <div className="shelter-mentor-card shelter-mentor-card--progress">
@@ -442,11 +442,6 @@ function MentorPathCard({
           completed={sessionsCompleted}
           booking={sessionsCompleted + 1}
         />
-        {remaining > 0 && (
-          <button type="button" className="mentor-violet-cta" onClick={onBook}>
-            Book next session
-          </button>
-        )}
       </div>
     );
   }
@@ -588,8 +583,6 @@ interface ShelterActionRowProps {
   isFollowing: boolean;
   /** Walker application — undefined when the user hasn't applied. */
   application?: WalkerApplication;
-  /** Resolved mentor-session minimum for this shelter. */
-  mentorSessionMinimum: number;
   followMenuOpen: boolean;
   walkerMenuOpen: boolean;
   onToggleFollow: () => void;
@@ -600,6 +593,10 @@ interface ShelterActionRowProps {
   onCompleteMentorSession: () => void;
   onCreditWalks: () => void;
   onWithdraw: () => void;
+  /** Mid-mentorship primary action — opens the mentor list to book the
+   *  next session. The action-row slot IS the CTA (the stepper card below
+   *  is just the visual); demo toggles tuck behind the split caret. */
+  onBookNext: () => void;
 }
 
 const WALKER_BUTTON_LABEL: Record<WalkerApplicationState | "none", string> = {
@@ -612,7 +609,6 @@ const WALKER_BUTTON_LABEL: Record<WalkerApplicationState | "none", string> = {
 function ShelterActionRow({
   isFollowing,
   application,
-  mentorSessionMinimum,
   followMenuOpen,
   walkerMenuOpen,
   onToggleFollow,
@@ -623,14 +619,10 @@ function ShelterActionRow({
   onCompleteMentorSession,
   onCreditWalks,
   onWithdraw,
+  onBookNext,
 }: ShelterActionRowProps) {
   const applicationState = application?.state;
   const inMentorship = !!application?.mentorship && applicationState !== "vouched";
-  // Mentor-path applications read as mentorship progress, not "waiting
-  // for the shelter" — the button label carries the arc (B3).
-  const walkerLabel = inMentorship
-    ? `In mentorship · ${application!.mentorship!.sessionsCompleted}/${mentorSessionMinimum}`
-    : WALKER_BUTTON_LABEL[applicationState ?? "none"];
 
   return (
     <div className="shelter-action-row">
@@ -660,16 +652,38 @@ function ShelterActionRow({
       </div>
 
       <div className="shelter-action-button-wrap dropdown-menu-wrap">
-        <ButtonAction
-          variant={applicationState ? "brand-subtle" : "primary"}
-          size="md"
-          cta
-          leftIcon={applicationState ? <Check size={16} weight="bold" /> : undefined}
-          rightIcon={applicationState ? <CaretDown size={12} weight="bold" /> : undefined}
-          onClick={onToggleWalker}
-        >
-          {walkerLabel}
-        </ButtonAction>
+        {inMentorship ? (
+          // Mid-mentorship: the slot IS the action — a violet split button.
+          // Main segment books the next session (opens the mentor list);
+          // the caret keeps the demo toggles tucked away (hidden-affordance
+          // pattern). The stepper card below carries the progress visual.
+          <div className="mentor-split">
+            <button type="button" className="mentor-split-book" onClick={onBookNext}>
+              Book next session
+            </button>
+            <button
+              type="button"
+              className="mentor-split-more"
+              onClick={onToggleWalker}
+              aria-haspopup="menu"
+              aria-expanded={walkerMenuOpen}
+              aria-label="Mentorship options"
+            >
+              <CaretDown size={12} weight="bold" />
+            </button>
+          </div>
+        ) : (
+          <ButtonAction
+            variant={applicationState ? "brand-subtle" : "primary"}
+            size="md"
+            cta
+            leftIcon={applicationState ? <Check size={16} weight="bold" /> : undefined}
+            rightIcon={applicationState ? <CaretDown size={12} weight="bold" /> : undefined}
+            onClick={onToggleWalker}
+          >
+            {WALKER_BUTTON_LABEL[applicationState ?? "none"]}
+          </ButtonAction>
+        )}
         {walkerMenuOpen && applicationState && (
           <div className="dropdown-menu" role="menu">
             {inMentorship && (
