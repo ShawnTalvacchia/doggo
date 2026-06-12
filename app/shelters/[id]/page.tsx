@@ -433,15 +433,15 @@ function MentorPathCard({
   // violet split button), so this stays a calm visual.
   return (
     <div className="shelter-mentor-card shelter-mentor-card--progress">
-      <span className="mentor-progress-caption">
-        {remaining === 0
-          ? "All sessions done — you'll be vouched shortly"
-          : `${remaining} more ${remaining === 1 ? "session" : "sessions"} to walk solo`}
-      </span>
       <MentorProgressTrack
         total={minimum}
         completed={sessionsCompleted}
         booking={sessionsCompleted + 1}
+        caption={
+          remaining === 0
+            ? "All sessions done — you'll be vouched shortly"
+            : `${remaining} more ${remaining === 1 ? "session" : "sessions"} to walk solo`
+        }
       />
     </div>
   );

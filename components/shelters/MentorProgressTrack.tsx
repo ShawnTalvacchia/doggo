@@ -14,6 +14,7 @@ export function MentorProgressTrack({
   total,
   completed,
   booking,
+  caption,
 }: {
   total: number;
   /** Sessions already completed at this shelter. */
@@ -21,6 +22,11 @@ export function MentorProgressTrack({
   /** 1-based session number being booked now (highlighted). Pass 0/undefined
    *  to highlight nothing (e.g. a status display, not a booking flow). */
   booking?: number;
+  /** Optional flush-left caption that sits on the SAME baseline row as the
+   *  "Solo walker" end label (the shelter card passes its progress count
+   *  here so the two read as a labelled progress bar; the booking sheet
+   *  leaves it off and keeps its longer caption separate below). */
+  caption?: string;
 }) {
   return (
     <div
@@ -44,8 +50,13 @@ export function MentorProgressTrack({
           <span className="mentor-progress-node mentor-progress-node--goal">
             <GraduationCap size={16} weight="fill" />
           </span>
-          <span className="mentor-progress-goal-label">Solo walker</span>
         </div>
+      </div>
+      {/* End-labels row: caption flush-left, "Solo walker" at the right
+          (under the cap). Extra gap above keeps the labels off the nodes. */}
+      <div className="mentor-progress-footer">
+        {caption && <span className="mentor-progress-caption">{caption}</span>}
+        <span className="mentor-progress-goal-label">Solo walker</span>
       </div>
     </div>
   );
