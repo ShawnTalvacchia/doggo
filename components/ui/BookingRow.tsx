@@ -89,6 +89,11 @@ export function BookingRow({ booking }: { booking: Booking }) {
   const isPast = booking.status === "completed" || booking.status === "cancelled";
   const sessionInfo = activeSessionInfo(booking);
   const isLive = sessionInfo?.live === true;
+  // Volunteer-path bookings (mentor sessions + solo shelter walks) wear the
+  // violet category accent, not the blue care default — green = community,
+  // blue = paid care, violet = volunteer (one job per colour). Past/live
+  // states still override the accent (grey / amber).
+  const isVolunteer = booking.mentorSession != null || booking.ownerKind === "shelter";
   const progress = sessionProgress(booking);
   const firstPetName = booking.pets[0] ?? null;
   const firstPetAvatar = firstPetName
@@ -123,7 +128,7 @@ export function BookingRow({ booking }: { booking: Booking }) {
   return (
     <Link
       href={cardHref}
-      className={`booking-card${isPast ? " booking-card--past" : ""}${isLive ? " booking-card--live" : ""}`}
+      className={`booking-card${isVolunteer ? " booking-card--volunteer" : ""}${isPast ? " booking-card--past" : ""}${isLive ? " booking-card--live" : ""}`}
     >
       {/* Row 1: Avatar combo + name + status */}
       <div className="booking-card-top">

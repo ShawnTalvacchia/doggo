@@ -8178,6 +8178,16 @@ body:has(.bottom-nav) .bookings-page {
   transition: box-shadow 0.12s ease;
 }
 
+/* Volunteer-path bookings (mentor sessions + solo shelter walks) take the
+   violet category accent instead of the blue care default — green =
+   community, blue = paid care, violet = volunteer. Placed before the
+   --past / --live modifiers so those still override (grey / amber). Violet
+   hex matches the volunteer button + credential family (violet-700);
+   promote to a --volunteer-* token when that family earns one (FC11). */
+.booking-card--volunteer {
+  border-left-color: #6d28d9;
+}
+
 .booking-card:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
 }
