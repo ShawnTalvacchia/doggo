@@ -116,7 +116,10 @@ const UTULEK_DOGS: PetProfile[] = [
     personalityTags: ["senior"],
     adoptionStatus: "available",
     intakeDate: daysAgo(91),
-    experiencedHandlersOnly: true,
+    // No handler gate: a calm low-energy senior who "gets along with
+    // everyone" is exactly the kind of dog a mentored newcomer can walk.
+    // experiencedHandlersOnly is reserved for genuinely difficult dogs
+    // (see Berta) — the mentor path is how newcomers become competent.
     energyLevel: "low",
     vetInfo: {
       vaccinations: [
@@ -464,7 +467,8 @@ const PES_V_NOUZI_DOGS: PetProfile[] = [
     personalityTags: ["gentle", "calm", "senior"],
     adoptionStatus: "available",
     intakeDate: daysAgo(52),
-    experiencedHandlersOnly: true,
+    // No handler gate — a gentle calm senior, walkable by a mentored
+    // newcomer. (experiencedHandlersOnly reserved for genuinely hard dogs.)
     energyLevel: "low",
   },
   {
