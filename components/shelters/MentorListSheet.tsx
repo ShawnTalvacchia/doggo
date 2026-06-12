@@ -35,12 +35,17 @@ export function MentorListSheet({
   shelter,
   mentors,
   onPick,
+  dogName,
 }: {
   open: boolean;
   onClose: () => void;
   shelter: ShelterProfile;
   mentors: MentorListEntry[];
   onPick: (entry: MentorListEntry) => void;
+  /** When the list was opened from a dog's profile, the dog the mentee
+   *  is working toward — surfaced so the adoption-funnel anchor stays
+   *  visible through mentor selection (2026-06-11). */
+  dogName?: string;
 }) {
   const minimum = shelter.policy.mentorSessionMinimum ?? MENTOR_SESSION_DEFAULT_MINIMUM;
   const sessionWord = `${numberWord(minimum)} time${minimum === 1 ? "" : "s"}`;
@@ -48,9 +53,13 @@ export function MentorListSheet({
     <ModalSheet open={open} onClose={onClose} title={`Mentors at ${shelter.name}`} compact>
       <div className="flex flex-col gap-md p-md">
         <p className="text-sm text-fg-secondary m-0">
-          Get certified to volunteer by walking with a mentor {sessionWord}. Mentor
-          walkers are experienced handlers who know {shelter.name}&rsquo;s dogs and
-          routines — they&rsquo;ll get you ready to walk on your own.
+          {dogName ? (
+            <>Want to walk {dogName}? Get certified by walking with a mentor {sessionWord}. </>
+          ) : (
+            <>Get certified to volunteer by walking with a mentor {sessionWord}. </>
+          )}
+          Mentor walkers are experienced handlers who know {shelter.name}&rsquo;s dogs
+          and routines — they&rsquo;ll get you ready to walk on your own.
         </p>
         <div className="flex flex-col gap-xs">
           {mentors.map((entry) => {

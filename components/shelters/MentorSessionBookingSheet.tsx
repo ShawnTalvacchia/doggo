@@ -93,6 +93,7 @@ export function MentorSessionBookingSheet({
   service,
   defaultShelterId,
   lockShelter = false,
+  dog,
 }: {
   open: boolean;
   onClose: () => void;
@@ -104,6 +105,11 @@ export function MentorSessionBookingSheet({
    *  options there is incoherent; PO call 2026-06-11). Profile-entry
    *  keeps the picker, since no shelter has been chosen yet. */
   lockShelter?: boolean;
+  /** Entered from a specific dog's profile — the mentee is working
+   *  toward THIS dog (adoption-funnel anchor, 2026-06-11). Carries
+   *  through to the mentorship + booking; restricted dogs get the
+   *  "build toward her" framing rather than a wall. */
+  dog?: { id: string; name: string; experiencedHandlersOnly?: boolean };
 }) {
   const currentUser = useCurrentUser();
   const router = useRouter();
@@ -193,9 +199,15 @@ export function MentorSessionBookingSheet({
     markFamiliar(mentor.id, currentUser.id);
 
     // Waiver layers (D4): platform baseline once, shelter waiver per
-    // shelter, then the mentorship record at this shelter.
+    // shelter, then the mentorship record at this shelter (anchored to
+    // the working-toward dog when the flow came from a dog page).
     if (!platformSignedAt) signPlatformWaiver(currentUser.id);
-    beginMentorship(currentUser.id, shelterId, { id: mentor.id, name: mentor.name });
+    beginMentorship(
+      currentUser.id,
+      shelterId,
+      { id: mentor.id, name: mentor.name },
+      dog ? { id: dog.id, name: dog.name } : undefined,
+    );
     if (!shelterSignedAt) signShelterWaiver(currentUser.id, shelterId);
 
     const convId = getOrCreateDirectConversation({
@@ -220,6 +232,7 @@ export function MentorSessionBookingSheet({
         shelterId: shelter.id,
         shelterName: shelter.name,
         sessionNumber: nextSessionNumber,
+        ...(dog ? { workingTowardDogName: dog.name } : {}),
       },
       subService: null,
       pets: [],
@@ -323,6 +336,23 @@ export function MentorSessionBookingSheet({
               {service.durationMinutes} min
             </span>
           </div>
+
+          {/* Working-toward dog (adoption-funnel anchor, 2026-06-11). When
+              the flow started from a dog's profile, keep that dog's face
+              on the journey. Restricted dogs get honest "build toward
+              her" framing instead of a wall — encouragement first. */}
+          {dog && (
+            <div className="mentor-working-toward">
+              <span className="text-sm font-semibold text-fg-primary">
+                Working toward walking {dog.name}
+              </span>
+              <span className="text-xs text-fg-tertiary">
+                {dog.experiencedHandlersOnly
+                  ? `${dog.name} needs an experienced handler — ${mentorFirstName} will start you with friendlier dogs and build toward her.`
+                  : `${mentorFirstName} confirms which dog you start with; your goal is walking ${dog.name} on your own.`}
+              </span>
+            </div>
+          )}
 
           {/* Shelter picker — only on mentor-profile entry (no shelter
               chosen yet) AND when the mentor serves multiple shelters.

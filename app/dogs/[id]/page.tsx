@@ -1159,25 +1159,26 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
         )}
         {/* Mentored way in (B2) — the dog page is where the emotional hook
             lands ("I want to walk HER"), so the mentor path answers the
-            "but I've never done this" hesitation right here. Opens the
-            neutral mentor list, never a named mentor. */}
+            "but I've never done this" hesitation right here, anchored to
+            THIS dog (adoption funnel, 2026-06-11). Opens the neutral
+            mentor list (never a named mentor) carrying the dog. */}
         {showMentorUpsell && (
-          <button
-            type="button"
-            className="text-xs text-fg-secondary"
-            style={{
-              background: "none",
-              border: "none",
-              padding: 0,
-              cursor: "pointer",
-              textAlign: "left",
-              textDecoration: "underline",
-            }}
-            onClick={() => setMentorListOpen(true)}
-          >
-            New to shelter walking? Book a mentored first walk — {minimum} sessions
-            and you walk solo here.
-          </button>
+          <div className="dog-mentor-upsell">
+            <span className="text-xs text-fg-tertiary">
+              {state
+                ? `Not a verified walker at ${shelter.name} yet.`
+                : `New to shelter walking? You're not a verified walker at ${shelter.name} yet.`}
+            </span>
+            <button
+              type="button"
+              className="dog-mentor-upsell-link"
+              onClick={() => setMentorListOpen(true)}
+            >
+              {dog.experiencedHandlersOnly
+                ? `Start with a mentor and work toward walking ${dog.name}`
+                : `Walk ${dog.name} with a mentor — ${minimum} sessions and you walk solo here`}
+            </button>
+          </div>
         )}
       </div>
       <WalkApplicationSheet
@@ -1209,6 +1210,7 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
         onClose={() => setMentorListOpen(false)}
         shelter={shelter}
         mentors={mentors}
+        dogName={dog.name}
         onPick={(entry) => {
           setMentorListOpen(false);
           setMentorSheetTarget(entry);
@@ -1226,6 +1228,7 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
           service={mentorSheetTarget.service}
           defaultShelterId={shelter.id}
           lockShelter
+          dog={{ id: dog.id, name: dog.name, experiencedHandlersOnly: dog.experiencedHandlersOnly }}
         />
       )}
     </>

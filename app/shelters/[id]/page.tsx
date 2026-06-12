@@ -391,7 +391,10 @@ function MentorProgressLine({
     shelter.policy.acceptsMentorVouches
   ) {
     const done = application.mentorship.sessionsCompleted;
-    text = `${done} of ${minimum} mentor sessions with ${application.mentorship.mentorName} — ${shelter.name} vouches you after that.`;
+    // Keep the working-toward dog present through the journey (adoption
+    // funnel) — "…working toward Bára" when the path was dog-anchored.
+    const towardDog = application.mentorship.workingTowardDogName;
+    text = `${done} of ${minimum} mentor sessions with ${application.mentorship.mentorName}${towardDog ? `, working toward ${towardDog}` : ""} — ${shelter.name} vouches you after that.`;
   } else if (
     application &&
     application.state !== "vouched" &&

@@ -92,6 +92,11 @@ interface WalkerApplicationsContextValue {
     userId: string,
     shelterId: string,
     mentor: { id: string; name: string },
+    /** The dog the mentee is working toward, when the flow started from
+     *  a dog's profile. Anchors the adoption funnel (mentor-discovery
+     *  rework, 2026-06-11). Set on first booking; not overwritten by
+     *  later sessions. */
+    dog?: { id: string; name: string },
   ) => void;
   /**
    * Record a completed mentor session. When the shelter accepts
@@ -220,15 +225,40 @@ export function WalkerApplicationsProvider({ children }: { children: React.React
   );
 
   const beginMentorship = useCallback(
-    (userId: string, shelterId: string, mentor: { id: string; name: string }) => {
+    (
+      userId: string,
+      shelterId: string,
+      mentor: { id: string; name: string },
+      dog?: { id: string; name: string },
+    ) => {
+      const newMentorship = {
+        mentorId: mentor.id,
+        mentorName: mentor.name,
+        sessionsCompleted: 0,
+        ...(dog ? { workingTowardDogId: dog.id, workingTowardDogName: dog.name } : {}),
+      };
       setApplications((prev) => {
         const existing = prev.find((a) => a.userId === userId && a.shelterId === shelterId);
         if (existing) {
-          if (existing.mentorship) return prev;
+          if (existing.mentorship) {
+            // Mentorship exists — only fill in the working-toward dog if
+            // it wasn't anchored yet (the first dog sets the journey).
+            if (existing.mentorship.workingTowardDogId || !dog) return prev;
+            return prev.map((a) =>
+              a === existing
+                ? {
+                    ...a,
+                    mentorship: {
+                      ...a.mentorship!,
+                      workingTowardDogId: dog.id,
+                      workingTowardDogName: dog.name,
+                    },
+                  }
+                : a,
+            );
+          }
           return prev.map((a) =>
-            a === existing
-              ? { ...a, mentorship: { mentorId: mentor.id, mentorName: mentor.name, sessionsCompleted: 0 } }
-              : a,
+            a === existing ? { ...a, mentorship: newMentorship } : a,
           );
         }
         return [
@@ -240,7 +270,7 @@ export function WalkerApplicationsProvider({ children }: { children: React.React
             state: "applied" as WalkerApplicationState,
             message: `Mentor-path application via ${mentor.name}.`,
             appliedAt: new Date().toISOString(),
-            mentorship: { mentorId: mentor.id, mentorName: mentor.name, sessionsCompleted: 0 },
+            mentorship: newMentorship,
           },
         ];
       });

@@ -14409,6 +14409,37 @@ a.shelter-intro-social:hover {
   flex-shrink: 0;
 }
 
+/* Working-toward-dog anchor block on the mentor booking sheet
+   (adoption funnel, 2026-06-11). */
+.mentor-working-toward {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-tiny);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-inset);
+  border-radius: var(--radius-form);
+}
+
+/* Dog-page mentored-way-in upsell (anchored to this dog). */
+.dog-mentor-upsell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-tiny);
+}
+
+.dog-mentor-upsell-link {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: var(--text-xs);
+  text-align: left;
+  color: var(--text-link, var(--brand-strong));
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 /* Mentor-session booking sheet — waiver rows (checkbox + linked label).
    Top-align so the box sits with the first line of a wrapping label
    (the old `align-items: flex-start` inline style was inconsistent). */
