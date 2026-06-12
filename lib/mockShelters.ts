@@ -96,7 +96,12 @@ const UTULEK_DOGS: PetProfile[] = [
     personalityTags: ["smart", "reactive-on-leash"],
     adoptionStatus: "available",
     intakeDate: daysAgo(45),
-    soloOnly: true,
+    // Reactive-on-leash is a management/training need — the trainer-led
+    // group walk is the socialization path for it — NOT a reason to lock a
+    // dog to solo walks. soloOnly is reserved for genuine no-other-dogs
+    // cases (see Berta). Doggo's stance is to socialise, not avoid; blanket
+    // solo-only conservatism is the anti-pattern (Product Vision →
+    // Trainer-Led Walks; Cold-Start Playbook). See Open Questions.
     energyLevel: "very_high",
   },
   {
@@ -148,7 +153,8 @@ const UTULEK_DOGS: PetProfile[] = [
     personalityTags: ["affectionate", "reactive-on-leash"],
     adoptionStatus: "available",
     intakeDate: daysAgo(8),
-    soloOnly: true,
+    // Reactive-on-leash → group-walk with management (trainer-led), not a
+    // solo lock. soloOnly reserved for no-other-dogs cases (see Berta).
     energyLevel: "high",
   },
   {
@@ -202,7 +208,13 @@ const UTULEK_DOGS: PetProfile[] = [
     backstory:
       "Came from a rural municipal pound after her owner died. Wary of new people but loyal once she trusts you. Needs a quiet home with no other dogs.",
     /* Long-stayer auto-derives from daysInKennel; "Solo only" derives
-       from `soloOnly: true` via `derivePolicyChips` and renders below. */
+       from `soloOnly: true` via `derivePolicyChips` and renders below.
+       Berta is the ONE genuine soloOnly case in the seed world: "needs a
+       quiet home with no other dogs" — a real no-other-dogs constraint, not
+       blanket conservatism. The reactive-on-leash dogs (Maja, Líza) were
+       deliberately NOT made soloOnly — that's a management need the
+       trainer-led group walk addresses, per Doggo's socialise-don't-avoid
+       stance. See Open Questions (shelter solo-only defaults research gap). */
     personalityTags: ["wary-of-strangers"],
     adoptionStatus: "available",
     intakeDate: daysAgo(120),
@@ -559,7 +571,8 @@ const DRUHA_SANCE_DOGS: PetProfile[] = [
     personalityTags: ["gentle", "calm", "shy"],
     adoptionStatus: "available",
     intakeDate: daysAgo(75),
-    soloOnly: true,
+    // Shy + gentle is a reason to socialise gently, not to lock solo —
+    // a calm group with the right handler is exactly what helps her.
     energyLevel: "low",
   },
   {
