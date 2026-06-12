@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useState } from "react";
-import type { PostTagType } from "@/lib/types";
+import type { PostTag, PostTagType } from "@/lib/types";
 
 interface OpenComposerOptions {
   /** Pre-selected community ID when opening from a group page. */
@@ -11,12 +11,19 @@ interface OpenComposerOptions {
    *  shortcut both opens the composer AND drops the user into the
    *  relevant picker — saves an extra tap. 2026-05-13. */
   initialTagPicker?: PostTagType;
+  /** Pre-fill these tags when the composer mounts. Used by the
+   *  walk-finish "Share a moment" advocacy flow to open the composer
+   *  already tagged to the dog + shelter (Adoption-Curious Journey,
+   *  2026-06-12) — the recap is pre-attributed so the share is one tap.
+   *  The user can still add/remove tags afterwards. */
+  initialTags?: PostTag[];
 }
 
 interface PostComposerContextValue {
   isOpen: boolean;
   preselectedGroupId?: string;
   initialTagPicker?: PostTagType;
+  initialTags?: PostTag[];
   openComposer: (opts?: OpenComposerOptions) => void;
   closeComposer: () => void;
 }
@@ -31,10 +38,12 @@ export function PostComposerProvider({ children }: { children: React.ReactNode }
   const [isOpen, setIsOpen] = useState(false);
   const [preselectedGroupId, setPreselectedGroupId] = useState<string | undefined>();
   const [initialTagPicker, setInitialTagPicker] = useState<PostTagType | undefined>();
+  const [initialTags, setInitialTags] = useState<PostTag[] | undefined>();
 
   const openComposer = useCallback((opts?: OpenComposerOptions) => {
     setPreselectedGroupId(opts?.groupId);
     setInitialTagPicker(opts?.initialTagPicker);
+    setInitialTags(opts?.initialTags);
     setIsOpen(true);
   }, []);
 
@@ -42,11 +51,12 @@ export function PostComposerProvider({ children }: { children: React.ReactNode }
     setIsOpen(false);
     setPreselectedGroupId(undefined);
     setInitialTagPicker(undefined);
+    setInitialTags(undefined);
   }, []);
 
   return (
     <PostComposerContext.Provider
-      value={{ isOpen, preselectedGroupId, initialTagPicker, openComposer, closeComposer }}
+      value={{ isOpen, preselectedGroupId, initialTagPicker, initialTags, openComposer, closeComposer }}
     >
       {children}
     </PostComposerContext.Provider>

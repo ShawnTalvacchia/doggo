@@ -10,6 +10,7 @@ import { mockMeets } from "./mockMeets";
 import { getConnectionsForViewer } from "./mockConnections";
 import { mockGroups, getUserGroups } from "./mockGroups";
 import { getUserById } from "./mockUsers";
+import { mockShelters, getShelterFeed } from "./mockShelters";
 
 /**
  * Feed content sourcing per Content Visibility Model (two-gate system):
@@ -103,6 +104,30 @@ export function getFeedForUser(userId: string): FeedItem[] {
 
   for (const post of mockPosts) {
     if (post.groupId && connectionGroupIds.has(post.groupId)) {
+      if (!addedPostIds.has(post.id)) {
+        addedPostIds.add(post.id);
+        items.push({
+          feedId: `feed-post-${post.id}`,
+          type: "community_post",
+          timestamp: post.createdAt,
+          post,
+        } as FeedPostItem);
+      }
+    }
+  }
+
+  // ── Gate 5: Followed-shelter gate — posts from shelters the user supports ─
+  // Following/supporting a shelter brings its dogs' walk recaps into your
+  // home feed. This is the advocacy-loop mechanism in the network: a walker's
+  // recap reaches non-walker adopters who follow the shelter, not just people
+  // who happen to be connected to the walker. The proven adoption engine is
+  // community exposure (Adoption-Curious Journey, 2026-06-12). Supporter
+  // membership is the static `ShelterProfile.supporters` roster.
+  const supportedShelters = mockShelters.filter((s) =>
+    s.supporters.some((sup) => sup.userId === userId)
+  );
+  for (const shelter of supportedShelters) {
+    for (const post of getShelterFeed(shelter)) {
       if (!addedPostIds.has(post.id)) {
         addedPostIds.add(post.id);
         items.push({

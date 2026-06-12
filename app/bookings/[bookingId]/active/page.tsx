@@ -50,6 +50,7 @@ import { useNotifications } from "@/contexts/NotificationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { getUserById } from "@/lib/mockUsers";
+import { getShelterDogByName } from "@/lib/mockShelters";
 import { buildSessionCompletedNotification } from "@/lib/notificationBuilders";
 import type { BookingSession } from "@/lib/types";
 
@@ -153,6 +154,18 @@ export default function ActiveSessionPage() {
       },
     });
     addNotification(buildSessionCompletedNotification(booking!, s));
+    // Advocacy loop (Adoption-Curious Journey, 2026-06-12): finishing a
+    // shelter walk lands on the DOG's page with a "Share a moment" prompt,
+    // not the booking summary — the recap is what helps the dog find a
+    // home, so the dog (not the paid-booking record) is the right next
+    // surface. Paid-care walks keep the sessions-tab summary.
+    if (booking!.ownerKind === "shelter") {
+      const dog = getShelterDogByName(booking!.ownerId, booking!.pets[0] ?? "");
+      if (dog) {
+        router.push(`/dogs/${dog.id}?finished=1`);
+        return;
+      }
+    }
     router.push(`/bookings/${booking!.id}?tab=sessions`);
   }
 

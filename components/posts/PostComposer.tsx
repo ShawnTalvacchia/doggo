@@ -345,7 +345,7 @@ function AccordionRow({
 /* ── Main composer ── */
 
 export function PostComposer() {
-  const { isOpen, preselectedGroupId, initialTagPicker, closeComposer } = usePostComposer();
+  const { isOpen, preselectedGroupId, initialTagPicker, initialTags, closeComposer } = usePostComposer();
   const currentUser = useCurrentUser();
   const [photos, setPhotos] = useState<string[]>([]);
   const [caption, setCaption] = useState("");
@@ -360,6 +360,21 @@ export function PostComposer() {
       setTags((prev) => [...prev, { type: "community", id: group.id, label: group.name }]);
     }
     hasSetPreselected.current = true;
+  }
+
+  // Pre-fill tags passed via openComposer({ initialTags }) — the walk-finish
+  // "Share a moment" advocacy flow opens already tagged to the dog + shelter.
+  // One-shot ref guard like the others, so the tags stay user-editable.
+  const hasSetInitialTags = useRef(false);
+  if (isOpen && initialTags && initialTags.length > 0 && !hasSetInitialTags.current) {
+    setTags((prev) => {
+      const merged = [...prev];
+      for (const t of initialTags) {
+        if (!merged.some((m) => m.type === t.type && m.id === t.id)) merged.push(t);
+      }
+      return merged;
+    });
+    hasSetInitialTags.current = true;
   }
 
   // Auto-open the requested tag picker when the composer mounts via a
@@ -381,6 +396,7 @@ export function PostComposer() {
     setPickerQuery("");
     hasSetPreselected.current = false;
     hasSetInitialPicker.current = false;
+    hasSetInitialTags.current = false;
   }, [closeComposer]);
 
   function addMockPhoto() {

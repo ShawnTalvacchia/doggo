@@ -1834,6 +1834,83 @@ export const mockPosts: Post[] = [
    * the Vetted walkers (Anna, Jakub, Petr, Karolína) cover the rest.
    * ────────────────────────────────────────────────────────────── */
 
+  /* ── Nora advocacy recaps (Adoption-Curious Journey, 2026-06-12) ──────
+   *
+   * The advocacy loop in seed form. Nora is the focal long-stayer; these
+   * walker recaps are the adoption "ad" — community exposure is the proven
+   * engine (~5×/14× lift), not the walker adopting (see Competitive
+   * Research — Adoption-Curious Journeys). Eliška (the adoption-curious
+   * persona) authors the lead recap; a second walker reinforces. The
+   * comment from a network member expressing interest IS the mechanism
+   * made visible — a recap surfaces the dog to someone who wasn't walking
+   * her, and that's who adopts (feeds the adoption capstone, Workstream E).
+   * Composer posts don't persist at runtime (FC13), so the demo's
+   * "Share a moment" recap is pre-seeded here, the established pattern. */
+
+  // Eliška's recap of Nora — the protagonist's advocacy post, the lead ad.
+  {
+    id: "post-walker-eliska-nora",
+    authorId: "eliska",
+    authorName: "Eliška D.",
+    authorAvatarUrl: "/images/generated/eliska-profile.jpeg",
+    photos: ["/images/generated/shelter-dog-nora-portrait.jpeg"],
+    caption:
+      "Walked Nora this morning and I can't stop thinking about her. She presses herself into the back of the kennel when people walk past, so she gets overlooked again and again — but the second we were out the gate she was a different dog, trotting along with her ears up, leaning into every bit of fuss. Gentle as anything, happy with every dog we passed. Seventy days she's been waiting. Someone is going to be so lucky.",
+    tags: [
+      { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
+      { type: "dog", id: "shelter-dog-nora", label: "Nora" },
+    ],
+    createdAt: daysAgoIso(2, "10:30"),
+    reactions: [
+      { userId: "klara", userName: "Klára H." },
+      { userId: "tereza", userName: "Tereza N." },
+      { userId: "supporter-katerina-v", userName: "Kateřina V." },
+      { userId: "walker-marie-b", userName: "Marie B." },
+      { userId: "supporter-david-c", userName: "David Č." },
+    ],
+    comments: [
+      {
+        id: "comment-eliska-nora-1",
+        authorId: "supporter-katerina-v",
+        authorName: "Kateřina V.",
+        authorAvatarUrl: "/images/generated/lucie-profile.jpeg",
+        text: "Oh, she's lovely. We've been hoping to find a calm dog who's good with our Bobeš — is she still looking for a home? Going to message the shelter.",
+        createdAt: daysAgoIso(2, "12:05"),
+      },
+      {
+        id: "comment-eliska-nora-2",
+        authorId: "klara",
+        authorName: "Klára H.",
+        authorAvatarUrl: "/images/generated/klara-profile.jpeg",
+        text: "She's a gem on the trail. So good with the other dogs on our Saturday walk.",
+        createdAt: daysAgoIso(2, "13:20"),
+      },
+    ],
+  },
+
+  // Marie (Experienced) reinforces — Nora's been walked by more than one
+  // person, which builds the case and the recent-walkers row on her page.
+  {
+    id: "post-walker-marie-nora",
+    authorId: "walker-marie-b",
+    authorName: "Marie B.",
+    authorAvatarUrl: "/images/generated/marie-profile.jpeg",
+    photos: ["/images/generated/shelter-dog-nora-portrait.jpeg"],
+    caption:
+      "Second time out with Nora. Same story — quiet in the kennel, all wags once she's out. She'd be the easiest dog in a calm home. Spread the word for this one.",
+    tags: [
+      { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
+      { type: "dog", id: "shelter-dog-nora", label: "Nora" },
+    ],
+    createdAt: daysAgoIso(9, "16:00"),
+    reactions: [
+      { userId: "supporter-andrea-k", userName: "Andrea K." },
+      { userId: "supporter-stepan-m", userName: "Štěpán M." },
+      { userId: "eliska", userName: "Eliška D." },
+    ],
+    comments: [],
+  },
+
   // Helena (Experienced) walks Theo, the new arrival.
   {
     id: "post-walker-helena-theo",

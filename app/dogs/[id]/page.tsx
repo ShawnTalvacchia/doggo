@@ -14,6 +14,7 @@ import {
   X,
   Check,
   Camera,
+  CameraPlus,
   GenderMale,
   GenderFemale,
   Footprints,
@@ -74,6 +75,7 @@ import type {
   CarerMentorSessionServiceConfig,
   PetProfile,
   Post,
+  PostTag,
   ShelterProfile,
   TagApproval,
   UserProfile,
@@ -437,6 +439,10 @@ function DogProfileInner() {
       <DetailHeader backLabel="Back" title={headerTitle} backHref={parentHref} rightAction={ownerHeaderAction} />
       <div className="dog-profile-panel">
         <div className="dog-profile-body">
+          {/* Advocacy loop: post-walk "Share a moment" prompt (shelter dogs
+              only; renders when arriving via ?finished=1 from a finished
+              shelter walk). */}
+          {shelter && <WalkFinishedBanner dog={dog} shelter={shelter} />}
           {/* Sibling tab strip — sticks at top of the scrollable body
               so visitors can switch between an owner's dogs without
               scrolling back. Mirrors the shelter / community detail
@@ -989,6 +995,55 @@ function DogPhotosBundle({
  * walkthrough speed). Mentor-path applications get "Complete mentor
  * session (demo)" instead of the shelter-intake "Advance state".
  */
+/**
+ * The advocacy loop's first-class "Share a moment" prompt (Adoption-Curious
+ * Journey, 2026-06-12). Finishing a shelter walk routes here with `?finished=1`;
+ * this celebration banner invites the walker to share a photo + a few words.
+ * The walk recap IS the adoption ad — community exposure is the proven engine
+ * (~5×/14× lift), not the walker adopting (see Competitive Research —
+ * Adoption-Curious Journeys). Opening the composer pre-tags the dog + shelter
+ * so the recap routes into the shelter feed and the network. No pressure: a
+ * quiet "Maybe later" dismisses; sharing is encouraged, never required.
+ */
+function WalkFinishedBanner({ dog, shelter }: { dog: PetProfile; shelter: ShelterProfile }) {
+  const searchParams = useSearchParams();
+  const { openComposer } = usePostComposer();
+  const [dismissed, setDismissed] = useState(false);
+
+  if (searchParams.get("finished") !== "1" || dismissed) return null;
+
+  const tags: PostTag[] = [
+    { type: "dog", id: dog.id, label: dog.name },
+    { type: "shelter", id: shelter.id, label: shelter.name },
+  ];
+
+  return (
+    <div className="flex flex-col gap-sm rounded-panel border border-edge-regular bg-surface-top p-md mb-md">
+      <p className="text-base font-semibold text-fg-primary m-0">
+        Great walk with {dog.name}! 🎉
+      </p>
+      <p className="text-sm text-fg-secondary m-0">
+        Share a moment from today — a photo and a few words is how {dog.name}{" "}
+        finds a home. Your walk story reaches people who might be looking for
+        exactly this dog.
+      </p>
+      <div className="flex items-center gap-sm">
+        <ButtonAction
+          variant="primary"
+          size="sm"
+          leftIcon={<CameraPlus size={16} weight="bold" />}
+          onClick={() => openComposer({ initialTags: tags })}
+        >
+          Share a moment
+        </ButtonAction>
+        <ButtonAction variant="tertiary" size="sm" onClick={() => setDismissed(true)}>
+          Maybe later
+        </ButtonAction>
+      </div>
+    </div>
+  );
+}
+
 function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetProfile }) {
   const router = useRouter();
   const currentUserId = useCurrentUserId();
