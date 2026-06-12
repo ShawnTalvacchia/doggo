@@ -33,6 +33,7 @@ import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { ShelterDogCard } from "@/components/shelters/ShelterDogCard";
 import { ShelterMemberRow } from "@/components/shelters/ShelterMemberRow";
 import { WalkApplicationSheet } from "@/components/shelters/WalkApplicationSheet";
+import { WalkEntrySheet } from "@/components/shelters/WalkEntrySheet";
 import { MentorSessionBookingSheet } from "@/components/shelters/MentorSessionBookingSheet";
 import { MentorProgressTrack } from "@/components/shelters/MentorProgressTrack";
 import { MentorListSheet } from "@/components/shelters/MentorListSheet";
@@ -182,6 +183,10 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
   const applicationState = application?.state;
   const [isFollowing, setIsFollowing] = useState(false);
   const [walkSheetOpen, setWalkSheetOpen] = useState(false);
+  // Single smart entry for an unverified walker (2026-06-11): "Walk a
+  // dog" opens this routing sheet (mentor path or direct apply) instead
+  // of jumping straight to the paragraph application.
+  const [walkEntryOpen, setWalkEntryOpen] = useState(false);
   const [followMenuOpen, setFollowMenuOpen] = useState(false);
   const [walkerMenuOpen, setWalkerMenuOpen] = useState(false);
   // Mentor path (Cross-Shelter Mentor Network B2; list-first since
@@ -246,7 +251,7 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
         }}
         onToggleWalker={() => {
           if (applicationState) setWalkerMenuOpen((v) => !v);
-          else setWalkSheetOpen(true);
+          else setWalkEntryOpen(true);
         }}
         onAdvanceState={() => {
           if (currentUserId) advance(currentUserId, shelter.id);
@@ -276,21 +281,19 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
         mentorshipHistory={mentorshipHistory}
       />
 
-      {/* Mentor-path door (B2): shown while the viewer isn't a vouched
-          walker here and a mentor serves this shelter. Doubles as the
-          "book your next session" surface mid-mentorship. */}
-      {mentors.length > 0 &&
-        shelter.policy.acceptsMentorVouches &&
-        applicationState !== "vouched" && (
-          <MentorPathCard
-            shelter={shelter}
-            mentors={mentors}
-            inMentorship={inMentorship}
-            sessionsCompleted={application?.mentorship?.sessionsCompleted ?? 0}
-            minimum={minimum}
-            onBook={handleMentorCardCta}
-          />
-        )}
+      {/* Mid-mentorship progress card — the stepper visual (the booking
+          action lives in the action row's violet split button). The
+          not-yet-applied "See mentors" entry was folded into the single
+          "Walk a dog" routing sheet (2026-06-11), so this renders ONLY
+          mid-mentorship now, never as a competing CTA. */}
+      {inMentorship && (
+        <MentorPathCard
+          shelter={shelter}
+          mentors={mentors}
+          sessionsCompleted={application?.mentorship?.sessionsCompleted ?? 0}
+          minimum={minimum}
+        />
+      )}
 
       {posts.length === 0 ? (
         <div className="px-lg py-xl">
@@ -307,6 +310,24 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
           ))}
         </div>
       )}
+
+      {/* Single smart entry: "Walk a dog" → the routing sheet for an
+          unverified walker (mentor path or direct apply). */}
+      <WalkEntrySheet
+        open={walkEntryOpen}
+        shelter={shelter}
+        onClose={() => setWalkEntryOpen(false)}
+        showMentorOption={mentors.length > 0 && shelter.policy.acceptsMentorVouches}
+        fromPrice={mentors.length > 0 ? Math.min(...mentors.map((m) => m.service.pricePerSession)) : undefined}
+        onChooseMentor={() => {
+          setWalkEntryOpen(false);
+          setMentorListOpen(true);
+        }}
+        onChooseApply={() => {
+          setWalkEntryOpen(false);
+          setWalkSheetOpen(true);
+        }}
+      />
 
       <WalkApplicationSheet
         open={walkSheetOpen}
@@ -405,66 +426,32 @@ function MentorProgressLine({
  * binding constraint) live or die on this card's conversion.
  */
 function MentorPathCard({
-  shelter,
-  mentors,
-  inMentorship,
+  shelter: _shelter,
+  mentors: _mentors,
   sessionsCompleted,
   minimum,
-  onBook,
 }: {
   shelter: ShelterProfile;
   mentors: { mentor: UserProfile; service: CarerMentorSessionServiceConfig }[];
-  /** True once the mentee has booked their first session here (mentorship
-   *  ref exists, not yet vouched). The card flips to a stepper + "book
-   *  next session" — never pins a mentor OR a dog; each session is
-   *  independent and just steps the count (2026-06-11). */
-  inMentorship: boolean;
   sessionsCompleted: number;
   minimum: number;
-  onBook: () => void;
 }) {
   const remaining = Math.max(minimum - sessionsCompleted, 0);
-  const fromPrice = Math.min(...mentors.map((m) => m.service.pricePerSession));
-
-  // Mid-mentorship: a CTA-less progress card — headline + stepper only.
+  // Mid-mentorship only: a CTA-less progress card — headline + stepper.
   // The "Book next session" action lives in the action row above (the
-  // violet split button), so the stepper card stays a calm visual.
-  if (inMentorship) {
-    return (
-      <div className="shelter-mentor-card shelter-mentor-card--progress">
-        <span className="text-sm font-semibold text-fg-primary">
-          {remaining === 0
-            ? "All sessions done — you'll be vouched shortly"
-            : `${remaining} more ${remaining === 1 ? "session" : "sessions"} to walk solo`}
-        </span>
-        <MentorProgressTrack
-          total={minimum}
-          completed={sessionsCompleted}
-          booking={sessionsCompleted + 1}
-        />
-      </div>
-    );
-  }
-
+  // violet split button), so this stays a calm visual.
   return (
-    <div className="shelter-mentor-card">
-      <span className="shelter-summary-card-icon">
-        <GraduationCap size={24} weight="light" />
+    <div className="shelter-mentor-card shelter-mentor-card--progress">
+      <span className="text-sm font-semibold text-fg-primary">
+        {remaining === 0
+          ? "All sessions done — you'll be vouched shortly"
+          : `${remaining} more ${remaining === 1 ? "session" : "sessions"} to walk solo`}
       </span>
-      <div className="flex flex-col gap-xs flex-1 min-w-0">
-        <span className="text-sm font-semibold text-fg-primary">
-          New to shelter walking?
-        </span>
-        <span className="text-sm text-fg-secondary">
-          A mentor walker will get you ready to walk solo.
-        </span>
-        <span className="text-xs text-fg-tertiary">
-          from {fromPrice.toLocaleString()} Kč / session
-        </span>
-      </div>
-      <ButtonAction variant="secondary" size="sm" cta onClick={onBook}>
-        See mentors
-      </ButtonAction>
+      <MentorProgressTrack
+        total={minimum}
+        completed={sessionsCompleted}
+        booking={sessionsCompleted + 1}
+      />
     </div>
   );
 }

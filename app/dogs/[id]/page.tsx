@@ -50,6 +50,7 @@ import {
 } from "@/contexts/WalkerApplicationsContext";
 import { useBookings } from "@/contexts/BookingsContext";
 import { WalkApplicationSheet } from "@/components/shelters/WalkApplicationSheet";
+import { WalkEntrySheet } from "@/components/shelters/WalkEntrySheet";
 import { WalkBookingSheet } from "@/components/shelters/WalkBookingSheet";
 import { MentorSessionBookingSheet } from "@/components/shelters/MentorSessionBookingSheet";
 import { MentorListSheet } from "@/components/shelters/MentorListSheet";
@@ -1012,6 +1013,7 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
     (application?.walkCount ?? staticEntry?.walkCount ?? 0) +
     (currentUserId ? countCompletedShelterWalks(currentUserId, shelter.id, bookings) : 0);
   const [walkSheetOpen, setWalkSheetOpen] = useState(false);
+  const [walkEntryOpen, setWalkEntryOpen] = useState(false);
   const [walkBookingOpen, setWalkBookingOpen] = useState(false);
   const [walkMenuOpen, setWalkMenuOpen] = useState(false);
   const [mentorListOpen, setMentorListOpen] = useState(false);
@@ -1026,11 +1028,6 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
   const mentors = getMentorsForShelter(shelter.id, applications, tierOverrides).filter(
     (m) => m.mentor.id !== currentUserId,
   );
-  const showMentorUpsell =
-    mentors.length > 0 &&
-    shelter.policy.acceptsMentorVouches &&
-    state !== "vouched" &&
-    !inMentorship;
   const minimum = shelter.policy.mentorSessionMinimum ?? MENTOR_SESSION_DEFAULT_MINIMUM;
 
   // Per-dog eligibility: experiencedHandlersOnly requires tier ≥
@@ -1061,13 +1058,14 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
     return null;
   })();
 
-  // Walk button click — state-aware. No application → application sheet
-  // right here (no shelter-page detour). Vouched + eligible → the REAL
-  // action: book the walk. Anything else with an application → the demo
-  // affordance dropdown.
+  // Walk button click — state-aware single entry (2026-06-11). No
+  // application → the routing sheet (mentor path or direct apply), so
+  // there's never a competing CTA. Vouched + eligible → the REAL action:
+  // book the walk (no paragraph). Anything else with an application →
+  // the demo affordance dropdown.
   const onWalkClick = () => {
     if (!state) {
-      setWalkSheetOpen(true);
+      setWalkEntryOpen(true);
       return;
     }
     if (state === "vouched" && eligibleForDog) {
@@ -1157,30 +1155,27 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
             {statusLine}
           </span>
         )}
-        {/* Mentored way in (B2) — the dog page is where the emotional hook
-            lands ("I want to walk HER"), so the mentor path answers the
-            "but I've never done this" hesitation right here, anchored to
-            THIS dog (adoption funnel, 2026-06-11). Opens the neutral
-            mentor list (never a named mentor) carrying the dog. */}
-        {showMentorUpsell && (
-          <div className="dog-mentor-upsell">
-            <span className="text-xs text-fg-tertiary">
-              {state
-                ? `Not a verified walker at ${shelter.name} yet.`
-                : `New to shelter walking? You're not a verified walker at ${shelter.name} yet.`}
-            </span>
-            <button
-              type="button"
-              className="dog-mentor-upsell-link"
-              onClick={() => setMentorListOpen(true)}
-            >
-              {dog.experiencedHandlersOnly
-                ? `${dog.name} needs an experienced handler — get certified with a mentor and build up`
-                : `Want to walk ${dog.name}? Get certified with a mentor — ${minimum} sessions and you walk solo here`}
-            </button>
-          </div>
-        )}
       </div>
+      {/* Single smart entry: tapping "Walk {dog}" when not verified opens
+          the routing sheet (mentor path or direct apply), anchored to
+          this dog as motivation. Replaces the old competing upsell link
+          + bare application sheet (2026-06-11). */}
+      <WalkEntrySheet
+        open={walkEntryOpen}
+        shelter={shelter}
+        dogName={dog.name}
+        onClose={() => setWalkEntryOpen(false)}
+        showMentorOption={mentors.length > 0 && shelter.policy.acceptsMentorVouches}
+        fromPrice={mentors.length > 0 ? Math.min(...mentors.map((m) => m.service.pricePerSession)) : undefined}
+        onChooseMentor={() => {
+          setWalkEntryOpen(false);
+          setMentorListOpen(true);
+        }}
+        onChooseApply={() => {
+          setWalkEntryOpen(false);
+          setWalkSheetOpen(true);
+        }}
+      />
       <WalkApplicationSheet
         open={walkSheetOpen}
         shelter={shelter}
