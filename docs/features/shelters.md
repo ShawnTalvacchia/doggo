@@ -1,8 +1,8 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-09
-tags: [shelters, institutional-accounts, walkers, dogs, cold-start, photos]
+last-reviewed: 2026-06-12
+tags: [shelters, institutional-accounts, walkers, dogs, cold-start, photos, mentor-network]
 review-trigger: "when modifying shelter surfaces, walker tier model, or non-owned dog handling"
 ---
 
@@ -96,6 +96,8 @@ Notes on the label ladder:
 - Top tier is `Super Volunteer`, not "Trusted." Trust is binary, so "Trusted Volunteer" made the lower tiers sound untrusted by implication.
 - T1 dropped its Leaf icon to make the icon-less tier the visual "you've been vouched" baseline; icons start at T2 to signal escalation, not entry.
 
+**Thresholds are suggestions, not gates** (Mentor Network Decision #4, 2026-06-12). Walk counts auto-derive a *suggested* tier, but the shelter holds free promote/demote authority both directions — this is NOT an approval queue, it's an override on the zero-admin default. Persisted as a `tierOverrides` map keyed `(shelterId, userId)` in `WalkerApplicationsContext`; **effective tier = override ?? derived**, threaded through every reader (affiliations, platform tier, mentor-eligibility gate, Members tab, dog-page eligibility). Surfaced as a "(demo)" dots dropdown per Members-row walker; the real operator surface is FC16. Because platform Super Volunteer requires a `trusted` affiliation, the shelter's lever transitively controls platform status + mentor eligibility — demoting a mentor's only `trusted` affiliation revokes their Super Volunteer status and pulls their mentor offerings. Provenance (credited vs platform-logged walks) stays a data-layer fact (`creditedWalkCount`) surfaced only on the future admin view — public rows show the plain total and trust the tier (Decision #6).
+
 **Color: violet `--volunteer-*` family** (in `app/globals.css`). Sits outside the existing semantic ladder (`info` blue = paid care; `brand` green = community) so it reads as its own category: "time given to shelter dogs."
 
 The pill travels cleanly to out-of-context surfaces (user profiles, feed mentions) without needing shelter context appended. A multi-shelter volunteer wears one row per shelter on their profile's Volunteer-work section — see "Volunteer work on user profiles" below.
@@ -109,14 +111,56 @@ Strictest rule wins.
 
 ## Volunteer work on user profiles
 
-When a walker bridges to a `UserProfile`, their profile renders a "Volunteer work" section between the Carer info and the dogs section. One row per shelter the user is vouched at, each carrying:
+A user's volunteer standing renders in **two** places (restructured 2026-06-12 — Mentor Network Decision #16, which reverses the 2026-06-09 "no walk-count totals" call):
 
-- The credential pill (tier label only — `Volunteer` for T1/T2, `Super Volunteer` for T3)
-- A right-side context line: `at {Shelter name} · N walks`
+1. **Aggregate badge in About** — directly under the carer aggregate (`Trusted Carer · N sessions`), a parallel headline credential: **`Super Volunteer · N walks`** (Tree icon, violet tier-3) when the user holds the platform tier, else **`Volunteer · N walks`** (tier-1). N is the **sum of walks across every shelter** (`affiliations.reduce`). The badge renders for any volunteer, carer or not — the About badges block is ungated from `carerProfile`. This aggregate walk total is the deliberate reversal: dropped in 2026-06-09 as "a stat, not a status," it now reads as the volunteer counterpart to the carer's session count.
+2. **"Volunteer work" section** — the per-shelter breakdown. One row per shelter the user is vouched at: the credential pill (tier label only — `Volunteer` for T1/T2, `Super Volunteer` for T3) + a context line `at {Shelter name} · N walks`. The section header is plain "Volunteer work" — its earlier Super Volunteer pill + "Recognized at every participating shelter" subline moved UP to the aggregate badge.
 
-Multi-shelter walkers stack rows. **No aggregate header** — an earlier spec (2026-06-08 walkthrough O6 resolution) had a conditional `Volunteer work · 3 shelters · 47 walks total` aggregate when affiliations ≥ 2; dropped during walkthrough (2026-06-09) because per-row tier already varies per shelter, so an aggregate either hides that distinction or duplicates it. If a "total walks" signal ever proves needed, it belongs as a section subtitle (`3 shelters · 120 walks`), not on the pill.
+For a single-shelter volunteer the aggregate equals the one row; it diverges once someone walks at ≥2 shelters.
 
-The single source for affiliation data is `getUserShelterAffiliations(userId, dynamicVouched)` — combines static `mockShelters.walkers` entries with dynamic `WalkerApplication` records the demo created at walkthrough.
+The single source for per-shelter affiliation data is `getUserShelterAffiliations(userId, dynamicVouched, tierOverrides)` — combines static `mockShelters.walkers` entries with dynamic `WalkerApplication` records. The portable platform tier comes from `getPlatformVolunteerTier` (`lib/volunteerTier.ts`): cross-shelter walk total + ≥1 `trusted` affiliation → Super Volunteer.
+
+---
+
+## Shelter-walking journey & mentor network
+
+The mechanism that turns shelter walking into a scalable, credentialed trust unlock (Cross-Shelter Mentor Network phase, 2026-06-09 → 2026-06-12). A new walker reaches solo-walking either by **applying directly** or by booking **mentor sessions** with a Super Volunteer; either way the shelter keeps final authority.
+
+### One smart entry — "Walk a dog"
+
+A single state-aware CTA, never competing buttons (Decision #11). It's the action-row slot on the shelter feed AND the "Walk {dog}" button on the dog page:
+
+- **Unverified** → opens `WalkEntrySheet`, a routing sheet offering two paths to verification, mentored-first but not forced: *"New to shelter walking? Walk with a mentor — N sessions, from {price}"* (primary, violet) + *"Walked shelter dogs before? Apply directly"* (free-text application). At shelters that don't `acceptsMentorVouches`, only direct-apply shows.
+- **In mentorship** → a violet **split button** (`Book next session` / caret holds demo state-toggles) over a flat, CTA-less progress stepper (Decision #10).
+- **Vouched** → a violet **"Walk a dog"** split button (main → Dogs tab; caret → demo toggles) + a `VouchedBadge` (Volunteer credential pill + "You're verified to walk at {shelter}"). Decision #13.
+
+The standalone "See mentors" card and the dog-page mentor upsell are gone — folded into the entry; the mentor stepper renders ONLY mid-mentorship.
+
+### Mentor sessions
+
+A paid, supervised first-walk offering — the **`mentor_session`** service kind (the fourth `CarerServiceConfig` shape; see [[Groups & Care Model]] → Services as Catalog). Offered by Super Volunteers at shelters whose policy `acceptsMentorVouches`.
+
+- **Discovery is list-first and shelter-neutral** (Decision #7). A shelter surface never features a *specific* mentor (that reads as the shelter advertising a favourite); the card is mentor-neutral ("from {min} Kč") with a **See mentors** CTA → `MentorListSheet` → booking sheet locked to the shelter (the shelter was chosen by where you tapped, so no shelter-switcher there; the picker survives only on mentor-profile entry).
+- **Booking sheet** (`MentorSessionBookingSheet`, Decisions #8 + #15): a visual progress track toward solo-walker status (numbered nodes + a 🎓 goal); a required **Time of day** picker (Morning/Afternoon — shelter walks are daytime); the layered waiver checklist (below); a flat fixed price (no quote); a neutral rounded `ButtonAction` submit (not the pill CTA). Drops a `booking_confirmation` card into the mentor chat (see [[messaging]]). Booking marks mutual Familiar; the first COMPLETED session marks mutual Connected (see [[Trust & Connection Model]]).
+- **Sessions are independent — no pinned mentor, no pinned dog** (Decision #9). The path is a count of N sessions toward the SHELTER's vouch; each can be a different mentor and a different dog. "Book next session" reopens the mentor list every time; the graduation vouch attributes to whoever ran the FINAL session. The dog appears only as a transient ENTRY hook (dog-page CTA + list intro), never persisted — locking one dog works against adoption, where the point is sampling dogs to find the one you'd adopt.
+- **Graduation** — completing the shelter's `mentorSessionMinimum` auto-advances the mentee to `vouched`, attributed to the mentor, with a message sent FROM the mentor (shelters can't message yet; O8). At non-accepting shelters, completed sessions render as a "Mentor-recommended · N sessions with {mentor}" credibility line on the standard apply path — mentor work is never wasted, shelter authority never overridden.
+
+### Layered waivers
+
+Two layers, signed by tap (honestly faked — no real legal text):
+
+- **Platform baseline** — identity + emergency contact + general liability, signed ONCE per user (keyed by userId), carries to every participating shelter. The cross-shelter payoff: later bookings anywhere show it pre-signed.
+- **Per-shelter waiver** — each shelter's own terms, signed once per shelter (on the `WalkerApplication`).
+
+When both are already signed, the booking sheet collapses the section to a single "Waivers signed — you're cleared…" line instead of re-presenting a checklist. The real document-review + e-sign surface is FC16.
+
+### The walk itself is a Booking
+
+A solo walk is a real `Booking` with `ownerKind: "shelter"` (the shelter is the "owner" party, the walker is the carer) — created from the dog page via `WalkBookingSheet`. It runs on existing Schedule/Bookings + Sessions rails (Start → Finish → visit report); completed walks feed tier escalation. It's volunteer work: price 0, rendered "Volunteer · no charge" (never "0 Kč"). Both mentor sessions and solo walks live on the **Volunteering** tab in `/bookings`, with a violet category accent — see [[explore-and-care]] (Decisions #14 + #15) and [[design-system]] (booking category accent).
+
+### Operator side is stubbed (V3+)
+
+All shelter-admin actions are demo state-toggles per the hidden-affordance pattern: the Members-row kebab carries Promote / Demote (real — effect is immediately visible) + Credit walks / Remove-from-walkers (stub toast — the real flows need the operator count + reason forms). The full operator surface is enumerated in FC16. Decisions #5 + #6.
 
 ---
 
@@ -302,7 +346,7 @@ Three small adjustments on `/shelters/[id]` so the chrome doesn't read as broken
 
 Items named in §14 but explicitly out of scope for Shelter Foundation:
 
-- ~~**Walker journey.** Booking a walk, active session, visit-report attaching back to a dog.~~ → **State machine + tier escalation shipped 2026-06-09** (Carer Portfolio + Shelter Walker Credentialing phase). Booking creation surface for shelter walks (Schedule integration + visit reports attaching to the shelter dog) deferred to Cross-Shelter Mentor Network phase.
+- ~~**Walker journey.** Booking a walk, active session, visit-report attaching back to a dog.~~ → **State machine + tier escalation shipped 2026-06-09** (Carer Portfolio + Shelter Walker Credentialing phase). Booking creation surface for shelter walks (Schedule integration + visit reports attaching to the shelter dog) **shipped 2026-06-12** (Cross-Shelter Mentor Network — `WalkBookingSheet` + `ownerKind: "shelter"` Bookings; see "Shelter-walking journey & mentor network" above).
 - ~~**Walker credentialing visual escalation.** Tier-coded heavier treatments on the volunteer badge for the top tier.~~ → **Shipped 2026-06-09** via the shared three-tier credential-pill family. See [[badges]] → "Credential pill family."
 - **Shelter operator/admin view.** Dashboard, dog edit affordances, walker application queue, vouching state machine UX. → V3+ pending real shelter conversations.
 - **Adopted-dog transition pattern.** Celebration card → archived state → potentially transitioning the profile to a new owner's `UserProfile.pets[]`. → V2.
