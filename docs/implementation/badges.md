@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-06-09
+last-reviewed: 2026-06-12
 
 tags: [badges, person-row, trust, design-system]
 review-trigger: "when adding a new badge, changing display rules, or modifying carer-status semantics"
@@ -111,11 +111,13 @@ A separate badge family sitting outside the three trust tiers, introduced with t
 |---|---|---|---|---|
 | `vetted` | (none) | `Volunteer` | Default after vouching | T1 — near-white surface, soft border, family-tinted text |
 | `experienced` | 🌱 Plant | `Volunteer` | ~10 walks at this shelter | T2 — soft violet fill, strong violet text, Plant icon |
-| `trusted` | 🌳 Tree (filled) | `Super Volunteer` | ~25 walks + coordinator sign-off | T3 — dark violet fill, near-white text, filled Tree icon |
+| `trusted` | 🌳 Tree (filled) | `Super Volunteer` | ~25 walks (suggested — shelter can override) | T3 — dark violet fill, near-white text, filled Tree icon |
 
 T1 and T2 share the short label (`Volunteer`); only T3 distinguishes (`Super Volunteer`). The Leaf icon from the original V1 spec was dropped when T1 went icon-less.
 
-**Profile rendering (Volunteer-work section, refactored 2026-06-09):** Pill carries the tier label ONLY. Shelter name + walk count live in the right-side context line (`at {Shelter} · N walks`). Multi-shelter walkers stack rows; aggregate header was specced earlier in the phase but dropped at walkthrough — per-row tier already varies per shelter, so an aggregate would either hide the distinction or duplicate it.
+**Profile rendering (restructured 2026-06-12 — Mentor Network Decision #16):** Two surfaces. (1) An **aggregate badge in About**, directly under the carer aggregate — `Super Volunteer · N walks` (Tree icon, tier-3) or `Volunteer · N walks` (tier-1), where N is the sum of walks across all shelters — the volunteer counterpart to `Trusted Carer · N sessions`. This **reverses** the 2026-06-09 "no walk-count totals" call: the aggregate total now leads, deliberately, as a status that carries its stat. (2) The **per-shelter breakdown** rows in the "Volunteer work" section: pill carries the tier label ONLY; shelter name + walk count live in the context line (`at {Shelter} · N walks`); multi-shelter walkers stack rows. The section header is plain "Volunteer work" — its former Super Volunteer pill + subline moved up to the aggregate badge.
+
+**Tiers are suggestions, not gates (Decision #4):** walk-count thresholds auto-derive a *suggested* tier; the shelter overrides freely in both directions (`tierOverrides`, effective = override ?? derived). Platform Super Volunteer requires ≥1 `trusted` affiliation, so the shelter's lever reaches platform status + mentor eligibility.
 
 **Color:** violet `--volunteer-*` family in `app/globals.css`. Sits outside the existing semantic ladder — `info` blue = paid care, `brand` green = community. Violet carries "earned recognition for time given to shelter dogs" as its own category.
 

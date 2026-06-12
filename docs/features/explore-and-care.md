@@ -1,9 +1,9 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-09
+last-reviewed: 2026-06-12
 
-tags: [discover, care, booking, carers, map, payment, trust-gating]
+tags: [discover, care, booking, carers, map, payment, trust-gating, volunteering]
 review-trigger: "when modifying Discover Care tab, Carer profiles, booking flows, payment, or map"
 ---
 
@@ -75,7 +75,7 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 
 ### Discover & Care additions (closed 2026-05-04)
 
-- **Services-as-Catalog** (`CarerServiceConfig` discriminated union): three offering shapes — **Care** (drop-off / per-visit / per-night work; produces a Booking), **Meet** (sessions with rosters owners sign up to — training, workshops; produces an RSVP on the linked meet), **Appointment** (grooming / training visit — solo, fixed time slot; produces a Booking like Care but tied to a single time). Profile Services tab renders all three first-class with shape-aware tap routing. See [[Groups & Care Model]] → Services as Catalog.
+- **Services-as-Catalog** (`CarerServiceConfig` discriminated union): four offering shapes — **Care** (drop-off / per-visit / per-night work; produces a Booking), **Meet** (sessions with rosters owners sign up to — training, workshops; produces an RSVP on the linked meet), **Appointment** (grooming / training visit — solo, fixed time slot; produces a Booking like Care but tied to a single time), and **Mentor Session** (`mentor_session` — a Super Volunteer's paid supervised shelter first-walk toward a vouch; Cross-Shelter Mentor Network 2026-06-09; books via `MentorSessionBookingSheet`, lands on the Volunteering tab). Profile Services tab renders all first-class with shape-aware tap routing. See [[Groups & Care Model]] → Services as Catalog.
 - **`participants_only` meet visibility:** contracted/private meets (e.g. a 1-on-1 generated from a package booking) are hidden from public Meets tabs — only the creator and roster see them. Shipped via `MeetVisibility` enum + `isMeetVisibleTo` helper + `getGroupMeets` filter. Discover & Care A1.
 - **Care-group multi-provider hero:** `Group.providers: GroupProviderRef[]` replaces the single `hostedBy: string` field. Groups with multiple providers render an avatar stack + "Run by X + N" tail; tagline suppressed in multi-provider mode (one bio doesn't represent the team). Discover & Care B1–B4. See [[Groups & Care Model]] → Care-group hero anatomy.
 - **Trust badges MVP** on Discover cards + provider hero. Six badges across three categories (community-earned: Community Regular, Trusted by Your Network, Repeat Clients; credential: Certified Trainer, X Years Experience; platform: Verified Identity). Priority rule: community-earned > credential > platform. Discover cards trim to top 2; profile hero shows the full earned set. Implementation: `lib/trustBadges.ts` + `components/badges/TrustBadgeStrip.tsx`. See [[implementation/badges]].
@@ -220,7 +220,9 @@ Promoted from a query-state branch on the parent (`?view=active`) to a real sub-
 
 ### Bookings list (`/bookings`)
 
-Single-mode for solo-role users: owner-only personas (Daniel, Tomáš) see "My Care" content directly with no tabs; carer-only personas (Klára) see "My Services" directly. Tabs return when a viewer has bookings on both sides (Tereza, Tomáš in mock world).
+The tab model decides from which **categories** actually have content — generalized from the 2-side owner/carer split to N categories (Mentor Network, 2026-06-12, Decision #14). Three categories: **My Care** (owner-side paid care), **My Services** (carer-side paid services), **Volunteering** (shelter-dog activity — mentor sessions + solo shelter walks, gathered via `isShelterActivity(b) = b.mentorSession != null || b.ownerKind === "shelter"`). Tabs appear only when ≥2 categories are populated; single-mode shows the one that is (owner-only personas like Daniel see My Care directly; a vouched-walker-only persona sees Volunteering; brand-new users fall back to My Care). Tomáš spans all three in mock world.
+
+Mentor sessions and solo walks are pulled OUT of the paid Care/Services tabs into Volunteering — the mentor session is paid, but it's volunteering you pay to unlock, so it belongs with the walks. Booking success CTAs (`WalkBookingSheet`, `MentorSessionBookingSheet`) route to `?tab=volunteering`, and both wear a violet category accent on the booking card (Decision #15; green = community, blue = paid care, violet = volunteer).
 
 **Cross-side role-expansion banner (2026-05-08):** in single-mode, a slim dismissable banner sits at the top of the panel — for owners, "Offer to help your neighbours? Set up a service on your profile →"; for carers, "Need care for your dog? Find someone you trust →". Aligns with the "everyone-on-the-same-dial" principle from Provider Tier strategy. Persistent dismiss via `doggo-bookings-upsell-dismissed` — once X'd, it's gone for good. Replaces the older bottom-of-list card placement, which got buried as users accumulated bookings.
 

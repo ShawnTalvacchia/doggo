@@ -1,8 +1,8 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-06-01
-tags: [groups, community, carers, care, navigation, demo]
+last-reviewed: 2026-06-12
+tags: [groups, community, carers, care, navigation, demo, mentor-session]
 review-trigger: "when touching group features, Community tab, Care groups, care model, or demo planning"
 ---
 
@@ -191,11 +191,11 @@ Care groups get a set of configuration toggles. Platform suggests defaults based
 
 ---
 
-## Services as Catalog: Care vs Meet vs Appointment
+## Services as Catalog: Care vs Meet vs Appointment vs Mentor Session
 
-**Services** is the umbrella label on a provider's profile — the catalog of everything they offer for money. Under the catalog, offerings split into three types, distinguished by *what booking them produces*. This split is the core monetisation model, and getting the language right is what makes Doggo legible to both providers and owners.
+**Services** is the umbrella label on a provider's profile — the catalog of everything they offer for money. Under the catalog, offerings split into **four** types, distinguished by *what booking them produces*. This split is the core monetisation model, and getting the language right is what makes Doggo legible to both providers and owners.
 
-### The three offering types
+### The four offering types
 
 **Care-type offerings** — Walks & Check-ins, House sitting, Day care, Boarding. The provider takes the dog (or in the case of House sitting, comes to the dog). The owner doesn't sign up to a specific scheduled session; they buy the service and the provider delivers it. Booking produces a **Booking** record. No meet, no calendar event the owner attends.
 
@@ -203,9 +203,12 @@ Care groups get a set of configuration toggles. Platform suggests defaults based
 
 **Appointment-type offerings** — grooming, training. The owner books a specific time slot but doesn't attend a "session" with other dogs (no roster). Booking produces a **Booking** record like Care, but is *tied to a fixed time slot* like Meet — solo. Specialised category (grooming vs. training) influences card icon and copy.
 
-The two test questions distinguish all three:
+**Mentor-session-type offerings** (`kind: "mentor_session"`, the fourth shape — Cross-Shelter Mentor Network 2026-06-09) — a Super Volunteer's paid, supervised *first walk* at a shelter, the path by which a new walker gets vouched to walk solo. Modeled on Appointment (solo, fixed `pricePerSession`, no quote/modifiers) plus `shelterIds[]` (participating shelters) and a recommended price band. Its product isn't pet care — it's **graduation progress at a shelter** — so it routes through a bespoke `MentorSessionBookingSheet` (no inquiry→proposal round-trip) and lands on the **Volunteering** tab, not the paid Care/Services tabs. Full mechanism in [[features/shelters]] → "Shelter-walking journey & mentor network."
+
+The two test questions distinguish the core three; the fourth is identified by *context* (a shelter-walking credential, not care for the owner's dog):
 - **Does someone sign up to a specific time?** No → Care. Yes → Meet *or* Appointment.
 - **Are there other dogs / a roster?** Yes → Meet. No → Appointment.
+- **Is it a supervised shelter first-walk toward a vouch?** → Mentor Session.
 
 ### Care taxonomy — the four services (resolved Care Catalog Taxonomy & Filter Redesign, 2026-05-10)
 
