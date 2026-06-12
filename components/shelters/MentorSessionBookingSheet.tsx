@@ -382,22 +382,26 @@ export function MentorSessionBookingSheet({
                     checked={platformWaiverChecked}
                     onChange={setPlatformWaiverChecked}
                     label={
-                      <>
-                        I&rsquo;ve read and agree to the{" "}
-                        <span
-                          role="button"
-                          tabIndex={0}
-                          className="mentor-waiver-link"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            openPlatformWaiver();
-                          }}
-                          onKeyDown={linkKeyActivate(openPlatformWaiver)}
-                        >
-                          Doggo baseline waiver
+                      <span className="flex flex-col">
+                        <span>
+                          I&rsquo;ve read and agree to the{" "}
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            className="mentor-waiver-link"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              openPlatformWaiver();
+                            }}
+                            onKeyDown={linkKeyActivate(openPlatformWaiver)}
+                          >
+                            Doggo baseline waiver
+                          </span>
                         </span>
-                        . <strong>Signed once</strong>, valid at every participating shelter.
-                      </>
+                        <span className="text-xs text-fg-tertiary">
+                          Signed once — carries to every participating shelter
+                        </span>
+                      </span>
                     }
                   />
                 )}
@@ -411,22 +415,26 @@ export function MentorSessionBookingSheet({
                     checked={shelterWaiverChecked}
                     onChange={setShelterWaiverChecked}
                     label={
-                      <>
-                        I&rsquo;ve read and agree to{" "}
-                        <span
-                          role="button"
-                          tabIndex={0}
-                          className="mentor-waiver-link"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            openShelterWaiver();
-                          }}
-                          onKeyDown={linkKeyActivate(openShelterWaiver)}
-                        >
-                          {shelter?.name}&rsquo;s own waiver
+                      <span className="flex flex-col">
+                        <span>
+                          I&rsquo;ve read and agree to{" "}
+                          <span
+                            role="button"
+                            tabIndex={0}
+                            className="mentor-waiver-link"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              openShelterWaiver();
+                            }}
+                            onKeyDown={linkKeyActivate(openShelterWaiver)}
+                          >
+                            {shelter?.name}&rsquo;s own waiver
+                          </span>
                         </span>
-                        .
-                      </>
+                        <span className="text-xs text-fg-tertiary">
+                          Specific to this shelter
+                        </span>
+                      </span>
                     }
                   />
                 )}
