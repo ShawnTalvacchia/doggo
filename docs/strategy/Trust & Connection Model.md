@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-06-01
+last-reviewed: 2026-06-12
 tags: [trust, connections, privacy, safety]
 review-trigger: "when touching connection states, visibility, or trust signals"
 ---
@@ -156,8 +156,9 @@ The community-first thesis assumes Familiar is *earned* through community intera
 2. **Contract acceptance → mutual Connected.** Strongest possible "we're working together" milestone.
 3. **First message in any non-Connected conversation → mutual Familiar.** Covers the Appointment-flow "Ask about this" path (no structured inquiry) plus any direct first outreach.
 4. **Withdrawn / declined inquiries don't roll back.** Awareness, once created, persists.
+5. **Mentor session — booking → mutual Familiar; first COMPLETED session → mutual Connected.** The mentor-session flow has no contract-sign (rule 2's trigger), so the Connected milestone moves to the first *completed* supervised walk: in-person dog handling is a stronger "we're working together" event than a signature — arguably the most on-thesis Connected transition in the app. Booking alone marks only Familiar, consistent with inquiry-send (rule 1). Idempotent across sessions (`useMentorSessionCompletion`). (Cross-Shelter Mentor Network Decision #2, 2026-06-10.)
 
-Together these mean: any genuine outreach (inquiry, message, contract sign) leaves a Familiar/Connected mark proportional to the depth of the contact. The community trust model and the transactional path converge on the same connection states without forcing one to ape the other.
+Together these mean: any genuine outreach (inquiry, message, contract sign, completed mentor walk) leaves a Familiar/Connected mark proportional to the depth of the contact. The community trust model and the transactional path converge on the same connection states without forcing one to ape the other.
 
 Interaction with manual controls: the auto-marks behave identically to manual `markFamiliar` calls — they just set the override. Manual `Unmark Familiar` (P40 when wired) reverses any source. Re-inquiring after a decline is a no-op trust-wise (already Familiar from the original inquiry).
 

@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-08
+last-reviewed: 2026-06-12
 tags: [messaging, inbox, chat, booking, notifications]
 review-trigger: "when modifying inbox, threads, conversation types, or notifications"
 ---
@@ -108,6 +108,7 @@ Provider profile → "Book care" CTA → InquiryFormModal (service, dates, dogs)
 |-----------|---------|---------|
 | `InquiryCard` | Structured inquiry artifact (replaces templated text). Renders engine estimate + provider Decline/Respond actions when pending. Collapses post-response. | `inbox-message-wrap--full`, surface-top bg, radius-panel |
 | `BookingProposalCard` | Proposal display. Three-action footer when pending (Not now / Suggest changes / Review & sign). Body collapses post-response; footer flips to status text or "View booking →" link. Accepted proposals carry an inline `Signed HH:MM · View booking →` footer link — the contract confirmation lives on the proposal card itself, not a separate artifact. | 100% width, surface-top bg, radius-panel |
+| `BookingConfirmationCard` | Confirmation artifact for **direct-booked** services that skip the proposal→sign round-trip (e.g. mentor sessions). Appointment-confirmation framing: "Booking confirmed" header, no sign stamp, `View booking →` link; reuses the `.inbox-proposal-*` accepted treatment. Posted via the `booking_confirmation` `ChatMessage` type + `ChatMessage.bookingRef`. Generic — any future instant-book flow posts the same type. The chronicle rule generalizes: every booking is findable from its chat thread, whether it arrived by proposal-sign or direct booking. (Mentor Network Decision #1, 2026-06-10.) | 100% width, surface-top bg, radius-panel |
 | `PaymentCard` | Payment summary | Standard card styling |
 | `SigningModal` | Proposal acceptance flow | Modal overlay |
 | `ProposalForm` | Provider creates proposal. Default read-only System quote; "Adjust this quote" reveals editable mode with deviation flagging and override-reason capture. | Form modal |

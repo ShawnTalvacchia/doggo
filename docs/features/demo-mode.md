@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-09
+last-reviewed: 2026-06-12
 tags: [demo, persona-switching, testing, infrastructure, narrative]
 review-trigger: "when adding a new persona, when changing persona-switching surfaces, when wiring per-persona mock data, when the Demo Narrative changes"
 ---
@@ -183,12 +183,13 @@ The provider-deeply-embedded-in-community archetype. Trainer with her own care g
 
 ### Tomáš — Busy Professional
 
-The utility-user archetype. Karlín commuter, Hugo the labrador, leans on care help when work runs late.
+The utility-user archetype with a latent volunteer streak. Karlín commuter, Hugo the labrador, leans on care help when work runs late — and the 9-to-6 professional whom a shelter's weekday-intake filter excludes, so he reaches shelter-dog walking via the **mentor path** (his Cross-Shelter Mentor Network mentee arc; the A8 latent-demand thesis in person). His landing-card copy carries the wish ("...wishes his 9-to-6 left room to walk shelter dogs") and the switcher tagline gains "drawn to shelter dogs" (Mentor Network Decision #3). The mentee journey is **drivable from fresh state, not pre-staged** (Decision #3 / O9) so the wish framing stays honest.
 
 1. **Karlín Dog Neighbors** — `/communities/group-karlin-neighbours?as=tomas` — Petra's admin announcement, Filip's posts, Adéla's posts, his own light contribution.
 2. **Profile** — `/profile?as=tomas` — Locked, Hugo, Karlín. Reads as low-key user who hasn't dialed up the provider switch.
 3. **Petra emergency conversation** — `/inbox?as=tomas` → tap the Petra thread (`tomas-petra-conv`) — the "neighbour I trusted in a pinch" arc. Booking context (emergency sitting) shows on the row.
 4. **Hugo's bookings list** — `/bookings?as=tomas` — completed Petra emergency booking + any others. Reads as trail of "care arrangements that worked."
+5. **Mentee arc (driven, not seeded)** — `/shelters/utulek-liben?as=tomas` → "Walk a dog" → mentor → book Klára → complete 3 sessions → vouched. Exercises the mentor booking sheet, the graduation message in Inbox, the **Volunteering** tab in `/bookings`, and (post-graduation) the `Super Volunteer · N walks` aggregate + Volunteer-work breakdown on his profile. A dedicated pre-staged guided walkthrough for this arc is future work (FC17).
 
 ### Magda — Neighborhood Hub Member
 

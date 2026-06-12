@@ -1,8 +1,8 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-09
-tags: [profile, pets, carer, edit, posts, tagging, photos]
+last-reviewed: 2026-06-12
+tags: [profile, pets, carer, edit, posts, tagging, photos, volunteer]
 review-trigger: "when modifying profile pages, pet cards, posts, or carer sections"
 ---
 
@@ -159,7 +159,7 @@ The `userId` field on `ProviderCard` bridges between provider catalog IDs (e.g. 
 
 14. **Own-profile connections: compact in-tab + Show all modal (Profiles Deep Pass, 2026-05-11).** Each connection group (Connected / Familiar / Pending) caps at 5 rows in the About-tab compact view; if any group exceeds the cap, a "Show all (N) →" button opens a `ModalSheet` with the uncapped grouped list. No dedicated `/connections` route — modal scope creep avoided for the prototype. Promote to a route if the inbox-like flow earns it.
 
-15. **Volunteer work section on user profiles (credentialing-moat phase, 2026-06-09).** When a user is vouched as a walker at one or more shelters, a "Volunteer work" section renders between the Carer info and the dogs section. One row per shelter affiliation: tier credential pill (label only — `Volunteer` for T1/T2, `Super Volunteer` for T3) + right-side context (`at {Shelter} · N walks`). Multi-shelter walkers stack rows; no aggregate header (per-row tier already varies per shelter). Data source: `getUserShelterAffiliations(userId, dynamicVouched)` — combines static `mockShelters.walkers` entries with dynamic vouched `WalkerApplication` records.
+15. **Volunteer standing — aggregate badge + per-shelter breakdown (credentialing-moat 2026-06-09; restructured Mentor Network 2026-06-12, Decision #16).** Renders in TWO places. (1) An **aggregate badge in About**, directly under the carer aggregate: `Super Volunteer · N walks` (Tree icon, tier-3) or `Volunteer · N walks` (tier-1), where N is the sum of walks across all shelters — the volunteer parallel to `Trusted Carer · N sessions`. Renders for any volunteer, carer or not (the About badges block is ungated from `carerProfile`). This deliberately reverses the earlier "no walk-count totals" call. (2) The **"Volunteer work" section** (between Carer info and dogs): one row per shelter affiliation — tier pill (label only — `Volunteer` for T1/T2, `Super Volunteer` for T3) + right-side context (`at {Shelter} · N walks`); multi-shelter walkers stack rows; header is plain "Volunteer work" (its former Super Volunteer pill + "recognized at every shelter" subline moved up to the aggregate). Data: `getUserShelterAffiliations(userId, dynamicVouched, tierOverrides)` + `getPlatformVolunteerTier`. Full treatment: [[features/shelters]] → "Volunteer work on user profiles" + [[badges]].
 
 16. **Carer Portfolio aggregate badge leads the TrustBadgeStrip (credentialing-moat phase, 2026-06-09).** Profile hero now leads the trust strip with the Carer Portfolio aggregate pill when earned (priority 0). Three tiers via the shared credential-pill family — `Carer` T1 / `Carer` T2 / `Trusted Carer` T3, family color blue (info), Sparkle icon. The pill renders as the LEAD chip in the strip, supporting trust badges follow as smaller pills. Session count lives in the consuming surface's subtitle line, NOT inside the pill. Privacy gate (C1): circle-Carers (`publicProfile: false`) hide the aggregate from non-Connected viewers. Self always sees own badge.
 
