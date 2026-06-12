@@ -1024,9 +1024,11 @@ function UserProfileInner() {
               <p className="profile-card-copy">
                 {userProfile?.bio ?? provider?.blurb ?? `${name} is a dog owner in ${location}.`}
               </p>
-              {userProfile?.carerProfile && (() => {
-                const badges = getTrustBadges(userProfileToTrustSubject(userProfile), currentUserId);
-                if (badges.length === 0) return null;
+              {userProfile && (() => {
+                const isCarer = !!userProfile.carerProfile;
+                const badges = isCarer
+                  ? getTrustBadges(userProfileToTrustSubject(userProfile), currentUserId)
+                  : [];
                 // Per O1 + walkthrough discussion (2026-06-09): the
                 // carer-portfolio aggregate is the headline credential and
                 // gets pulled OUT of the strip so the session count can
@@ -1037,6 +1039,27 @@ function UserProfileInner() {
                 const supportingBadges = badges.filter((b) => b.kind !== "carer-portfolio");
                 const tierClass = carerAggregate?.tier ? `credential-pill--tier-${carerAggregate.tier}` : "";
                 const iconWeight = carerAggregate?.tier === 3 ? "fill" : "regular";
+
+                // Volunteer aggregate (Decision #16, 2026-06-12) — the
+                // portable platform status + the SUM of walks across every
+                // shelter, rendered directly under the carer aggregate as a
+                // parallel headline credential ("Trusted Carer · N completed
+                // sessions" → "Super Volunteer · N walks"). Shows for any
+                // volunteer, carer or not; the per-shelter breakdown still
+                // lives in the Volunteer-work section below.
+                const affiliations = getUserShelterAffiliations(
+                  userId,
+                  toDynamicVouched(userId, walkerApplications, allBookings),
+                  tierOverrides,
+                );
+                const totalWalks = affiliations.reduce((s, a) => s + a.walkCount, 0);
+                const isSuperVol =
+                  affiliations.length > 0 &&
+                  getPlatformVolunteerTier(userId, walkerApplications, allBookings, tierOverrides)
+                    .isSuperVolunteer;
+
+                if (badges.length === 0 && affiliations.length === 0) return null;
+
                 return (
                   <div style={{ marginTop: "var(--space-md)" }} className="flex flex-col gap-sm">
                     {carerAggregate && (
@@ -1052,6 +1075,20 @@ function UserProfileInner() {
                             {carerAggregate.sessionCount} completed sessions
                           </span>
                         )}
+                      </div>
+                    )}
+                    {affiliations.length > 0 && (
+                      <div className="flex items-center gap-sm flex-wrap">
+                        <span
+                          className={`credential-pill credential-pill--volunteer ${
+                            isSuperVol ? "credential-pill--tier-3" : "credential-pill--tier-1"
+                          }`}
+                        >
+                          {isSuperVol ? "Super Volunteer" : "Volunteer"}
+                        </span>
+                        <span className="text-xs text-fg-secondary">
+                          {totalWalks} {totalWalks === 1 ? "walk" : "walks"}
+                        </span>
                       </div>
                     )}
                     {supportingBadges.length > 0 && (
@@ -1206,36 +1243,17 @@ function UserProfileInner() {
                 experienced: "Volunteer",
                 trusted: "Super Volunteer",
               };
-              // Platform-level Super Volunteer (D3) — the PORTABLE tier.
-              // Renders as a status pill on the section title row, NOT as
-              // an aggregate stats header (walk-count totals were dropped
-              // at the 2026-06-09 walkthrough; the platform tier is a
-              // status, not a stat). Per-shelter rows below keep carrying
-              // the per-shelter tier + counts. ASSUMPTION A3.
-              const platform = getPlatformVolunteerTier(
-                userId,
-                walkerApplications,
-                allBookings,
-                tierOverrides,
-              );
+              // Platform Super Volunteer status + the aggregate walk total
+              // now lead the About badges (under the carer aggregate); this
+              // section is the per-shelter breakdown only — the header pill
+              // and the "recognized at every shelter" subline were removed
+              // (Decision #16, 2026-06-12).
               const platformWaiverAt = isSelf
                 ? getPlatformWaiverSignedAt(userId)
                 : undefined;
               return (
                 <section>
-                  <div className="flex items-center gap-sm flex-wrap">
-                    <h3 className="profile-card-subtitle m-0">Volunteer work</h3>
-                    {platform.isSuperVolunteer && (
-                      <span className="credential-pill credential-pill--volunteer credential-pill--tier-3">
-                        Super Volunteer
-                      </span>
-                    )}
-                  </div>
-                  {platform.isSuperVolunteer && (
-                    <p className="text-xs text-fg-tertiary m-0" style={{ marginTop: "var(--space-xs)" }}>
-                      Recognized at every participating shelter
-                    </p>
-                  )}
+                  <h3 className="profile-card-subtitle m-0">Volunteer work</h3>
                   <div className="flex flex-col gap-sm" style={{ marginTop: "var(--space-sm)" }}>
                     {affiliations.map(({ shelter, tier, walkCount }) => (
                       <Link
