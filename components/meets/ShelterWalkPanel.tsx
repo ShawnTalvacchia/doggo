@@ -26,15 +26,6 @@ import { useWalkerApplications } from "@/contexts/WalkerApplicationsContext";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 
-/** "Nora" / "Nora and Šimon" / "Nora, Šimon and Tonda" / "Nora, Šimon +2". */
-function formatDogList(names: string[]): string {
-  if (names.length === 0) return "";
-  if (names.length === 1) return names[0];
-  if (names.length === 2) return `${names[0]} and ${names[1]}`;
-  if (names.length === 3) return `${names[0]}, ${names[1]} and ${names[2]}`;
-  return `${names[0]}, ${names[1]} +${names.length - 2}`;
-}
-
 export function ShelterWalkPanel({ meet }: { meet: Meet }) {
   const shelter = meet.shelterWalk ? getShelterById(meet.shelterWalk.shelterId) : undefined;
   const currentUserId = useCurrentUserId();
@@ -72,7 +63,7 @@ export function ShelterWalkPanel({ meet }: { meet: Meet }) {
   // + the CTA (no avatar card to show).
   if (shelterDogs.length === 0) {
     return (
-      <section className="meet-section flex flex-col gap-sm">
+      <section className="flex flex-col gap-sm">
         <p className="text-sm text-fg-secondary m-0">
           Vouched walkers can bring a dog from{" "}
           <Link href={`/shelters/${shelter.id}`} className="font-semibold text-fg-primary underline">
@@ -86,7 +77,7 @@ export function ShelterWalkPanel({ meet }: { meet: Meet }) {
   }
 
   return (
-    <section className="meet-section flex flex-col gap-sm">
+    <section className="flex flex-col gap-sm">
       <div className="meet-section-header">
         <h2 className="meet-section-title">Shelter dogs joining</h2>
         <Link
@@ -115,8 +106,7 @@ export function ShelterWalkPanel({ meet }: { meet: Meet }) {
               {shelterDogs.length} from {shelter.name}
             </span>
             <span className="meet-summary-trust">
-              {formatDogList(shelterDogs.map((d) => d.name))} joining — brought
-              along by vouched walkers, out for a walk in good company.
+              Brought along by vouched walkers, out for a walk in good company.
             </span>
           </div>
         </div>
