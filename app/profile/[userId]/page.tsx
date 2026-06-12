@@ -1072,7 +1072,7 @@ function UserProfileInner() {
                         </span>
                         {carerAggregate.sessionCount != null && (
                           <span className="text-xs text-fg-secondary">
-                            {carerAggregate.sessionCount} completed sessions
+                            {carerAggregate.sessionCount} sessions
                           </span>
                         )}
                       </div>
@@ -1084,6 +1084,7 @@ function UserProfileInner() {
                             isSuperVol ? "credential-pill--tier-3" : "credential-pill--tier-1"
                           }`}
                         >
+                          {isSuperVol && <Tree size={14} weight="fill" />}
                           {isSuperVol ? "Super Volunteer" : "Volunteer"}
                         </span>
                         <span className="text-xs text-fg-secondary">
