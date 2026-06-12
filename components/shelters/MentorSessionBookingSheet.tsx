@@ -7,6 +7,7 @@ import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { MentorProgressTrack } from "@/components/shelters/MentorProgressTrack";
 import { DateTrigger, DatePicker } from "@/components/ui/DatePicker";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { useConnections } from "@/contexts/ConnectionsContext";
 import { useBookings } from "@/contexts/BookingsContext";
@@ -348,66 +349,90 @@ export function MentorSessionBookingSheet({
               platform baseline; per-shelter waiver. The waiver NAME is a
               link — in production it opens the document you read before
               signing; here it fires the stub toast. The checkbox is "I've
-              read and agree." */}
-          <div className="filter-field">
-            <div className="label">Before the first walk</div>
-            <div className="flex flex-col gap-sm">
-              {platformSignedAt ? (
-                <span className="flex items-start gap-sm text-sm text-fg-secondary">
-                  <ShieldCheck size={16} weight="fill" style={{ color: "var(--brand-strong)", marginTop: 2 }} className="shrink-0" />
-                  Platform waiver signed {formatShortDate(platformSignedAt.slice(0, 10))} — carries across shelters
-                </span>
-              ) : (
-                <label className="mentor-waiver-row">
-                  <input
-                    type="checkbox"
-                    checked={platformWaiverChecked}
-                    onChange={(e) => setPlatformWaiverChecked(e.target.checked)}
-                  />
-                  <span>
-                    I&rsquo;ve read and agree to the{" "}
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      className="mentor-waiver-link"
-                      onClick={openPlatformWaiver}
-                      onKeyDown={linkKeyActivate(openPlatformWaiver)}
-                    >
-                      Doggo baseline waiver
-                    </span>
-                    . <strong>Signed once</strong>, valid at every participating shelter.
-                  </span>
-                </label>
-              )}
-              {shelterSignedAt ? (
-                <span className="flex items-start gap-sm text-sm text-fg-secondary">
-                  <Check size={16} weight="bold" style={{ color: "var(--brand-strong)", marginTop: 2 }} className="shrink-0" />
-                  {shelter?.name} waiver signed
-                </span>
-              ) : (
-                <label className="mentor-waiver-row">
-                  <input
-                    type="checkbox"
-                    checked={shelterWaiverChecked}
-                    onChange={(e) => setShelterWaiverChecked(e.target.checked)}
-                  />
-                  <span>
-                    I&rsquo;ve read and agree to{" "}
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      className="mentor-waiver-link"
-                      onClick={openShelterWaiver}
-                      onKeyDown={linkKeyActivate(openShelterWaiver)}
-                    >
-                      {shelter?.name}&rsquo;s own waiver
-                    </span>
-                    .
-                  </span>
-                </label>
-              )}
+              read and agree."
+
+              When BOTH layers are already signed (a later booking at a
+              shelter the walker has signed at), there is nothing to do — so
+              the section collapses to a single quiet confirmation instead of
+              re-presenting the checklist as a to-do. */}
+          {platformSignedAt && shelterSignedAt ? (
+            <div className="flex items-start gap-sm text-sm text-fg-secondary">
+              <ShieldCheck
+                size={16}
+                weight="fill"
+                style={{ color: "var(--brand-strong)", marginTop: 2 }}
+                className="shrink-0"
+              />
+              <span>
+                Waivers signed — you&rsquo;re cleared to walk at {shelter?.name}.
+                Your platform waiver carries across every participating shelter.
+              </span>
             </div>
-          </div>
+          ) : (
+            <div className="filter-field">
+              <div className="label">Before your first walk</div>
+              <div className="flex flex-col gap-sm">
+                {platformSignedAt ? (
+                  <span className="flex items-start gap-sm text-sm text-fg-secondary">
+                    <ShieldCheck size={16} weight="fill" style={{ color: "var(--brand-strong)", marginTop: 2 }} className="shrink-0" />
+                    Platform waiver signed {formatShortDate(platformSignedAt.slice(0, 10))} — carries across shelters
+                  </span>
+                ) : (
+                  <CheckboxRow
+                    checked={platformWaiverChecked}
+                    onChange={setPlatformWaiverChecked}
+                    label={
+                      <>
+                        I&rsquo;ve read and agree to the{" "}
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          className="mentor-waiver-link"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            openPlatformWaiver();
+                          }}
+                          onKeyDown={linkKeyActivate(openPlatformWaiver)}
+                        >
+                          Doggo baseline waiver
+                        </span>
+                        . <strong>Signed once</strong>, valid at every participating shelter.
+                      </>
+                    }
+                  />
+                )}
+                {shelterSignedAt ? (
+                  <span className="flex items-start gap-sm text-sm text-fg-secondary">
+                    <Check size={16} weight="bold" style={{ color: "var(--brand-strong)", marginTop: 2 }} className="shrink-0" />
+                    {shelter?.name} waiver signed
+                  </span>
+                ) : (
+                  <CheckboxRow
+                    checked={shelterWaiverChecked}
+                    onChange={setShelterWaiverChecked}
+                    label={
+                      <>
+                        I&rsquo;ve read and agree to{" "}
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          className="mentor-waiver-link"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            openShelterWaiver();
+                          }}
+                          onKeyDown={linkKeyActivate(openShelterWaiver)}
+                        >
+                          {shelter?.name}&rsquo;s own waiver
+                        </span>
+                        .
+                      </>
+                    }
+                  />
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Date */}
           <div className="filter-field">
@@ -468,9 +493,21 @@ export function MentorSessionBookingSheet({
             </p>
           </div>
 
-          <button className="inq-submit inq-submit--volunteer" disabled={!canSubmit} onClick={handleSubmit}>
-            Book session →
-          </button>
+          <ButtonAction
+            // Volunteer-path commit → violet, but the rounded action shape
+            // (not the pill CTA). Using the btn-volunteer class instead of
+            // the old .inq-submit--volunteer override fixes the purple→green
+            // hover (the override lost a specificity tie to .inq-submit:hover)
+            // and gives a real disabled treatment (2026-06-11).
+            variant="volunteer"
+            size="md"
+            className="w-full"
+            rightIcon={<ArrowRight size={16} weight="bold" />}
+            disabled={!canSubmit}
+            onClick={handleSubmit}
+          >
+            Book session
+          </ButtonAction>
         </div>
       )}
     </ModalSheet>

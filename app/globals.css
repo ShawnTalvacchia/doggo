@@ -11313,17 +11313,6 @@ body:has(.bottom-nav) .inbox-page {
   align-self: flex-end;
 }
 
-/* Volunteer-action submit (mentor booking) — violet, matching the
-   volunteer button family, since the mentored walk is a volunteer-path
-   action (2026-06-11). */
-.inq-submit--volunteer {
-  background: #6d28d9;             /* violet-700 */
-}
-
-.inq-submit--volunteer:hover:not(:disabled) {
-  background: #5b21b6;             /* violet-800 */
-}
-
 .inq-submit:hover:not(:disabled) {
   background: var(--brand-500);
 }
@@ -14568,26 +14557,6 @@ a.shelter-intro-social:hover {
   color: #6d28d9;                       /* violet-700 */
 }
 
-
-/* Mentor-session booking sheet — waiver rows (checkbox + linked label).
-   Top-align so the box sits with the first line of a wrapping label
-   (the old `align-items: flex-start` inline style was inconsistent). */
-.mentor-waiver-row {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-sm);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  line-height: 1.45;
-  cursor: pointer;
-}
-
-.mentor-waiver-row input[type="checkbox"] {
-  /* Nudge the box onto the text's cap height so it reads aligned with
-     the first line rather than floating above it. */
-  margin-top: 2px;
-  flex-shrink: 0;
-}
 
 /* Inline link inside a waiver sentence — a span[role=button] (not a
    <button>, whose inline-block default orphaned the trailing period when
