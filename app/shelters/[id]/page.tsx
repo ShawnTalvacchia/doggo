@@ -52,6 +52,7 @@ import {
 } from "@/lib/volunteerTier";
 import { MENTOR_SESSION_DEFAULT_MINIMUM } from "@/lib/constants/services";
 import type {
+  Booking,
   PetProfile,
   ShelterProfile,
   ShelterSupporter,
@@ -166,6 +167,8 @@ function ShelterDetailInner() {
 function FeedTab({ shelter }: { shelter: ShelterProfile }) {
   const posts = getShelterFeed(shelter);
   const currentUserId = useCurrentUserId();
+  const router = useRouter();
+  const { bookings } = useBookings();
   const {
     applications,
     getApplication,
@@ -270,6 +273,10 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
           setWalkerMenuOpen(false);
         }}
         onBookNext={handleMentorCardCta}
+        onWalkVouched={() => {
+          // Verified walker → pick a dog to walk (Dogs tab).
+          router.replace(`/shelters/${shelter.id}?tab=dogs`, { scroll: false });
+        }}
       />
 
       <MentorProgressLine
@@ -288,6 +295,12 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
           sessionsCompleted={application?.mentorship?.sessionsCompleted ?? 0}
           minimum={minimum}
         />
+      )}
+
+      {/* Vouched: a Volunteer credential badge — the achievement, not a
+          bare status line (2026-06-11). */}
+      {applicationState === "vouched" && (
+        <VouchedBadge shelter={shelter} application={application!} bookings={bookings} />
       )}
 
       {posts.length === 0 ? (
@@ -399,14 +412,57 @@ function MentorProgressLine({
     mentorshipHistory.totalSessions > 0
   ) {
     text = `Mentor-recommended · ${mentorshipHistory.totalSessions} ${mentorshipHistory.totalSessions === 1 ? "session" : "sessions"} with ${mentorshipHistory.mentorNames.join(", ")} — strengthens your application; ${shelter.name} reviews walkers directly.`;
-  } else if (application?.state === "vouched" && application.vouchedVia === "mentor") {
-    text = "Vouched through mentored walks.";
   }
+  // Vouched state has its own badge surface (VouchedBadge), not this line.
   if (!text) return null;
   return (
-    <p className="text-xs text-fg-tertiary m-0" style={{ padding: "0 var(--space-xl)" }}>
+    <p
+      className="text-xs text-fg-tertiary m-0"
+      style={{ padding: "0 var(--space-xl) var(--space-md)" }}
+    >
       {text}
     </p>
+  );
+}
+
+/**
+ * Verified-walker badge — shown once vouched at this shelter (2026-06-11).
+ * The Volunteer credential pill is the achievement; replaces the bare
+ * "Vouched through mentored walks." status line. Tier reflects the
+ * walker's count here (fresh graduate = Volunteer).
+ */
+function VouchedBadge({
+  shelter,
+  application,
+  bookings,
+}: {
+  shelter: ShelterProfile;
+  application: WalkerApplication;
+  bookings: Booking[];
+}) {
+  const walkCount =
+    (application.walkCount ?? 0) +
+    countCompletedShelterWalks(application.userId, shelter.id, bookings);
+  const tier = deriveWalkerTier(walkCount);
+  const TIER_LABEL: Record<WalkerTier, string> = {
+    vetted: "Volunteer",
+    experienced: "Volunteer",
+    trusted: "Super Volunteer",
+  };
+  const TIER_CLASS: Record<WalkerTier, string> = {
+    vetted: "credential-pill--tier-1",
+    experienced: "credential-pill--tier-2",
+    trusted: "credential-pill--tier-3",
+  };
+  return (
+    <div className="shelter-vouched-badge">
+      <span className={`credential-pill credential-pill--volunteer ${TIER_CLASS[tier]}`}>
+        {TIER_LABEL[tier]}
+      </span>
+      <span className="text-xs text-fg-tertiary">
+        You&rsquo;re verified to walk at {shelter.name}
+      </span>
+    </div>
   );
 }
 
@@ -575,6 +631,8 @@ interface ShelterActionRowProps {
    *  next session. The action-row slot IS the CTA (the stepper card below
    *  is just the visual); demo toggles tuck behind the split caret. */
   onBookNext: () => void;
+  /** Vouched primary action — "Walk a dog" → the Dogs tab to pick one. */
+  onWalkVouched: () => void;
 }
 
 const WALKER_BUTTON_LABEL: Record<WalkerApplicationState | "none", string> = {
@@ -598,6 +656,7 @@ function ShelterActionRow({
   onCreditWalks,
   onWithdraw,
   onBookNext,
+  onWalkVouched,
 }: ShelterActionRowProps) {
   const applicationState = application?.state;
   const inMentorship = !!application?.mentorship && applicationState !== "vouched";
@@ -630,14 +689,19 @@ function ShelterActionRow({
       </div>
 
       <div className="shelter-action-button-wrap dropdown-menu-wrap">
-        {inMentorship ? (
-          // Mid-mentorship: the slot IS the action — a violet split button.
-          // Main segment books the next session (opens the mentor list);
-          // the caret keeps the demo toggles tucked away (hidden-affordance
-          // pattern). The stepper card below carries the progress visual.
+        {inMentorship || applicationState === "vouched" ? (
+          // The slot IS the action — a violet split button. Mid-mentorship
+          // it books the next session (opens the mentor list); once vouched
+          // it's "Walk a dog" → the Dogs tab to pick one. The caret keeps
+          // the demo toggles tucked away (hidden-affordance pattern); the
+          // achievement reads as a badge below, not as the button label.
           <div className="mentor-split">
-            <button type="button" className="mentor-split-book" onClick={onBookNext}>
-              Book next session
+            <button
+              type="button"
+              className="mentor-split-book"
+              onClick={inMentorship ? onBookNext : onWalkVouched}
+            >
+              {inMentorship ? "Book next session" : "Walk a dog"}
             </button>
             <button
               type="button"
@@ -645,7 +709,7 @@ function ShelterActionRow({
               onClick={onToggleWalker}
               aria-haspopup="menu"
               aria-expanded={walkerMenuOpen}
-              aria-label="Mentorship options"
+              aria-label={inMentorship ? "Mentorship options" : "Walker options"}
             >
               <CaretDown size={12} weight="bold" />
             </button>
@@ -653,8 +717,7 @@ function ShelterActionRow({
         ) : (
           <ButtonAction
             // "Walk a dog" is a volunteer action → violet (not the green
-            // primary). Applied/invited/vouched keep the subtle status
-            // treatment. 2026-06-11.
+            // primary). Applied/invited keep the subtle status treatment.
             variant={applicationState ? "brand-subtle" : "volunteer"}
             size="md"
             cta
