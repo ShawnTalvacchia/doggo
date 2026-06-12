@@ -539,6 +539,20 @@ function DiscoverHelpADogInner() {
           />
         )}
 
+        {/* De-couple walking from adoption commitment — the single most-
+            documented friction in this journey (Adoption-Curious Journey,
+            2026-06-12; see Competitive Research - Adoption-Curious Journeys).
+            "Explore before you commit" framing, shown above the roster. */}
+        {!showFilters && (
+          <p
+            className="text-sm text-fg-secondary m-0"
+            style={{ padding: "var(--space-sm) var(--space-md) 0" }}
+          >
+            Walk a shelter dog — no adoption obligation. Spend time with the
+            dogs, see how it works, and decide in your own time.
+          </p>
+        )}
+
         {view === "dogs" && !showFilters && (
           <div className="help-a-dog-toolbar">
             <span className="help-a-dog-toolbar-label">Sort by</span>
