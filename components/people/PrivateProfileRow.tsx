@@ -27,6 +27,7 @@ import { PawPrint } from "@phosphor-icons/react";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
 import { useConnections } from "@/contexts/ConnectionsContext";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { getShelterDogByName } from "@/lib/mockShelters";
 
 interface PrivateProfileRowProps {
   userId: string;
@@ -40,6 +41,10 @@ interface PrivateProfileRowProps {
    * `actions={[]}` info-only mode.
    */
   canAct: boolean;
+  /** Mixed shelter walk (FC18): a dog name that resolves on this shelter's
+   *  roster is highlighted as a shelter dog. Walk-level info, shown even on
+   *  a private row (it's about the walk, not the person). */
+  shelterWalkId?: string;
 }
 
 export function PrivateProfileRow({
@@ -48,13 +53,12 @@ export function PrivateProfileRow({
   avatarUrl,
   dogNames = [],
   canAct,
+  shelterWalkId,
 }: PrivateProfileRowProps) {
   const viewerId = useCurrentUserId();
   const { getConnection, markFamiliar, unmarkFamiliar } = useConnections();
   const connection = getConnection(userId, viewerId);
   const isMarked = connection?.state === "familiar";
-
-  const dogText = dogNames.join(", ");
 
   return (
     <div className="private-profile-row">
@@ -73,10 +77,21 @@ export function PrivateProfileRow({
           <DefaultAvatar name={name} size={32} />
         )}
         <span className="private-profile-row-name">{name}</span>
-        {dogText && (
+        {dogNames.length > 0 && (
           <span className="private-profile-row-dogs">
             <PawPrint size={12} weight="light" />
-            {dogText}
+            {dogNames.map((dogName, i) => {
+              const isShelterDog = !!shelterWalkId && !!getShelterDogByName(shelterWalkId, dogName);
+              return (
+                <span key={dogName}>
+                  {i > 0 && ", "}
+                  {dogName}
+                  {isShelterDog && (
+                    <span className="text-info-strong font-semibold"> · shelter dog</span>
+                  )}
+                </span>
+              );
+            })}
           </span>
         )}
       </Link>

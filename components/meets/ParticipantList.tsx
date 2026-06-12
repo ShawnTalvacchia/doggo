@@ -9,6 +9,7 @@ import {
 } from "@/components/people/PersonSections";
 import { getAttendeeTier, viewerCanAct } from "@/lib/meetUtils";
 import { getUserById } from "@/lib/mockUsers";
+import { getShelterById, getShelterDogByName } from "@/lib/mockShelters";
 import { getCarerIdentity, type CarerIdentity } from "@/lib/identityBadges";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { useConnections } from "@/contexts/ConnectionsContext";
@@ -244,6 +245,7 @@ export function ParticipantList({
         onAdvance={handleAdvance}
         onDowngrade={handleDowngrade}
         onUndoMark={handleUndoMark}
+        shelterWalkId={meet.shelterWalk?.shelterId}
       />
 
       {showInterested && (
@@ -259,6 +261,7 @@ export function ParticipantList({
             onAdvance={handleAdvance}
             onDowngrade={handleDowngrade}
             onUndoMark={handleUndoMark}
+        shelterWalkId={meet.shelterWalk?.shelterId}
             subdued
           />
         </>
@@ -277,6 +280,7 @@ export function ParticipantList({
             onAdvance={handleAdvance}
             onDowngrade={handleDowngrade}
             onUndoMark={handleUndoMark}
+        shelterWalkId={meet.shelterWalk?.shelterId}
             subdued
           />
         </>
@@ -298,6 +302,7 @@ function PeopleSection({
   onAdvance,
   onDowngrade,
   onUndoMark,
+  shelterWalkId,
 }: {
   title: string;
   /** All RSVP'd attendees for this section (going OR interested), including
@@ -316,6 +321,9 @@ function PeopleSection({
   onAdvance: (userId: string) => void;
   onDowngrade: (userId: string) => void;
   onUndoMark: (userId: string) => void;
+  /** When set, this is a mixed shelter walk (FC18) — rows whose dog resolves
+   *  on this shelter's roster get a shelter-dog badge via `contextLine`. */
+  shelterWalkId?: string;
 }) {
   const canActOnRows = rowActions === "auto";
   // Connected first (with viewer pinned to top of that subsection),
@@ -353,6 +361,23 @@ function PeopleSection({
   // viewer in the chip list below, just not as card-form rows.
   const total = attendees.length;
 
+  // Shelter-walk context line (FC18): distinguishes, on the People tab, who's
+  // walking a shelter dog (badged) vs bringing their own vs coming along with
+  // no dog. The walk is a MIXED community walk — own dogs + picked-up shelter
+  // dogs + dogless newcomers — so the roster, not the details panel, carries
+  // this. A dog counts as a shelter dog when it resolves on the linked
+  // shelter's roster.
+  const shelterName = shelterWalkId ? getShelterById(shelterWalkId)?.name : undefined;
+  const shelterContextLine = (a: TieredAttendee): string | undefined => {
+    if (!shelterWalkId) return undefined;
+    const walksShelterDog = (a.dogNames ?? []).some(
+      (name) => !!getShelterDogByName(shelterWalkId, name),
+    );
+    if (walksShelterDog) return `🐾 Shelter dog from ${shelterName}`;
+    if ((a.dogNames ?? []).length === 0) return "Coming along — no dog today";
+    return undefined; // bringing their own dog — nothing to flag
+  };
+
   // One row renderer for all three subsections — threads the session-mark
   // ladder (mark + advance/downgrade/undo) through to every PersonRow so
   // "+ Familiar" → "Connect" → "Connect ✓" works consistently.
@@ -365,6 +390,7 @@ function PeopleSection({
       avatarUrl={a.avatarUrl}
       isSelf={a.userId === viewerId}
       pets={(a.dogNames ?? []).map((name) => ({ name, breed: a.dogBreed }))}
+      contextLine={shelterContextLine(a)}
       connectionState={a.connectionState}
       theyMarkedFamiliar={a.theyMarkedFamiliar}
       profileOpen={a.profileOpen}
@@ -428,6 +454,7 @@ function PeopleSection({
               avatarUrl={a.avatarUrl}
               dogNames={a.dogNames}
               canAct={canActOnRows}
+              shelterWalkId={shelterWalkId}
             />
           ))}
         </div>

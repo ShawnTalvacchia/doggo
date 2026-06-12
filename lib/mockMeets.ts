@@ -1493,35 +1493,36 @@ export const mockMeets: Meet[] = [
 
   /* ── Group shelter walk (FC18, Adoption-Curious Journey 2026-06-12) ────
    *
-   * The inviting social on-ramp: a trainer-led group walk where the dogs
-   * come from Útulek Liběň instead of attendees' homes (`shelterWalk`).
-   * The two-tier roster is the funnel — vouched walkers each take a shelter
-   * dog (carried in `dogNames`); un-vouched newcomers (Eliška, Tomáš) come
-   * along socially with empty `dogNames` and see the "walk with a mentor"
-   * CTA on the meet page. A community Meet (green) that produces shelter
-   * care (Help a Dog) and converts via the credentialing layer (violet).
-   * Hosted by Klára (Super Volunteer / mentor), in her care group for
-   * discovery; the Útulek linkage sources the dogs. Nora (the focal dog)
-   * rides along with Marie — where Eliška first meets her. */
+   * A MIXED community walk (reframed 2026-06-12 per PO feedback): most
+   * people bring their own dog; vouched walkers swing by Útulek Liběň on
+   * the way and bring one of its dogs along too (`shelterWalk` links the
+   * shelter so the roster can badge those dogs); dogless newcomers (Eliška,
+   * Tomáš) come along socially and see the "walk with a mentor" CTA. A
+   * community Meet (green) that ALSO produces shelter care (Help a Dog) and
+   * converts via the credentialing layer (violet). Hosted by Klára (Super
+   * Volunteer / mentor), in her care group for discovery. Nora (the focal
+   * dog) rides along with Marie — where Eliška first meets her. Who's
+   * walking which dog (and the shelter-dog badge) lives on the People tab;
+   * the details panel stays slim. */
   {
     id: "meet-utulek-group-walk",
     visibility: "public",
     type: "walk",
     groupId: "group-klara-training",
     shelterWalk: { shelterId: "utulek-liben" },
-    title: "Útulek shelter dogs — Saturday group walk",
+    title: "Saturday morning group walk",
     coverPhotoUrl: "/images/generated/group-walk-stromovka.jpeg",
     description:
-      "A relaxed Saturday walk with dogs from Útulek Liběň. If you're vouched to walk at the shelter, come collect a dog and join us. New to it? Come along anyway — no dog to handle yet, no adoption obligation, just a friendly group, a good loop, and a chance to see how it all works. It's the easiest way in: meet the dogs, meet the people, and if you'd like to take a dog yourself next time, I run mentored first walks to get you there.",
-    location: "Libeň, Prague 8",
-    neighbourhood: "Libeň",
-    lat: 50.1107,
-    lng: 14.4711,
+      "Our regular Saturday morning loop through the park — bring your own dog and join us. If you're vouched at Útulek Liběň, you can swing by the shelter on the way and bring one of their dogs along too, so they get out and meet people in good company. New to shelter walking? Come along anyway — no dog to handle yet, no obligation, just a friendly group and a chance to see how it works. And if you'd like to bring a shelter dog yourself one day, I run mentored first walks to get you there.",
+    location: "Stromovka, Prague 7",
+    neighbourhood: "Holešovice",
+    lat: 50.1066,
+    lng: 14.4172,
     date: daysFromNow(2),
     time: "10:00",
     durationMinutes: 75,
     cadence: "weekly",
-    maxAttendees: 10,
+    maxAttendees: 14,
     dogSizeFilter: "any",
     leashRule: "on_leash",
     status: "upcoming",
@@ -1536,14 +1537,19 @@ export const mockMeets: Meet[] = [
     creatorName: "Klára",
     creatorAvatarUrl: "/images/generated/klara-profile.jpeg",
     attendees: [
-      // Vouched walkers — each takes a shelter dog (carried in dogNames).
+      // Vouched walkers who picked up an Útulek dog on the way — the dog
+      // resolves on the shelter roster, so the People tab badges it.
       { userId: "klara", userName: "Klára", avatarUrl: "/images/generated/klara-profile.jpeg", dogNames: ["Šimon"], profileOpen: true },
       { userId: "walker-marie-b", userName: "Marie B.", avatarUrl: "/images/generated/marie-profile.jpeg", dogNames: ["Nora"], rsvpStatus: "going" },
       { userId: "walker-pavel-d", userName: "Pavel D.", avatarUrl: "/images/generated/martin-profile.jpeg", dogNames: ["Tonda"], rsvpStatus: "going" },
-      { userId: "walker-lukas-p", userName: "Lukáš P.", avatarUrl: "/images/generated/filip-profile.jpeg", dogNames: ["Líza"], rsvpStatus: "going" },
-      // Un-vouched newcomers — coming along socially (no dog yet). This is
-      // where the "walk with a mentor" CTA lands. Eliška is the protagonist;
-      // Tomáš the existing mentee, drawn to shelter dogs.
+      // Neighbours walking their OWN dogs — the walk is a community walk
+      // first, not shelter-only.
+      { userId: "magda", userName: "Magda", avatarUrl: "/images/generated/magda-profile.jpeg", dogNames: ["Žofka"], rsvpStatus: "going", profileOpen: true, neighbourhood: "Holešovice" },
+      { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"], rsvpStatus: "going" },
+      { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"], rsvpStatus: "going" },
+      // Dogless newcomers — coming along socially (no dog yet). Where the
+      // "walk with a mentor" CTA lands. Eliška is the protagonist; Tomáš the
+      // existing mentee, drawn to shelter dogs.
       { userId: "eliska", userName: "Eliška D.", avatarUrl: "/images/generated/eliska-profile.jpeg", dogNames: [], rsvpStatus: "going", profileOpen: false, neighbourhood: "Žižkov" },
       { userId: "tomas", userName: "Tomáš", avatarUrl: "/images/generated/tomas-profile.jpeg", dogNames: [], rsvpStatus: "interested", profileOpen: false, neighbourhood: "Karlín" },
     ],
