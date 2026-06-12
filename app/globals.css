@@ -14409,6 +14409,121 @@ a.shelter-intro-social:hover {
   flex-shrink: 0;
 }
 
+/* Mentor-session booking sheet — waiver rows (checkbox + linked label).
+   Top-align so the box sits with the first line of a wrapping label
+   (the old `align-items: flex-start` inline style was inconsistent). */
+.mentor-waiver-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.mentor-waiver-row input[type="checkbox"] {
+  /* Nudge the box onto the text's cap height so it reads aligned with
+     the first line rather than floating above it. */
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* Inline link inside a waiver sentence — a span[role=button] (not a
+   <button>, whose inline-block default orphaned the trailing period when
+   the link text wrapped). Spans are inline by default; it flows + wraps
+   like text. */
+.mentor-waiver-link {
+  color: var(--text-link, var(--brand-strong));
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Visual progress track toward solo-walker status (2026-06-11). Numbered
+   nodes + a graduation node, connected by hairlines; the violet volunteer
+   family marks done/current. Violet hex kept in sync with
+   .credential-pill--volunteer (violet-100 / violet-700) — promote to a
+   --volunteer-* token family when violet earns more uses (same deferral
+   as the credential pills + dogs-in-care card). */
+.mentor-progress {
+  --mentor-progress-violet: #6d28d9;       /* violet-700 */
+  --mentor-progress-violet-soft: #ede9fe;  /* violet-100 */
+  padding: var(--space-sm) 0;
+}
+
+.mentor-progress-track {
+  display: flex;
+  align-items: center;
+}
+
+.mentor-progress-step {
+  display: flex;
+  align-items: center;
+  /* Each step is node + trailing connector; the connector grows so the
+     row spans the sheet width evenly. */
+  flex: 1;
+  min-width: 0;
+}
+
+.mentor-progress-step--goal {
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: var(--space-tiny);
+}
+
+.mentor-progress-node {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  flex-shrink: 0;
+}
+
+.mentor-progress-node--upcoming {
+  background: var(--surface-inset);
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-regular);
+}
+
+.mentor-progress-node--current {
+  background: var(--mentor-progress-violet-soft);
+  color: var(--mentor-progress-violet);
+  border: 1px solid var(--mentor-progress-violet);
+}
+
+.mentor-progress-node--done {
+  background: var(--mentor-progress-violet);
+  color: var(--surface-base);
+  border: 1px solid var(--mentor-progress-violet);
+}
+
+.mentor-progress-node--goal {
+  background: var(--surface-inset);
+  color: var(--mentor-progress-violet);
+  border: 1px dashed var(--mentor-progress-violet);
+  width: 32px;
+  height: 32px;
+}
+
+.mentor-progress-connector {
+  flex: 1;
+  height: 2px;
+  min-width: var(--space-xs);
+  background: var(--border-regular);
+  margin: 0 var(--space-xs);
+}
+
+.mentor-progress-goal-label {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--mentor-progress-violet);
+  white-space: nowrap;
+}
+
 /* Dogs-in-care summary card uses the volunteer-violet pair (matches
    the credential-pill --volunteer family). Was info-blue, which per
    CLAUDE.md is reserved for paid care — wrong semantic for a card

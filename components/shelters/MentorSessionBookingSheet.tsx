@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle, ArrowRight, Check, ShieldCheck } from "@phosphor-icons/react";
+import { CheckCircle, ArrowRight, Check, ShieldCheck, GraduationCap } from "@phosphor-icons/react";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { DateTrigger, DatePicker } from "@/components/ui/DatePicker";
 import { ButtonAction } from "@/components/ui/ButtonAction";
@@ -10,11 +10,64 @@ import { useConversations } from "@/contexts/ConversationsContext";
 import { useConnections } from "@/contexts/ConnectionsContext";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useWalkerApplications } from "@/contexts/WalkerApplicationsContext";
+import { useStubNotice } from "@/contexts/StubFeatureContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { getShelterById } from "@/lib/mockShelters";
 import { MENTOR_SESSION_DEFAULT_MINIMUM } from "@/lib/constants/services";
 import { formatShortDate } from "@/lib/dateUtils";
 import type { CarerMentorSessionServiceConfig, ChatMessage } from "@/lib/types";
+
+/** Time-of-day preference for a mentored walk. No evening — shelter
+ *  walks run within shelter hours (daytime + weekends; Útulek's
+ *  "weekdays 9–5"). The mentor confirms the exact time. */
+type WalkTimePref = "morning" | "afternoon";
+const TIME_PREF_LABEL: Record<WalkTimePref, string> = {
+  morning: "Morning",
+  afternoon: "Afternoon",
+};
+
+/**
+ * Visual track toward solo-walker status (2026-06-11). One node per
+ * required session + a graduation node; completed sessions fill, the
+ * session being booked highlights. Replaces the prose "after N sessions…"
+ * line on accepting shelters.
+ */
+function MentorProgressTrack({
+  total,
+  completed,
+  booking,
+}: {
+  total: number;
+  /** Sessions already completed at this shelter. */
+  completed: number;
+  /** 1-based session number being booked now (highlighted). */
+  booking: number;
+}) {
+  return (
+    <div className="mentor-progress" aria-label={`Session ${booking} of ${total} toward solo walker`}>
+      <div className="mentor-progress-track">
+        {Array.from({ length: total }).map((_, i) => {
+          const n = i + 1;
+          const state = n <= completed ? "done" : n === booking ? "current" : "upcoming";
+          return (
+            <div key={n} className="mentor-progress-step">
+              <span className={`mentor-progress-node mentor-progress-node--${state}`}>
+                {state === "done" ? <Check size={14} weight="bold" /> : n}
+              </span>
+              <span className="mentor-progress-connector" />
+            </div>
+          );
+        })}
+        <div className="mentor-progress-step mentor-progress-step--goal">
+          <span className="mentor-progress-node mentor-progress-node--goal">
+            <GraduationCap size={16} weight="fill" />
+          </span>
+          <span className="mentor-progress-goal-label">Solo walker</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /**
  * MentorSessionBookingSheet — mentee-side booking surface for a
@@ -64,6 +117,7 @@ export function MentorSessionBookingSheet({
     getPlatformWaiverSignedAt,
     signPlatformWaiver,
   } = useWalkerApplications();
+  const { notify: notifyStub } = useStubNotice();
 
   const mentorFirstName = mentor.name.split(" ")[0];
   const shelterOptions = service.shelterIds
@@ -77,6 +131,7 @@ export function MentorSessionBookingSheet({
   );
   const [date, setDate] = useState<string | null>(null);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [timePref, setTimePref] = useState<WalkTimePref | null>(null);
   const [platformWaiverChecked, setPlatformWaiverChecked] = useState(false);
   const [shelterWaiverChecked, setShelterWaiverChecked] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -85,6 +140,7 @@ export function MentorSessionBookingSheet({
     if (open) {
       setSubmitted(false);
       setDate(null);
+      setTimePref(null);
       setPlatformWaiverChecked(false);
       setShelterWaiverChecked(false);
       if (defaultShelterId && service.shelterIds.includes(defaultShelterId)) {
@@ -106,7 +162,27 @@ export function MentorSessionBookingSheet({
 
   const platformOk = !!platformSignedAt || platformWaiverChecked;
   const shelterOk = !!shelterSignedAt || shelterWaiverChecked;
-  const canSubmit = date !== null && !!shelter && platformOk && shelterOk;
+  const canSubmit = date !== null && timePref !== null && !!shelter && platformOk && shelterOk;
+
+  // Waiver-name links → stub toast (the real doc opens for review before
+  // signing). Shared by click + keyboard activation on the inline link.
+  const openPlatformWaiver = () =>
+    notifyStub({
+      feature: "Doggo baseline waiver",
+      note: "The full waiver document — identity, emergency contact, general liability — opens here for review before signing. Signed once; valid at every participating shelter.",
+    });
+  const openShelterWaiver = () =>
+    notifyStub({
+      feature: `${shelter?.name ?? "Shelter"} waiver`,
+      note: "Each shelter's own liability terms + dog-handling rules open here for review before signing. Signed once per shelter.",
+    });
+  const linkKeyActivate =
+    (fn: () => void) => (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        fn();
+      }
+    };
 
   function handleSubmit() {
     if (!canSubmit || !date || !shelter) return;
@@ -149,6 +225,9 @@ export function MentorSessionBookingSheet({
       pets: [],
       startDate: date,
       endDate: date,
+      // Time-of-day preference (the mentor confirms the exact time).
+      // No typed slot field on Booking — stash as an owner note.
+      ownerNotes: timePref ? `Preferred time: ${TIME_PREF_LABEL[timePref]}` : undefined,
       price: {
         lineItems: [
           {
@@ -266,55 +345,96 @@ export function MentorSessionBookingSheet({
             </div>
           )}
 
-          {/* Graduation context — what these sessions add up to */}
+          {/* Graduation context — a visual track on accepting shelters,
+              prose otherwise. */}
           {shelter && (
-            <p className="text-sm text-fg-secondary m-0">
-              {alreadyVouched
-                ? `You already walk solo at ${shelter.name} — extra sessions are coaching, not credentialing.`
-                : accepts
-                  ? `${shelter.name} accepts mentor vouching: after ${minimum} sessions, ${mentorFirstName}'s vouch makes you a solo walker there. This would be session ${nextSessionNumber}.`
-                  : `${shelter.name} runs its own walker intake — mentor sessions still count as documented experience on your application.`}
-            </p>
+            alreadyVouched ? (
+              <p className="text-sm text-fg-secondary m-0">
+                You already walk solo at {shelter.name} — extra sessions are
+                coaching, not credentialing.
+              </p>
+            ) : accepts ? (
+              <div className="flex flex-col gap-sm">
+                <MentorProgressTrack
+                  total={minimum}
+                  completed={sessionsDone}
+                  booking={nextSessionNumber}
+                />
+                <p className="text-xs text-fg-tertiary m-0">
+                  Booking session {nextSessionNumber} of {minimum}. After {minimum},{" "}
+                  {mentorFirstName}&rsquo;s vouch makes you a solo walker at{" "}
+                  {shelter.name}.
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-fg-secondary m-0">
+                {shelter.name} runs its own walker intake — mentor sessions still
+                count as documented experience on your application.
+              </p>
+            )
           )}
 
           {/* Waiver checklist — the three-layer requirements model, layers
               1 + 2 (layer 3 is the session minimum above). Sign-once
-              platform baseline; per-shelter waiver. */}
+              platform baseline; per-shelter waiver. The waiver NAME is a
+              link — in production it opens the document you read before
+              signing; here it fires the stub toast. The checkbox is "I've
+              read and agree." */}
           <div className="filter-field">
             <div className="label">Before the first walk</div>
             <div className="flex flex-col gap-sm">
               {platformSignedAt ? (
-                <span className="flex items-center gap-sm text-sm text-fg-secondary">
-                  <ShieldCheck size={16} weight="fill" style={{ color: "var(--brand-strong)" }} className="shrink-0" />
+                <span className="flex items-start gap-sm text-sm text-fg-secondary">
+                  <ShieldCheck size={16} weight="fill" style={{ color: "var(--brand-strong)", marginTop: 2 }} className="shrink-0" />
                   Platform waiver signed {formatShortDate(platformSignedAt.slice(0, 10))} — carries across shelters
                 </span>
               ) : (
-                <label className="filter-inline-check" style={{ alignItems: "flex-start" }}>
+                <label className="mentor-waiver-row">
                   <input
                     type="checkbox"
                     checked={platformWaiverChecked}
                     onChange={(e) => setPlatformWaiverChecked(e.target.checked)}
                   />
                   <span>
-                    Doggo baseline waiver — identity, emergency contact, general
-                    liability. <strong>Signed once</strong>, valid at every
-                    participating shelter.
+                    I&rsquo;ve read and agree to the{" "}
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      className="mentor-waiver-link"
+                      onClick={openPlatformWaiver}
+                      onKeyDown={linkKeyActivate(openPlatformWaiver)}
+                    >
+                      Doggo baseline waiver
+                    </span>
+                    . <strong>Signed once</strong>, valid at every participating shelter.
                   </span>
                 </label>
               )}
               {shelterSignedAt ? (
-                <span className="flex items-center gap-sm text-sm text-fg-secondary">
-                  <Check size={16} weight="bold" style={{ color: "var(--brand-strong)" }} className="shrink-0" />
+                <span className="flex items-start gap-sm text-sm text-fg-secondary">
+                  <Check size={16} weight="bold" style={{ color: "var(--brand-strong)", marginTop: 2 }} className="shrink-0" />
                   {shelter?.name} waiver signed
                 </span>
               ) : (
-                <label className="filter-inline-check" style={{ alignItems: "flex-start" }}>
+                <label className="mentor-waiver-row">
                   <input
                     type="checkbox"
                     checked={shelterWaiverChecked}
                     onChange={(e) => setShelterWaiverChecked(e.target.checked)}
                   />
-                  <span>{shelter?.name}&rsquo;s own waiver — their liability terms and dog-handling rules.</span>
+                  <span>
+                    I&rsquo;ve read and agree to{" "}
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      className="mentor-waiver-link"
+                      onClick={openShelterWaiver}
+                      onKeyDown={linkKeyActivate(openShelterWaiver)}
+                    >
+                      {shelter?.name}&rsquo;s own waiver
+                    </span>
+                    .
+                  </span>
                 </label>
               )}
             </div>
@@ -339,6 +459,30 @@ export function MentorSessionBookingSheet({
               }}
               title="Session date"
             />
+          </div>
+
+          {/* Time of day — morning / afternoon only (shelter walks run in
+              daytime hours; no evening). The mentor confirms the exact
+              time. Their offered windows show as a hint. */}
+          <div className="filter-field">
+            <div className="label">Time of day</div>
+            <div className="pill-group">
+              {(["morning", "afternoon"] as WalkTimePref[]).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  className={`pill pill-sm${timePref === t ? " active" : ""}`}
+                  onClick={() => setTimePref(t)}
+                >
+                  {TIME_PREF_LABEL[t]}
+                </button>
+              ))}
+            </div>
+            {service.availabilityLabel && (
+              <span className="text-xs text-fg-tertiary" style={{ marginTop: 4 }}>
+                {mentorFirstName} usually mentors: {service.availabilityLabel}
+              </span>
+            )}
           </div>
 
           {/* Flat price */}

@@ -472,8 +472,9 @@ export const klara: UserProfile = {
         durationMinutes: 60,
         shelterIds: ["utulek-liben", "pes-v-nouzi"],
         // Narrow on purpose — mentoring is a side line next to her
-        // training work, not a daily offering.
-        availabilityLabel: "Sat mornings · Thu evenings",
+        // training work. Daytime only: shelter walks run within shelter
+        // hours (no evenings — Útulek's "weekdays 9–5" + weekends).
+        availabilityLabel: "Sat mornings · Wed afternoons",
         notes:
           "New to shelter walking? I'll take you through your first walks at the shelter — dog handling, shelter routines, what the dogs need. After enough sessions, the shelter vouches you to walk solo.",
       },
@@ -2107,8 +2108,10 @@ export const pavelD: UserProfile = {
         pricePerSession: 350,
         durationMinutes: 60,
         shelterIds: ["utulek-liben"],
-        // Volunteering fits around his day job — evenings + Sunday.
-        availabilityLabel: "Tue & Thu evenings · Sun mornings",
+        // Volunteering fits around his day job — weekends only (shelter
+        // walks are daytime; no evenings). On-thesis: weekend slots are
+        // exactly what the filtered-out 9–5 crowd can use.
+        availabilityLabel: "Sat afternoons · Sun mornings",
         notes:
           "I've walked at Útulek for years — I'll show you the routines, the dogs, and how to read them. After enough sessions the shelter vouches you to walk on your own.",
       },
