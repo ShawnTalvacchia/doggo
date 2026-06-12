@@ -18,7 +18,6 @@ import {
   FacebookLogo,
   InstagramLogo,
   Envelope,
-  GraduationCap,
   SignOut,
   X,
 } from "@phosphor-icons/react";
@@ -53,12 +52,10 @@ import {
 } from "@/lib/volunteerTier";
 import { MENTOR_SESSION_DEFAULT_MINIMUM } from "@/lib/constants/services";
 import type {
-  CarerMentorSessionServiceConfig,
   PetProfile,
   ShelterProfile,
   ShelterSupporter,
   ShelterWalker,
-  UserProfile,
   WalkerApplication,
   WalkerApplicationState,
   WalkerTier,
@@ -288,8 +285,6 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
           mid-mentorship now, never as a competing CTA. */}
       {inMentorship && (
         <MentorPathCard
-          shelter={shelter}
-          mentors={mentors}
           sessionsCompleted={application?.mentorship?.sessionsCompleted ?? 0}
           minimum={minimum}
         />
@@ -426,13 +421,9 @@ function MentorProgressLine({
  * binding constraint) live or die on this card's conversion.
  */
 function MentorPathCard({
-  shelter: _shelter,
-  mentors: _mentors,
   sessionsCompleted,
   minimum,
 }: {
-  shelter: ShelterProfile;
-  mentors: { mentor: UserProfile; service: CarerMentorSessionServiceConfig }[];
   sessionsCompleted: number;
   minimum: number;
 }) {
