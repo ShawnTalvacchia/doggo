@@ -1,6 +1,6 @@
 ---
 status: active
-last-reviewed: 2026-06-11
+last-reviewed: 2026-06-12
 review-trigger: "Update as items are walked, edit as scope adjusts"
 ---
 
@@ -38,36 +38,18 @@ Decisions made during the build instead of stopping to ask — ratify or redirec
 
 ## Worth verifying
 
-- **V1. Mentee loop — apply → graduate, as Tomáš.** Fresh state (clear localStorage) → `/shelters/utulek-liben?as=tomas`. Each step is one check:
-  - [ ] Action row has ONE CTA — **"Walk a dog"** (no competing "See mentors" card). Tap it → routing sheet "Walk dogs here" with two options: *New to shelter walking? Walk with a mentor — 3 sessions, from 350 Kč* (primary, violet-accented) + *Walked shelter dogs before? Apply directly*.
-  - [ ] Choose the mentor option → list shows both mentors as rounded cards, no badge, daytime-only availability: Klára 450 Kč · Sat mornings · Wed afternoons; Pavel 350 Kč · Sat afternoons · Sun mornings.
-  - [ ] Pick a mentor → booking sheet locked to Útulek (no shelter switcher); a **progress track** (1 current / 2 / 3 → 🎓 Solo walker) + "Booking session 1 of 3" caption; two waiver checkboxes whose names are links (tap → placeholder toast); a **Time of day** Morning/Afternoon picker (no evening) with the mentor's availability hint.
-  - [ ] Submit is disabled until both waivers + date + time-of-day are set; on submit, success names sessions remaining.
-  - [ ] Mentor chat thread carries a "Booking confirmed" card; its View booking link opens the booking.
-  - [ ] Action row now shows a violet **"Book next session"** split button (its caret holds the demo toggles: Complete mentor session / Credit walks / Withdraw); below it a CTA-less stepper card ("N more sessions to walk solo" + track). "Book next session" → opens the mentor LIST (pick any mentor — not pinned).
-  - [ ] Walker-button → Complete mentor session (demo) ×1 → Tomáš + mentor are mutually Connected (mentor profile hero).
-  - [ ] Complete ×3 total → button reads "Vouched walker"; graduation message in Inbox from the mentor; mentor booking in `/bookings` is completed with a sealed report.
-- **V10. One smart "Walk a dog" entry; dog as hook (not a lock); independent sessions.** Fresh state:
-  - [ ] Unverified, accepting shelter (`/shelters/utulek-liben` or `/dogs/shelter-dog-tonda`) → "Walk a dog"/"Walk Tonda" opens the routing sheet: mentor option + "Apply directly". No separate "See mentors" card or upsell link anywhere.
-  - [ ] Non-accepting shelter (`/shelters/druha-sance?as=tomas`) → the routing sheet shows ONLY "Apply to walk" (mentor option suppressed).
-  - [ ] From a dog page, the mentor option carries the dog as motivation ("Want to walk Tonda?" list intro), but the booking sheet names NO dog (path is dog-agnostic).
-  - [ ] Book session 1 with Klára, then "Book next session" (action-row split button) → list → book session 2 with **Pavel** (different mentor allowed); caption "session 2 of 3"; nothing says "working toward {dog}" anywhere.
-  - [ ] Complete to graduation → the vouch message comes from the mentor who ran the FINAL session (not a pinned one).
-  - [ ] Vouched walker on a dog page → "Walk {dog}" books directly (WalkBookingSheet), no paragraph, no routing sheet.
-- [ ] **V2. Waiver sign-once carry-over + the picker context.** Continuing V1's state: `/profile/klara?tab=services` → Book a session on the mentor card. THIS entry keeps the shelter picker (no shelter chosen yet — Útulek/Pes v nouzi pills). Pick Pes v nouzi: the platform waiver row shows "signed {date} — carries across shelters" ✓; the Pes v nouzi waiver row is a fresh checkbox; graduation context says 5 sessions (their override), not 3.
-- [ ] **V3. The real solo walk (P77's replacement).** Continuing V1: `/dogs/shelter-dog-tonda?as=tomas` → status "You walk at Útulek Liběň" → Walk Tonda opens the WalkBookingSheet (not a dropdown) → book → `/bookings` My Services shows "Útulek Liběň · Tonda · Volunteer · no charge" → detail page: shelter logo as the partner, partner link routes to `/shelters/utulek-liben`, PET INFO resolves Tonda from the roster. Start → Finish the session and confirm the Members-tab walk count ticks up (booking-derived).
-- [ ] **V4. Credit toggle.** Any persona at a thin shelter → apply (or not) → walker-button dropdown → Credit historical walks (demo) → instantly vouched; Members row and profile Volunteer-work row read the plain "25 walks" (provenance stays in the data — Decisions #6). The Members-row kebab's "Credit walks" fires the stub-feature toast instead (real version needs the operator count form — Decisions #5 revision).
-- [ ] **V5. Druhá šance non-accepting posture.** As a mentee with sessions (post-V1 Tomáš): no mentor card on their Feed; apply → sheet carries "Mentor-recommended · 3 sessions with {mentor}"; after applying, the progress line explains the shelter reviews walkers directly.
-- [ ] **V6. Eligibility still composes.** As a freshly-vouched vetted walker, an `experiencedHandlersOnly` dog (Šimon, Berta) shows the explanatory state with a DISABLED Walk button; Tonda books fine. Strictest-rule-wins unchanged.
-- [ ] **V7. The mentors' own surfaces.** `/profile/klara`: Volunteer work shows the Super Volunteer platform pill + "at Útulek Liběň · 64 walks" (plain total); Services tab shows her mentor card with shelter chips + Book CTA; her OWN Services edit mode shows the read-only mentor card ("managed with the shelters you mentor at"). `/profile/pavel-d`: Services tab carries his 350 Kč mentor card (Útulek chip only). Neither mentor is ever offered their own mentorship: as Klára, Útulek shows no mentor card (she's vouched there) and Pes v nouzi's list would exclude her (self) — with Pavel not serving Pes v nouzi, no card renders there at all; her application sheet there shows the Super Volunteer recognition line instead.
-- [ ] **V8. Main guided demo untouched.** Run the guided walkthrough from `/`. Klára's and Pavel's Services surfaces now include mentor cards (additive); confirm no beat's framing breaks and the Daniel thread plays as before.
-- **V9. Shelter tier authority (O4).** Útulek Members tab, walker-row dots menu (flush right, opens leftward):
-  - [ ] Demote Klára → her pill drops to "Volunteer" (no annotation); her profile loses the platform Super Volunteer pill AND the per-shelter Super tier.
-  - [ ] After that demote, the Feed mentor card shows only Pavel (one-row list, still "from 350").
-  - [ ] Demote Pavel too → the mentor card disappears entirely (no eligible mentors).
-  - [ ] Promote both back → everything restores.
-  - [ ] Ladder ends hide the dead direction (no Promote at trusted, no Demote at vetted).
-  - [ ] Coherence check: as Klára (static-roster walker, no application), `/dogs/shelter-dog-simon` "Walk Šimon" opens the real booking sheet (treated as vouched).
+Most of this loop was driven end-to-end during the build and the design calls are ratified in Decisions #1–13 below — the ticks reflect that. **V1, V2, V9, V10** were re-confirmed live (V1/V2 on 2026-06-12 during booking-sheet polish; V9 per Decision #4); **V4, V5** rest on the end-to-end dev drive the preamble records. The four left open want your fresh eyes — artifact rendering (V3, V7), an edge case (V6), and the guided-demo regression (V8), none of which should be ticked by assumption.
+
+- [x] **V1. Mentee loop — apply → graduate (Tomáš).** Fresh → `/shelters/utulek-liben?as=tomas`: single **"Walk a dog"** CTA → routing sheet → mentor option → list (Klára 450 / Pavel 350, daytime-only) → booking sheet locked to Útulek with progress track + "session 1 of 3" + waiver-link checkboxes + Morning/Afternoon (submit gated on both waivers + date + time). Submit → confirmation card in chat (View booking opens it) → action row becomes the violet **"Book next session"** split button (caret = demo toggles) over a CTA-less stepper. Complete ×1 → mutual Connected; ×3 → "Vouched walker" + mentor graduation message in Inbox + completed booking with sealed report. *(Decisions #1, #2, #8, #10, #11.)*
+- [x] **V10. One smart entry; dog-as-hook; independent sessions.** "Walk a dog" routes by state — mentor option + "Apply directly" when unverified (Apply-only at non-accepting Druhá šance), direct `WalkBookingSheet` when vouched (no paragraph, no routing sheet). A dog page carries the dog as motivation ("Want to walk Tonda?") but the booking names no dog; sessions aren't pinned — book S1 with Klára, S2 with Pavel, and the graduation vouch comes from whoever ran the final session. Nothing says "working toward {dog}." *(Decisions #9, #11.)*
+- [x] **V2. Waiver sign-once + picker context.** Same shelter, later booking → the waiver block collapses to "Waivers signed — you're cleared…" (verified 2026-06-12). Cross-shelter via `/profile/klara?tab=services` → the picker survives (Útulek / Pes v nouzi pills); pick Pes v nouzi → platform waiver shows signed-carries-across, the Pes waiver is a fresh checkbox, graduation context reads 5 sessions (their override). *(Decision #8.)*
+- [x] **V4. Credit toggle (bootstrap).** Thin shelter → walker-button dropdown → "Credit historical walks (demo)" → instantly vouched; Members row + Volunteer-work read a plain "25 walks" (provenance stays in data). The Members-kebab "Credit walks" fires the stub toast instead. *(Decisions #4–#6.)*
+- [x] **V5. Druhá šance non-accepting posture.** Mentee with sessions: no mentor card on the Feed; apply → sheet carries "Mentor-recommended · N sessions with {mentor}"; post-apply line explains the shelter reviews walkers directly. *(per `acceptsMentorVouches`.)*
+- [x] **V9. Shelter tier authority (O4).** Útulek Members → walker-row dots (flush right, opens left): demote Klára → pill → "Volunteer", platform Super Volunteer + per-shelter Super tier both drop, Feed mentor card falls to Pavel only; demote Pavel → card disappears; promote both back → restores. Ladder ends hide dead directions. As Klára (static roster), `/dogs/shelter-dog-simon` treats her as vouched. *(Decision #4 — verified live.)*
+- [ ] **V3. Solo-walk artifact chain (P77 replacement).** Continuing V1: `/dogs/shelter-dog-tonda?as=tomas` → Walk Tonda → `WalkBookingSheet` → book → `/bookings` shows "Útulek Liběň · Tonda · Volunteer · no charge" → detail: shelter logo as partner (links to `/shelters/utulek-liben`), Pet Info resolves Tonda from the roster; Start → Finish → Members walk count ticks up.
+- [ ] **V6. Eligibility composes.** As a freshly-vouched vetted walker: an `experiencedHandlersOnly` dog (Šimon, Berta) shows the explanatory state + disabled Walk; Tonda books fine (strictest-rule-wins).
+- [ ] **V7. Mentors' own surfaces.** `/profile/klara`: Volunteer-work Super Volunteer pill + "at Útulek · 64 walks"; Services mentor card (shelter chips + Book); own edit mode shows the read-only mentor card. `/profile/pavel-d`: 350 Kč card, Útulek chip only. Neither is offered their own mentorship (Klára at Útulek = no card; at Pes v nouzi she gets the recognition line).
+- [ ] **V8. Main guided demo untouched.** Run the `/` walkthrough — Klára's + Pavel's mentor cards are additive; confirm no beat's framing breaks and the Daniel thread plays as before.
 
 ---
 
