@@ -17180,7 +17180,7 @@ a.shelter-intro-social:hover {
 .shelter-walk-mentor-link {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-tiny);
+  gap: var(--space-xs);
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   color: #6d28d9;                 /* violet-700 — volunteer family */
