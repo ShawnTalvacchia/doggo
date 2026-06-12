@@ -17171,6 +17171,26 @@ a.shelter-intro-social:hover {
   color: var(--text-tertiary);
 }
 
+/* Mentor eyebrow link on the FC18 group-shelter-walk card. An active-colour
+   text+icon link (not a button) — per the convention that rounded-corner
+   buttons stay neutral and coloured affordances read as pills or links.
+   Violet = volunteer family; icon inherits via currentColor. Violet inlined
+   as hex pending the --volunteer-* token family (FC11), matching
+   .credential-pill--volunteer / .btn-volunteer. */
+.shelter-walk-mentor-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-tiny);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: #6d28d9;                 /* violet-700 — volunteer family */
+  text-decoration: none;
+  white-space: nowrap;
+}
+.shelter-walk-mentor-link:hover {
+  text-decoration: underline;
+}
+
 /* Legacy classes kept for any remaining references — slated for removal */
 .meet-known-signal {
   display: flex;

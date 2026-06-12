@@ -18,19 +18,16 @@
  */
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { GraduationCap } from "@phosphor-icons/react";
+import { GraduationCap, CaretRight } from "@phosphor-icons/react";
 import type { Meet } from "@/lib/types";
 import { getShelterById, getShelterDogByName } from "@/lib/mockShelters";
 import { useWalkerApplications } from "@/contexts/WalkerApplicationsContext";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
-import { ButtonAction } from "@/components/ui/ButtonAction";
 
 export function ShelterWalkPanel({ meet }: { meet: Meet }) {
   const shelter = meet.shelterWalk ? getShelterById(meet.shelterWalk.shelterId) : undefined;
   const currentUserId = useCurrentUserId();
   const { getApplication } = useWalkerApplications();
-  const router = useRouter();
 
   if (!shelter) return null;
 
@@ -51,14 +48,11 @@ export function ShelterWalkPanel({ meet }: { meet: Meet }) {
   const mentorCta = !isVouched && (
     <div className="flex items-center justify-between gap-sm flex-wrap border-t border-edge-regular pt-sm">
       <span className="text-sm text-fg-tertiary">New to shelter walking?</span>
-      <ButtonAction
-        variant="volunteer"
-        size="sm"
-        leftIcon={<GraduationCap size={14} weight="bold" />}
-        onClick={() => router.push(`/shelters/${shelter.id}`)}
-      >
+      <Link href={`/shelters/${shelter.id}`} className="shelter-walk-mentor-link">
+        <GraduationCap size={15} weight="bold" />
         Walk with a mentor
-      </ButtonAction>
+        <CaretRight size={12} weight="bold" />
+      </Link>
     </div>
   );
 
