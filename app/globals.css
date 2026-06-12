@@ -14375,6 +14375,43 @@ a.shelter-intro-social:hover {
   flex-shrink: 0;
 }
 
+/* Mid-mentorship variant — stacks vertically: headline → full-width
+   stepper → CTA below it (2026-06-11). The row layout crushed the
+   stepper and pushed the CTA to the side. */
+.shelter-mentor-card--progress {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-sm);
+}
+
+.shelter-mentor-card--progress .mentor-progress {
+  padding: var(--space-xs) 0;
+}
+
+/* Volunteer-violet CTA — ties the mentored journey to its own colour
+   family (the stepper, credential pills, Volunteer badges all use
+   violet-700). Scoped to this surface, NOT a global ButtonAction
+   variant, so it doesn't add a colour to the app-wide button system —
+   it's the volunteer family applied to its own action. Violet hex kept
+   in sync with .credential-pill--volunteer (promote to --volunteer-*
+   tokens when violet earns more uses). */
+.mentor-violet-cta {
+  width: 100%;
+  padding: var(--space-sm) var(--space-md);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: #6d28d9;                 /* violet-700 */
+  color: #faf5ff;                      /* violet-50 */
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.mentor-violet-cta:hover {
+  background: #5b21b6;                 /* violet-800 */
+}
+
 /* Mentor-list rows (mentor-discovery rework, 2026-06-11) — the neutral
    pick-a-mentor surface behind the shelter's mentor CTA. Each option is
    its own rounded card that lifts on hover (no dividers — the gap +
@@ -14409,18 +14446,8 @@ a.shelter-intro-social:hover {
   flex-shrink: 0;
 }
 
-/* Working-toward-dog anchor block on the mentor booking sheet
-   (adoption funnel, 2026-06-11). */
-.mentor-working-toward {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-tiny);
-  padding: var(--space-sm) var(--space-md);
-  background: var(--surface-inset);
-  border-radius: var(--radius-form);
-}
-
-/* Dog-page mentored-way-in upsell (anchored to this dog). */
+/* Dog-page mentored-way-in upsell (entry hook to the general mentor
+   path — the dog draws you in; the path itself isn't dog-locked). */
 .dog-mentor-upsell {
   display: flex;
   flex-direction: column;

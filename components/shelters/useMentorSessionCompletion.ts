@@ -39,14 +39,6 @@ export function useMentorSessionCompletion(shelter: ShelterProfile | undefined) 
     const application = getApplication(currentUserId, shelter.id);
     if (!application?.mentorship) return;
 
-    // A completed mentor session → mutual Connected (O1 follow-up,
-    // 2026-06-10). Hours of supervised in-person dog handling is a
-    // stronger trust event than the contract-sign that triggers
-    // Connected on other paid flows — and with no sign step here, this
-    // is the flow's Connected moment. Idempotent across sessions.
-    markConnected(currentUserId, application.mentorship.mentorId);
-    markConnected(application.mentorship.mentorId, currentUserId);
-
     const minimum = shelter.policy.mentorSessionMinimum ?? MENTOR_SESSION_DEFAULT_MINIMUM;
     const graduates =
       shelter.policy.acceptsMentorVouches &&
@@ -58,6 +50,8 @@ export function useMentorSessionCompletion(shelter: ShelterProfile | undefined) 
       minimum,
     });
 
+    // Complete the earliest upcoming mentor booking at this shelter —
+    // regardless of which mentor ran it (mentors aren't pinned).
     const upcoming = bookings
       .filter(
         (b) =>
@@ -66,6 +60,19 @@ export function useMentorSessionCompletion(shelter: ShelterProfile | undefined) 
           b.status === "upcoming",
       )
       .sort((a, b) => a.startDate.localeCompare(b.startDate))[0];
+
+    // The mentor for THIS session is the completed booking's carer — not
+    // a pinned mentorship mentor (2026-06-11). Both Connected and the
+    // graduation vouch attribute to whoever actually ran the session.
+    const sessionMentorId = upcoming?.carerId ?? application.mentorship.mentorId;
+
+    // A completed mentor session → mutual Connected (O1 follow-up,
+    // 2026-06-10). Supervised in-person dog handling is a stronger trust
+    // event than the contract-sign that triggers Connected on other paid
+    // flows. Connects with the session's actual mentor; idempotent.
+    markConnected(currentUserId, sessionMentorId);
+    markConnected(sessionMentorId, currentUserId);
+
     if (upcoming) {
       updateStatus(upcoming.id, "completed");
       const session = upcoming.sessions?.[0];
@@ -82,7 +89,10 @@ export function useMentorSessionCompletion(shelter: ShelterProfile | undefined) 
     }
 
     if (graduates) {
-      const mentor = getUserById(application.mentorship.mentorId);
+      // Graduation is the SHELTER's vouch, announced by the mentor who
+      // ran the final session (shelter-account messaging is the eventual
+      // home — O8).
+      const mentor = getUserById(sessionMentorId);
       if (mentor) {
         const convId = getOrCreateDirectConversation({
           id: mentor.id,
@@ -94,7 +104,7 @@ export function useMentorSessionCompletion(shelter: ShelterProfile | undefined) 
           conversationId: convId,
           sender: "provider",
           type: "text",
-          text: `That's ${minimum} sessions — I've vouched for you at ${shelter.name}. You can book solo walks with their dogs now. 🎉`,
+          text: `That's ${minimum} sessions — you're vouched to walk at ${shelter.name} now. You can book solo walks with their dogs. 🎉`,
           sentAt: new Date().toISOString(),
           read: false,
         });

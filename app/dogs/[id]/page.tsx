@@ -1053,7 +1053,7 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
   // state when relevant; suppressed entirely for the default case.
   const statusLine = (() => {
     if (inMentorship && shelter.policy.acceptsMentorVouches)
-      return `${application!.mentorship!.sessionsCompleted} of ${minimum} mentor sessions with ${application!.mentorship!.mentorName}`;
+      return `${application!.mentorship!.sessionsCompleted} of ${minimum} mentor sessions — keep going to walk solo`;
     if (state === "applied") return `Application sent — ${shelter.name} will be in touch`;
     if (state === "invited") return `Invited to visit — meet the team at ${shelter.name}`;
     if (state === "vouched" && !eligibleForDog) return `${dog.name} needs an experienced walker (10+ walks)`;
@@ -1175,8 +1175,8 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
               onClick={() => setMentorListOpen(true)}
             >
               {dog.experiencedHandlersOnly
-                ? `Start with a mentor and work toward walking ${dog.name}`
-                : `Walk ${dog.name} with a mentor — ${minimum} sessions and you walk solo here`}
+                ? `${dog.name} needs an experienced handler — get certified with a mentor and build up`
+                : `Want to walk ${dog.name}? Get certified with a mentor — ${minimum} sessions and you walk solo here`}
             </button>
           </div>
         )}
@@ -1228,7 +1228,6 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
           service={mentorSheetTarget.service}
           defaultShelterId={shelter.id}
           lockShelter
-          dog={{ id: dog.id, name: dog.name, experiencedHandlersOnly: dog.experiencedHandlersOnly }}
         />
       )}
     </>

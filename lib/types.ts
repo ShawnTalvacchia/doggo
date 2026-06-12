@@ -588,10 +588,6 @@ export interface Booking {
     /** 1-based position in the mentee's session sequence at this shelter
      *  at booking time (e.g. session 2 of a 3-session minimum). */
     sessionNumber: number;
-    /** The dog the mentee is working toward, when the flow was entered
-     *  from a dog's profile (mentor-discovery rework, 2026-06-11).
-     *  Denormalised name for booking-surface render. */
-    workingTowardDogName?: string;
   };
   /**
    * Set when this **Care** booking is a drop-off on a linked free meet
@@ -2034,24 +2030,15 @@ export interface WalkerApplication {
    * claim of the mentor model.
    */
   mentorship?: {
-    /** UserProfile id of the mentor (a platform Super Volunteer). */
+    /** UserProfile id of the mentor who STARTED the journey (first
+     *  booking). Mentors aren't pinned — each session can be with a
+     *  different mentor (2026-06-11); this is just the bootstrap record. */
     mentorId: string;
     /** Denormalised mentor display name for rendering without a lookup. */
     mentorName: string;
-    /** Completed mentor sessions at this shelter. */
+    /** Completed mentor sessions at this shelter. Each session is
+     *  independent (any mentor, any dog) and steps toward the count. */
     sessionsCompleted: number;
-    /**
-     * The shelter dog this mentee is working toward (set when the
-     * mentored path is entered from a specific dog's profile —
-     * mentor-discovery rework, 2026-06-11). Keeps the adoption funnel's
-     * anchor present through the whole journey: walk toward Bára → get
-     * vouched → walk Bára solo → adopt Bára. The mentor still confirms
-     * the actual day-one dog (a beginner may start on a friendlier dog
-     * and build toward a restricted one), so this is the aspiration, not
-     * a booked-for-this-dog guarantee. Denormalised name for render.
-     */
-    workingTowardDogId?: string;
-    workingTowardDogName?: string;
   };
   /**
    * How the vouch happened — `"shelter"` (direct intake: applied →

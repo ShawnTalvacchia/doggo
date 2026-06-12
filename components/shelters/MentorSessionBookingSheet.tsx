@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle, ArrowRight, Check, ShieldCheck, GraduationCap } from "@phosphor-icons/react";
+import { CheckCircle, ArrowRight, Check, ShieldCheck } from "@phosphor-icons/react";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
+import { MentorProgressTrack } from "@/components/shelters/MentorProgressTrack";
 import { DateTrigger, DatePicker } from "@/components/ui/DatePicker";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { useConversations } from "@/contexts/ConversationsContext";
@@ -25,49 +26,6 @@ const TIME_PREF_LABEL: Record<WalkTimePref, string> = {
   morning: "Morning",
   afternoon: "Afternoon",
 };
-
-/**
- * Visual track toward solo-walker status (2026-06-11). One node per
- * required session + a graduation node; completed sessions fill, the
- * session being booked highlights. Replaces the prose "after N sessions…"
- * line on accepting shelters.
- */
-function MentorProgressTrack({
-  total,
-  completed,
-  booking,
-}: {
-  total: number;
-  /** Sessions already completed at this shelter. */
-  completed: number;
-  /** 1-based session number being booked now (highlighted). */
-  booking: number;
-}) {
-  return (
-    <div className="mentor-progress" aria-label={`Session ${booking} of ${total} toward solo walker`}>
-      <div className="mentor-progress-track">
-        {Array.from({ length: total }).map((_, i) => {
-          const n = i + 1;
-          const state = n <= completed ? "done" : n === booking ? "current" : "upcoming";
-          return (
-            <div key={n} className="mentor-progress-step">
-              <span className={`mentor-progress-node mentor-progress-node--${state}`}>
-                {state === "done" ? <Check size={14} weight="bold" /> : n}
-              </span>
-              <span className="mentor-progress-connector" />
-            </div>
-          );
-        })}
-        <div className="mentor-progress-step mentor-progress-step--goal">
-          <span className="mentor-progress-node mentor-progress-node--goal">
-            <GraduationCap size={16} weight="fill" />
-          </span>
-          <span className="mentor-progress-goal-label">Solo walker</span>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /**
  * MentorSessionBookingSheet — mentee-side booking surface for a
@@ -93,7 +51,6 @@ export function MentorSessionBookingSheet({
   service,
   defaultShelterId,
   lockShelter = false,
-  dog,
 }: {
   open: boolean;
   onClose: () => void;
@@ -105,17 +62,12 @@ export function MentorSessionBookingSheet({
    *  options there is incoherent; PO call 2026-06-11). Profile-entry
    *  keeps the picker, since no shelter has been chosen yet. */
   lockShelter?: boolean;
-  /** Entered from a specific dog's profile — the mentee is working
-   *  toward THIS dog (adoption-funnel anchor, 2026-06-11). Carries
-   *  through to the mentorship + booking; restricted dogs get the
-   *  "build toward her" framing rather than a wall. */
-  dog?: { id: string; name: string; experiencedHandlersOnly?: boolean };
 }) {
   const currentUser = useCurrentUser();
   const router = useRouter();
   const { getOrCreateDirectConversation, addMessage } = useConversations();
   const { markFamiliar } = useConnections();
-  const { createBooking } = useBookings();
+  const { bookings, createBooking } = useBookings();
   const {
     getApplication,
     beginMentorship,
@@ -164,7 +116,16 @@ export function MentorSessionBookingSheet({
   const minimum = shelter?.policy.mentorSessionMinimum ?? MENTOR_SESSION_DEFAULT_MINIMUM;
   const accepts = shelter?.policy.acceptsMentorVouches ?? false;
   const alreadyVouched = application?.state === "vouched";
-  const nextSessionNumber = sessionsDone + 1;
+  // Session number counts every committed session at this shelter
+  // (completed + still-upcoming bookings) so booking ahead doesn't repeat
+  // "session 1" — mentors aren't pinned, but the count is shelter-scoped.
+  const committedSessions = bookings.filter(
+    (b) =>
+      b.ownerId === currentUser.id &&
+      b.mentorSession?.shelterId === shelterId &&
+      b.status !== "cancelled",
+  ).length;
+  const nextSessionNumber = committedSessions + 1;
 
   const platformOk = !!platformSignedAt || platformWaiverChecked;
   const shelterOk = !!shelterSignedAt || shelterWaiverChecked;
@@ -202,12 +163,7 @@ export function MentorSessionBookingSheet({
     // shelter, then the mentorship record at this shelter (anchored to
     // the working-toward dog when the flow came from a dog page).
     if (!platformSignedAt) signPlatformWaiver(currentUser.id);
-    beginMentorship(
-      currentUser.id,
-      shelterId,
-      { id: mentor.id, name: mentor.name },
-      dog ? { id: dog.id, name: dog.name } : undefined,
-    );
+    beginMentorship(currentUser.id, shelterId, { id: mentor.id, name: mentor.name });
     if (!shelterSignedAt) signShelterWaiver(currentUser.id, shelterId);
 
     const convId = getOrCreateDirectConversation({
@@ -232,7 +188,6 @@ export function MentorSessionBookingSheet({
         shelterId: shelter.id,
         shelterName: shelter.name,
         sessionNumber: nextSessionNumber,
-        ...(dog ? { workingTowardDogName: dog.name } : {}),
       },
       subService: null,
       pets: [],
@@ -337,22 +292,6 @@ export function MentorSessionBookingSheet({
             </span>
           </div>
 
-          {/* Working-toward dog (adoption-funnel anchor, 2026-06-11). When
-              the flow started from a dog's profile, keep that dog's face
-              on the journey. Restricted dogs get honest "build toward
-              her" framing instead of a wall — encouragement first. */}
-          {dog && (
-            <div className="mentor-working-toward">
-              <span className="text-sm font-semibold text-fg-primary">
-                Working toward walking {dog.name}
-              </span>
-              <span className="text-xs text-fg-tertiary">
-                {dog.experiencedHandlersOnly
-                  ? `${dog.name} needs an experienced handler — ${mentorFirstName} will start you with friendlier dogs and build toward her.`
-                  : `${mentorFirstName} confirms which dog you start with; your goal is walking ${dog.name} on your own.`}
-              </span>
-            </div>
-          )}
 
           {/* Shelter picker — only on mentor-profile entry (no shelter
               chosen yet) AND when the mentor serves multiple shelters.

@@ -34,6 +34,7 @@ import { ShelterDogCard } from "@/components/shelters/ShelterDogCard";
 import { ShelterMemberRow } from "@/components/shelters/ShelterMemberRow";
 import { WalkApplicationSheet } from "@/components/shelters/WalkApplicationSheet";
 import { MentorSessionBookingSheet } from "@/components/shelters/MentorSessionBookingSheet";
+import { MentorProgressTrack } from "@/components/shelters/MentorProgressTrack";
 import { MentorListSheet } from "@/components/shelters/MentorListSheet";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
@@ -197,17 +198,13 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
   const [mentorSheetTarget, setMentorSheetTarget] = useState<
     (typeof mentors)[number] | null
   >(null);
-  // Mid-mentorship the card routes straight to the mentee's OWN mentor
-  // (continuing, not choosing); falls back to the list if that mentor
-  // no longer serves here (e.g. demoted below Super Volunteer).
-  const ownMentorEntry =
-    application?.mentorship && application.state !== "vouched"
-      ? mentors.find((m) => m.mentor.id === application.mentorship!.mentorId)
-      : undefined;
-  const handleMentorCardCta = () => {
-    if (ownMentorEntry) setMentorSheetTarget(ownMentorEntry);
-    else setMentorListOpen(true);
-  };
+  // Mentor is NOT pinned across sessions (2026-06-11): graduation is the
+  // SHELTER's vouch, so each session can be with whichever mentor's slot
+  // fits. The card's "book next" CTA always opens the list — same as the
+  // first booking — rather than re-booking one fixed mentor.
+  const inMentorship =
+    !!application?.mentorship && application.state !== "vouched";
+  const handleMentorCardCta = () => setMentorListOpen(true);
   const mentorshipHistory = currentUserId
     ? getMentorshipHistory(currentUserId, applications)
     : { totalSessions: 0, mentorNames: [] };
@@ -276,7 +273,6 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
       <MentorProgressLine
         shelter={shelter}
         application={application}
-        minimum={minimum}
         mentorshipHistory={mentorshipHistory}
       />
 
@@ -289,14 +285,7 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
           <MentorPathCard
             shelter={shelter}
             mentors={mentors}
-            ownMentor={
-              ownMentorEntry
-                ? {
-                    name: application!.mentorship!.mentorName,
-                    price: ownMentorEntry.service.pricePerSession,
-                  }
-                : undefined
-            }
+            inMentorship={inMentorship}
             sessionsCompleted={application?.mentorship?.sessionsCompleted ?? 0}
             minimum={minimum}
             onBook={handleMentorCardCta}
@@ -376,26 +365,18 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
 function MentorProgressLine({
   shelter,
   application,
-  minimum,
   mentorshipHistory,
 }: {
   shelter: ShelterProfile;
   application?: WalkerApplication;
-  minimum: number;
   mentorshipHistory: { totalSessions: number; mentorNames: string[] };
 }) {
+  // The in-mentorship-accepting state is shown by the card's stepper now
+  // (no per-mentor text line — mentors aren't pinned). This line only
+  // carries the two states the card doesn't: the non-accepting
+  // "Mentor-recommended" credibility line, and the post-vouch note.
   let text: string | null = null;
   if (
-    application?.mentorship &&
-    application.state !== "vouched" &&
-    shelter.policy.acceptsMentorVouches
-  ) {
-    const done = application.mentorship.sessionsCompleted;
-    // Keep the working-toward dog present through the journey (adoption
-    // funnel) — "…working toward Bára" when the path was dog-anchored.
-    const towardDog = application.mentorship.workingTowardDogName;
-    text = `${done} of ${minimum} mentor sessions with ${application.mentorship.mentorName}${towardDog ? `, working toward ${towardDog}` : ""} — ${shelter.name} vouches you after that.`;
-  } else if (
     application &&
     application.state !== "vouched" &&
     !shelter.policy.acceptsMentorVouches &&
@@ -403,7 +384,7 @@ function MentorProgressLine({
   ) {
     text = `Mentor-recommended · ${mentorshipHistory.totalSessions} ${mentorshipHistory.totalSessions === 1 ? "session" : "sessions"} with ${mentorshipHistory.mentorNames.join(", ")} — strengthens your application; ${shelter.name} reviews walkers directly.`;
   } else if (application?.state === "vouched" && application.vouchedVia === "mentor") {
-    text = `Vouched via mentor sessions with ${application.mentorship?.mentorName ?? "your mentor"}.`;
+    text = "Vouched through mentored walks.";
   }
   if (!text) return null;
   return (
@@ -426,26 +407,50 @@ function MentorProgressLine({
 function MentorPathCard({
   shelter,
   mentors,
-  ownMentor,
+  inMentorship,
   sessionsCompleted,
   minimum,
   onBook,
 }: {
   shelter: ShelterProfile;
   mentors: { mentor: UserProfile; service: CarerMentorSessionServiceConfig }[];
-  /** Set mid-mentorship — the mentee's own mentor entry; the card speaks
-   *  to continuing with them (their name, their price), not choosing. */
-  ownMentor?: { name: string; price: number };
+  /** True once the mentee has booked their first session here (mentorship
+   *  ref exists, not yet vouched). The card flips to a stepper + "book
+   *  next session" — never pins a mentor OR a dog; each session is
+   *  independent and just steps the count (2026-06-11). */
+  inMentorship: boolean;
   sessionsCompleted: number;
   minimum: number;
   onBook: () => void;
 }) {
-  // Mentorship begins at the first BOOKING (the mentorship ref exists),
-  // not the first completion — once a mentee has a mentor, the card
-  // speaks to continuing with them, never re-offers the list.
-  const inProgress = !!ownMentor;
   const remaining = Math.max(minimum - sessionsCompleted, 0);
   const fromPrice = Math.min(...mentors.map((m) => m.service.pricePerSession));
+
+  // Mid-mentorship: the stepper IS the status display, the CTA sits BELOW
+  // it (full width) in the volunteer-violet treatment that ties the
+  // journey together with the stepper + credential pills.
+  if (inMentorship) {
+    return (
+      <div className="shelter-mentor-card shelter-mentor-card--progress">
+        <span className="text-sm font-semibold text-fg-primary">
+          {remaining === 0
+            ? "All sessions done — you'll be vouched shortly"
+            : `${remaining} more ${remaining === 1 ? "session" : "sessions"} to walk solo`}
+        </span>
+        <MentorProgressTrack
+          total={minimum}
+          completed={sessionsCompleted}
+          booking={sessionsCompleted + 1}
+        />
+        {remaining > 0 && (
+          <button type="button" className="mentor-violet-cta" onClick={onBook}>
+            Book next session
+          </button>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="shelter-mentor-card">
       <span className="shelter-summary-card-icon">
@@ -453,23 +458,17 @@ function MentorPathCard({
       </span>
       <div className="flex flex-col gap-xs flex-1 min-w-0">
         <span className="text-sm font-semibold text-fg-primary">
-          {inProgress
-            ? `${sessionsCompleted > 0 ? "Keep going — " : "Mentorship started — "}${remaining} ${remaining === 1 ? "session" : "sessions"} to solo walking`
-            : "New to shelter walking?"}
+          New to shelter walking?
         </span>
         <span className="text-sm text-fg-secondary">
-          {inProgress
-            ? `Book your next mentored walk with ${ownMentor!.name}`
-            : "A mentor walker will get you ready to walk solo."}
+          A mentor walker will get you ready to walk solo.
         </span>
         <span className="text-xs text-fg-tertiary">
-          {inProgress
-            ? `${ownMentor!.price.toLocaleString()} Kč / session`
-            : `from ${fromPrice.toLocaleString()} Kč / session`}
+          from {fromPrice.toLocaleString()} Kč / session
         </span>
       </div>
       <ButtonAction variant="secondary" size="sm" cta onClick={onBook}>
-        {inProgress ? "Book next session" : "See mentors"}
+        See mentors
       </ButtonAction>
     </div>
   );
