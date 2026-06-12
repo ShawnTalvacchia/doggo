@@ -106,7 +106,11 @@ export function WalkBookingSheet({
             rightIcon={<ArrowRight size={16} weight="bold" />}
             onClick={() => {
               onClose();
-              router.push("/bookings");
+              // A shelter walk is a CARER-side booking (you're the walker /
+              // provider, the shelter is the "owner"), so it lives on the
+              // My Services tab — route there, not to the default My Care
+              // tab, or the walk you just booked looks missing.
+              router.push("/bookings?tab=services");
             }}
           >
             See your bookings
