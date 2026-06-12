@@ -1927,6 +1927,27 @@ body.guest-route {
   cursor: not-allowed;
 }
 
+/* Volunteer variant — violet, the volunteer family colour (2026-06-11).
+   Hex kept in sync with .credential-pill--volunteer (violet-700 / -800);
+   promote to --volunteer-* tokens when violet earns a token family. */
+.btn-cta.btn-volunteer,
+.btn-volunteer:not(.btn-cta) {
+  background: #6d28d9;             /* violet-700 */
+  color: #faf5ff;                 /* violet-50 */
+  border: none;
+}
+
+.btn-volunteer:hover:not(:disabled) {
+  background: #5b21b6;             /* violet-800 */
+}
+
+.btn-volunteer:disabled,
+.btn-volunteer.btn-disabled-state {
+  background: var(--surface-disabled);
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+}
+
 .btn-cta.btn-secondary {
   background: var(--surface-popout);
   border: 1px solid var(--brand-main);
@@ -11292,6 +11313,17 @@ body:has(.bottom-nav) .inbox-page {
   align-self: flex-end;
 }
 
+/* Volunteer-action submit (mentor booking) — violet, matching the
+   volunteer button family, since the mentored walk is a volunteer-path
+   action (2026-06-11). */
+.inq-submit--volunteer {
+  background: #6d28d9;             /* violet-700 */
+}
+
+.inq-submit--volunteer:hover:not(:disabled) {
+  background: #5b21b6;             /* violet-800 */
+}
+
 .inq-submit:hover:not(:disabled) {
   background: var(--brand-500);
 }
@@ -14384,8 +14416,26 @@ a.shelter-intro-social:hover {
   gap: var(--space-sm);
 }
 
+/* Mid-mentorship progress block — flat, not a card (2026-06-11). The
+   booking action lives in the action row above; this is a calm inline
+   progress visual, so it drops the card background/border/margin and
+   sits in the feed gutter. */
+.shelter-mentor-card--progress {
+  background: none;
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  padding: 0 var(--space-xl) var(--space-md);
+  gap: var(--space-xs);
+}
+
 .shelter-mentor-card--progress .mentor-progress {
-  padding: var(--space-xs) 0;
+  padding-top: 0;
+}
+
+.mentor-progress-caption {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
 }
 
 /* Volunteer-violet split CTA in the action row (mid-mentorship). Main
@@ -14548,7 +14598,10 @@ a.shelter-intro-social:hover {
 .mentor-progress {
   --mentor-progress-violet: #6d28d9;       /* violet-700 */
   --mentor-progress-violet-soft: #ede9fe;  /* violet-100 */
-  padding: var(--space-sm) 0;
+  /* Bottom room for the absolutely-positioned "Solo walker" label so it
+     can hang below the goal node without pushing the node off the
+     shared centre line. */
+  padding: var(--space-sm) 0 calc(var(--space-sm) + 16px);
 }
 
 .mentor-progress-track {
@@ -14567,8 +14620,9 @@ a.shelter-intro-social:hover {
 
 .mentor-progress-step--goal {
   flex: 0 0 auto;
-  flex-direction: column;
-  gap: var(--space-tiny);
+  position: relative;
+  /* Row (not column) so the goal node sits on the SAME centre line as the
+     numbered nodes; the label hangs below via absolute positioning. */
 }
 
 .mentor-progress-node {
@@ -14618,6 +14672,10 @@ a.shelter-intro-social:hover {
 }
 
 .mentor-progress-goal-label {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
   color: var(--mentor-progress-violet);

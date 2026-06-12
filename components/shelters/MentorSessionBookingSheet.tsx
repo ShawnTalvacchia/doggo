@@ -468,7 +468,7 @@ export function MentorSessionBookingSheet({
             </p>
           </div>
 
-          <button className="inq-submit" disabled={!canSubmit} onClick={handleSubmit}>
+          <button className="inq-submit inq-submit--volunteer" disabled={!canSubmit} onClick={handleSubmit}>
             Book session →
           </button>
         </div>

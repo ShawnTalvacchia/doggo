@@ -1084,7 +1084,8 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
         <div className="flex gap-sm flex-wrap">
           <div className="dropdown-menu-wrap walk-affordance-menu-wrap grow basis-[140px]">
             <ButtonAction
-              variant="primary"
+              // Volunteer action → violet (2026-06-11).
+              variant="volunteer"
               size="sm"
               cta
               className="w-full"

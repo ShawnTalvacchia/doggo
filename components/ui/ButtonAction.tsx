@@ -10,7 +10,13 @@ export type ButtonVariant =
   | "soft"
   | "brand-subtle"
   | "white"
-  | "outline-white";
+  | "outline-white"
+  /** Volunteer actions (shelter walking, mentorship). Violet — the
+   *  volunteer family colour (stepper, credential pills, Volunteer
+   *  badges). Use ONLY for volunteer-path actions so violet keeps one
+   *  clear job: green = primary/community, blue = care, violet =
+   *  volunteer. Added 2026-06-11. */
+  | "volunteer";
 
 /** @deprecated alias kept for callers that imported the CTA-subset name. Same set as ButtonVariant. */
 export type CTAButtonVariant = ButtonVariant;
@@ -69,6 +75,7 @@ export function ButtonAction({
     variant === "brand-subtle" ? "btn-brand-subtle" : "",
     variant === "white" ? "btn-white" : "",
     variant === "outline-white" ? "btn-outline-white" : "",
+    variant === "volunteer" ? "btn-volunteer" : "",
     cta ? "btn-cta" : "",
     destructive ? "btn-is-destructive" : "",
     size === "sm" ? "btn-sm" : "",

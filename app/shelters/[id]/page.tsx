@@ -433,7 +433,7 @@ function MentorPathCard({
   // violet split button), so this stays a calm visual.
   return (
     <div className="shelter-mentor-card shelter-mentor-card--progress">
-      <span className="text-sm font-semibold text-fg-primary">
+      <span className="mentor-progress-caption">
         {remaining === 0
           ? "All sessions done — you'll be vouched shortly"
           : `${remaining} more ${remaining === 1 ? "session" : "sessions"} to walk solo`}
@@ -652,7 +652,10 @@ function ShelterActionRow({
           </div>
         ) : (
           <ButtonAction
-            variant={applicationState ? "brand-subtle" : "primary"}
+            // "Walk a dog" is a volunteer action → violet (not the green
+            // primary). Applied/invited/vouched keep the subtle status
+            // treatment. 2026-06-11.
+            variant={applicationState ? "brand-subtle" : "volunteer"}
             size="md"
             cta
             leftIcon={applicationState ? <Check size={16} weight="bold" /> : undefined}
