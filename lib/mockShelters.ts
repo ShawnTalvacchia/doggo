@@ -632,10 +632,15 @@ export const mockShelters: ShelterProfile[] = [
     },
     tagApproval: "auto",
     policy: {
-      groupWalksPermitted: false,
+      // Group walks permitted (FC18 host shelter, Adoption-Curious Journey
+      // 2026-06-12). Útulek runs a trainer-led group walk where vouched
+      // walkers each take a dog — the socialise-don't-avoid stance in
+      // practice. Per-dog overrides still gate the genuinely-difficult dogs
+      // (Berta stays solo); strictest rule wins at the eligibility check.
+      groupWalksPermitted: true,
       minimumTier: "vetted",
       vouchingNote:
-        "First-time walkers come in for a 30-minute intro visit so we can match you with the right dog. Walks are solo only. Even our calmest dogs do best one-on-one.",
+        "First-time walkers come in for a 30-minute intro visit so we can match you with the right dog. Once you're vouched you can join our trainer-led group walk too — most of our dogs do better, not worse, in good company.",
       workingLanguages: ["cs", "en"],
       // Mentor-vouching pilot shelter (Cross-Shelter Mentor Network D2).
       // Accepts the mentor path at the platform-suggested 3-session

@@ -55,6 +55,7 @@ import { LinkedWalkBookingSheet } from "@/components/meets/LinkedWalkBookingShee
 import { getLinkedServicesForMeet } from "@/lib/meetUtils";
 import { CancelOccurrenceModal } from "@/components/meets/CancelOccurrenceModal";
 import { ParticipantList } from "@/components/meets/ParticipantList";
+import { ShelterWalkPanel } from "@/components/meets/ShelterWalkPanel";
 import { MeetPhotoGallery } from "@/components/meets/MeetPhotoGallery";
 import { LayoutSection } from "@/components/layout/LayoutSection";
 import { FilterPillRow } from "@/components/ui/FilterPillRow";
@@ -796,6 +797,10 @@ function DetailsTab({
         {meet.description && (
           <p className="meet-description">{meet.description}</p>
         )}
+
+        {/* FC18 group shelter walk — two-tier roster + newcomer mentor CTA.
+            Renders only when the meet sources its dogs from a shelter. */}
+        {meet.shelterWalk && <ShelterWalkPanel meet={meet} />}
 
         {/* When + where — side-by-side row card */}
         <div className="meet-info-card">

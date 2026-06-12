@@ -1047,6 +1047,20 @@ export interface Meet {
    * flexibility.
    */
   linkedServices?: { serviceId: string; required: boolean }[];
+
+  /**
+   * Group shelter walk linkage (FC18, Adoption-Curious Journey 2026-06-12).
+   * When set, this Meet sources its dogs from a `ShelterProfile.dogs[]`
+   * roster instead of attendees' own dogs — a community walk (green) where
+   * vouched walkers each take a shelter dog. The two-tier roster is the
+   * load-bearing UI: attendees vouched at this shelter carry the shelter dog
+   * they're walking in `MeetAttendee.dogNames`; un-vouched newcomers join
+   * socially (empty `dogNames`) and see the "walk with a mentor" CTA — the
+   * green→violet funnel boundary. The host is typically a Super Volunteer /
+   * mentor (e.g. Klára). Gated by the shelter's `groupWalksPermitted` policy.
+   * See `docs/features/shelters.md` and `Future Considerations.md` FC18.
+   */
+  shelterWalk?: { shelterId: string };
 }
 
 // ── Connections ───────────────────────────────────────────────────────────────
