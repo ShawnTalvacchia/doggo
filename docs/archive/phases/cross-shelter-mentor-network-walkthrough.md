@@ -1,5 +1,5 @@
 ---
-status: active
+status: archived
 last-reviewed: 2026-06-12
 review-trigger: "Update as items are walked, edit as scope adjusts"
 ---

@@ -1,5 +1,5 @@
 ---
-status: active
+status: archived
 last-reviewed: 2026-06-10
 review-trigger: When any task is completed or blocked; at the mid-phase single-shelter-loop checkpoint
 ---
