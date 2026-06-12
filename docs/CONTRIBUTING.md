@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-06-09
+last-reviewed: 2026-06-12
 tags: [rules, workflow, css, conventions]
 review-trigger: "always — read before any working session"
 ---
@@ -52,7 +52,7 @@ Before writing any code for a new phase, complete the **Opening Checklist** on t
 
 ### Closing a Phase
 
-Before marking a phase complete, work through the **Closing Checklist** on the phase board:
+These steps are the **canonical closing process — the single source of truth.** Work through them in order. The phase board does **not** repeat them; it carries only **phase-specific** close items under its "Close notes" section (the feature docs this phase touched, outward-facing artifacts to graduate, punch-list items it closes, next-phase dependencies it satisfies). Per-decision doc-propagation targets live in the walkthrough's "Decisions surfaced" log (step 2), not in a second checklist. Do not copy these steps onto the board — that duplication is what drifts.
 
 1. **Walk through every acceptance criterion.** Verify each one against the running app, not just the code.
 2. **Sweep the walkthrough's "Decisions surfaced" section.** This is a plain log — not a checklist. Every entry there represents an emergent decision that needs to land in a feature doc (or be explicitly marked "no doc update needed"). Process each one in order: update the named home doc per the `→` annotation, then check it off in the phase board's Closing Checklist (not in the walkthrough itself — the walkthrough entries stay as the historical record). **The walkthrough cannot be archived until every entry has been propagated.** This is the single biggest defense against feature-doc staleness — earlier phases shipped many decisions that never made it home, and this step plugs the gap going forward.

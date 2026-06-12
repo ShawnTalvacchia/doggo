@@ -14,15 +14,13 @@ review-trigger: When any task is completed or blocked
 
 ---
 
-## Opening Checklist
+## Open notes (phase-specific only)
 
-Complete before writing any code. Mark each item done.
+> **Canonical open process:** `docs/CONTRIBUTING.md` → "Opening a Phase" — the single source of truth. Work through those steps; do **not** copy them here.
+>
+> List below ONLY what's specific to THIS phase: conflicts surfaced during the opening audit, referenced docs that needed a `last-reviewed` bump, scope calls made at open.
 
-- [ ] Read every task and its referenced docs
-- [ ] Review Open Questions log — flag anything affecting this phase
-- [ ] Audit for conflicts between phase plan and current codebase
-- [ ] Update any referenced docs with `last-reviewed` older than 2 weeks
-- [ ] Confirm scope — no tasks that belong in a different phase
+- _(phase-specific open notes go here — delete this line)_
 
 ---
 
@@ -41,19 +39,10 @@ Complete before writing any code. Mark each item done.
 
 ---
 
-## Closing Checklist
+## Close notes (phase-specific only)
 
-Complete before marking this phase done. Mark each item done.
+> **Canonical close process:** `docs/CONTRIBUTING.md` → "Closing a Phase" — the single source of truth (walk criteria, sweep the walkthrough decisions, update docs, archive, structural audit, strategic review, …). Work through those steps; do **not** copy them here — that duplication is exactly what drifts.
+>
+> List below ONLY what's specific to THIS phase: the feature docs it touched, outward-facing artifacts to graduate (e.g. a demo doc → `strategy/`), punch-list items it closes, next-phase dependencies it satisfies. Per-decision doc targets live in the walkthrough's "Decisions surfaced" log.
 
-- [ ] Walk through every acceptance criterion against the running app
-- [ ] Update all affected feature docs in `docs/features/`
-- [ ] Update Open Questions log — close resolved, add new
-- [ ] Update ROADMAP.md — mark phase complete with summary
-- [ ] Review CLAUDE.md — update current phase, key decisions, any structural changes
-- [ ] Archive this phase board (copy to `archive/phases/`, mark status: archived, then delete original from `phases/`)
-- [ ] **Structural audit** — run before marking the phase done:
-    - Any files in `docs/phases/` with `status: archived` or `status: complete`? Delete them (archive copy should already exist).
-    - Any filename duplicated between `docs/phases/` and `docs/archive/phases/`? Delete the live copy.
-    - Any docs in `strategy/`, `features/`, `implementation/` with `last-reviewed` older than 21 days? Review or bump.
-    - Any dead references in `README.md`, `CLAUDE.md`, `ROADMAP.md`, `CONTRIBUTING.md` to files that no longer exist? Fix.
-- [ ] Check next phase scope for conflicts with what was just built
+- _(phase-specific close notes go here — delete this line)_

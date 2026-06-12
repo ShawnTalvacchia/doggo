@@ -5,7 +5,7 @@ Read this before every session. These rules override defaults.
 ## Phase Rituals
 
 - **Opening a phase:** Follow the Opening Checklist in `docs/CONTRIBUTING.md` → "Opening a Phase," plus the Opening Checklist on the specific phase board in `docs/phases/`.
-- **Closing a phase:** Follow the Closing Checklist in `docs/CONTRIBUTING.md` → "Closing a Phase" (9 steps including the structural audit), plus the Closing Checklist on the phase board.
+- **Closing a phase:** Follow the canonical Closing Checklist in `docs/CONTRIBUTING.md` → "Closing a Phase" — the single source of truth. The phase board carries only **phase-specific** close items (feature docs touched, outward-facing artifacts to graduate, punch-list items it closes), never a copy of the generic steps.
 - **Before closing:** Show the user the checklist you're about to work through so they can catch anything missed. Phase close is a high-leverage moment — confirm before editing docs.
 - **Side tasks (focused work between/alongside phases):** Follow `docs/CONTRIBUTING.md` → "Side Tasks." A side task lands as one focused PR, updates only the feature docs it touches, and does NOT modify CLAUDE.md, ROADMAP, phase boards, or the Open Questions log. Default for "should I resume a paused phase?" is **no — ask the user first.**
 
