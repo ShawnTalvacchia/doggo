@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -28,7 +28,19 @@ import { SectionLabel } from "@/components/ui/SectionLabel";
 const TABS = [
   { key: "care", label: "My Care" },
   { key: "services", label: "My Services" },
+  { key: "volunteering", label: "Volunteering" },
 ];
+
+type TabKey = "care" | "services" | "volunteering";
+
+/** Shelter-dog activity — mentor sessions (paid onboarding toward solo
+ *  walking) AND solo volunteer walks. Pulled OUT of My Care / My Services
+ *  into its own Volunteering category so the whole shelter-walking arc
+ *  (book a mentor → graduate → walk solo) reads in one place and the paid
+ *  tabs stay about paid care. A mentor session is paid, but it's
+ *  volunteering you pay to unlock, so it belongs with the walks. */
+const isShelterActivity = (b: Booking) =>
+  b.mentorSession != null || b.ownerKind === "shelter";
 
 /* ── Section group ── */
 
@@ -50,37 +62,24 @@ function BookingSection({
   );
 }
 
-/* ── My Care tab — owner-side bookings ── */
+/* ── Shared pipeline renderer ── */
 
-function MyCareContent() {
-  const { bookings } = useBookings();
-  const CURRENT_USER = useCurrentUserId();
-  const ownerBookings = bookings.filter((b) => b.ownerId === CURRENT_USER);
+function BookingPipeline({
+  bookings,
+  empty,
+}: {
+  bookings: Booking[];
+  empty: ReactNode;
+}) {
+  if (bookings.length === 0) return <LayoutSection>{empty}</LayoutSection>;
 
-  // Pipeline view: proposed → upcoming → active → past. Discover & Care G5.
-  const proposed = ownerBookings.filter((b) => b.status === "proposed");
-  const active = ownerBookings.filter((b) => b.status === "active");
-  const upcoming = ownerBookings.filter((b) => b.status === "upcoming");
-  const past = ownerBookings.filter(
+  // Pipeline view: proposed → active → upcoming → past. Discover & Care G5.
+  const proposed = bookings.filter((b) => b.status === "proposed");
+  const active = bookings.filter((b) => b.status === "active");
+  const upcoming = bookings.filter((b) => b.status === "upcoming");
+  const past = bookings.filter(
     (b) => b.status === "completed" || b.status === "cancelled"
   );
-
-  if (ownerBookings.length === 0) {
-    return (
-      <LayoutSection>
-        <EmptyState
-          icon={<CalendarDots size={48} weight="light" />}
-          title="No care bookings yet."
-          subtitle="Find a trusted carer in your community."
-          action={
-            <ButtonAction variant="primary" size="sm" href="/discover/care">
-              Find Care
-            </ButtonAction>
-          }
-        />
-      </LayoutSection>
-    );
-  }
 
   return (
     <LayoutList>
@@ -92,23 +91,45 @@ function MyCareContent() {
   );
 }
 
-/* ── My Services tab — carer-side bookings ── */
+/* ── My Care tab — owner-side PAID care (shelter activity excluded) ── */
+
+function MyCareContent() {
+  const { bookings } = useBookings();
+  const CURRENT_USER = useCurrentUserId();
+  const list = bookings.filter(
+    (b) => b.ownerId === CURRENT_USER && !isShelterActivity(b)
+  );
+  return (
+    <BookingPipeline
+      bookings={list}
+      empty={
+        <EmptyState
+          icon={<CalendarDots size={48} weight="light" />}
+          title="No care bookings yet."
+          subtitle="Find a trusted carer in your community."
+          action={
+            <ButtonAction variant="primary" size="sm" href="/discover/care">
+              Find Care
+            </ButtonAction>
+          }
+        />
+      }
+    />
+  );
+}
+
+/* ── My Services tab — carer-side PAID services (shelter activity excluded) ── */
 
 function MyServicesContent() {
   const { bookings } = useBookings();
   const CURRENT_USER = useCurrentUserId();
-  const carerBookings = bookings.filter((b) => b.carerId === CURRENT_USER);
-
-  const proposed = carerBookings.filter((b) => b.status === "proposed");
-  const active = carerBookings.filter((b) => b.status === "active");
-  const upcoming = carerBookings.filter((b) => b.status === "upcoming");
-  const past = carerBookings.filter(
-    (b) => b.status === "completed" || b.status === "cancelled"
+  const list = bookings.filter(
+    (b) => b.carerId === CURRENT_USER && !isShelterActivity(b)
   );
-
-  if (carerBookings.length === 0) {
-    return (
-      <LayoutSection>
+  return (
+    <BookingPipeline
+      bookings={list}
+      empty={
         <EmptyState
           icon={<Briefcase size={48} weight="light" />}
           title="No service bookings yet."
@@ -119,17 +140,41 @@ function MyServicesContent() {
             </ButtonAction>
           }
         />
-      </LayoutSection>
-    );
-  }
+      }
+    />
+  );
+}
 
+/* ── Volunteering tab — shelter-dog activity on either side ──
+   Mentor sessions (you're the owner/mentee) + solo shelter walks (you're
+   the carer/walker) both land here, so the whole shelter-walking arc —
+   book a mentor, graduate, walk solo — reads in one place rather than
+   split across the two paid tabs. 2026-06-12. */
+
+function MyVolunteeringContent() {
+  const { bookings } = useBookings();
+  const CURRENT_USER = useCurrentUserId();
+  const list = bookings.filter(
+    (b) =>
+      (b.ownerId === CURRENT_USER || b.carerId === CURRENT_USER) &&
+      isShelterActivity(b)
+  );
   return (
-    <LayoutList>
-      <BookingSection title="Pending" bookings={proposed} />
-      <BookingSection title="Active" bookings={active} />
-      <BookingSection title="Upcoming" bookings={upcoming} />
-      <BookingSection title="Past" bookings={past} />
-    </LayoutList>
+    <BookingPipeline
+      bookings={list}
+      empty={
+        <EmptyState
+          icon={<HandHeart size={48} weight="light" />}
+          title="No volunteer walks yet."
+          subtitle="Walk a shelter dog and your sessions show up here."
+          action={
+            <ButtonAction variant="primary" size="sm" href="/discover/help-a-dog">
+              Help a Dog
+            </ButtonAction>
+          }
+        />
+      }
+    />
   );
 }
 
@@ -203,26 +248,43 @@ function BookingsPageInner() {
   const { bookings } = useBookings();
   const CURRENT_USER = useCurrentUserId();
 
-  // Decide page mode based on what bookings the viewer actually has on
-  // each side. Most users live firmly in one role (Daniel = owner only,
-  // Klára = carer only); forcing them through tabs creates the
-  // empty-tab-then-switch friction every visit. When the viewer has
-  // bookings on BOTH sides (Tomáš in mock world, multi-role users in
-  // production), tabs come back. Sessions & Service Execution A6
-  // walkthrough refinement, 2026-05-06.
-  const hasOwnerBookings = bookings.some((b) => b.ownerId === CURRENT_USER);
-  const hasCarerBookings = bookings.some((b) => b.carerId === CURRENT_USER);
-  const showTabs = hasOwnerBookings && hasCarerBookings;
+  // Decide page mode from which CATEGORIES actually have content. Most
+  // users live in one role (Daniel = care only, Klára = services only);
+  // forcing them through empty tabs creates switch-friction every visit.
+  // Tabs appear only when ≥2 categories are populated (Tomáš: care +
+  // volunteering, or all three). Generalized from the 2-side owner/carer
+  // split to N categories when Volunteering landed (2026-06-12); shelter-
+  // dog activity is its own category (see isShelterActivity).
+  const hasCare = bookings.some(
+    (b) => b.ownerId === CURRENT_USER && !isShelterActivity(b)
+  );
+  const hasServices = bookings.some(
+    (b) => b.carerId === CURRENT_USER && !isShelterActivity(b)
+  );
+  const hasVolunteering = bookings.some(
+    (b) =>
+      (b.ownerId === CURRENT_USER || b.carerId === CURRENT_USER) &&
+      isShelterActivity(b)
+  );
 
-  // Single-mode picks the side that's actually populated. Falls back
-  // to "care" for brand-new users (typical owner entry path).
-  const singleMode: "care" | "services" = hasCarerBookings && !hasOwnerBookings
-    ? "services"
-    : "care";
+  const present: TabKey[] = [
+    hasCare ? "care" : null,
+    hasServices ? "services" : null,
+    hasVolunteering ? "volunteering" : null,
+  ].filter((k): k is TabKey => k !== null);
 
-  const activeTab = showTabs
-    ? (searchParams.get("tab") || "care")
-    : singleMode;
+  const showTabs = present.length >= 2;
+  // Single-mode shows the one populated category; brand-new users fall
+  // back to care (the typical owner entry path).
+  const fallback: TabKey = present[0] ?? "care";
+  const paramTab = searchParams.get("tab") as TabKey | null;
+  const activeTab: TabKey = showTabs
+    ? paramTab && present.includes(paramTab)
+      ? paramTab
+      : present[0]
+    : fallback;
+
+  const visibleTabs = TABS.filter((t) => present.includes(t.key as TabKey));
 
   const handleTabChange = (key: string) => {
     if (key === "care") {
@@ -237,7 +299,7 @@ function BookingsPageInner() {
       <div className="page-column-panel-body">
         {showTabs && (
           <div className="page-column-panel-tabs">
-            <TabBar tabs={TABS} activeKey={activeTab} onChange={handleTabChange} />
+            <TabBar tabs={visibleTabs} activeKey={activeTab} onChange={handleTabChange} />
           </div>
         )}
         {activeTab === "care" && (
@@ -252,6 +314,7 @@ function BookingsPageInner() {
             <MyServicesContent />
           </>
         )}
+        {activeTab === "volunteering" && <MyVolunteeringContent />}
         <Spacer />
       </div>
     </PageColumn>

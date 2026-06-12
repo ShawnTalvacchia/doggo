@@ -275,7 +275,9 @@ export function MentorSessionBookingSheet({
             rightIcon={<ArrowRight size={16} weight="bold" />}
             onClick={() => {
               onClose();
-              router.push("/bookings");
+              // Mentor sessions live on the Volunteering tab (shelter-dog
+              // activity), not the default My Care tab.
+              router.push("/bookings?tab=volunteering");
             }}
           >
             See your bookings
