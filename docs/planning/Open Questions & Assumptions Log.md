@@ -1,7 +1,7 @@
 ---
 category: work-tracking
 status: active
-last-reviewed: 2026-06-09
+last-reviewed: 2026-06-12
 tags: [questions, risks, assumptions, work-on-deck]
 review-trigger: "before starting a new phase, after any strategic discussion"
 ---
@@ -312,6 +312,8 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 ## 14. Shelters & Institutional Accounts
 
 **Shipped 2026-06-02 (Shelter Foundation phase close).** Útulek Liběň seeded as the demo shelter; `/shelters/[id]` page with Feed/Dogs/Members/Gallery tabs; minimal `/dogs/[id]` profile; volunteer badge system on Members tab; Follow + Walk-a-dog action row. Build delivered against the 2026-06-01 resolutions with two notable evolutions: (a) walker tier naming shifted from "Vetted/Experienced/Trusted Walker" to **"Volunteer / Regular Volunteer / Super Volunteer"** with violet + growth-icon visual system (paw-weight progression and info-blue were too subtle / wrong semantic), (b) icon shape progression (Leaf → Plant → Tree) replaced weight variation as the tier signal. See `features/shelters.md` for the shipped state, and FC9 + FC11 for the deferred work (cross-shelter aggregation, tier visual intensification, violet→tokens promotion).
+
+**Shipped 2026-06-12 (Cross-Shelter Mentor Network phase close).** The mentor-vouching mechanism end-to-end: the `mentor_session` service kind; the mentor-vouched path to solo walking (apply-direct OR book mentor sessions → graduate); per-shelter policy now *consumed* (`acceptsMentorVouches` / `mentorSessionMinimum` gate the path); layered waivers (platform baseline signed once + per-shelter); platform Super Volunteer tier (`getPlatformVolunteerTier`) with an aggregate badge on profiles; tier thresholds reframed as *suggestions* with free shelter override (`tierOverrides`); shelter walks as real `ownerKind: "shelter"` Bookings on a new Volunteering tab. The **shelter operator/admin surface remains V3+** — all admin actions are demo state-toggles; the full surface is enumerated in FC16. See `features/shelters.md` → "Shelter-walking journey & mentor network" and `strategy/mentor-network-shelter-demo.md`.
 
 **Shipped 2026-06-08 (Help a Dog Discover door phase close).** Fourth Ways In door wired at `/discover/help-a-dog`. Dogs/Shelters pill toggle on a single surface (Dogs default, photo-led, "Needs walks now" sort; Shelters lists the three rescues). Two thin shelters seeded for density — **Pes v nouzi** (Holešovice, 5 dogs) and **Druhá šance** (Karlín, 4 dogs) — each with empty walker + supporter rosters, one shelter-authored post, and the same `/shelters/[id]` chrome handled by thin-shelter empty-state adjustments. Source-aware back from `/dogs/[id]` now prefers `lastListPath` when the source was a `/discover/` route, falling back to the shelter Dogs tab. In-circle elevation deliberately skipped — walkers don't bridge to UserProfile yet; that hook lights up with the credentialing-moat walker journey. See `features/shelters.md` → "Discovery" for the shipped state.
 

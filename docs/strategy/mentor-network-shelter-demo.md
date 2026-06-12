@@ -1,8 +1,11 @@
 ---
+category: strategy
 status: active
-last-reviewed: 2026-06-11
+last-reviewed: 2026-06-12
 review-trigger: "Before every shelter-coordinator or PO interview; after any interview that confirms or refutes a Playbook assumption"
 ---
+
+> Graduated from the Cross-Shelter Mentor Network phase board to `strategy/` at phase close (2026-06-12) — an outward-facing artifact with ongoing use (the live-driven shelter-interview script), not an archived walkthrough. Source material for the future guided `shelter-mentor` walkthrough (FC17).
 
 # The Mentor Network — Shelter-Facing Demo
 

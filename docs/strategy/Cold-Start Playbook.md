@@ -131,6 +131,8 @@ The deeper play: **trust signals on the platform likely outrank any single crede
 
 ## The shelter angle
 
+> **Shipped:** the mentor-vouching mechanism (this playbook's "Mentor-vouching as the scalable trust mechanism" thread) landed in the Cross-Shelter Mentor Network phase (2026-06-12). The live-driven, assumption-flagged pitch for shelter-coordinator interviews lives in [[mentor-network-shelter-demo]]; the built feature is in [[features/shelters]] → "Shelter-walking journey & mentor network."
+
 Still active, positioned as the **supply side of trainer-led walks** (always-on inventory when no client is booked) rather than as a standalone product.
 
 **The institutional layer is real but constrained.** 300+ registered shelters in Czech Republic. In Prague: Pes v nouzi, Útulek Liběň, BedForPet, Cool Critters, Psi bez hranic. Most run on volunteer labor and donations, coordinating through email, phone, and Facebook.
