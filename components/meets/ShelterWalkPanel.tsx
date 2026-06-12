@@ -49,21 +49,24 @@ export function ShelterWalkPanel({ meet }: { meet: Meet }) {
   );
 
   const mentorCta = !isVouched && (
-    <ButtonAction
-      variant="volunteer"
-      size="sm"
-      leftIcon={<GraduationCap size={16} weight="bold" />}
-      onClick={() => router.push(`/shelters/${shelter.id}`)}
-    >
-      New to shelter walking? Walk with a mentor
-    </ButtonAction>
+    <div className="flex items-center justify-between gap-sm flex-wrap border-t border-edge-regular pt-sm">
+      <span className="text-sm text-fg-tertiary">New to shelter walking?</span>
+      <ButtonAction
+        variant="volunteer"
+        size="sm"
+        leftIcon={<GraduationCap size={14} weight="bold" />}
+        onClick={() => router.push(`/shelters/${shelter.id}`)}
+      >
+        Walk with a mentor
+      </ButtonAction>
+    </div>
   );
 
   // No shelter dogs on this occurrence — fall back to a one-line invitation
   // + the CTA (no avatar card to show).
   if (shelterDogs.length === 0) {
     return (
-      <section className="flex flex-col gap-sm">
+      <section className="flex flex-col gap-sm rounded-panel border border-edge-regular bg-surface-top p-md">
         <p className="text-sm text-fg-secondary m-0">
           Vouched walkers can bring a dog from{" "}
           <Link href={`/shelters/${shelter.id}`} className="font-semibold text-fg-primary underline">
@@ -110,9 +113,12 @@ export function ShelterWalkPanel({ meet }: { meet: Meet }) {
             </span>
           </div>
         </div>
-      </div>
 
-      {mentorCta}
+        {/* Conversion lives inside the card as a quiet footer (PO feedback:
+            the full-width violet button read too loud). Framing pulled out as
+            muted text; the action is a small volunteer pill. */}
+        {mentorCta}
+      </div>
     </section>
   );
 }
