@@ -15005,18 +15005,21 @@ a.shelter-intro-social:hover {
   color: var(--text-tertiary);
 }
 
-/* Doorway reassurance card — calm, dismissible "explore before you commit"
-   framing that introduces the roster. Neutral (not care-blue / volunteer-
-   violet): it's reassurance, not a clickable nudge. Sits between the Sort
-   toolbar and the grid. */
+/* Doorway reassurance card — dismissible "explore before you commit" framing
+   that introduces the roster. Light volunteer-violet wash color-codes it to
+   the volunteering domain (walking shelter dogs IS volunteering) and lets it
+   stand out from the neutral page, matching the credential-pill / mentor-link
+   violet. Hex inlined pending the --volunteer-* token family (FC11), kept in
+   sync with .credential-pill--volunteer (violet-50 / -100 / -700). Sits
+   between the Sort toolbar and the grid. */
 .help-a-dog-intro-card {
   display: flex;
   align-items: flex-start;
   gap: var(--space-md);
   margin: var(--space-md) var(--space-md) 0;
   padding: var(--space-md) var(--space-lg);
-  background: var(--surface-top);
-  border: 1px solid var(--border-regular);
+  background: #faf5ff;                  /* violet-50 — soft wash */
+  border: 1px solid #ede9fe;            /* violet-100 */
   border-radius: var(--radius-panel);
 }
 
