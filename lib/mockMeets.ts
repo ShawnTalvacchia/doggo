@@ -1513,7 +1513,7 @@ export const mockMeets: Meet[] = [
     title: "Saturday morning group walk",
     coverPhotoUrl: "/images/generated/group-walk-utulek.jpeg",
     description:
-      "Our regular Saturday morning loop through the park — bring your own dog and join us. If you're vouched at Útulek Liběň, you can swing by the shelter on the way and bring one of their dogs along too, so they get out and meet people in good company. New to shelter walking? Come along anyway — no dog to handle yet, no obligation, just a friendly group and a chance to see how it works. And if you'd like to bring a shelter dog yourself one day, I run mentored first walks to get you there.",
+      "A relaxed Saturday loop through the park. Bring your dog and walk with a friendly group, trainer included. Some of us pick up a shelter dog from Útulek Liběň on the way. Want to walk one yourself but haven't before? I run mentored first walks to get you started.",
     location: "Stromovka, Prague 7",
     neighbourhood: "Holešovice",
     lat: 50.1066,
