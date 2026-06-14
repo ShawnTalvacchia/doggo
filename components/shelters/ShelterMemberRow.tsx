@@ -59,6 +59,10 @@ interface ShelterMemberRowProps {
    *  shelter-level "block" concept folds into removal as a
    *  don't-readmit flag, not a separate action. */
   onRemove?: () => void;
+  /** True when this row is the viewer themselves — appends a quiet "(you)"
+   *  marker after the name (mirrors the meet People-tab convention). The
+   *  consuming surface also pins the self row to the top of the list. */
+  isSelf?: boolean;
 }
 
 // T1 and T2 share the short label "Volunteer" — the style escalation
@@ -94,6 +98,7 @@ export function ShelterMemberRow({
   onDemote,
   onCreditWalks,
   onRemove,
+  isSelf = false,
 }: ShelterMemberRowProps) {
   const { kind, data } = entry;
   const displayName = data.displayName;
@@ -149,6 +154,9 @@ export function ShelterMemberRow({
             </Link>
           ) : (
             <span className="shelter-member-name">{displayName}</span>
+          )}
+          {isSelf && (
+            <span className="font-normal text-fg-tertiary">(you)</span>
           )}
           {kind === "walker" && (() => {
             const TierIcon = TIER_ICON[data.tier];

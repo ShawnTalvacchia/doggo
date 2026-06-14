@@ -1024,6 +1024,7 @@ const TIER_LADDER: WalkerTier[] = ["vetted", "experienced", "trusted"];
 
 function MembersTab({ shelter }: { shelter: ShelterProfile }) {
   const teamCount = shelter.team?.length ?? 0;
+  const currentUserId = useCurrentUserId();
   const { applications, tierOverrides, setTierOverride } = useWalkerApplications();
   const { bookings } = useBookings();
   const { notify: notifyStub } = useStubNotice();
@@ -1115,8 +1116,18 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
     else list = [...walkerEntries, ...supporterEntries];
 
     // Sort by recency (newest sortAt first). Anti-scoreboard discipline.
-    return list.sort((a, b) => b.sortAt.localeCompare(a.sortAt));
-  }, [allWalkers, shelter.supporters, filter]);
+    list.sort((a, b) => b.sortAt.localeCompare(a.sortAt));
+    // Then pin the viewer's own row to the top — self-orientation, not a
+    // ranking of others (recency order is preserved for everyone else).
+    if (currentUserId) {
+      list.sort(
+        (a, b) =>
+          (b.data.userId === currentUserId ? 1 : 0) -
+          (a.data.userId === currentUserId ? 1 : 0),
+      );
+    }
+    return list;
+  }, [allWalkers, shelter.supporters, filter, currentUserId]);
 
   return (
     <div className="shelter-members">
@@ -1156,6 +1167,7 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
               key={`${entry.kind}-${entry.data.userId}`}
               entry={entry}
               shelterName={shelter.name}
+              isSelf={!!currentUserId && entry.data.userId === currentUserId}
               // Shelter tier authority (O4): operator-stub promote/demote
               // per walker row. Hidden per direction at the ladder ends.
               onPromote={
