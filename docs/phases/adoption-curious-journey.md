@@ -168,6 +168,20 @@ On `adopted`, the dog becomes a brief **celebration** moment and then an archive
 
 ---
 
+## Workstream G — Adoption transition *(scope expansion, sanctioned by PO 2026-06-12)*
+
+DR7 deferred the adopted-dog transition; the PO called it back in mid-phase. Built the **baseline** (the frozen "Adopted" profile — works for any adopter, no migration); the **take-over** rendering stays deferred (option 1) as the genuine cross-container migration + claim flow.
+
+| # | Description | Refs | Status |
+|---|-------------|------|--------|
+| G1 | Effective adoption-status resolution (seed + `useAdoptionStore` override) + green "Adopted" hero pill; shed shelter-context auto-chips when adopted. | DR7 | done |
+| G2 | Suppress Walk/Adopt actions on an adopted dog (`WalkAffordance` returns null); celebration + pill carry the state. | DR7 | done |
+| G3 | Propagate adopted state: shelter Dogs-tab "Happy endings" subsection + `ShelterDogCard` `adopted` prop; Discover excludes adopted; in-care counts exclude adopted. | DR7 | done |
+| G4 | Take-over / start-fresh choice (adopter continues profile as their owned dog) — **deferred** (option 1): the real cross-container migration + claim/consent flow, a later phase. | DR7, OQ §1/§14 | deferred |
+| G5 | Docs — resolved transition model + deferral into Open Questions §1/§14 + `features/shelters.md`; walkthrough V10 + O7; this board. | | done |
+
+---
+
 ## Acceptance Criteria
 
 - [ ] A reviewer can drive the unified narrative start-to-finish in Open View: adoption-curious newcomer → group shelter walk → mentored → vouched → walks a shelter dog → shares a recap → recap surfaces to the network → adoption interest → shelter-curated meet-and-greet → `pending` → resolution.

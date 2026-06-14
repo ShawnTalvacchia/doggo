@@ -174,6 +174,27 @@ A **mixed community walk** (a Meet, green) where shelter dogs can join — the i
 
 ---
 
+## Adoption funnel & transition
+
+The full path from interest to a home (Adoption-Curious Journey, Workstreams E + G, 2026-06-12). Replaces the old stub `Adopt {dog}` CTA (which just routed to the shelter).
+
+**The funnel (E).** `Adopt {dog}` opens `AdoptInquirySheet` — a state machine with **non-failure off-ramps**, not a binary commit:
+- **No-obligation framing up front** (interest ≠ adopting — the #1 documented friction).
+- **Escalation ladder** — walk → repeat → sleepover/foster → adopt, each a graceful place to stop; returns framed as welfare-positive ("never a failure").
+- **Shelter-curated meet-and-greet** — interest routes to the shelter, which arranges the meeting; no auto-match (matches shelter authority).
+- Stages persist via the demo override `useAdoptionStore` (dogId → `interested | pending | adopted`); shelter-side advances are honest state-toggles (real operator surface = FC16). `pending` surfaces the "Adoption pending" hero pill; `adopted` → the celebration below. The **primary** finalize is the **network adopter** (tied to the walk-recap commenter — the advocacy loop closed); self-adopt is secondary, per the research (community exposure is the proven engine).
+
+**The transition (G) — frozen "Adopted" profile.** On adoption the dog's profile becomes a **frozen, on-platform "Adopted" profile** — a hand-off, not a delete, working for any adopter (off-platform or on-platform) with **no migration**:
+- Dog page: green **Adopted** pill, Walk/Adopt actions suppressed, shelter-context auto-chips shed (Long-stayer/New-arrival/Adoption-pending; energy + personality tags stay), care stats hidden, "Happy endings" celebration banner. Tagged walk recaps still resolve to her.
+- Shelter Dogs tab: she leaves the active grid into a **"Happy endings"** subsection (Adopted chip, no kennel stats).
+- Discover Help a Dog: excluded from the walkable roster. Feed "dogs in care" counts exclude her.
+
+**Deferred (PO call 2026-06-12, option 1):** the **take-over** path — an on-platform adopter continuing the profile as their *own* dog. That's the genuine cross-container migration (touches the owned-vs-shelter resolver + every `UserProfile.pets[]` read) plus the real cross-account **claim/consent flow**, so it waits for a later phase rather than being half-faked. Resolved model + branches (fresh-start vs take-over, authorship-vs-ownership) live in [[planning/Open Questions & Assumptions Log]] → "Adopted-dog transition pattern."
+
+**Implementation:** `lib/useAdoptionStore.ts` (persisted stage override), `components/shelters/AdoptInquirySheet.tsx`, dog-page adopted rendering in `app/dogs/[id]/page.tsx`, `ShelterDogCard` `adopted` prop, Dogs-tab "Happy endings" split + Discover/Feed exclusion.
+
+---
+
 ## Anti-scoreboard discipline
 
 No leaderboards. No streaks. No "top walker this month." No public ranking of walker pools.
