@@ -15005,6 +15005,39 @@ a.shelter-intro-social:hover {
   color: var(--text-tertiary);
 }
 
+/* Doorway reassurance card — calm, dismissible "explore before you commit"
+   framing that introduces the roster. Neutral (not care-blue / volunteer-
+   violet): it's reassurance, not a clickable nudge. Sits between the Sort
+   toolbar and the grid. */
+.help-a-dog-intro-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  margin: var(--space-md) var(--space-md) 0;
+  padding: var(--space-md) var(--space-lg);
+  background: var(--surface-top);
+  border: 1px solid var(--border-regular);
+  border-radius: var(--radius-panel);
+}
+
+.help-a-dog-intro-dismiss {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: calc(-1 * var(--space-xs)) calc(-1 * var(--space-xs)) 0 0;
+  border-radius: var(--radius-pill);
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.help-a-dog-intro-dismiss:hover {
+  background: var(--on-hover-darken);
+  color: var(--text-secondary);
+}
+
 /* Dogs grid — mirrors `.shelter-dogs-grid` for layout consistency
    between the shelter Dogs tab and the Discover door. 2-up on
    desktop (within the panel width), 1-up on narrow viewports. */

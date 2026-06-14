@@ -16,6 +16,7 @@ import {
   SlidersHorizontal,
   MagnifyingGlass,
   PawPrint,
+  X,
 } from "@phosphor-icons/react";
 import { PageColumn } from "@/components/layout/PageColumn";
 import { DetailHeader } from "@/components/layout/DetailHeader";
@@ -32,6 +33,7 @@ import {
 } from "@/lib/mockShelters";
 import { PERSONALITY_TAG_LABELS } from "@/lib/constants/dogs";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { usePersistedState } from "@/lib/usePersistedState";
 import { useWalkerApplications } from "@/contexts/WalkerApplicationsContext";
 import { useAdoptionStore } from "@/lib/useAdoptionStore";
 import { getConnectionsForViewer } from "@/lib/mockConnections";
@@ -250,6 +252,44 @@ function SortMenu({
   );
 }
 
+/* ── Walk-intro card ─────────────────────────────────────────────────────── *
+ * The doorway's "explore before you commit" reassurance — the single most-
+ * documented friction in the adoption-curious journey (de-couple walking
+ * from adoption; see Competitive Research - Adoption-Curious Journeys).
+ *
+ * Shown only to people still at the doorway: suppressed for active walkers
+ * (anyone vouched at a shelter — they're past needing the reassurance) and
+ * dismissible by everyone else (persisted, clears on demo reset). The mentor
+ * / group-walk on-ramp is named as framing, NOT linked — this is a cross-
+ * shelter surface that can't honor a specific mentor booking; that path
+ * surfaces once the viewer picks a dog.
+ */
+function WalkIntroCard({ onDismiss }: { onDismiss: () => void }) {
+  return (
+    <div className="help-a-dog-intro-card">
+      <HandHeart size={24} weight="light" className="text-fg-tertiary shrink-0" />
+      <div className="flex flex-col gap-tiny flex-1 min-w-0">
+        <span className="font-heading font-semibold text-fg-primary text-sm">
+          Walk a shelter dog — no adoption obligation
+        </span>
+        <span className="text-xs text-fg-secondary" style={{ lineHeight: 1.45 }}>
+          Spend time with the dogs and see how it works. New here? Many people
+          start on a group walk or alongside an experienced volunteer, then
+          decide in their own time.
+        </span>
+      </div>
+      <button
+        type="button"
+        className="help-a-dog-intro-dismiss"
+        aria-label="Dismiss"
+        onClick={onDismiss}
+      >
+        <X size={16} weight="bold" />
+      </button>
+    </div>
+  );
+}
+
 /* ── Filter panel ────────────────────────────────────────────────────────── */
 
 function DogsFilterPanel({
@@ -437,10 +477,31 @@ function DiscoverHelpADogInner() {
   const [sortKey, setSortKey] = useState<DogsSortKey>("needs-walks");
   const [filters, setFilters] = useState<DogsFilters>(DEFAULT_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
+  const [introDismissed, setIntroDismissed] = usePersistedState(
+    "doggo-helpadog-intro-dismissed",
+    false,
+  );
   const currentUserId = useCurrentUserId();
   const { applications } = useWalkerApplications();
 
   const allShelters = useMemo(() => getAllShelters(), []);
+
+  // The doorway reassurance is for people still deciding. Anyone already
+  // vouched at a shelter has walked the path — suppress it for them. Vouched
+  // status has two sources (mirrors ShelterWalkPanel): the static walker
+  // roster (seeded in mockShelters) OR a dynamic vouched application (the
+  // demo can advance a walker via the hidden affordance).
+  const isActiveWalker = useMemo(() => {
+    if (!currentUserId) return false;
+    const inRoster = allShelters.some((s) =>
+      s.walkers.some((w) => w.userId === currentUserId),
+    );
+    const hasVouchedApp = applications.some(
+      (a) => a.userId === currentUserId && a.state === "vouched",
+    );
+    return inRoster || hasVouchedApp;
+  }, [currentUserId, allShelters, applications]);
+
   // Adopted dogs leave the walkable roster — they've gone home, so they drop
   // out of the "find a dog to walk" surface entirely (their Happy-endings
   // record lives on the shelter page). Folds in the demo adoption override.
@@ -552,20 +613,6 @@ function DiscoverHelpADogInner() {
           />
         )}
 
-        {/* De-couple walking from adoption commitment — the single most-
-            documented friction in this journey (Adoption-Curious Journey,
-            2026-06-12; see Competitive Research - Adoption-Curious Journeys).
-            "Explore before you commit" framing, shown above the roster. */}
-        {!showFilters && (
-          <p
-            className="text-sm text-fg-secondary m-0"
-            style={{ padding: "var(--space-sm) var(--space-md) 0" }}
-          >
-            Walk a shelter dog — no adoption obligation. Spend time with the
-            dogs, see how it works, and decide in your own time.
-          </p>
-        )}
-
         {view === "dogs" && !showFilters && (
           <div className="help-a-dog-toolbar">
             <span className="help-a-dog-toolbar-label">Sort by</span>
@@ -575,6 +622,15 @@ function DiscoverHelpADogInner() {
               onChange={(v) => setSortKey(v as DogsSortKey)}
             />
           </div>
+        )}
+
+        {/* De-couple walking from adoption commitment — the single most-
+            documented friction in this journey (Adoption-Curious Journey,
+            2026-06-13; see Competitive Research - Adoption-Curious Journeys).
+            Dynamic doorway reassurance: hidden for active walkers, dismissible
+            for everyone else, introducing the roster below. */}
+        {view === "dogs" && !showFilters && !isActiveWalker && !introDismissed && (
+          <WalkIntroCard onDismiss={() => setIntroDismissed(true)} />
         )}
 
         {view === "dogs" ? (
