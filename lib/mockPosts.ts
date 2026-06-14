@@ -1917,7 +1917,7 @@ export const mockPosts: Post[] = [
     authorId: "walker-helena-s",
     authorName: "Helena S.",
     authorAvatarUrl: "",
-    photos: ["/images/generated/toby-portrait.jpeg"],
+    photos: ["/images/generated/shelter-dog-theo-portrait.jpeg"],
     caption:
       "First walk with Theo today. Five months of pure spaghetti legs. We made it about 200 metres before he had to sit down and think about it. Going to be a star.",
     tags: [
@@ -1948,7 +1948,7 @@ export const mockPosts: Post[] = [
     authorId: "walker-pavel-d",
     authorName: "Pavel D.",
     authorAvatarUrl: "",
-    photos: ["/images/generated/eda-portrait.jpeg"],
+    photos: ["/images/generated/shelter-dog-simon-portrait.jpeg"],
     caption:
       "Šimon and I had our usual loop this morning. He stops at the same bench every time, sits, looks around for about a minute, then we keep going. Old man habits. Wonderful walk.",
     tags: [
@@ -1979,7 +1979,7 @@ export const mockPosts: Post[] = [
     authorId: "walker-karolina-m",
     authorName: "Karolína M.",
     authorAvatarUrl: "",
-    photos: ["/images/generated/max-portrait.jpeg"],
+    photos: ["/images/generated/shelter-dog-tonda-portrait.jpeg"],
     caption:
       "Second walk this week with Tonda. He's decided I'm Allowed. The other dogs at Stromovka were all very important to him today.",
     tags: [
@@ -2001,7 +2001,7 @@ export const mockPosts: Post[] = [
     authorId: "walker-marie-b",
     authorName: "Marie B.",
     authorAvatarUrl: "",
-    photos: ["/images/generated/luna-portrait.jpeg"],
+    photos: ["/images/generated/shelter-dog-maja-portrait.jpeg"],
     caption:
       "Maja knows her stuff. Solid recall on a long line, sits at every crossing without being asked. Whoever takes her home is getting a really sharp dog.",
     tags: [
@@ -2022,7 +2022,7 @@ export const mockPosts: Post[] = [
     authorId: "walker-anna-k",
     authorName: "Anna K.",
     authorAvatarUrl: "",
-    photos: ["/images/generated/max-portrait.jpeg"],
+    photos: ["/images/generated/shelter-dog-tonda-portrait.jpeg"],
     caption:
       "Walked Tonda today. What a goof. Marched up to every dog we passed like he was greeting royalty. Beautiful soft autumn light at Stromovka.",
     tags: [
@@ -2046,7 +2046,7 @@ export const mockPosts: Post[] = [
     authorId: "walker-lukas-p",
     authorName: "Lukáš P.",
     authorAvatarUrl: "",
-    photos: ["/images/generated/runa-portrait.jpeg"],
+    photos: ["/images/generated/shelter-dog-kata-portrait.jpeg"],
     caption:
       "Káťa took my hand to her chest today. Took her three months to do that with anyone. Her family-to-be is going to be very lucky.",
     tags: [
@@ -2080,7 +2080,7 @@ export const mockPosts: Post[] = [
     authorId: "walker-pavel-d",
     authorName: "Pavel D.",
     authorAvatarUrl: "",
-    photos: ["/images/generated/daisy-portrait.jpeg"],
+    photos: ["/images/generated/shelter-dog-berta-portrait.jpeg"],
     caption:
       "Three weeks of just being in the yard with Berta before she'd take a leash. Today we got two blocks. She watches everything, but her shoulders drop when she sees me now. We'll get there.",
     tags: [
@@ -2114,7 +2114,7 @@ export const mockPosts: Post[] = [
     authorId: "walker-helena-s",
     authorName: "Helena S.",
     authorAvatarUrl: "",
-    photos: ["/images/generated/nela-portrait.jpeg"],
+    photos: ["/images/generated/shelter-dog-edda-portrait.jpeg"],
     caption:
       "Edda is nine kilos of opinion. We did the long loop. She carried a stick the whole way.",
     tags: [
@@ -2135,7 +2135,7 @@ export const mockPosts: Post[] = [
     authorId: "walker-anna-k",
     authorName: "Anna K.",
     authorAvatarUrl: "",
-    photos: ["/images/generated/mia-portrait.jpeg"],
+    photos: ["/images/generated/shelter-dog-liza-portrait.jpeg"],
     caption:
       "Líza wants every person at the park to be her best friend immediately. She is at least 60% wiggle. Someone please adopt this beautiful menace.",
     tags: [
