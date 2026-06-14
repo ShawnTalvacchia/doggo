@@ -400,7 +400,13 @@ function DogProfileInner() {
   // `deriveAutoTags`; personality tags come from the typed
   // `PersonalityTag` vocabulary; policy chips render separately because
   // they gate handler eligibility, not disposition.
-  const autoTags = deriveAutoTags(dog, new Date());
+  // Once adopted, the shelter-context chips (Long-stayer / New arrival /
+  // Adoption pending) no longer apply — they're derived from kennel data that
+  // stops being meaningful at home. Keep only the enduring energy chip. The
+  // "Adopted" status pill sits by the name instead.
+  const autoTags = deriveAutoTags(dog, new Date()).filter(
+    (t) => !isAdopted || t.kind === "energy",
+  );
   const personalityTags = dog.personalityTags ?? [];
   const policyChips = derivePolicyChips(dog);
   // Acknowledger label for the Health section caption. Shelter dogs:
@@ -510,6 +516,11 @@ function DogProfileInner() {
                 <h1 className="dog-profile-name">{dog.name}</h1>
                 {effectiveAdoptionStatus === "pending" && (
                   <span className="dog-profile-status-pill">Adoption pending</span>
+                )}
+                {effectiveAdoptionStatus === "adopted" && (
+                  <span className="dog-profile-status-pill dog-profile-status-pill--adopted">
+                    Adopted
+                  </span>
                 )}
               </div>
               <div className="dog-profile-line">
@@ -1113,6 +1124,10 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
     { mentor: UserProfile; service: CarerMentorSessionServiceConfig } | null
   >(null);
 
+  // Adopted dogs have gone home — no walk/adopt actions apply. The hero
+  // "Adopted" pill + the "Happy endings" celebration banner carry the state.
+  if (adoptionStage === "adopted") return null;
+
   // Mentor-path door (B2; list-first since 2026-06-11): when the shelter
   // accepts mentor vouching and mentors serve it, not-yet-vouched viewers
   // get the mentored way in — via the neutral mentor LIST, never a named
@@ -1240,13 +1255,11 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
             leftIcon={<HandHeart size={16} weight="regular" />}
             onClick={onAdoptClick}
           >
-            {adoptionStage === "adopted"
-              ? `${dog.name} found a home 🎉`
-              : adoptionStage === "pending"
-                ? "Adoption pending"
-                : adoptionStage === "interested"
-                  ? "Interest sent"
-                  : `Adopt ${dog.name}`}
+            {adoptionStage === "pending"
+              ? "Adoption pending"
+              : adoptionStage === "interested"
+                ? "Interest sent"
+                : `Adopt ${dog.name}`}
           </ButtonAction>
         </div>
         {statusLine && (

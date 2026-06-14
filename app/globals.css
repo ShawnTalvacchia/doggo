@@ -15494,6 +15494,12 @@ a.shelter-intro-social:hover {
   font-weight: 600;
 }
 
+/* Adopted — the happy terminal state. Success green instead of the info-blue
+   pending tone. Adoption-Curious Journey adoption transition, 2026-06-12. */
+.dog-profile-status-pill--adopted {
+  background: var(--status-success-strong);
+}
+
 /* Visual chrome only — rhythm (display/flex-direction/gap + nth-child)
    lives in the shared rule near `.profile-tab-stack > section`. */
 .dog-profile-section {
