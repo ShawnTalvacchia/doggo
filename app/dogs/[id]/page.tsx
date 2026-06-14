@@ -515,7 +515,9 @@ function DogProfileInner() {
               <div className="dog-profile-hero-name-row">
                 <h1 className="dog-profile-name">{dog.name}</h1>
                 {effectiveAdoptionStatus === "pending" && (
-                  <span className="dog-profile-status-pill">Adoption pending</span>
+                  <span className="dog-profile-status-pill dog-profile-status-pill--pending">
+                    Adoption pending
+                  </span>
                 )}
                 {effectiveAdoptionStatus === "adopted" && (
                   <span className="dog-profile-status-pill dog-profile-status-pill--adopted">

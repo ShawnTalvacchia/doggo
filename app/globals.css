@@ -14903,17 +14903,18 @@ a.shelter-intro-social:hover {
   color: var(--text-primary);
 }
 
-/* Yellow-tinted glass — semantically "in progress / pending". Picked
-   over a light brand-green tint so it reads distinctly from New
-   arrival (which IS brand-green) at a glance.
-   Alpha needs to sit high enough that yellow dominates regardless of
-   the photo behind (green leaves at low alpha turned the chip muddy).
-   Text uses warning-850 — a deep amber-brown — for maximum contrast
-   against yellow; warning-strong didn't have enough contrast space. */
+/* Violet-tinted glass — color-codes "adoption pending" to the shelter /
+   adoption-journey accent (the same violet that threads the mentor link,
+   the doorway card, and the hero status pill). Reads distinctly from New
+   arrival (brand-green) and Long-stayer (white) at a glance. Alpha sits
+   high so violet dominates regardless of the photo behind; text uses
+   violet-800 for contrast against the light fill. Hex inlined pending the
+   --volunteer-* token family (FC11), kept in sync with the credential-pill
+   violet ramp. */
 .shelter-dog-card-chip--pending {
-  background: rgba(255, 201, 54, 0.75); /* var(--warning-500) at 0.75 alpha */
-  color: var(--warning-850); /* #372800 deep amber-brown */
-  border-color: rgba(222, 171, 38, 0.45); /* warning-600 tinted border */
+  background: rgba(237, 233, 254, 0.85); /* violet-100 at 0.85 alpha */
+  color: #5b21b6; /* violet-800 */
+  border-color: rgba(109, 40, 217, 0.35); /* violet-700 tinted border */
 }
 
 /* Event tier — solid brand fill, no glass. Strongest visual treatment
@@ -15538,8 +15539,16 @@ a.shelter-intro-social:hover {
   font-weight: 600;
 }
 
-/* Adopted — the happy terminal state. Success green instead of the info-blue
-   pending tone. Adoption-Curious Journey adoption transition, 2026-06-12. */
+/* Adoption pending — solid violet, color-coding the state to the shelter /
+   adoption-journey accent (matches the glass-violet card chip + the mentor
+   link / doorway card). White text inherited from base. Hex inlined pending
+   the --volunteer-* token family (FC11). 2026-06-13. */
+.dog-profile-status-pill--pending {
+  background: #6d28d9; /* violet-700 */
+}
+
+/* Adopted — the happy terminal state. Success green, the bright endpoint of
+   the journey. Adoption-Curious Journey adoption transition, 2026-06-12. */
 .dog-profile-status-pill--adopted {
   background: var(--status-success-strong);
 }
