@@ -1025,6 +1025,13 @@ const TIER_LADDER: WalkerTier[] = ["vetted", "experienced", "trusted"];
 function MembersTab({ shelter }: { shelter: ShelterProfile }) {
   const teamCount = shelter.team?.length ?? 0;
   const currentUserId = useCurrentUserId();
+  // Operator actions (promote / demote / credit / remove) are shelter-admin
+  // only — they belong on the FC16 operator surface, which doesn't exist yet.
+  // Until then they're gated behind a demo "operator view" (`?admin=1`,
+  // mirroring the `?as=` preview pattern) so a regular visitor browsing the
+  // Members tab never sees them, but a demo can still exercise the tier
+  // mechanic. When FC16 lands, these graduate to the real admin surface.
+  const operatorView = useSearchParams().get("admin") === "1";
   const { applications, tierOverrides, setTierOverride } = useWalkerApplications();
   const { bookings } = useBookings();
   const { notify: notifyStub } = useStubNotice();
@@ -1140,6 +1147,12 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
         onChange={(k) => setFilter(k as MembersFilterKey)}
       />
 
+      {operatorView && (
+        <div className="px-md py-sm text-xs text-fg-tertiary border-b border-edge-regular">
+          Operator view (demo) — per-walker tier controls are shelter-staff only.
+        </div>
+      )}
+
       {entries.length === 0 ? (
         <div className="px-lg py-xl">
           <EmptyState
@@ -1171,7 +1184,7 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
               // Shelter tier authority (O4): operator-stub promote/demote
               // per walker row. Hidden per direction at the ladder ends.
               onPromote={
-                entry.kind === "walker" && entry.data.tier !== "trusted"
+                operatorView && entry.kind === "walker" && entry.data.tier !== "trusted"
                   ? () =>
                       setTierOverride(
                         shelter.id,
@@ -1181,7 +1194,7 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
                   : undefined
               }
               onDemote={
-                entry.kind === "walker" && entry.data.tier !== "vetted"
+                operatorView && entry.kind === "walker" && entry.data.tier !== "vetted"
                   ? () =>
                       setTierOverride(
                         shelter.id,
@@ -1191,7 +1204,7 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
                   : undefined
               }
               onCreditWalks={
-                entry.kind === "walker"
+                operatorView && entry.kind === "walker"
                   ? // Stub toast, not a hidden +25 (PO call 2026-06-10):
                     // the real crediting flow needs a count + period form
                     // on the operator surface. The walker-button demo
@@ -1205,7 +1218,7 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
                   : undefined
               }
               onRemove={
-                entry.kind === "walker"
+                operatorView && entry.kind === "walker"
                   ? // Stubbed like Credit walks: removal needs reasons, a
                     // reapply policy (the shelter-level "block"), and a
                     // removed-walkers data layer (seeded rosters are

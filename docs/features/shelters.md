@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-12
+last-reviewed: 2026-06-13
 tags: [shelters, institutional-accounts, walkers, dogs, cold-start, photos, mentor-network]
 review-trigger: "when modifying shelter surfaces, walker tier model, or non-owned dog handling"
 ---
@@ -161,6 +161,8 @@ A solo walk is a real `Booking` with `ownerKind: "shelter"` (the shelter is the 
 ### Operator side is stubbed (V3+)
 
 All shelter-admin actions are demo state-toggles per the hidden-affordance pattern: the Members-row kebab carries Promote / Demote (real — effect is immediately visible) + Credit walks / Remove-from-walkers (stub toast — the real flows need the operator count + reason forms). The full operator surface is enumerated in FC16. Decisions #5 + #6.
+
+**Operator-view gate (2026-06-12).** Those kebab controls are demo-gated behind `?admin=1` on the Members tab — without the flag (the default, and what every persona sees) the tab is read-only. With it, the controls render and an "Operator view (demo)" banner sits above the list. This keeps the persona view honest: a supporter like Eliška shouldn't see staff-only tier controls just by opening the shelter. The flag is the stand-in for real role-based access (operator login is V3+ / FC16); it is not a security boundary, just a demo affordance toggle.
 
 ---
 
