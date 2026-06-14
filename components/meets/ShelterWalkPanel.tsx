@@ -60,7 +60,7 @@ export function ShelterWalkPanel({ meet }: { meet: Meet }) {
   // + the CTA (no avatar card to show).
   if (shelterDogs.length === 0) {
     return (
-      <section className="flex flex-col gap-sm rounded-panel border border-edge-regular bg-surface-top p-md">
+      <section className="flex flex-col gap-sm mt-sm rounded-panel border border-edge-regular bg-surface-top p-md">
         <p className="text-sm text-fg-secondary m-0">
           Vouched walkers can bring a dog from{" "}
           <Link href={`/shelters/${shelter.id}`} className="font-semibold text-fg-primary underline">
@@ -74,7 +74,7 @@ export function ShelterWalkPanel({ meet }: { meet: Meet }) {
   }
 
   return (
-    <section className="flex flex-col gap-sm">
+    <section className="flex flex-col gap-sm mt-sm">
       <div className="meet-section-header">
         <h2 className="meet-section-title">Shelter dogs joining</h2>
         <Link

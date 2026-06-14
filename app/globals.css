@@ -16658,10 +16658,11 @@ a.shelter-intro-social:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  /* Match the pill height (32px) so the controls row reads even.
-     2026-06-04. */
-  height: 32px;
+  /* Lives in the section header beside the title now (2026-06-12), so it's
+     short enough not to grow the header row, and wider to keep the tap
+     target comfortable despite the reduced height. */
+  width: 44px;
+  height: 26px;
   border: 0;
   background: var(--surface-base);
   color: var(--text-secondary);
