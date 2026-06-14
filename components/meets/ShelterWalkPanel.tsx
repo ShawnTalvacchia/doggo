@@ -46,7 +46,7 @@ export function ShelterWalkPanel({ meet }: { meet: Meet }) {
   );
 
   const mentorCta = !isVouched && (
-    <div className="flex items-center justify-between gap-sm flex-wrap border-t border-edge-regular pt-sm">
+    <div className="flex items-center justify-between gap-sm flex-wrap border-t border-edge-light pt-sm">
       <span className="text-sm text-fg-tertiary">New to shelter walking?</span>
       <Link href={`/shelters/${shelter.id}`} className="shelter-walk-mentor-link">
         <GraduationCap size={15} weight="bold" />
