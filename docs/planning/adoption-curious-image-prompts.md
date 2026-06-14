@@ -17,6 +17,13 @@ Match the existing generated imagery so the new ones blend in:
 - **No text anywhere in frame** — no signage, kennel nameplates, watermarks, captions. (The current Nora placeholder has a stray "MIA" nameplate — avoid that.)
 - **Square 1:1** for portraits/avatars; **4:5 portrait** for the walk-recap post photos (noted per item).
 - Save by **overwriting the exact path** listed. Filenames in _Recommended_ are new — generate them and tell me, I'll point the seed at them.
+- **Each prompt is self-contained — Flow does NOT remember earlier prompts.** Any subject that must look identical across multiple images (that's **Nora** — items #2, #3, #4) carries her **full physical description repeated verbatim** in every prompt. Don't write "the same dog." The locked description is below; paste it as-is each time.
+
+### Nora — canonical look (paste this exact sentence into #2, #3, and #4)
+
+> a gentle medium-sized mixed-breed dog, about 18 kg and knee-height, with a short sandy-tan coat, a slightly darker tan muzzle, soft ears that fold over at the tips, warm dark-brown eyes, a small white patch on her chest, a lean but sturdy build, and a calm, soft, sweet expression
+
+If a generation drifts off these features (wrong colour, pricked ears, no chest patch, too big/small), regenerate — consistency across her three photos matters more than any single shot.
 
 ---
 
@@ -32,8 +39,7 @@ Match the existing generated imagery so the new ones blend in:
 - **Path (overwrite):** `public/images/generated/shelter-dog-nora-portrait.jpeg`
 - **Who:** gentle medium mixed-breed, ~18 kg, 5 yrs, female. Came in when her elderly owner went into care; shrinks to the back of the kennel and gets overlooked — the lovely dog nobody notices. Tags: gentle, affectionate, good with strangers/dogs, loves walks.
 - **Prompt:**
-  > Portrait of a gentle medium-sized mixed-breed dog (about 18 kg), short sandy-tan coat, soft dark eyes, a sweet but slightly reserved expression, resting calmly in a clean, modest animal-shelter kennel or doorway in soft natural light. She reads as the calm, hopeful dog people overlook. Realistic documentary photo, shallow depth of field. Absolutely no kennel nameplate, sign, or any text in frame. Square 1:1.
-- **Consistency anchor:** this is the canonical Nora — match her coat/size/look in #3 and #4.
+  > Portrait of a gentle medium-sized mixed-breed dog, about 18 kg and knee-height, with a short sandy-tan coat, a slightly darker tan muzzle, soft ears that fold over at the tips, warm dark-brown eyes, a small white patch on her chest, a lean but sturdy build, and a calm, soft, sweet but slightly reserved expression. She is resting calmly in a clean, modest animal-shelter kennel or doorway in soft natural light — the calm, hopeful dog people overlook. Realistic documentary photo, shallow depth of field. Absolutely no kennel nameplate, sign, or any text in frame. Square 1:1.
 
 ---
 
@@ -44,12 +50,12 @@ Nora's two walk-recap posts currently reuse the kennel portrait. Her whole story
 ### 3. Nora on a walk — Eliška's recap (the lead ad)
 - **Path (new):** `public/images/generated/post-nora-walk-eliska.jpeg`
 - **Prompt:**
-  > The same sandy-tan medium mixed-breed dog, now out on a leashed walk in a Prague park (Stromovka) in spring — ears up, relaxed and visibly happy, mid-stride or pausing to sniff the grass, clearly enjoying herself. A completely different energy from the shy kennel version. Warm late-afternoon light, candid phone-snapshot feel, greenery behind. No text in frame. 4:5 portrait.
+  > A gentle medium-sized mixed-breed dog, about 18 kg and knee-height, with a short sandy-tan coat, a slightly darker tan muzzle, soft ears that fold over at the tips, warm dark-brown eyes, a small white patch on her chest, a lean but sturdy build, and a soft sweet expression — now out on a leashed walk in a Prague park (Stromovka) in spring, relaxed and visibly happy, mid-stride or pausing to sniff the grass, clearly enjoying herself. Warm late-afternoon light, candid phone-snapshot feel, greenery behind. No text in frame. 4:5 portrait.
 
 ### 4. Nora on a walk — Marie's recap (reinforcement)
 - **Path (new):** `public/images/generated/post-nora-walk-marie.jpeg`
 - **Prompt:**
-  > The same sandy-tan dog on another walk, sitting on the grass and looking up toward the camera with a soft, contented expression, leash visible, park greenery and dappled light behind. Candid, warm, everyday-snapshot feel. No text in frame. 4:5 portrait.
+  > A gentle medium-sized mixed-breed dog, about 18 kg and knee-height, with a short sandy-tan coat, a slightly darker tan muzzle, soft ears that fold over at the tips, warm dark-brown eyes, a small white patch on her chest, a lean but sturdy build, and a soft sweet expression — sitting on the grass on a walk, looking up toward the camera with a contented expression, leash visible, park greenery and dappled light behind. Candid, warm, everyday-snapshot feel. No text in frame. 4:5 portrait.
 
 ---
 
