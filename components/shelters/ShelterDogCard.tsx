@@ -21,6 +21,13 @@ interface ShelterDogCardProps {
    * page chrome.
    */
   shelter?: ShelterProfile;
+  /**
+   * Effective adopted state (folds in the demo adoption override). When true
+   * the card shows an "Adopted" chip and drops the kennel stats (days-in-care
+   * / last-walked stop being meaningful once she's home) — the "Happy endings"
+   * treatment. Adoption transition, 2026-06-12.
+   */
+  adopted?: boolean;
 }
 
 /**
@@ -39,13 +46,16 @@ interface ShelterDogCardProps {
  * "Male" / "Female" word in the breed/age row was redundant with the
  * universally-understood symbol.
  */
-export function ShelterDogCard({ dog, shelter }: ShelterDogCardProps) {
+export function ShelterDogCard({ dog, shelter, adopted = false }: ShelterDogCardProps) {
   // The card shows at most one auto-derived chip overlaid on the photo,
   // ordered by priority (Adoption pending > New arrival > Long-stayer).
   // Energy chips never surface here — they live on the full dog profile
   // only. FC8 formalization (Dog Profile phase) routes through the same
-  // helper as the profile so chip priority stays in one place.
-  const chip = deriveAutoTags(dog, new Date()).find((t) => t.tone !== "energy") ?? null;
+  // helper as the profile so chip priority stays in one place. Once adopted,
+  // the kennel-derived chips shed and an "Adopted" chip takes over.
+  const chip = adopted
+    ? { label: "Adopted", tone: "adopted" as const }
+    : deriveAutoTags(dog, new Date()).find((t) => t.tone !== "energy") ?? null;
 
   // Sex renders as a Mars/Venus icon paired with the letter "M" / "F" so
   // viewers who don't recognize the symbol still get the meaning. Lives
@@ -95,22 +105,26 @@ export function ShelterDogCard({ dog, shelter }: ShelterDogCardProps) {
           )}
         </div>
 
-        <div className="shelter-dog-card-stats">
-          <span className="shelter-dog-card-stat">
-            <Clock size={12} weight="light" />
-            <span>
-              {dog.daysInKennel != null
-                ? `${dog.daysInKennel}d in care`
-                : "Just arrived"}
+        {/* Kennel stats are shelter-care context — they stop being meaningful
+            once she's home, so the adopted card drops them. */}
+        {!adopted && (
+          <div className="shelter-dog-card-stats">
+            <span className="shelter-dog-card-stat">
+              <Clock size={12} weight="light" />
+              <span>
+                {dog.daysInKennel != null
+                  ? `${dog.daysInKennel}d in care`
+                  : "Just arrived"}
+              </span>
             </span>
-          </span>
-          <span className="shelter-dog-card-stat">
-            <PawPrint size={12} weight="light" />
-            <span>
-              {dog.lastWalkedAt ? formatRelativeDay(dog.lastWalkedAt) : "No walks yet"}
+            <span className="shelter-dog-card-stat">
+              <PawPrint size={12} weight="light" />
+              <span>
+                {dog.lastWalkedAt ? formatRelativeDay(dog.lastWalkedAt) : "No walks yet"}
+              </span>
             </span>
-          </span>
-        </div>
+          </div>
+        )}
 
         {shelter && (
           <div className="shelter-dog-card-attribution">

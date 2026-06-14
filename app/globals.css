@@ -14925,6 +14925,14 @@ a.shelter-intro-social:hover {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
+/* Adopted — solid success fill, the happy terminal state on the card
+   (Happy endings subsection). Adoption transition, 2026-06-12. */
+.shelter-dog-card-chip--adopted {
+  background: var(--status-success-strong);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
 .shelter-dog-card-body {
   display: flex;
   flex-direction: column;

@@ -33,6 +33,7 @@ import {
 import { PERSONALITY_TAG_LABELS } from "@/lib/constants/dogs";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { useWalkerApplications } from "@/contexts/WalkerApplicationsContext";
+import { useAdoptionStore } from "@/lib/useAdoptionStore";
 import { getConnectionsForViewer } from "@/lib/mockConnections";
 import type {
   EnergyLevel,
@@ -440,7 +441,19 @@ function DiscoverHelpADogInner() {
   const { applications } = useWalkerApplications();
 
   const allShelters = useMemo(() => getAllShelters(), []);
-  const allDogs = useMemo(() => getAllShelterDogs(), []);
+  // Adopted dogs leave the walkable roster — they've gone home, so they drop
+  // out of the "find a dog to walk" surface entirely (their Happy-endings
+  // record lives on the shelter page). Folds in the demo adoption override.
+  const { getStage: getAdoptionStage } = useAdoptionStore();
+  const allDogs = useMemo(
+    () =>
+      getAllShelterDogs().filter(
+        (e) =>
+          getAdoptionStage(e.dog.id)?.stage !== "adopted" &&
+          e.dog.adoptionStatus !== "adopted",
+      ),
+    [getAdoptionStage],
+  );
 
   // Shelter-membership elevation (K, 2026-06-09) — sort priority by:
   //   1. Shelters you walk at (vouched WalkerApplications)

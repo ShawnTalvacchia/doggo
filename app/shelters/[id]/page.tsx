@@ -26,6 +26,7 @@ import { TabBar } from "@/components/ui/TabBar";
 import { Spacer } from "@/components/layout/Spacer";
 import { FilterPillRow } from "@/components/ui/FilterPillRow";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { useAdoptionStore } from "@/lib/useAdoptionStore";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
@@ -805,9 +806,18 @@ function ShelterActionRow({
 /* ── Dogs-in-care summary card ─────────────────────────────────────── */
 
 function DogsInCareSummaryCard({ shelter }: { shelter: ShelterProfile }) {
-  const dogCount = shelter.dogs.length;
-  const needWalks = countDogsNeedingWalks(shelter);
-  const longStayers = countLongStayers(shelter);
+  // Exclude adopted dogs (folding in the demo override) from the in-care
+  // counts — they've gone home, so they're not "in care" or "needing walks."
+  const { getStage } = useAdoptionStore();
+  const activeShelter = {
+    ...shelter,
+    dogs: shelter.dogs.filter(
+      (d) => getStage(d.id)?.stage !== "adopted" && d.adoptionStatus !== "adopted",
+    ),
+  };
+  const dogCount = activeShelter.dogs.length;
+  const needWalks = countDogsNeedingWalks(activeShelter);
+  const longStayers = countLongStayers(activeShelter);
 
   const subParts: string[] = [];
   if (needWalks > 0) subParts.push(`${needWalks} need walks now`);
@@ -937,6 +947,9 @@ function SortMenu({
 
 function DogsTab({ shelter }: { shelter: ShelterProfile }) {
   const [sortKey, setSortKey] = useState<DogsSortKey>("needs-walks");
+  const { getStage } = useAdoptionStore();
+  const isAdoptedDog = (d: PetProfile) =>
+    getStage(d.id)?.stage === "adopted" || d.adoptionStatus === "adopted";
 
   const sorted = useMemo<PetProfile[]>(() => {
     switch (sortKey) {
@@ -955,6 +968,11 @@ function DogsTab({ shelter }: { shelter: ShelterProfile }) {
     }
   }, [shelter, sortKey]);
 
+  // Adopted dogs leave the active roster and gather in "Happy endings" — the
+  // shelter keeps them as success stories, not walkable inventory.
+  const activeDogs = sorted.filter((d) => !isAdoptedDog(d));
+  const happyEndings = shelter.dogs.filter(isAdoptedDog);
+
   return (
     <div className="shelter-dogs">
       <div className="shelter-dogs-toolbar">
@@ -966,7 +984,7 @@ function DogsTab({ shelter }: { shelter: ShelterProfile }) {
         />
       </div>
 
-      {sorted.length === 0 ? (
+      {activeDogs.length === 0 ? (
         <div className="px-lg py-xl">
           <EmptyState
             icon={<PawPrint size={32} weight="light" />}
@@ -975,9 +993,22 @@ function DogsTab({ shelter }: { shelter: ShelterProfile }) {
         </div>
       ) : (
         <div className="shelter-dogs-grid">
-          {sorted.map((dog) => (
+          {activeDogs.map((dog) => (
             <ShelterDogCard key={dog.id} dog={dog} />
           ))}
+        </div>
+      )}
+
+      {happyEndings.length > 0 && (
+        <div className="border-t border-edge-regular mt-sm">
+          <h3 className="px-md pt-md m-0 text-sm font-semibold text-fg-secondary">
+            Happy endings 🎉
+          </h3>
+          <div className="shelter-dogs-grid">
+            {happyEndings.map((dog) => (
+              <ShelterDogCard key={dog.id} dog={dog} adopted />
+            ))}
+          </div>
         </div>
       )}
     </div>
