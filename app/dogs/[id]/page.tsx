@@ -405,7 +405,11 @@ function DogProfileInner() {
   // stops being meaningful at home. Keep only the enduring energy chip. The
   // "Adopted" status pill sits by the name instead.
   const autoTags = deriveAutoTags(dog, new Date()).filter(
-    (t) => !isAdopted || t.kind === "energy",
+    // Drop the "Adoption pending" auto-chip here — the hero status pill is the
+    // single source for that state on the dog page (avoids the duplicate).
+    // Once adopted, the other shelter-context chips no longer apply either;
+    // keep only the enduring energy chip.
+    (t) => t.kind !== "adoption-pending" && (!isAdopted || t.kind === "energy"),
   );
   const personalityTags = dog.personalityTags ?? [];
   const policyChips = derivePolicyChips(dog);
@@ -1131,6 +1135,15 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
   const [walkMenuOpen, setWalkMenuOpen] = useState(false);
   const { getStage: getAdoptionStage } = useAdoptionStore();
   const adoptionStage = getAdoptionStage(dog.id)?.stage;
+  // Effective status folds the demo override on top of the seed (mirrors the
+  // page-level resolver) so a seed-pending dog like Káťa pauses correctly
+  // even with no demo toggle in play.
+  const effectiveStatus =
+    adoptionStage === "adopted"
+      ? "adopted"
+      : adoptionStage === "pending"
+        ? "pending"
+        : dog.adoptionStatus;
   const [mentorListOpen, setMentorListOpen] = useState(false);
   const [mentorSheetTarget, setMentorSheetTarget] = useState<
     { mentor: UserProfile; service: CarerMentorSessionServiceConfig } | null
@@ -1138,7 +1151,22 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
 
   // Adopted dogs have gone home — no walk/adopt actions apply. The hero
   // "Adopted" pill + the "Happy endings" celebration banner carry the state.
-  if (adoptionStage === "adopted") return null;
+  if (effectiveStatus === "adopted") return null;
+
+  // Adoption pending — the dog is spoken for, so new walks AND adoption
+  // inquiries pause while the match settles. The violet hero pill carries the
+  // state; this quiet line explains why the action buttons are gone (and keeps
+  // the hero from reading as broken/empty).
+  if (effectiveStatus === "pending") {
+    return (
+      <p
+        className="text-sm text-fg-secondary m-0"
+        style={{ marginTop: "var(--space-sm)" }}
+      >
+        Adoption in progress — {dog.name} is getting to know their family-to-be.
+      </p>
+    );
+  }
 
   // Mentor-path door (B2; list-first since 2026-06-11): when the shelter
   // accepts mentor vouching and mentors serve it, not-yet-vouched viewers
