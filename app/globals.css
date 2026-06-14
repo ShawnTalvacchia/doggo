@@ -16435,43 +16435,18 @@ a.shelter-intro-social:hover {
    below so they never push the toggle around. When no filters can be
    added (no addable types AND no active selections), the row gracefully
    collapses (--single-row keeps just the toggle aligned right). */
+/* Single wrapping row: the +Filter button + active pills wrap together
+   (2026-06-12, after the view toggle moved to the section header). */
 .posts-tab-controls {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-sm);
   padding: 0 var(--space-md);
 }
 
 .dog-profile-section .posts-tab-controls {
   padding: 0;
-}
-
-.posts-tab-controls-primary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
-}
-
-.posts-tab-controls--single-row {
-  /* When there's no FilterControls block (no filterable types at all),
-     keep the row layout so the toggle anchors right. Parent .posts-tab-
-     controls is flex-direction: column by default; this variant
-     switches to row + space-between so the placeholder spacer + toggle
-     align horizontally instead of stacking and stretching the toggle
-     to full width. Fix 2026-06-09. */
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.posts-tab-filter-active-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  flex-wrap: wrap;
-  row-gap: var(--space-xs);
-  min-width: 0;
 }
 
 /* Outer wrapper of `PostsCollectionView` — only provides the
@@ -16542,8 +16517,7 @@ a.shelter-intro-social:hover {
    share and space them out across the row. The pill+wrap pair needs
    to behave as an intrinsically-sized chip in these surfaces.
    2026-06-04. */
-.posts-tab-filter-active-row .posts-tab-filter-pill-wrap,
-.posts-tab-controls-primary .posts-tab-filter-pill-wrap {
+.posts-tab-controls .posts-tab-filter-pill-wrap {
   flex: 0 0 auto;
   display: inline-flex;
 }

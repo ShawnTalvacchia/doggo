@@ -255,31 +255,29 @@ function FilterControls({
     ? [...activeTypes, pendingType]
     : activeTypes;
 
+  // Single wrapping row (2026-06-12): the +Filter button and the active
+  // pills share one flex-wrap row now that the view toggle has moved to the
+  // section header. They wrap together as a unit instead of splitting into a
+  // button row + a separate pill row.
   return (
     <div className="posts-tab-controls">
-      <div className="posts-tab-controls-primary">
-        <AddFilterButton
-          addableTypes={addableTypes}
-          onPick={(type) => setPendingType(type)}
+      <AddFilterButton
+        addableTypes={addableTypes}
+        onPick={(type) => setPendingType(type)}
+      />
+      {renderedTypes.map((type) => (
+        <TagFilterPill
+          key={type}
+          label={TAG_TYPE_LABELS[type]}
+          options={optionsByType[type]}
+          selectedIds={filterState[type] ?? []}
+          onChange={(next) => setTagFilter(type, next)}
+          defaultOpen={pendingType === type}
+          onClose={() => {
+            if (pendingType === type) setPendingType(null);
+          }}
         />
-      </div>
-      {renderedTypes.length > 0 && (
-        <div className="posts-tab-filter-active-row">
-          {renderedTypes.map((type) => (
-            <TagFilterPill
-              key={type}
-              label={TAG_TYPE_LABELS[type]}
-              options={optionsByType[type]}
-              selectedIds={filterState[type] ?? []}
-              onChange={(next) => setTagFilter(type, next)}
-              defaultOpen={pendingType === type}
-              onClose={() => {
-                if (pendingType === type) setPendingType(null);
-              }}
-            />
-          ))}
-        </div>
-      )}
+      ))}
     </div>
   );
 }
