@@ -1853,7 +1853,7 @@ export const mockPosts: Post[] = [
     authorId: "eliska",
     authorName: "Eliška D.",
     authorAvatarUrl: "/images/generated/eliska-profile.jpeg",
-    photos: ["/images/generated/shelter-dog-nora-portrait.jpeg"],
+    photos: ["/images/generated/post-nora-walk-eliska.jpeg"],
     caption:
       "Walked Nora this morning and I can't stop thinking about her. She presses herself into the back of the kennel when people walk past, so she gets overlooked again and again — but the second we were out the gate she was a different dog, trotting along with her ears up, leaning into every bit of fuss. Gentle as anything, happy with every dog we passed. Seventy days she's been waiting. Someone is going to be so lucky.",
     tags: [
@@ -1895,7 +1895,7 @@ export const mockPosts: Post[] = [
     authorId: "walker-marie-b",
     authorName: "Marie B.",
     authorAvatarUrl: "/images/generated/marie-profile.jpeg",
-    photos: ["/images/generated/shelter-dog-nora-portrait.jpeg"],
+    photos: ["/images/generated/post-nora-walk-marie.jpeg"],
     caption:
       "Second time out with Nora. Same story — quiet in the kennel, all wags once she's out. She'd be the easiest dog in a calm home. Spread the word for this one.",
     tags: [

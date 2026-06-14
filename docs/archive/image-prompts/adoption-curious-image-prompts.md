@@ -1,7 +1,7 @@
 ---
-status: active
+status: archived
 last-reviewed: 2026-06-12
-review-trigger: "Delete once the Adoption-Curious Journey images are generated + wired"
+review-trigger: "Archived 2026-06-12 — all Adoption-Curious Journey images generated + wired"
 ---
 
 # Adoption-Curious Journey — Image generation prompts
