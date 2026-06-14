@@ -1547,11 +1547,12 @@ export const mockMeets: Meet[] = [
       { userId: "magda", userName: "Magda", avatarUrl: "/images/generated/magda-profile.jpeg", dogNames: ["Žofka"], rsvpStatus: "going", profileOpen: true, neighbourhood: "Holešovice" },
       { userId: "hana", userName: "Hana", avatarUrl: "/images/generated/hana-profile.jpeg", dogNames: ["Runa"], rsvpStatus: "going" },
       { userId: "eva", userName: "Eva", avatarUrl: "/images/generated/eva-profile.jpeg", dogNames: ["Luna"], rsvpStatus: "going" },
-      // Dogless newcomers — coming along socially (no dog yet). Where the
-      // "walk with a mentor" CTA lands. Eliška is the protagonist; Tomáš the
-      // existing mentee, drawn to shelter dogs.
-      { userId: "eliska", userName: "Eliška D.", avatarUrl: "/images/generated/eliska-profile.jpeg", dogNames: [], rsvpStatus: "going", profileOpen: false, neighbourhood: "Žižkov" },
-      { userId: "tomas", userName: "Tomáš", avatarUrl: "/images/generated/tomas-profile.jpeg", dogNames: [], rsvpStatus: "interested", profileOpen: false, neighbourhood: "Karlín" },
+      // The walk is dog-first: every attendee brings a dog (their own, or a
+      // shelter dog picked up on the way). Newcomers like Eliška don't attend
+      // dogless — they DISCOVER the walk and take the "Walk with a mentor"
+      // on-ramp (the mentored first walk is their path to handling a dog).
+      // See Demo Narrative → Adoption-Curious Arc, Beat 2 (discovery) → Beat 3
+      // (mentored → vouched).
     ],
     createdAt: "2026-05-20T10:00:00Z",
   },
