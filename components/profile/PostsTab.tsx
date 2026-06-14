@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Camera } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
-import { PostsCollectionView } from "@/components/posts/PostsCollectionView";
+import { PostsCollectionView, PostsViewToggle } from "@/components/posts/PostsCollectionView";
 import { HighlightsStrip } from "@/components/photos/HighlightsStrip";
 import { EditHighlightsModal } from "@/components/photos/EditHighlightsModal";
 import { usePostComposer } from "@/contexts/PostComposerContext";
@@ -94,7 +94,10 @@ export function PostsTab({ userId, isOwnProfile = false }: PostsTabProps) {
       />
 
       <div className="dog-profile-section">
-        <h2 className="dog-profile-section-title">Posts</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="dog-profile-section-title">Posts</h2>
+          {surfacedPosts.length > 0 && <PostsViewToggle urlBase={urlBase} />}
+        </div>
         <PostsCollectionView
           posts={surfacedPosts}
           subjectLabel={subjectLabel}

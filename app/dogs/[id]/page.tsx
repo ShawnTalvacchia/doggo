@@ -27,7 +27,7 @@ import { Spacer } from "@/components/layout/Spacer";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { DefaultAvatar } from "@/components/ui/DefaultAvatar";
-import { PostsCollectionView } from "@/components/posts/PostsCollectionView";
+import { PostsCollectionView, PostsViewToggle } from "@/components/posts/PostsCollectionView";
 import { PetEditCard } from "@/components/profile/PetEditCard";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
@@ -944,16 +944,21 @@ function DogPhotosBundle({
       <div className="dog-profile-section">
         <div className="flex items-center justify-between">
           <h2 className="dog-profile-section-title">Posts</h2>
-          {isOwnerView && (
-            <PhotosSettingsMenu
-              dogName={dog.name}
-              hiddenPosts={posts.filter((p) => overrides.hiddenPostIds.has(p.id))}
-              highlightsCount={overrides.highlights.length}
-              ownerTagApproval={ownerTagApproval}
-              onUnhide={overrides.unhidePost}
-              onClearHighlights={overrides.clearHighlights}
-            />
-          )}
+          <div className="flex items-center gap-xs">
+            {surfacedPosts.length > 0 && (
+              <PostsViewToggle urlBase={`/dogs/${dog.id}`} />
+            )}
+            {isOwnerView && (
+              <PhotosSettingsMenu
+                dogName={dog.name}
+                hiddenPosts={posts.filter((p) => overrides.hiddenPostIds.has(p.id))}
+                highlightsCount={overrides.highlights.length}
+                ownerTagApproval={ownerTagApproval}
+                onUnhide={overrides.unhidePost}
+                onClearHighlights={overrides.clearHighlights}
+              />
+            )}
+          </div>
         </div>
         <div className="flex flex-col items-center gap-md text-center" style={{ padding: "var(--space-lg) 0" }}>
           <Camera size={32} weight="light" className="text-fg-tertiary" />
@@ -986,16 +991,21 @@ function DogPhotosBundle({
       <div className="dog-profile-section">
         <div className="flex items-center justify-between">
           <h2 className="dog-profile-section-title">Posts</h2>
-          {isOwnerView && (
-            <PhotosSettingsMenu
-              dogName={dog.name}
-              hiddenPosts={posts.filter((p) => overrides.hiddenPostIds.has(p.id))}
-              highlightsCount={overrides.highlights.length}
-              ownerTagApproval={ownerTagApproval}
-              onUnhide={overrides.unhidePost}
-              onClearHighlights={overrides.clearHighlights}
-            />
-          )}
+          <div className="flex items-center gap-xs">
+            {surfacedPosts.length > 0 && (
+              <PostsViewToggle urlBase={`/dogs/${dog.id}`} />
+            )}
+            {isOwnerView && (
+              <PhotosSettingsMenu
+                dogName={dog.name}
+                hiddenPosts={posts.filter((p) => overrides.hiddenPostIds.has(p.id))}
+                highlightsCount={overrides.highlights.length}
+                ownerTagApproval={ownerTagApproval}
+                onUnhide={overrides.unhidePost}
+                onClearHighlights={overrides.clearHighlights}
+              />
+            )}
+          </div>
         </div>
         <PostsCollectionView
           posts={surfacedPosts}

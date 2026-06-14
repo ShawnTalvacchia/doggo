@@ -149,8 +149,6 @@ export function PostsCollectionView({
     [searchParams, router, urlBase],
   );
 
-  const setView = (next: "list" | "grid") =>
-    setParam("view", next === "grid" ? "grid" : null);
   const setTagFilter = (type: FilterableTagType, ids: string[]) =>
     setParam(`f_${type}`, ids.length === 0 ? null : ids.join(","));
 
@@ -170,44 +168,20 @@ export function PostsCollectionView({
   // Active pills (selectedIds.length > 0) always render and let the
   // user re-open the values picker by tapping the pill to modify.
 
-  const viewToggle = (
-    <div className="posts-tab-view-toggle" role="group" aria-label="View mode">
-      <button
-        type="button"
-        className={`posts-tab-view-btn ${!isGrid ? "is-active" : ""}`}
-        onClick={() => setView("list")}
-        aria-label="List view"
-        aria-pressed={!isGrid}
-      >
-        <ListBullets size={16} weight="light" />
-      </button>
-      <button
-        type="button"
-        className={`posts-tab-view-btn ${isGrid ? "is-active" : ""}`}
-        onClick={() => setView("grid")}
-        aria-label="Grid view"
-        aria-pressed={isGrid}
-      >
-        <GridFour size={16} weight="light" />
-      </button>
-    </div>
-  );
-
   return (
     <div className="posts-collection-view">
-      {hasAnyFilterableType ? (
+      {/* The List ⇄ Grid toggle now lives in the section header (rendered by
+          the parent via <PostsViewToggle>) — so when there are no filterable
+          tags this surface shows no toolbar row at all, instead of a lone
+          right-aligned toggle floating over an empty band. The filter row
+          renders only when there's something to filter. (2026-06-12) */}
+      {hasAnyFilterableType && (
         <FilterControls
           filterTypes={filterTypes}
           optionsByType={optionsByType}
           filterState={filterState}
           setTagFilter={setTagFilter}
-          trailing={viewToggle}
         />
-      ) : (
-        <div className="posts-tab-controls posts-tab-controls--single-row">
-          <div />
-          {viewToggle}
-        </div>
       )}
 
       {filteredPosts.length === 0 ? (
@@ -246,26 +220,19 @@ interface FilterControlsProps {
   optionsByType: Record<FilterableTagType, { id: string; label: string }[]>;
   filterState: FilterState;
   setTagFilter: (type: FilterableTagType, ids: string[]) => void;
-  /** Renders to the right of the +Filter button on the top row.
-   *  Used to anchor the view toggle alongside the filter affordance
-   *  without pushing it around when active pills appear (those wrap
-   *  to a new row below). */
-  trailing?: React.ReactNode;
 }
 
 /**
- * Two-row filter controls. Top row anchors the +Filter button on the
- * left and the trailing slot (view toggle) on the right. When the
- * user has active filters (or a pending type from the +Filter menu),
- * a second row renders the active TagFilterPills below — they never
- * push the toggle around horizontally.
+ * Two-row filter controls. Top row anchors the +Filter button; when the
+ * user has active filters (or a pending type from the +Filter menu), a
+ * second row renders the active TagFilterPills below. (The view toggle
+ * moved to the section header — see PostsViewToggle.)
  */
 function FilterControls({
   filterTypes,
   optionsByType,
   filterState,
   setTagFilter,
-  trailing,
 }: FilterControlsProps) {
   // Type the user just picked from the +Filter menu — renders that
   // type's TagFilterPill in `defaultOpen` mode so they land directly
@@ -295,7 +262,6 @@ function FilterControls({
           addableTypes={addableTypes}
           onPick={(type) => setPendingType(type)}
         />
-        {trailing}
       </div>
       {renderedTypes.length > 0 && (
         <div className="posts-tab-filter-active-row">
@@ -385,6 +351,51 @@ function AddFilterButton({ addableTypes, onPick }: AddFilterButtonProps) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ─── View toggle (List ⇄ Grid) ──────────────────────────────────────
+ *
+ * Lifted out of the PostsCollectionView toolbar (2026-06-12) so it can sit
+ * in the section header next to the title — pairing it with the title means
+ * it never floats alone over an empty band when there are no filter tags.
+ * Self-contained: reads/writes the shared `?view` URL param, so the header
+ * toggle and the collection below stay in sync. Render it only when there
+ * are posts to view. */
+export function PostsViewToggle({ urlBase }: { urlBase: string }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const isGrid = searchParams.get("view") === "grid";
+
+  const setView = (next: "list" | "grid") => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (next === "grid") params.set("view", "grid");
+    else params.delete("view");
+    const qs = params.toString();
+    router.replace(qs ? `${urlBase}?${qs}` : urlBase, { scroll: false });
+  };
+
+  return (
+    <div className="posts-tab-view-toggle" role="group" aria-label="View mode">
+      <button
+        type="button"
+        className={`posts-tab-view-btn ${!isGrid ? "is-active" : ""}`}
+        onClick={() => setView("list")}
+        aria-label="List view"
+        aria-pressed={!isGrid}
+      >
+        <ListBullets size={16} weight="light" />
+      </button>
+      <button
+        type="button"
+        className={`posts-tab-view-btn ${isGrid ? "is-active" : ""}`}
+        onClick={() => setView("grid")}
+        aria-label="Grid view"
+        aria-pressed={isGrid}
+      >
+        <GridFour size={16} weight="light" />
+      </button>
     </div>
   );
 }
