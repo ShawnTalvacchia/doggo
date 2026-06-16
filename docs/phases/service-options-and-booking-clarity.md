@@ -1,16 +1,18 @@
 ---
 status: draft
-last-reviewed: 2026-06-02
+last-reviewed: 2026-06-13
 review-trigger: When any task is completed or blocked
 ---
 
 # Service Options & Booking Clarity
 
-> **Status: draft.** Sized 2026-06-02 from PO user interviews (Roman). Not opened — pre-build scope calls below are unresolved. Workstreams A + C are straightforward extensions of patterns already shipped; Workstream B (Appointment meeting-options) carries real design work that needs to settle before code lands.
+> **Status: draft.** Sized 2026-06-02 from PO user interviews (Roman); **expanded 2026-06-13** with a fresh round of PO feedback (relayed during the Adoption-Curious close). Not opened — pre-build scope calls below are unresolved. Workstreams A + C are straightforward extensions of patterns already shipped; Workstream B (Appointment meeting-options) carries real design work; **Workstream D (dog health/profile fields)** is net-new from the 2026-06-13 round.
+>
+> **2026-06-13 scope decision (PO):** this is a deliberately *meaty* phase, not a shrunk palate-cleanser. Workstream B stays IN (its design questions are worth resolving, not deferring). The phase is the next one to open, slotting before the Design-System Audit. Added this round: Workstream D, the "Group walk" service relabel (C5), and the event-aware drop-off default (C2).
 
 **Goal:** Carers can offer richer service configurations (duration variants, location variants), and owners see clear options + accurate pricing in every booking flow. Removes the "what am I actually booking?" gap from today's Appointment + walk booking sheets.
 
-**Thesis:** The Walk Service Delivery phase (2026-05-20) shipped pickup-vs-drop-off as a delivery axis on walks. This phase generalises the pattern — different service configurations carry different prices and different logistics, and the booking flow needs to communicate both clearly. Three workstreams, all sharing the "booking-flow transparency" thesis but each touching a distinct axis.
+**Thesis:** The Walk Service Delivery phase (2026-05-20) shipped pickup-vs-drop-off as a delivery axis on walks. This phase generalises the pattern — different service configurations carry different prices and different logistics, and the booking flow needs to communicate both clearly. Workstreams A/B/C share the "booking-flow transparency" thesis, each touching a distinct axis. **Workstream D (added 2026-06-13)** is a different axis — dog health/profile data richness — bundled in as a coherent "clear up what the PO flagged" round rather than spun into its own micro-phase.
 
 **Depends on:**
 - Existing `CarerCareServiceConfig` + `CarerAppointmentServiceConfig` shapes (`lib/types.ts`)
@@ -60,7 +62,13 @@ These shape the workstream tasks. Each has a recommendation; the user picks befo
 4. **Walks pickup/drop-off address fields — Booking-level or Service-level default?**
    - **Booking-level:** owner sets non-default addresses per booking on the inquiry form; persists on `Booking.delivery.pickupLocation` + `dropoffLocation`.
    - **Service-level default:** carer's service config carries default addresses; owner can override per booking.
-   - **Recommendation:** booking-level only — service-level defaults add complexity without solving the user-facing problem (carer's pickup address is usually owner's home address anyway).
+   - **Recommendation:** booking-level only — service-level defaults add complexity without solving the user-facing problem (carer's pickup address is usually owner's home address anyway). **(PO 2026-06-13 confirmed this model:** start from a default, let the owner select/propose another; it's a *proposal* the provider reviews and decides — fits the existing inquiry → ProposalForm flow. Not free-pick-anything.)
+
+5. **Workstream D — "special instructions" field: new vs reuse; and where do D's fields render?**
+   - The data model already has `preferences.triggers` (hidden when empty) and `healthNotes`/owner `ownerNotes`; chip/registration # and exercise needs are net-new.
+   - **Q5a — special instructions:** add a dedicated `specialInstructions?` field, or surface existing `healthNotes`/`triggers` more prominently? **Recommendation:** surface what exists (don't add a redundant field) + ensure shelter dogs carry triggers/instructions in seed; revisit a dedicated field only if the existing ones prove too coarse.
+   - **Q5b — placement:** do chip #, exercise needs, and instructions live inside the existing **Health** section, or a small new **Identity / Care-needs** block? **Recommendation:** chip/registration → a quiet identity line in/under Health; exercise needs + instructions → near the personality/preferences area (they're care-handling info, not medical). Settle at build time.
+   - **Q5c — empty-state on shelter dogs:** the preferences/instructions sections hide when empty, so shelter staff get no prompt to fill them. Show empty-state prompts on shelter-managed dogs? **Recommendation:** yes, lightweight (the PO's Tonda screenshot is exactly this gap).
 
 ---
 
@@ -102,9 +110,24 @@ Smaller. The `LinkedWalkBookingSheet` today says "pickup" or "drop-off" but does
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
 | C1 | Extend `Booking.delivery` from `{ method, price }` to `{ method, price, pickupLocation?: string, dropoffLocation?: string }`. Locations are free-text for V1 (proper POI autocomplete is a separate ask — see [[features/explore-and-care]] Discover address picker P65). | [[features/explore-and-care]] Walk Service Delivery | todo |
-| C2 | `LinkedWalkBookingSheet` — when method is "pickup," show "Pickup address" field defaulting to viewer's neighbourhood/saved address with edit affordance. When method is "drop-off," show "Drop-off location" field. Single field per method; bookings with non-default values render the override. | C1 | todo |
+| C2 | `LinkedWalkBookingSheet` — when method is "pickup," show "Pickup address" field defaulting to viewer's neighbourhood/saved address with edit affordance. When method is "drop-off," show "Drop-off location" field. **Event-aware default (PO 2026-06-13):** when the walk is meet-linked (`service` linked to a Meet, or `Booking.dropoffMeetId` set), the drop-off default is the **linked Meet's location/park**, not the owner's address — pull it from the Meet. Single field per method; bookings with non-default values render the override. | C1 | todo |
 | C3 | `ScheduleCard` + `Booking` detail — render the address inline with the delivery hint ("Pick up at Pavla's address, Letná" or just "Pick up at Letná" if the address is opaque). | C1, C2 | todo |
 | C4 | Reuse the saved-addresses pattern from Discover Care filter panel where it makes sense (Discover panel's address picker is functional — same dropdown shape, just in a different surface). | C2 | todo |
+| C5 | **"Group walk" service relabel + meet-link clarity (PO 2026-06-13).** Klára's `walks_checkins` service (`klara-walks`) carries `subServices: ["Group walk"]`, which reads like a community Meet on a "Walks & Check-ins" card. Resolution: it's a *care service* — Klára walks ≤4 **clients'** dogs together, and it's linked to her free Stromovka community walk (a separate Meet). Rename the subService so it doesn't collide with the Meet concept (e.g. "Small-group walk" as a delivery detail, not a service name), and consider surfacing the linked-Meet relationship in the card/booking so the "where" is obvious. Confirm no other care services mislabel a Meet-shaped offering as a subService. | [[lib/mockUsers]] `klara-walks`, [[strategy/Groups & Care Model]] | todo |
+
+---
+
+## Workstream D — Dog health / profile fields
+
+Net-new from the 2026-06-13 PO round (comment on Tonda's health section). Today shelter dogs surface vaccinations + neutered only; chip/registration #, exercise needs, and special instructions/triggers don't show. See Pre-build scope call #5 for the field/placement/empty-state decisions.
+
+| Task | Description | Refs | Status |
+|------|-------------|------|--------|
+| D1 | Add `microchipNumber?: string` (and/or shelter `registrationNumber?`) to `PetProfile`; render as a quiet identity line in/under the Health section. Especially relevant for shelter dogs (chipped on intake). | Pre-build Q5b | blocked-on-pre-build |
+| D2 | Add `exerciseNeeds?: string` to `PetProfile` (distinct from `energyLevel` — the level vs the prescription, e.g. "Two long walks a day; loves to run off-leash"); render near the personality/preferences area. | Pre-build Q5b | blocked-on-pre-build |
+| D3 | Special instructions / triggers — per Q5a, surface existing `preferences.triggers` + `healthNotes` (rather than adding a redundant field), and ensure they render for shelter dogs. Add lightweight empty-state prompts on shelter-managed dogs (Q5c) so staff know to fill them. | Pre-build Q5a, Q5c | blocked-on-pre-build |
+| D4 | Mock data — seed Tonda (the PO's example) + the other Útulek/shelter dogs with chip #, exercise needs, and triggers/instructions so each surface is populated, not empty-state. | D1, D2, D3 | blocked-on-D1 |
+| D5 | Edit affordance — owned dogs edit these via `PetEditCard`. Shelter-dog operator editing stays V3+ (FC16); seed shelter dogs read-only for now. | D1, D2, D3 | blocked-on-D1 |
 
 ---
 
@@ -112,9 +135,11 @@ Smaller. The `LinkedWalkBookingSheet` today says "pickup" or "drop-off" but does
 
 - [ ] Day-care carers can opt in to a half-day price; owners see the toggle in the inquiry form and the resulting price line on the proposal + booking detail
 - [ ] Appointment booking sheets surface location to the owner — read-only line for single-option services, picker for multi-option services
-- [ ] Walks `LinkedWalkBookingSheet` lets the owner specify a non-default pickup/drop-off address per booking
-- [ ] Pricing engine output is correct across all three new option dimensions
-- [ ] Mock data exercises each new surface (half-day-offering day-care carer, multi-option Appointment carer, non-default-address walk booking)
+- [ ] Walks `LinkedWalkBookingSheet` lets the owner specify a non-default pickup/drop-off address per booking; meet-linked walks default the drop-off to the linked Meet's location
+- [ ] The "Group walk" subService no longer reads as a community Meet on the Walks & Check-ins card (C5)
+- [ ] Dog health/profile fields surface for shelter dogs: chip/registration #, exercise needs, and triggers/instructions show on a seeded dog (e.g. Tonda), with empty-state prompts where unfilled (Workstream D)
+- [ ] Pricing engine output is correct across all the new option dimensions
+- [ ] Mock data exercises each new surface (half-day-offering day-care carer, multi-option Appointment carer, non-default-address walk booking, a fully-populated shelter dog health section)
 - [ ] Pre-build scope calls are recorded as resolved in this board (with the decision logged)
 - [ ] Open Question §17 is closed by this phase OR explicitly punted with reason
 - [ ] No regressions on walks `deliveryOptions` (which may migrate per B1's decision)
