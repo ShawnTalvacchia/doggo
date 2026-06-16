@@ -1,12 +1,14 @@
 ---
-status: draft
-last-reviewed: 2026-06-13
+status: active
+last-reviewed: 2026-06-15
 review-trigger: When any task is completed or blocked
 ---
 
 # Service Options & Booking Clarity
 
-> **Status: draft.** Sized 2026-06-02 from PO user interviews (Roman); **expanded 2026-06-13** with a fresh round of PO feedback (relayed during the Adoption-Curious close). Not opened — pre-build scope calls below are unresolved. Workstreams A + C are straightforward extensions of patterns already shipped; Workstream B (Appointment meeting-options) carries real design work; **Workstream D (dog health/profile fields)** is net-new from the 2026-06-13 round.
+> **Status: active — opened 2026-06-15.** Sized 2026-06-02 from PO user interviews (Roman); **expanded 2026-06-13** with a fresh round of PO feedback (relayed during the Adoption-Curious close); **opened 2026-06-15** — pre-build scope calls resolved (see below). Workstreams A + C are straightforward extensions of patterns already shipped; Workstream B (Appointment meeting-options) carries real design work; **Workstream D (dog health/profile fields)** is net-new from the 2026-06-13 round.
+>
+> **Opening-audit correction (2026-06-15): Workstream A is only partly shipped.** The pricing engine (`durationOptions`/`dayCareDuration` resolution in `resolveBaseRate`, `lib/pricing.ts`) and the inquiry-form full-day/half-day radio (`InquiryForm.tsx`) are built + seeded — but the **carer service-edit UI (A4)** has no duration-options editor in `ProfileServicesTab` (and no `deliveryOptions` editor either — the walk delivery axis has been mock-seed-only since 2026-05-20). So A is "verify A1/A2/A3 + build A4/A6," not a pure tick.
 >
 > **2026-06-13 scope decision (PO):** this is a deliberately *meaty* phase, not a shrunk palate-cleanser. Workstream B stays IN (its design questions are worth resolving, not deferring). The phase is the next one to open, slotting before the Design-System Audit. Added this round: Workstream D, the "Group walk" service relabel (C5), and the event-aware drop-off default (C2).
 
@@ -32,20 +34,32 @@ review-trigger: When any task is completed or blocked
 
 Complete before writing any code. Mark each item done.
 
-- [ ] Read every task and its referenced docs
-- [ ] Resolve Pre-build scope calls (see below) — all four must be answered before A/B/C tasks move to `in_progress`
-- [ ] Review Open Questions log — §17 (appointment meeting-options) is the central question this phase tries to answer; also check §6 for vet-retired-as-Care-category context
-- [ ] Audit `lib/pricing.ts` to confirm `computeQuote` + `computeAppointmentQuote` patterns we'll extend
-- [ ] Audit `LinkedWalkBookingSheet`, `AppointmentBookingSheet`, `BookSessionSheet` for the current shape we're extending
-- [ ] Update any referenced docs with `last-reviewed` older than 2 weeks
-- [ ] Scan punch list for overlap (puppy meet seed + Monday-first-day-of-week are independent; nothing else expected)
-- [ ] Confirm scope — no tasks that belong in Dog Profile, Carer Portfolio, or Vets thread
+- [x] Read every task and its referenced docs
+- [x] Resolve Pre-build scope calls (see below) — **resolved 2026-06-15** (all five recorded below; B Q1/Q2 + D Q5a confirmed with PO; #1/#4/#5b/#5c taken as already-decided)
+- [x] Review Open Questions log — §17 (appointment meeting-options) is the central question this phase answers (closes on phase close); §6 confirms vets out of Care taxonomy (no conflict)
+- [x] Audit `lib/pricing.ts` — confirmed `computeQuote` (delivery + duration resolution via `resolveBaseRate`) + `computeAppointmentQuote` (flat single-line, no option-aware base yet) patterns
+- [x] Audit `LinkedWalkBookingSheet` (meet-aware, no owner address field), `AppointmentBookingSheet` (no location surfaced, flat quote), `InquiryForm`/`ProfileServicesTab` (half-day radio shipped; carer-edit option UI NOT built — A4 gap)
+- [x] Update any referenced docs with `last-reviewed` older than 2 weeks — checked; `explore-and-care`, `Groups & Care Model`, Open Questions all current (≤2 wk)
+- [x] Scan punch list for overlap — no hard overlap. P81 (trim walk-recap posts) is content-adjacent to Workstream D's shelter-dog seed pass; fold opportunistically. P79/P80/P78/P76 independent. (Board's old "puppy meet seed / Monday-first-day" note was stale.)
+- [x] Confirm scope — no tasks belong in Dog Profile, Carer Portfolio, or Vets thread; D's fields are net-new dog-profile data but explicitly scoped here per the 2026-06-13 PO round
 
 ---
 
 ## Pre-build scope calls
 
-These shape the workstream tasks. Each has a recommendation; the user picks before tasks open.
+These shape the workstream tasks. Each has a recommendation; the user picks before tasks open. **All resolved 2026-06-15 (PO).**
+
+| # | Call | Resolution (2026-06-15) |
+|---|------|-------------------------|
+| 1 | Day-care half-day SKU shape | **Yes — confirmed by existing code.** Already implemented exactly as recommended (`durationOptions` on `CarerCareServiceConfig`). |
+| 2 (B-Q1) | Generalise meeting-options across walks+appointments vs keep separate | **Keep separate.** Appointment-only `appointmentLocations`; walks `deliveryOptions` untouched (zero migration risk). Generalise later as a clean refactor if both shapes prove out. |
+| 3 (B-Q2) | Curated tuples vs free-form | **Curated tuples** (~4 named patterns). Comparable across Discover cards; free-form deferred. |
+| 4 | Walks address Booking-level vs Service-level | **Booking-level**, via the existing inquiry→ProposalForm proposal→provider-review model (PO confirmed 2026-06-13). |
+| 5a (D) | Special-instructions new field vs reuse | **Surface existing** `preferences.triggers` + `healthNotes`; no redundant field. Lightweight empty-state prompts on shelter dogs. |
+| 5b (D) | Placement of chip# / exercise-needs / instructions | Chip# → quiet identity line under Health; exercise-needs + instructions → near preferences/personality (care-handling, not medical). Settle exact layout at build time. |
+| 5c (D) | Empty-state on shelter dogs | **Yes** — lightweight prompts so shelter staff know to fill them (the Tonda gap). |
+
+Original detail (kept for reasoning):
 
 1. **Day-care half-day SKU shape.** Mirror existing `deliveryOptions` pattern with `durationOptions: { duration: "full_day" | "half_day", price }[]` on `CarerCareServiceConfig` when `serviceType === "day_care"`? **Recommended: yes** — consistent with the existing pattern, low cognitive load.
 
@@ -78,12 +92,12 @@ The cleanest extension. Day-care today is priced per-day; this adds a per-half-d
 
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
-| A1 | Extend `CarerCareServiceConfig` with `durationOptions?: { duration: "full_day" \| "half_day"; price: number }[]` when `serviceType === "day_care"`. Document inline that half_day is optional opt-in; if absent, day_care behaves as today (single full-day rate via `pricePerUnit`). | [[features/explore-and-care]] pricing engine | todo |
-| A2 | Extend `computeQuote` in `lib/pricing.ts` to resolve `durationOptions` from `inquiry.duration` (new optional inquiry field). Falls through to existing single-rate behaviour when `durationOptions` is absent. Stack modifiers normally on the resolved base. | A1 | todo |
-| A3 | Inquiry form — add a "Full day / Half day" radio when the active service is `day_care` AND `durationOptions.length > 1`. Persist to `inquiry.duration`. Update live estimate to reflect the toggle. | A1, A2 | todo |
-| A4 | Carer service-edit UI — `ProfileServicesTab` day-care card grows a half-day opt-in row with price input. Defaults: opt-in disabled (existing behaviour preserved); when enabled, defaults to 60% of full-day rate (sensible starting point). | A1 | todo |
-| A5 | Mock data — Klára's `klara-day-care` (or whichever carer offers it) seeds a half-day price; one other day-care carer left as full-day-only for contrast. | A1, A4 | todo |
-| A6 | Display — `BookingProposalCard` + `Booking` detail show "Half day" / "Full day" label inline with the price line so the owner sees what they booked. | A2 | todo |
+| A1 | Extend `CarerCareServiceConfig` with `durationOptions?: { duration: "full_day" \| "half_day"; price: number }[]` when `serviceType === "day_care"`. Document inline that half_day is optional opt-in; if absent, day_care behaves as today (single full-day rate via `pricePerUnit`). | [[features/explore-and-care]] pricing engine | done (verified — code audit) |
+| A2 | Extend `computeQuote` in `lib/pricing.ts` to resolve `durationOptions` from `inquiry.duration` (new optional inquiry field). Falls through to existing single-rate behaviour when `durationOptions` is absent. Stack modifiers normally on the resolved base. | A1 | done (verified — `resolveBaseRate`, `inquiry.dayCareDuration`) |
+| A3 | Inquiry form — add a "Full day / Half day" radio when the active service is `day_care` AND `durationOptions.length > 1`. Persist to `inquiry.duration`. Update live estimate to reflect the toggle. | A1, A2 | done (code verified; live click-through → walkthrough V1) |
+| A4 | Carer service-edit UI — `ProfileServicesTab` day-care card grows a half-day opt-in row with price input. Defaults: opt-in disabled (existing behaviour preserved); when enabled, defaults to 60% of full-day rate (sensible starting point). | A1 | **done 2026-06-15** — built + live-verified (toggle off→on regenerates `durationOptions`, half-day seeds to 60%, full-day kept in lockstep with `pricePerUnit`) |
+| A5 | Mock data — Klára's `klara-day-care` (or whichever carer offers it) seeds a half-day price; one other day-care carer left as full-day-only for contrast. | A1, A4 | done (verified — Tereza `day_care` 150/90; other day-care carers full-day-only) |
+| A6 | Display — `BookingProposalCard` + `Booking` detail show "Half day" / "Full day" label inline with the price line so the owner sees what they booked. | A2 | done (code verified — `bookings/[id]` label + quote line suffix; live → walkthrough V1) |
 
 ---
 
@@ -93,13 +107,13 @@ The Klára case. Where does a 1-on-1 training session actually happen? Today the
 
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
-| B1 | Decide the data shape (per Pre-build Q1 + Q2). If generalised + curated: introduce `meetingOptions: MeetingOption[]` shared across `CarerCareServiceConfig` + `CarerAppointmentServiceConfig`; deprecate `deliveryOptions` over a migration path. If appointment-only + curated: introduce `appointmentLocations: AppointmentLocation[]` on `CarerAppointmentServiceConfig` only. | Pre-build Q1, Q2 | blocked-on-pre-build |
-| B2 | The four curated tuples (assuming curated lands): "Carer comes to you" / "You bring dog to carer" / "Carer picks up dog + meets at a public place" / "Owner + carer meet at a public place." Each carries `whoTravels`, `where`, `price`. Default-recommended: "Carer comes to you" for training (matches Prague mobile-modal market per P64); facility-based defaults to "You bring dog to carer." | B1 | blocked-on-B1 |
-| B3 | Carer service-edit UI — Appointment service card grows a "Where do you meet" multi-select with each tuple as a row + price input. At least one option required. | B1, B2 | blocked-on-B1 |
-| B4 | `AppointmentBookingSheet` — when service offers >1 option, show a picker; when service offers exactly 1, show a read-only line ("Klára will come to your address"). Price reflects the selected option. Persist to `Booking.appointmentLocation` or shared meeting-option field per B1's decision. | B1, B2, B3 | blocked-on-B1 |
-| B5 | `computeAppointmentQuote` resolves the option's price as the base rate. (Today it's a flat `pricePerAppointment`; this introduces option-aware base resolution.) | B1, B4 | blocked-on-B1 |
-| B6 | Mock data — Klára's `klara-1on1` offers "Carer comes to you" only (single option, shows read-only line). Seed a second appointment carer (or convert an existing one) with multiple options to exercise the picker. | B2 | blocked-on-B1 |
-| B7 | Display — `BookingProposalCard` + `Booking` detail show the chosen location row alongside service title + price (mirrors the walks `delivery` line). | B4 | blocked-on-B4 |
+| B1 | **DECIDED 2026-06-15 (keep separate + curated):** introduce `appointmentLocations: AppointmentLocation[]` on `CarerAppointmentServiceConfig` only; walks `deliveryOptions` untouched (no migration). Tuple shape carries `whoTravels`, `where`, `price`. | Pre-build Q1, Q2 | done (decision) |
+| B2 | The four curated tuples: "Carer comes to you" / "You bring dog to carer" / "Carer picks up dog + meets at a public place" / "Owner + carer meet at a public place." Each carries `whoTravels`, `where`, `price`. Default-recommended: "Carer comes to you" for training (matches Prague mobile-modal market per P64); facility-based defaults to "You bring dog to carer." | B1 | todo |
+| B3 | Carer service-edit UI — Appointment service card grows a "Where do you meet" multi-select with each tuple as a row + price input. At least one option required. | B1, B2 | todo |
+| B4 | `AppointmentBookingSheet` — when service offers >1 option, show a picker; when service offers exactly 1, show a read-only line ("Klára will come to your address"). Price reflects the selected option. Persist to `Booking.appointmentLocation`. | B1, B2, B3 | todo |
+| B5 | `computeAppointmentQuote` resolves the option's price as the base rate. (Today it's a flat `pricePerAppointment`; this introduces option-aware base resolution.) | B1, B4 | todo |
+| B6 | Mock data — Klára's `klara-1on1` offers "Carer comes to you" only (single option, shows read-only line). Seed a second appointment carer (or convert an existing one) with multiple options to exercise the picker. | B2 | todo |
+| B7 | Display — `BookingProposalCard` + `Booking` detail show the chosen location row alongside service title + price (mirrors the walks `delivery` line). | B4 | todo |
 
 ---
 
@@ -123,11 +137,11 @@ Net-new from the 2026-06-13 PO round (comment on Tonda's health section). Today 
 
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
-| D1 | Add `microchipNumber?: string` (and/or shelter `registrationNumber?`) to `PetProfile`; render as a quiet identity line in/under the Health section. Especially relevant for shelter dogs (chipped on intake). | Pre-build Q5b | blocked-on-pre-build |
-| D2 | Add `exerciseNeeds?: string` to `PetProfile` (distinct from `energyLevel` — the level vs the prescription, e.g. "Two long walks a day; loves to run off-leash"); render near the personality/preferences area. | Pre-build Q5b | blocked-on-pre-build |
-| D3 | Special instructions / triggers — per Q5a, surface existing `preferences.triggers` + `healthNotes` (rather than adding a redundant field), and ensure they render for shelter dogs. Add lightweight empty-state prompts on shelter-managed dogs (Q5c) so staff know to fill them. | Pre-build Q5a, Q5c | blocked-on-pre-build |
-| D4 | Mock data — seed Tonda (the PO's example) + the other Útulek/shelter dogs with chip #, exercise needs, and triggers/instructions so each surface is populated, not empty-state. | D1, D2, D3 | blocked-on-D1 |
-| D5 | Edit affordance — owned dogs edit these via `PetEditCard`. Shelter-dog operator editing stays V3+ (FC16); seed shelter dogs read-only for now. | D1, D2, D3 | blocked-on-D1 |
+| D1 | Add `microchipNumber?: string` (and/or shelter `registrationNumber?`) to `PetProfile`; render as a quiet identity line in/under the Health section. Especially relevant for shelter dogs (chipped on intake). | Pre-build Q5b | todo |
+| D2 | Add `exerciseNeeds?: string` to `PetProfile` (distinct from `energyLevel` — the level vs the prescription, e.g. "Two long walks a day; loves to run off-leash"); render near the personality/preferences area. | Pre-build Q5b | todo |
+| D3 | Special instructions / triggers — per Q5a, surface existing `preferences.triggers` + `healthNotes` (rather than adding a redundant field), and ensure they render for shelter dogs. Add lightweight empty-state prompts on shelter-managed dogs (Q5c) so staff know to fill them. | Pre-build Q5a, Q5c | todo |
+| D4 | Mock data — seed Tonda (the PO's example) + the other Útulek/shelter dogs with chip #, exercise needs, and triggers/instructions so each surface is populated, not empty-state. | D1, D2, D3 | todo |
+| D5 | Edit affordance — owned dogs edit these via `PetEditCard`. Shelter-dog operator editing stays V3+ (FC16); seed shelter dogs read-only for now. | D1, D2, D3 | todo |
 
 ---
 

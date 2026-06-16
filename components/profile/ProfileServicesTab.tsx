@@ -782,6 +782,18 @@ export function ProfileServicesTab({
                     // full-width body fields).
                     const subServiceOptions =
                       SUB_SERVICES[svc.serviceType] ?? [];
+                    // Day-care half-day opt-in (Workstream A4). When the carer
+                    // offers a half_day option the pricing engine resolves it
+                    // via `durationOptions`; absent, day_care stays single-rate
+                    // on `pricePerUnit` (the legacy shape).
+                    const halfDayEnabled =
+                      svc.serviceType === "day_care" &&
+                      (svc.durationOptions?.some(
+                        (o) => o.duration === "half_day",
+                      ) ?? false);
+                    const halfDayOption = svc.durationOptions?.find(
+                      (o) => o.duration === "half_day",
+                    );
                     return (
                       <div
                         key={`care-${svc.serviceType}`}
@@ -816,14 +828,30 @@ export function ProfileServicesTab({
 
                         <InputField
                           id={`price-${idx}`}
-                          label="Price"
+                          label={halfDayEnabled ? "Full-day price" : "Price"}
                           type="number"
                           value={svc.pricePerUnit.toString()}
-                          onChange={(val) =>
-                            updateCareService(idx, {
-                              pricePerUnit: parseInt(val) || 0,
-                            })
-                          }
+                          onChange={(val) => {
+                            const next = parseInt(val) || 0;
+                            const updates: Partial<CarerCareServiceConfig> = {
+                              pricePerUnit: next,
+                            };
+                            // Keep the full_day duration option in lockstep with
+                            // the base rate so the pricing engine (which reads
+                            // durationOptions when present) doesn't drift.
+                            if (
+                              svc.serviceType === "day_care" &&
+                              svc.durationOptions?.length
+                            ) {
+                              updates.durationOptions = svc.durationOptions.map(
+                                (o) =>
+                                  o.duration === "full_day"
+                                    ? { ...o, price: next }
+                                    : o,
+                              );
+                            }
+                            updateCareService(idx, updates);
+                          }}
                           trailing={`Kč / ${svc.priceUnit === "per_visit" ? "visit" : "night"}`}
                         />
 
@@ -887,6 +915,68 @@ export function ProfileServicesTab({
                             style={{ minHeight: 56 }}
                           />
                         </div>
+
+                        {svc.serviceType === "day_care" && (
+                          <div className="flex flex-col gap-sm">
+                            <Toggle
+                              label="Offer a half-day rate"
+                              size="sm"
+                              checked={halfDayEnabled}
+                              onChange={(on) => {
+                                if (on) {
+                                  updateCareService(idx, {
+                                    durationOptions: [
+                                      {
+                                        duration: "full_day",
+                                        price: svc.pricePerUnit,
+                                      },
+                                      {
+                                        duration: "half_day",
+                                        // Sensible starting point: 60% of the
+                                        // full-day rate (carer tunes below).
+                                        price: Math.round(
+                                          svc.pricePerUnit * 0.6,
+                                        ),
+                                      },
+                                    ],
+                                  });
+                                } else {
+                                  // Drop duration options — day_care falls back
+                                  // to the single full-day rate via pricePerUnit.
+                                  updateCareService(idx, {
+                                    durationOptions: undefined,
+                                  });
+                                }
+                              }}
+                            />
+                            {halfDayEnabled && (
+                              <InputField
+                                id={`halfday-${idx}`}
+                                label="Half-day price"
+                                type="number"
+                                value={(halfDayOption?.price ?? 0).toString()}
+                                onChange={(val) => {
+                                  const price = parseInt(val) || 0;
+                                  updateCareService(idx, {
+                                    durationOptions: (
+                                      svc.durationOptions ?? []
+                                    ).map((o) =>
+                                      o.duration === "half_day"
+                                        ? { ...o, price }
+                                        : o,
+                                    ),
+                                  });
+                                }}
+                                trailing="Kč / half day"
+                              />
+                            )}
+                            <p className="text-xs text-fg-tertiary m-0">
+                              {halfDayEnabled
+                                ? "Owners pick full or half day when they book."
+                                : "Owners book a full day at your standard rate."}
+                            </p>
+                          </div>
+                        )}
 
                         <PricingModifiersEditor
                           modifiers={svc.modifiers ?? []}
