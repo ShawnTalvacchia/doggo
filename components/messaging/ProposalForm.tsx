@@ -99,7 +99,11 @@ export function ProposalForm({
   // engine quote. If the carer has no config for this service (shouldn't
   // happen in practice), fall back to a 0-Kč skeleton the provider overrides.
   const systemQuote: BookingPrice = useMemo(() => {
-    if (apptService) return computeAppointmentQuote(apptService);
+    if (apptService)
+      return computeAppointmentQuote(
+        apptService,
+        sourceInquiry.appointment?.location,
+      );
     if (!careService) {
       return {
         lineItems: [

@@ -437,7 +437,10 @@ export const klara: UserProfile = {
         // notes + her demo arc), so the training focus is behaviour work.
         // P73, 2026-06-03.
         trainingType: "behaviour",
-        notes: "Private session at your location or Stromovka. Behaviour assessment included on the first session.",
+        // Single meeting-location option → owner sees a read-only line, no
+        // picker (Workstream B6). She comes to the owner (Prague mobile-modal).
+        appointmentLocations: [{ kind: "carer_to_you", price: 800 }],
+        notes: "Private session at your address. Behaviour assessment included on the first session.",
       },
       {
         kind: "meet",
@@ -1616,7 +1619,13 @@ export const sarkaTrainer: UserProfile = {
         durationMinutes: 60,
         appointmentCategory: "training",
         trainingType: "puppy_socialisation",
-        notes: "First-meet at your home, then a short outing to a quiet park. Best in the first 6 weeks after you bring a puppy home.",
+        // Multiple meeting-location options → owner picks at booking
+        // (Workstream B6). Mobile trainer: your home or meet at a park.
+        appointmentLocations: [
+          { kind: "carer_to_you", price: 650 },
+          { kind: "owner_carer_public", price: 600 },
+        ],
+        notes: "Your home or a quiet park you already know, your pick. Best in the first 6 weeks after you bring a puppy home.",
       },
       {
         kind: "appointment",
@@ -1678,7 +1687,10 @@ export const radekTrainer: UserProfile = {
         durationMinutes: 60,
         appointmentCategory: "training",
         trainingType: "agility",
-        notes: "Owner brings the dog to the Holešovice facility. Foundations — focus, tunnel intro, low jumps. No prior agility experience needed.",
+        // Single facility option → read-only line (Workstream B6). The agility
+        // kit is fixed, so the owner always brings the dog to him.
+        appointmentLocations: [{ kind: "you_to_carer", price: 750 }],
+        notes: "Owner brings the dog to the Holešovice facility. Foundations: focus, tunnel intro, low jumps. No prior agility experience needed.",
       },
       {
         kind: "appointment",

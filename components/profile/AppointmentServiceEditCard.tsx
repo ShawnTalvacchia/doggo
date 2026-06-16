@@ -2,13 +2,20 @@
 
 import { Trash, Clock } from "@phosphor-icons/react";
 import { InputField } from "@/components/ui/InputField";
+import { Toggle } from "@/components/ui/Toggle";
 import { ArchivedServiceStrip } from "@/components/profile/ArchivedServiceStrip";
 import type {
   CarerAppointmentServiceConfig,
   AppointmentCategory,
+  AppointmentLocationKind,
   TrainingType,
 } from "@/lib/types";
-import { TRAINING_TYPE_LABELS, TRAINING_TYPE_PICKER_ORDER } from "@/lib/constants/services";
+import {
+  TRAINING_TYPE_LABELS,
+  TRAINING_TYPE_PICKER_ORDER,
+  APPOINTMENT_LOCATION_META,
+  APPOINTMENT_LOCATION_ORDER,
+} from "@/lib/constants/services";
 
 // ── Option table ─────────────────────────────────────────────────────────────
 
@@ -64,6 +71,41 @@ export function AppointmentServiceEditCard({
     onChange({ ...service, ...updates });
   }
 
+  // ── Meeting-location options (Workstream B3) ──
+  const locations = service.appointmentLocations ?? [];
+  const hasLocations = locations.length > 0;
+
+  // Toggle a location on/off. Keep `pricePerAppointment` pointed at the first
+  // offered option so the flat fallback (and `computeAppointmentQuote`) stays
+  // sane. Empty array → drop the field entirely (back to single flat rate).
+  function toggleLocation(kind: AppointmentLocationKind, on: boolean) {
+    const next = on
+      ? [
+          ...locations,
+          {
+            kind,
+            // Seed a new option to the existing base (or the first option's
+            // price); the carer tunes it immediately.
+            price: locations[0]?.price ?? service.pricePerAppointment,
+          },
+        ]
+      : locations.filter((l) => l.kind !== kind);
+    patch({
+      appointmentLocations: next.length > 0 ? next : undefined,
+      pricePerAppointment: next[0]?.price ?? service.pricePerAppointment,
+    });
+  }
+
+  function setLocationPrice(kind: AppointmentLocationKind, price: number) {
+    const next = locations.map((l) =>
+      l.kind === kind ? { ...l, price } : l,
+    );
+    patch({
+      appointmentLocations: next,
+      pricePerAppointment: next[0]?.price ?? service.pricePerAppointment,
+    });
+  }
+
   return (
     <div
       id={`svc-card-${service.id}`}
@@ -101,14 +143,18 @@ export function AppointmentServiceEditCard({
         placeholder="e.g. 1-on-1 training session"
       />
 
-      <InputField
-        id={`appt-price-${service.id}`}
-        label="Price"
-        type="number"
-        value={service.pricePerAppointment.toString()}
-        onChange={(val) => patch({ pricePerAppointment: parseInt(val) || 0 })}
-        trailing="Kč / appointment"
-      />
+      {/* Flat price — only when the carer hasn't set per-location prices.
+          With locations on, each option carries its own price below. */}
+      {!hasLocations && (
+        <InputField
+          id={`appt-price-${service.id}`}
+          label="Price"
+          type="number"
+          value={service.pricePerAppointment.toString()}
+          onChange={(val) => patch({ pricePerAppointment: parseInt(val) || 0 })}
+          trailing="Kč / appointment"
+        />
+      )}
 
       {/* Category */}
       <div className="input-block">
@@ -181,6 +227,49 @@ export function AppointmentServiceEditCard({
         onChange={(val) => patch({ durationMinutes: parseInt(val) || 0 })}
         trailing="min"
       />
+
+      {/* Where do you meet — curated location tuples, each priced (Workstream
+          B3). Optional: leave all off for a single flat rate (above). With one
+          on, the owner sees a read-only line at booking; with more than one,
+          the owner picks. */}
+      <div className="input-block">
+        <label className="label">
+          <span className="label-primary-group">
+            <span>Where do you meet?</span>
+          </span>
+        </label>
+        <div className="flex flex-col gap-sm">
+          {APPOINTMENT_LOCATION_ORDER.map((kind) => {
+            const opt = locations.find((l) => l.kind === kind);
+            const on = !!opt;
+            return (
+              <div key={kind} className="flex flex-col gap-xs">
+                <Toggle
+                  label={APPOINTMENT_LOCATION_META[kind].label}
+                  size="sm"
+                  checked={on}
+                  onChange={(next) => toggleLocation(kind, next)}
+                />
+                {on && (
+                  <InputField
+                    id={`appt-loc-${service.id}-${kind}`}
+                    label={`${APPOINTMENT_LOCATION_META[kind].label} price`}
+                    type="number"
+                    value={(opt?.price ?? 0).toString()}
+                    onChange={(val) => setLocationPrice(kind, parseInt(val) || 0)}
+                    trailing="Kč / appointment"
+                  />
+                )}
+              </div>
+            );
+          })}
+          <p className="text-xs text-fg-tertiary m-0">
+            {hasLocations
+              ? "Owners pick where the session happens when they book."
+              : "Leave all off to charge one flat rate. Turn options on to price by where you meet."}
+          </p>
+        </div>
+      </div>
 
       <div className="input-block">
         <label className="label" htmlFor={`appt-notes-${service.id}`}>

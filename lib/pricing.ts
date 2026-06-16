@@ -6,6 +6,7 @@ import type {
   PriceLineItem,
   CarerCareServiceConfig,
   CarerAppointmentServiceConfig,
+  AppointmentLocationKind,
   PricingModifier,
   HolidayPricingModifier,
   WeekendPricingModifier,
@@ -13,6 +14,7 @@ import type {
   LastMinutePricingModifier,
 } from "@/lib/types";
 import { holidaysInRange, rangeIncludesWeekend, daysBetween } from "@/lib/holidays";
+import { APPOINTMENT_LOCATION_META } from "@/lib/constants/services";
 
 export const FILTER_RATE_MIN_KC = 150;
 export const FILTER_RATE_MAX_KC = 1800;
@@ -388,21 +390,40 @@ export function computeQuote(
  * just stamps the configured price as one line item. Kept separate from
  * `computeQuote` (which is Care-config-shaped) so neither has to grow a
  * union. Appointment booking flow, 2026-05-22.
+ *
+ * Location-aware base resolution (Service Options & Booking Clarity,
+ * 2026-06-15): when the service offers `appointmentLocations`, the chosen
+ * option's price is the base rate (the label gains the location name).
+ * Falls through to `pricePerAppointment` when there are no options, or when
+ * the inquiry hasn't picked one yet (defaults to the first offered option for
+ * the live estimate). Mirrors the walks `deliveryOptions` resolution.
  */
 export function computeAppointmentQuote(
   config: CarerAppointmentServiceConfig,
+  locationKind?: AppointmentLocationKind | null,
 ): BookingPrice {
+  const options = config.appointmentLocations ?? [];
+  const chosen =
+    options.length > 0
+      ? (locationKind
+          ? options.find((o) => o.kind === locationKind)
+          : undefined) ?? options[0]
+      : undefined;
+  const amount = chosen ? chosen.price : config.pricePerAppointment;
+  const label = chosen
+    ? `${config.title} (${APPOINTMENT_LOCATION_META[chosen.kind].label})`
+    : config.title;
   return {
     lineItems: [
       {
-        label: config.title,
-        amount: config.pricePerAppointment,
+        label,
+        amount,
         // Bare unit — proposal / signing surfaces render "/ {unit}", so this
         // reads "800 Kč / appointment" (not "/ per appointment").
         unit: "appointment",
       },
     ],
-    total: config.pricePerAppointment,
+    total: amount,
     currency: "Kč",
     billingCycle: "per_session",
   };

@@ -107,13 +107,13 @@ The Klára case. Where does a 1-on-1 training session actually happen? Today the
 
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
-| B1 | **DECIDED 2026-06-15 (keep separate + curated):** introduce `appointmentLocations: AppointmentLocation[]` on `CarerAppointmentServiceConfig` only; walks `deliveryOptions` untouched (no migration). Tuple shape carries `whoTravels`, `where`, `price`. | Pre-build Q1, Q2 | done (decision) |
-| B2 | The four curated tuples: "Carer comes to you" / "You bring dog to carer" / "Carer picks up dog + meets at a public place" / "Owner + carer meet at a public place." Each carries `whoTravels`, `where`, `price`. Default-recommended: "Carer comes to you" for training (matches Prague mobile-modal market per P64); facility-based defaults to "You bring dog to carer." | B1 | todo |
-| B3 | Carer service-edit UI — Appointment service card grows a "Where do you meet" multi-select with each tuple as a row + price input. At least one option required. | B1, B2 | todo |
-| B4 | `AppointmentBookingSheet` — when service offers >1 option, show a picker; when service offers exactly 1, show a read-only line ("Klára will come to your address"). Price reflects the selected option. Persist to `Booking.appointmentLocation`. | B1, B2, B3 | todo |
-| B5 | `computeAppointmentQuote` resolves the option's price as the base rate. (Today it's a flat `pricePerAppointment`; this introduces option-aware base resolution.) | B1, B4 | todo |
-| B6 | Mock data — Klára's `klara-1on1` offers "Carer comes to you" only (single option, shows read-only line). Seed a second appointment carer (or convert an existing one) with multiple options to exercise the picker. | B2 | todo |
-| B7 | Display — `BookingProposalCard` + `Booking` detail show the chosen location row alongside service title + price (mirrors the walks `delivery` line). | B4 | todo |
+| B1 | **DECIDED + shipped:** `appointmentLocations: AppointmentLocation[]` (`{ kind, price }`) on `CarerAppointmentServiceConfig` only; walks `deliveryOptions` untouched. Tuple kind enum `AppointmentLocationKind`; who-travels/where derived from kind via `APPOINTMENT_LOCATION_META`. | Pre-build Q1, Q2 | **done 2026-06-15** |
+| B2 | The four curated tuples: `carer_to_you` / `you_to_carer` / `carer_pickup_public` / `owner_carer_public` — labels + owner-facing copy in `APPOINTMENT_LOCATION_META`. | B1 | **done 2026-06-15** |
+| B3 | Carer edit UI — `AppointmentServiceEditCard` grows a "Where do you meet?" block: 4 toggle rows, each priced when on. Optional (none on = flat rate). With options on, the flat Price field hides; `pricePerAppointment` stays pointed at the first option for fallback. | B1, B2 | **done 2026-06-15** — live-verified (Klára) |
+| B4 | `AppointmentBookingSheet` — >1 option → picker (price tracks selection); exactly 1 → read-only line ("Klára comes to your address"); 0 → omitted. **Persists to `AppointmentRef.location`** (rides inquiry→proposal→booking on the ref; no separate `Booking` field). | B1, B2, B3 | **done 2026-06-15** — live-verified (Šárka picker 650/600, Klára read-only 800) |
+| B5 | `computeAppointmentQuote(config, locationKind?)` resolves the chosen option's price as the base rate (+ location in the line-item label); flat fallback when no options. Wired into the sheet + `ProposalForm`. | B1, B4 | **done 2026-06-15** — live-verified (estimate tracks 650/600) |
+| B6 | Mock data — Klára `klara-1on1` single `carer_to_you` (read-only line); Radek `radek-agility-intro` single `you_to_carer`; Šárka `sarka-puppy-intro` multi (`carer_to_you` 650 + `owner_carer_public` 600, picker); Lenka grooming left flat (legacy/no-options path). | B2 | **done 2026-06-15** |
+| B7 | Display — booking detail shows a dedicated meeting-location row (mirrors the walks delivery row); `BookingProposalCard` carries it via the price-line label (mirrors walks). | B4 | **done 2026-06-15** (detail row typecheck + mirrors verified walks row; proposal-card via label) |
 
 ---
 

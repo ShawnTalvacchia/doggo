@@ -48,7 +48,7 @@ import { useViewedReports } from "@/lib/useViewedReports";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { getUserById } from "@/lib/mockUsers";
 import { getShelterDogByName } from "@/lib/mockShelters";
-import { bookingServiceLabel } from "@/lib/constants/services";
+import { bookingServiceLabel, APPOINTMENT_LOCATION_META } from "@/lib/constants/services";
 import {
   buildSessionStartedNotification,
   buildSessionCompletedNotification,
@@ -1123,6 +1123,25 @@ export default function BookingDetailPage() {
                       {booking.dayCareDuration === "half_day" ? "Half day" : "Full day"}
                     </span>
                     <span className="text-xs text-fg-tertiary">Duration</span>
+                  </div>
+                </div>
+              )}
+              {/* Appointment meeting-location row — mirrors the walks delivery
+                  row. Renders when the appointment carried a chosen location
+                  option. Workstream B7, 2026-06-15. */}
+              {booking.appointment?.location && (
+                <div className="flex items-center gap-md bg-surface-top"
+                  style={{ padding: "var(--space-md) var(--space-lg)" }}>
+                  <MapPin size={18} weight="light" className="text-fg-tertiary shrink-0" />
+                  <div className="flex flex-col flex-1">
+                    <span className="text-sm font-medium text-fg-primary">
+                      {APPOINTMENT_LOCATION_META[booking.appointment.location].ownerLine(
+                        booking.carerName.split(" ")[0],
+                      )}
+                    </span>
+                    <span className="text-xs text-fg-tertiary">
+                      {APPOINTMENT_LOCATION_META[booking.appointment.location].label}
+                    </span>
                   </div>
                 </div>
               )}

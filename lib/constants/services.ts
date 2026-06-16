@@ -1,4 +1,47 @@
-import type { ServiceType, Booking, AppointmentRef, TrainingType } from "@/lib/types";
+import type {
+  ServiceType,
+  Booking,
+  AppointmentRef,
+  TrainingType,
+  AppointmentLocationKind,
+} from "@/lib/types";
+
+/**
+ * Appointment meeting-location metadata (Workstream B, 2026-06-15; Open Q §17).
+ * `label` is the neutral name shown in the carer edit picker AND the owner's
+ * booking picker; `ownerLine(carerFirst)` is the natural confirmation sentence
+ * shown to the owner (read-only line + booking detail). Curated 4 tuples —
+ * each encodes who-travels + where.
+ */
+export const APPOINTMENT_LOCATION_META: Record<
+  AppointmentLocationKind,
+  { label: string; ownerLine: (carerFirst: string) => string }
+> = {
+  carer_to_you: {
+    label: "Carer comes to you",
+    ownerLine: (c) => `${c} comes to your address`,
+  },
+  you_to_carer: {
+    label: "You bring your dog to the carer",
+    ownerLine: (c) => `You bring your dog to ${c}'s place`,
+  },
+  carer_pickup_public: {
+    label: "Carer picks up, meet at a public spot",
+    ownerLine: (c) => `${c} picks up your dog and meets you at a public spot`,
+  },
+  owner_carer_public: {
+    label: "Meet at a public spot",
+    ownerLine: (c) => `You and ${c} meet at a public spot`,
+  },
+};
+
+/** Stable render/edit order for the four appointment-location tuples. */
+export const APPOINTMENT_LOCATION_ORDER: AppointmentLocationKind[] = [
+  "carer_to_you",
+  "you_to_carer",
+  "carer_pickup_public",
+  "owner_carer_public",
+];
 
 /**
  * Display labels for the 11 training sub-types Roman flagged in his PO

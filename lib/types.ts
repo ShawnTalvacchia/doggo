@@ -254,6 +254,13 @@ export interface AppointmentRef {
   title: string;
   category: AppointmentCategory;
   durationMinutes: number;
+  /**
+   * Chosen meeting-location option (Workstream B, 2026-06-15). Set when the
+   * service offers `appointmentLocations`; rides inquiry → proposal → booking
+   * on the ref itself (no separate `Booking` field needed). Absent = the
+   * service had no location options (flat-rate legacy).
+   */
+  location?: AppointmentLocationKind;
 }
 
 /**
@@ -1753,6 +1760,37 @@ export interface CarerMeetServiceConfig {
 export type AppointmentCategory = "grooming" | "training";
 
 /**
+ * Where an Appointment-type service happens — four curated tuples (each
+ * encodes who-travels + where). Curated rather than free-form so cards render
+ * comparably across Discover. Service Options & Booking Clarity, 2026-06-15
+ * (Workstream B; Open Questions §17). Labels + owner-facing copy live in
+ * `lib/constants/services.ts:APPOINTMENT_LOCATION_META`.
+ *
+ *  - `carer_to_you`         — Carer comes to you (your address)
+ *  - `you_to_carer`         — You bring your dog to the carer's place
+ *  - `carer_pickup_public`  — Carer picks up your dog and meets at a public spot
+ *  - `owner_carer_public`   — You and the carer meet at a public spot
+ */
+export type AppointmentLocationKind =
+  | "carer_to_you"
+  | "you_to_carer"
+  | "carer_pickup_public"
+  | "owner_carer_public";
+
+/**
+ * A priced location option on an Appointment-type service. The carer opts in
+ * to one or more; the owner picks one at booking time (or sees a read-only
+ * line when only one is offered). Absent/empty = single flat rate via
+ * `pricePerAppointment` (the legacy shape). Parallel to walks'
+ * `WalkDeliveryOption` + day-care's `DayCareDurationOption`.
+ */
+export interface AppointmentLocation {
+  kind: AppointmentLocationKind;
+  /** Kč per appointment for this location option. */
+  price: number;
+}
+
+/**
  * Sub-types within `appointmentCategory: "training"` — Roman's PO interview
  * (2026-06-02) flagged 11 worth representing. Lets a trainer's 1-on-1
  * service signal what KIND of training it is, which is information the
@@ -1792,6 +1830,15 @@ export interface CarerAppointmentServiceConfig {
    *  service card so owners filtering for "agility" vs "behaviour" vs
    *  "puppy socialisation" can find the right match. P73, 2026-06-03. */
   trainingType?: TrainingType;
+  /**
+   * Where this appointment happens — curated, priced location options
+   * (Workstream B, 2026-06-15). Absent/empty = single flat rate via
+   * `pricePerAppointment` (legacy). One option → owner sees a read-only line;
+   * more than one → owner picks at booking time and the choice persists on
+   * `AppointmentRef.location`. The chosen option's price is the base rate
+   * (see `computeAppointmentQuote`).
+   */
+  appointmentLocations?: AppointmentLocation[];
   notes?: string;
   /**
    * Soft-archive marker — same semantics as `CarerMeetServiceConfig.softDeletedAt`.
