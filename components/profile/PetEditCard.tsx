@@ -460,6 +460,16 @@ export function PetEditCard({
           aria-label="Socialisation notes"
         />
 
+        {/* Exercise needs — the prescription, distinct from energy level
+            (Workstream D2). Care-handling info, lives with the preferences. */}
+        <InputField
+          id={`pet-exercise-${pet.id}`}
+          label="Exercise needs"
+          value={pet.exerciseNeeds || ""}
+          onChange={(v) => onChange({ ...pet, exerciseNeeds: v || undefined })}
+          placeholder="e.g. Two long walks a day; loves to run off-leash"
+        />
+
         {/* Standing preferences (Dog Profile phase, 2026-06-02). Four
             chip-add inputs — Likes / Dislikes / Triggers / Play. Owner
             authors once; per-booking overrides ride on top via the
@@ -490,6 +500,15 @@ export function PetEditCard({
                 value={vetInfo.vetPhone || ""}
                 onChange={(v) => updateVet({ vetPhone: v })}
                 placeholder="+420 ..."
+              />
+              {/* Microchip / registration number — quiet identity field
+                  under Health (Workstream D1). */}
+              <InputField
+                id={`pet-microchip-${pet.id}`}
+                label="Microchip number"
+                value={pet.microchipNumber || ""}
+                onChange={(v) => onChange({ ...pet, microchipNumber: v || undefined })}
+                placeholder="e.g. 941000024681234"
               />
             </div>
 

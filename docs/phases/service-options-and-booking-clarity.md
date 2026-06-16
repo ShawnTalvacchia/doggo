@@ -137,11 +137,11 @@ Net-new from the 2026-06-13 PO round (comment on Tonda's health section). Today 
 
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
-| D1 | Add `microchipNumber?: string` (and/or shelter `registrationNumber?`) to `PetProfile`; render as a quiet identity line in/under the Health section. Especially relevant for shelter dogs (chipped on intake). | Pre-build Q5b | todo |
-| D2 | Add `exerciseNeeds?: string` to `PetProfile` (distinct from `energyLevel` — the level vs the prescription, e.g. "Two long walks a day; loves to run off-leash"); render near the personality/preferences area. | Pre-build Q5b | todo |
-| D3 | Special instructions / triggers — per Q5a, surface existing `preferences.triggers` + `healthNotes` (rather than adding a redundant field), and ensure they render for shelter dogs. Add lightweight empty-state prompts on shelter-managed dogs (Q5c) so staff know to fill them. | Pre-build Q5a, Q5c | todo |
-| D4 | Mock data — seed Tonda (the PO's example) + the other Útulek/shelter dogs with chip #, exercise needs, and triggers/instructions so each surface is populated, not empty-state. | D1, D2, D3 | todo |
-| D5 | Edit affordance — owned dogs edit these via `PetEditCard`. Shelter-dog operator editing stays V3+ (FC16); seed shelter dogs read-only for now. | D1, D2, D3 | todo |
+| D1 | Add `microchipNumber?: string` to `PetProfile`; render as a quiet identity line under the Health section (dog page `DogHealthSection` + owner-profile `PetCard`). | Pre-build Q5b | **done 2026-06-15** |
+| D2 | Add `exerciseNeeds?: string` to `PetProfile` (the prescription vs `energyLevel` the level); render as an "Exercise" row in the standing-preferences section. | Pre-build Q5b | **done 2026-06-15** |
+| D3 | Surface existing `preferences.triggers` (already rendered) + **also surface `spayedNeutered` + `vetInfo.conditions`** on the dog page (they only rendered on `PetCard` before). Lightweight empty-state prompt on shelter-managed dogs when no care notes ("No care notes yet. Add likes, triggers, and exercise needs…"). | Pre-build Q5a, Q5c | **done 2026-06-15** — live-verified (Tonda populated, Líza empty-state) |
+| D4 | Mock data — Tonda (full: chip, exercise, likes/triggers/play), Maja (reactive management notes), Šimon (senior + a `conditions` value) seeded; Líza + thin-shelter dogs left empty to exercise the prompt. One owned dog (Bára) seeded too so `PetCard` is populated. | D1, D2, D3 | **done 2026-06-15** |
+| D5 | Edit affordance — owned dogs edit `exerciseNeeds` (preferences section) + `microchipNumber` (Health & vet) via `PetEditCard`. Shelter-dog operator editing stays V3+ (FC16); seed shelter dogs read-only. | D1, D2, D3 | **done 2026-06-15** (typecheck; live edit → walkthrough) |
 
 ---
 

@@ -420,7 +420,7 @@ export function LinkedWalkBookingSheet({
                   {selectedDelivery === "pickup"
                     ? `${carerFirst} picks ${dogLabel} up from ${effectiveLocation}.`
                     : `Bring ${dogLabel} to ${effectiveLocation} at the start of the walk.`}{" "}
-                  No need to come along — she&apos;ll send a report afterwards.
+                  No need to come along. She&apos;ll send a report afterwards.
                 </span>
               </>
             )}

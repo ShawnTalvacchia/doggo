@@ -79,7 +79,7 @@ interface PetCardProps {
 export function PetCard({ pet, defaultExpanded = true }: PetCardProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
 
-  const hasDetails = pet.energyLevel || pet.playStyles?.length || pet.notes || pet.socialisationNotes || pet.vetInfo || pet.highlights?.length;
+  const hasDetails = pet.energyLevel || pet.playStyles?.length || pet.notes || pet.socialisationNotes || pet.vetInfo || pet.highlights?.length || pet.exerciseNeeds || pet.microchipNumber;
 
   return (
     <div className="pet-profile-card">
@@ -230,6 +230,12 @@ export function PetCard({ pet, defaultExpanded = true }: PetCardProps) {
                   </span>
                 </p>
               )}
+              {/* Microchip — quiet identity line under Health (Workstream D1). */}
+              {pet.microchipNumber && (
+                <p className="text-xs text-fg-tertiary">
+                  Microchip · {pet.microchipNumber}
+                </p>
+              )}
             </div>
           )}
 
@@ -271,7 +277,8 @@ function PetPreferences({ pet }: { pet: PetProfile }) {
     },
   ];
   const nonEmpty = groups.filter((g) => g.items && g.items.length > 0);
-  if (nonEmpty.length === 0) return null;
+  const hasExercise = !!pet.exerciseNeeds?.trim();
+  if (nonEmpty.length === 0 && !hasExercise) return null;
 
   return (
     <div className="pet-profile-section">
@@ -290,6 +297,13 @@ function PetPreferences({ pet }: { pet: PetProfile }) {
             <span className="dog-profile-prefs-items">{g.items!.join(" · ")}</span>
           </Fragment>
         ))}
+        {/* Exercise needs — the prescription, alongside care prefs (D2). */}
+        {hasExercise && (
+          <Fragment key="exercise">
+            <span className="dog-profile-prefs-label">Exercise</span>
+            <span className="dog-profile-prefs-items">{pet.exerciseNeeds}</span>
+          </Fragment>
+        )}
       </div>
     </div>
   );

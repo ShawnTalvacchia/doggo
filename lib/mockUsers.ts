@@ -283,6 +283,9 @@ export const daniel: UserProfile = {
       backstory:
         "Adopted from a rural shelter in late 2025 after eight months in care. We're slowly building her confidence in the city — she's already a different dog from the one who hid behind the kennel door.",
       energyLevel: "moderate",
+      exerciseNeeds:
+        "One solid walk a day on a familiar route, plus sniffy time. She does better with calm, predictable outings than long busy ones.",
+      microchipNumber: "203164000812077",
       playStyles: ["sniffing", "fetch"],
       personalityTags: ["shy", "gentle", "selective-with-dogs"],
       socialisationNotes: "Reactive with unfamiliar dogs — needs slow, controlled introductions. Fine once she knows them. Nervous in large groups. Best with 1-2 calm dogs.",

@@ -69,6 +69,14 @@ const UTULEK_DOGS: PetProfile[] = [
     adoptionStatus: "available",
     intakeDate: daysAgo(27),
     energyLevel: "high",
+    exerciseNeeds:
+      "Two big walks a day. He's got energy to burn and loves a long off-leash run where it's safe.",
+    microchipNumber: "203164000981245",
+    preferences: {
+      likes: ["fetch", "meeting new people", "car rides"],
+      triggers: ["sudden loud noises like bins or fireworks (give him a moment)"],
+      playPreferences: ["chase", "fetch"],
+    },
     vetInfo: {
       vaccinations: [
         { type: "rabies", lastGivenAt: "2026-04-12", confidence: "self-declared" },
@@ -103,6 +111,16 @@ const UTULEK_DOGS: PetProfile[] = [
     // solo-only conservatism is the anti-pattern (Product Vision →
     // Trainer-Led Walks; Cold-Start Playbook). See Open Questions.
     energyLevel: "very_high",
+    exerciseNeeds:
+      "Lots of it. Long daily walks plus a puzzle or a training game, or a bored Maja invents her own jobs.",
+    microchipNumber: "203164000977310",
+    preferences: {
+      likes: ["learning new cues", "scent games"],
+      triggers: [
+        "dogs head-on while on lead (give space, pass at a distance)",
+      ],
+      playPreferences: ["chase"],
+    },
   },
   {
     id: "shelter-dog-simon",
@@ -126,6 +144,13 @@ const UTULEK_DOGS: PetProfile[] = [
     // experiencedHandlersOnly is reserved for genuinely difficult dogs
     // (see Berta) — the mentor path is how newcomers become competent.
     energyLevel: "low",
+    exerciseNeeds:
+      "Two short, gentle strolls a day. He sets a slow pace and that suits him fine.",
+    microchipNumber: "203164000940188",
+    preferences: {
+      likes: ["a calm voice", "sofa naps"],
+      triggers: ["being rushed (let him take his time)"],
+    },
     vetInfo: {
       vaccinations: [
         { type: "rabies", lastGivenAt: "2025-12-10", confidence: "self-declared" },
@@ -136,6 +161,8 @@ const UTULEK_DOGS: PetProfile[] = [
       ],
       vaccinationsAcknowledgedAt: "2026-03-05",
       spayedNeutered: true,
+      conditions:
+        "Senior with some hip stiffness. Keep walks steady and skip the stairs where you can.",
     },
   },
   {

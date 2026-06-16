@@ -1371,6 +1371,20 @@ export interface PetProfile {
   energyLevel?: EnergyLevel;
   playStyles?: PlayStyle[];
   socialisationNotes?: string;
+  /**
+   * Exercise needs — the *prescription*, distinct from `energyLevel` (the
+   * level). E.g. "Two long walks a day; loves to run off-leash." Care-handling
+   * info (not medical), surfaced near the standing preferences. Service Options
+   * & Booking Clarity, 2026-06-15 (Workstream D2).
+   */
+  exerciseNeeds?: string;
+  /**
+   * Microchip / registration number. Renders as a quiet identity line under
+   * the Health section. Especially relevant for shelter dogs (chipped on
+   * intake) but valid for owned dogs too. Service Options & Booking Clarity,
+   * 2026-06-15 (Workstream D1).
+   */
+  microchipNumber?: string;
   vetInfo?: VetInfo;
   /**
    * Pet-level standing preferences (Dog Profile phase, 2026-06-02 — per

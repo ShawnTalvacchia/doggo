@@ -631,6 +631,8 @@ function DogProfileInner() {
           <DogPreferencesSection
             dogName={dog.name}
             preferences={dog.preferences}
+            exerciseNeeds={dog.exerciseNeeds}
+            isShelterDog={!!shelter}
           />
 
           {/* Health & vaccinations (Vaccines V1, 2026-06-02). Owner /
@@ -640,6 +642,7 @@ function DogProfileInner() {
           <DogHealthSection
             vet={dog.vetInfo}
             acknowledgerLabel={acknowledgerLabel}
+            microchipNumber={dog.microchipNumber}
           />
 
           {/* Recent walkers — shelter dogs only. Walker journey + richer
@@ -751,9 +754,15 @@ function DogStatTile({
 function DogPreferencesSection({
   dogName,
   preferences,
+  exerciseNeeds,
+  isShelterDog = false,
 }: {
   dogName: string;
   preferences: PetProfile["preferences"];
+  exerciseNeeds?: string;
+  /** Shelter-managed dogs get a lightweight empty-state prompt instead of
+   *  hiding, so staff know to fill these in (Workstream D3 / Q5c). */
+  isShelterDog?: boolean;
 }) {
   const groups: Array<{ key: string; label: string; items?: string[] }> = [
     { key: "likes", label: "Likes", items: preferences?.likes },
@@ -766,7 +775,23 @@ function DogPreferencesSection({
     },
   ];
   const nonEmpty = groups.filter((g) => g.items && g.items.length > 0);
-  if (nonEmpty.length === 0) return null;
+  const hasExercise = !!exerciseNeeds?.trim();
+
+  // Owned dogs hide when empty; shelter dogs show a prompt to fill it in.
+  if (nonEmpty.length === 0 && !hasExercise) {
+    if (!isShelterDog) return null;
+    return (
+      <div className="dog-profile-section">
+        <h2 className="dog-profile-section-title">
+          How {dogName} likes to be cared for
+        </h2>
+        <p className="text-sm text-fg-tertiary">
+          No care notes yet. Add likes, triggers, and exercise needs so
+          walkers know how to handle {dogName}.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="dog-profile-section">
@@ -778,6 +803,14 @@ function DogPreferencesSection({
             <span className="dog-profile-prefs-items">{g.items!.join(" · ")}</span>
           </Fragment>
         ))}
+        {/* Exercise needs — the prescription, alongside the care prefs
+            (Workstream D2). Distinct from energyLevel (the level). */}
+        {hasExercise && (
+          <Fragment key="exercise">
+            <span className="dog-profile-prefs-label">Exercise</span>
+            <span className="dog-profile-prefs-items">{exerciseNeeds}</span>
+          </Fragment>
+        )}
       </div>
     </div>
   );
@@ -793,12 +826,17 @@ function DogPreferencesSection({
 function DogHealthSection({
   vet,
   acknowledgerLabel,
+  microchipNumber,
 }: {
   vet: VetInfo | undefined;
   acknowledgerLabel: string;
+  /** Quiet identity line under Health (Workstream D1). */
+  microchipNumber?: string;
 }) {
   const records = vet?.vaccinations ?? [];
-  const hasAnyHealthData = !!vet && (records.length > 0 || vet.spayedNeutered);
+  const hasAnyHealthData =
+    (!!vet && (records.length > 0 || vet.spayedNeutered || !!vet.conditions)) ||
+    !!microchipNumber;
 
   if (!hasAnyHealthData) return null;
 
@@ -830,6 +868,24 @@ function DogHealthSection({
         </>
       ) : (
         <p className="text-sm text-fg-tertiary">No vaccination records on file.</p>
+      )}
+      {/* Spayed / neutered + conditions — surface existing health data that
+          previously only rendered on the owner-profile PetCard, not here
+          (Workstream D3, "surface what exists"). */}
+      {vet?.spayedNeutered && (
+        <p className="flex items-center gap-tiny text-sm text-fg-secondary mt-xs">
+          <ShieldCheck size={13} weight="fill" className="text-brand-main" />
+          Spayed / neutered
+        </p>
+      )}
+      {vet?.conditions && (
+        <p className="text-sm text-fg-secondary mt-xs">{vet.conditions}</p>
+      )}
+      {/* Microchip — quiet identity line under Health (Workstream D1). */}
+      {microchipNumber && (
+        <p className="text-xs text-fg-tertiary mt-xs">
+          Microchip · {microchipNumber}
+        </p>
       )}
     </div>
   );
