@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-06-12
+last-reviewed: 2026-06-13
 tags: [groups, community, carers, care, navigation, demo, mentor-session]
 review-trigger: "when touching group features, Community tab, Care groups, care model, or demo planning"
 ---
@@ -200,6 +200,8 @@ Care groups get a set of configuration toggles. Platform suggests defaults based
 **Care-type offerings** — Walks & Check-ins, House sitting, Day care, Boarding. The provider takes the dog (or in the case of House sitting, comes to the dog). The owner doesn't sign up to a specific scheduled session; they buy the service and the provider delivers it. Booking produces a **Booking** record. No meet, no calendar event the owner attends.
 
 **Meet-type offerings** — Training sessions, paid group walks, workshops. The owner signs up to a specific date/time. Booking produces an attendance on a specific **Meet**. Has a calendar instance with a roster.
+
+> **Meet variant — the mixed group shelter walk** (Adoption-Curious Journey / FC18, 2026-06-12). A community Meet (green) linked to a shelter via `Meet.shelterWalk?: { shelterId }` so it can source shelter dogs. It's **dog-first and mixed**: most attendees bring their own dog; a **vouched** walker can pick up a shelter dog on the way (the dog rides in the existing `MeetAttendee.dogNames`, badged on the People tab); newcomers don't tag along dogless — they discover the walk and take the violet "Walk with a mentor" on-ramp. The Meet stays a community object (green, discovery via the host's care group); `shelterWalk` only sources the dogs (the green→violet funnel boundary). Full surface detail in [[features/shelters]] → "Group shelter walk (FC18)."
 
 **Appointment-type offerings** — grooming, training. The owner books a specific time slot but doesn't attend a "session" with other dogs (no roster). Booking produces a **Booking** record like Care, but is *tied to a fixed time slot* like Meet — solo. Specialised category (grooming vs. training) influences card icon and copy.
 

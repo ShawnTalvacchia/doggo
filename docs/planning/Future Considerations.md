@@ -1,6 +1,6 @@
 ---
 status: living
-last-reviewed: 2026-06-12
+last-reviewed: 2026-06-13
 review-trigger: "Append when a 'noted for later' idea surfaces; promote out when triggered"
 ---
 
@@ -152,6 +152,8 @@ Neither is needed for the demo — the viewer toggle (off by default) already ke
 ---
 
 ## FC7. Shelter Dogs tab — list + carousel view modes
+
+> **Still deferred (checked 2026-06-13).** The Adoption-Curious Journey shipped its `/discover/help-a-dog` doorway **without** the carousel — the grid + sort + the explore-first reassurance card carried the emotional on-ramp well enough. Revisit only if a future doorway pass demonstrably needs the one-dog-at-a-time pattern.
 
 **Trigger:** A walker or shelter coordinator surfaces "I want to scan the roster more quickly" (list view), or the "Help a Dog" entry point (Cold-Start Playbook future thread) needs an emotional one-dog-at-a-time pattern (carousel view).
 
@@ -362,7 +364,7 @@ The full admin/operator side becomes meaningful when (a) a real shelter wants to
 | `trainer-walker` | "Meet your trainer" | Community walk → trust → paid training (the keystone archetype; Daniel → Klára) | Split from the current main demo |
 | `neighbour-care` | "Care from your neighbours" | Private block group, neighbours minding each other's dogs (Magda/Tomáš world) | Split from the current main demo |
 | `shelter-mentor` | "Help a shelter dog" | Mentor-vouched path to walking shelter dogs + shelter authority (Tomáš's mentee arc) | Converted from the Mentor Network script doc |
-| *(later)* `adoption-curious` | "Try before you adopt" | Walk shelter dogs to explore ownership | Multi-Path Demo phase |
+| `adoption-curious` | "Try before you adopt" | Walk shelter dogs to explore ownership | **Content + beats SHIPPED** 2026-06-13 (Adoption-Curious Journey); beats in `Demo Narrative.md` → Adoption-Curious Arc. FC17 wraps them in guided UI. |
 
 **Scope sketch when triggered:**
 - **Landing-page restructure** (PO, 2026-06-10): the `/` launcher gets walkthrough journey openings as distinct entry doors — not a picker behind the single "Start the walkthrough" CTA. The cast-card half likely reshuffles around them. (Deliberately deferred during the Mentor Network phase — only Tomáš's card copy was updated then.)
@@ -381,6 +383,8 @@ The full admin/operator side becomes meaningful when (a) a real shelter wants to
 ---
 
 ## FC18. Group shelter walk — a Meet that sources its dogs from a shelter (the social on-ramp + mentorship funnel)
+
+> **✅ SHIPPED 2026-06-13 (Adoption-Curious Journey, Workstream C).** Built as a **mixed** community walk linked to a shelter via `Meet.shelterWalk?: { shelterId }`; shelter dogs ride in `MeetAttendee.dogNames` (name-resolved, badged on the People tab); host = Klára (Super Volunteer) in her care group; Útulek flipped `groupWalksPermitted: true`. The two-tier funnel survives as the un-vouched "Walk with a mentor" eyebrow link. **Reframed from the original spec:** newcomers do NOT attend dogless ("come along socially" was dropped as off-thesis) — the walk is dog-first and the newcomer's path is the mentored first walk, not tagging along. **Carried forward** (logged in Open Questions, not built): the real shelter-dog **checkout/release model** for a group (intended = a shelter-walk `Booking` linked via `Booking.dropoffMeetId`, not an in-meet picker) → shelter interviews. Entry retained for that open logistics question + the shipped-design record.
 
 **Trigger:** After the Cross-Shelter Mentor Network closes and the solo-walk Booking surface (Workstream G) is solid. Or sooner if a shelter conversation surfaces "we'd rather host group walks than one-at-a-time hand-offs," or the Adoption-Curious Doorway / Multi-Path Demo phase wants a warmer entry than a cold solo shelter visit. PO idea, 2026-06-12.
 

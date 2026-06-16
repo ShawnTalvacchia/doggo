@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-06-07
+last-reviewed: 2026-06-13
 tags: [privacy, visibility, content, groups, photos]
 review-trigger: "when touching content sharing, photo features, feed logic, or group visibility"
 ---
@@ -136,6 +136,7 @@ The home feed assembles content from multiple origins. For each item, apply the 
 | Profile posts from Connected users | Always |
 | Profile posts from Open users in Viewer's neighbourhood | Yes (discovery feed) |
 | Profile posts from Locked users with no relationship | Never |
+| Posts from a shelter Viewer **supports/follows** (in `ShelterProfile.supporters`) | Yes — followed-shelter feed gate (Adoption-Curious Journey, 2026-06-12). The advocacy network-reach mechanism: a walker's shelter-tagged recap reaches *other* potential adopters who follow the shelter, even without a 1:1 connection. Context gate = shelter support; the relationship gate doesn't apply (following a shelter is the trust signal, like group membership). |
 
 ### Feed ranking signals (not visibility — these affect order, not access)
 

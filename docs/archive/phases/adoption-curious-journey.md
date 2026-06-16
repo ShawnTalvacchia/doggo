@@ -1,6 +1,6 @@
 ---
-status: active
-last-reviewed: 2026-06-12
+status: archived
+last-reviewed: 2026-06-13
 review-trigger: When any task is completed or blocked; at the mid-phase advocacy-loop checkpoint
 ---
 
@@ -184,15 +184,15 @@ DR7 deferred the adopted-dog transition; the PO called it back in mid-phase. Bui
 
 ## Acceptance Criteria
 
-- [ ] A reviewer can drive the unified narrative start-to-finish in Open View: adoption-curious newcomer → group shelter walk → mentored → vouched → walks a shelter dog → shares a recap → recap surfaces to the network → adoption interest → shelter-curated meet-and-greet → `pending` → resolution.
-- [ ] **"Walk a shelter dog — no adoption obligation"** framing is present on every shelter-walk / group-walk / mentor entry surface (research #1; discipline 2).
-- [ ] Walk-finish prompts **photo/story capture as a first-class action**; the recap lands in the shelter feed and surfaces in the network feed + dog page (research #2; the advocacy spine).
-- [ ] The group shelter walk renders a **two-tier roster** — vouched attendees claim a shelter dog; un-vouched newcomers join socially and see the mentor CTA (FC18).
-- [ ] Adoption is a **state machine with non-failure off-ramps** — Adopt CTA → interest → shelter-curated meet-and-greet → `pending`; no auto-match; a graceful exit at each ladder step (research #3/#4/#5; disciplines 3).
-- [ ] On `adopted`, a celebration + archived resolution renders; full `PetProfile` migration is honestly deferred (DR7).
-- [ ] New non-owner persona is in the picker with seed data that reads coherent at every stage of her arc.
-- [ ] Existing V2 (Daniel→Klára) + Tomáš mentee threads still drive intact; TypeScript compiles clean.
-- [ ] FC17 (guided-walkthrough registry, launcher restructure, path-tightening) is NOT built here (discipline 4).
+- [x] A reviewer can drive the unified narrative start-to-finish in Open View: adoption-curious newcomer → group shelter walk → mentored → vouched → walks a shelter dog → shares a recap → recap surfaces to the network → adoption interest → shelter-curated meet-and-greet → `pending` → resolution.
+- [x] **"Walk a shelter dog — no adoption obligation"** framing is present on every shelter-walk / group-walk / mentor entry surface (research #1; discipline 2).
+- [x] Walk-finish prompts **photo/story capture as a first-class action**; the recap lands in the shelter feed and surfaces in the network feed + dog page (research #2; the advocacy spine).
+- [x] The group shelter walk renders a **two-tier roster** — vouched attendees claim a shelter dog; un-vouched newcomers join socially and see the mentor CTA (FC18).
+- [x] Adoption is a **state machine with non-failure off-ramps** — Adopt CTA → interest → shelter-curated meet-and-greet → `pending`; no auto-match; a graceful exit at each ladder step (research #3/#4/#5; disciplines 3).
+- [x] On `adopted`, a celebration + archived resolution renders; full `PetProfile` migration is honestly deferred (DR7).
+- [x] New non-owner persona is in the picker with seed data that reads coherent at every stage of her arc.
+- [x] Existing V2 (Daniel→Klára) + Tomáš mentee threads still drive intact; TypeScript compiles clean.
+- [x] FC17 (guided-walkthrough registry, launcher restructure, path-tightening) is NOT built here (discipline 4).
 
 ---
 

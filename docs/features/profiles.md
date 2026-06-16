@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-12
+last-reviewed: 2026-06-13
 tags: [profile, pets, carer, edit, posts, tagging, photos, volunteer]
 review-trigger: "when modifying profile pages, pet cards, posts, or carer sections"
 ---
@@ -224,7 +224,7 @@ Added in Phase 10. Users can post photos (1-4 required) with optional captions a
 - **Community posts:** visible to community members (posted within a community)
 - **Tags:** dogs, people, communities, places — rendered as tappable pills
 - **Reactions:** paw-print with count ("Paw it" / "X Paws")
-- **Post composer:** accessible from profile Posts tab header action ("Post" button — mirrors Communities pattern; Photos & Galleries 2026-06-04 retired the in-panel ShareMomentBar), home page "Add Post" CTA, and community detail pages
+- **Post composer:** accessible from profile Posts tab header action ("Post" button — mirrors Communities pattern; Photos & Galleries 2026-06-04 retired the in-panel ShareMomentBar), home page "Add Post" CTA, and community detail pages. Accepts an optional `initialTags` (Adoption-Curious Journey, 2026-06-12) so a caller can open it **pre-tagged** — the shelter walk-finish "Share a moment" prompt opens it pre-tagged to the dog + shelter. No persistence change (composer still doesn't persist, FC13); the recap that *surfaces* in the demo is pre-seeded.
 
 ### Post detail surface — PostLightbox (Photos & Galleries 2026-06-04)
 

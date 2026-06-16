@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-12
+last-reviewed: 2026-06-13
 
 tags: [discover, care, booking, carers, map, payment, trust-gating, volunteering]
 review-trigger: "when modifying Discover Care tab, Carer profiles, booking flows, payment, or map"
@@ -211,6 +211,8 @@ Promoted from a query-state branch on the parent (`?view=active`) to a real sub-
 **Routing in:** booking-detail Start button, Schedule quick-start, mobile cross-app banner, desktop sidebar item — all route directly to the sub-page when a session is in_progress. The carer's most-frequent post-Start path is the engagement surface, not the chronicle.
 
 **Routing out:** Finish / Undo / cancel route to `/bookings/[id]?tab=sessions` so the just-completed session appears at the top of the past list with its visit report inline.
+
+**Shelter-walk exception (Adoption-Curious Journey, 2026-06-12).** A *shelter* walk's Finish routes instead to the **dog page** (`/dogs/[id]?finished=1`) with a "Share a moment" prompt that opens the composer pre-tagged to the dog + shelter — the public **advocacy** artifact, distinct from the operational visit report. Paid-care walks keep the sessions-tab summary routing above; the recap-vs-report split is intentional (the recap is the adoption ad, the report is the owner's record). See [[features/shelters]] → advocacy loop.
 
 **Back navigation goes UP a level**, not browser-history back. Mobile back arrow rendered via `setDetailHeader` (AppNav). Desktop back arrow rendered via `<DetailHeader>` in `PageColumn`'s `abovePanel` slot — `setDetailHeader` only fires on `max-width: 767px`, so desktop needs the explicit `<DetailHeader>` partner. Same dual-back-button pattern as `/bookings/[id]` → `/bookings`.
 
