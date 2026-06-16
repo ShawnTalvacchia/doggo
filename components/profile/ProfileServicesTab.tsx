@@ -37,6 +37,7 @@ import type {
   TimeSlot,
   DayOfWeek,
   PricingModifier,
+  WalkDeliveryOption,
 } from "@/lib/types";
 
 // ── Constants ──────────────────────────────────────────────────────────────────
@@ -794,6 +795,42 @@ export function ProfileServicesTab({
                     const halfDayOption = svc.durationOptions?.find(
                       (o) => o.duration === "half_day",
                     );
+                    // Walk delivery-options editor (Workstream A4, O1). Carer
+                    // offers drop-off, pickup, or both — each priced. Legacy
+                    // walks (no deliveryOptions) read as a single drop-off at
+                    // pricePerUnit. The standalone Price field is replaced by
+                    // these rows for walks so there's no double-price confusion.
+                    const isWalk = svc.serviceType === "walks_checkins";
+                    const dropoffOpt = svc.deliveryOptions?.find(
+                      (o) => o.method === "dropoff",
+                    );
+                    const pickupOpt = svc.deliveryOptions?.find(
+                      (o) => o.method === "pickup",
+                    );
+                    const dropoffEnabled = svc.deliveryOptions
+                      ? !!dropoffOpt
+                      : true; // legacy fallback = single drop-off
+                    const pickupEnabled = !!pickupOpt;
+                    const dropoffPrice = dropoffOpt?.price ?? svc.pricePerUnit;
+                    const pickupPrice =
+                      pickupOpt?.price ?? Math.round(dropoffPrice * 1.2);
+                    // Rebuild deliveryOptions + keep pricePerUnit pointed at the
+                    // base (drop-off if offered, else pickup) so fallback
+                    // surfaces still have a sane single rate.
+                    const applyDelivery = (
+                      dropOn: boolean,
+                      dropPrice: number,
+                      pickOn: boolean,
+                      pickPrice: number,
+                    ) => {
+                      const opts: WalkDeliveryOption[] = [];
+                      if (dropOn) opts.push({ method: "dropoff", price: dropPrice });
+                      if (pickOn) opts.push({ method: "pickup", price: pickPrice });
+                      updateCareService(idx, {
+                        deliveryOptions: opts,
+                        pricePerUnit: dropOn ? dropPrice : pickPrice,
+                      });
+                    };
                     return (
                       <div
                         key={`care-${svc.serviceType}`}
@@ -826,34 +863,116 @@ export function ProfileServicesTab({
                           </button>
                         </div>
 
-                        <InputField
-                          id={`price-${idx}`}
-                          label={halfDayEnabled ? "Full-day price" : "Price"}
-                          type="number"
-                          value={svc.pricePerUnit.toString()}
-                          onChange={(val) => {
-                            const next = parseInt(val) || 0;
-                            const updates: Partial<CarerCareServiceConfig> = {
-                              pricePerUnit: next,
-                            };
-                            // Keep the full_day duration option in lockstep with
-                            // the base rate so the pricing engine (which reads
-                            // durationOptions when present) doesn't drift.
-                            if (
-                              svc.serviceType === "day_care" &&
-                              svc.durationOptions?.length
-                            ) {
-                              updates.durationOptions = svc.durationOptions.map(
-                                (o) =>
-                                  o.duration === "full_day"
-                                    ? { ...o, price: next }
-                                    : o,
-                              );
-                            }
-                            updateCareService(idx, updates);
-                          }}
-                          trailing={`Kč / ${svc.priceUnit === "per_visit" ? "visit" : "night"}`}
-                        />
+                        {isWalk ? (
+                          <div className="flex flex-col gap-sm">
+                            <label className="label">
+                              <span className="label-primary-group">
+                                <span>Delivery &amp; pricing</span>
+                              </span>
+                            </label>
+                            <Toggle
+                              label="Drop-off — owner brings the dog"
+                              size="sm"
+                              checked={dropoffEnabled}
+                              onChange={(on) => {
+                                // Keep at least one method enabled.
+                                if (!on && !pickupEnabled) return;
+                                applyDelivery(
+                                  on,
+                                  dropoffPrice,
+                                  pickupEnabled,
+                                  pickupPrice,
+                                );
+                              }}
+                            />
+                            {dropoffEnabled && (
+                              <InputField
+                                id={`dropoff-${idx}`}
+                                label="Drop-off price"
+                                type="number"
+                                value={dropoffPrice.toString()}
+                                onChange={(val) =>
+                                  applyDelivery(
+                                    true,
+                                    parseInt(val) || 0,
+                                    pickupEnabled,
+                                    pickupPrice,
+                                  )
+                                }
+                                trailing="Kč / visit"
+                              />
+                            )}
+                            <Toggle
+                              label="Pickup — you collect from the owner"
+                              size="sm"
+                              checked={pickupEnabled}
+                              onChange={(on) => {
+                                if (!on && !dropoffEnabled) return;
+                                applyDelivery(
+                                  dropoffEnabled,
+                                  dropoffPrice,
+                                  on,
+                                  // Seed pickup to a 20% travel surcharge over
+                                  // drop-off when first enabled; carer tunes.
+                                  on
+                                    ? (pickupOpt?.price ??
+                                      Math.round(dropoffPrice * 1.2))
+                                    : pickupPrice,
+                                );
+                              }}
+                            />
+                            {pickupEnabled && (
+                              <InputField
+                                id={`pickup-${idx}`}
+                                label="Pickup price"
+                                type="number"
+                                value={pickupPrice.toString()}
+                                onChange={(val) =>
+                                  applyDelivery(
+                                    dropoffEnabled,
+                                    dropoffPrice,
+                                    true,
+                                    parseInt(val) || 0,
+                                  )
+                                }
+                                trailing="Kč / visit"
+                              />
+                            )}
+                            <p className="text-xs text-fg-tertiary m-0">
+                              Offer one or both. Pickup usually costs more — you
+                              travel to the owner.
+                            </p>
+                          </div>
+                        ) : (
+                          <InputField
+                            id={`price-${idx}`}
+                            label={halfDayEnabled ? "Full-day price" : "Price"}
+                            type="number"
+                            value={svc.pricePerUnit.toString()}
+                            onChange={(val) => {
+                              const next = parseInt(val) || 0;
+                              const updates: Partial<CarerCareServiceConfig> = {
+                                pricePerUnit: next,
+                              };
+                              // Keep the full_day duration option in lockstep
+                              // with the base rate so the pricing engine (which
+                              // reads durationOptions when present) doesn't drift.
+                              if (
+                                svc.serviceType === "day_care" &&
+                                svc.durationOptions?.length
+                              ) {
+                                updates.durationOptions =
+                                  svc.durationOptions.map((o) =>
+                                    o.duration === "full_day"
+                                      ? { ...o, price: next }
+                                      : o,
+                                  );
+                              }
+                              updateCareService(idx, updates);
+                            }}
+                            trailing={`Kč / ${svc.priceUnit === "per_visit" ? "visit" : "night"}`}
+                          />
+                        )}
 
                         {subServiceOptions.length > 0 && (
                           <div className="input-block">

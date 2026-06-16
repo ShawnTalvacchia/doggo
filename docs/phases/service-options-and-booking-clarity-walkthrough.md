@@ -30,8 +30,8 @@ Decisions the author made that warrant a second look — direction, not bug-hunt
 
 Identifier prefix: **`O`** (O1, O2, ...).
 
-- [ ] **O1. A4 carer half-day editor scope — built day-care only, NOT the parallel walk-delivery price editor.** The opening audit found `ProfileServicesTab` had no carer-edit UI for *either* `durationOptions` (day-care half-day) or `deliveryOptions` (walk pickup/drop-off prices) — both were mock-seed-only. I built the day-care half-day editor (A4's scoped task) but left the walk `deliveryOptions` editor unbuilt — adding it is a different axis (Workstream C is about *addresses*, not delivery *prices*), so folding it in would expand scope. Flag if you want the walk-delivery price editor built here too. (Tereza → `/profile?tab=services` → Edit → Day care card.)
-- [ ] **O2. Half-day default = 60% of full-day rate.** When a carer flips "Offer a half-day rate" on, the half-day price seeds to `round(fullDay × 0.6)` (150 → 90). Arbitrary-but-sensible; carer can tune the field immediately. Ratify the multiplier. (Tereza → `/profile?tab=services` → Edit → Day care → toggle off/on.)
+- [x] **O1. Walk-delivery price editor — RESOLVED (fold in).** PO 2026-06-15: build the walk `deliveryOptions` carer-edit UI here too. Built. See Decisions log. (Klára → `/profile?tab=services` → Edit → Walks & Check-ins card.)
+- [ ] **O2. Half-day default = 60% of full-day rate.** When a carer flips "Offer a half-day rate" on, the half-day price seeds to `round(fullDay × 0.6)` (150 → 90). A half-day isn't half the cost — fixed per-booking overhead (handoff, settling in, blocked time) means a naive 50% under-prices the carer; 60% matches the seed. Starting suggestion only; carer tunes the field. **Recommendation: keep 60%.** Awaiting ratify. (Tereza → `/profile?tab=services` → Edit → Day care → toggle off/on.)
 
 ---
 
@@ -47,4 +47,5 @@ Interaction nuance, complex state, persona round-trips. Identifier prefix: **`V`
 
 A running **log** (not a checklist) of decisions/design changes/rationale that surfaced during walkthrough. Append as you walk. Each entry carries a `→ target-doc.md` annotation for the phase-close propagation sweep.
 
-- _(none yet)_
+- **Walk-delivery price carer-edit UI built (folds O1 into A4).** `ProfileServicesTab` walks_checkins card now offers drop-off + pickup as toggle rows, each with its own priced input; the standalone "Price" field is replaced by these rows for walks (no double-price confusion). `pricePerUnit` is kept pointed at the base (drop-off if offered, else pickup) for fallback surfaces. Pickup seeds to `round(dropoff × 1.2)` when first enabled. At-least-one-method guard prevents disabling both. The `deliveryOptions` axis had been mock-seed-only since the Walk Service Delivery phase (2026-05-20). → `features/explore-and-care.md` (Walk Service Delivery additions — the carer-edit UI now exists)
+- **Day-care half-day carer-edit UI built (A4).** Half-day price seeds to 60% of full-day; full-day option kept in lockstep with `pricePerUnit`. → `features/explore-and-care.md`
