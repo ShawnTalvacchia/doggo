@@ -1102,8 +1102,8 @@ export default function BookingDetailPage() {
                   <div className="flex flex-col flex-1">
                     <span className="text-sm font-medium text-fg-primary">
                       {booking.delivery === "pickup"
-                        ? `${booking.carerName.split(" ")[0]} picks up at the owner's address`
-                        : `Drop the dog off at the start of the walk`}
+                        ? `${booking.carerName.split(" ")[0]} picks up at ${booking.deliveryLocation ?? "the owner's address"}`
+                        : `Drop off at ${booking.deliveryLocation ?? "the start of the walk"}`}
                     </span>
                     <span className="text-xs text-fg-tertiary">
                       {booking.delivery === "pickup" ? "Pickup" : "Drop-off"}

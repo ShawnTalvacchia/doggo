@@ -9,7 +9,6 @@ import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useBookings } from "@/contexts/BookingsContext";
 import { getMeetOccurrences } from "@/lib/meetUtils";
-import { SERVICE_LABELS } from "@/lib/constants/services";
 import type {
   CarerCareServiceConfig,
   Meet,
@@ -111,6 +110,10 @@ export function LinkedWalkBookingSheet({
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedDelivery, setSelectedDelivery] =
     useState<WalkDeliveryMethod>(defaultMethod);
+  // Owner's handoff-location override. Empty = use the method's default
+  // (their area for pickup; the meet's park for drop-off). Reset whenever
+  // the method changes so the default re-resolves. C2, 2026-06-15.
+  const [deliveryLocation, setDeliveryLocation] = useState("");
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -120,6 +123,7 @@ export function LinkedWalkBookingSheet({
         setMessage("");
         setSelectedDate(null);
         setSelectedDelivery(defaultMethod);
+        setDeliveryLocation("");
       }, 200);
       return () => clearTimeout(t);
     }
@@ -141,6 +145,16 @@ export function LinkedWalkBookingSheet({
   const meetSpotLabel = meet.location.split(",")[0];
   const carerFirst = carer.name.split(" ")[0];
 
+  // Handoff location — event-aware default (C2, 2026-06-15). Pickup defaults
+  // to the owner's area; drop-off defaults to the linked meet's park (this is
+  // a meet-linked walk, so the park IS the natural drop point). The owner can
+  // type a different spot — a proposal the carer reviews.
+  const defaultLocation =
+    selectedDelivery === "pickup"
+      ? viewer.neighbourhood || "Your address"
+      : meetSpotLabel;
+  const effectiveLocation = deliveryLocation.trim() || defaultLocation;
+
   function handleConfirm() {
     if (!effectiveDate) return;
     // A Care `Booking` — NOT a `meetBooking`, and no `setMeetRsvp`. The
@@ -160,7 +174,8 @@ export function LinkedWalkBookingSheet({
       dropoffMeetId: meet.id,
       serviceType: service.serviceType,
       delivery: selectedDelivery,
-      subService: "Group walk",
+      deliveryLocation: effectiveLocation,
+      subService: "Small-group walk",
       pets: viewer.pets.map((p) => p.name),
       startDate: effectiveDate,
       endDate: null,
@@ -168,7 +183,7 @@ export function LinkedWalkBookingSheet({
       price: {
         lineItems: [
           {
-            label: `Group walk (${selectedDelivery === "pickup" ? "pickup" : "drop-off"})`,
+            label: `Small-group walk (${selectedDelivery === "pickup" ? "pickup" : "drop-off"})`,
             amount: chosenOption.price,
             unit: "per walk",
           },
@@ -226,8 +241,12 @@ export function LinkedWalkBookingSheet({
               <span className="text-sm font-semibold text-fg-primary">
                 {carerFirst} walks {dogLabel}
               </span>
+              {/* Config #2 framing: the dog joins the carer's community group
+                  walk; the owner stays home. Don't surface the raw
+                  "Walks & Check-ins" service label here — it reads as a
+                  check-in, which this isn't. Name the walk instead. */}
               <span className="text-xs text-fg-tertiary">
-                {SERVICE_LABELS[service.serviceType]} · you don&apos;t come along
+                On the {meetSpotLabel} group walk · no need to come along
               </span>
             </div>
             <span className="text-base font-semibold text-fg-primary shrink-0">
@@ -270,7 +289,11 @@ export function LinkedWalkBookingSheet({
                   subLabel: `${opt.price.toLocaleString()} Kč`,
                 }))}
                 selectedValues={[selectedDelivery]}
-                onToggle={(method) => setSelectedDelivery(method)}
+                onToggle={(method) => {
+                  setSelectedDelivery(method);
+                  // Drop the override so the new method's default re-resolves.
+                  setDeliveryLocation("");
+                }}
               />
               <span className="text-xs text-fg-tertiary">
                 {selectedDelivery === "pickup"
@@ -279,6 +302,34 @@ export function LinkedWalkBookingSheet({
               </span>
             </div>
           )}
+
+          {/* Handoff location — event-aware default (C2, 2026-06-15). Pickup
+              prefills the owner's area; drop-off prefills the linked meet's
+              park. Editable: a non-default value is a proposal the carer
+              reviews (fits the existing inquiry → review flow). Single field —
+              the chosen method decides what kind of location it is. */}
+          <div className="flex flex-col gap-xs">
+            <label
+              htmlFor="linked-walk-location"
+              className="text-sm font-medium text-fg-primary"
+            >
+              {selectedDelivery === "pickup"
+                ? "Pickup address"
+                : "Drop-off location"}
+            </label>
+            <input
+              id="linked-walk-location"
+              type="text"
+              className="input"
+              value={effectiveLocation}
+              onChange={(e) => setDeliveryLocation(e.target.value)}
+            />
+            <span className="text-xs text-fg-tertiary">
+              {selectedDelivery === "pickup"
+                ? "Where should the carer collect your dog? Defaults to your area."
+                : `Defaults to the walk's spot. Change it if you'll hand off elsewhere.`}
+            </span>
+          </div>
 
           {/* Date picker — the meet's upcoming run */}
           {dates.length === 0 ? (
@@ -367,9 +418,9 @@ export function LinkedWalkBookingSheet({
                 </span>
                 <span className="text-sm text-fg-secondary">
                   {selectedDelivery === "pickup"
-                    ? `${carerFirst} picks ${dogLabel} up from your address.`
-                    : `Bring ${dogLabel} to ${meetSpotLabel} at the start of the walk.`}{" "}
-                  You don&apos;t come along; she&apos;ll send a report afterwards.
+                    ? `${carerFirst} picks ${dogLabel} up from ${effectiveLocation}.`
+                    : `Bring ${dogLabel} to ${effectiveLocation} at the start of the walk.`}{" "}
+                  No need to come along — she&apos;ll send a report afterwards.
                 </span>
               </>
             )}

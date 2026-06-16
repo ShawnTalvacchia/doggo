@@ -67,7 +67,7 @@ export function LinkedCareCallout({ service, carer, onBook }: LinkedCareCalloutP
             Have {carerFirst} walk your dog
           </span>
           <span className="text-xs text-fg-tertiary">
-            {carerFirst} takes your dog on this walk. You don&apos;t come along.
+            {carerFirst} takes your dog on this walk — no need to come along.
           </span>
         </span>
         <span className="flex items-center justify-between gap-xs">

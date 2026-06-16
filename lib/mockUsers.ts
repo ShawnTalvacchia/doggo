@@ -222,11 +222,11 @@ export const tereza: UserProfile = {
         enabled: true,
         pricePerUnit: 200,
         priceUnit: "per_visit",
-        // "Group walk" is a linked-care walk (owner doesn't attend) — a
+        // "Small-group walk" is a linked-care walk (owner doesn't attend) — a
         // Walks & Check-ins sub-service, not a Meet-type service. The prior
         // `tereza-group-walk` Meet-type entry was a miscategorisation
         // (Service ↔ Meet Linkage remodel, 2026-05-17 — see Open Q §13).
-        subServices: ["Solo walk", "Group walk"],
+        subServices: ["Solo walk", "Small-group walk"],
         notes: "Casual walks for neighbours' dogs — solo or in a small group. I usually do Riegrovy sady or Havlíčkovy sady. Familiar dogs only.",
         modifiers: [],
         // Walk Service Delivery, 2026-05-20. Neighbourhood-scale carer —
@@ -398,7 +398,7 @@ export const klara: UserProfile = {
           { method: "dropoff", price: 300 },
           { method: "pickup", price: 380 },
         ],
-        subServices: ["Group walk"],
+        subServices: ["Small-group walk"],
         notes: "Training walks — structured walk with obedience practice. Max 4 dogs per group.",
       },
       // Meet-type training catalogue (Discover & Care A4, 2026-05-02). The
@@ -655,7 +655,7 @@ export const pawel: UserProfile = {
   lastName: "Kowalski",
   email: "pawel@pragueprack.cz",
   avatarUrl: "/images/generated/marek-profile.jpeg",
-  bio: "Group walks across Prague's best parks. Six dogs max, GPS tracking, photo updates every walk. Booked solid most weeks — that's how I know it's working.",
+  bio: "Small-group walks across Prague's best parks. Six dogs max, GPS tracking, photo updates every walk. Booked solid most weeks — that's how I know it's working.",
   location: "Prague 2, Czech Republic",
   neighbourhood: "Vinohrady",
   memberSince: "2025-12",
@@ -1471,7 +1471,7 @@ export const shawn: UserProfile = {
         enabled: true,
         pricePerUnit: 280,
         priceUnit: "per_visit",
-        subServices: ["Solo walk", "Group walk"],
+        subServices: ["Solo walk", "Small-group walk"],
         notes: "45–60 min walks around Riegrovy sady and Vítkov park. Max 3 dogs.",
         modifiers: [
           { kind: "holiday", enabled: true, pct: 25 },
@@ -2101,8 +2101,8 @@ export const pavelD: UserProfile = {
         enabled: true,
         pricePerUnit: 440,
         priceUnit: "per_visit",
-        subServices: ["Group walk", "Solo walk"],
-        notes: "45–60 min walks. Group walks (max 3 dogs) preferred — your dog should be friendly with others.",
+        subServices: ["Small-group walk", "Solo walk"],
+        notes: "45–60 min walks. Small-group walks (max 3 dogs) preferred — your dog should be friendly with others.",
         modifiers: [
           { kind: "weekend", enabled: true, pct: 15 },
         ],

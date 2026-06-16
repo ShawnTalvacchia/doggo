@@ -154,7 +154,7 @@ export const RATE_TYPE_LABELS: Record<string, string> = {
  * proposal based on the pets and dates in the inquiry.
  */
 export const SUB_SERVICES: Record<ServiceType, string[]> = {
-  walks_checkins: ["Solo walk", "Group walk"],
+  walks_checkins: ["Solo walk", "Small-group walk"],
   house_sitting: ["Drop-in visit", "Full-time care", "Special feeding", "Medication"],
   day_care: ["Special feeding", "Medication"],
   boarding: ["Special feeding", "Medication"],

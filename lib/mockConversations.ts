@@ -707,7 +707,7 @@ const lenaPawelMessages: ChatMessage[] = [
     proposal: {
       bookingType: "ongoing",
       serviceType: "walks_checkins",
-      subService: "Group walk",
+      subService: "Small-group walk",
       pets: ["Asha"],
       startDate: daysAgoIso(35, "00:00").slice(0, 10),
       endDate: null,
@@ -717,7 +717,7 @@ const lenaPawelMessages: ChatMessage[] = [
         timeLabel: "12:30pm–1:30pm",
       },
       price: {
-        lineItems: [{ label: "Group walk", amount: 250, unit: "per walk" }],
+        lineItems: [{ label: "Small-group walk", amount: 250, unit: "per walk" }],
         total: 250,
         currency: "Kč",
         billingCycle: "per_session",
@@ -1056,7 +1056,7 @@ export const mockConversations: Conversation[] = [
     inquiry: {
       bookingType: "ongoing",
       serviceType: "walks_checkins",
-      subService: "Group walk",
+      subService: "Small-group walk",
       pets: ["Asha"],
       startDate: daysAgoIso(35, "00:00").slice(0, 10),
       endDate: null,

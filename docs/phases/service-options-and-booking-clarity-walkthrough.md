@@ -31,7 +31,7 @@ Decisions the author made that warrant a second look — direction, not bug-hunt
 Identifier prefix: **`O`** (O1, O2, ...).
 
 - [x] **O1. Walk-delivery price editor — RESOLVED (fold in).** PO 2026-06-15: build the walk `deliveryOptions` carer-edit UI here too. Built. See Decisions log. (Klára → `/profile?tab=services` → Edit → Walks & Check-ins card.)
-- [ ] **O2. Half-day default = 60% of full-day rate.** When a carer flips "Offer a half-day rate" on, the half-day price seeds to `round(fullDay × 0.6)` (150 → 90). A half-day isn't half the cost — fixed per-booking overhead (handoff, settling in, blocked time) means a naive 50% under-prices the carer; 60% matches the seed. Starting suggestion only; carer tunes the field. **Recommendation: keep 60%.** Awaiting ratify. (Tereza → `/profile?tab=services` → Edit → Day care → toggle off/on.)
+- [x] **O2. Half-day default = 60% of full-day rate — RATIFIED (PO 2026-06-15).** Kept at 60%. A half-day isn't half the cost (fixed per-booking overhead); 60% matches the seed and is a tunable starting suggestion. (Tereza → `/profile?tab=services` → Edit → Day care → toggle off/on.)
 
 ---
 
@@ -39,6 +39,7 @@ Identifier prefix: **`O`** (O1, O2, ...).
 
 Interaction nuance, complex state, persona round-trips. Identifier prefix: **`V`** (V1, V2, ...).
 
+- [ ] **V2. Walk handoff-location override round-trip (C2/C3).** As a viewer who can book a meet-linked walk (e.g. Daniel → `/meets/meet-klara-stromovka` → "Have Klára walk your dog"): the location field defaults to your area on **Pickup** and to the **meet's park** on **Drop-off** (switch the segment to see it re-default). Type a custom spot, book, then open the booking under `/bookings` — the detail row + the Schedule card should read "picks up at {your spot}" / "drop off at {your spot}."
 - [ ] **V1. Owner-facing day-care half-day flow (A3 + A6) — needs a viewer Connected to Tereza.** Tereza's day-care is circle-scoped ("Familiar dogs only"), so it doesn't appear in a stranger's `/discover/care`. As a persona Connected to Tereza, open her day-care inquiry: confirm the **Full day / Half day** radio shows 150 / 90, the live estimate updates on toggle, and the chosen duration carries through to the proposal price line + booking-detail "Half day"/"Full day" label. (Code path verified — `InquiryForm.tsx` `offersHalfDay`, `resolveBaseRate`, `bookings/[id]` label — but not clicked end-to-end this build.)
 
 ---
@@ -49,3 +50,7 @@ A running **log** (not a checklist) of decisions/design changes/rationale that s
 
 - **Walk-delivery price carer-edit UI built (folds O1 into A4).** `ProfileServicesTab` walks_checkins card now offers drop-off + pickup as toggle rows, each with its own priced input; the standalone "Price" field is replaced by these rows for walks (no double-price confusion). `pricePerUnit` is kept pointed at the base (drop-off if offered, else pickup) for fallback surfaces. Pickup seeds to `round(dropoff × 1.2)` when first enabled. At-least-one-method guard prevents disabling both. The `deliveryOptions` axis had been mock-seed-only since the Walk Service Delivery phase (2026-05-20). → `features/explore-and-care.md` (Walk Service Delivery additions — the carer-edit UI now exists)
 - **Day-care half-day carer-edit UI built (A4).** Half-day price seeds to 60% of full-day; full-day option kept in lockstep with `pricePerUnit`. → `features/explore-and-care.md`
+- **Walk handoff location = single `Booking.deliveryLocation?` field, not a pickup/dropoff pair.** The `delivery` method already disambiguates, so one free-text field suffices (board sketched two). Event-aware default: meet-linked drop-off defaults to the meet's park; pickup to the owner's area. Editable = a proposal the carer reviews (no formal approve gate in V1 — chat covers it). → `features/explore-and-care.md`
+- **C4 — walk handoff location is free-text V1; saved-address dropdown deferred.** Matches C1's free-text call; the meet-park default removes most typing. The Discover saved-address picker reuse can come with P65. → no feature-doc update needed
+- **C5 — "Group walk" walk sub-service renamed `Small-group walk` globally.** Disambiguates the care delivery detail (≤4 clients' dogs) from a community group-walk Meet. `mockShelters` FC18 community group walk keeps "group walk" (it IS a meet). → `features/explore-and-care.md` + `strategy/Groups & Care Model.md`
+- **Linked-care booking copy reframed.** Booking-sheet card subline drops the raw "Walks & Check-ins" label (read as a check-in) → "On the {park} group walk · no need to come along," surfacing the linked meet. "no need to come along" (positive framing) replaces "you don't come along" across the card, success screen, and `LinkedCareCallout` (PO 2026-06-16). → `features/explore-and-care.md`

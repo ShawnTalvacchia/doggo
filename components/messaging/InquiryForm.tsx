@@ -157,7 +157,7 @@ export function InquiryForm({
 
   // Submit gates on the structured inputs that the inquiry needs to be
   // actionable. Sub-service is required when the chosen service has options
-  // (Walks → Group walk / Solo walk / Drop-in are differently priced and
+  // (Walks → Small-group walk / Solo walk / Drop-in are differently priced and
   // structured — the carer can't propose without knowing which). For
   // ongoing bookings, at least one day must be selected — an "ongoing"
   // request with zero days is meaningless. For one-off bookings, a start

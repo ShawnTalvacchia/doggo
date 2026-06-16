@@ -616,6 +616,20 @@ export interface Booking {
    */
   delivery?: WalkDeliveryMethod;
   /**
+   * Owner-specified handoff location for the chosen `delivery` method on a
+   * walks_checkins booking — the pickup point (owner's address) for `pickup`,
+   * or the drop-off point for `dropoff` (the carer's place, or the linked
+   * Meet's park for a meet-linked walk). The `delivery` method disambiguates
+   * which kind of location this is, so a single field suffices.
+   *
+   * Free-text V1 (proper POI autocomplete is a separate ask — see
+   * [[features/explore-and-care]] Discover address picker P65). Absent =
+   * the default location implied by `delivery` (the handover party's
+   * neighbourhood). A non-default value is a *proposal* the carer reviews.
+   * Service Options & Booking Clarity, 2026-06-15.
+   */
+  deliveryLocation?: string;
+  /**
    * Day-care duration on a `day_care` booking. Set when the owner picked
    * a half-day rate at booking time. Drives the "Half day" / "Full day"
    * label on schedule + booking surfaces.
@@ -1041,7 +1055,7 @@ export interface Meet {
    * meet-level RSVP-gate property — it determines whether the free CTA
    * collapses for this meet, which is a meet concern. The same service
    * could in principle be required on one of its linked meets and
-   * optional on another (e.g. Klára's "Group walk" service required on
+   * optional on another (e.g. Klára's "Small-group walk" service required on
    * her premium Saturday cohort, optional on her open Tuesday walk).
    * Storing required on the link rather than the service preserves that
    * flexibility.
@@ -1681,7 +1695,7 @@ export interface CarerMeetServiceConfig {
   notes?: string;
   /**
    * Meets this service is offered on. One-to-many — the same service can run
-   * on multiple meets (e.g. a "Group walk" service offered on the carer's
+   * on multiple meets (e.g. a "Small-group walk" service offered on the carer's
    * Tuesday walk AND Saturday walk, same product at two scheduled times,
    * without duplicating the service entry).
    *

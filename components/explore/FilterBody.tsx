@@ -21,7 +21,7 @@ const DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"] as const;
 // Drop-in visits moved into House sitting (same shape — carer goes to
 // owner's home). Walks narrows to outdoor activity. Day care + Boarding
 // share the carer-home extras.
-const WALK_SERVICES = ["Solo walk", "Group walk"];
+const WALK_SERVICES = ["Solo walk", "Small-group walk"];
 const HOUSE_SITTING_SERVICES = [
   "Drop-in visit",
   "Full-time care",

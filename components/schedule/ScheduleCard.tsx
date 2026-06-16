@@ -401,6 +401,12 @@ export function ScheduleCareCard({
         ? getUserById(booking.ownerId)
         : getUserById(booking.carerId);
   const handoverNeighbourhood = handoverParty?.neighbourhood;
+  // Prefer the booking's specific handoff location when the owner set one
+  // (C2/C3, 2026-06-15); fall back to the handover party's neighbourhood.
+  const handoverLabel =
+    isWalk && booking.deliveryLocation
+      ? booking.deliveryLocation
+      : handoverNeighbourhood;
 
   // Get the first pet's avatar for the combo
   const firstPetName = booking.pets[0] ?? null;
@@ -507,17 +513,17 @@ export function ScheduleCareCard({
           cancelled / active so the row can carry status-specific copy.
           Walks read `Booking.delivery` (pickup vs drop-off); other Care
           shapes infer from serviceType. */}
-      {!isCancelled && !isLive && handoverNeighbourhood && (
+      {!isCancelled && !isLive && handoverLabel && (
         <div className="sched-card-meta">
           <MapPin size={13} weight="light" className="text-fg-tertiary" />
           <span className="sched-card-names truncate text-fg-tertiary">
             {isWalk
               ? walkDelivery === "pickup"
-                ? `Pick up at ${handoverNeighbourhood}`
-                : `Drop off at ${handoverNeighbourhood}`
+                ? `Pick up at ${handoverLabel}`
+                : `Drop off at ${handoverLabel}`
               : booking.serviceType === "house_sitting"
-                ? `Visit at ${handoverNeighbourhood}`
-                : `Drop off in ${handoverNeighbourhood}`}
+                ? `Visit at ${handoverLabel}`
+                : `Drop off in ${handoverLabel}`}
           </span>
         </div>
       )}

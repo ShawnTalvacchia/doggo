@@ -334,7 +334,7 @@ function applyAllFilters(
 
     // Sub-services gate (B3, 2026-05-10). When the owner has picked at least
     // one sub-service, the carer must offer at least one of those (intersection
-    // semantics — picking "Solo walk" + "Group walk" widens, doesn't narrow).
+    // semantics — picking "Solo walk" + "Small-group walk" widens, doesn't narrow).
     if (filters.selectedSubServices.length > 0) {
       if (!config) return false;
       const carerSet = new Set(config.subServices);

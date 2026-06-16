@@ -192,7 +192,7 @@ const shawnCarerActiveBooking: Booking = {
   // Walk Service Delivery, 2026-05-20. Pickup: group-walk pattern where
   // Shawn collects each dog on the route.
   delivery: "pickup",
-  subService: "Group walk",
+  subService: "Small-group walk",
   pets: ["Molly"],
   startDate: "2026-03-03",
   endDate: null,
@@ -211,7 +211,7 @@ const shawnCarerActiveBooking: Booking = {
     { id: "skc-5", date: daysFromNow(3), status: "upcoming" },
   ],
   price: {
-    lineItems: [{ label: "Group walk", amount: 250, unit: "per session" }],
+    lineItems: [{ label: "Small-group walk", amount: 250, unit: "per session" }],
     total: 500,
     currency: "Kč",
     billingCycle: "weekly",
@@ -314,7 +314,7 @@ const klaraDropoffToby: Booking = {
   // Filip's place in Holešovice on her way to Stromovka — Beat 2's "first,
   // she's got a dog to pick up" copy. 380 Kč matches Klára's pickup rate.
   delivery: "pickup",
-  subService: "Group walk",
+  subService: "Small-group walk",
   pets: ["Toby"],
   dropoffMeetId: "meet-klara-stromovka",
   startDate: daysAgo(14),
@@ -596,7 +596,7 @@ const pawelWalksLena: Booking = {
   // see mockNotifications "Pickup at your building" + mockGroups "Pickup
   // available in Vinohrady and Žižkov." Pawel is pickup-only narratively.
   delivery: "pickup",
-  subService: "Group walk",
+  subService: "Small-group walk",
   pets: ["Asha"],
   startDate: daysAgo(35),
   endDate: null,
@@ -605,7 +605,7 @@ const pawelWalksLena: Booking = {
     time: "12:30",
     timeLabel: "12:30pm–1:30pm",
   },
-  ownerNotes: "Asha is sweet but high-energy — she needs movement, not chaos. Group walks work great as long as the other dogs are calm. Treats in the bowl by the door; harness on the hook.",
+  ownerNotes: "Asha is sweet but high-energy — she needs movement, not chaos. Small-group walks work great as long as the other dogs are calm. Treats in the bowl by the door; harness on the hook.",
   carerNotes: "Daily group walk, ~60 min. Asha runs with the calm group — fits well with the Letná pickup route.",
   sessions: [
     { id: "pl-1", date: daysAgo(35), status: "completed" },
@@ -620,7 +620,7 @@ const pawelWalksLena: Booking = {
     { id: "pl-10", date: daysFromNow(2), status: "upcoming" },
   ],
   price: {
-    lineItems: [{ label: "Group walk", amount: 250, unit: "per walk" }],
+    lineItems: [{ label: "Small-group walk", amount: 250, unit: "per walk" }],
     total: 1250, // 5 walks/week × 250 Kč
     currency: "Kč",
     billingCycle: "weekly",
