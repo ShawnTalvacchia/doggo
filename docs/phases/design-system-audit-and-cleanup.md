@@ -41,10 +41,10 @@ review-trigger: When any task is completed or blocked
 
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
-| A1 | Extract a shared presentational `ServiceCard` (or per-kind Care/Meet/Appointment views) taking a service config + optional `action` slot. Both renderers consume it; viewer-facing passes the Book CTA, own-profile passes none. | [[design-system]], [[profiles]] | todo |
-| A2 | Fix the own-profile Care card to show the full priced axis: "From" prefix, cheapest-option floor price, pickup/drop-off delivery rows, full-day/half-day duration rows. (Falls out of A1 if the shared view is the correct one.) | [[explore-and-care]] | todo |
-| A3 | Move the duplicated `MEET_FORMAT_LABEL` / `MEET_CADENCE_LABEL` maps (inlined in `page.tsx`, module-const in `ProfileServicesTab`) to `lib/constants/services.ts`; both files import. | — | todo |
-| A4 | Migrate `ProfileServicesTab`'s 5 raw `<input type="number">` pricing-modifier inputs to `InputField` (file already imports it). | — | todo |
+| A1 | Extract per-kind presentational views (`Care/Meet/Appointment/MentorServiceCardView` in `components/profile/ServiceCardViews.tsx`) taking a service config + optional `action` slot. Both renderers consume them; viewer-facing passes the Book CTA, own-profile passes none. | [[design-system]], [[profiles]] | done |
+| A2 | Fix the own-profile Care card to show the full priced axis ("From" prefix, cheapest-option floor, pickup/drop-off rows, full-day/half-day rows) — falls out of A1's shared view. Also converged kind-order (appointment → mentor → care → meet) + chip chrome so the preview mirrors the viewer surface. | [[explore-and-care]] | done |
+| A3 | Moved `MEET_FORMAT_LABEL` / `MEET_CADENCE_LABEL` / `APPOINTMENT_CATEGORY_LABEL` to `lib/constants/services.ts`; both files import. | — | done |
+| A4 | **Declined (decide-and-flag).** The 5 "raw inputs" are a specialized compact numeric control (`.profile-modifier-*` with inline `%`/`Kč`/`days` unit suffixes), not standard labeled-field territory — `InputField` would regress the layout. Left as-is. | — | done |
 
 ---
 

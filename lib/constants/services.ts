@@ -3,7 +3,34 @@ import type {
   Booking,
   AppointmentRef,
   AppointmentLocationKind,
+  MeetServiceFormat,
+  MeetServiceCadence,
+  AppointmentCategory,
 } from "@/lib/types";
+
+/**
+ * Display labels for the service-card chips shared by the two service-card
+ * renderers (own-profile preview + viewer-facing `/profile/[userId]`). These
+ * used to live as duplicated inline maps in each renderer; centralised here so
+ * the two surfaces can't drift. Design-System Audit + Cleanup WS-A, 2026-06-20.
+ */
+export const MEET_FORMAT_LABEL: Record<MeetServiceFormat, string> = {
+  one_on_one: "1-on-1",
+  small_group: "Small group",
+  workshop: "Workshop",
+};
+
+export const MEET_CADENCE_LABEL: Record<MeetServiceCadence, string> = {
+  weekly: "Weekly",
+  biweekly: "Every 2 weeks",
+  monthly: "Monthly",
+  ad_hoc: "By arrangement",
+};
+
+export const APPOINTMENT_CATEGORY_LABEL: Record<AppointmentCategory, string> = {
+  training: "Training visit",
+  grooming: "Grooming",
+};
 
 /**
  * Appointment meeting-location metadata (Workstream B, 2026-06-15; Open Q §17).

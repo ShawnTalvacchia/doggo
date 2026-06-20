@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-06-16
+last-reviewed: 2026-06-20
 tags: [design-system, components, patterns, css]
 review-trigger: "when building or refactoring components, adding CSS patterns, or consolidating styles"
 ---
@@ -198,6 +198,10 @@ Lives in `contexts/StubFeatureContext.tsx`, mounted at the app root. Renders the
 ### Post detail surface — modal lightbox, not a route
 
 Doggo deliberately has no `/posts/[id]` route — comments aren't a primary platform thread. Any caller that wants to show a single post uses `usePostDetail().openPost(postId, opts)` from `PostDetailContext`; a global lightbox at the app root renders the post photo-led. Cross-post navigation via `collection` (with optional `photoIndices` for per-item starting photo), within-post nav togglable via `withinPostNav`. Used by PhotoGrid tiles, PostPhotoGrid photos in feed cards, Highlights thumbs, tag-pending notifications. See `features/profiles.md` → "Post detail surface".
+
+### Service-card views — one renderer for both profile surfaces
+
+`components/profile/ServiceCardViews.tsx` exports the four presentational service-card views (`CareServiceCardView`, `MeetServiceCardView`, `AppointmentServiceCardView`, `MentorServiceCardView`) used by BOTH the own-profile preview (`ProfileServicesTab`) and the viewer-facing `/profile/[userId]`. Each takes the service config + an optional `action` slot (the viewer surface passes a Book/Ask CTA; the own-profile preview passes none); the mentor view also takes an optional `progress` node. Before this, the two surfaces carried independent copies of the markup and drifted — the own-profile Care card had lost the "From" prefix, the pickup/drop-off delivery breakdown, and the full-day/half-day duration breakdown, so a carer saw a different (wrong) price on their own profile than visitors saw. The shared views are the single source of truth; the kind-order is also unified (appointment → mentor → care → meet) so the own-profile preview faithfully mirrors what owners see. The chip chrome converged on the viewer-facing inline rounded-pill treatment (`bg-surface-popout` bordered) over the own-profile's old `.chip`. Label maps (`MEET_FORMAT_LABEL` / `MEET_CADENCE_LABEL` / `APPOINTMENT_CATEGORY_LABEL`) live in `lib/constants/services.ts`. Design-System Audit + Cleanup WS-A, 2026-06-20.
 
 ---
 

@@ -10,7 +10,6 @@ import {
   CaretUp,
   UsersThree,
   Globe,
-  CalendarBlank,
 } from "@phosphor-icons/react";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { InputField } from "@/components/ui/InputField";
@@ -21,14 +20,17 @@ import { MeetServiceEditCard } from "@/components/profile/MeetServiceEditCard";
 import { AppointmentServiceEditCard } from "@/components/profile/AppointmentServiceEditCard";
 import { DeleteServiceModal } from "@/components/profile/DeleteServiceModal";
 import { ArchivedServiceStrip } from "@/components/profile/ArchivedServiceStrip";
+import {
+  CareServiceCardView,
+  MeetServiceCardView,
+  AppointmentServiceCardView,
+  MentorServiceCardView,
+} from "@/components/profile/ServiceCardViews";
 import { SERVICE_LABELS, SUB_SERVICES } from "@/lib/constants/services";
 import { defaultModifiers } from "@/lib/pricing";
 import { mockMeets, getHostedMeets } from "@/lib/mockMeets";
-import { meetScheduleSummary } from "@/lib/meetUtils";
-import { getShelterById } from "@/lib/mockShelters";
 import type {
   UserProfile,
-  CarerProfile,
   CarerServiceConfig,
   CarerCareServiceConfig,
   CarerMeetServiceConfig,
@@ -103,24 +105,6 @@ const SERVICE_KIND_RANK: Record<CarerServiceConfig["kind"], number> = {
   meet: 1,
   appointment: 2,
   mentor_session: 3,
-};
-
-const APPOINTMENT_CATEGORY_LABEL: Record<string, string> = {
-  training: "Training visit",
-  grooming: "Grooming",
-};
-
-const MEET_FORMAT_LABEL: Record<string, string> = {
-  one_on_one: "1-on-1",
-  small_group: "Small group",
-  workshop: "Workshop",
-};
-
-const MEET_CADENCE_LABEL: Record<string, string> = {
-  weekly: "Weekly",
-  biweekly: "Every 2 weeks",
-  monthly: "Monthly",
-  ad_hoc: "By arrangement",
 };
 
 const MODIFIER_LABEL: Record<PricingModifier["kind"], string> = {
@@ -1376,148 +1360,26 @@ export function ProfileServicesTab({
         return (
           <section>
             <h3 className="profile-card-subtitle">Services</h3>
+            {/* Own-profile preview = "what owners see". Renders through the
+                shared ServiceCardViews (same source of truth as the
+                viewer-facing /profile/[userId]) in the same kind-order, with no
+                action slot. Design-System Audit + Cleanup WS-A, 2026-06-20. */}
             <div className="profile-services-list">
-              {careServices.map((svc) => (
-                <div key={svc.serviceType} className="profile-service-card">
-                  <div className="profile-service-top">
-                    <span className="profile-service-name">
-                      {SERVICE_LABELS[svc.serviceType]}
-                    </span>
-                    <div className="profile-service-price-wrap">
-                      <span className="profile-service-price">
-                        {svc.pricePerUnit.toLocaleString()} Kč
-                        <span className="profile-service-unit">
-                          {" "}/ {svc.priceUnit === "per_visit" ? "visit" : "night"}
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-                  {svc.subServices.length > 0 && (
-                    <div className="profile-service-subs">
-                      {svc.subServices.map((sub) => (
-                        <span
-                          key={sub}
-                          className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary"
-                        >
-                          {sub}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {svc.notes && (
-                    <p className="profile-service-notes">{svc.notes}</p>
-                  )}
-                </div>
-              ))}
-              {meetServices.map((svc) => {
-                // B7 — linked-meet schedule grounding. Without this the card
-                // shows only format / cadence chips with no scheduled-time
-                // anchor; resolving `linkedMeetIds` surfaces when and where.
-                const linkedMeets = svc.linkedMeetIds.flatMap((id) => {
-                  const m = mockMeets.find((meet) => meet.id === id);
-                  return m ? [m] : [];
-                });
-                return (
-                  <div key={svc.id} className="profile-service-card">
-                    <div className="profile-service-top">
-                      <span className="profile-service-name">{svc.title}</span>
-                      <div className="profile-service-price-wrap">
-                        <span className="profile-service-price">
-                          {svc.pricePerSession.toLocaleString()} Kč
-                          <span className="profile-service-unit">{" "}/ session</span>
-                        </span>
-                      </div>
-                    </div>
-                    <div className="profile-service-subs">
-                      <span className="chip">
-                        {MEET_FORMAT_LABEL[svc.format] ?? svc.format}
-                      </span>
-                      <span className="chip">
-                        {MEET_CADENCE_LABEL[svc.cadence] ?? svc.cadence}
-                      </span>
-                      <span className="chip">{svc.durationMinutes} min</span>
-                    </div>
-                    {linkedMeets.length > 0 && (
-                      <div
-                        className="flex flex-col gap-xs"
-                        style={{ marginTop: 4 }}
-                      >
-                        {linkedMeets.map((meet) => (
-                          <span
-                            key={meet.id}
-                            className="flex items-center gap-xs text-xs text-fg-tertiary"
-                          >
-                            <CalendarBlank
-                              size={13}
-                              weight="light"
-                              className="shrink-0"
-                            />
-                            <span>
-                              {meetScheduleSummary(meet)} · {meet.location}
-                            </span>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    {svc.notes && (
-                      <p className="profile-service-notes">{svc.notes}</p>
-                    )}
-                  </div>
-                );
-              })}
               {appointmentServices.map((svc) => (
-                <div key={svc.id} className="profile-service-card">
-                  <div className="profile-service-top">
-                    <span className="profile-service-name">{svc.title}</span>
-                    <div className="profile-service-price-wrap">
-                      <span className="profile-service-price">
-                        {svc.pricePerAppointment.toLocaleString()} Kč
-                        <span className="profile-service-unit">
-                          {" "}/ appointment
-                        </span>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="profile-service-subs">
-                    <span className="chip">
-                      {APPOINTMENT_CATEGORY_LABEL[svc.appointmentCategory] ??
-                        svc.appointmentCategory}
-                    </span>
-                    <span className="chip">{svc.durationMinutes} min</span>
-                  </div>
-                  {svc.notes && (
-                    <p className="profile-service-notes">{svc.notes}</p>
-                  )}
-                </div>
+                <AppointmentServiceCardView key={svc.id} svc={svc} />
               ))}
-              {/* Mentor-session offerings — supervised first walks at
-                  participating shelters (Cross-Shelter Mentor Network).
-                  Shelter chips link the offering to where it runs. */}
               {mentorServices.map((svc) => (
-                <div key={svc.id} className="profile-service-card">
-                  <div className="profile-service-top">
-                    <span className="profile-service-name">{svc.title}</span>
-                    <div className="profile-service-price-wrap">
-                      <span className="profile-service-price">
-                        {svc.pricePerSession.toLocaleString()} Kč
-                        <span className="profile-service-unit">{" "}/ session</span>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="profile-service-subs">
-                    <span className="chip">Shelter mentoring</span>
-                    <span className="chip">{svc.durationMinutes} min</span>
-                    {svc.shelterIds.map((sid) => {
-                      const shelter = getShelterById(sid);
-                      return shelter ? (
-                        <span key={sid} className="chip">{shelter.name}</span>
-                      ) : null;
-                    })}
-                  </div>
-                  {svc.notes && (
-                    <p className="profile-service-notes">{svc.notes}</p>
-                  )}
-                </div>
+                <MentorServiceCardView key={svc.id} svc={svc} />
+              ))}
+              {careServices.map((svc) => (
+                <CareServiceCardView
+                  key={svc.serviceType}
+                  svc={svc}
+                  viewerFirstName={user.firstName}
+                />
+              ))}
+              {meetServices.map((svc) => (
+                <MeetServiceCardView key={svc.id} svc={svc} />
               ))}
             </div>
           </section>

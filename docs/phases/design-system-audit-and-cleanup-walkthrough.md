@@ -28,6 +28,8 @@ Verification checklist for the Design-System Audit + Cleanup phase. **Concise by
 - [ ] **O3. Canonical optional-field label = `(Optional)` via `.label-secondary`.** Picked capitalized-parens-inline over the right-aligned `Optional` and the inline-dash variants. Check it reads right on the form surfaces that previously used the other treatments. (`InquiryForm`, `MeetComposer`, `PetEditCard` edit.)
 - [ ] **O4. Connection-pill Connected state — cards vs rows.** Resolved the Discover-chip (inline) vs PersonRow (class) split into one shared class; confirm the deliberate carve-out (Connected shows a chip on Discover cards, no pill on PersonRow — the Message CTA carries it there) is the behaviour you want, now that it's explicit rather than accidental.
 - [ ] **O5. `--text-xs` reconciled to {VALUE}.** The `@theme` (10px) vs `:root` (12px) conflict was resolved to one value; this is the base for the font-size migration. Flag if the chosen value shifts any small-text surface you care about.
+- [ ] **O6. Own-profile service-card preview now mirrors the viewer surface (WS-A).** Reconciling the two renderers, I also (a) converged the kind-order to appointment → mentor → care → meet (was care → meet → appointment → mentor on own-profile) and (b) converged the type-chip chrome onto the viewer-facing inline rounded-pill (was `.chip` on own-profile). Both follow from "the own-profile view IS the 'what owners see' preview." Flag if you'd rather own-profile keep its own order/chrome. (`/profile?as=klara` Services tab vs `/profile/klara`.)
+- [ ] **O7. A4 declined — modifier inputs left as a specialized control.** The audit suggested migrating ProfileServicesTab's 5 pricing-modifier number inputs to `InputField`; on inspection they're a compact `.profile-modifier-*` control with inline `%`/`Kč`/`days` suffixes that `InputField` can't host without regressing. Left as-is. (`/profile?as=klara` → edit Services → enable a price modifier.)
 
 ---
 
@@ -57,4 +59,7 @@ Verification checklist for the Design-System Audit + Cleanup phase. **Concise by
 
 A running log (append as you walk). Each entry carries a `→ target-doc.md` annotation for the close sweep.
 
-- _(none yet — populate during the walk)_
+- **WS-A: extracted `components/profile/ServiceCardViews.tsx` as the single source of truth for the four service-card kinds.** Fixes the own-profile wrong-price bug (lost "From"/delivery/duration breakdown); both profile surfaces now render through it. → `design-system.md` (done), `features/profiles.md` (service-card rendering note) + `features/explore-and-care.md` (pricing-axis on cards)
+- **WS-A: own-profile service preview converged to the viewer surface's kind-order + chip chrome.** Order = appointment → mentor → care → meet; chips = inline rounded-pill (not `.chip`). Rationale: the own-profile view is defined as the "what owners see" preview. → `features/profiles.md`
+- **WS-A: A4 declined — the 5 pricing-modifier number inputs stay a specialized `.profile-modifier-*` control, not `InputField`.** → no feature-doc update needed
+- **WS-A: label maps (`MEET_FORMAT_LABEL`/`MEET_CADENCE_LABEL`/`APPOINTMENT_CATEGORY_LABEL`) moved to `lib/constants/services.ts`.** → no feature-doc update needed

@@ -8,7 +8,6 @@ import {
   MapPin,
   Calendar,
   CalendarDots,
-  CalendarBlank,
   ChatCircleDots,
   LockSimple,
   UsersThree,
@@ -42,6 +41,13 @@ import { PetSummaryCard } from "@/components/profile/PetSummaryCard";
 import { PostsTab } from "@/components/profile/PostsTab";
 import { ProfileChatTab } from "@/components/profile/ProfileChatTab";
 import { AvailabilityGrid } from "@/components/profile/AvailabilityGrid";
+import {
+  CareServiceCardView,
+  MeetServiceCardView,
+  AppointmentServiceCardView,
+  MentorServiceCardView,
+  resolveServiceLinkedMeets,
+} from "@/components/profile/ServiceCardViews";
 import { InquiryFormModal } from "@/components/messaging/InquiryFormModal";
 import { BookSessionSheet } from "@/components/meets/BookSessionSheet";
 import { AppointmentBookingSheet } from "@/components/messaging/AppointmentBookingSheet";
@@ -54,8 +60,7 @@ import type {
 } from "@/lib/types";
 import { getCommunityCarers, getMutualConnectedUserIds } from "@/lib/mockConnections";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
-import { viewerSharedMeetWith, getSharedMeetsBetween, mockMeets } from "@/lib/mockMeets";
-import { meetScheduleSummary } from "@/lib/meetUtils";
+import { viewerSharedMeetWith, getSharedMeetsBetween } from "@/lib/mockMeets";
 import { viewerSharedGroupWith, getSharedGroupNames } from "@/lib/mockGroups";
 import { useConnections } from "@/contexts/ConnectionsContext";
 import { useCurrentUser, useCurrentUserId, useIsGuest, useIsHydrated } from "@/hooks/useCurrentUser";
@@ -1518,43 +1523,27 @@ function UserProfileInner() {
                     {userProfile.carerProfile.services
                       .filter((s): s is import("@/lib/types").CarerAppointmentServiceConfig => s.kind === "appointment" && s.enabled)
                       .map((svc) => (
-                        <div key={svc.id} className="profile-service-card">
-                          <div className="profile-service-top">
-                            <span className="profile-service-name">{svc.title}</span>
-                            <div className="profile-service-price-wrap">
-                              <span className="profile-service-price">
-                                {svc.pricePerAppointment.toLocaleString()} Kč
-                                <span className="profile-service-unit">{" "}/ appointment</span>
-                              </span>
-                            </div>
-                          </div>
-                          <div className="profile-service-subs">
-                            <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
-                              {svc.appointmentCategory === "training" ? "Training visit" : "Grooming"}
-                            </span>
-                            <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
-                              {svc.durationMinutes} min
-                            </span>
-                          </div>
-                          {svc.notes && (
-                            <p className="profile-service-notes">{svc.notes}</p>
-                          )}
-                          {!isSelf && (
-                            <ButtonAction
-                              variant="secondary"
-                              size="sm"
-                              cta
-                              className="self-start"
-                              onClick={() =>
-                                isGuest
-                                  ? requireAuth(`book ${firstName}'s appointment`)
-                                  : setBookingAppointment(svc)
-                              }
-                            >
-                              Book a session
-                            </ButtonAction>
-                          )}
-                        </div>
+                        <AppointmentServiceCardView
+                          key={svc.id}
+                          svc={svc}
+                          action={
+                            !isSelf ? (
+                              <ButtonAction
+                                variant="secondary"
+                                size="sm"
+                                cta
+                                className="self-start"
+                                onClick={() =>
+                                  isGuest
+                                    ? requireAuth(`book ${firstName}'s appointment`)
+                                    : setBookingAppointment(svc)
+                                }
+                              >
+                                Book a session
+                              </ButtonAction>
+                            ) : undefined
+                          }
+                        />
                       ))}
                     {/* Mentor-session services — supervised first walks at
                         participating shelters (Cross-Shelter Mentor Network
@@ -1578,61 +1567,38 @@ function UserProfileInner() {
                           ? getShelterById(mentorshipApp.shelterId)
                           : undefined;
                         return (
-                          <div key={svc.id} className="profile-service-card">
-                            <div className="profile-service-top">
-                              <span className="profile-service-name">{svc.title}</span>
-                              <div className="profile-service-price-wrap">
-                                <span className="profile-service-price">
-                                  {svc.pricePerSession.toLocaleString()} Kč
-                                  <span className="profile-service-unit">{" "}/ session</span>
-                                </span>
-                              </div>
-                            </div>
-                            <div className="profile-service-subs">
-                              <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
-                                Shelter mentoring
-                              </span>
-                              <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
-                                {svc.durationMinutes} min
-                              </span>
-                              {svc.shelterIds.map((sid) => {
-                                const s = getShelterById(sid);
-                                return s ? (
-                                  <span
-                                    key={sid}
-                                    className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary"
-                                  >
-                                    {s.name}
-                                  </span>
-                                ) : null;
-                              })}
-                            </div>
-                            {svc.notes && (
-                              <p className="profile-service-notes">{svc.notes}</p>
-                            )}
-                            {mentorshipApp && mentorShelter && mentorshipApp.state !== "vouched" && (
-                              <p className="text-xs text-fg-tertiary m-0">
-                                Your progress: {mentorshipApp.mentorship!.sessionsCompleted} of{" "}
-                                {mentorShelter.policy.mentorSessionMinimum ?? 3} sessions at{" "}
-                                {mentorShelter.name}
-                              </p>
-                            )}
-                            {!isSelf && (
-                              <ButtonAction
-                                variant="secondary"
-                                size="sm"
-                                cta
-                                className="self-start"
-                                onClick={() =>
-                                  isGuest
-                                    ? requireAuth(`book a mentored walk with ${firstName}`)
-                                    : setBookingMentorSession(svc)
-                                }
-                              >
-                                Book a session
-                              </ButtonAction>
-                            )}
-                          </div>
+                          <MentorServiceCardView
+                            key={svc.id}
+                            svc={svc}
+                            progress={
+                              mentorshipApp &&
+                              mentorShelter &&
+                              mentorshipApp.state !== "vouched" ? (
+                                <p className="text-xs text-fg-tertiary m-0">
+                                  Your progress: {mentorshipApp.mentorship!.sessionsCompleted} of{" "}
+                                  {mentorShelter.policy.mentorSessionMinimum ?? 3} sessions at{" "}
+                                  {mentorShelter.name}
+                                </p>
+                              ) : undefined
+                            }
+                            action={
+                              !isSelf ? (
+                                <ButtonAction
+                                  variant="secondary"
+                                  size="sm"
+                                  cta
+                                  className="self-start"
+                                  onClick={() =>
+                                    isGuest
+                                      ? requireAuth(`book a mentored walk with ${firstName}`)
+                                      : setBookingMentorSession(svc)
+                                  }
+                                >
+                                  Book a session
+                                </ButtonAction>
+                              ) : undefined
+                            }
+                          />
                         );
                       })}
                     {/* Care-type services — "I take the dog" shape (Walking,
@@ -1644,245 +1610,77 @@ function UserProfileInner() {
                         2026-05-20. */}
                     {userProfile.carerProfile.services
                       .filter((s): s is import("@/lib/types").CarerCareServiceConfig => s.kind === "care" && s.enabled)
-                      .map((svc) => {
-                        const deliveryOpts = svc.deliveryOptions ?? [];
-                        const hasMultipleDelivery = deliveryOpts.length > 1;
-                        // Day-care carries an analogous priced axis: full-day
-                        // vs half-day (`durationOptions[]`). Surface it on the
-                        // card the same way walks surface delivery, so the two
-                        // read consistently. Service Options & Booking Clarity,
-                        // 2026-06-16.
-                        const durationOpts = svc.durationOptions ?? [];
-                        const hasMultipleDuration = durationOpts.length > 1;
-                        // Catalogue price reads from the cheapest option when a
-                        // priced axis is present (so the user sees the floor),
-                        // with a "From" prefix to telegraph the range.
-                        const optionPrices = hasMultipleDelivery
-                          ? deliveryOpts.map((o) => o.price)
-                          : hasMultipleDuration
-                            ? durationOpts.map((o) => o.price)
-                            : [];
-                        const priceFrom = optionPrices.length
-                          ? Math.min(...optionPrices)
-                          : svc.pricePerUnit;
-                        const showFromPrefix =
-                          (svc.modifiers ?? []).some((m) => m.enabled) ||
-                          hasMultipleDelivery ||
-                          hasMultipleDuration;
-                        return (
-                    <div key={svc.serviceType} className="profile-service-card">
-                      <div className="profile-service-top">
-                        <span className="profile-service-name">{SERVICE_LABELS[svc.serviceType]}</span>
-                        <div className="profile-service-price-wrap">
-                          <span className="profile-service-price">
-                            {/* "From" telegraphs that the final quote depends
-                                on inquiry specifics (multi-pet, holiday,
-                                delivery method, etc.) — surfaced in the
-                                proposal, not the catalogue. Pricing &
-                                Proposals 2026-05-04; delivery axis added by
-                                Walk Service Delivery 2026-05-20. */}
-                            {showFromPrefix && (
-                              <span className="profile-service-price-from">From </span>
-                            )}
-                            {priceFrom.toLocaleString()} Kč
-                            <span className="profile-service-unit">
-                              {" "}/ {svc.priceUnit === "per_visit" ? "visit" : "night"}
-                            </span>
-                          </span>
-                        </div>
-                      </div>
-                      {svc.subServices.length > 0 && (
-                        <div className="profile-service-subs">
-                          {svc.subServices.map((sub) => (
-                            <span
-                              key={sub}
-                              className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary"
-                            >
-                              {sub}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      {hasMultipleDelivery && (
-                        <div className="flex flex-col gap-tiny text-xs">
-                          {deliveryOpts
-                            .slice()
-                            .sort((a, b) =>
-                              a.method === b.method ? 0 : a.method === "pickup" ? -1 : 1,
-                            )
-                            .map((opt) => (
-                              <span
-                                key={opt.method}
-                                className="flex items-center justify-between gap-xs text-fg-secondary"
+                      .map((svc) => (
+                        <CareServiceCardView
+                          key={svc.serviceType}
+                          svc={svc}
+                          viewerFirstName={firstName}
+                          action={
+                            !isSelf ? (
+                              <ButtonAction
+                                variant="secondary"
+                                size="sm"
+                                cta
+                                className="self-start"
+                                onClick={() => {
+                                  if (isGuest) {
+                                    requireAuth(`book ${firstName}'s service`);
+                                    return;
+                                  }
+                                  setInquiryTarget({
+                                    service: svc.serviceType,
+                                    subService: svc.subServices[0] ?? null,
+                                  });
+                                }}
                               >
-                                <span>
-                                  {opt.method === "pickup"
-                                    ? `Pickup — ${firstName} comes to you`
-                                    : "Drop-off — meet at the start"}
-                                </span>
-                                <span className="font-semibold text-fg-primary">
-                                  {opt.price.toLocaleString()} Kč
-                                </span>
-                              </span>
-                            ))}
-                        </div>
-                      )}
-                      {/* Day-care duration breakdown — mirrors the walks
-                          delivery breakdown above so both priced axes read the
-                          same on the card. 2026-06-16. */}
-                      {hasMultipleDuration && (
-                        <div className="flex flex-col gap-tiny text-xs">
-                          {durationOpts
-                            .slice()
-                            .sort((a, b) =>
-                              a.duration === b.duration
-                                ? 0
-                                : a.duration === "full_day"
-                                  ? -1
-                                  : 1,
-                            )
-                            .map((opt) => (
-                              <span
-                                key={opt.duration}
-                                className="flex items-center justify-between gap-xs text-fg-secondary"
-                              >
-                                <span>
-                                  {opt.duration === "full_day"
-                                    ? "Full day"
-                                    : "Half day"}
-                                </span>
-                                <span className="font-semibold text-fg-primary">
-                                  {opt.price.toLocaleString()} Kč
-                                </span>
-                              </span>
-                            ))}
-                        </div>
-                      )}
-                      {svc.notes && (
-                        <p className="profile-service-notes">{svc.notes}</p>
-                      )}
-                      {!isSelf && (
-                        <ButtonAction
-                          variant="secondary"
-                          size="sm"
-                          cta
-                          className="self-start"
-                          onClick={() => {
-                            if (isGuest) {
-                              requireAuth(`book ${firstName}'s service`);
-                              return;
-                            }
-                            setInquiryTarget({
-                              service: svc.serviceType,
-                              subService: svc.subServices[0] ?? null,
-                            });
-                          }}
-                        >
-                          Book a session
-                        </ButtonAction>
-                      )}
-                    </div>
-                        );
-                      })}
+                                Book a session
+                              </ButtonAction>
+                            ) : undefined
+                          }
+                        />
+                      ))}
                     {/* Meet-type — sessions the owner signs up for. Tap routes
                         to the linked series so the viewer can pick a date. */}
                     {userProfile.carerProfile.services
                       .filter((s): s is import("@/lib/types").CarerMeetServiceConfig => s.kind === "meet" && s.enabled)
                       .map((svc) => {
-                        const formatLabel: Record<string, string> = {
-                          one_on_one: "1-on-1",
-                          small_group: "Small group",
-                          workshop: "Workshop",
-                        };
-                        const cadenceLabel: Record<string, string> = {
-                          weekly: "Weekly",
-                          biweekly: "Every 2 weeks",
-                          monthly: "Monthly",
-                          ad_hoc: "By arrangement",
-                        };
-                        // Service ↔ Meet Linkage, 2026-05-13. One-to-many
-                        // cardinality: a Meet service can run on N meets.
-                        // B7 surfaces every linked meet's schedule below;
-                        // C5 routes the Book CTA through `BookSessionSheet`
-                        // (real Booking + roster entry) with a session
-                        // picker across all linked meets.
-                        const linkedMeets = svc.linkedMeetIds.flatMap((id) => {
-                          const m = mockMeets.find((meet) => meet.id === id);
-                          return m ? [m] : [];
-                        });
-                        const bookable = linkedMeets.length > 0;
+                        const bookable = resolveServiceLinkedMeets(svc).length > 0;
                         return (
-                          <div key={svc.id} className="profile-service-card">
-                            <div className="profile-service-top">
-                              <span className="profile-service-name">{svc.title}</span>
-                              <div className="profile-service-price-wrap">
-                                <span className="profile-service-price">
-                                  {svc.pricePerSession.toLocaleString()} Kč
-                                  <span className="profile-service-unit">{" "}/ session</span>
-                                </span>
-                              </div>
-                            </div>
-                            <div className="profile-service-subs">
-                              <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
-                                {formatLabel[svc.format] ?? svc.format}
-                              </span>
-                              <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
-                                {cadenceLabel[svc.cadence] ?? svc.cadence}
-                              </span>
-                              <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
-                                {svc.durationMinutes} min
-                              </span>
-                            </div>
-                            {/* B7 — linked-meet schedule grounding: when and
-                                where the sessions actually run. */}
-                            {linkedMeets.length > 0 && (
-                              <div className="flex flex-col gap-xs" style={{ marginTop: 4 }}>
-                                {linkedMeets.map((meet) => (
-                                  <span
-                                    key={meet.id}
-                                    className="flex items-center gap-xs text-xs text-fg-tertiary"
+                          <MeetServiceCardView
+                            key={svc.id}
+                            svc={svc}
+                            action={
+                              !isSelf ? (
+                                bookable ? (
+                                  <ButtonAction
+                                    variant="secondary"
+                                    size="sm"
+                                    cta
+                                    className="self-start"
+                                    onClick={() =>
+                                      isGuest
+                                        ? requireAuth(`book ${firstName}'s session`)
+                                        : setBookingService(svc)
+                                    }
                                   >
-                                    <CalendarBlank size={13} weight="light" className="shrink-0" />
-                                    <span>
-                                      {meetScheduleSummary(meet)} · {meet.location}
-                                    </span>
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                            {svc.notes && (
-                              <p className="profile-service-notes">{svc.notes}</p>
-                            )}
-                            {!isSelf && (
-                              bookable ? (
-                                <ButtonAction
-                                  variant="secondary"
-                                  size="sm"
-                                  cta
-                                  className="self-start"
-                                  onClick={() =>
-                                    isGuest
-                                      ? requireAuth(`book ${firstName}'s session`)
-                                      : setBookingService(svc)
-                                  }
-                                >
-                                  Book a session
-                                </ButtonAction>
-                              ) : (
-                                <ButtonAction
-                                  variant="secondary"
-                                  size="sm"
-                                  cta
-                                  className="self-start"
-                                  {...(isGuest
-                                    ? { onClick: () => requireAuth(`book ${firstName}'s service`) }
-                                    : { href: `/profile/${userId}?tab=chat` })}
-                                >
-                                  Ask about this
-                                </ButtonAction>
-                              )
-                            )}
-                          </div>
+                                    Book a session
+                                  </ButtonAction>
+                                ) : (
+                                  <ButtonAction
+                                    variant="secondary"
+                                    size="sm"
+                                    cta
+                                    className="self-start"
+                                    {...(isGuest
+                                      ? { onClick: () => requireAuth(`book ${firstName}'s service`) }
+                                      : { href: `/profile/${userId}?tab=chat` })}
+                                  >
+                                    Ask about this
+                                  </ButtonAction>
+                                )
+                              ) : undefined
+                            }
+                          />
                         );
                       })}
                   </>
