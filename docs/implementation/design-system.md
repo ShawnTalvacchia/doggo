@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-06-13
+last-reviewed: 2026-06-16
 tags: [design-system, components, patterns, css]
 review-trigger: "when building or refactoring components, adding CSS patterns, or consolidating styles"
 ---
@@ -47,7 +47,8 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 | `ButtonIcon` | Icon-only buttons (40px square) | `icon`, `badge` (notification dot) |
 | `InputField` | Text inputs with label, helper, error | `label`, `error`, `helper` |
 | `CheckboxRow` | Labeled checkbox | `checked`, `label`, `placement` |
-| `Toggle` | On/off switch for immediate settings | `checked`, `onChange`, `size` (default / `sm`). `sm` is the compact track — used for the per-link "Booking required" toggles inside `MeetServiceEditCard`. |
+| `Toggle` | On/off switch for immediate settings | `checked`, `onChange`, `size` (default / `sm`), `strong` (bold label via `.toggle-label--strong` — for option-header rows, e.g. `PricedToggleRow`). `sm` is the compact track. |
+| `PricedToggleRow` | A priced opt-in row for carer service editors (walk delivery options, appointment meeting-locations) | `label`, `description?`, `checked`, `onToggle`, `price`, `onPriceChange`, `unitLabel`, `inputId`. Bold option name + small toggle on row 1; muted subline + compact price input (unit *inside* via `.input-with-trailing`) on row 2 when on. One shared shape so the editors read identically. Service Options & Booking Clarity, 2026-06-16. |
 | `TabBar` | Horizontal tab row | `tabs`, `activeKey`, `onChange`. The bar itself overflows scrollably (`max-width: 100%; overflow-x: auto`) with `flex-shrink: 0; white-space: nowrap` on each tab — mirrors the `.filter-pill-row` pattern. Without this, narrow viewports bleed horizontal scroll onto the panel body. (Inbox & Notifications, 2026-05-08.) |
 | `StatusBadge` | Contract lifecycle + session state labels | `status` |
 | `SectionLabel` | Section heading in lists/panels | `label` |
@@ -111,6 +112,7 @@ Shared CSS classes in `globals.css` that are used across multiple components. Us
 | `.pill-group` + `.pill` / `.pill.active` | Multi-select filter pills | Toggle on/off, brand color when active |
 | `.tag` | Compact label (4px radius) | For post tags, metadata labels |
 | `.chip` | Pill-shaped label (12px radius) | Service chips, booking chips |
+| `.input-with-leading-icon` + `.input-leading-icon` | Text input with a leading icon (e.g. a map-pin on an address field) | Mirror of the trailing `.input-with-icon`. Icon at `left: 10px`, input `padding-left: 32px` (gap tuned to match list-row icon spacing). Used by the walk handoff-location field. Service Options & Booking Clarity, 2026-06-16. |
 | `.avatar` | 40×40 circle image | Standard user/dog avatar |
 | `.card-schedule-meet` | Schedule/booking card | Left accent border, consistent padding |
 | `.feed-card-*` | Feed card layout system | Two-column (avatar + content), two-row header |

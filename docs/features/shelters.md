@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-13
+last-reviewed: 2026-06-16
 tags: [shelters, institutional-accounts, walkers, dogs, cold-start, photos, mentor-network]
 review-trigger: "when modifying shelter surfaces, walker tier model, or non-owned dog handling"
 ---
@@ -236,9 +236,9 @@ Lives at `/dogs/[id]`. Shipped (Dog Profile phase, 2026-06-03) for both shelter 
 
 **Policy strip** — Solo-only / Experienced-handlers-only renders as its own row below the hero (shield icon + descriptive text), visually distinct from personality tags. Walker eligibility gates, not personality. Shelter dogs only — derived via `derivePolicyChips`.
 
-**Standing preferences** — "How {Dog} likes to be cared for" section between the about/operational block and Health. Four label + text-with-separator rows (Likes / Dislikes / Triggers / Play). See [[features/profiles]] → Standing preferences for storage shape + edit affordance.
+**Standing preferences** — "How {Dog} likes to be cared for" section between the about/operational block and Health. Four label + text-with-separator rows (Likes / Dislikes / Triggers / Play) **plus an Exercise row** (`exerciseNeeds`). For **shelter-managed dogs**, when the whole section is empty it shows a neutral **"No care notes yet."** instead of hiding (owned dogs hide); copy is neutral because every viewer sees it — the staff prompt-to-fill belongs in the operator view (FC16). Service Options & Booking Clarity, 2026-06-16. See [[features/profiles]] → Standing preferences for storage shape + edit affordance.
 
-**Health (Vaccines V1)** — Syringe-prefixed vaccine chips list (`Rabies · Aug 2025`, etc.) + acknowledgement caption ("Confirmed by {acknowledger} on {date}"). Shelter dogs use the shelter as the acknowledger; owned dogs use the owner's first name. See [[features/profiles]] → Vaccines V1.
+**Health (Vaccines V1)** — Syringe-prefixed vaccine chips list (`Rabies · Aug 2025`, etc.) + acknowledgement caption ("Confirmed by {acknowledger} on {date}"); also surfaces **spayed/neutered**, **conditions**, and a quiet **microchip number** line (added Service Options & Booking Clarity, 2026-06-16 — relevant for shelter dogs, chipped on intake). Shelter dogs use the shelter as the acknowledger; owned dogs use the owner's first name. See [[features/profiles]] → Vaccines V1.
 
 **Recent walkers** — Avatar stack with names below. Shelter dogs only. Derived from posts tagging this dog whose author is a walker at the shelter. Falls back to no row when there are none.
 

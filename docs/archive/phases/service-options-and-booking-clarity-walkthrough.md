@@ -1,5 +1,5 @@
 ---
-status: active
+status: archived
 last-reviewed: 2026-06-16
 review-trigger: "Update as items are walked, edit as scope adjusts"
 ---
@@ -55,7 +55,7 @@ Interaction nuance, complex state, persona round-trips. Each check gives **where
 ### V3 — Dog health/care fields, populated vs empty (D)
 
 - [x] **V3.1 Fully populated (shelter dog).** `/dogs/shelter-dog-tonda`. *Expect:* "How Tonda likes to be cared for" with **Likes / Triggers / Play / Exercise** rows; **Health** with vaccines + **Spayed / neutered** + **Microchip · 203164000981245**.
-- [ ] **V3.2 Empty-state prompt (shelter dog).** `/dogs/shelter-dog-liza`. *Expect:* the care section shows a neutral **"No care notes yet."** instead of hiding (owned dogs hide entirely). Copy is neutral because every viewer sees it; the staff "add notes" prompt belongs in the operator view (FC16).
+- [x] **V3.2 Empty-state prompt (shelter dog).** `/dogs/shelter-dog-liza`. *Expect:* the care section shows a neutral **"No care notes yet."** instead of hiding (owned dogs hide entirely). Copy is neutral because every viewer sees it; the staff "add notes" prompt belongs in the operator view (FC16).
 - [x] **V3.3 Conditions line (shelter dog).** `/dogs/shelter-dog-simon`. *Expect:* a health **conditions** line ("Senior with some hip stiffness…").
 - [x] **V3.4 Owned-dog render + edit.** `/dogs/bara?as=daniel` (persona matters — Bára's owner Daniel has a private profile, and editing needs to be him) shows the **Exercise** row + **Microchip** line. Then `/profile?as=daniel` → **Edit** → Bára's card has an **"Exercise needs"** field (preferences) + **"Microchip number"** field (Health & vet) that save and re-render.
 

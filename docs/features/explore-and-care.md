@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-13
+last-reviewed: 2026-06-16
 
 tags: [discover, care, booking, carers, map, payment, trust-gating, volunteering]
 review-trigger: "when modifying Discover Care tab, Carer profiles, booking flows, payment, or map"
@@ -142,6 +142,21 @@ Care arrangements sit inside existing trust relationships. Every provider card a
 - **Booking sheets:** `BookSessionSheet` (Meet-type — creates a `Booking` + adds to the meet roster via `setMeetRsvp`) and `LinkedWalkBookingSheet` (config #2 linked-care booking — creates a plain Care `Booking`, no roster; renamed from `DropoffBookingSheet` in the Walk Service Delivery phase). Both reachable from the carer's Services tab and a linked meet's detail page.
 - **Soft-archive on service delete.** Deleting a Meet/Appointment service with active bookings soft-archives it (`enabled: false` + `softDeletedAt`) rather than hard-deleting; existing bookings keep resolving their service reference. `Booking` carries no `serviceId`, so "has active bookings" is proxied by the linked meet's roster. No-booking services hard-delete.
 - **`CarerCareServiceConfig.id?`** — set only when a Care service is meet-linked (config #2); resolved by `getServiceById`. `CarerMeetServiceConfig.seriesMeetId` (singular) retired in favour of `linkedMeetIds: string[]` (one-to-many).
+
+---
+
+### Service Options & Booking Clarity additions (closed 2026-06-16)
+
+The phase generalised "different service configs carry different prices + logistics, and the booking flow must communicate both." Four axes:
+
+- **Day-care duration (half-day SKU).** `CarerCareServiceConfig.durationOptions: { duration: "full_day" | "half_day"; price }[]` (day_care only). Absent = single flat `pricePerUnit` (legacy). `computeQuote` resolves `inquiry.dayCareDuration`; the choice persists on `Booking.dayCareDuration` and shows on the booking detail. Half-day seeds to **60% of full-day** when the carer opts in (tunable). Tereza seeds 150 / 90.
+- **Carer-edit UI for the priced axes.** `ProfileServicesTab` now authors **walk delivery** AND **day-care duration** options (both were mock-seed-only before). Built on a shared `PricedToggleRow` (see [[design-system]]): bold option name + small toggle; muted subline + inline price (unit inside the input) on row 2 when on. Walk delivery: drop-off + pickup, at-least-one guard, pickup seeds to +20% of drop-off.
+- **Walk handoff location (C).** `Booking.deliveryLocation?: string` (single free-text field — `delivery` method disambiguates pickup-point vs drop-off-point, so no pickup/dropoff pair). `LinkedWalkBookingSheet` shows an editable address field with an **event-aware default**: pickup → the owner's area; drop-off → the **linked meet's park**. A non-default value is a *proposal* the carer reviews (no formal approve gate in V1 — chat covers it). Renders on `ScheduleCard` + booking detail. Free-text V1; real POI autocomplete deferred (P65 / OQ §3) — the input carries a leading map-pin as a foreshadow. Saved-address dropdown reuse deferred.
+- **"Group walk" → "Small-group walk" (C5).** Canonical walk sub-service renamed across `SUB_SERVICES`, `FilterBody`, and all mock data, so the care delivery detail (≤4 clients' dogs) no longer collides with a community group-walk *Meet*. The `mockShelters` FC18 community group walk keeps "group walk" (it genuinely is a meet). See [[Groups & Care Model]].
+- **Appointment meeting-options (B; closes OQ §17).** `CarerAppointmentServiceConfig.appointmentLocations: { kind, price }[]` — **kept separate** from walks (no shared abstraction, no migration) + **curated** four `AppointmentLocationKind` tuples (labels/owner-copy in `APPOINTMENT_LOCATION_META`). `computeAppointmentQuote(config, locationKind?)` resolves the chosen option's price as the base; the kind rides `AppointmentRef.location` through inquiry → proposal → booking. `AppointmentBookingSheet`: **picker** (>1 option) / **read-only line** (exactly 1, e.g. "Klára comes to your address") / **omitted** (0 = legacy flat rate). Seeds: Klára single `carer_to_you`, Radek single `you_to_carer`, Šárka multi (home 650 / park 600), Lenka flat.
+- **Appointment editor simplified.** The card collapsed three "what is this" fields (Type / Training focus / Notes) to **name + Description + Type**. The `trainingType` enum (P73, 11 pills, display-only) was removed; the carer describes focus/grooming in the free-text Description (reuses `notes`). **`appointmentCategory` (Type) kept** — it powers the Discover "Training" filter + card labels. Re-opening structured training filtering later → OQ §18.
+- **Priced-axis breakdown on the profile service card.** Both walks (delivery rows) and day-care (Full day / Half day rows) render their priced options inline with a "From {cheapest}" price, so the two read consistently on `/profile/[userId]`.
+- **Linked-care booking copy reframe.** The `LinkedWalkBookingSheet` card subline drops the raw "Walks & Check-ins" label (read as a check-in) → "On the {park} group walk · no need to come along," surfacing the linked meet. "no need to come along" (positive) replaces "you don't come along" across the card, success screen, and `LinkedCareCallout`.
 
 ---
 

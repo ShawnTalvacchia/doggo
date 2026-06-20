@@ -28,7 +28,7 @@ review-trigger: "at the start and end of every phase"
 
 The full product skeleton exists — every page renders with real content and working interactions. Many surfaces are still 60-70%: they tell the story at a glance but don't hold up under scrutiny. The track to the demo: deep page-by-page passes → world-building → demo packaging.
 
-**Current phase:** Service Options & Booking Clarity — built; in walkthrough.
+**Up next:** Design-System Audit + Cleanup (see below) — no phase currently open.
 
 Build history lives in `archive/phases/` (this roadmap is a compass, not a changelog — it doesn't recap what shipped). The punch list (`planning/punch-list.md`) runs alongside whatever phase is active.
 
@@ -40,7 +40,7 @@ The forward track toward the demo. Phase boards are created when a phase opens �
 
 | Phase | Goal | Key refs |
 |-------|------|----------|
-| **Design-System Audit + Cleanup** *(next)* | Lead with a broad design-system audit — sweep for inconsistency + accumulated debt now that the shelter / Dog Profile / Carer Portfolio / Mentor Network surfaces have landed — feeding the punch list and scoping the cleanup. Then consolidate: Section shell (FC4), IdentityChip (FC5), `SortMenu` (FC15), the `flex-1 + nowrap` CTA pattern, P67/P76/P78, and promote the inlined violet hex to a real `--volunteer-*` token family. Late by design: clean once, after the surfaces settle. | `Future Considerations` FC4/FC5/FC15, `punch-list` P67/P76/P78, `implementation/design-system.md` |
+| **Design-System Audit + Cleanup** *(next up)* | Lead with a broad design-system audit — sweep for inconsistency + accumulated debt now that the shelter / Dog Profile / Carer Portfolio / Mentor Network / booking-options surfaces have landed — feeding the punch list and scoping the cleanup. Then consolidate: Section shell (FC4), IdentityChip (FC5), `SortMenu` (FC15), the `flex-1 + nowrap` CTA pattern, P67/P76/P78, promote the inlined violet hex to a real `--volunteer-*` token family, and fold in the new primitives from booking-options (`PricedToggleRow`, `Toggle strong`, `.input-with-leading-icon`) so they're consistent with the rest. Late by design: clean once, after the surfaces settle. | `Future Considerations` FC4/FC5/FC15, `punch-list` P67/P76/P78, `implementation/design-system.md` |
 | **Multi-Path Demo & Guided Walkthroughs (FC17)** | Wrap the built demo arcs (Daniel→Klára, shelter-mentor, adoption-curious) in a guided-UI layer: interstitial/step-card registry, per-arc staging, the `/` launcher doorway, "cut each path tighter." Wrap, don't redesign — each arc's beats are already a clean handoff. | `features/demo-mode.md`, `strategy/Demo Narrative.md`, `Future Considerations` FC17 |
 | **Onboarding & Communication (rewrite)** *(paused — re-scope when surfaces stabilize)* | Teach the model in-product: the Services/Care/Meet split, the connection gradient, profile visibility, and the multi-doorway personas. Re-scope the archived board against the current world (walker-trainer narrative, four-service taxonomy, mentor-session shape). Expect a significant rewrite. | `archive/phases/onboarding-and-communication.md`, `Trust & Connection Model.md`, `Open Questions §2/§3/§4` |
 

@@ -1,12 +1,12 @@
 ---
-status: active
-last-reviewed: 2026-06-15
+status: archived
+last-reviewed: 2026-06-16
 review-trigger: When any task is completed or blocked
 ---
 
 # Service Options & Booking Clarity
 
-> **Status: active — opened 2026-06-15.** Sized 2026-06-02 from PO user interviews (Roman); **expanded 2026-06-13** with a fresh round of PO feedback (relayed during the Adoption-Curious close); **opened 2026-06-15** — pre-build scope calls resolved (see below). Workstreams A + C are straightforward extensions of patterns already shipped; Workstream B (Appointment meeting-options) carries real design work; **Workstream D (dog health/profile fields)** is net-new from the 2026-06-13 round.
+> **Status: archived — closed 2026-06-16.** Sized 2026-06-02 from PO user interviews (Roman); **expanded 2026-06-13** with a fresh round of PO feedback; **opened 2026-06-15** (pre-build scope calls resolved); **walked + closed 2026-06-16** (all workstreams shipped + verified; Decisions log propagated to feature docs; Open Q §17 closed). Workstreams A + C are straightforward extensions of patterns already shipped; Workstream B (Appointment meeting-options) carries real design work; **Workstream D (dog health/profile fields)** is net-new from the 2026-06-13 round.
 >
 > **Opening-audit correction (2026-06-15): Workstream A is only partly shipped.** The pricing engine (`durationOptions`/`dayCareDuration` resolution in `resolveBaseRate`, `lib/pricing.ts`) and the inquiry-form full-day/half-day radio (`InquiryForm.tsx`) are built + seeded — but the **carer service-edit UI (A4)** has no duration-options editor in `ProfileServicesTab` (and no `deliveryOptions` editor either — the walk delivery axis has been mock-seed-only since 2026-05-20). So A is "verify A1/A2/A3 + build A4/A6," not a pure tick.
 >
@@ -147,17 +147,17 @@ Net-new from the 2026-06-13 PO round (comment on Tonda's health section). Today 
 
 ## Acceptance Criteria
 
-- [ ] Day-care carers can opt in to a half-day price; owners see the toggle in the inquiry form and the resulting price line on the proposal + booking detail
-- [ ] Appointment booking sheets surface location to the owner — read-only line for single-option services, picker for multi-option services
-- [ ] Walks `LinkedWalkBookingSheet` lets the owner specify a non-default pickup/drop-off address per booking; meet-linked walks default the drop-off to the linked Meet's location
-- [ ] The "Group walk" subService no longer reads as a community Meet on the Walks & Check-ins card (C5)
-- [ ] Dog health/profile fields surface for shelter dogs: chip/registration #, exercise needs, and triggers/instructions show on a seeded dog (e.g. Tonda), with empty-state prompts where unfilled (Workstream D)
-- [ ] Pricing engine output is correct across all the new option dimensions
-- [ ] Mock data exercises each new surface (half-day-offering day-care carer, multi-option Appointment carer, non-default-address walk booking, a fully-populated shelter dog health section)
-- [ ] Pre-build scope calls are recorded as resolved in this board (with the decision logged)
-- [ ] Open Question §17 is closed by this phase OR explicitly punted with reason
-- [ ] No regressions on walks `deliveryOptions` (which may migrate per B1's decision)
-- [ ] TypeScript compiles clean
+- [x] Day-care carers can opt in to a half-day price; owners see the toggle in the inquiry form and the resulting price line on the proposal + booking detail
+- [x] Appointment booking sheets surface location to the owner — read-only line for single-option services, picker for multi-option services
+- [x] Walks `LinkedWalkBookingSheet` lets the owner specify a non-default pickup/drop-off address per booking; meet-linked walks default the drop-off to the linked Meet's location
+- [x] The "Group walk" subService no longer reads as a community Meet on the Walks & Check-ins card (C5)
+- [x] Dog health/profile fields surface for shelter dogs: chip/registration #, exercise needs, and triggers/instructions show on a seeded dog (e.g. Tonda), with empty-state prompts where unfilled (Workstream D)
+- [x] Pricing engine output is correct across all the new option dimensions
+- [x] Mock data exercises each new surface (half-day-offering day-care carer, multi-option Appointment carer, non-default-address walk booking, a fully-populated shelter dog health section)
+- [x] Pre-build scope calls are recorded as resolved in this board (with the decision logged)
+- [x] Open Question §17 is closed by this phase OR explicitly punted with reason
+- [x] No regressions on walks `deliveryOptions` (which may migrate per B1's decision)
+- [x] TypeScript compiles clean
 
 ---
 
@@ -165,12 +165,12 @@ Net-new from the 2026-06-13 PO round (comment on Tonda's health section). Today 
 
 Complete before marking this phase done. Mark each item done.
 
-- [ ] Walk through every acceptance criterion against the running app
-- [ ] Update `docs/features/explore-and-care.md` with the new booking-flow patterns
-- [ ] Update Open Questions log — close §17; add any new ones (the Q2 free-form possibility is a likely future Q)
-- [ ] Update ROADMAP.md — mark phase complete with summary
-- [ ] Review CLAUDE.md — update if any new principle lands (booking-flow transparency rule?)
-- [ ] Review Punch List items added during the phase — update affected feature docs
-- [ ] Archive this phase board AND walkthrough — copy to `archive/phases/`, mark `status: archived`, then `git mv`
-- [ ] **Structural audit** — see CONTRIBUTING.md closing checklist for the full sweep
-- [ ] **Strategic review** — does the booking flow read clearly to a new tester? What surfaces still under-communicate the "what am I booking" question? Anything to feed back into Demo Narrative or Cold-Start Playbook?
+- [x] Walk through every acceptance criterion against the running app
+- [x] Update `docs/features/explore-and-care.md` with the new booking-flow patterns
+- [x] Update Open Questions log — close §17; add any new ones (the Q2 free-form possibility is a likely future Q)
+- [x] Update ROADMAP.md — mark phase complete with summary
+- [x] Review CLAUDE.md — update if any new principle lands (booking-flow transparency rule?)
+- [x] Review Punch List items added during the phase — update affected feature docs
+- [x] Archive this phase board AND walkthrough — copy to `archive/phases/`, mark `status: archived`, then `git mv`
+- [x] **Structural audit** — see CONTRIBUTING.md closing checklist for the full sweep
+- [x] **Strategic review** — does the booking flow read clearly to a new tester? What surfaces still under-communicate the "what am I booking" question? Anything to feed back into Demo Narrative or Cold-Start Playbook?

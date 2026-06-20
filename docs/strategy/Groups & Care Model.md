@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: active
-last-reviewed: 2026-06-13
+last-reviewed: 2026-06-16
 tags: [groups, community, carers, care, navigation, demo, mentor-session]
 review-trigger: "when touching group features, Community tab, Care groups, care model, or demo planning"
 ---
@@ -233,7 +233,7 @@ The Care offering shape splits into four services, distinguished by *whose home*
 
 | Offering | Type | Why |
 |---|---|---|
-| Group walk (provider takes 4 dogs to the park) | Care · Walks & Check-ins | Drop-off; outdoor; owner doesn't attend |
+| Small-group walk (provider walks ≤4 clients' dogs together) | Care · Walks & Check-ins | Drop-off; outdoor; owner doesn't attend |
 | Training walk (provider walks the dog and works on recall during the walk) | Care · Walks & Check-ins | Drop-off; framing is "walk + training included," not a class |
 | Drop-in visit (carer feeds the dog and lets them out at lunch) | Care · House sitting | Short visit to owner's home — same shape as a longer sit |
 | Pet sitter comes to owner's flat for the weekend | Care · House sitting (per night) | Owner's home, overnight |
@@ -243,6 +243,8 @@ The Care offering shape splits into four services, distinguished by *whose home*
 | 1-on-1 training session (owner books a slot at Stromovka 3pm Tues) | Meet | Specific time, owner signs up |
 | Recurring training package (8 sessions over 2 months) | Meet (series) | Generates 8 meet instances, all private to participants |
 | Grooming appointment, training appointment | Appointment | Specific time, no roster — solo by design |
+
+**"Small-group walk," not "Group walk"** (Service Options & Booking Clarity, 2026-06-16). The canonical walk sub-service is **Small-group walk** — renamed from "Group walk" so the *care delivery detail* (a carer walks ≤4 clients' dogs together; drop-off; owner doesn't attend) doesn't collide with a community *group-walk Meet* (green, social, you bring your own dog). Same word, two very different things; the rename keeps the Care card from reading as a Meet. A community group walk that happens to source its dogs from a shelter (FC18) is still a Meet and keeps "group walk."
 
 **Bio-level mention is fine.** A Care provider saying "I work on basic recall during my walks" inside their walking-service description is *marketing inside a Care offering*, not a separate Training service. If they actually want to *offer* Training as a service (people sign up to a session), it's a Meet.
 

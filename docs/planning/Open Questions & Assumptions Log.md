@@ -1,7 +1,7 @@
 ---
 category: work-tracking
 status: active
-last-reviewed: 2026-06-12
+last-reviewed: 2026-06-16
 tags: [questions, risks, assumptions, work-on-deck]
 review-trigger: "before starting a new phase, after any strategic discussion"
 ---
@@ -406,15 +406,9 @@ Added 2026-06-02 from PO user interviews. Vaccines without verification are thea
 
 Added 2026-06-02 from PO user interviews. The current `AppointmentBookingSheet` surfaces no location to the owner — Klára's 1-on-1 training booking flow says nothing about where the session happens (mobile vs. facility) or whether the trainer picks up the dog. Roman flagged the gap.
 
-**Open:**
-- Q1 — generalise into a shared "meeting-options" abstraction across walks_checkins + appointments (extends/replaces `deliveryOptions`), or keep them separate (`appointmentLocations` on `CarerAppointmentServiceConfig`)?
-- Q2 — curated tuples (~4 named patterns: "Carer comes to you" / "You bring dog to carer" / "Carer picks up + meets at a public place" / "Owner + carer meet at a public place") or carer-defined free-form (label + price)?
-- Q3 — default-recommended option per service type? Training → "Carer comes to you" (matches Prague mobile-modal). Facility-based → "You bring dog to carer."
-- Q4 — pricing engine impact — `computeAppointmentQuote` resolves option-aware base rate?
+**Resolved 2026-06-16 (Service Options & Booking Clarity phase, Workstream B).** Shipped `appointmentLocations: { kind, price }[]` on `CarerAppointmentServiceConfig`. Answers: **Q1 → keep separate** (appointment-only field; walks `deliveryOptions` untouched, no migration). **Q2 → curated tuples** — four `AppointmentLocationKind`s ("Carer comes to you" / "You bring your dog to the carer" / "Carer picks up, meet at a public spot" / "Meet at a public spot"), comparable across cards. **Q3 → no smart per-service default** — the carer toggles which tuples they offer; the booking picker defaults to the first offered option (no training-vs-facility auto-default). **Q4 → yes** — `computeAppointmentQuote(config, locationKind?)` resolves the chosen option's price as the base. The chosen tuple rides `AppointmentRef.location` through inquiry → proposal → booking; the booking sheet shows a picker (>1 option), a read-only line (exactly 1), or nothing (0/legacy flat rate). Full spec in [[features/explore-and-care]] + `archive/phases/service-options-and-booking-clarity.md`.
 
-**Forward direction:** scoped into the **Service Options & Booking Clarity** phase (`phases/service-options-and-booking-clarity.md`) as Workstream B with the Qs as Pre-build scope calls. The phase board sketches recommended answers but holds them for confirmation before opening.
-
-**Refs:** [[phases/service-options-and-booking-clarity]] · [[meetings/po-briefing-2026-06-02]] · [[features/explore-and-care]] (existing `deliveryOptions` precedent on walks)
+**Refs:** `archive/phases/service-options-and-booking-clarity.md` · [[meetings/po-briefing-2026-06-02]] · [[features/explore-and-care]]
 
 ---
 
