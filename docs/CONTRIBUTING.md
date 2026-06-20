@@ -50,11 +50,24 @@ Before writing any code for a new phase, complete the **Opening Checklist** on t
 - If you make a significant product decision, record it in the relevant feature doc under a "Decisions" section.
 - **If a code change makes an active walkthrough item's description inaccurate, update the walkthrough item in the same edit.** Stale walkthrough text is worse than no walkthrough — verifiers look for behaviour that's no longer there. See `phases/_walkthrough-template.md` → "Drift rules" for the two recurring failure modes (stale item descriptions + Decisions entries that should have been revised in place rather than appended).
 
+### Walkthrough (the review stage)
+
+**The walkthrough is a main stage of the phase, not a step inside closing.** Once the build is committed, the phase enters a collaborative review: the PO and the agent go through the walkthrough doc **together, point by point.** This is where the bulk of the design refinement happens — building gets a surface ~80% there; the walkthrough gets it right. **Expect many iterations** — most points trigger polish, copy changes, or redirects before they pass. Budget for it; don't rush toward close.
+
+How it runs:
+
+- **The agent prepares the walkthrough doc as it builds** (`phases/<name>-walkthrough.md`, from `_walkthrough-template.md`) — "Open for your call" (O) items, "Worth verifying" (V) items, and an append-only Decisions log. It is ready for review when the build is committed; it is **not** authored from scratch at close.
+- **The PO drives the review with the agent.** Each O/V point is passed or sent back. Resolved O items get checked + a one-line pointer (full rationale lands in the Decisions log — don't duplicate). Decisions made mid-walk get appended to the Decisions log in the same edit.
+- **When a walkthrough change makes an item inaccurate, update the item in the same edit** (template Drift rules). Stale walkthrough text is worse than none.
+- **The phase is not ready to close until every O and V point has passed** and the Decisions log reflects what actually shipped.
+
+Closing comes *after* the walkthrough passes, and **consumes** it — the Decisions log is the propagation worklist (see "Closing a Phase," step 2).
+
 ### Closing a Phase
 
 These steps are the **canonical closing process — the single source of truth.** Work through them in order. The phase board does **not** repeat them; it carries only **phase-specific** close items under its "Close notes" section (the feature docs this phase touched, outward-facing artifacts to graduate, punch-list items it closes, next-phase dependencies it satisfies). Per-decision doc-propagation targets live in the walkthrough's "Decisions surfaced" log (step 2), not in a second checklist. Do not copy these steps onto the board — that duplication is what drifts.
 
-1. **Walk through every acceptance criterion.** Verify each one against the running app, not just the code.
+1. **Confirm the walkthrough passed.** Closing presumes the collaborative Walkthrough stage (above) is complete — every O and V point checked, acceptance criteria holding against the running app. This is a confirmation that the review landed, not a fresh first-time walk.
 2. **Sweep the walkthrough's "Decisions surfaced" section.** This is a plain log — not a checklist. Every entry there represents an emergent decision that needs to land in a feature doc (or be explicitly marked "no doc update needed"). Process each one in order: update the named home doc per the `→` annotation, then check it off in the phase board's Closing Checklist (not in the walkthrough itself — the walkthrough entries stay as the historical record). **The walkthrough cannot be archived until every entry has been propagated.** This is the single biggest defense against feature-doc staleness — earlier phases shipped many decisions that never made it home, and this step plugs the gap going forward.
 3. **Update all affected feature docs.** Beyond what the Decisions section covers, scan for anything else the phase changed (component patterns, edge cases, copy conventions). The feature docs must reflect the new reality.
 4. **Update the Open Questions log.** Close any questions this phase resolved. Add any new ones that emerged.
