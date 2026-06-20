@@ -91,6 +91,17 @@ const statusGroups = [
       { step: "850", hex: "#202a52" },
     ],
   },
+  {
+    label: "Violet (volunteer)",
+    prefix: "violet",
+    tokens: [
+      { step: "50", hex: "#faf5ff" },
+      { step: "100", hex: "#ede9fe" },
+      { step: "300", hex: "#c4b5fd" },
+      { step: "700", hex: "#6d28d9" },
+      { step: "800", hex: "#5b21b6" },
+    ],
+  },
 ];
 
 // Opacity steps with actual alpha values from globals.css

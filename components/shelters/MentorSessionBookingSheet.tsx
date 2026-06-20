@@ -504,12 +504,12 @@ export function MentorSessionBookingSheet({
           </div>
 
           <ButtonAction
-            // Volunteer-path commit → violet, but the rounded action shape
-            // (not the pill CTA). Using the btn-volunteer class instead of
-            // the old .inq-submit--volunteer override fixes the purple→green
-            // hover (the override lost a specificity tie to .inq-submit:hover)
-            // and gives a real disabled treatment (2026-06-11).
-            variant="volunteer"
+            // Modal-footer commit → system-primary, rectangular (Principle 8).
+            // Violet stays on the volunteer NAVIGATION affordances (Walk-a-dog /
+            // Book-next-session), not the final submit — keeping the colour
+            // family on wayfinding, not commits (Principle 14/15). Was a rounded
+            // violet button (variant="volunteer"); Design-System Audit WS-B.
+            variant="primary"
             size="md"
             className="w-full"
             rightIcon={<ArrowRight size={16} weight="bold" />}

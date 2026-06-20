@@ -267,9 +267,12 @@ function SortMenu({
 function WalkIntroCard({ onDismiss }: { onDismiss: () => void }) {
   return (
     <div className="help-a-dog-intro-card">
-      {/* violet-700 — inlined hex pending the --volunteer-* token family
-          (FC11); matches .credential-pill--volunteer / the mentor link. */}
-      <HandHeart size={24} weight="light" className="shrink-0" style={{ color: "#6d28d9" }} />
+      <HandHeart
+        size={24}
+        weight="light"
+        className="shrink-0"
+        style={{ color: "var(--status-volunteer-main)" }}
+      />
       <div className="flex flex-col gap-tiny flex-1 min-w-0">
         <span className="font-heading font-semibold text-fg-primary text-sm">
           Walk a shelter dog — no adoption obligation

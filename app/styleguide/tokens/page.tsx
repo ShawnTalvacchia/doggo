@@ -69,6 +69,12 @@ const statusAliases: AliasToken[] = [
   { token: "--status-info-light", maps: "--info-25", hex: "#eff2fc" },
   { token: "--status-info-main", maps: "--info-500", hex: "#607ae1" },
   { token: "--status-info-strong", maps: "--info-600", hex: "#4e63b8" },
+  { token: "--status-info-600", maps: "--info-600", hex: "#4e63b8" },
+  { token: "--status-volunteer-soft", maps: "--violet-50", hex: "#faf5ff" },
+  { token: "--status-volunteer-light", maps: "--violet-100", hex: "#ede9fe" },
+  { token: "--status-volunteer-border", maps: "--violet-300", hex: "#c4b5fd" },
+  { token: "--status-volunteer-main", maps: "--violet-700", hex: "#6d28d9" },
+  { token: "--status-volunteer-strong", maps: "--violet-800", hex: "#5b21b6" },
 ];
 
 // Figma-named spacing scale (primary) + legacy numeric aliases noted inline

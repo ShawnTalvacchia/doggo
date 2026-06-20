@@ -52,10 +52,11 @@ review-trigger: When any task is completed or blocked
 
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
-| B1 | Add the violet base ramp (`--violet-50/100/300/700/800`) + a `--status-volunteer-*` semantic family (soft/light/border/main/strong), mirroring `--status-info-*`. Map to the actual hex in use. | [[design-tokens]] | todo |
-| B2 | Migrate the ~11 violet-using classes (`.btn-volunteer`, `.booking-card--volunteer`, `.credential-pill--volunteer` + tier vars, `.shelter-summary-card-icon`, `.shelter-walk-mentor-link`, mentor CTA/wash, shelter chip) + the inline `#6d28d9` in `help-a-dog/page.tsx:272` onto the tokens. Delete the scoped `--mentor-progress-violet*` one-offs. | [[design-system]] (Principle 14/15) | todo |
-| B3 | Surface the new `--status-volunteer-*` family + the missing `--status-info-600` in the styleguide tokens page. | [[design-tokens]] | todo |
-| B4 | Formalize design-system Principle 15 ("coloured affordance = pill or text link, never a rounded coloured button"): fix the rounded volunteer "Book session" button (`MentorSessionBookingSheet.tsx:506`) and the filter-footer `cta` pill (`FilterPanelMobile.tsx:72`, Principle 8 — footer cta is for celebratory commits only). | [[design-system]] | todo |
+| B1 | Added the violet base ramp (`--violet-50/100/300/700/800`) + `--status-volunteer-*` semantic family (soft/light/border/main/strong) in `:root`, mirroring `--status-info-*`. | [[design-tokens]] | done |
+| B2 | Migrated every violet hex/rgba to the tokens (sed pass: solid hex → semantic tokens; the 3 alpha rgba → `color-mix(... var(--status-volunteer-*) N%, transparent)`) + the inline `#6d28d9` in `help-a-dog/page.tsx`. The `--mentor-progress-violet*` scoped vars now alias the family. **Zero raw violet hex remains** outside the primitive ramp defs — except `.alert--info` (flagged, see B-note). Also dropped a misleading `var(--brand-50, #ede9fe)` dead fallback. | [[design-system]] (Principle 14/15) | done |
+| B3 | Surfaced `--status-volunteer-*` + the missing `--status-info-600` in the styleguide tokens page, and the `--violet-*` primitive ramp on the colors page (no-orphan-tokens). | [[design-tokens]] | done |
+| B4 | Formalized Principle 15 in design-system.md and applied it: the rounded violet `variant="volunteer"` "Book session" submit (`MentorSessionBookingSheet`) → `variant="primary"` rectangular (Principle 8 footer commit; violet stays on nav affordances per Principle 14); dropped the `cta` pill on `FilterPanelMobile`'s "View Results". | [[design-system]] | done |
+| B5 | **Flag (not built).** `.alert--info` is styled with raw violet hex — semantically odd for an *info* alert (should it be `--status-info` blue?). Left untokenized + raw, surfaced as a walkthrough open call rather than mis-tokenized as volunteer. | [[design-system]] | flagged |
 
 ---
 

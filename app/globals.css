@@ -226,6 +226,13 @@
   --info-600: #4e63b8;
   --info-850: #202a52;
 
+  /* ---- _Violet (volunteer family ramp) ---- */
+  --violet-50: #faf5ff;
+  --violet-100: #ede9fe;
+  --violet-300: #c4b5fd;
+  --violet-700: #6d28d9;
+  --violet-800: #5b21b6;
+
   /* ---- _Transparent: Dark (black overlay) ---- */
   --transparent-dark-0: rgba(0, 0, 0, 0);
   --transparent-dark-4: rgba(0, 0, 0, 0.039);
@@ -355,6 +362,16 @@
   --status-info-main: var(--info-500); /* #607ae1 */
   --status-info-strong: var(--info-600); /* #4e63b8 */
   --status-info-600: var(--info-600); /* #4e63b8 — group labels */
+
+  /* Volunteer = violet — the third semantic colour family (community = green,
+     paid care = blue, volunteer = violet). One job: the volunteer path
+     (shelter walking, mentor sessions). See design-system.md Principle 14/15.
+     Design-System Audit + Cleanup WS-B, 2026-06-20. */
+  --status-volunteer-soft: var(--violet-50); /* #faf5ff — lightest wash, inverse text */
+  --status-volunteer-light: var(--violet-100); /* #ede9fe — soft fills, pill bg */
+  --status-volunteer-border: var(--violet-300); /* #c4b5fd — accent borders */
+  --status-volunteer-main: var(--violet-700); /* #6d28d9 — primary violet, buttons, icons */
+  --status-volunteer-strong: var(--violet-800); /* #5b21b6 — hover/emphasis, text-on-light */
 
   /* Legacy shorthands */
   --success: var(--status-success-main);
@@ -1797,13 +1814,13 @@ body.guest-route {
    promote to --volunteer-* tokens when violet earns a token family. */
 .btn-cta.btn-volunteer,
 .btn-volunteer:not(.btn-cta) {
-  background: #6d28d9;             /* violet-700 */
-  color: #faf5ff;                 /* violet-50 */
+  background: var(--status-volunteer-main);             /* violet-700 */
+  color: var(--status-volunteer-soft);                 /* violet-50 */
   border: none;
 }
 
 .btn-volunteer:hover:not(:disabled) {
-  background: #5b21b6;             /* violet-800 */
+  background: var(--status-volunteer-strong);             /* violet-800 */
 }
 
 .btn-volunteer:disabled,
@@ -5375,7 +5392,7 @@ body.guest-route {
 
 /* Chip variant: ongoing (brand accent) */
 .chip--ongoing {
-  background: var(--brand-50, #ede9fe);
+  background: var(--brand-50);
   color: var(--brand-400);
   border-color: transparent;
 }
@@ -8033,7 +8050,7 @@ body:has(.bottom-nav) .bookings-page {
    hex matches the volunteer button + credential family (violet-700);
    promote to a --volunteer-* token when that family earns one (FC11). */
 .booking-card--volunteer {
-  border-left-color: #6d28d9;
+  border-left-color: var(--status-volunteer-main);
 }
 
 .booking-card:hover {
@@ -14297,8 +14314,8 @@ a.shelter-intro-social:hover {
 .mentor-split-book {
   flex: 1;
   border: none;
-  background: #6d28d9;                 /* violet-700 */
-  color: #faf5ff;                      /* violet-50 */
+  background: var(--status-volunteer-main);                 /* violet-700 */
+  color: var(--status-volunteer-soft);                      /* violet-50 */
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   cursor: pointer;
@@ -14312,16 +14329,16 @@ a.shelter-intro-social:hover {
   width: 40px;
   flex-shrink: 0;
   border: none;
-  border-left: 1px solid rgba(250, 245, 255, 0.25);
-  background: #6d28d9;                 /* violet-700 */
-  color: #faf5ff;
+  border-left: 1px solid color-mix(in srgb, var(--status-volunteer-soft) 25%, transparent);
+  background: var(--status-volunteer-main);                 /* violet-700 */
+  color: var(--status-volunteer-soft);
   cursor: pointer;
   transition: background 120ms ease;
 }
 
 .mentor-split-book:hover,
 .mentor-split-more:hover {
-  background: #5b21b6;                 /* violet-800 */
+  background: var(--status-volunteer-strong);                 /* violet-800 */
 }
 
 /* Mentor-list rows (mentor-discovery rework, 2026-06-11) — the neutral
@@ -14392,12 +14409,12 @@ a.shelter-intro-social:hover {
 }
 
 .walk-entry-option--primary {
-  border-color: #c4b5fd;               /* violet-300 — soft accent */
+  border-color: var(--status-volunteer-border);               /* violet-300 — soft accent */
 }
 
 .walk-entry-option--primary .walk-entry-option-icon {
-  background: #ede9fe;                  /* violet-100 */
-  color: #6d28d9;                       /* violet-700 */
+  background: var(--status-volunteer-light);                  /* violet-100 */
+  color: var(--status-volunteer-main);                       /* violet-700 */
 }
 
 
@@ -14418,8 +14435,8 @@ a.shelter-intro-social:hover {
    --volunteer-* token family when violet earns more uses (same deferral
    as the credential pills + dogs-in-care card). */
 .mentor-progress {
-  --mentor-progress-violet: #6d28d9;       /* violet-700 */
-  --mentor-progress-violet-soft: #ede9fe;  /* violet-100 */
+  --mentor-progress-violet: var(--status-volunteer-main);       /* violet-700 */
+  --mentor-progress-violet-soft: var(--status-volunteer-light);  /* violet-100 */
   padding: var(--space-sm) 0;
 }
 
@@ -14520,8 +14537,8 @@ a.shelter-intro-social:hover {
   width: 44px;
   height: 44px;
   border-radius: var(--radius-panel);
-  background: #ede9fe; /* violet-100 */
-  color: #5b21b6;      /* violet-800 */
+  background: var(--status-volunteer-light); /* violet-100 */
+  color: var(--status-volunteer-strong);      /* violet-800 */
   flex-shrink: 0;
 }
 
@@ -14538,7 +14555,7 @@ a.shelter-intro-social:hover {
 
 .shelter-summary-card-action {
   font-size: var(--text-xs);
-  color: #5b21b6; /* violet-800 — matches icon */
+  color: var(--status-volunteer-strong); /* violet-800 — matches icon */
   padding-top: var(--space-tiny);
 }
 
@@ -14745,9 +14762,9 @@ a.shelter-intro-social:hover {
    --volunteer-* token family (FC11), kept in sync with the credential-pill
    violet ramp. */
 .shelter-dog-card-chip--pending {
-  background: rgba(237, 233, 254, 0.85); /* violet-100 at 0.85 alpha */
-  color: #5b21b6; /* violet-800 */
-  border-color: rgba(109, 40, 217, 0.35); /* violet-700 tinted border */
+  background: color-mix(in srgb, var(--status-volunteer-light) 85%, transparent); /* violet-100 at 0.85 alpha */
+  color: var(--status-volunteer-strong); /* violet-800 */
+  border-color: color-mix(in srgb, var(--status-volunteer-main) 35%, transparent); /* violet-700 tinted border */
 }
 
 /* Event tier — solid brand fill, no glass. Strongest visual treatment
@@ -14852,8 +14869,8 @@ a.shelter-intro-social:hover {
   gap: var(--space-md);
   margin: var(--space-md) var(--space-md) 0;
   padding: var(--space-md) var(--space-lg);
-  background: #faf5ff;                  /* violet-50 — soft wash */
-  border: 1px solid #ede9fe;            /* violet-100 */
+  background: var(--status-volunteer-soft);                  /* violet-50 — soft wash */
+  border: 1px solid var(--status-volunteer-light);            /* violet-100 */
   border-radius: var(--radius-panel);
 }
 
@@ -15167,10 +15184,10 @@ a.shelter-intro-social:hover {
    color showing up). Tier 3: dark family fill + near-white text
    (the inverted "top tier" jump). */
 .credential-pill--volunteer {
-  --credential-pill-bg-tier-2: #ede9fe;                       /* violet-100 — soft family color */
-  --credential-pill-bg-tier-3: #6d28d9;                       /* violet-700 — saturated, inverts text */
-  --credential-pill-text-strong: #5b21b6;                     /* violet-800 — Tier 2 text + source for Tier 1 mix */
-  --credential-pill-text-inverse: #faf5ff;                    /* violet-50, near-white for Tier 3 */
+  --credential-pill-bg-tier-2: var(--status-volunteer-light);                       /* violet-100 — soft family color */
+  --credential-pill-bg-tier-3: var(--status-volunteer-main);                       /* violet-700 — saturated, inverts text */
+  --credential-pill-text-strong: var(--status-volunteer-strong);                     /* violet-800 — Tier 2 text + source for Tier 1 mix */
+  --credential-pill-text-inverse: var(--status-volunteer-soft);                    /* violet-50, near-white for Tier 3 */
 }
 
 /* Carer family — info-blue hue ramp, parallel structure. */
@@ -15377,7 +15394,7 @@ a.shelter-intro-social:hover {
    link / doorway card). White text inherited from base. Hex inlined pending
    the --volunteer-* token family (FC11). 2026-06-13. */
 .dog-profile-status-pill--pending {
-  background: #6d28d9; /* violet-700 */
+  background: var(--status-volunteer-main); /* violet-700 */
 }
 
 /* Adopted — the happy terminal state. Success green, the bright endpoint of
@@ -17050,7 +17067,7 @@ a.shelter-intro-social:hover {
   gap: var(--space-xs);
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
-  color: #6d28d9;                 /* violet-700 — volunteer family */
+  color: var(--status-volunteer-main);                 /* violet-700 — volunteer family */
   text-decoration: none;
   white-space: nowrap;
 }

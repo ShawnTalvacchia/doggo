@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-06-08
+last-reviewed: 2026-06-20
 tags: [tokens, css, figma, design-system]
 review-trigger: "when adding or changing CSS variables"
 ---
@@ -180,6 +180,13 @@ CSS pattern: `--transparent-{dark|light|gray}-{step}`
 | Status/Info/light               | `--status-info-light`     | `#eff2fc`               |
 | Status/Info/main                | `--status-info-main`      | `#607ae1`               |
 | Status/Info/strong              | `--status-info-strong`    | `#4e63b8`               |
+| Status/Volunteer/soft           | `--status-volunteer-soft`   | `--violet-50` `#faf5ff`   |
+| Status/Volunteer/light          | `--status-volunteer-light`  | `--violet-100` `#ede9fe`  |
+| Status/Volunteer/border         | `--status-volunteer-border` | `--violet-300` `#c4b5fd`  |
+| Status/Volunteer/main           | `--status-volunteer-main`   | `--violet-700` `#6d28d9`  |
+| Status/Volunteer/strong         | `--status-volunteer-strong` | `--violet-800` `#5b21b6`  |
+
+**Volunteer = violet** is the third semantic colour family (community = green, paid care = blue, volunteer = violet — see `design-system.md` Principle 14/15). Primitive ramp `--violet-50/100/300/700/800`. Added Design-System Audit + Cleanup WS-B, 2026-06-20 (promoted from inlined hex). Alpha-tinted uses go through `color-mix(in srgb, var(--status-volunteer-*) N%, transparent)`.
 
 **Tailwind utilities.** The `@theme` block maps the status colours so they're reachable as utilities: `text-info` / `bg-info` (`--status-info-main`), `text-info-light` (`--status-info-light`), `text-info-strong` (`--status-info-strong`), plus the `-light` + main variants for success / warning / error. `--color-info-strong` was added 2026-05-17 so blue text on light backgrounds has a utility — the care / paid colour family (see `design-system.md` Principle 14: care = blue, community = green).
 

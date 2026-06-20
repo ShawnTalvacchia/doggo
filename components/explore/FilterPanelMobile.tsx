@@ -69,7 +69,7 @@ export function FilterPanelMobile({
         }
         footer={
           <div className="mobile-slide-footer">
-            <ButtonAction variant="primary" cta onClick={onClose}>
+            <ButtonAction variant="primary" onClick={onClose}>
               View Results
             </ButtonAction>
           </div>
