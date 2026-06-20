@@ -748,7 +748,7 @@ export const mockGroups: Group[] = [
     visibility: "open",
     providers: [
       { userId: "premiumvet", name: "Mánesova Grooming", avatarUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80" },
-      { userId: "lenka-vet", name: "Lenka Nováková", avatarUrl: "/images/generated/zuzana-profile.jpeg" },
+      { userId: "lenka-groomer", name: "Lenka Nováková", avatarUrl: "/images/generated/zuzana-profile.jpeg" },
       { userId: "vet-stepanek", name: "Pavel Štěpánek", avatarUrl: "/images/generated/jakub-profile.jpeg" },
     ],
     neighbourhood: "Vinohrady",
@@ -762,7 +762,7 @@ export const mockGroups: Group[] = [
     serviceListings: [],
     members: [
       { userId: "premiumvet", userName: "Mánesova Grooming", avatarUrl: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80", dogNames: [], role: "admin", joinedAt: "2025-09-01" },
-      { userId: "lenka-vet", userName: "Lenka Nováková", avatarUrl: "/images/generated/zuzana-profile.jpeg", dogNames: [], role: "admin", joinedAt: "2025-09-01" },
+      { userId: "lenka-groomer", userName: "Lenka Nováková", avatarUrl: "/images/generated/zuzana-profile.jpeg", dogNames: [], role: "admin", joinedAt: "2025-09-01" },
       { userId: "vet-stepanek", userName: "Pavel Štěpánek", avatarUrl: "/images/generated/jakub-profile.jpeg", dogNames: [], role: "admin", joinedAt: "2025-09-01" },
       { userId: "shawn", userName: "Shawn", avatarUrl: "/images/generated/shawn-profile.jpg", dogNames: ["Spot", "Goldie"], role: "member", joinedAt: "2025-10-01" },
       { userId: "tereza", userName: "Tereza", avatarUrl: "/images/generated/tereza-profile.jpeg", dogNames: ["Franta"], role: "member", joinedAt: "2025-10-15" },

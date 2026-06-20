@@ -43,10 +43,12 @@ Interaction nuance, complex state, persona-switching round-trips, anything autho
 
 **One check per item — split freely.** If an item bundles two surfaces, two personas, or two behaviours, that's two items, not one. There is no penalty for many small, clearly-pointed items; the penalty is for a fat item that buries three checks behind one URL (or no URL). Group related checks under a sub-heading (`### V1 — {workstream}`) and list each as its own checkbox.
 
-Identifier prefix: **`V`** (V1, V2, ...).
+Identifier prefix: **`V`**. Group a workstream's checks under a `### V1 — {workstream}` sub-heading and **number each check `V1.1`, `V1.2`, …** so it's easy to point at one in conversation ("V1.3 looks good"). Keep the numbers when you split or reorder.
 
-- [ ] **{What this one check proves.}** `{persona via ?as=}` + `{/exact/url}` → tap/do {the one action}. *Expect:* {the single observable result}.
-- [ ] **{The next distinct check — its own item, its own URL.}** ...
+### V1 — {workstream}
+
+- [ ] **V1.1 {What this one check proves.}** `{/exact/url}` (add `?as=<persona>` only if load-bearing) → {the one action}. *Expect:* {the single observable result}.
+- [ ] **V1.2 {The next distinct check — its own item, its own URL.}** ...
 
 ---
 

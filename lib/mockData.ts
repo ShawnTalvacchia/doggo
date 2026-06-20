@@ -90,7 +90,7 @@ export const dogsCareOptions = [
  * 2. **Bridge field.** Every ProviderCard's `userId` matches an entry in
  *    `mockUsers.allUsers`. The IDs typically match (e.g. `jana-k` ↔
  *    `jana-k`), but `klara-h` → `klara`, `nikola-r` → `nikola`,
- *    `lenka-n` → `lenka-vet` because those bridge to journey-persona
+ *    `lenka-n` → `lenka-groomer` because those bridge to journey-persona
  *    user IDs that pre-existed.
  * 3. **Profile navigation** (`/profile/[userId]`) uses
  *    `getUserOrProvider(id)` from `lib/mockUsers.ts`, which prefers the
@@ -169,7 +169,7 @@ export const providers: ProviderCard[] = [
     // Care `services` stay empty — appointments aren't a Care subtype.
     // Grooming surfaces via the Appointment filter pill driven by
     // `appointmentTypes`; the authoritative offering data lives on the
-    // bridged `lenkaVet.carerProfile.services` (kind: "appointment").
+    // bridged `lenkaGroomer.carerProfile.services` (kind: "appointment").
     // Discover Refinement D1, 2026-05-10. Lenka was originally seeded as
     // a vet (Discover & Care C3); repurposed as a groomer in the
     // walkthrough D1 to match the strategic call (Open Q §6) to sunset
@@ -182,7 +182,7 @@ export const providers: ProviderCard[] = [
     mutualConnections: 1,
     lat: 50.0755,
     lng: 14.4378,
-    userId: "lenka-vet",
+    userId: "lenka-groomer",
   },
   {
     id: "sarka-trainer",

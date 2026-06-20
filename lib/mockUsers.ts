@@ -1503,15 +1503,15 @@ export const shawn: UserProfile = {
    repurposed as a groomer during Discover Refinement walkthrough (D1,
    2026-05-10) to align the demo with the Open Q §6 strategic call that
    vets are post-MVP at best (sticky existing PMS systems, less community-
-   shaped relationship). The const name `lenkaVet` + ID `lenka-vet` are
-   retained to avoid an invasive rename across every mock-data reference;
-   the entity itself is now Lenka the groomer. Co-provider on the
-   Mánesova Grooming Salon group, which seeds multi-provider data for the
-   B3 hero variant.
+   shaped relationship). The const + ID were renamed `lenkaVet`/`lenka-vet`
+   → `lenkaGroomer`/`lenka-groomer` (Service Options & Booking Clarity
+   walkthrough, 2026-06-16) so the id no longer contradicts the vets-retired
+   call. Co-provider on the Mánesova Grooming Salon group, which seeds
+   multi-provider data for the B3 hero variant.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-export const lenkaVet: UserProfile = {
-  id: "lenka-vet",
+export const lenkaGroomer: UserProfile = {
+  id: "lenka-groomer",
   firstName: "Lenka",
   lastName: "Nováková",
   email: "lenka.novakova@manesova-grooming.cz",
@@ -2515,7 +2515,7 @@ export const allUsers: UserProfile[] = [
   hana, vitek, anezka,
   jana, nikola, marie,
   shawn,
-  lenkaVet,
+  lenkaGroomer,
   sarkaTrainer, radekTrainer,
   olgaM, marketaH,
   janaK, tomasB, pavelD, simonaV, martinK, lenkaS, petrV,
