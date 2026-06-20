@@ -1805,13 +1805,6 @@ export interface CarerAppointmentServiceConfig {
    *  neither pure Care (drop-off, no specific time) nor pure Meet (specific
    *  time, social roster) — they're appointment-type. */
   appointmentCategory: AppointmentCategory;
-  /** Free-text training focus (only meaningful when
-   *  `appointmentCategory === "training"`). Renders as a chip on the service
-   *  card. Replaced the `trainingType` enum picker 2026-06-16 (too many pills;
-   *  trainers describe their focus better in their own words). If structured
-   *  training filtering is ever built, revisit a controlled vocabulary — see
-   *  Open Questions §18. */
-  trainingFocus?: string;
   /**
    * Where this appointment happens — curated, priced location options
    * (Workstream B, 2026-06-15). Absent/empty = single flat rate via

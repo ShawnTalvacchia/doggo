@@ -1532,13 +1532,6 @@ function UserProfileInner() {
                             <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
                               {svc.appointmentCategory === "training" ? "Training visit" : "Grooming"}
                             </span>
-                            {/* Training focus chip — free text, only renders for
-                                training appointments with a focus set. */}
-                            {svc.appointmentCategory === "training" && svc.trainingFocus && (
-                              <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
-                                {svc.trainingFocus}
-                              </span>
-                            )}
                             <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
                               {svc.durationMinutes} min
                             </span>

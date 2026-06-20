@@ -1483,11 +1483,6 @@ export function ProfileServicesTab({
                       {APPOINTMENT_CATEGORY_LABEL[svc.appointmentCategory] ??
                         svc.appointmentCategory}
                     </span>
-                    {/* Training focus chip — free text, only renders for
-                        training appointments with a focus set. */}
-                    {svc.appointmentCategory === "training" && svc.trainingFocus && (
-                      <span className="chip">{svc.trainingFocus}</span>
-                    )}
                     <span className="chip">{svc.durationMinutes} min</span>
                   </div>
                   {svc.notes && (

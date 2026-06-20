@@ -140,6 +140,26 @@ export function AppointmentServiceEditCard({
         placeholder="e.g. 1-on-1 training session"
       />
 
+      {/* Description — the single free-text field (reuses `notes`). Replaced
+          the separate Training-focus + Notes inputs (2026-06-16 walkthrough):
+          the carer explains what it is and who it's for in their own words. */}
+      <div className="input-block">
+        <label className="label" htmlFor={`appt-desc-${service.id}`}>
+          <span className="label-primary-group">
+            <span>Description</span>
+          </span>
+        </label>
+        <textarea
+          id={`appt-desc-${service.id}`}
+          className="textarea"
+          rows={3}
+          value={service.notes ?? ""}
+          onChange={(e) => patch({ notes: e.target.value })}
+          placeholder="What it is and who it's for. e.g. Behaviour-focused 1-on-1 for reactive or anxious dogs, with an assessment on the first session."
+          style={{ minHeight: 72 }}
+        />
+      </div>
+
       {/* Flat price — only when the carer hasn't set per-location prices.
           With locations on, each option carries its own price below. */}
       {!hasLocations && (
@@ -166,37 +186,13 @@ export function AppointmentServiceEditCard({
               key={opt.key}
               type="button"
               className={`pill pill-sm${service.appointmentCategory === opt.key ? " active" : ""}`}
-              onClick={() => {
-                // Switching category clears `trainingFocus` — it's only
-                // meaningful in the training branch. Otherwise an old
-                // training note would silently follow a grooming service it
-                // doesn't apply to.
-                if (opt.key === "training") {
-                  patch({ appointmentCategory: opt.key });
-                } else {
-                  patch({ appointmentCategory: opt.key, trainingFocus: undefined });
-                }
-              }}
+              onClick={() => patch({ appointmentCategory: opt.key })}
             >
               {opt.label}
             </button>
           ))}
         </div>
       </div>
-
-      {/* Training focus — free text. Replaced the 11-pill enum picker
-          (2026-06-16 walkthrough): too many pills, and trainers describe
-          their focus better in their own words. Only shown for training
-          appointments. */}
-      {service.appointmentCategory === "training" && (
-        <InputField
-          id={`appt-focus-${service.id}`}
-          label="Training focus"
-          value={service.trainingFocus ?? ""}
-          onChange={(val) => patch({ trainingFocus: val || undefined })}
-          placeholder="e.g. Puppy socialisation, reactive dogs, agility"
-        />
-      )}
 
       <InputField
         id={`appt-duration-${service.id}`}
@@ -240,23 +236,6 @@ export function AppointmentServiceEditCard({
             );
           })}
         </div>
-      </div>
-
-      <div className="input-block">
-        <label className="label" htmlFor={`appt-notes-${service.id}`}>
-          <span className="label-primary-group">
-            <span>Notes</span>
-          </span>
-        </label>
-        <textarea
-          id={`appt-notes-${service.id}`}
-          className="textarea"
-          rows={2}
-          value={service.notes ?? ""}
-          onChange={(e) => patch({ notes: e.target.value })}
-          placeholder="e.g. Private session at your location or Stromovka."
-          style={{ minHeight: 56 }}
-        />
       </div>
     </div>
   );
