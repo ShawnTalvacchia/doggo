@@ -37,7 +37,9 @@ Identifier prefix: **`O`** (O1, O2, ...). Use these in conversation to point at 
 
 Interaction nuance, complex state, persona-switching round-trips, anything author-confidence is genuinely uncertain about. Each item should describe a behavior the reader needs to drive themselves — an automated check or a static screenshot wouldn't have caught it.
 
-**Every check names where to look and what to expect.** Give each item a concrete pointer — persona (`?as=<id>`) + the exact URL — and a one-line *Expect:*. A check the reader can't locate is not a check.
+**Every check names where to look and what to expect.** Give each item the exact URL + a one-line *Expect:*. A check the reader can't locate is not a check.
+
+**Add `?as=<persona>` only when who's looking changes what's shown** — an edit/self surface, a circle-scoped or connection-gated service, a viewer-specific default (e.g. "your area"), or a private profile. If the surface looks the same to everyone, omit the persona (don't bolt `?as=daniel` onto an open profile — it's noise and falsely implies the persona matters). When the persona *is* load-bearing, say why in one phrase so the reviewer knows it's deliberate.
 
 **One check per item — split freely.** If an item bundles two surfaces, two personas, or two behaviours, that's two items, not one. There is no penalty for many small, clearly-pointed items; the penalty is for a fat item that buries three checks behind one URL (or no URL). Group related checks under a sub-heading (`### V1 — {workstream}`) and list each as its own checkbox.
 
