@@ -373,7 +373,6 @@
   --radius-lg: 16px;
   --radius-xl: 24px;
   --radius-circle: 9999px;
-  --radius-full: var(--radius-circle);
 
   /* Semantic aliases */
   --radius-panel: var(--radius-md); /* panels, cards, modal sheets — aliased to --radius-md (12px)
@@ -919,134 +918,6 @@ a {
   }
 }
 
-/* ================================================
-   MASTER-DETAIL SHELL
-   Reusable two-or-three column layout (Home, Schedule, Inbox, Discover).
-   Desktop: panels side by side. Mobile: one panel at a time via data-mobile-view.
-   ================================================ */
-
-.md-shell {
-  display: flex;
-  width: 100%;
-  min-height: 0;
-  flex: 1;
-  gap: var(--space-md);
-  justify-content: center;
-}
-
-/* — Shared panel styling (Figma: inset bg, rounded top, border) — */
-/* Desktop: rounded top, square bottom. Mobile: rounded all corners. */
-.md-shell-list,
-.md-shell-detail,
-.md-shell-info {
-  background: var(--surface-inset);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
-  overflow: clip;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-/* — List panel (left) — */
-.md-shell-list {
-  flex: 1;
-  max-width: 400px;
-}
-
-/* — Detail panel (center/right) — */
-.md-shell-detail {
-  width: 640px;
-  max-width: 640px;
-  flex-shrink: 0;
-}
-
-/* — Info panel (right, three-column mode) — */
-.md-shell-info {
-  width: 280px;
-  flex-shrink: 0;
-}
-
-/* Wider max-width when three panels are active */
-.md-shell--three {
-  max-width: 960px;
-}
-
-/* — ListPanel — */
-.list-panel {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-}
-
-.list-panel-header {
-  background: var(--surface-popout);
-  height: 64px;
-  display: flex;
-  align-items: center;
-  padding: 0 var(--space-lg);
-  border-bottom: 1px solid var(--border-regular);
-  flex-shrink: 0;
-  z-index: 2;
-}
-
-.list-panel-header h2 {
-  font-size: var(--text-xl);
-  font-weight: var(--weight-semibold);
-}
-
-.list-panel-search {
-  padding: var(--space-sm) var(--space-md);
-  flex-shrink: 0;
-}
-
-.list-panel-filters {
-  background: var(--surface-popout);
-  padding: var(--space-sm) var(--space-md);
-  flex-shrink: 0;
-}
-.list-panel-filters .tab-main {
-  flex: 1;
-}
-
-.list-panel-scroll {
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
-}
-
-/* — DetailPanel — */
-.detail-panel {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-}
-
-.detail-panel-header {
-  background: var(--surface-popout);
-  height: 64px;
-  display: flex;
-  align-items: center;
-  padding: 0 var(--space-md);
-  border-bottom: 1px solid var(--border-strong);
-  flex-shrink: 0;
-  z-index: 2;
-}
-
-.detail-panel-scroll {
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
-}
-
-.detail-panel-footer {
-  flex-shrink: 0;
-  border-top: 1px solid var(--border-default);
-  padding: var(--space-sm) var(--space-md);
-}
-
 /* — Panel max-width utilities (Phase 22) — */
 .panel-max-sm { max-width: 400px; }
 .panel-max-lg { max-width: 640px; }
@@ -1153,9 +1024,6 @@ a {
   .panel-header-desktop {
     display: none;
   }
-  .detail-panel-header {
-    display: none;
-  }
 }
 
 /* Mobile: show panel-tabbar, hide panel-header-desktop */
@@ -1165,9 +1033,6 @@ a {
     border-radius: var(--radius-panel) var(--radius-panel) 0 0;
   }
   .panel-header-desktop {
-    display: none;
-  }
-  .detail-panel-header {
     display: none;
   }
   .panel-tabbar-title {
@@ -3534,13 +3399,6 @@ body.guest-route {
   border-color: var(--surface-base-inverse);
 }
 
-/* Legacy aliases */
-.discover-type-pills { display: flex; gap: var(--space-xs); padding: var(--space-sm) var(--space-md); overflow-x: auto; flex-shrink: 0; border-bottom: 1px solid var(--border-subtle); }
-.discover-type-pill { display: inline-flex; align-items: center; padding: 4px 14px; font-family: var(--font-body); font-size: var(--font-size-body-sm); font-weight: var(--weight-semibold); border-radius: var(--radius-pill); border: 1px solid var(--border-regular); background: transparent; color: var(--text-secondary); cursor: pointer; white-space: nowrap; transition: all 0.12s ease; }
-.discover-type-pill:hover { border-color: var(--border-stronger); background: var(--surface-hover); }
-.discover-type-pill--active { background: var(--surface-base-inverse); color: var(--text-white); border-color: var(--surface-base-inverse); }
-.discover-type-pill--active:hover { background: color-mix(in srgb, white 12%, var(--surface-base-inverse)); border-color: var(--surface-base-inverse); }
-
 /* ── Floating action button ── */
 .discover-floating-btn {
   position: sticky;
@@ -3704,11 +3562,6 @@ body.guest-route {
     border-radius: var(--radius-panel);
     background: var(--surface-popout);
     overflow: hidden;
-  }
-
-  /* On mobile, hide header inside tab content — bottom nav handles navigation */
-  .discover-mobile-tab-content .list-panel-header {
-    display: none;
   }
 
   /* Nav-hidden: remove radius + padding so panels go edge-to-edge */
@@ -6464,27 +6317,6 @@ body.guest-route {
     /* body-reg / sm / xs unchanged: 14 / 12 / 10px */
   }
 
-  /* Master-detail shell: stack panels, show one at a time */
-  .md-shell {
-    flex-direction: column;
-    max-width: 100%;
-    gap: 0;
-  }
-  .md-shell-list,
-  .md-shell-detail,
-  .md-shell-info {
-    width: 100%;
-    max-width: 100%;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    display: none; /* hidden by default on mobile */
-  }
-  .md-shell-panel--active {
-    display: flex;
-    flex: 1;
-  }
-
   /* Logged-in shell: hide sidebar, full-width main, fixed viewport */
   .sidebar { display: none; }
   .logged-shell-main {
@@ -6576,11 +6408,6 @@ body.guest-route {
   }
   .app-nav-detail-action .btn .btn-icon-left {
     margin: 0;
-  }
-
-  /* Hide panel headers on mobile discover — nav shows the title */
-  .discover-page-shell .list-panel-header {
-    display: none;
   }
 
   .app-nav-link--hide-mobile {
@@ -9493,27 +9320,12 @@ body:has(.bottom-nav) .inbox-page {
   background: var(--surface-inset);
 }
 
-.inbox-page-shell .md-shell {
-  max-width: 1704px; /* 400 + 12 + 640 + 12 + 640 — match Discover */
-}
-
-.inbox-page-shell .md-shell-info {
-  width: 640px;
-  max-width: 640px;
-}
-
 /* ── Chat detail panel layout ── */
 
 .inbox-detail {
   display: flex;
   flex-direction: column;
   min-height: 0;
-}
-
-.inbox-detail .detail-panel-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
 }
 
 .inbox-messages {
@@ -18500,35 +18312,6 @@ a.shelter-intro-social:hover {
     background: var(--surface-inset);
     border: 1px solid var(--border-stronger);
     border-radius: var(--radius-panel);
-  }
-
-  .bookings-page-shell .md-shell,
-  .notifications-page-shell .md-shell,
-  .inbox-page-shell .md-shell {
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .bookings-page-shell .md-shell-list,
-  .bookings-page-shell .md-shell-detail,
-  .notifications-page-shell .md-shell-list,
-  .notifications-page-shell .md-shell-detail,
-  .inbox-page-shell .md-shell-list,
-  .inbox-page-shell .md-shell-detail,
-  .inbox-page-shell .md-shell-info {
-    width: 100%;
-    max-width: 100%;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    display: none;
-  }
-
-  .bookings-page-shell .md-shell-panel--active,
-  .notifications-page-shell .md-shell-panel--active,
-  .inbox-page-shell .md-shell-panel--active {
-    display: flex;
-    flex: 1;
   }
 
   /* Bottom padding so last item isn't clipped by panel border-radius */

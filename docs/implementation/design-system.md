@@ -80,8 +80,6 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 | `DetailHeader` | Back-button header for detail/subpages (desktop) | Back target wraps arrow + title as single clickable area. Accepts `backHref` (Link) or omitted (router.back). Renders inside `PageColumn`'s `abovePanel` slot. **Pairs with `setDetailHeader` (PageHeaderContext) on mobile** — the AppNav-rendered detail header (`.app-nav-detail-header`) is `display: none` above 767px, so detail pages set both: `setDetailHeader(title, onBack)` for the mobile bar in AppNav AND a `<DetailHeader>` `abovePanel` for desktop. Pattern: `app/bookings/[id]/page.tsx`, `app/bookings/[id]/active/page.tsx`, etc. (Inbox & Notifications H, 2026-05-08.) |
 | `FormHeader` / `FormFooter` | Multi-step form page header and footer | Back/Continue button row. |
 | `GuestLayout` | Layout shell for public/guest routes | — |
-| `ListPanel` | *(Legacy — avoid for new code)* | Wrapper for list panels. Use `PanelBody` inside raw div instead. |
-| `DetailPanel` | *(Legacy — avoid for new code)* | Wrapper for detail panels. Use `PanelBody` inside raw div instead. |
 
 ## People (`components/people/`)
 
@@ -123,7 +121,6 @@ Shared CSS classes in `globals.css` that are used across multiple components. Us
 | `.filter-pill-row` | Unified horizontal filter pill row | Used by all Discover sub-pages and Schedule Care tab. Replaced `discover-type-pill` CSS. |
 | `.booking-card` | Redesigned booking/care card | Full accent border for provider/host cards, action verb labels |
 | `.filter-accordion` | Inline collapsible filter sections | Used in FilterBody |
-| `.md-shell` / `.list-panel` / `.detail-panel` | *(Deleted)* MasterDetailShell panels | Replaced by PageColumn |
 | `.person-row` + `.person-row--*` variants | Shared person-row chrome | Used by `PersonRow`. Variant modifiers: `--meet-attendee`, `--group-member`, `--inbox-conversation`, `--default`. Row uses `gap: var(--space-xl)` (20px) between avatar combo and identity column. Inbox variant is denser + transparent (sits inside flush conversation list); others are panel-bordered cards. |
 | `.person-row-pill` + `.person-row-pill--familiar` / `--pending` / `--admin` / `--provider` / `--helper` | Connection-state, role, and tier pills inside `PersonRow` | Familiar/pending/admin use `surface-inset` neutral. Provider tier uses `brand-subtle` (public, professional). Helper tier uses `surface-inset` (informal, Connected-only privacy gate enforced by caller). Connected status renders no pill (the Message CTA carries the signal). `.person-row-pill--care` retained as legacy alias of `--provider`. |
 | `.person-avatar-*` | OwnerDogAvatar primitive (combo container, owner img, dogs slot, dog avatars, "+N" chip) | `.person-avatar-combo` is inline-flex with `align-items: flex-end`, `height: 64px`. `.person-avatar-dogs` is the 44px right-aligned slot with `margin-left: -16px` anchoring it to the owner. Dog size set inline (36px / 32px) per slot count. |
@@ -155,12 +152,9 @@ Active list of things to merge, simplify, or remove. Work these down over time.
 
 | Item | Issue | Proposed fix |
 |------|-------|-------------|
-| `ListPanel` / `DetailPanel` | Legacy components still in codebase, CLAUDE.md says don't use | Remove files, update any remaining imports to use `PanelBody` + raw divs |
-| `MasterDetailShell` / `DiscoverShell` | Deleted — replaced by PageColumn | Remove any lingering CSS or references |
 | Provider ID mismatch | `mockData.ts` uses `olga-m`, `nikola-r`; `mockUsers.ts` uses `jana`, `nikola` | Unify to one naming scheme before backend work |
-| Duplicate CSS for single-panel pages | Community and Schedule shells follow the same pattern but have separate CSS | Consider a shared `.single-panel-shell` base class |
+| Duplicate CSS for single-panel pages | Community and Schedule shells follow the same pattern but have separate CSS | Extract a shared `.single-panel-shell` base class (Design-System Audit WS-E) |
 | `.feed-card-body--simple` variant | Only used for authorless cards; may be removable | Audit usage, consider removing if unused |
-| `discover-type-pill` CSS | Consolidated into `.filter-pill-row` | Remove old class if no remaining references |
 
 ---
 
