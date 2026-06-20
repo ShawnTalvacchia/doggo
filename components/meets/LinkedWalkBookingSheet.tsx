@@ -397,7 +397,7 @@ export function LinkedWalkBookingSheet({
                 className="text-sm font-medium text-fg-primary"
               >
                 Message{" "}
-                <span className="text-fg-tertiary font-normal">(optional)</span>
+                <span className="text-fg-tertiary font-normal">(Optional)</span>
               </label>
               <textarea
                 id="linked-walk-message"

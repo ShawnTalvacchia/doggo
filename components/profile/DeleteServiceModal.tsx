@@ -42,12 +42,12 @@ export function DeleteServiceModal({
       compact
       title={willArchive ? "Archive this service?" : "Remove this service?"}
       footer={
-        <div className="flex gap-sm w-full">
+        <div className="flex flex-wrap gap-sm w-full">
           <ButtonAction
             variant="secondary"
             size="md"
             onClick={onClose}
-            className="flex-1"
+            className="grow basis-[140px]"
           >
             Keep it
           </ButtonAction>
@@ -56,7 +56,7 @@ export function DeleteServiceModal({
             destructive
             size="md"
             onClick={onConfirm}
-            className="flex-1"
+            className="grow basis-[140px]"
           >
             {willArchive ? "Archive service" : "Remove service"}
           </ButtonAction>

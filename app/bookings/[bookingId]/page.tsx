@@ -871,10 +871,10 @@ export default function BookingDetailPage() {
                   Proposed state surfaces Review & sign as the dominant action
                   for the owner — signing here is the canonical accept path
                   and saves a trip to the chat thread. */}
-              <div className="flex gap-sm w-full">
+              <div className="flex flex-wrap gap-sm w-full">
                 {booking.status === "completed" ? (
                   <>
-                    <ButtonAction variant="primary" size="md" cta className="flex-1"
+                    <ButtonAction variant="primary" size="md" cta className="grow basis-[140px]"
                       leftIcon={<ChatCircleDots size={16} weight="fill" />}
                       onClick={() => router.push(messageHref)}>
                       Message
@@ -884,7 +884,7 @@ export default function BookingDetailPage() {
                         variant="secondary"
                         size="md"
                         cta
-                        className="flex-1"
+                        className="grow basis-[140px]"
                         leftIcon={<Star size={16} weight="fill" />}
                         onClick={() => setReviewOpen(true)}
                       >
@@ -893,7 +893,7 @@ export default function BookingDetailPage() {
                     )}
                     {isOwner && hasReview(booking.id) && (
                       <span
-                        className="flex-1 inline-flex items-center justify-center gap-xs px-md py-sm rounded-pill text-sm font-medium"
+                        className="grow basis-[140px] inline-flex items-center justify-center gap-xs px-md py-sm rounded-pill text-sm font-medium"
                         style={{ background: "var(--surface-inset)", color: "var(--text-secondary)" }}
                       >
                         <Star size={14} weight="fill" className="text-[var(--status-warning-main)]" />
@@ -902,7 +902,7 @@ export default function BookingDetailPage() {
                     )}
                   </>
                 ) : booking.status === "cancelled" ? (
-                  <ButtonAction variant="primary" size="md" cta className="flex-1"
+                  <ButtonAction variant="primary" size="md" cta className="grow basis-[140px]"
                     leftIcon={<ChatCircleDots size={16} weight="fill" />}
                     onClick={() => router.push(messageHref)}>
                     Message
@@ -910,12 +910,12 @@ export default function BookingDetailPage() {
                 ) : booking.status === "proposed" ? (
                   isOwner ? (
                     <>
-                      <ButtonAction variant="outline" size="md" cta className="flex-1"
+                      <ButtonAction variant="outline" size="md" cta className="grow basis-[140px]"
                         leftIcon={<ChatCircleDots size={16} weight="fill" />}
                         onClick={() => router.push(messageHref)}>
                         Message
                       </ButtonAction>
-                      <ButtonAction variant="primary" size="md" cta className="flex-1"
+                      <ButtonAction variant="primary" size="md" cta className="grow basis-[140px]"
                         onClick={() => setSigningOpen(true)}
                         disabled={!pendingProposalMsg}>
                         Review & sign
@@ -924,7 +924,7 @@ export default function BookingDetailPage() {
                   ) : (
                     // Provider sent the proposal — they wait on owner to sign.
                     // Single Message action so they can nudge or clarify.
-                    <ButtonAction variant="primary" size="md" cta className="flex-1"
+                    <ButtonAction variant="primary" size="md" cta className="grow basis-[140px]"
                       leftIcon={<ChatCircleDots size={16} weight="fill" />}
                       onClick={() => router.push(messageHref)}>
                       Message
@@ -932,12 +932,12 @@ export default function BookingDetailPage() {
                   )
                 ) : (
                   <>
-                    <ButtonAction variant="primary" size="md" cta className="flex-1"
+                    <ButtonAction variant="primary" size="md" cta className="grow basis-[140px]"
                       leftIcon={<ChatCircleDots size={16} weight="fill" />}
                       onClick={() => router.push(messageHref)}>
                       Message
                     </ButtonAction>
-                    <ButtonAction variant="outline" size="md" cta className="flex-1"
+                    <ButtonAction variant="outline" size="md" cta className="grow basis-[140px]"
                       leftIcon={<Prohibit size={16} weight="light" />}
                       rightIcon={<CaretDown size={12} weight="bold" />}
                       onClick={() => setShowCancel(true)}>

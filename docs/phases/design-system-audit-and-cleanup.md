@@ -101,12 +101,12 @@ review-trigger: When any task is completed or blocked
 
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
-| F1 | Optional-field label: converge the five treatments [`(Optional)`, `(optional)`, `Optional`, `— optional`, `· optional`] onto one canonical `(Optional)` via `.label-secondary`/`secondaryLabel`. Kill the em-dash variant (`PetEditCard.tsx:344`) and the right-aligned `space-between` variant. | [[punch-list]] P51 | todo |
-| F2 | Converge ScheduleCard status (Hosting/Cancelled/Providing/Care) from chip pills to CardMeet's inline icon+colored-text treatment (Principle 7). | [[design-system]] (Principle 7) | todo |
-| F3 | Extract one single-select primitive (or `MultiSelectSegmentBar` single-select) for the One-time/Repeat-weekly picker hand-rolled identically in 3 places (discover/care, FilterBody, InquiryForm). | [[design-system]] | todo |
-| F4 | Migrate the ~7 inline `.pill-group` + `.map` + conditional `.active` rows to the existing `PillToggle` primitive (PetEditCard, AppointmentServiceEditCard, MeetServiceEditCard, MentorSessionBookingSheet). | [[design-system]] | todo |
-| F5 | Connection chip: extract the inline-styled Discover chip (`CardExploreResult.tsx:219`) into a shared `.connection-pill--familiar/--connected` class so it and PersonRow draw from one definition; decide + document whether Connected earns a chip on cards but not rows. | [[punch-list]] P51, [[Trust & Connection Model]] | todo |
-| F6 | Principle-13 CTA wrap migration: fix the 5 still-broken `flex-1` paired-CTA rows (`bookings/[bookingId]` + CancelBooking/CancelSession/CancelOccurrence/DeleteService modals) to `flex flex-wrap gap-sm` + `grow basis-[140px]`; fix the stale comment in `ProfileAboutTab.tsx:598`. | [[design-system]] (Principle 13) | todo |
+| F1 | Converged the five optional-field-label treatments [`(Optional)`, `(optional)`, `Optional`, `— optional`, `· optional`] onto one canonical **`(Optional)`** across all sites (kills the em-dash + mid-dot variants). The right-aligned bare-`Optional` spans now read `(Optional)` too; their right-aligned *layout* (vs inline) was left as a finer secondary call. | [[punch-list]] P51 | done |
+| F2 | **Deferred (PO-approved direction).** Converge ScheduleCard status (Hosting/Cancelled/Providing/Care) from corner chip-pills to CardMeet's inline icon+colored-text (Principle 7). It's a corner-pill→inline **layout** change with per-status icon choices on a visible surface — best done with eyes-on the schedule, not blind under batch-verify. | [[design-system]] (Principle 7) | deferred |
+| F3 | **Deferred.** Extract a single-select primitive for the One-time/Repeat-weekly picker hand-rolled in 3 places (discover/care, FilterBody, InquiryForm) — a new primitive + 3 migrations, better bundled with the other selection-control work (F4). | [[design-system]] | deferred |
+| F4 | **Deferred.** Migrate the ~7 inline `.pill-group` rows to `PillToggle` — each call site differs (selected-state shape, single vs multi), needs per-site care + verify. | [[design-system]] | deferred |
+| F5 | **Deferred — carries a design decision.** Connection-chip convergence (Discover inline vs PersonRow class) requires deciding whether Connected earns a chip on cards but not rows; surface that to the PO rather than pick blind. | [[punch-list]] P51, [[Trust & Connection Model]] | deferred |
+| F6 | Principle-13 CTA wrap migration: fixed the 5 broken `flex-1` paired-CTA rows (`bookings/[bookingId]` action block + the 4 Cancel/Delete modals) to `flex flex-wrap gap-sm` + `grow basis-[140px]`; fixed the stale `flex-1` comment in `ProfileAboutTab`. Content-column `flex-1 min-w-0` left untouched. | [[design-system]] (Principle 13) | done |
 
 ---
 

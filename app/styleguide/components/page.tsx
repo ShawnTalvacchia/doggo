@@ -397,7 +397,7 @@ export default function ComponentsPage() {
           </Demo>
           <Demo label="With secondary label" canvas="narrow">
             <div style={{ width: "100%" }}>
-              <InputField id="sg-secondary" label="Bio" secondaryLabel="Optional" value="" onChange={() => {}} placeholder="Tell owners about yourself" />
+              <InputField id="sg-secondary" label="Bio" secondaryLabel="(Optional)" value="" onChange={() => {}} placeholder="Tell owners about yourself" />
             </div>
           </Demo>
         </div>

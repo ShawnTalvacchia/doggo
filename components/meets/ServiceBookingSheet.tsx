@@ -168,7 +168,7 @@ export function ServiceBookingSheet({
           {/* Optional message */}
           <div className="flex flex-col gap-xs">
             <label htmlFor="booking-message" className="text-sm font-medium text-fg-primary">
-              Message <span className="text-fg-tertiary font-normal">(optional)</span>
+              Message <span className="text-fg-tertiary font-normal">(Optional)</span>
             </label>
             <textarea
               id="booking-message"

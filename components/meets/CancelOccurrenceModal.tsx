@@ -53,8 +53,8 @@ export function CancelOccurrenceModal({
       onClose={handleClose}
       title="Cancel this date"
       footer={
-        <div className="flex gap-sm w-full">
-          <ButtonAction variant="tertiary" size="md" onClick={handleClose} className="flex-1">
+        <div className="flex flex-wrap gap-sm w-full">
+          <ButtonAction variant="tertiary" size="md" onClick={handleClose} className="grow basis-[140px]">
             Keep date
           </ButtonAction>
           <ButtonAction
@@ -63,7 +63,7 @@ export function CancelOccurrenceModal({
             size="md"
             disabled={!canSubmit}
             onClick={handleConfirm}
-            className="flex-1"
+            className="grow basis-[140px]"
           >
             Cancel date
           </ButtonAction>

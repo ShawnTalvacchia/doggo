@@ -49,8 +49,8 @@ Verification checklist for the Design-System Audit + Cleanup phase. **Concise by
 - [ ] **V2.3 Styleguide shows the new family.** `/styleguide/tokens` (Status section) + `/styleguide` (Violet primitive ramp). *Expect:* `--status-volunteer-*` rows + `--violet-*` swatches render with correct violet.
 
 ### V3 — Converged variants (WS-F)
-- [ ] **V3.1 _(author at build)_** One-time/Repeat picker behaves identically across its 3 former call sites after primitive extraction.
-- [ ] **V3.2 _(author at build)_** Paired-CTA rows wrap (not overflow) at narrow width on the 5 migrated surfaces.
+- [ ] **V3.1 Optional-field labels all read `(Optional)`.** Spot-check a few composers: post create (`/posts/create`), an inquiry form, a booking sheet (e.g. `RequestToJoinModal`), and the PetEditCard vaccination row. *Expect:* every optional marker is `(Optional)` — no `(optional)`, no `— optional`, no `· optional`, no bare `Optional`.
+- [ ] **V3.2 Paired-CTA rows wrap (not overflow) at narrow width.** Booking detail (`/bookings/<id>`) action row + the Cancel/Delete confirmation modals, narrowed to ~320px. *Expect:* both buttons fit one row when wide, stack full-width when narrow — no horizontal overflow.
 
 ### V4 — Primitive extractions (WS-D)
 - [ ] **V4.1 SortMenu behaves identically on both consumers after extraction.** `/shelters/<id>` Dogs tab toolbar AND `/discover/help-a-dog` Dogs view. *Expect:* dropdown opens, closes on outside-click + Esc, selecting a sort re-orders the dogs, active row has a check — same on both.
@@ -78,3 +78,6 @@ A running log (append as you walk). Each entry carries a `→ target-doc.md` ann
 - **WS-D: `CheckboxRow` gained `density="compact"` (P78)** — retired the `.pet-edit-checkbox-row` indicator override; default check size left at 12px (global bump deferred as a separate visual call). → `design-system.md` (done)
 - **WS-D: `.input-with-icon` renamed `.input-with-trailing-icon`** (misleading name fixed). Full affix base-unification left noted, not done. → `design-system.md`
 - **WS-D: FC4 Section deferred** (two-tier rhythm regression risk + varied call sites → needs visual verify); FC5 IdentityChip not built (trigger not met, 2 of 3). → board WS-D
+- **WS-F: optional-field labels canonicalized to `(Optional)`** across all sites (killed em-dash + mid-dot + lowercase + bare variants). Right-aligned *layout* of a couple left as a finer call. → no feature-doc update needed
+- **WS-F: Principle-13 CTA-wrap fixed on 5 paired-CTA rows** (bookings detail + 4 Cancel/Delete modals). → `design-system.md` Principle 13 (already documents the pattern)
+- **WS-F: F2 (ScheduleCard status→inline), F3, F4, F5 deferred** — F2 is a visible corner-pill→inline layout change (PO-approved direction, needs eyes-on); F5 carries a Connected-chip design decision. → board WS-F

@@ -341,7 +341,7 @@ export function PetEditCard({
           <label className="label" htmlFor={`pet-backstory-${pet.id}`}>
             <span className="label-primary-group">
               <span>About {pet.name || "this dog"}</span>
-              <span className="text-xs text-fg-tertiary">— optional</span>
+              <span className="text-xs text-fg-tertiary">(Optional)</span>
             </span>
           </label>
           <textarea

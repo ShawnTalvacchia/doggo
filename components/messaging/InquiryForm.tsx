@@ -390,7 +390,7 @@ export function InquiryForm({
           <div className="filter-field">
             <div className="label" style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" }}>
               <span>Start from</span>
-              <span className="text-fg-tertiary text-xs font-normal">Optional</span>
+              <span className="text-fg-tertiary text-xs font-normal">(Optional)</span>
             </div>
             <DateTrigger
               label="Pick a start date"
@@ -423,7 +423,7 @@ export function InquiryForm({
       <div className="filter-field">
         <div className="label" style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" }}>
           <span>Anything else?</span>
-          <span className="text-fg-tertiary text-xs font-normal">Optional</span>
+          <span className="text-fg-tertiary text-xs font-normal">(Optional)</span>
         </div>
         <textarea
           className="textarea inq-message"

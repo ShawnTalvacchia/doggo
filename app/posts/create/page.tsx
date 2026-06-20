@@ -160,7 +160,7 @@ export default function CreatePostPage() {
           {/* Community selector (optional) */}
           <div className="flex flex-col gap-xs">
             <label className="text-sm font-medium text-fg-primary">
-              Post to a community <span className="text-fg-tertiary font-normal">(optional)</span>
+              Post to a community <span className="text-fg-tertiary font-normal">(Optional)</span>
             </label>
             <select
               value={communityId}

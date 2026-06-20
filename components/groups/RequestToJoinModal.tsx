@@ -85,7 +85,7 @@ export function RequestToJoinModal({
         <label className="flex flex-col gap-xs">
           <span className="text-sm font-medium text-fg-primary">
             Tell {adminName} about your dog{" "}
-            <span className="text-fg-tertiary font-normal">(optional)</span>
+            <span className="text-fg-tertiary font-normal">(Optional)</span>
           </span>
           <textarea
             value={note}

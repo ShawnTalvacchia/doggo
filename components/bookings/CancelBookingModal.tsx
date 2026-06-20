@@ -20,8 +20,8 @@ export function CancelBookingModal({ open, onClose, onConfirm, carerName }: Canc
       onClose={onClose}
       title="Cancel booking"
       footer={
-        <div className="flex gap-sm w-full">
-          <ButtonAction variant="tertiary" size="md" onClick={onClose} className="flex-1">
+        <div className="flex flex-wrap gap-sm w-full">
+          <ButtonAction variant="tertiary" size="md" onClick={onClose} className="grow basis-[140px]">
             Keep booking
           </ButtonAction>
           <ButtonAction
@@ -29,7 +29,7 @@ export function CancelBookingModal({ open, onClose, onConfirm, carerName }: Canc
             destructive
             size="md"
             onClick={() => onConfirm(reason.trim() || undefined)}
-            className="flex-1"
+            className="grow basis-[140px]"
           >
             Cancel booking
           </ButtonAction>

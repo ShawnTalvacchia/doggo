@@ -598,9 +598,9 @@ export function ProfileAboutTab({
       {/* Care CTAs — short row of paired actions. Description line under the
           header anchors the section purpose; buttons share the outline
           variant so they read as parallel choices, not primary-vs-link.
-          Each button takes `flex-1` so the pair splits the row evenly;
-          flex-wrap drops them to full-width on narrow viewports.
-          Reframed 2026-05-11 (CCFT walkthrough). */}
+          Each button uses `grow basis-[140px]` (Principle 13) so the pair
+          splits the row evenly and flex-wrap drops them to full-width on
+          narrow viewports. Reframed 2026-05-11 (CCFT walkthrough). */}
       <section>
         <SectionHeader title="Care" />
         <p

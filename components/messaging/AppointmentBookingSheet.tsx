@@ -290,7 +290,7 @@ export function AppointmentBookingSheet({
               style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline" }}
             >
               <span>Anything else?</span>
-              <span className="text-fg-tertiary text-xs font-normal">Optional</span>
+              <span className="text-fg-tertiary text-xs font-normal">(Optional)</span>
             </div>
             <textarea
               className="textarea inq-message"

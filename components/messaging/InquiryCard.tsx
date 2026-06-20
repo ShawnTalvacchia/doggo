@@ -223,7 +223,7 @@ export function InquiryCard({
             <div className="inquiry-card-decline-form">
               <label className="inquiry-card-decline-label" htmlFor="decline-reason">
                 Help {ownerName.split(" ")[0]} understand
-                <span className="inquiry-card-decline-optional"> · optional</span>
+                <span className="inquiry-card-decline-optional"> (Optional)</span>
               </label>
               <textarea
                 id="decline-reason"

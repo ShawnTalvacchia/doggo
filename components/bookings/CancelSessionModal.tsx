@@ -32,12 +32,12 @@ export function CancelSessionModal({
       onClose={onClose}
       title="Cancel this session"
       footer={
-        <div className="flex gap-sm w-full">
+        <div className="flex flex-wrap gap-sm w-full">
           <ButtonAction
             variant="tertiary"
             size="md"
             onClick={onClose}
-            className="flex-1"
+            className="grow basis-[140px]"
           >
             Keep session
           </ButtonAction>
@@ -49,7 +49,7 @@ export function CancelSessionModal({
               onConfirm(reason.trim() || undefined);
               setReason("");
             }}
-            className="flex-1"
+            className="grow basis-[140px]"
           >
             Cancel session
           </ButtonAction>
