@@ -2,7 +2,7 @@
 
 import { Trash, Clock } from "@phosphor-icons/react";
 import { InputField } from "@/components/ui/InputField";
-import { Toggle } from "@/components/ui/Toggle";
+import { PricedToggleRow } from "@/components/ui/PricedToggleRow";
 import { ArchivedServiceStrip } from "@/components/profile/ArchivedServiceStrip";
 import type {
   CarerAppointmentServiceConfig,
@@ -238,29 +238,21 @@ export function AppointmentServiceEditCard({
             <span>Where do you meet?</span>
           </span>
         </label>
-        <div className="flex flex-col gap-sm">
+        <div className="flex flex-col gap-md">
           {APPOINTMENT_LOCATION_ORDER.map((kind) => {
             const opt = locations.find((l) => l.kind === kind);
-            const on = !!opt;
             return (
-              <div key={kind} className="flex flex-col gap-xs">
-                <Toggle
-                  label={APPOINTMENT_LOCATION_META[kind].label}
-                  size="sm"
-                  checked={on}
-                  onChange={(next) => toggleLocation(kind, next)}
-                />
-                {on && (
-                  <InputField
-                    id={`appt-loc-${service.id}-${kind}`}
-                    label={`${APPOINTMENT_LOCATION_META[kind].label} price`}
-                    type="number"
-                    value={(opt?.price ?? 0).toString()}
-                    onChange={(val) => setLocationPrice(kind, parseInt(val) || 0)}
-                    trailing="Kč / appointment"
-                  />
-                )}
-              </div>
+              <PricedToggleRow
+                key={kind}
+                label={APPOINTMENT_LOCATION_META[kind].label}
+                description={APPOINTMENT_LOCATION_META[kind].carerHint}
+                checked={!!opt}
+                onToggle={(next) => toggleLocation(kind, next)}
+                price={opt?.price ?? service.pricePerAppointment}
+                onPriceChange={(n) => setLocationPrice(kind, n)}
+                unitLabel="Kč / appointment"
+                inputId={`appt-loc-${service.id}-${kind}`}
+              />
             );
           })}
           <p className="text-xs text-fg-tertiary m-0">

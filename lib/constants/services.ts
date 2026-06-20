@@ -15,22 +15,31 @@ import type {
  */
 export const APPOINTMENT_LOCATION_META: Record<
   AppointmentLocationKind,
-  { label: string; ownerLine: (carerFirst: string) => string }
+  {
+    label: string;
+    /** Short carer-facing subline for the edit row. */
+    carerHint: string;
+    ownerLine: (carerFirst: string) => string;
+  }
 > = {
   carer_to_you: {
     label: "Carer comes to you",
+    carerHint: "At the owner's address",
     ownerLine: (c) => `${c} comes to your address`,
   },
   you_to_carer: {
     label: "You bring your dog to the carer",
+    carerHint: "At your place",
     ownerLine: (c) => `You bring your dog to ${c}'s place`,
   },
   carer_pickup_public: {
     label: "Carer picks up, meet at a public spot",
+    carerHint: "You collect, then a public spot",
     ownerLine: (c) => `${c} picks up your dog and meets you at a public spot`,
   },
   owner_carer_public: {
     label: "Meet at a public spot",
+    carerHint: "A public spot, both of you",
     ownerLine: (c) => `You and ${c} meet at a public spot`,
   },
 };

@@ -15,6 +15,7 @@ import {
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { InputField } from "@/components/ui/InputField";
 import { Toggle } from "@/components/ui/Toggle";
+import { PricedToggleRow } from "@/components/ui/PricedToggleRow";
 import { AvailabilityGrid } from "@/components/profile/AvailabilityGrid";
 import { MeetServiceEditCard } from "@/components/profile/MeetServiceEditCard";
 import { AppointmentServiceEditCard } from "@/components/profile/AppointmentServiceEditCard";
@@ -864,17 +865,17 @@ export function ProfileServicesTab({
                         </div>
 
                         {isWalk ? (
-                          <div className="flex flex-col gap-sm">
+                          <div className="flex flex-col gap-md">
                             <label className="label">
                               <span className="label-primary-group">
                                 <span>Delivery &amp; pricing</span>
                               </span>
                             </label>
-                            <Toggle
-                              label="Drop-off — owner brings the dog"
-                              size="sm"
+                            <PricedToggleRow
+                              label="Drop-off"
+                              description="Owner brings the dog"
                               checked={dropoffEnabled}
-                              onChange={(on) => {
+                              onToggle={(on) => {
                                 // Keep at least one method enabled.
                                 if (!on && !pickupEnabled) return;
                                 applyDelivery(
@@ -884,29 +885,18 @@ export function ProfileServicesTab({
                                   pickupPrice,
                                 );
                               }}
+                              price={dropoffPrice}
+                              onPriceChange={(n) =>
+                                applyDelivery(true, n, pickupEnabled, pickupPrice)
+                              }
+                              unitLabel="Kč / visit"
+                              inputId={`dropoff-${idx}`}
                             />
-                            {dropoffEnabled && (
-                              <InputField
-                                id={`dropoff-${idx}`}
-                                label="Drop-off price"
-                                type="number"
-                                value={dropoffPrice.toString()}
-                                onChange={(val) =>
-                                  applyDelivery(
-                                    true,
-                                    parseInt(val) || 0,
-                                    pickupEnabled,
-                                    pickupPrice,
-                                  )
-                                }
-                                trailing="Kč / visit"
-                              />
-                            )}
-                            <Toggle
-                              label="Pickup — you collect from the owner"
-                              size="sm"
+                            <PricedToggleRow
+                              label="Pickup"
+                              description="You collect from the owner"
                               checked={pickupEnabled}
-                              onChange={(on) => {
+                              onToggle={(on) => {
                                 if (!on && !dropoffEnabled) return;
                                 applyDelivery(
                                   dropoffEnabled,
@@ -920,27 +910,16 @@ export function ProfileServicesTab({
                                     : pickupPrice,
                                 );
                               }}
+                              price={pickupPrice}
+                              onPriceChange={(n) =>
+                                applyDelivery(dropoffEnabled, dropoffPrice, true, n)
+                              }
+                              unitLabel="Kč / visit"
+                              inputId={`pickup-${idx}`}
                             />
-                            {pickupEnabled && (
-                              <InputField
-                                id={`pickup-${idx}`}
-                                label="Pickup price"
-                                type="number"
-                                value={pickupPrice.toString()}
-                                onChange={(val) =>
-                                  applyDelivery(
-                                    dropoffEnabled,
-                                    dropoffPrice,
-                                    true,
-                                    parseInt(val) || 0,
-                                  )
-                                }
-                                trailing="Kč / visit"
-                              />
-                            )}
                             <p className="text-xs text-fg-tertiary m-0">
-                              Offer one or both. Pickup usually costs more — you
-                              travel to the owner.
+                              Offer one or both. Pickup usually costs more, since
+                              you travel to the owner.
                             </p>
                           </div>
                         ) : (

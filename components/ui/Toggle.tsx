@@ -9,6 +9,8 @@ type ToggleProps = {
   labelPlacement?: "left" | "right";
   /** Optional: "sm" renders a lighter toggle for secondary/inline rows. Default "md". */
   size?: "md" | "sm";
+  /** Optional: bold the label — for use as a section/option header row. */
+  strong?: boolean;
 };
 
 export function Toggle({
@@ -17,14 +19,14 @@ export function Toggle({
   onChange,
   labelPlacement = "left",
   size = "md",
+  strong = false,
 }: ToggleProps) {
+  const labelCls = `toggle-label${strong ? " toggle-label--strong" : ""}`;
   return (
     <div
       className={`toggle-row${labelPlacement === "right" ? " toggle-row--label-right" : ""}${size === "sm" ? " toggle-row--sm" : ""}`}
     >
-      {labelPlacement === "left" && (
-        <span className="toggle-label">{label}</span>
-      )}
+      {labelPlacement === "left" && <span className={labelCls}>{label}</span>}
       <button
         type="button"
         className={`toggle-track${checked ? " on" : ""}${size === "sm" ? " toggle-track--sm" : ""}`}
@@ -36,9 +38,7 @@ export function Toggle({
       >
         <div className="toggle-knob" />
       </button>
-      {labelPlacement === "right" && (
-        <span className="toggle-label">{label}</span>
-      )}
+      {labelPlacement === "right" && <span className={labelCls}>{label}</span>}
     </div>
   );
 }

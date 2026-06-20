@@ -2630,6 +2630,10 @@ body.guest-route {
   color: var(--text-secondary);
   flex: 1;
 }
+.toggle-label--strong {
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
 .toggle-track {
   position: relative;
   width: 72px;
