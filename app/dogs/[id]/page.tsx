@@ -760,8 +760,10 @@ function DogPreferencesSection({
   dogName: string;
   preferences: PetProfile["preferences"];
   exerciseNeeds?: string;
-  /** Shelter-managed dogs get a lightweight empty-state prompt instead of
-   *  hiding, so staff know to fill these in (Workstream D3 / Q5c). */
+  /** Shelter-managed dogs show a neutral "No care notes yet." instead of
+   *  hiding the section (owned dogs hide). Copy stays neutral because every
+   *  viewer sees it — the staff-facing "add notes" prompt belongs in the
+   *  operator view (FC16), not the public page. Workstream D3 / Q5c. */
   isShelterDog?: boolean;
 }) {
   const groups: Array<{ key: string; label: string; items?: string[] }> = [
@@ -785,10 +787,7 @@ function DogPreferencesSection({
         <h2 className="dog-profile-section-title">
           How {dogName} likes to be cared for
         </h2>
-        <p className="text-sm text-fg-tertiary">
-          No care notes yet. Add likes, triggers, and exercise needs so
-          walkers know how to handle {dogName}.
-        </p>
+        <p className="text-sm text-fg-tertiary">No care notes yet.</p>
       </div>
     );
   }
