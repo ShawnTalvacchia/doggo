@@ -1790,26 +1790,6 @@ export interface AppointmentLocation {
   price: number;
 }
 
-/**
- * Sub-types within `appointmentCategory: "training"` — Roman's PO interview
- * (2026-06-02) flagged 11 worth representing. Lets a trainer's 1-on-1
- * service signal what KIND of training it is, which is information the
- * owner of an anxious / reactive / sport / agility dog needs to filter
- * for. Only meaningful when `appointmentCategory === "training"`. P73.
- */
-export type TrainingType =
-  | "obedience"
-  | "manners"
-  | "behaviour"
-  | "agility"
-  | "tracking"
-  | "protection"
-  | "therapy"
-  | "service"
-  | "retriever"
-  | "sports"
-  | "puppy_socialisation";
-
 export interface CarerAppointmentServiceConfig {
   kind: "appointment";
   /** Stable id within the provider's catalogue (e.g. "premiumvet-checkup"). */
@@ -1825,11 +1805,13 @@ export interface CarerAppointmentServiceConfig {
    *  neither pure Care (drop-off, no specific time) nor pure Meet (specific
    *  time, social roster) — they're appointment-type. */
   appointmentCategory: AppointmentCategory;
-  /** Training-specific sub-type (only meaningful when
-   *  `appointmentCategory === "training"`). Renders as a chip on the
-   *  service card so owners filtering for "agility" vs "behaviour" vs
-   *  "puppy socialisation" can find the right match. P73, 2026-06-03. */
-  trainingType?: TrainingType;
+  /** Free-text training focus (only meaningful when
+   *  `appointmentCategory === "training"`). Renders as a chip on the service
+   *  card. Replaced the `trainingType` enum picker 2026-06-16 (too many pills;
+   *  trainers describe their focus better in their own words). If structured
+   *  training filtering is ever built, revisit a controlled vocabulary — see
+   *  Open Questions §18. */
+  trainingFocus?: string;
   /**
    * Where this appointment happens — curated, priced location options
    * (Workstream B, 2026-06-15). Absent/empty = single flat rate via

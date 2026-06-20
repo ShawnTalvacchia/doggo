@@ -434,9 +434,8 @@ export const klara: UserProfile = {
         durationMinutes: 60,
         appointmentCategory: "training",
         // Klára's 1-on-1 is positioned for reactive / anxious dogs (see
-        // notes + her demo arc), so the training focus is behaviour work.
-        // P73, 2026-06-03.
-        trainingType: "behaviour",
+        // notes + her demo arc).
+        trainingFocus: "Reactive & anxious dogs",
         // Single meeting-location option → owner sees a read-only line, no
         // picker (Workstream B6). She comes to the owner (Prague mobile-modal).
         appointmentLocations: [{ kind: "carer_to_you", price: 800 }],
@@ -1572,7 +1571,7 @@ export const lenkaGroomer: UserProfile = {
 
 /* ═══════════════════════════════════════════════════════════════════════════
    TRAINING-VISIT APPOINTMENT EXEMPLARS (P64, 2026-06-03)
-   Two trainers whose offerings exercise the new `trainingType` axis and
+   Two trainers whose offerings exercise the `trainingFocus` field and
    the two location modes Prague's training market actually uses:
      - Šárka — mobile trainer, Prague modal case. Visits the owner's home
        or meets at a quiet park; puppy-socialisation focus (the most-
@@ -1618,7 +1617,7 @@ export const sarkaTrainer: UserProfile = {
         pricePerAppointment: 650,
         durationMinutes: 60,
         appointmentCategory: "training",
-        trainingType: "puppy_socialisation",
+        trainingFocus: "Puppy socialisation",
         // Multiple meeting-location options → owner picks at booking
         // (Workstream B6). Mobile trainer: your home or meet at a park.
         appointmentLocations: [
@@ -1635,7 +1634,7 @@ export const sarkaTrainer: UserProfile = {
         pricePerAppointment: 550,
         durationMinutes: 50,
         appointmentCategory: "training",
-        trainingType: "puppy_socialisation",
+        trainingFocus: "Puppy socialisation",
         notes: "Loose-leash + recall practice in a real park environment. For puppies who've had the starter session.",
       },
     ],
@@ -1686,7 +1685,7 @@ export const radekTrainer: UserProfile = {
         pricePerAppointment: 750,
         durationMinutes: 60,
         appointmentCategory: "training",
-        trainingType: "agility",
+        trainingFocus: "Agility foundations",
         // Single facility option → read-only line (Workstream B6). The agility
         // kit is fixed, so the owner always brings the dog to him.
         appointmentLocations: [{ kind: "you_to_carer", price: 750 }],
@@ -1700,7 +1699,7 @@ export const radekTrainer: UserProfile = {
         pricePerAppointment: 850,
         durationMinutes: 75,
         appointmentCategory: "training",
-        trainingType: "agility",
+        trainingFocus: "Agility (course work)",
         notes: "Full-course work for dogs with at least 3 starter sessions. Handler footwork, sequencing, contact zones.",
       },
     ],

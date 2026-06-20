@@ -8,11 +8,8 @@ import type {
   CarerAppointmentServiceConfig,
   AppointmentCategory,
   AppointmentLocationKind,
-  TrainingType,
 } from "@/lib/types";
 import {
-  TRAINING_TYPE_LABELS,
-  TRAINING_TYPE_PICKER_ORDER,
   APPOINTMENT_LOCATION_META,
   APPOINTMENT_LOCATION_ORDER,
 } from "@/lib/constants/services";
@@ -170,14 +167,14 @@ export function AppointmentServiceEditCard({
               type="button"
               className={`pill pill-sm${service.appointmentCategory === opt.key ? " active" : ""}`}
               onClick={() => {
-                // Switching category clears `trainingType` — it's only
+                // Switching category clears `trainingFocus` — it's only
                 // meaningful in the training branch. Otherwise an old
-                // training selection would silently follow a grooming
-                // service it doesn't apply to.
+                // training note would silently follow a grooming service it
+                // doesn't apply to.
                 if (opt.key === "training") {
                   patch({ appointmentCategory: opt.key });
                 } else {
-                  patch({ appointmentCategory: opt.key, trainingType: undefined });
+                  patch({ appointmentCategory: opt.key, trainingFocus: undefined });
                 }
               }}
             >
@@ -187,36 +184,18 @@ export function AppointmentServiceEditCard({
         </div>
       </div>
 
-      {/* Training sub-type — only shown when this Appointment is training.
-          Single-select for V1 (one type per service entry); a trainer who
-          offers multiple types creates multiple service entries. P73. */}
+      {/* Training focus — free text. Replaced the 11-pill enum picker
+          (2026-06-16 walkthrough): too many pills, and trainers describe
+          their focus better in their own words. Only shown for training
+          appointments. */}
       {service.appointmentCategory === "training" && (
-        <div className="input-block">
-          <label className="label">
-            <span className="label-primary-group">
-              <span>Training focus</span>
-            </span>
-          </label>
-          <div className="pill-group" style={{ flexWrap: "wrap" }}>
-            {TRAINING_TYPE_PICKER_ORDER.map((key) => (
-              <button
-                key={key}
-                type="button"
-                className={`pill pill-sm${service.trainingType === key ? " active" : ""}`}
-                onClick={() =>
-                  patch({
-                    // Tap the active one to clear — lets a trainer leave
-                    // the focus unset if their visit is general-purpose.
-                    trainingType:
-                      service.trainingType === key ? undefined : (key as TrainingType),
-                  })
-                }
-              >
-                {TRAINING_TYPE_LABELS[key as TrainingType]}
-              </button>
-            ))}
-          </div>
-        </div>
+        <InputField
+          id={`appt-focus-${service.id}`}
+          label="Training focus"
+          value={service.trainingFocus ?? ""}
+          onChange={(val) => patch({ trainingFocus: val || undefined })}
+          placeholder="e.g. Puppy socialisation, reactive dogs, agility"
+        />
       )}
 
       <InputField
@@ -238,6 +217,11 @@ export function AppointmentServiceEditCard({
             <span>Where do you meet?</span>
           </span>
         </label>
+        <p className="text-xs text-fg-tertiary m-0">
+          {hasLocations
+            ? "Owners pick where the session happens when they book."
+            : "Leave all off to charge one flat rate. Turn options on to price by where you meet."}
+        </p>
         <div className="flex flex-col gap-md">
           {APPOINTMENT_LOCATION_ORDER.map((kind) => {
             const opt = locations.find((l) => l.kind === kind);
@@ -255,11 +239,6 @@ export function AppointmentServiceEditCard({
               />
             );
           })}
-          <p className="text-xs text-fg-tertiary m-0">
-            {hasLocations
-              ? "Owners pick where the session happens when they book."
-              : "Leave all off to charge one flat rate. Turn options on to price by where you meet."}
-          </p>
         </div>
       </div>
 

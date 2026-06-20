@@ -66,7 +66,7 @@ import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { useNavigationMemory } from "@/contexts/NavigationMemoryContext";
 import { providers } from "@/lib/mockData";
 import { getUserOrProvider, getUserById } from "@/lib/mockUsers";
-import { SERVICE_LABELS, TRAINING_TYPE_LABELS } from "@/lib/constants/services";
+import { SERVICE_LABELS } from "@/lib/constants/services";
 
 /* ── Mutual connections section (other-user profiles) ──────────────────────
  *
@@ -1532,11 +1532,11 @@ function UserProfileInner() {
                             <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
                               {svc.appointmentCategory === "training" ? "Training visit" : "Grooming"}
                             </span>
-                            {/* Training sub-type chip — only renders for
-                                training appointments with a focus set. P73. */}
-                            {svc.appointmentCategory === "training" && svc.trainingType && (
+                            {/* Training focus chip — free text, only renders for
+                                training appointments with a focus set. */}
+                            {svc.appointmentCategory === "training" && svc.trainingFocus && (
                               <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
-                                {TRAINING_TYPE_LABELS[svc.trainingType]}
+                                {svc.trainingFocus}
                               </span>
                             )}
                             <span className="rounded-pill px-sm py-xs text-xs bg-surface-popout border border-edge-regular text-fg-secondary">
