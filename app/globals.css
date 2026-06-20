@@ -12940,14 +12940,6 @@ body:has(.bottom-nav) .bookings-page {
   border-right-color: var(--border-strong);
 }
 
-/* ── MasterDetailShell page shells ── */
-/* Pages using MasterDetailShell need max-width: 400 list + 12 gap + 640 detail */
-.page-container.schedule-page-shell,
-.page-container.bookings-page-shell,
-.page-container.notifications-page-shell {
-  max-width: 1052px;
-}
-
 /* ═══════════════════════════════════════════════════════════════════
    PageColumn — canonical single-column layout for all logged-in pages
    ═══════════════════════════════════════════════════════════════════ */
@@ -13072,116 +13064,6 @@ body:has(.bottom-nav) .bookings-page {
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   Community page — single-panel layout
-   ═══════════════════════════════════════════════════════════════════ */
-
-.community-page-shell {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-width: 640px;
-  flex: 1;
-  min-height: 0;
-}
-
-/* ── Page header (above panel) ── */
-
-.community-page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 40px;
-  margin-bottom: 8px;
-  flex-shrink: 0;
-}
-
-.community-page-title {
-  font-family: var(--font-heading);
-  font-size: var(--text-xl);
-  font-weight: var(--weight-semibold);
-  color: var(--text-primary);
-  margin: 0;
-  line-height: 40px;
-}
-
-.community-page-header-action {
-  flex-shrink: 0;
-}
-
-/* ── Panel (the rounded card) ── */
-
-.community-panel {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  background: var(--surface-inset);
-  border: 1px solid var(--border-stronger);
-  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
-  overflow: hidden;
-}
-
-.community-panel-tabs {
-  position: sticky;
-  top: 0;
-  z-index: 4;
-  padding: var(--space-sm) var(--space-md);
-  background: color-mix(in srgb, var(--surface-popout) 72%, transparent);
-  backdrop-filter: blur(16px) saturate(1.2);
-  -webkit-backdrop-filter: blur(16px) saturate(1.2);
-}
-
-.community-panel-tabs .tab-bar-container {
-  flex: 1;
-}
-
-.community-panel-tabs .tab-main {
-  flex: 1;
-}
-
-/* ── Filter pills row ── */
-
-.community-filter-pills {
-  display: flex;
-  gap: var(--space-sm);
-  padding: var(--space-md) var(--space-lg);
-  flex-shrink: 0;
-  background: var(--surface-popout);
-  border-bottom: 1px solid var(--border-regular);
-  overflow-x: auto;
-}
-
-/* Community filter pills extend the existing .pill class */
-.community-filter-pills .pill {
-  padding: 4px 14px;
-  font-size: var(--text-sm);
-  font-family: var(--font-body);
-  font-weight: 500;
-  white-space: nowrap;
-  transition: all 0.12s ease;
-}
-
-.community-filter-pills .pill:hover {
-  border-color: var(--brand-main);
-  color: var(--text-primary);
-}
-
-.community-filter-pills .pill.active {
-  background: var(--brand-main);
-  border-color: var(--brand-main);
-  color: white;
-}
-
-/* ── Scrollable panel body ── */
-
-.community-panel-body {
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
-  background: var(--surface-popout);
-}
-
 .community-group-list {
   display: flex;
   flex-direction: column;
@@ -13190,26 +13072,6 @@ body:has(.bottom-nav) .bookings-page {
 /* Group cards in community: no left accent border */
 .community-group-list .card-schedule-meet {
   border-left: 1px solid var(--border-regular);
-}
-
-/* ── Mobile adjustments ── */
-
-@media (max-width: 767px) {
-  .community-page-header {
-    display: none; /* mobile uses the global mobile header */
-  }
-
-  .community-page-shell {
-    max-width: 100%;
-  }
-
-  .community-panel {
-    border-radius: var(--radius-panel);
-  }
-
-  body.nav-hidden .community-panel {
-    border-radius: 0;
-  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -13225,7 +13087,7 @@ body:has(.bottom-nav) .bookings-page {
   min-height: 0;
 }
 
-/* Panel wrapper — matches community-panel pattern */
+/* Panel wrapper for the group detail page */
 .group-detail-panel {
   display: flex;
   flex-direction: column;
@@ -16831,72 +16693,6 @@ a.shelter-intro-social:hover {
   }
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   Schedule page — single-panel list (community page pattern)
-   ═══════════════════════════════════════════════════════════════════ */
-
-.schedule-page-shell {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-width: 640px;
-  flex: 1;
-  min-height: 0;
-}
-
-.schedule-page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 40px;
-  margin-bottom: 8px;
-  flex-shrink: 0;
-}
-
-.schedule-page-title {
-  font-family: var(--font-heading);
-  font-size: var(--text-xl);
-  font-weight: var(--weight-semibold);
-  color: var(--text-primary);
-  margin: 0;
-  line-height: 40px;
-}
-
-.schedule-panel {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  background: var(--surface-popout);
-  border: 1px solid var(--border-stronger);
-  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
-  overflow: hidden;
-}
-
-.schedule-body {
-  flex: 1;
-  overflow-y: auto;
-  min-height: 0;
-}
-
-.schedule-tabs {
-  position: sticky;
-  top: 0;
-  z-index: 4;
-  padding: var(--space-sm) var(--space-md);
-  background: color-mix(in srgb, var(--surface-popout) 72%, transparent);
-  backdrop-filter: blur(16px) saturate(1.2);
-  -webkit-backdrop-filter: blur(16px) saturate(1.2);
-}
-
-.schedule-tabs .tab-bar-container {
-  flex: 1;
-}
-
-.schedule-tabs .tab-main {
-  flex: 1;
-}
-
 /* ── Schedule date group headers ── */
 
 .sched-date-group {
@@ -17598,67 +17394,6 @@ a.shelter-intro-social:hover {
 .sched-card-names-pets {
   font-weight: var(--weight-regular);
   color: var(--text-secondary);
-}
-
-@media (max-width: 767px) {
-  .schedule-page-header {
-    display: none; /* mobile uses AppNav page title */
-  }
-
-  .schedule-page-shell {
-    max-width: 100%;
-  }
-
-  .schedule-panel {
-    border-radius: var(--radius-panel);
-  }
-
-  body.nav-hidden .schedule-panel {
-    border-radius: 0;
-  }
-}
-
-/* ── Shared base rules for single-column page shells ── */
-/* Schedule is a simple single-panel layout (no MasterDetailShell).
-   Bookings, Notifications, Inbox use MasterDetailShell — collapsed rules below. */
-.schedule-page-shell,
-.bookings-page-shell,
-.notifications-page-shell {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
-
-@media (max-width: 1299px) {
-  .page-container.bookings-page-shell,
-  .page-container.notifications-page-shell,
-  .page-container.inbox-page-shell {
-    max-width: 640px;
-  }
-
-  .bookings-page-shell,
-  .notifications-page-shell,
-  .inbox-page-shell {
-    background: var(--surface-inset);
-    border: 1px solid var(--border-stronger);
-    border-radius: var(--radius-panel);
-  }
-
-  /* Bottom padding so last item isn't clipped by panel border-radius */
-  .bookings-page-shell .panel-body,
-  .notifications-page-shell .panel-body,
-  .inbox-page-shell .panel-body {
-    padding-bottom: var(--radius-panel);
-  }
-
-  /* Nav-hidden: remove radius so panels go edge-to-edge */
-  body.nav-hidden .bookings-page-shell,
-  body.nav-hidden .notifications-page-shell,
-  body.nav-hidden .inbox-page-shell {
-    border-radius: 0;
-  }
 }
 
 /* Home header: no horizontal padding on desktop, matches card padding on mobile */
