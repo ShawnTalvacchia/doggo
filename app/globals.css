@@ -2450,18 +2450,12 @@ body.guest-route {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
-/* Inline checkbox row — wraps `.checkbox-row` components so each takes
-   half the available width (mirrors the two-col grid pattern used by
-   the inputs above). Two overrides on the underlying `.checkbox-row`:
-     - `width: auto` — defeats the default `width: 100%` that forced
-       wrap before the grid took over
-     - 8px gap from indicator to label — replaces the visual gap the
-       old 48×48 indicator provided
-     - Shrink the indicator to 24×24 (matches the visual box) — the
-       whole label is the clickable target, so the redundant 48×48
-       touch frame was oversized padding
-   Grid keeps each row at fixed 50% so the two items don't collapse to
-   content-width and feel cramped to the left. 2026-05-11.            */
+/* Inline checkbox row — wraps `.checkbox-row` components in a two-col grid so
+   each takes half the available width (mirrors the inputs above). Override:
+   `width: auto` defeats the default `width: 100%` that forced wrap. The dense
+   24×24 indicator + gap now come from the CheckboxRow `density="compact"` prop,
+   not a descendant override here (P78 / Design-System Audit WS-D). Grid keeps
+   each row at 50% so the two items don't collapse to content-width. 2026-05-11. */
 .pet-edit-checkbox-row {
   display: grid;
   /* `auto-fit + minmax(200px, 1fr)` keeps two columns at 50/50 when the
@@ -2477,17 +2471,6 @@ body.guest-route {
   /* min-height matches the InputField height above (40px) so a stacked
      checkbox row reads as part of the same form rhythm. */
   min-height: 40px;
-}
-
-/* `gap` was creating phantom left-padding — the hidden `<input>` is the
-   first flex child (width:0 / opacity:0 but still present), so a row-
-   level `gap` applied between it and the indicator pushed the visual
-   icon inward. Use margin on the indicator instead so the space sits
-   only between indicator and label. 2026-05-11. */
-.pet-edit-checkbox-row > .checkbox-row .checkbox-row-indicator {
-  width: 24px;
-  height: 24px;
-  margin-right: 8px;
 }
 
 /* Pet card */
@@ -2563,10 +2546,10 @@ body.guest-route {
 }
 
 /* Input with trailing icon */
-.input-with-icon {
+.input-with-trailing-icon {
   position: relative;
 }
-.input-with-icon .input {
+.input-with-trailing-icon .input {
   padding-right: 40px;
 }
 .input-trailing-icon {
@@ -3009,6 +2992,17 @@ body.guest-route {
   display: grid;
   place-items: center;
   flex-shrink: 0;
+}
+
+/* Compact density — 24×24 indicator (matches the visual box) + 8px gap to the
+   label, for dense forms where the whole label is the click target. The hidden
+   <input> is the first flex child, so the gap goes on the indicator's margin
+   (a row-level gap would push the icon inward). Absorbs the old
+   `.pet-edit-checkbox-row` descendant override. P78 / Design-System Audit WS-D. */
+.checkbox-row--compact .checkbox-row-indicator {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
 }
 
 /* Visual 24×24 box — the styled checkbox square with Phosphor Check icon */
@@ -14603,12 +14597,12 @@ a.shelter-intro-social:hover {
   color: var(--text-tertiary);
 }
 
-.shelter-sort-wrap {
+.sort-menu-wrap {
   flex: 1;
   max-width: 220px;
 }
 
-.shelter-sort-trigger {
+.sort-menu-trigger {
   width: 100%;
   display: inline-flex;
   align-items: center;
@@ -14626,12 +14620,12 @@ a.shelter-intro-social:hover {
   transition: border-color 120ms ease, background 120ms ease;
 }
 
-.shelter-sort-trigger:hover {
+.sort-menu-trigger:hover {
   border-color: var(--border-stronger);
   background: var(--surface-hover);
 }
 
-.shelter-sort-trigger[aria-expanded="true"] {
+.sort-menu-trigger[aria-expanded="true"] {
   border-color: var(--border-stronger);
 }
 

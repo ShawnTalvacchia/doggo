@@ -19,6 +19,15 @@ type CheckboxRowProps = {
    *           Use for: filter lists, option lists, settings rows.
    */
   placement?: "left" | "right";
+  /**
+   * "default" — 48×48 touch frame around the 24×24 box (airy; good for
+   *             standalone consent rows). Default.
+   * "compact" — 24×24 indicator + 8px gap + larger check, for dense forms
+   *             where the whole label is the click target (e.g. the pet-edit
+   *             2-col grid). Replaces the old `.pet-edit-checkbox-row`
+   *             descendant override. P78 / Design-System Audit WS-D.
+   */
+  density?: "default" | "compact";
 };
 
 export function CheckboxRow({
@@ -26,16 +35,19 @@ export function CheckboxRow({
   checked,
   onChange,
   placement = "left",
+  density = "default",
 }: CheckboxRowProps) {
   // "right" placement is handled purely in CSS via .checkbox-row--reverse —
   // DOM order is always indicator → label; flex-direction: row-reverse does the rest.
   const reverse = placement === "right";
+  const compact = density === "compact";
 
   return (
     <label
       className={[
         "checkbox-row",
         reverse ? "checkbox-row--reverse" : "",
+        compact ? "checkbox-row--compact" : "",
         checked ? "checkbox-row--checked" : "",
       ]
         .filter(Boolean)
@@ -48,10 +60,10 @@ export function CheckboxRow({
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
       />
-      {/* 48×48 touch-target container; visual box is centered inside */}
+      {/* Touch-target container (48×48 default / 24×24 compact); box centered inside */}
       <span className="checkbox-row-indicator" aria-hidden>
         <span className="checkbox-row-box">
-          {checked && <Check size={12} weight="bold" />}
+          {checked && <Check size={compact ? 14 : 12} weight="bold" />}
         </span>
       </span>
       <span className="checkbox-row-label">{label}</span>

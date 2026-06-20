@@ -10,8 +10,6 @@ import {
 import {
   HandHeart,
   MapPin,
-  Check,
-  CaretDown,
   CaretUp,
   SlidersHorizontal,
   MagnifyingGlass,
@@ -24,6 +22,7 @@ import { Spacer } from "@/components/layout/Spacer";
 import { FilterPillRow } from "@/components/ui/FilterPillRow";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
+import { SortMenu } from "@/components/ui/SortMenu";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { ShelterDogCard } from "@/components/shelters/ShelterDogCard";
 import { DiscoverShelterCard } from "@/components/shelters/DiscoverShelterCard";
@@ -175,82 +174,6 @@ function applyDogsFilters(
   });
 }
 
-/* ── Inline SortMenu ─────────────────────────────────────────────────────── *
- * Copied from app/shelters/[id]/page.tsx — same dropdown-menu pattern.
- * Logged as a Decision: consolidate into a shared <SortMenu /> in the
- * Design System Cleanup phase once a third consumer raises the cost of
- * the duplication. Keeping inline here so this phase ships without a
- * cross-cutting refactor.
- */
-function SortMenu({
-  value,
-  options,
-  onChange,
-}: {
-  value: string;
-  options: { value: string; label: string }[];
-  onChange: (value: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const wrapRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-    function onMouseDown(e: MouseEvent) {
-      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
-    }
-    document.addEventListener("keydown", onKey);
-    document.addEventListener("mousedown", onMouseDown);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.removeEventListener("mousedown", onMouseDown);
-    };
-  }, [open]);
-
-  const current = options.find((o) => o.value === value);
-  return (
-    <div ref={wrapRef} className="dropdown-menu-wrap shelter-sort-wrap">
-      <button
-        type="button"
-        className="shelter-sort-trigger"
-        onClick={() => setOpen((v) => !v)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-      >
-        <span>{current?.label ?? "Sort"}</span>
-        <CaretDown size={12} weight="bold" />
-      </button>
-      {open && (
-        <div className="dropdown-menu" role="listbox">
-          {options.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              role="option"
-              aria-selected={opt.value === value}
-              className={`dropdown-menu-item${opt.value === value ? " is-active" : ""}`}
-              onClick={() => {
-                onChange(opt.value);
-                setOpen(false);
-              }}
-            >
-              <Check
-                size={14}
-                weight="light"
-                style={{ opacity: opt.value === value ? 1 : 0 }}
-                aria-hidden="true"
-              />
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 /* ── Walk-intro card ─────────────────────────────────────────────────────── *
  * The doorway's "explore before you commit" reassurance — the single most-

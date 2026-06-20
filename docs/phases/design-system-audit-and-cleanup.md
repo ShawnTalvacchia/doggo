@@ -79,11 +79,11 @@ review-trigger: When any task is completed or blocked
 
 | Task | Description | Refs | Status |
 |------|-------------|------|--------|
-| D1 | **FC4 `Section` shell** → `components/layout/Section.tsx`, owning the two-tier rhythm internally (header→first-body tight, body→body looser) so the `.profile-tab-stack > section` `:nth-child` hack can retire. Migrate the 3 `ProfileAboutTab` call sites. | [[Future Considerations]] FC4 | todo |
-| D2 | **FC15 `SortMenu`** → `components/ui/SortMenu.tsx` from the two byte-identical copies (`shelters/[id]`, `discover/help-a-dog`); rename `.shelter-sort-trigger`/`-wrap` → `.sort-menu-*`; dedupe the copied `SORT_OPTIONS` / `DogsSortKey`. | [[Future Considerations]] FC15 | todo |
-| D3 | **P78 `CheckboxRow` `density="compact"`** — absorb the `.pet-edit-checkbox-row` override into a real variant (24×24 indicator + 8px margin), bump `<Check>` to ~14–16px, migrate `PetEditCard`, delete the override. | [[punch-list]] P78 | todo |
-| D4 | Reconcile the 3-way input-affix family (`.input-with-icon` [actually trailing], `.input-with-leading-icon`, `.input-with-trailing`): unify under a shared base + position modifiers, and rename `.input-with-icon` → `.input-with-trailing-icon` to fix the misleading name. | [[design-system]] | todo |
-| D5 | **FC5 IdentityChip — decision recorded, not built.** Trigger not met (2 of 3). At most, lift the two inline hero-chip `style` blocks to a shared constant; no component. | [[Future Considerations]] FC5 | todo |
+| D1 | **FC4 `Section` shell — deferred.** Componentizing the header+description+body wrapper is a named target, but the agent flagged that the two-tier rhythm (`.profile-tab-stack > section` `gap-sm` + `:nth-child(n+3)` margin) can regress if the extraction is naive, and the 3 `ProfileAboutTab` call sites vary (editing-mode subheaders, empty-state). Best done with eyes on the spacing — deferred to a focused pass. | [[Future Considerations]] FC4 | deferred |
+| D2 | **FC15 `SortMenu`** extracted → `components/ui/SortMenu.tsx` from the two byte-identical copies; renamed `.shelter-sort-*` → `.sort-menu-*` CSS; both `shelters/[id]` + `discover/help-a-dog` consume it. (Left the small per-page `SORT_OPTIONS`/`DogsSortKey` in place — coupled to each page's comparator; marginal to dedupe.) | [[Future Considerations]] FC15 | done |
+| D3 | **P78 `CheckboxRow` `density="compact"`** — added the variant (24×24 indicator + 8px margin + 14px check), migrated `PetEditCard`'s spay/neuter row, retired the `.pet-edit-checkbox-row` indicator override. Kept the default check at 12px (a global check-size bump is a separate app-wide visual call — not done blind). | [[punch-list]] P78 | done |
+| D4 | Renamed `.input-with-icon` → `.input-with-trailing-icon` (3 tsx + CSS) — fixes the misleading name and makes the affix family consistent (`with-trailing-icon` / `with-leading-icon` / `with-trailing`). The fuller "unify under one base + position modifiers" refactor is lower-value/higher-churn — left noted. | [[design-system]] | done |
+| D5 | **FC5 IdentityChip — decision recorded, not built.** Trigger not met (2 of 3 consumers). Left inlined to avoid over-extraction. | [[Future Considerations]] FC5 | done |
 
 ---
 

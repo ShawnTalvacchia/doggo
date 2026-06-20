@@ -237,7 +237,7 @@ export function PetEditCard({
                 <span>Breed</span>
               </span>
             </label>
-            <div className="input-with-icon">
+            <div className="input-with-trailing-icon">
               <input
                 id={`pet-breed-${pet.id}`}
                 className="input"
@@ -568,6 +568,7 @@ export function PetEditCard({
                 label="Spayed / neutered"
                 checked={vetInfo.spayedNeutered}
                 onChange={(v) => updateVet({ spayedNeutered: v })}
+                density="compact"
               />
             </div>
 

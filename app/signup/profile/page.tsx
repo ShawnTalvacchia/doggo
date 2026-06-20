@@ -95,7 +95,7 @@ export default function SignupProfilePage() {
                     <span className="required">*</span>
                   </span>
                 </label>
-                <div className="input-with-icon">
+                <div className="input-with-trailing-icon">
                   <input
                     id="location"
                     className={`input${locationError ? " input-invalid" : ""}`}

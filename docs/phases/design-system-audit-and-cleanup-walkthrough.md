@@ -52,9 +52,10 @@ Verification checklist for the Design-System Audit + Cleanup phase. **Concise by
 - [ ] **V3.1 _(author at build)_** One-time/Repeat picker behaves identically across its 3 former call sites after primitive extraction.
 - [ ] **V3.2 _(author at build)_** Paired-CTA rows wrap (not overflow) at narrow width on the 5 migrated surfaces.
 
-### V4 — Primitive extractions (WS-D/E)
-- [ ] **V4.1 _(author at build)_** SortMenu behaves identically on `/shelters/[id]` and `/discover/help-a-dog` (open/outside-click/Esc/select).
-- [ ] **V4.2 _(author at build)_** CheckboxRow `density="compact"` on PetEditCard matches the old override; default rows unchanged elsewhere.
+### V4 — Primitive extractions (WS-D)
+- [ ] **V4.1 SortMenu behaves identically on both consumers after extraction.** `/shelters/<id>` Dogs tab toolbar AND `/discover/help-a-dog` Dogs view. *Expect:* dropdown opens, closes on outside-click + Esc, selecting a sort re-orders the dogs, active row has a check — same on both.
+- [ ] **V4.2 CheckboxRow compact density matches the old override.** `/profile?as=daniel` → edit a dog → Health & vet → "Spayed / neutered" row. *Expect:* tight 24×24 box (not the airy 48px frame), check fills the box; the standalone "I confirm vaccination record" row above stays default/airy (unchanged).
+- [ ] **V4.3 Default CheckboxRows unchanged.** Any Discover filter list (`/discover/care`) or signup consent. *Expect:* identical to before — only PetEditCard's grid row went compact.
 
 ---
 
@@ -73,3 +74,7 @@ A running log (append as you walk). Each entry carries a `→ target-doc.md` ann
 - **WS-B: violet promoted to a real `--status-volunteer-*` family** (+ `--violet-*` primitive ramp); all violet hex/rgba migrated; surfaced in styleguide; Principle 15 formalized + applied (mentor submit → system-primary, filter footer → no `cta`). → `design-system.md` + `design-tokens.md` (done)
 - **WS-B: `.alert--info` violet left raw + flagged (O8)** — possibly should be `--status-info` blue; not mis-tokenized as volunteer. → pending PO call
 - **WS-B: mentor booking submit changed from violet to system-primary** — aligns Principle 14's "submit not violet" note (was shipped as violet) with Principle 8. → `design-system.md` Principle 14 updated
+- **WS-D: extracted shared `SortMenu` (FC15)** from two byte-identical copies; `.shelter-sort-*` CSS renamed `.sort-menu-*`. → `design-system.md` (done), FC15 graduates at close
+- **WS-D: `CheckboxRow` gained `density="compact"` (P78)** — retired the `.pet-edit-checkbox-row` indicator override; default check size left at 12px (global bump deferred as a separate visual call). → `design-system.md` (done)
+- **WS-D: `.input-with-icon` renamed `.input-with-trailing-icon`** (misleading name fixed). Full affix base-unification left noted, not done. → `design-system.md`
+- **WS-D: FC4 Section deferred** (two-tier rhythm regression risk + varied call sites → needs visual verify); FC5 IdentityChip not built (trigger not met, 2 of 3). → board WS-D

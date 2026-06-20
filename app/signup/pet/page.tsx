@@ -76,7 +76,7 @@ export default function SignupPetPage() {
                       </span>
                     </span>
                   </label>
-                  <div className="input-with-icon">
+                  <div className="input-with-trailing-icon">
                     <input
                       id="dog-breed"
                       className="input"
