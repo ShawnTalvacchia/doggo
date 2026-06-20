@@ -1647,15 +1647,28 @@ function UserProfileInner() {
                       .map((svc) => {
                         const deliveryOpts = svc.deliveryOptions ?? [];
                         const hasMultipleDelivery = deliveryOpts.length > 1;
-                        // Catalogue price reads from the cheapest delivery
-                        // option when present (so the user sees the floor),
+                        // Day-care carries an analogous priced axis: full-day
+                        // vs half-day (`durationOptions[]`). Surface it on the
+                        // card the same way walks surface delivery, so the two
+                        // read consistently. Service Options & Booking Clarity,
+                        // 2026-06-16.
+                        const durationOpts = svc.durationOptions ?? [];
+                        const hasMultipleDuration = durationOpts.length > 1;
+                        // Catalogue price reads from the cheapest option when a
+                        // priced axis is present (so the user sees the floor),
                         // with a "From" prefix to telegraph the range.
-                        const priceFromDelivery = hasMultipleDelivery
-                          ? Math.min(...deliveryOpts.map((o) => o.price))
+                        const optionPrices = hasMultipleDelivery
+                          ? deliveryOpts.map((o) => o.price)
+                          : hasMultipleDuration
+                            ? durationOpts.map((o) => o.price)
+                            : [];
+                        const priceFrom = optionPrices.length
+                          ? Math.min(...optionPrices)
                           : svc.pricePerUnit;
                         const showFromPrefix =
                           (svc.modifiers ?? []).some((m) => m.enabled) ||
-                          hasMultipleDelivery;
+                          hasMultipleDelivery ||
+                          hasMultipleDuration;
                         return (
                     <div key={svc.serviceType} className="profile-service-card">
                       <div className="profile-service-top">
@@ -1671,7 +1684,7 @@ function UserProfileInner() {
                             {showFromPrefix && (
                               <span className="profile-service-price-from">From </span>
                             )}
-                            {priceFromDelivery.toLocaleString()} Kč
+                            {priceFrom.toLocaleString()} Kč
                             <span className="profile-service-unit">
                               {" "}/ {svc.priceUnit === "per_visit" ? "visit" : "night"}
                             </span>
@@ -1706,6 +1719,37 @@ function UserProfileInner() {
                                   {opt.method === "pickup"
                                     ? `Pickup — ${firstName} comes to you`
                                     : "Drop-off — meet at the start"}
+                                </span>
+                                <span className="font-semibold text-fg-primary">
+                                  {opt.price.toLocaleString()} Kč
+                                </span>
+                              </span>
+                            ))}
+                        </div>
+                      )}
+                      {/* Day-care duration breakdown — mirrors the walks
+                          delivery breakdown above so both priced axes read the
+                          same on the card. 2026-06-16. */}
+                      {hasMultipleDuration && (
+                        <div className="flex flex-col gap-tiny text-xs">
+                          {durationOpts
+                            .slice()
+                            .sort((a, b) =>
+                              a.duration === b.duration
+                                ? 0
+                                : a.duration === "full_day"
+                                  ? -1
+                                  : 1,
+                            )
+                            .map((opt) => (
+                              <span
+                                key={opt.duration}
+                                className="flex items-center justify-between gap-xs text-fg-secondary"
+                              >
+                                <span>
+                                  {opt.duration === "full_day"
+                                    ? "Full day"
+                                    : "Half day"}
                                 </span>
                                 <span className="font-semibold text-fg-primary">
                                   {opt.price.toLocaleString()} Kč
