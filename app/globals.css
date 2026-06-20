@@ -2697,6 +2697,23 @@ body.guest-route {
   display: flex;
 }
 
+/* Input with leading icon (e.g. a map pin on an address field) */
+.input-with-leading-icon {
+  position: relative;
+}
+.input-with-leading-icon .input {
+  padding-left: 32px;
+}
+.input-leading-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  pointer-events: none;
+  display: flex;
+}
+
 /* Input with trailing text/unit (e.g. "Kč / visit") — wider padding than the
    icon variant, sized via the right inset of the suffix span. */
 .input-with-trailing {

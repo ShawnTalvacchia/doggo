@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { CheckCircle, CalendarDots, ArrowRight } from "@phosphor-icons/react";
+import { CheckCircle, CalendarDots, ArrowRight, MapPin } from "@phosphor-icons/react";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { MultiSelectSegmentBar } from "@/components/ui/MultiSelectSegmentBar";
@@ -317,13 +317,21 @@ export function LinkedWalkBookingSheet({
                 ? "Pickup address"
                 : "Drop-off location"}
             </label>
-            <input
-              id="linked-walk-location"
-              type="text"
-              className="input"
-              value={effectiveLocation}
-              onChange={(e) => setDeliveryLocation(e.target.value)}
-            />
+            <div className="input-with-leading-icon">
+              <MapPin
+                size={16}
+                weight="light"
+                className="input-leading-icon"
+                aria-hidden="true"
+              />
+              <input
+                id="linked-walk-location"
+                type="text"
+                className="input"
+                value={effectiveLocation}
+                onChange={(e) => setDeliveryLocation(e.target.value)}
+              />
+            </div>
             <span className="text-xs text-fg-tertiary">
               {selectedDelivery === "pickup"
                 ? "Where should the carer collect your dog? Defaults to your area."

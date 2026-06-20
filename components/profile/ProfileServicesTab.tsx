@@ -773,8 +773,8 @@ export function ProfileServicesTab({
                             </span>
                           </div>
                           <p className="text-xs text-fg-tertiary m-0">
-                            Mentor offering — managed with the shelters you mentor
-                            at. Editing arrives with the mentor tools.
+                            A mentor offering, managed with the shelters you
+                            mentor at.
                           </p>
                         </div>
                       );
