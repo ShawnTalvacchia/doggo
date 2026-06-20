@@ -37,10 +37,14 @@ Identifier prefix: **`O`** (O1, O2, ...). Use these in conversation to point at 
 
 Interaction nuance, complex state, persona-switching round-trips, anything author-confidence is genuinely uncertain about. Each item should describe a behavior the reader needs to drive themselves — an automated check or a static screenshot wouldn't have caught it.
 
+**Every check names where to look and what to expect.** Give each item a concrete pointer — persona (`?as=<id>`) + the exact URL — and a one-line *Expect:*. A check the reader can't locate is not a check.
+
+**One check per item — split freely.** If an item bundles two surfaces, two personas, or two behaviours, that's two items, not one. There is no penalty for many small, clearly-pointed items; the penalty is for a fat item that buries three checks behind one URL (or no URL). Group related checks under a sub-heading (`### V1 — {workstream}`) and list each as its own checkbox.
+
 Identifier prefix: **`V`** (V1, V2, ...).
 
-- [ ] **V1. {Behavior to verify, with the steps to drive it.}**
-- [ ] **V2. ...**
+- [ ] **{What this one check proves.}** `{persona via ?as=}` + `{/exact/url}` → tap/do {the one action}. *Expect:* {the single observable result}.
+- [ ] **{The next distinct check — its own item, its own URL.}** ...
 
 ---
 
@@ -139,14 +143,28 @@ ANTI-PATTERNS the structure exists to fight:
      edit the item in the same change. Stale items confuse verifiers
      into ticking what they don't see.
 
+  6. Bundled or unpointed checks.
+     The two failures we keep regressing into: (a) one item that hides
+     several distinct checks behind a single URL — or worse, references
+     a second surface ("...then Klára's card") without giving its URL;
+     (b) an item with no persona/URL pointer at all, so the reviewer
+     can't find what to look at. Fix: one check per item, and every
+     item carries persona (?as=) + exact URL + a one-line Expect. Two
+     surfaces = two items. More small, well-pointed items always beats
+     fewer fat ones.
+
 LENGTH TARGETS (rough — adjust per phase scope):
 
   - Open for your call: 0–6 items. Often the smallest section.
   - Worth verifying: 4–10 items. The substantive middle.
   - Surfaces to glance: 0–3 items. Often empty — only V-uncoverable surfaces.
 
-  A walkthrough that runs past ~25 items total has almost certainly
-  drifted into anti-pattern 1 or 2. Cut.
+  Item COUNT is not the enemy — bundling is. Splitting one fat check
+  into three clear, individually-pointed ones is correct even though it
+  grows the count; have as many items as the phase genuinely needs. The
+  cap to watch is REDUNDANCY: if the extra items are persona×surface
+  permutations (anti-pattern 1) or checks another item already exercises
+  (anti-pattern 2), cut. Distinct, well-pointed checks: keep them all.
 
 DRIFT RULES — the two failure modes this template fights at phase-close:
 

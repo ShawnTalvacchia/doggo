@@ -37,12 +37,32 @@ Identifier prefix: **`O`** (O1, O2, ...).
 
 ## Worth verifying
 
-Interaction nuance, complex state, persona round-trips. Identifier prefix: **`V`** (V1, V2, ...).
+Interaction nuance, complex state, persona round-trips. Each check gives **where to look** (persona via `?as=` + URL) and **what to expect**. Identifier prefix: **`V`** (V1, V2, ...).
 
-- [ ] **V1. Appointment meeting-options (B).** Multi-option picker: as a booker, `/profile/sarka-trainer?tab=services` → Book the "Puppy starter session" → "Where should this happen?" shows Carer comes to you (650) / Meet at a public spot (600); the estimate tracks the selection. Single-option read-only line: book Klára's "1-on-1 training session" → "Klára comes to your address" line, no picker, 800. Flat (legacy) path: a grooming service (Lenka) shows no "Where" block. Carer edit: as Klára, Profile → Edit → the 1-on-1 card shows "Where do you meet?" with one tuple on. (Booking-detail location row after sign is code-verified, mirrors the walks delivery row.)
-- [ ] **V2. Walk handoff-location override round-trip (C2/C3).** As a viewer who can book a meet-linked walk (e.g. Daniel → `/meets/meet-klara-stromovka` → "Have Klára walk your dog"): the location field defaults to your area on **Pickup** and to the **meet's park** on **Drop-off** (switch the segment to see it re-default). Type a custom spot, book, then open the booking under `/bookings` — the detail row + the Schedule card should read "picks up at {your spot}" / "drop off at {your spot}."
-- [ ] **V3. Dog health/care fields across populated vs empty (D).** `/dogs/shelter-dog-tonda` (fully populated): Likes/Triggers/Play/**Exercise** under "How Tonda likes to be cared for," and Health shows vaccines + Spayed/neutered + Microchip. `/dogs/shelter-dog-liza` (empty): the shelter empty-state prompt ("No care notes yet…") shows instead of the section hiding. `/dogs/shelter-dog-simon` carries a `conditions` line. Owned-dog edit: as a dog owner, Profile → Edit → a dog → "Exercise needs" (preferences section) + "Microchip number" (Health & vet) save and re-render.
-- [ ] **V4. Owner-facing day-care half-day flow (A3 + A6) — needs a viewer Connected to Tereza.** Tereza's day-care is circle-scoped ("Familiar dogs only"), so it doesn't appear in a stranger's `/discover/care`. As a persona Connected to Tereza, open her day-care inquiry: confirm the **Full day / Half day** radio shows 150 / 90, the live estimate updates on toggle, and the chosen duration carries through to the proposal price line + booking-detail "Half day"/"Full day" label. (Code path verified — `InquiryForm.tsx` `offersHalfDay`, `resolveBaseRate`, `bookings/[id]` label — but not clicked end-to-end this build.)
+### V1 — Appointment meeting-options (B)
+
+- [x] **Multi-option picker.** `/profile/sarka-trainer?as=daniel&tab=services` → tap **Book a session** on "Puppy starter session". *Expect:* a "Where should this happen?" picker with **Carer comes to you · 650 Kč** and **Meet at a public spot · 600 Kč**; tapping one tints it blue and the **Price** estimate switches to match (650 ↔ 600).
+- [ ] **Single-option read-only line.** `/profile/klara?as=daniel&tab=services` → **Book a session** on "1-on-1 training session". *Expect:* no picker — a read-only **Where** line "Klára comes to your address", price **800 Kč**.
+- [ ] **Flat / legacy path (no options set).** `/profile/lenka-vet?as=daniel&tab=services` → **Book a session** on "Full groom — small/medium breed". *Expect:* no "Where" block at all, flat **800 Kč** (confirms carers who never set locations are unaffected).
+- [ ] **Carer edit UI.** `/profile?as=klara&tab=services` → **Edit** → the **Appointment** card ("1-on-1 training session"). *Expect:* a "Where do you meet?" block of four toggle rows; **Carer comes to you** is ON with an 800 Kč price field; the standalone flat Price field is hidden; toggling a second option on reveals its own price field.
+- [ ] **Booking-detail location row** *(optional, needs the full sign round-trip — we can drive it together).* After an owner signs an appointment proposal, the booking detail shows a meeting-location row (mirrors the walks delivery row). Code-verified this build.
+
+### V2 — Walk handoff-location + event-aware default (C2/C3)
+
+- [ ] **Event-aware default.** `/meets/meet-klara-stromovka?as=daniel` → tap **"Have Klára walk your dog"**. *Expect:* on **Pickup** the address field prefills **Holešovice** (Daniel's area); switch the segment to **Drop-off** and it re-prefills **Stromovka** (the meet's park).
+- [ ] **Override persists to the booking.** In that sheet, type a custom spot (e.g. "East gate by the café"), pick a date, **Book**, then open it from `/bookings?as=daniel`. *Expect:* the booking-detail row and the Schedule card both read "…at East gate by the café".
+
+### V3 — Dog health/care fields, populated vs empty (D)
+
+- [ ] **Fully populated (shelter dog).** `/dogs/shelter-dog-tonda`. *Expect:* "How Tonda likes to be cared for" with **Likes / Triggers / Play / Exercise** rows; **Health** with vaccines + **Spayed / neutered** + **Microchip · 203164000981245**.
+- [ ] **Empty-state prompt (shelter dog).** `/dogs/shelter-dog-liza`. *Expect:* the care section shows **"No care notes yet. Add likes, triggers, and exercise needs…"** instead of hiding.
+- [ ] **Conditions line (shelter dog).** `/dogs/shelter-dog-simon`. *Expect:* a health **conditions** line ("Senior with some hip stiffness…").
+- [ ] **Owned-dog render + edit.** `/dogs/bara?as=daniel` shows the **Exercise** row + **Microchip** line. Then `/profile?as=daniel` → **Edit** → Bára's card has an **"Exercise needs"** field (preferences) + **"Microchip number"** field (Health & vet) that save and re-render.
+
+### V4 — Day-care half-day (A) — circle-scoped, needs a connected viewer
+
+- [ ] **Carer edit (half-day opt-in).** `/profile?as=tereza&tab=services` → **Edit** → the **Day care** card. *Expect:* a half-day opt-in; enabling it reveals a **90 Kč** half-day price (60% of the 150 full-day rate), full-day field stays the base.
+- [ ] **Owner-facing radio.** `/profile/tereza?as=jana&tab=services` — Jana is Connected to Tereza (so the circle-scoped day-care is visible) and has a dog (Rex). Open the **Day care** request. *Expect:* a **Full day · 150 / Half day · 90** choice; the live estimate updates on toggle and carries through to the proposal price line + the booking-detail "Half day / Full day" label. *(Owner-facing path not clicked end-to-end this build; code path verified — `InquiryForm` `offersHalfDay`, `resolveBaseRate`, `bookings/[id]` label.)*
 
 ---
 

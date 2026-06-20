@@ -57,6 +57,7 @@ Before writing any code for a new phase, complete the **Opening Checklist** on t
 How it runs:
 
 - **The agent prepares the walkthrough doc as it builds** (`phases/<name>-walkthrough.md`, from `_walkthrough-template.md`) — "Open for your call" (O) items, "Worth verifying" (V) items, and an append-only Decisions log. It is ready for review when the build is committed; it is **not** authored from scratch at close.
+- **Every checkable item names where to look + what to expect, and holds exactly one check.** Each O/V item carries a concrete pointer — persona (`?as=<id>`) + the exact URL — and a one-line expected result. If an item bundles two surfaces or behaviours, split it into two items; there's no penalty for many small, well-pointed items, only for fat or unpointed ones. (This is a recurring regression — see the template's anti-pattern 6.)
 - **The PO drives the review with the agent.** Each O/V point is passed or sent back. Resolved O items get checked + a one-line pointer (full rationale lands in the Decisions log — don't duplicate). Decisions made mid-walk get appended to the Decisions log in the same edit.
 - **When a walkthrough change makes an item inaccurate, update the item in the same edit** (template Drift rules). Stale walkthrough text is worse than none.
 - **The phase is not ready to close until every O and V point has passed** and the Decisions log reflects what actually shipped.
