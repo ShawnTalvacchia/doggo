@@ -165,7 +165,6 @@ export function ScheduleMeetCard({
   const goingCount = meet.attendees.filter(
     (a) => (a.rsvpStatus ?? "going") === "going"
   ).length;
-  const isHosting = role === "hosting";
 
   const href = isRecent ? `/meets/${meet.id}/connect` : `/meets/${meet.id}`;
 
@@ -281,13 +280,17 @@ export function ScheduleMeetCard({
         )}
         <span className="flex-1" />
         {isCancelled ? (
-          <span className="sched-card-role sched-card-role--cancelled">
+          <span
+            className="flex items-center gap-xs text-sm font-semibold shrink-0"
+            style={{ color: "var(--status-error-strong)" }}
+          >
             <X size={11} weight="bold" />
             Cancelled
           </span>
         ) : (
           <span
-            className={`sched-card-role${isHosting ? " sched-card-role--hosting" : ""}`}
+            className="flex items-center gap-xs text-sm font-semibold shrink-0"
+            style={{ color: "var(--brand-main)" }}
           >
             {MEET_ICONS[meet.type]}
             {roleLabels[role]}
@@ -475,7 +478,10 @@ export function ScheduleCareCard({
           </span>
         )}
         <span className="flex-1" />
-        <span className={`sched-card-tag sched-card-tag--care${isProviding ? " sched-card-tag--providing" : ""}`}>
+        <span
+          className="flex items-center gap-xs text-sm font-semibold shrink-0"
+          style={{ color: "var(--status-info-strong)" }}
+        >
           <Briefcase size={13} weight="light" />
           {isProviding ? "Providing" : "Care"}
         </span>
@@ -620,7 +626,10 @@ export function ScheduleBookingCard({
           </span>
         )}
         <span className="flex-1" />
-        <span className={`sched-card-tag sched-card-tag--care${isProviding ? " sched-card-tag--providing" : ""}`}>
+        <span
+          className="flex items-center gap-xs text-sm font-semibold shrink-0"
+          style={{ color: "var(--status-info-strong)" }}
+        >
           <Briefcase size={13} weight="light" />
           {isProviding ? "Providing" : "Care"}
         </span>

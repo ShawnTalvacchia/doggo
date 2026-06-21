@@ -15436,9 +15436,9 @@ a.shelter-intro-social:hover {
 }
 
 .alert--info {
-  background: #ede9fe;
-  border-color: #c4b5fd;
-  color: #5b21b6;
+  background: var(--status-info-light);
+  border-color: var(--status-info-main);
+  color: var(--status-info-strong);
 }
 
 .alert--success {
@@ -16783,24 +16783,14 @@ a.shelter-intro-social:hover {
   color: var(--text-secondary);
 }
 
-/* Mute the role pill on past meet cards — a filled brand pill reads too
-   loud against the muted card surface (opacity 0.8 + surface-base).
-   Switch to neutral surface-inset + tertiary text so the pill matches
-   the rest of the past card's calm tone rather than competing. */
-.sched-card--past .sched-card-role {
-  background: var(--surface-inset);
-  color: var(--text-tertiary);
-}
-
 .sched-card--care {
   border-left-color: var(--status-info-main);
 }
 
-/* Provider-vs-owner / host-vs-attendee is NOT carried by the card border
-   anymore — every card keeps the same quiet side-accent treatment. The
-   role distinction lives entirely in the corner pill: a strong filled
-   pill for the provider/host, a lighter pill for the owner/attendee.
-   See `.sched-card-tag--providing` and `.sched-card-role--hosting`. */
+/* Role / status (Hosting / Joining / Providing / Care / Cancelled) renders as
+   inline icon + colored text in the card's top row, NOT a chip — status is not
+   chip vocabulary (design-system Principle 7). The card border keeps the same
+   quiet side-accent for every role. Design-System Audit WS-F, 2026-06-21. */
 
 /* Row 1: Tag + time + recurring */
 .sched-card-top {
@@ -16808,37 +16798,6 @@ a.shelter-intro-social:hover {
   align-items: center;
   gap: var(--space-sm);
 }
-
-.sched-card-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 1px 8px;
-  font-size: var(--font-size-body-xs);
-  font-weight: var(--weight-semibold);
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.sched-card-tag--care {
-  background: var(--status-info-light);
-  color: var(--status-info-strong);
-}
-
-/* Provider-side care card — strong filled pill establishes "you're
-   providing this" without a full card outline. Owner-side keeps the
-   lighter status-info-light pill above. */
-.sched-card-tag--care.sched-card-tag--providing {
-  background: var(--status-info-main);
-  color: var(--text-white);
-}
-
-/* Note: removed `.sched-card-tag--hosting` and `.sched-card-tag--providing`
-   2026-04-26. Type badge now stays consistent regardless of role — the
-   border treatment + the brand-colored role chip on row 3 carry the
-   "this is yours" signal instead. Mixing badge fills by role conflated
-   type (categorical) with ownership (relational) on the same visual. */
 
 .sched-card-time {
   display: inline-flex;
@@ -16910,38 +16869,6 @@ a.shelter-intro-social:hover {
 
 .sched-card-dot {
   color: var(--text-tertiary);
-}
-
-.sched-card-role {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 1px 8px;
-  font-size: var(--font-size-body-xs);
-  font-weight: var(--weight-semibold);
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
-  flex-shrink: 0;
-  /* Attendee/interested — the lighter brand pill, mirroring the
-     owner-side care pill. The strong filled variant is `--hosting`. */
-  background: var(--brand-subtle);
-  color: var(--brand-strong);
-}
-
-/* Host-side meet card — strong filled brand pill mirrors the care
-   card's filled provider pill. Carries the host/attendee distinction
-   that used to live on a full card outline. */
-.sched-card-role--hosting {
-  background: var(--brand-main);
-  color: var(--text-white);
-}
-
-/* Cancelled-meet pill — replaces the role pill (Hosting/Joining) when the
-   meet has been cancelled. Error-toned so the cancellation reads at a
-   glance vs the original role label. */
-.sched-card-role--cancelled {
-  background: var(--status-error-light);
-  color: var(--status-error-strong);
 }
 
 /* Cancelled-meet card — muted overall (opacity), preserved tappability so
