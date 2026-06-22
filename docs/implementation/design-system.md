@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-06-20
+last-reviewed: 2026-06-21
 tags: [design-system, components, patterns, css]
 review-trigger: "when building or refactoring components, adding CSS patterns, or consolidating styles"
 ---
@@ -154,8 +154,7 @@ Active list of things to merge, simplify, or remove. Work these down over time.
 | Item | Issue | Proposed fix |
 |------|-------|-------------|
 | Provider ID mismatch | `mockData.ts` uses `olga-m`, `nikola-r`; `mockUsers.ts` uses `jana`, `nikola` | Unify to one naming scheme before backend work |
-| Duplicate CSS for single-panel pages | Community and Schedule shells follow the same pattern but have separate CSS | Extract a shared `.single-panel-shell` base class (Design-System Audit WS-E) |
-| `.feed-card-body--simple` variant | Only used for authorless cards; may be removable | Audit usage, consider removing if unused |
+| `.feed-card-body--simple` variant | Only used for authorless cards; may be removable | Audit usage, consider removing if unused (part of punch-list P82) |
 
 ---
 

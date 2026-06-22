@@ -1,6 +1,6 @@
 ---
 status: living
-last-reviewed: 2026-06-13
+last-reviewed: 2026-06-21
 review-trigger: "Append when a 'noted for later' idea surfaces; promote out when triggered"
 ---
 
@@ -87,6 +87,8 @@ If user testing or product evolution shows either of these is a common-enough in
 
 ## FC4. `Section` shell component — bundle SectionHeader + optional description
 
+> **Still open — deferred from the Design-System Audit + Cleanup phase (2026-06-21, demo-scope).** Confirmed still valid but deliberately not built: it's an invisible refactor with a spacing-rhythm wrinkle (see correction below), no demo payoff. **Correction to the analysis below:** the offending gap is NOT `gap-md` — `.profile-tab-stack > section` actually uses `gap: var(--space-sm)` (8px) + a `:nth-child(n+3)` margin-top that lifts later children to ~`--space-md`. The same two-tier rhythm rule also covers `.dog-profile-section`, so a `Section` component must reproduce it (and ideally retire the `:nth-child` hack), and likely lives in `components/layout/`, not `components/profile/`.
+
 **Trigger:** Next time the "subheader has too much space above it, body is too close below" spacing bug surfaces in a new section. Or when a Design System Cleanup phase opens and pattern consolidation is in scope.
 
 **Context:** The Profiles Deep Pass About tab has a recurring spacing pattern: a section with `SectionHeader` (32px tall, vertically centered title text) + optional description paragraph + body content. The section's flex `gap-md` (12px) fires between EACH flex child by default, which is wrong here — the description should sit tight under the header (natural text rhythm, no gap-md between them) and the gap-md should land between description and body content.
@@ -119,6 +121,8 @@ The component handles the bundle pattern, description visibility toggling (e.g. 
 ---
 
 ## FC5. `IdentityChip` shared component
+
+> **Re-checked 2026-06-21 (Design-System Audit) — trigger still NOT met, left inlined.** The audit confirmed only the 2 named hero-chip consumers exist; the other `getCarerIdentity` callers feed the dense PersonRow `.person-row-pill--carer`, a deliberately different role. Extracting now would be over-engineering. Revisit at the 3rd consumer.
 
 **Trigger:** A third surface needs the hero-sized identity chip treatment (`flex items-center gap-xs rounded-pill px-sm py-xs text-xs font-medium`).
 
@@ -233,7 +237,7 @@ This works cleanly for walkers because their avatars now live on the walker reco
 
 1. **Extend to supporters.** Today supporters don't author posts (only react/comment), so the resolver has no work to do. When/if supporters post — or when the comment-author treatment gets the same single-source treatment — `findShelterSupporter` would mirror `findShelterWalker`.
 2. **Extend to shelter logos on shelter-authored posts.** Currently shelter posts denormalize `authorAvatarUrl` to the shelter logo path. If the logo URL changes (real shelter onboarding, brand pass), every post would need re-seeding. Switching to resolver-based lookup (`getShelterById(authorId).logoUrl`) eliminates the drift risk. Small change but worth doing the next time we touch shelter posts.
-3. **Promote the violet pair (`#ede9fe` / `#5b21b6`) to tokens.** Used in two places today: `.shelter-member-chip--volunteer` and `.shelter-summary-card-icon` (with matching CTA color). When the volunteer badge surfaces on user profiles or in feed mentions, a third hit makes it worth promoting to `--volunteer-light` / `--volunteer-strong` semantic aliases (or to a full `--violet-*` color family if the color sees non-volunteer uses). Both surfaces should be updated together so they stay in lockstep.
+3. ~~**Promote the violet pair to tokens.**~~ **✅ DONE 2026-06-21 (Design-System Audit WS-B).** The full violet family is now `--violet-50/100/300/700/800` (primitive ramp) + `--status-volunteer-soft/light/border/main/strong` (semantic), surfaced in the styleguide. Every violet hex/rgba across the app migrated onto it; the scoped `--mentor-progress-violet*` one-offs collapsed to family aliases. See `design-tokens.md`.
 
 **Effort:** ~30min per change. Each is mechanical.
 
@@ -276,6 +280,8 @@ When the editable-post store lands, the action should mutate `Post.tags[]` direc
 ---
 
 ## FC15. Shared `<SortMenu />` primitive
+
+> **✅ SHIPPED 2026-06-21 (Design-System Audit + Cleanup, WS-D).** Extracted to `components/ui/SortMenu.tsx` from the two byte-identical inline copies (shelter Dogs tab + Help a Dog); `.shelter-sort-*` CSS renamed `.sort-menu-*`. Documented in `design-system.md` (Primitives). Entry retained for history.
 
 **Trigger:** Design System Cleanup phase opens. Or a third consumer is about to copy the same component inline — extract first instead of fan-out.
 
