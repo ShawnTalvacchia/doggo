@@ -206,7 +206,7 @@ Meet cards appear across Discover, Schedule, Group detail, Community feed, and a
 | Discover — Meets | `CardMeet variant="discover"` | Full spec. Spots-left warning when ≤ 5 spots left. |
 | Schedule — upcoming/history | `CardMeet variant="schedule"` | Role passed explicitly. Free meet → "Joining"; paid meet → "Booked". RSVP count signal for hosts. |
 | Group detail — Meets tab | `CardMeet variant="group"` | Group chip is redundant here — hide it. Show dog count inline instead. Role derived from viewer; non-paid → "Going", paid → "Booked", host → "Hosting". Book CTA suppressed when viewer is host or already going. |
-| Community feed — upcoming | `FeedUpcomingMeet` | Mirrors CardMeet anatomy directly. "Coming up" leads inline with the date row (brand-main + filled clock icon). Surfaces only when viewer is attending and meet starts within 48h (see `lib/mockFeed.ts` → `getHomeFeed`). |
+| Community feed — upcoming | `FeedUpcomingMeet` | Uses the shared `.feed-card` two-column shell (host-**group avatar** left, circle per Avatar Rule B; meet anatomy right) so it sits in the same row rhythm as post cards rather than as a standalone bordered card (2026-06-22). "Coming up" badge sits beside the type pill atop the content column. Surfaces only when viewer is attending and meet starts within 48h (see `lib/mockFeed.ts` → `getHomeFeed`). |
 | Community feed — completed meet | `FeedMeetRecap` | Photo row replaces the dog-avatar stack (photos carry the social proof); type pill + date still required. |
 | Group detail — chat context strip | `MeetCardCompact` | 200px wide, horizontal scroll. Keep type pill, title, date/time, location, small dog-name row (no avatars — no room). |
 

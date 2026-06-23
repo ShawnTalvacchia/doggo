@@ -6,9 +6,9 @@
  * Renders between beats when the Guided Walkthrough is `active` and in
  * `interstitial` phase. Covers the viewport so the tester never sees the
  * persona swap. Two variants:
- *   - beat interstitial (`beatIndex < WALKTHROUGH_BEAT_COUNT`) — "you're now
+ *   - beat interstitial (`beatIndex < beat count`) — "you're now
  *     {persona}", situational context, the task, Continue / Pause.
- *   - closing interstitial (`beatIndex === WALKTHROUGH_BEAT_COUNT`) — end of
+ *   - closing interstitial (`beatIndex === beat count`) — end of
  *     the walkthrough, Pick-another-persona / Stay.
  *
  * While a beat interstitial is showing, the beat's `startUrl` is warmed so
@@ -25,7 +25,8 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react";
 import { useWalkthrough } from "@/contexts/WalkthroughContext";
 import { useNotifications } from "@/contexts/NotificationsContext";
-import { WALKTHROUGH_BEATS, WALKTHROUGH_BEAT_COUNT } from "@/lib/walkthroughBeats";
+import { useWalkerApplications } from "@/contexts/WalkerApplicationsContext";
+import { getBeat, getBeatCount, getWalkthrough } from "@/lib/walkthroughBeats";
 import { getDeferredNotification } from "@/lib/mockNotifications";
 import { getPersona } from "@/lib/personas";
 
@@ -33,6 +34,7 @@ export function WalkthroughInterstitial() {
   const wt = useWalkthrough();
   const router = useRouter();
   const { addNotification } = useNotifications();
+  const { vouchViaMentor } = useWalkerApplications();
 
   // Warm the upcoming beat's surface while the full-screen handoff is up,
   // so tapping Continue lands on an already-ready route instead of waiting
@@ -40,7 +42,7 @@ export function WalkthroughInterstitial() {
   // below); the warm only fires for a live beat interstitial.
   const prefetchUrl =
     wt.active && wt.phase === "interstitial"
-      ? WALKTHROUGH_BEATS[wt.beatIndex]?.startUrl
+      ? getBeat(wt.walkthroughId, wt.beatIndex)?.startUrl
       : undefined;
   useEffect(() => {
     if (!prefetchUrl) return;
@@ -62,7 +64,7 @@ export function WalkthroughInterstitial() {
   // During a running beat, a step of kind "interstitial" renders full-screen
   // here; the on-surface card stands down until it's dismissed.
   if (wt.phase === "running") {
-    const beat = WALKTHROUGH_BEATS[wt.beatIndex];
+    const beat = getBeat(wt.walkthroughId, wt.beatIndex);
     const step = beat?.steps[wt.stepIndex];
     if (!step || step.kind !== "interstitial") return null;
     // Fire any deferred narrative notifications this interstitial carries
@@ -75,6 +77,13 @@ export function WalkthroughInterstitial() {
           if (payload) addNotification(payload);
         }
       }
+      // A2 pre-staging: fast-forward the walker to mentor-vouched (idempotent),
+      // so the next beat's gated affordances (e.g. "Walk Nora") are available
+      // without a hand-driven demo toggle.
+      if (step.fireWalkerVouch) {
+        const { userId, shelterId, mentor } = step.fireWalkerVouch;
+        vouchViaMentor(userId, shelterId, mentor);
+      }
       wt.next();
     };
     return (
@@ -84,7 +93,9 @@ export function WalkthroughInterstitial() {
         aria-modal="true"
         aria-label={step.heading}
       >
-        <div className="wt-interstitial-sheet">
+        <div
+          className={`wt-interstitial-sheet${step.mode === "probe" ? " wt-interstitial-sheet--probe" : ""}`}
+        >
           <span className="wt-interstitial-eyebrow">{step.eyebrow}</span>
           <h2 className="wt-interstitial-heading">{step.heading}</h2>
           <p className="wt-interstitial-context">{step.body}</p>
@@ -112,20 +123,21 @@ export function WalkthroughInterstitial() {
   }
 
   // ── Closing interstitial ───────────────────────────────────────────────
-  if (wt.beatIndex >= WALKTHROUGH_BEAT_COUNT) {
-    const lastBeat = WALKTHROUGH_BEATS[WALKTHROUGH_BEAT_COUNT - 1];
+  if (wt.beatIndex >= getBeatCount(wt.walkthroughId)) {
+    const lastBeat = getBeat(wt.walkthroughId, getBeatCount(wt.walkthroughId) - 1);
     const lastPersona = lastBeat ? getPersona(lastBeat.personaId) : undefined;
     const lastName = lastPersona?.user.firstName ?? "this persona";
+    const closing = getWalkthrough(wt.walkthroughId)?.closing;
     return (
       <div className="wt-interstitial" role="dialog" aria-modal="true" aria-label="End of walkthrough">
         <div className="wt-interstitial-sheet">
           <span className="wt-interstitial-eyebrow">Demo walkthrough</span>
-          <h2 className="wt-interstitial-heading">End of walkthrough.</h2>
+          <h2 className="wt-interstitial-heading">
+            {closing?.heading ?? "End of walkthrough."}
+          </h2>
           <p className="wt-interstitial-context">
-            One free walk at Stromovka. From it, Daniel found a trainer for
-            nervous Bára, a neighbour to lean on, and a community to belong
-            to. For Klára, that same morning was her work and her livelihood.
-            Want to keep exploring?
+            {closing?.body ??
+              "Want to keep exploring?"}
           </p>
           <div className="wt-interstitial-actions">
             <button
@@ -152,23 +164,32 @@ export function WalkthroughInterstitial() {
   // ── Beat interstitial ──────────────────────────────────────────────────
   // Scene-setting only — names the persona + the situation. The task is NOT
   // listed here; the on-surface card walks the steps once the beat begins.
-  const beat = WALKTHROUGH_BEATS[wt.beatIndex];
+  const beat = getBeat(wt.walkthroughId, wt.beatIndex);
   if (!beat) return null;
   const persona = getPersona(beat.personaId);
   if (!persona) return null;
   const { user } = persona;
+  // A beat whose persona matches the previous beat's is a *continuation*
+  // (same person, time has passed) rather than a persona handoff — so the
+  // interstitial reads as a time-passage ("Later that day.") instead of
+  // re-introducing "You're now Daniel." (Multi-Path Demo: W1 is two
+  // consecutive Daniel beats with the walk in between.)
+  const prevBeat =
+    wt.beatIndex > 0 ? getBeat(wt.walkthroughId, wt.beatIndex - 1) : undefined;
+  const isContinuation = !!prevBeat && prevBeat.personaId === beat.personaId;
 
   return (
     <div
       className="wt-interstitial"
       role="dialog"
       aria-modal="true"
-      aria-label={`Walkthrough — beat ${beat.n} of ${WALKTHROUGH_BEAT_COUNT}`}
+      aria-label={`Walkthrough — beat ${beat.n} of ${getBeatCount(wt.walkthroughId)}`}
     >
       <div className="wt-interstitial-sheet">
         <div className="wt-interstitial-toprow">
           <span className="wt-interstitial-eyebrow">
-            Beat {beat.n} of {WALKTHROUGH_BEAT_COUNT} · {beat.when}
+            Beat {beat.n} of {getBeatCount(wt.walkthroughId)}
+            {!isContinuation && ` · ${beat.when}`}
           </span>
           <button
             type="button"
@@ -186,10 +207,16 @@ export function WalkthroughInterstitial() {
             className="wt-interstitial-avatar"
           />
           <div className="wt-interstitial-identity">
-            <h2 className="wt-interstitial-heading">You&rsquo;re now {user.firstName}.</h2>
-            <p className="wt-interstitial-sub">
-              {user.firstName} {user.lastName} · {persona.archetype}
-            </p>
+            <h2 className="wt-interstitial-heading">
+              {isContinuation
+                ? `${beat.when}.`
+                : `You’re now ${user.firstName}.`}
+            </h2>
+            {!isContinuation && (
+              <p className="wt-interstitial-sub">
+                {user.firstName} {user.lastName} · {persona.archetype}
+              </p>
+            )}
           </div>
         </div>
         <p className="wt-interstitial-context">{beat.context}</p>

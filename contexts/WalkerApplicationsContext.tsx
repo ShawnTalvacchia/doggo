@@ -113,6 +113,20 @@ interface WalkerApplicationsContextValue {
    * shelter staking its reputation on the walker (A7).
    */
   creditWalks: (userId: string, shelterId: string, count: number) => void;
+  /**
+   * Fast-forward a mentee straight to mentor-vouched (Multi-Path Demo A2,
+   * 2026-06-22). Idempotent upsert: creates or updates the (user, shelter)
+   * application to `vouched` via the mentor path, with a completed-sessions
+   * mentorship ref. Used by the guided `shelter` walkthrough's time-passage
+   * interstitial to narrate "a few good walks later, you're vouched" without
+   * the tester grinding the per-session demo toggle. No-op if already vouched.
+   */
+  vouchViaMentor: (
+    userId: string,
+    shelterId: string,
+    mentor: { id: string; name: string },
+    sessions?: number,
+  ) => void;
   /** Sign this shelter's specific waiver (layer 2 of D4). Updates the
    *  existing application; no-op when none exists yet. */
   signShelterWaiver: (userId: string, shelterId: string) => void;
@@ -322,6 +336,55 @@ export function WalkerApplicationsProvider({ children }: { children: React.React
     [setApplications],
   );
 
+  const vouchViaMentor = useCallback(
+    (
+      userId: string,
+      shelterId: string,
+      mentor: { id: string; name: string },
+      sessions = 3,
+    ) => {
+      setApplications((prev) => {
+        const existing = prev.find(
+          (a) => a.userId === userId && a.shelterId === shelterId,
+        );
+        const mentorship = {
+          mentorId: mentor.id,
+          mentorName: mentor.name,
+          sessionsCompleted: sessions,
+        };
+        if (existing) {
+          if (existing.state === "vouched") return prev; // idempotent
+          return prev.map((a) =>
+            a === existing
+              ? {
+                  ...a,
+                  state: "vouched" as WalkerApplicationState,
+                  vouchedAt: a.vouchedAt ?? new Date().toISOString(),
+                  vouchedVia: "mentor" as const,
+                  mentorship: a.mentorship ?? mentorship,
+                }
+              : a,
+          );
+        }
+        return [
+          ...prev,
+          {
+            id: `app-${userId}-${shelterId}-${Date.now()}`,
+            userId,
+            shelterId,
+            state: "vouched" as WalkerApplicationState,
+            message: `Mentor-vouched via ${mentor.name}.`,
+            appliedAt: new Date().toISOString(),
+            vouchedAt: new Date().toISOString(),
+            vouchedVia: "mentor" as const,
+            mentorship,
+          },
+        ];
+      });
+    },
+    [setApplications],
+  );
+
   const signShelterWaiver = useCallback(
     (userId: string, shelterId: string) => {
       setApplications((prev) =>
@@ -371,6 +434,7 @@ export function WalkerApplicationsProvider({ children }: { children: React.React
         beginMentorship,
         completeMentorSession,
         creditWalks,
+        vouchViaMentor,
         signShelterWaiver,
         getPlatformWaiverSignedAt,
         signPlatformWaiver,

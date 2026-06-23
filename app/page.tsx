@@ -1,26 +1,19 @@
 "use client";
 
 /**
- * Landing page — the demo's front door.
+ * Landing page — the demo's front door (root route /).
  *
- * Standalone and chrome-free (GuestLayout treats `/` as a standalone
- * route — no AppNav, Sidebar, or BottomNav). The whole prototype sits
- * behind the `proxy.ts` password gate; this is the first surface past it.
+ * Standalone and chrome-free (GuestLayout treats `/` as a standalone route —
+ * no AppNav, Sidebar, or BottomNav). The whole prototype sits behind the
+ * `proxy.ts` password gate; this is the first surface past it.
  *
- * Layout (2026-05-20 iteration, full-bleed split):
- *  - The page is a full-bleed grid of two halves with different surface
- *    colours (`--surface-base` left, `--surface-top` right) rather than
- *    a centred shell. The colour split replaces a divider and makes the
- *    page take up the full viewport on desktop.
- *  - Left half = demo entry: logo + DEMO pill at the top, then headline,
- *    tagline, primary CTA, helper.
- *  - Right half = cast showcase + picker: MEET THE CAST framing, a
- *    horizontal profile card (photo left, name/role/goal/Explore CTA
- *    right), and slider controls.
- *  - Daniel (the walkthrough's lead) is the first card and the slider
- *    opens on him. On mobile the profile card is swipeable (left/right
- *    to change persona); desktop also has the arrow controls.
- *  - Mobile stacks the halves vertically.
+ * Layout (2026-06-22 rebuild, Multi-Path Demo): a single centered column —
+ * logo + DEMO, headline + tagline, the guided-walkthrough doors (one per
+ * WALKTHROUGH_LIST entry, the primary path), and one quiet "look around
+ * freely" door that drops into the app as the default persona. Replaced the
+ * earlier two-half cast-card showcase: the five cast cards competed with the
+ * guided doors and duplicated the profile-page persona switcher (you change
+ * characters from the profile name dropdown).
  */
 
 import { useEffect, useState } from "react";
@@ -29,77 +22,24 @@ import {
   ArrowRight,
   ArrowCounterClockwise,
   Compass,
+  MagnifyingGlass,
 } from "@phosphor-icons/react";
 import { useDemoState } from "@/contexts/CurrentUserContext";
 import { useWalkthrough } from "@/contexts/WalkthroughContext";
+import { WALKTHROUGH_LIST } from "@/lib/walkthroughBeats";
 import { clearDemoStorage } from "@/lib/demoReset";
 import { ButtonAction } from "@/components/ui/ButtonAction";
-import { personas } from "@/lib/personas";
 import "./page.css";
-
-/**
- * Per-persona display content for the showcase cards. Short pill role +
- * a single-sentence goal that hints at where they live in the demo's
- * world (Prague neighbourhoods bubble up here naturally — that's where
- * the place context lands now that the eyebrow no longer announces it).
- */
-const PERSONA_ROLES: Record<string, string> = {
-  tereza: "Community organiser",
-  daniel: "New owner",
-  klara: "Trainer",
-  tomas: "Busy professional",
-  lena: "Care customer",
-  magda: "Neighbour",
-};
-
-const PERSONA_GOALS: Record<string, string> = {
-  tereza:
-    "Runs the Vinohrady evening walkers and hosts the meets that keep the crew showing up.",
-  daniel:
-    "New to the city with a shy rescue, slowly finding his people on neighbourhood walks.",
-  klara:
-    "Hosts a free weekly walk at Stromovka; her paid training clients come from it.",
-  tomas:
-    "Boards Hugo with a sitter he trusts when work travel hits — and wishes his 9-to-6 left room to walk shelter dogs.",
-  lena:
-    "Books a pro walker for Asha's weekday routine and skips the community side entirely.",
-  magda:
-    "Anchors a private Holešovice block where neighbours mind each other's dogs for a fair price.",
-};
-
-/**
- * Curated landing-page cast — a tight set of non-overlapping use-cases, in
- * showcase order (Daniel, the walkthrough lead, is first). Deliberately a
- * subset of `personas`: Tereza (the default owner, who overlapped Magda as a
- * community anchor) and the empty "New user" persona stay reachable via the
- * /demo picker and the in-app switcher — just not as landing cards. Each id
- * is one distinct way into the product:
- *   daniel — new owner finding community
- *   klara  — trainer offering paid care (and mentoring new shelter walkers)
- *   tomas  — busy owner booking trusted boarding; the Mentor Network's
- *            mentee (his 9-to-6 is exactly what shelter intake filters
- *            out — the mentored path is his way in)
- *   lena   — marketplace-only owner booking recurring walks
- *   magda  — neighbour anchoring a private mutual-care circle
- */
-const LANDING_CAST_IDS = ["daniel", "klara", "tomas", "lena", "magda"];
 
 export default function LandingPage() {
   const router = useRouter();
-  const { resetToDefault, setUserById } = useDemoState();
+  const { resetToDefault } = useDemoState();
   const walkthrough = useWalkthrough();
 
   // Hide the Reset action when there's nothing to reset — no `doggo*`
-  // entries in local or session storage means the demo has never been
-  // touched, so the button would be a no-op. Starts false (matches the
-  // SSR snapshot — no storage on the server); the effect upgrades it
-  // after hydration if state is actually present.
+  // entries in storage means the demo has never been touched. Starts false
+  // (matches the SSR snapshot); the effect upgrades it after hydration.
   const [hasDemoState, setHasDemoState] = useState(false);
-
-  // Lights the "Explore freely" eyebrow brand-light while the pointer is over
-  // any cast card — a small "you're exploring" cue. JS-driven (replaces a
-  // flaky `:has(:hover)` CSS rule).
-  const [castHovered, setCastHovered] = useState(false);
   useEffect(() => {
     if (typeof window === "undefined") return;
     const hasKey = (store: Storage) =>
@@ -109,168 +49,126 @@ export default function LandingPage() {
     );
   }, []);
 
-  function handleStartWalkthrough() {
-    // Scripted demo must run against the canonical mock-data seed.
-    // Reset first, then start. No reload needed: clearing the persisted
-    // state cache re-seeds contexts in place, and the walkthrough
-    // navigates forward into freshly mounted pages.
+  function handleStartWalkthrough(walkthroughId: string) {
+    // Scripted demo must run against the canonical mock-data seed. Reset
+    // first, then start; clearing the persisted cache re-seeds contexts in
+    // place and the walkthrough navigates forward into freshly mounted pages.
     clearDemoStorage();
     resetToDefault();
-    walkthrough.start();
+    walkthrough.start(walkthroughId);
+  }
+
+  function handleExploreFreely() {
+    // End any walkthrough, drop into the app as the default persona (Tereza).
+    // Characters switch from the profile name dropdown — no per-persona cards
+    // here. Demo state (bookings etc.) is preserved, mirroring the old
+    // "Explore as <name>" behaviour.
+    walkthrough.endAndStay();
+    resetToDefault();
+    router.push("/home");
   }
 
   function handleReset() {
     clearDemoStorage();
     resetToDefault();
-    // Hard reload so any local component state on back-stack pages
-    // is wiped too. Mirrors ProfileNameDropdown's reset.
+    // Hard reload so any local component state on back-stack pages is wiped too.
     if (typeof window !== "undefined") window.location.reload();
   }
 
-  /**
-   * "Explore freely as this persona" path — mirrors the retired
-   * DemoPersonaDropdown's pick(): end any walkthrough that was running
-   * (its on-surface card / pill shouldn't follow the tester into free
-   * mode), swap to the picked persona, route to /home so the data swap
-   * is immediately visible.
-   */
-  function handlePickPersona(personaId: string) {
-    walkthrough.endAndStay();
-    setUserById(personaId);
-    router.push("/home");
-  }
-
-  // Build the cast in curated order, dropping any id not found in the registry.
-  const castPersonas = LANDING_CAST_IDS.map((id) =>
-    personas.find((p) => p.user.id === id),
-  ).filter((p): p is (typeof personas)[number] => Boolean(p));
-
   return (
     <div className="demo-page">
-      <header className="demo-top-header-left">
-        <div className="demo-top-header-inner">
-          <img src="/logo.svg" alt="Doggo" className="demo-logo" />
-          <span className="demo-eyebrow">Demo</span>
-        </div>
+      <header className="demo-header">
+        <img src="/logo.svg" alt="Doggo" className="demo-logo" />
+        <span className="demo-eyebrow">Demo</span>
       </header>
-      {/* Empty right-header cell — its job is to extend surface-top up to
-          the top of the right column so the vertical seam between halves
-          runs unbroken from the reset bar to the top of the page. */}
-      <div className="demo-top-header-right" aria-hidden="true" />
 
-      <section className="demo-left">
-        <div className="demo-left-inner">
-          <h1 className="demo-headline">
-            <span className="demo-headline-primary">Your dog finds friends.</span>{" "}
-            <span className="demo-headline-brand">You find people you trust.</span>
-          </h1>
-
-          <p className="demo-tagline">
-            Meet local owners and trainers, build real trust, and find
-            care from people you already know.
-          </p>
-
-          <button
-            type="button"
-            className="demo-start-btn"
-            onClick={handleStartWalkthrough}
-          >
-            <Compass size={18} weight="bold" aria-hidden="true" />
-            Start the walkthrough
-            <ArrowRight size={16} weight="bold" aria-hidden="true" />
-          </button>
-        </div>
-      </section>
-
-      <section className="demo-right">
-        <div className="demo-right-inner">
-          <div className="demo-cast-meta">
-            <span
-              className={`demo-cast-eyebrow${castHovered ? " demo-cast-eyebrow--active" : ""}`}
-            >
-              Explore freely
-            </span>
-            <p className="demo-cast-subline">
-              For an open-ended way to experience Doggo, pick a character
-              and explore the app through their eyes, at your own pace.
+      <main className="demo-main">
+        <div className="demo-main-inner">
+          <div className="demo-hero">
+            <h1 className="demo-headline">
+              <span className="demo-headline-primary">Your dog finds friends.</span>{" "}
+              <span className="demo-headline-brand">You find people you trust.</span>
+            </h1>
+            <p className="demo-tagline">
+              Meet local owners and trainers, build real trust, and find care
+              from people you already know.
             </p>
           </div>
-        </div>
 
-        {/* Full-bleed carousel of vertical cast cards — a direct child of
-            .demo-right (NOT the max-width inner) so it can run off the right
-            section edge. Cards start aligned with the eyebrow; native scroll
-            (swipe on touch) replaced the prev/next stepper. */}
-        <div
-          className="demo-cast-scroller"
-          role="list"
-          aria-label="The cast"
-          onMouseEnter={() => setCastHovered(true)}
-          onMouseLeave={() => setCastHovered(false)}
-        >
-          {castPersonas.map((p) => (
-            <article
-              key={p.user.id}
-              className="demo-profile-card"
-              role="listitem"
-            >
-              <div className="demo-profile-card-media">
-                <img
-                  src={p.user.avatarUrl}
-                  alt=""
-                  className="demo-profile-card-photo"
-                />
-                {/* Role chip overlaid on the photo (dark scrim, neutral) so
-                    the body reads cleanly: name → goal → action. */}
-                <span className="demo-profile-card-pill">
-                  {PERSONA_ROLES[p.user.id] ?? p.archetype}
-                </span>
-              </div>
-              <div className="demo-profile-card-body">
-                <div className="demo-profile-card-name">
-                  {p.user.firstName} {p.user.lastName.charAt(0)}.
-                </div>
-                <p className="demo-profile-card-goal">
-                  {PERSONA_GOALS[p.user.id] ?? p.archetype}
-                </p>
-                <button
-                  type="button"
-                  className="demo-profile-card-explore"
-                  onClick={() => handlePickPersona(p.user.id)}
-                >
-                  Explore as {p.user.firstName}
-                  <ArrowRight size={13} weight="bold" aria-hidden="true" />
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <div className="demo-reset-row">
-        <div className="demo-reset-cell">
-          {hasDemoState && (
-            <div className="demo-reset-inner demo-reset-inner--left">
-              <ButtonAction
-                variant="tertiary"
-                size="sm"
-                leftIcon={<ArrowCounterClockwise size={13} weight="bold" />}
-                onClick={handleReset}
-              >
-                Reset demo state
-              </ButtonAction>
-            </div>
-          )}
-        </div>
-        <div className="demo-reset-cell">
-          <div className="demo-reset-inner demo-reset-inner--right">
-            <span className="demo-credit">
-              Created by <strong>Alyssa Parkhurst</strong> and{" "}
-              <strong>Shawn Talvacchia</strong>
+          {/* Primary: the guided-walkthrough cards, one per registered path, in a row. */}
+          <div className="demo-section">
+            <span className="demo-doors-eyebrow">
+              <Compass size={13} weight="bold" aria-hidden="true" />
+              Guided walkthroughs
             </span>
+            <div className="demo-walk-grid">
+              {WALKTHROUGH_LIST.map((w) => (
+                <button
+                  key={w.id}
+                  type="button"
+                  className="demo-walk-card"
+                  onClick={() => handleStartWalkthrough(w.id)}
+                >
+                  <span className="demo-walk-card-title">{w.displayName}</span>
+                  <span className="demo-walk-card-blurb">{w.blurb}</span>
+                  <ArrowRight
+                    size={18}
+                    weight="bold"
+                    aria-hidden="true"
+                    className="demo-walk-card-go"
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Secondary: a single free-exploration door (slim bar). */}
+          <div className="demo-section">
+            <span className="demo-doors-eyebrow">
+              <MagnifyingGlass size={13} weight="bold" aria-hidden="true" />
+              Or explore on your own
+            </span>
+            <button
+              type="button"
+              className="demo-door demo-door--explore"
+              onClick={handleExploreFreely}
+            >
+              <span className="demo-door-body">
+                <span className="demo-door-title">Look around freely</span>
+                <span className="demo-door-blurb">
+                  Explore the app at your own pace. Switch characters anytime
+                  from the profile page.
+                </span>
+              </span>
+              <ArrowRight
+                size={18}
+                weight="bold"
+                aria-hidden="true"
+                className="demo-door-arrow"
+              />
+            </button>
           </div>
         </div>
-      </div>
+      </main>
+
+      <footer className="demo-footer">
+        {hasDemoState ? (
+          <ButtonAction
+            variant="tertiary"
+            size="sm"
+            leftIcon={<ArrowCounterClockwise size={13} weight="bold" />}
+            onClick={handleReset}
+          >
+            Reset demo state
+          </ButtonAction>
+        ) : (
+          <span aria-hidden="true" />
+        )}
+        <span className="demo-credit">
+          Created by <strong>Alyssa Parkhurst</strong> and{" "}
+          <strong>Shawn Talvacchia</strong>
+        </span>
+      </footer>
     </div>
   );
 }

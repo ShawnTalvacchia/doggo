@@ -40,7 +40,7 @@ import {
 } from "@phosphor-icons/react";
 import { useWalkthrough } from "@/contexts/WalkthroughContext";
 import { useNotifications } from "@/contexts/NotificationsContext";
-import { WALKTHROUGH_BEATS, WALKTHROUGH_BEAT_COUNT } from "@/lib/walkthroughBeats";
+import { getBeat, getBeatCount } from "@/lib/walkthroughBeats";
 import { getDeferredNotification } from "@/lib/mockNotifications";
 import { getPersona } from "@/lib/personas";
 
@@ -101,7 +101,7 @@ export function WalkthroughCard() {
   const firedStepRef = useRef<string | null>(null);
   useEffect(() => {
     if (!wt.active || wt.phase !== "running") return;
-    const b = WALKTHROUGH_BEATS[wt.beatIndex];
+    const b = getBeat(wt.walkthroughId, wt.beatIndex);
     const s = b?.steps[wt.stepIndex];
     const stepKey = `${wt.beatIndex}:${wt.stepIndex}`;
     if (s?.kind === "card" && s.fireNotifications && firedStepRef.current !== stepKey) {
@@ -136,7 +136,7 @@ export function WalkthroughCard() {
       lastUrlRef.current = currentUrl;
       return;
     }
-    const b = WALKTHROUGH_BEATS[wt.beatIndex];
+    const b = getBeat(wt.walkthroughId, wt.beatIndex);
     const s = b?.steps[wt.stepIndex];
     const stepKey = `${wt.beatIndex}:${wt.stepIndex}`;
     const satisfied =
@@ -164,7 +164,7 @@ export function WalkthroughCard() {
 
   if (!wt.hydrated || !wt.active || wt.phase !== "running") return null;
 
-  const beat = WALKTHROUGH_BEATS[wt.beatIndex];
+  const beat = getBeat(wt.walkthroughId, wt.beatIndex);
   if (!beat) return null;
   const step = beat.steps[wt.stepIndex];
   if (!step) return null;
@@ -175,7 +175,7 @@ export function WalkthroughCard() {
   const persona = getPersona(beat.personaId);
   const personaName = persona?.user.firstName ?? beat.personaId;
   const isLast =
-    wt.beatIndex >= WALKTHROUGH_BEAT_COUNT - 1 &&
+    wt.beatIndex >= getBeatCount(wt.walkthroughId) - 1 &&
     wt.stepIndex >= beat.steps.length - 1;
   // True when the tester has been past this step before — they advanced
   // through it once, then backed in via Back. Used to flip the awaitAction

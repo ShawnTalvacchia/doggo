@@ -16,6 +16,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { formatShortDate, formatDateRange } from "@/lib/dateUtils";
 import { getUserById } from "@/lib/mockUsers";
 import { getShelterDogByName } from "@/lib/mockShelters";
+import { getMeetById } from "@/lib/mockMeets";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
 import { useViewedReports } from "@/lib/useViewedReports";
 
@@ -48,8 +49,11 @@ function sessionProgress(booking: Booking): { completed: number; total: number }
 
 function priceLabel(booking: Booking): string {
   // Shelter walks are volunteer work — "0 Kč total" reads as a billing
-  // glitch, not a gift of time. Cross-Shelter Mentor Network G2.
-  if (booking.ownerKind === "shelter") return "Volunteer · no charge";
+  // glitch, not a gift of time. Cross-Shelter Mentor Network G2. BUT a
+  // mentored first walk carries the trainer's fee (paid mentorship on a
+  // shelter dog) — show it rather than "no charge" (FC18 pricing fix).
+  if (booking.ownerKind === "shelter" && booking.price.total === 0)
+    return "Volunteer · no charge";
   const { total, billingCycle } = booking.price;
   if (billingCycle === "weekly") return `${total.toLocaleString()} Kč / week`;
   if (billingCycle === "per_session") return `${total.toLocaleString()} Kč / session`;
@@ -95,6 +99,16 @@ export function BookingRow({ booking }: { booking: Booking }) {
   // states still override the accent (grey / amber).
   const isVolunteer = booking.mentorSession != null || booking.ownerKind === "shelter";
   const progress = sessionProgress(booking);
+  // Group-walk context: a shelter walk linked to a meet (config #2) was done
+  // ON a trainer-led group walk. Surface the host (mentor, for a mentored
+  // first walk) + the walk itself — otherwise the card only shows the shelter
+  // + dog and the host who runs (and is paid for) the walk goes unnamed.
+  const linkedMeet = booking.dropoffMeetId ? getMeetById(booking.dropoffMeetId) : null;
+  const walkContext = linkedMeet
+    ? booking.subService === "Mentored first walk"
+      ? `with ${linkedMeet.creatorName.split(" ")[0]} · ${linkedMeet.title}`
+      : linkedMeet.title
+    : null;
   const firstPetName = booking.pets[0] ?? null;
   const firstPetAvatar = firstPetName
     ? getPetAvatarUrl(booking, firstPetName)
@@ -159,10 +173,15 @@ export function BookingRow({ booking }: { booking: Booking }) {
         <StatusBadge status={booking.status} />
       </div>
 
-      {/* Row 2: Service title */}
+      {/* Row 2: Service title (+ group-walk host/occasion context) */}
       <div className="booking-card-service">
         {booking.subService ?? bookingServiceLabel(booking)}
       </div>
+      {walkContext && (
+        <div className="text-xs text-fg-tertiary" style={{ marginTop: "calc(-1 * var(--space-xs))" }}>
+          {walkContext}
+        </div>
+      )}
 
       {/* Row 3: Schedule + price */}
       <div className="booking-card-details">

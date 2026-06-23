@@ -8264,10 +8264,12 @@ body:has(.bottom-nav) .bookings-page {
   justify-content: center;
   gap: var(--space-sm);
   width: 100%;
-  /* Fixed 320px height — matches the PostPhotoGrid single-photo height
-     so swapping between empty-tile and photo states keeps the section
-     vertically stable (no jump when first photo lands). */
-  height: 320px;
+  /* Empty-state dropzone height. Shortened 320 → 200 (2026-06-22) so the
+     live-session actions (Add a note / Log GPS) sit higher, closer to the
+     fold. A posted photo still renders the 320px photo grid above the now-
+     compact add-row, so the only height shift is the rare empty → first-photo
+     transition. */
+  height: 200px;
   padding: var(--space-lg);
   border: 2px dashed var(--border-regular);
   border-radius: var(--radius-md);
@@ -12636,6 +12638,17 @@ body:has(.bottom-nav) .bookings-page {
   height: 40px;
   border-radius: var(--radius-circle);
   object-fit: cover;
+}
+
+/* No-group fallback for the upcoming-meet feed card: the meet-type icon in a
+   brand-subtle circle (keeps the left avatar column filled when a meet has no
+   host community). */
+.feed-card-avatar--meet-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand-subtle);
+  color: var(--brand-strong);
 }
 
 /* Right column: header rows + content */

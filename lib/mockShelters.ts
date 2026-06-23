@@ -310,7 +310,7 @@ const UTULEK_DOGS: PetProfile[] = [
     daysInKennel: 71,
     lastWalkedAt: daysAgoIso(2, "09:30"),
     backstory:
-      "Came in when her elderly owner went into care. She shrinks to the back of the kennel when people walk past, so she gets passed over again and again — but ten minutes into a walk she's a different dog, leaning into every scratch behind the ear. She just needs someone to see her outside these walls.",
+      "Came in when her elderly owner went into care. She shrinks to the back of the kennel when people walk past, so she gets passed over again and again. But ten minutes into a walk, she's a different dog, leaning into every scratch behind the ear. She just needs someone to see her outside these walls.",
     personalityTags: ["gentle", "affectionate", "good-with-strangers", "good-with-dogs", "loves-walks"],
     adoptionStatus: "available",
     intakeDate: daysAgo(71),

@@ -15,7 +15,7 @@ import type {
   TrainerType,
   UserProfile,
 } from "./types";
-import { daysAgo, daysFromNow } from "./mockDate";
+import { daysAgo, daysFromNow, nextWeekday } from "./mockDate";
 import { getOccurrenceAttendees, nextOccurrenceDates } from "./meetUtils";
 import { getUserById } from "./mockUsers";
 
@@ -1518,7 +1518,7 @@ export const mockMeets: Meet[] = [
     neighbourhood: "Holešovice",
     lat: 50.1066,
     lng: 14.4172,
-    date: daysFromNow(2),
+    date: nextWeekday(6), // a "Saturday morning" walk should land on a Saturday
     time: "10:00",
     durationMinutes: 75,
     cadence: "weekly",
@@ -2991,6 +2991,24 @@ export function getUpcomingMeets(): Meet[] {
   return mockMeets
     .filter((m) => m.status === "upcoming")
     .sort((a, b) => `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`));
+}
+
+/**
+ * Shelter-walk meets a mentor hosts at a given shelter (FC18, WS-G). These are
+ * the mentor's **group walks** — surfaced when you select the mentor as the
+ * featured way to do a mentored first walk (the discovery bridge: you find the
+ * group walk through the trainer whose meet it is, not via a shelter event
+ * listing). Sorted by next occurrence.
+ */
+export function getMentorGroupWalks(mentorId: string, shelterId: string): Meet[] {
+  return mockMeets
+    .filter((m) => m.creatorId === mentorId && m.shelterWalk?.shelterId === shelterId)
+    .sort((a, b) => `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`));
+}
+
+/** Helper: look up a single meet by id (e.g. a booking's `dropoffMeetId`). */
+export function getMeetById(id: string): Meet | undefined {
+  return mockMeets.find((m) => m.id === id);
 }
 
 /** Helper: get meets by type */

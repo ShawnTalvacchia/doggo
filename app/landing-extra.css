@@ -1151,6 +1151,14 @@ body:has(.wt-pill) .discover-floating-btn {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Probe (assumption-checkpoint) interstitial — the "guided demo IS the
+   interview" moment. A left accent bar sets it apart from a plain explainer
+   so it reads as "pose this question to the room." */
+.wt-interstitial-sheet--probe {
+  border-left: 3px solid var(--brand-300);
+  padding-left: var(--space-lg);
+}
+
 /* Top row — eyebrow (left) + Skip-beat link (right). */
 .wt-interstitial-toprow {
   display: flex;

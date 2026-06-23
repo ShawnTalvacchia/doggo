@@ -1,7 +1,7 @@
 ---
 category: work-tracking
 status: active
-last-reviewed: 2026-06-16
+last-reviewed: 2026-06-22
 tags: [questions, risks, assumptions, work-on-deck]
 review-trigger: "before starting a new phase, after any strategic discussion"
 ---
@@ -128,6 +128,7 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 **Assumption:** Trust must exist before monetization. Community features stay free. Pet service businesses (training, walking, grooming, boarding, rehab, venue, vet) are represented on Doggo as Care groups. Pet product retailers and other non-service adjacent businesses are not Doggo members.
 
 **Open:**
+- **Give-back structure (June 2026 positioning).** The positioning refresh makes a for-profit *give-back* (NOT a non-profit conversion) a core differentiator: a defined share of care revenue + a sponsor-a-dog surface routes transparently to partner shelters, Chewy-style (the donor gets the credit, never the company; Chewy has moved $180M+ this way). Start light (sponsor-a-dog), graduate to a fee-share once there's revenue. Open: what exact share, what legal/payment structure, how transparency is surfaced in-product, how sponsor-a-dog is modelled (for people who want to help but can't physically walk). A demo can *gesture* at it (a sponsor-a-dog surface, a "where the money goes" line); the real structure is a post-validation "get serious" decision. → [[Doggo_Positioning_and_Three_Worlds]] (§The give-back).
 - What user behaviour indicates readiness for paid transactions?
 - Platform-mediated payment from the start, or peer-to-peer first?
 - Do Prague pet businesses see value in a community-embedded directory?
@@ -334,6 +335,8 @@ Tracks known unknowns, assumptions, and risks. Reviewed at the start and end of 
 
 **Open:**
 
+- **Shelter binding constraint: staff-handoff vs. vetting/coordination cost** *(June 2026 positioning — the load-bearing shelter question).* World 3 hinges on *why* shelters impose rules like "weekdays 9–5, one walk/week, three-month minimum." If the rule is **staff handoff** (a human must release/receive the dog during staff hours), that's a hard limit Doggo respects — it eases everything *around* the handoff (visibility, accountability, competence, control) but never automates the handoff itself. If the rule is **vetting + coordination cost** (coordinating volunteers by email is too much work), Doggo can absorb that and the rules can loosen — more walkers, shorter commitments — *within* staff hours. This is the first thing to ask a real shelter, and it determines whether the latent-weekend-demand thesis converts. Overlaps the mentor-network A1/A8 assumptions ([[strategy/mentor-network-shelter-demo]]). → [[Doggo_Positioning_and_Three_Worlds]] (§3 + §Appendix interview questions).
+
 - **ShelterProfile → OrgProfile generalization.** When the second institutional account type lands (rescue org, vet clinic with public face, training school, breed-specific org), do we generalize `ShelterProfile` to `OrgProfile` with `kind: "shelter" | "rescue" | "vet" | ...` and shared infrastructure? Working assumption: yes, generalization makes sense — most distinguishing features (institutional identity, member roster with badges, non-owned dogs, policy) apply to other org types too. But premature until the second type exists. Decide when shelter implementation is stable and a second org type is queued.
 
 - **Adopted-dog transition pattern.** *(Resolved model + baseline shipped 2026-06-12, Adoption-Curious Journey Workstream G; PO call.)* **Resolved direction:** on adoption the dog's profile becomes a **frozen "Adopted" profile that persists on platform** — the same profile, marked Adopted, stops updating. This is a **hand-off, not a delete**, and it works for **any** adopter (off-platform, or on-platform-who-wants-a-fresh-start) with **no migration**: tagged walk recaps still resolve to her, she just renders Adopted. The two adopter branches: *fresh start* → keep the frozen Adopted profile (+ optionally a new blank `PetProfile` if the on-platform adopter wants one); *take over* → an on-platform adopter continues it as their **own** dog (continue + curate — rename, tags, hide posts; "Adopted from Útulek" provenance). On the "authorship vs ownership" tension: walker-authored recaps keep their authorship; a taking-over owner only *hides* (non-destructively) from the dog's profile via the existing tag-approval/hide machinery — nobody loses a memory. **Shipped baseline (G1–G3):** Adopted hero pill + shed shelter-context chips + suppressed walk/adopt actions on the dog page; "Happy endings" subsection on the shelter Dogs tab; excluded from Discover; corrected in-care counts. Demo-driven via the persisted `useAdoptionStore` override. **Deferred (option 1, 2026-06-12):** the **take-over rendering** (the dog appearing as the adopter's owned dog) — it's the genuine cross-container migration (touches the owned-vs-shelter resolver + every `user.pets[]` read) plus the real cross-account **claim/consent flow**, so it waits for a later phase rather than being half-faked. The celebration's "walkers keep her in their gallery" line is copy-only until then. See [[features/shelters]] → "Adoption transition."
@@ -428,3 +431,16 @@ Added 2026-06-02 from PO user interviews. Roman flagged training as the most-nee
 **Forward direction:** B's two side tasks (Discover Training filter pill + Appointment `trainingType` enum) ship in this session as punch-list. A is the deferred decision waiting for a user-testing signal. **Do not reopen the Care taxonomy without a real user-testing-confirmed pain.**
 
 **Refs:** [[meetings/po-briefing-2026-06-02]] · [[features/explore-and-care]] (Care Catalog Taxonomy 2026-05-11) · `lib/constants/services.ts`
+
+---
+
+## 19. Name & trademark collision
+
+Added 2026-06-22 (competitive refresh). There is an existing **"DogGO" / "Doggo"** pet-services app (a Turkish on-demand walker platform, ~15,000 walkers across Istanbul / Ankara / İzmir — not in Prague, so not a market competitor, but a real *name* collision). Plus "doggo" is generic internet slang, which cuts both ways for distinctiveness.
+
+**Open:**
+- Is "Doggo" defensible as a trademark in CZ/EU, or does the collision (plus the generic-slang nature) force a rename?
+- SEO / discoverability cost of the collision?
+- Decide before any external-facing investment in the name (domain, marks, deck branding). Not blocking the demo build; blocks the "get serious" go-to-market.
+
+**Refs:** [[Competitive Research - Prague Snapshot (2026-06 refresh)]] (§Naming flag)

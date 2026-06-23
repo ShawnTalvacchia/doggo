@@ -1,22 +1,42 @@
 ---
 category: strategy
 status: draft
-last-reviewed: 2026-06-12
+last-reviewed: 2026-06-22
 tags: [demo, narrative, walkthrough, personas]
 review-trigger: "before any change to the persona roster, the anchor meet, or the walkthrough beats"
 ---
 
 # Demo Narrative
 
-The spine of Doggo's **Guided Walkthrough** — the narrated concept story the demo walks a viewer through. **V2, re-authored 2026-05-18** (Demo Narrative V2 phase, W1.1) around the walker-trainer hybrid framing. Supersedes the V1 four-beat outline.
+The narrated concept stories the demo walks a viewer through. **As of the Multi-Path Demo phase (2026-06-22) there are THREE guided walkthroughs**, one per community World, each a single-audience interview artifact — see "The three guided walkthroughs" below. They were derived from the **V2** single-spine narrative (re-authored 2026-05-18 around the walker-trainer hybrid; superseded V1): the V2 Daniel→Klára→Daniel spine was **split by POV** into `new-owner` (Daniel) + `trainer` (Klára), and the Adoption-Curious Arc was wrapped as `shelter` (Eliška). The detailed V2 sections below remain the canonical source for the new-owner + trainer beat *content* and framing; read them through that split.
 
-The walkthrough infrastructure already exists (`lib/walkthroughBeats.ts`, `WalkthroughContext`, the full-screen interstitial + the on-surface step card — see [[features/demo-mode]] → "Guided Walkthrough"). V2 re-authors *what it walks through* and extends — does not rebuild — that infrastructure.
+The walkthrough infrastructure exists as a **named registry** (`lib/walkthroughBeats.ts` → `WALKTHROUGH_LIST`, `WalkthroughContext` runs one by id, the full-screen interstitial + on-surface step card — see [[features/demo-mode]] → "Guided Walkthrough"). `lib/walkthroughBeats.ts` is the SOT for final step + interstitial copy.
 
 **Refs:** [[meetings/po-briefing-2026-05-15]] (walker-trainer framing, meet→booking conversion); [[strategy/Product Vision]] → "Trainer-Led Walks & the Training Value Proposition"; [[strategy/Cold-Start Playbook]] (trainer-led walks as the cold-start engine); [[strategy/User Archetypes]]; [[strategy/Groups & Care Model]] (config #2 — linked-care booking on a free meet; circle-audience Carer); [[features/demo-mode]]. Walk Service Delivery (2026-05-20) renamed config #2 from "drop-off Care booking" to "linked-care booking" and made delivery (pickup vs drop-off) a separate axis — see [[Groups & Care Model]] → "Two axes."
 
 ---
 
+## The three guided walkthroughs (Multi-Path Demo, 2026-06-22)
+
+Three single-thesis paths over one shared world, each launched from its own door on the `/` launcher and **doubling as a one-audience interview artifact** ("the guided demo IS the interview"). They reconcile FC17's documented four feature-paths against the PO's three audience Worlds: `neighbour-care` absorbs into `new-owner`; the two shelter flows (`shelter-mentor` + `adoption-curious`) combine into `shelter`. The shelter *operator* view is a separate **Phase 2** ("The Shelter's Side"), not a walkthrough id here.
+
+| id | Door label | POV | Thesis (interviewee) | Source |
+|---|---|---|---|---|
+| `new-owner` | Find your community | Daniel | The on-ramp works: a nervous newcomer lands in community, finds trust, the funnel turns (a new/anxious owner). | V2 Daniel beats + neighbour-care, re-cut |
+| `trainer` | Build community, and a living | Klára | The supply side is real: the walk IS the funnel (a Prague walker/trainer to recruit). | V2 Klára beat, standalone |
+| `shelter` | Help a shelter dog | Eliška | Vetted walkers + the advocacy loop = an adoption engine (a shelter coordinator). | Adoption-Curious Arc, wrapped |
+
+**Build notes (Phase 1):**
+- **`new-owner`** is two consecutive Daniel beats (join → the walk happens → review/convert/neighbour-care); same-persona consecutive beats render as a time-passage handoff ("Later that day."), not a second "You're now Daniel."
+- **`trainer`** is a single Klára beat (run the linked-care session → seal report → share the lead-gen post); the meet→booking *conversion* is carried by the closing line for now (a played-from-Klára's-side conversion beat needs a pre-staged inquiry — A2).
+- **`shelter`** is Eliška's 5-beat arc centered on the **group shelter walk** (FC18): find Nora → **sign up for the mentored group walk** (the appealing, trainer-led first walk) → do the walk + share the recap (+ "a few walks later, vouched") → recap reaches the network → Nora adopted. The group-walk sign-up creates a real meet-linked shelter-walk booking (WS-G). Tomáš's separate mentee arc was not wrapped (redundant) and stays in Open View. The Beat-3 vouch fires via A2; the adoption capstone is tester-driven.
+
+---
+
 ## What V2 changes, and why
+
+> *Historical framing from the single-spine V2 phase. Still the canonical source for the `new-owner` + `trainer` beat content; read "the walkthrough" below as "the V2 spine, now split into those two."*
+
 
 V1's walkthrough was an **interactive tour** — the tester performed every action, so every step was a surface that had to fully work (which is why the V1 build kept hitting feature stubs). V2 is a **narrated concept story**: the world is pre-staged, the viewer taps through it at a quick pace, performing only one or two *hero* actions per beat and "firing off" pre-written content with a single tap. Low cognitive load by design — the demo's job is to tell the story well and test whether the *concept* is sticky, not to usability-test the UX.
 

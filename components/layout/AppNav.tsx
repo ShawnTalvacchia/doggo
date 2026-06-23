@@ -123,6 +123,7 @@ function getPageTitle(pathname: string): string | null {
   if (pathname.startsWith("/discover/care")) return "Dog Care";
   if (pathname.startsWith("/discover/meets")) return "Meets";
   if (pathname.startsWith("/discover/groups")) return "Groups";
+  if (pathname.startsWith("/discover/help-a-dog")) return "Help a Dog";
   if (pathname === "/discover") return "Discover";
   if (pathname.startsWith("/home")) return null;
   if (pathname.startsWith("/schedule")) return "My Schedule";

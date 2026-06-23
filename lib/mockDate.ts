@@ -34,6 +34,16 @@ export function daysFromNow(n: number): string {
   return d.toISOString().slice(0, 10);
 }
 
+/** The next date (today inclusive) falling on the given weekday
+ *  (0=Sun … 6=Sat). Keeps a named-weekday recurring event (e.g. a
+ *  "Saturday morning group walk") landing on the right day no matter
+ *  when the demo runs, instead of drifting like a fixed `daysFromNow`. */
+export function nextWeekday(weekday: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + ((weekday - d.getDay() + 7) % 7));
+  return d.toISOString().slice(0, 10);
+}
+
 /** Same as daysFromNow but returns the full ISO datetime. Optional `time`
  *  param sets the time-of-day component (default "00:00"). */
 export function daysFromNowIso(n: number, time: string = "00:00"): string {

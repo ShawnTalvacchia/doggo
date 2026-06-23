@@ -207,7 +207,7 @@ export default function ActiveSessionPage() {
         <div className="active-session-frame">
           <div className="active-session-frame-content">
             {petsForBooking.length > 0 && (
-              <SessionsPetHeader pets={petsForBooking} />
+              <SessionsPetHeader pets={petsForBooking} variant="compact" />
             )}
             <ActiveSessionPanel
               session={activeSession}

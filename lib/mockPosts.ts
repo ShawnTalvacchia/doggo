@@ -1847,15 +1847,20 @@ export const mockPosts: Post[] = [
    * Composer posts don't persist at runtime (FC13), so the demo's
    * "Share a moment" recap is pre-seeded here, the established pattern. */
 
-  // Eliška's recap of Nora — the protagonist's advocacy post, the lead ad.
+  // Jakub's recap of Nora — pre-seeded community advocacy on Nora's wall
+  // (an established Útulek walker). The adopter (Kateřina) responds HERE, which
+  // is the advocacy loop. Deliberately NOT Eliška's: in the `shelter`
+  // walkthrough she's a newcomer who hasn't walked yet, so a pre-existing recap
+  // from her was a continuity break (2026-06-22). Eliška shares her OWN recap
+  // live during the walkthrough (Beat 4), joining this body of recaps.
   {
-    id: "post-walker-eliska-nora",
-    authorId: "eliska",
-    authorName: "Eliška D.",
-    authorAvatarUrl: "/images/generated/eliska-profile.jpeg",
+    id: "post-walker-jakub-nora",
+    authorId: "jakub",
+    authorName: "Jakub V.",
+    authorAvatarUrl: "/images/generated/jakub-profile.jpeg",
     photos: ["/images/generated/post-nora-walk-eliska.jpeg"],
     caption:
-      "Walked Nora this morning and I can't stop thinking about her. She presses herself into the back of the kennel when people walk past, so she gets overlooked again and again — but the second we were out the gate she was a different dog, trotting along with her ears up, leaning into every bit of fuss. Gentle as anything, happy with every dog we passed. Seventy days she's been waiting. Someone is going to be so lucky.",
+      "Walked Nora this morning and I can't stop thinking about her. She presses herself into the back of the kennel when people walk past, so she gets overlooked again and again. But the second we were out the gate, she was a different dog, trotting along with her ears up, leaning into every bit of fuss. Gentle as anything, happy with every dog we passed. Seventy days she's been waiting. Someone is going to be so lucky.",
     tags: [
       { type: "shelter", id: "utulek-liben", label: "Útulek Liběň" },
       { type: "dog", id: "shelter-dog-nora", label: "Nora" },
@@ -1870,7 +1875,7 @@ export const mockPosts: Post[] = [
     ],
     comments: [
       {
-        id: "comment-eliska-nora-1",
+        id: "comment-jakub-nora-1",
         authorId: "supporter-katerina-v",
         authorName: "Kateřina V.",
         authorAvatarUrl: "/images/generated/lucie-profile.jpeg",
@@ -1878,7 +1883,7 @@ export const mockPosts: Post[] = [
         createdAt: daysAgoIso(2, "12:05"),
       },
       {
-        id: "comment-eliska-nora-2",
+        id: "comment-jakub-nora-2",
         authorId: "klara",
         authorName: "Klára H.",
         authorAvatarUrl: "/images/generated/klara-profile.jpeg",

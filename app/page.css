@@ -1,87 +1,28 @@
 /* ═══════════════════════════════════════════════════════════════════
    LANDING PAGE — the demo's front door (root route /).
-   Standalone, chrome-free. Full-bleed grid of two halves with
-   different surface colours: left is `--surface-base` (the demo
-   entry), right is `--surface-top` (the "popout" cast showcase).
-   The colour split takes the place of a divider line and lets the
-   composition fill the desktop viewport edge-to-edge.
+   Standalone, chrome-free. Single centered column (rebuilt 2026-06-22,
+   Multi-Path Demo): logo + DEMO, headline + tagline, the guided-
+   walkthrough doors (primary), and one quiet "look around freely" door.
+   Replaced the two-half cast-card showcase — the five cast cards
+   competed with the guided doors and duplicated the profile-page
+   persona switcher.
    ═══════════════════════════════════════════════════════════════════ */
 
 .demo-page {
   position: relative;
   min-height: 100vh;
   min-height: 100dvh;
-  display: grid;
-  /* `minmax(0, 1fr)` enforces strict 50/50 columns — without it, the
-     right column's card could push the right half wider than the left
-     in the awkward "tablet" range where the card content has a natural
-     minimum size. */
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  grid-template-rows: auto 1fr auto;
-  grid-template-areas:
-    "header-left header-right"
-    "left        right"
-    "reset       reset";
+  display: flex;
+  flex-direction: column;
   background: var(--surface-base);
 }
 
-/* ── Top header (two cells, matching the halves' colours) ─────────── */
-/* Split into two cells so each side's surface colour runs unbroken
-   from the page top to the reset bar — no horizontal seam in the
-   right column. The left cell holds the logo + DEMO pill on surface-
-   base; the right cell is empty and just extends surface-top up. */
-
-.demo-top-header-left {
-  grid-area: header-left;
-  background: var(--surface-base);
-  padding: clamp(20px, 3vh, 32px) clamp(24px, 5vw, 80px);
-}
-
-/* Inner mirrors the left half's inner so the logo aligns horizontally
-   with the headline, tagline, CTA, helper, and the reset button below
-   — one consistent left edge across the whole left column. */
-.demo-top-header-inner {
-  width: 100%;
-  max-width: 600px;
-  margin-left: auto;
+/* ── Header — logo + DEMO pill ─────────────────────────────────────── */
+.demo-header {
   display: flex;
   align-items: center;
   gap: var(--space-md);
-}
-
-.demo-top-header-right {
-  grid-area: header-right;
-  background: var(--surface-top);
-}
-
-/* ── Left half: demo entry (headline, tagline, CTA, helper) ───────── */
-/* Top-aligned (justify-content: flex-start) so the headline sits near
-   the top of the half, aligning with the right half's "THE CAST"
-   eyebrow at the same Y. */
-
-.demo-left {
-  grid-area: left;
-  background: var(--surface-base);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: clamp(32px, 6vh, 72px) clamp(24px, 5vw, 80px);
-}
-
-.demo-left-inner {
-  width: 100%;
-  max-width: 600px;
-  margin-left: auto; /* hug the seam between halves on desktop */
-  display: flex;
-  flex-direction: column;
-  gap: clamp(20px, 3vh, 32px);
-}
-
-.demo-left-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  margin-bottom: var(--space-sm);
+  padding: clamp(20px, 3vh, 32px) clamp(24px, 5vw, 80px) 0;
 }
 
 .demo-logo {
@@ -96,8 +37,7 @@
   padding: 4px 12px;
   border-radius: var(--radius-pill);
   background: var(--brand-subtle);
-  /* Brand-main outline — the subtle fill alone fades too much against
-     the surface-base half. The border gives the pill a defined edge. */
+  /* Brand-main outline — the subtle fill alone fades against surface-base. */
   border: 1px solid var(--brand-main);
   color: var(--brand-strong);
   font-family: var(--font-heading);
@@ -108,21 +48,56 @@
   line-height: 1.4;
 }
 
+/* ── Main — centered hero + doors ──────────────────────────────────── */
+.demo-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(24px, 5vh, 56px) clamp(24px, 5vw, 80px);
+}
+
+.demo-main-inner {
+  width: 100%;
+  /* Large cap rather than uncapped — left-aligned content fills common
+     laptops, but a cap keeps the 3 cards from stretching edge-to-edge
+     (sparse) on ultra-wide monitors. */
+  max-width: 1320px;
+  /* Left-aligned within the padded main (not centered) — content hugs the
+     left, intentional whitespace on the right on wide screens. */
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(28px, 4vh, 48px);
+}
+
+/* Hero — left-aligned headline + tagline above the walkthrough row. */
+.demo-hero {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* A labelled group: centered eyebrow + its content (the walk grid, or the
+   explore bar). */
+.demo-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
 .demo-headline {
   font-family: var(--font-heading);
   font-weight: var(--weight-semibold);
-  /* Bigger than the previous 1.875–3rem; the headline carries more
-     hierarchical weight as the main hero element. */
-  font-size: clamp(2.25rem, 4.5vw, 4.5rem);
-  line-height: 1.08;
+  font-size: clamp(2.5rem, 5vw, 5rem);
+  line-height: 1.06;
   letter-spacing: -0.02em;
   margin: 0;
 }
 
-/* The two halves of the headline flow inline as one paragraph, with
-   the brand-colour second sentence wrapping naturally with the first.
-   Previously each span was a block (forced line break between the
-   two sentences) — they now share a single typographic block. */
+/* The two halves of the headline flow inline as one paragraph, the
+   brand-colour second sentence wrapping naturally with the first. */
 .demo-headline-primary {
   color: var(--text-primary);
 }
@@ -131,230 +106,164 @@
   color: var(--brand-main);
 }
 
+/* On desktop, force the brand line under the primary line (block spans)
+   rather than relying on natural wrap. On mobile they flow inline + wrap. */
+@media (min-width: 761px) {
+  .demo-headline-primary,
+  .demo-headline-brand {
+    display: block;
+  }
+}
+
 .demo-tagline {
   margin: 0;
-  font-size: var(--text-base);
+  font-size: var(--text-lg);
   line-height: 1.55;
   color: var(--text-secondary);
-  max-width: 52ch;
+  /* Narrower than the display headline — a tighter reading measure for the
+     supporting line. Tuned so it breaks into two balanced lines (after
+     "trust,") rather than a long line + short orphan. */
+  max-width: 50ch;
 }
 
-.demo-start-btn {
-  align-self: flex-start;
+/* ── Section eyebrow — centered label above a group ────────────────── */
+.demo-doors-eyebrow {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 14px 28px;
-  border-radius: var(--radius-pill);
-  background: var(--brand-main);
-  color: var(--text-white);
-  border: 1px solid var(--brand-main);
-  font-family: var(--font-body);
-  font-size: var(--text-base);
-  font-weight: var(--weight-semibold);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.demo-start-btn:hover {
-  background: var(--brand-strong);
-}
-
-/* ── Right half: cast showcase + per-card picker ──────────────────── */
-
-/* Same top-aligned padding as the left half so "THE CAST" eyebrow
-   starts at the same Y as the headline opposite. */
-.demo-right {
-  grid-area: right;
-  /* Horizontal gutter, exposed as a custom prop so the full-bleed carousel
-     can cancel it with a negative margin to reach the section edge. */
-  --demo-gutter: clamp(24px, 5vw, 80px);
-  background: var(--surface-top);
-  display: flex;
-  flex-direction: column;
-  /* `safe center` centers the cast block when it fits, but anchors it to the
-     top (start) when it overflows a short viewport — without `safe`, the
-     overflow is split top/bottom and the eyebrow's top margin gets clipped
-     above the fold (the "gap isn't showing" bug). */
-  justify-content: safe center;
-  gap: clamp(20px, 3vh, 32px);
-  padding: clamp(32px, 6vh, 72px) var(--demo-gutter);
-}
-
-.demo-right-inner {
-  width: 100%;
-  max-width: 600px;
-  margin-right: auto; /* hug the seam between halves on desktop */
-  display: flex;
-  flex-direction: column;
-  gap: clamp(20px, 3vh, 32px);
-}
-
-.demo-cast-meta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-  max-width: 480px;
-}
-
-.demo-cast-eyebrow {
-  /* Clear breathing room above the eyebrow. The cast block can fill the
-     column (tall cards), so a generous top margin reads as a deliberate gap. */
-  margin-top: clamp(28px, 5vh, 56px);
+  justify-content: flex-start;
+  gap: 6px;
+  margin-bottom: var(--space-xs);
   font-family: var(--font-heading);
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-tertiary);
-  transition: color 0.15s;
 }
 
-/* Hovering any cast card lights the "EXPLORE FREELY" eyebrow brand-light —
-   a small "you're exploring" cue. Driven by a JS class toggled on the
-   scroller's mouse enter/leave (replaces a `:has(:hover)` rule that proved
-   flaky across browsers). */
-.demo-cast-eyebrow--active {
-  color: var(--brand-light);
+/* ── Guided walkthroughs — a row of vertical cards (one per path) ───── */
+.demo-walk-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
 }
 
-.demo-cast-subline {
-  margin: 0;
-  font-size: var(--text-sm);
-  line-height: 1.55;
-  color: var(--text-secondary);
-}
-
-/* Cast carousel — a horizontal-scroll track of vertical profile cards.
-   Native scroll (swipe on touch) replaced the prev/next stepper. Cards
-   snap and size to their content; the minimal Explore link sits right
-   under each goal line. */
-.demo-cast-scroller {
-  display: flex;
-  /* Stretch cards to a common height (the tallest card sets it), so a short
-     card grows to match rather than leaving the row ragged. */
-  align-items: stretch;
-  gap: var(--space-md);
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  /* Bleed off the right section edge: a negative margin cancels the half's
-     right gutter so the track runs to the viewport edge. Cards still start
-     aligned with the eyebrow (left padding 0; the track's left edge is the
-     content edge). overflow-x: auto computes overflow-y to auto, which would
-     clip the soft shadow — pad top/bottom so it shows. */
-  margin-right: calc(-1 * var(--demo-gutter));
-  padding: 4px 0 14px 0;
-  scroll-padding-left: 0;
-}
-
-/* Vertical profile card — photo on top, content below. Light border + a
-   soft, minimal shadow (the earlier hard offset shadow read as noise with
-   several cards on screen). Fixed width, narrower than the track, so the
-   next card peeks and signals there's more to scroll. */
-.demo-profile-card {
-  position: relative;
-  flex: 0 0 auto;
-  width: 260px;
+.demo-walk-card {
   display: flex;
   flex-direction: column;
-  background: var(--surface-top);
-  border: 1px solid var(--border-regular);
+  gap: var(--space-xs);
+  text-align: left;
+  padding: var(--space-lg);
   border-radius: var(--radius-panel);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-  scroll-snap-align: start;
+  background: var(--surface-top);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
 }
 
-/* Positioning context for the overlaid role chip — scopes the chip to the
-   photo, not the whole card, so `bottom` anchors to the image's bottom. */
-.demo-profile-card-media {
-  position: relative;
+.demo-walk-card:hover {
+  border-color: var(--brand-main);
+  background: var(--brand-subtle);
 }
 
-.demo-profile-card-photo {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  display: block;
-  background: var(--surface-base);
-}
-
-.demo-profile-card-body {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  padding: var(--space-md) var(--space-lg) var(--space-lg);
-}
-
-.demo-profile-card-name {
+.demo-walk-card-title {
   font-family: var(--font-heading);
   font-size: var(--text-lg);
   font-weight: var(--weight-semibold);
   color: var(--text-primary);
-  line-height: 1.2;
 }
 
-/* Role chip overlaid on the BOTTOM-left of the photo — subjects' faces sit
-   upper-centre, so the bottom corner stays clear even for long labels. Light
-   scrim + blur + a text-shadow keeps white text readable without the heavy
-   look a darker chip had. Card is position: relative. */
-.demo-profile-card-pill {
-  position: absolute;
-  bottom: var(--space-sm);
-  left: var(--space-sm);
-  z-index: 1;
-  display: inline-flex;
-  padding: 3px 9px;
-  border-radius: var(--radius-pill);
-  background: var(--transparent-dark-40);
-  color: var(--text-white);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
-  letter-spacing: 0.02em;
-  line-height: 1.2;
-  backdrop-filter: blur(8px);
-  text-shadow: 0 1px 2px var(--transparent-dark-40);
-}
-
-.demo-profile-card-goal {
-  margin: 0;
+.demo-walk-card-blurb {
+  flex: 1;
   font-size: var(--text-sm);
   line-height: 1.5;
   color: var(--text-secondary);
 }
 
-/* Minimal "Explore as <Name>" link — text + arrow (not the ButtonAction
-   component) so the card stays light. Flows right under the goal on the
-   body gap, shrinking the large gap the old bottom-anchored button left. */
-.demo-profile-card-explore {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  background: none;
-  border: none;
-  padding: 0;
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  color: var(--text-primary);
-  cursor: pointer;
-  transition: color 0.15s;
+.demo-walk-card-go {
+  align-self: flex-end;
+  color: var(--brand-main);
+  margin-top: var(--space-xs);
 }
 
-.demo-profile-card-explore:hover {
-  color: var(--brand-strong);
+/* ── Free-explore door — a slim centered horizontal bar (secondary) ── */
+.demo-door {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  /* Exactly one walk-card wide: same 3-column math as .demo-walk-grid
+     (full width minus two gaps, divided by three). Left-aligned. */
+  width: calc((100% - 2 * var(--space-lg)) / 3);
+  margin: 0;
+  text-align: left;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-panel);
+  background: transparent;
+  /* Strong solid border so the secondary door reads as intentional /
+     finished rather than a faint dashed placeholder. */
+  border: 1.5px solid var(--border-strong);
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.demo-door--explore:hover {
+  background: var(--surface-top);
+  border-color: var(--brand-main);
+}
+
+.demo-door-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.demo-door-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.demo-door-blurb {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.demo-door-arrow {
+  flex-shrink: 0;
+  color: var(--brand-main);
+}
+
+/* ── Footer — reset (left) + credits (right) ───────────────────────── */
+.demo-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-md) clamp(24px, 5vw, 80px);
+  border-top: 1px solid var(--border-light);
+}
+
+.demo-credit {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  color: var(--text-tertiary);
+}
+
+.demo-credit strong {
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
 }
 
 /* ── Persona dropdown trigger + menu (consumed by DemoPersonaDropdown) ─
-   The dedicated dropdown picker was retired from the landing page
-   2026-05-20 — cards now carry the "Explore as <Name>" CTA directly.
-   These class rules are kept in case `DemoPersonaDropdown` is mounted
-   elsewhere, so the component doesn't visually break if reintroduced. */
-
+   The dedicated dropdown picker isn't on the landing page; these rules are
+   kept so `DemoPersonaDropdown` doesn't visually break wherever it's mounted. */
 .demo-picker {
   position: relative;
   width: 100%;
@@ -374,7 +283,10 @@
   cursor: pointer;
   font-family: var(--font-body);
   color: var(--text-primary);
-  transition: border-color 0.15s, box-shadow 0.15s, transform 0.06s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    transform 0.06s;
 }
 
 .demo-pill:hover {
@@ -418,141 +330,22 @@
   transform: none;
 }
 
-/* ── Reset — third grid row, spans both halves ────────────────────── */
-
-/* Inverted bar at the bottom — sits beneath both halves and carries
-   the reset action on the left + demo credits on the right.
-   The bar mirrors the page grid (two cells, same padding + max-width
-   inners with margin-auto) so its content edges track the column
-   content edges above on any viewport width — including wide screens
-   where the columns' margin-auto pushes their inners toward the seam. */
-.demo-reset-row {
-  grid-area: reset;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  background: var(--surface-base-inverse);
-  color: var(--text-inverse);
-}
-
-.demo-reset-cell {
-  padding: var(--space-md) clamp(24px, 5vw, 80px);
-  display: flex;
-  align-items: center;
-}
-
-.demo-reset-inner {
-  width: 100%;
-  /* Match the columns' inner max-width so the bar's content edges
-     line up exactly with the logo / card content edges above. */
-  max-width: 600px;
-  display: flex;
-  align-items: center;
-}
-
-/* Mirror the left column's margin-left: auto so the inner hugs the
-   seam on wide viewports. Button sits at the inner's left edge,
-   matching the logo's left edge above. */
-.demo-reset-inner--left {
-  margin-left: auto;
-  justify-content: flex-start;
-}
-
-/* Mirror the right column's margin-right: auto. Credit sits at the
-   inner's right edge, matching the card's right edge above. */
-.demo-reset-inner--right {
-  margin-right: auto;
-  justify-content: flex-end;
-}
-
-.demo-credit {
-  font-size: var(--text-xs);
-  line-height: 1.4;
-  color: var(--text-inverse);
-}
-
-.demo-credit strong {
-  font-weight: var(--weight-semibold);
-}
-
-/* Reset button styling on the inverse bar — outline treatment so it
-   reads as a clear button distinct from the plain credit label on the
-   other side. */
-.demo-reset-row .btn-action {
-  color: var(--text-inverse);
-  border: 1px solid var(--transparent-light-32);
-}
-
-.demo-reset-row .btn-action:hover {
-  background: var(--on-hover-lighten);
-  border-color: var(--transparent-light-40);
-  color: var(--text-inverse);
-}
-
-/* ─────────────────────────────────────────────────────────────────────
-   Phone (≤699px) — halves stack vertically, bar cells stack too.
-   Pushed down from the previous 899px so the side-by-side layout
-   survives tablet widths. The column card from the ≤1023 block
-   carries through here.
-   ───────────────────────────────────────────────────────────────────── */
-
-@media (max-width: 699px) {
-  .demo-page {
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto auto auto;
-    grid-template-areas:
-      "header-left"
-      "left"
-      "right"
-      "reset";
-  }
-
-  /* Empty right-header cell collapses on stacked mobile — it has no
-     content and no need to extend a surface colour anymore. */
-  .demo-top-header-right {
-    display: none;
-  }
-
-  .demo-left,
-  .demo-right {
-    /* More breathing room top/bottom — page can grow taller, the user
-       gets clearer separation between sections. */
-    padding: var(--space-jumbo-1) var(--space-xl);
-  }
-
-  /* Match the gutter custom prop to the mobile padding so the carousel's
-     bleed margin lines up with the section edge here too. */
-  .demo-right {
-    --demo-gutter: var(--space-xl);
-  }
-
-  .demo-left-inner,
-  .demo-right-inner {
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  /* Bar cells stack — reset on top, comfortable gap, credits below. */
-  .demo-reset-row {
+/* ── Mobile ────────────────────────────────────────────────────────── */
+/* Below the row's comfortable width, stack the walkthrough cards. */
+@media (max-width: 760px) {
+  .demo-walk-grid {
     grid-template-columns: 1fr;
   }
-
-  .demo-reset-cell {
-    padding: var(--space-md) var(--space-xl);
-    justify-content: center;
-  }
-
-  .demo-reset-inner--left,
-  .demo-reset-inner--right {
-    margin-left: auto;
-    margin-right: auto;
-    justify-content: center;
+  /* Cards stack full-width, so the explore door matches. */
+  .demo-door {
+    width: 100%;
   }
 }
 
 @media (max-width: 599px) {
-  /* Extra vertical padding on each bar cell so the inverse closing
-     zone reads as substantial rather than crammed. */
-  .demo-reset-cell {
-    padding: var(--space-lg) var(--space-xl);
+  .demo-footer {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: var(--space-sm);
   }
 }

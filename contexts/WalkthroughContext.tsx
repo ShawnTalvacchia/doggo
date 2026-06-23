@@ -18,7 +18,7 @@
  *   - `active: false`                        — not in the walkthrough (default)
  *   - `active, phase "interstitial"`         — full-screen handoff for beat `beatIndex`
  *   - `active, phase "running"`               — on the beat surface, card on step `stepIndex`
- *   - `beatIndex === WALKTHROUGH_BEAT_COUNT`  — the closing interstitial
+ *   - `beatIndex === beat count`              — the closing interstitial
  *
  * `next` / `prev` advance by one step, crossing beat boundaries: stepping
  * past a beat's last step lands on the next beat's interstitial.
@@ -42,7 +42,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useDemoState } from "@/contexts/CurrentUserContext";
 import { clearDemoStorage } from "@/lib/demoReset";
-import { WALKTHROUGH_BEATS, WALKTHROUGH_BEAT_COUNT } from "@/lib/walkthroughBeats";
+import { getBeat, getBeatCount, WALKTHROUGH_LIST } from "@/lib/walkthroughBeats";
 
 const SESSION_KEY = "doggo-walkthrough";
 
@@ -50,6 +50,8 @@ type WalkthroughPhase = "interstitial" | "running";
 
 type PersistedState = {
   active: boolean;
+  /** Which walkthrough is running (registry id from `walkthroughBeats.ts`). */
+  walkthroughId: string;
   beatIndex: number;
   stepIndex: number;
   /** Per-beat highest step index reached. Used by `WalkthroughCard` to
@@ -67,8 +69,11 @@ type PersistedState = {
   phase: WalkthroughPhase;
 };
 
+const DEFAULT_WALKTHROUGH_ID = WALKTHROUGH_LIST[0]?.id ?? "new-owner";
+
 const INITIAL: PersistedState = {
   active: false,
+  walkthroughId: DEFAULT_WALKTHROUGH_ID,
   beatIndex: 0,
   stepIndex: 0,
   beatMaxSteps: {},
@@ -79,8 +84,8 @@ const INITIAL: PersistedState = {
 type WalkthroughContextValue = PersistedState & {
   /** True once sessionStorage has hydrated — components render null before this. */
   hydrated: boolean;
-  /** Begin the walkthrough at beat 0 (shows the first interstitial). */
-  start: () => void;
+  /** Begin a named walkthrough at beat 0 (shows the first interstitial). */
+  start: (walkthroughId: string) => void;
   /** From an interstitial: switch persona + route to the beat surface, show step 1. */
   continueToBeat: () => void;
   /** Advance one step — or, past a beat's last step, to the next beat's
@@ -121,6 +126,10 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
         if (parsed && typeof parsed.active === "boolean") {
           setState({
             active: parsed.active,
+            walkthroughId:
+              typeof parsed.walkthroughId === "string"
+                ? parsed.walkthroughId
+                : DEFAULT_WALKTHROUGH_ID,
             beatIndex: typeof parsed.beatIndex === "number" ? parsed.beatIndex : 0,
             stepIndex: typeof parsed.stepIndex === "number" ? parsed.stepIndex : 0,
             beatMaxSteps:
@@ -159,9 +168,10 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
   // inside a setState updater, which would setState another component
   // mid-render. `persist` is the only setState path.
 
-  const start = useCallback(() => {
+  const start = useCallback((walkthroughId: string) => {
     persist({
       active: true,
+      walkthroughId,
       beatIndex: 0,
       stepIndex: 0,
       beatMaxSteps: {},
@@ -171,7 +181,7 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
   }, [persist]);
 
   const continueToBeat = useCallback(() => {
-    const beat = WALKTHROUGH_BEATS[state.beatIndex];
+    const beat = getBeat(state.walkthroughId, state.beatIndex);
     if (!beat) return;
     persist({ ...state, phase: "running", stepIndex: 0 });
     setUserById(beat.personaId);
@@ -179,7 +189,7 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
   }, [state, persist, router, setUserById]);
 
   const next = useCallback((sharePostId?: string) => {
-    const beat = WALKTHROUGH_BEATS[state.beatIndex];
+    const beat = getBeat(state.walkthroughId, state.beatIndex);
     if (!beat) return;
     // Fire-off "Share" folds in here: mark the post Shared in the SAME
     // persist as the step advance, so the feed reveals it and the advance
@@ -214,7 +224,7 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
       persist({
         ...state,
         sharedPostIds,
-        beatIndex: Math.min(state.beatIndex + 1, WALKTHROUGH_BEAT_COUNT),
+        beatIndex: Math.min(state.beatIndex + 1, getBeatCount(state.walkthroughId)),
         stepIndex: 0,
         beatMaxSteps: {
           ...state.beatMaxSteps,
@@ -233,14 +243,18 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
       // (confusing: the back card's instruction may not match the page).
       const newStepIdx = state.stepIndex - 1;
       persist({ ...state, stepIndex: newStepIdx });
-      const beat = WALKTHROUGH_BEATS[state.beatIndex];
+      const beat = getBeat(state.walkthroughId, state.beatIndex);
       if (beat) {
-        // Walk backwards from the new step to find the most-recent
-        // advanceOn — that's the URL the tester was on when this step
-        // was first reached going forward. Fallback to the beat's
-        // startUrl if no preceding step navigated.
+        // Route to the surface the back-step is DISPLAYED on. A nav step's
+        // own `advanceOn` is where it sends you *forward*, not where it's
+        // shown — so the display surface is the most-recent `advanceOn`
+        // STRICTLY BEFORE this step (start the scan at newStepIdx - 1).
+        // Fallback to the beat's startUrl if no earlier step navigated.
+        // (Bug pre-2026-06-22: scanning from newStepIdx routed Back to the
+        // step's forward destination — often the page you're already on, so
+        // Back appeared to do nothing.)
         let targetUrl = beat.startUrl;
-        for (let i = newStepIdx; i >= 0; i--) {
+        for (let i = newStepIdx - 1; i >= 0; i--) {
           const s = beat.steps[i];
           if (s.kind === "card" && s.advanceOn) {
             targetUrl = s.advanceOn;
@@ -265,15 +279,14 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
     // Switch persona AND route to the URL the previous beat ended on so
     // the on-surface card lands on a coherent context.
     const prevBeatIdx = state.beatIndex - 1;
-    const prevBeat = WALKTHROUGH_BEATS[prevBeatIdx];
+    const prevBeat = getBeat(state.walkthroughId, prevBeatIdx);
     if (!prevBeat) return;
     const lastStepIdx = prevBeat.steps.length - 1;
-    // Walk the previous beat's steps from the end and pick the most-recent
-    // `advanceOn` — that's the URL the tester would have navigated to last
-    // in that beat (i.e., where they were when they crossed into the next
-    // beat). Fallback to the beat's `startUrl`.
+    // Route to the surface the previous beat's LAST step is displayed on —
+    // the most-recent `advanceOn` STRICTLY BEFORE it (start at lastStepIdx - 1),
+    // not the last step's own forward destination. Fallback to startUrl.
     let targetUrl = prevBeat.startUrl;
-    for (let i = lastStepIdx; i >= 0; i--) {
+    for (let i = lastStepIdx - 1; i >= 0; i--) {
       const step = prevBeat.steps[i];
       if (step.kind === "card" && step.advanceOn) {
         targetUrl = step.advanceOn;
@@ -295,7 +308,7 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
     // closing screen, if skipping the last beat).
     persist({
       ...state,
-      beatIndex: Math.min(state.beatIndex + 1, WALKTHROUGH_BEAT_COUNT),
+      beatIndex: Math.min(state.beatIndex + 1, getBeatCount(state.walkthroughId)),
       stepIndex: 0,
       phase: "interstitial",
     });

@@ -19,6 +19,8 @@ import {
   Footprints,
   CaretDown,
   CaretRight,
+  GraduationCap,
+  UsersThree,
   Play,
   Pill,
   Ruler,
@@ -48,6 +50,7 @@ import { useViewedReports } from "@/lib/useViewedReports";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
 import { getUserById } from "@/lib/mockUsers";
 import { getShelterDogByName } from "@/lib/mockShelters";
+import { getMeetById } from "@/lib/mockMeets";
 import { bookingServiceLabel, APPOINTMENT_LOCATION_META } from "@/lib/constants/services";
 import {
   buildSessionStartedNotification,
@@ -73,8 +76,10 @@ function scheduleLabel(booking: Booking): string {
 }
 
 function perSessionPrice(booking: Booking): string {
-  // Volunteer shelter walks carry no charge (G2).
-  if (booking.ownerKind === "shelter") return "Volunteer · no charge";
+  // Volunteer shelter walks carry no charge (G2) — unless it's a paid
+  // mentored first walk (the trainer's fee on a shelter dog; FC18).
+  if (booking.ownerKind === "shelter" && booking.price.total === 0)
+    return "Volunteer · no charge";
   const first = booking.price.lineItems[0];
   if (!first) return `${booking.price.total.toLocaleString()} Kč`;
   return `${first.amount.toLocaleString()} Kč / ${first.unit}`;
@@ -776,6 +781,19 @@ export default function BookingDetailPage() {
   // Same shape used for the mobile AppNav header above (in setDetailHeader).
   const headerTitle = `${other.name.split(" ")[0]} · ${booking.subService ?? bookingServiceLabel(booking)}`;
 
+  // Group-walk linkage (config #2): this shelter walk was done ON a trainer-led
+  // group walk. Surface the host (mentor, for a mentored first walk) + the walk
+  // — neither is in the booking's owner/carer fields, so they'd otherwise be
+  // invisible here even though the host runs (and is paid for) the walk.
+  const linkedMeet = booking.dropoffMeetId ? getMeetById(booking.dropoffMeetId) : null;
+  const isMentoredWalk = booking.subService === "Mentored first walk";
+  // Full mentor name (the meet stores a short `creatorName`) so the row
+  // matches the mentor list + the profile it links to.
+  const mentorUser = linkedMeet ? getUserById(linkedMeet.creatorId) : null;
+  const mentorFullName = mentorUser
+    ? `${mentorUser.firstName} ${mentorUser.lastName}`.trim()
+    : (linkedMeet?.creatorName ?? "");
+
   // Next upcoming session for aggregate stats
   const nextSession = [...upcomingSessions].sort((a, b) => a.date.localeCompare(b.date))[0];
 
@@ -1054,6 +1072,47 @@ export default function BookingDetailPage() {
                   </span>
                 </div>
               </div>
+              {/* Mentor + group-walk rows — the host who runs the walk (and
+                  whom a mentored walker pays) isn't in the booking's
+                  owner/carer fields, so surface them from the linked meet. */}
+              {linkedMeet && isMentoredWalk && (
+                <Link
+                  href={`/profile/${linkedMeet.creatorId}`}
+                  className="flex items-center gap-md bg-surface-top"
+                  style={{
+                    padding: "var(--space-md) var(--space-lg)",
+                    borderBottom: "1px solid var(--border-subtle)",
+                    textDecoration: "none",
+                    color: "inherit",
+                  }}
+                >
+                  <GraduationCap size={18} weight="light" className="text-fg-tertiary shrink-0" />
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <span className="text-sm font-medium text-fg-primary">{mentorFullName}</span>
+                    <span className="text-xs text-fg-tertiary">Your mentor</span>
+                  </div>
+                  <CaretRight size={14} weight="bold" className="text-fg-tertiary shrink-0" />
+                </Link>
+              )}
+              {linkedMeet && (
+                <Link
+                  href={`/meets/${linkedMeet.id}`}
+                  className="flex items-center gap-md bg-surface-top"
+                  style={{
+                    padding: "var(--space-md) var(--space-lg)",
+                    borderBottom: "1px solid var(--border-subtle)",
+                    textDecoration: "none",
+                    color: "inherit",
+                  }}
+                >
+                  <UsersThree size={18} weight="light" className="text-fg-tertiary shrink-0" />
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <span className="text-sm font-medium text-fg-primary">{linkedMeet.title}</span>
+                    <span className="text-xs text-fg-tertiary">Group walk</span>
+                  </div>
+                  <CaretRight size={14} weight="bold" className="text-fg-tertiary shrink-0" />
+                </Link>
+              )}
               {/* Activity row — replaces the retired 3-tile aggregate
                   stats grid (2026-06-03 walkthrough). Shows session
                   count + when the relationship started. Ongoing
@@ -1230,7 +1289,7 @@ export default function BookingDetailPage() {
                 hunting through note text. Visible to both owner +
                 provider. 2026-05-08. */}
             {petsForBooking.length > 0 && (
-              <SessionsPetHeader pets={petsForBooking} />
+              <SessionsPetHeader pets={petsForBooking} variant="compact" />
             )}
             {/* Compact "Active session" link card — when a session is
                 in progress on this booking, links DOWN into the

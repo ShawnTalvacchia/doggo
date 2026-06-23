@@ -2,6 +2,7 @@
 
 import { CaretRight } from "@phosphor-icons/react";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
+import { getMentorGroupWalks } from "@/lib/mockMeets";
 import { MENTOR_SESSION_DEFAULT_MINIMUM } from "@/lib/constants/services";
 import type {
   CarerMentorSessionServiceConfig,
@@ -65,6 +66,7 @@ export function MentorListSheet({
           {mentors.map((entry) => {
             const name = `${entry.mentor.firstName} ${entry.mentor.lastName}`.trim();
             const availability = entry.service.availabilityLabel;
+            const runsGroupWalks = getMentorGroupWalks(entry.mentor.id, shelter.id).length > 0;
             return (
               <button
                 key={entry.mentor.id}
@@ -81,6 +83,16 @@ export function MentorListSheet({
                   </span>
                   {availability && (
                     <span className="text-xs text-fg-tertiary">{availability}</span>
+                  )}
+                  {runsGroupWalks && (
+                    <span
+                      // Green: this points to a Meet (community walks are green),
+                      // not the volunteer path.
+                      className="text-xs font-medium"
+                      style={{ color: "var(--brand-strong)" }}
+                    >
+                      Runs group walks
+                    </span>
                   )}
                 </span>
                 <CaretRight size={14} weight="bold" className="text-fg-tertiary shrink-0" />

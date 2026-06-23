@@ -1283,8 +1283,8 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
   return (
     <>
       <div className="flex flex-col gap-xs" style={{ marginTop: "var(--space-sm)" }}>
-        <div className="flex gap-sm flex-wrap">
-          <div className="dropdown-menu-wrap walk-affordance-menu-wrap flex-1 basis-0 min-w-0">
+        <div className="grid grid-cols-2 gap-sm">
+          <div className="dropdown-menu-wrap walk-affordance-menu-wrap min-w-0">
             <ButtonAction
               // Volunteer action → violet (2026-06-11).
               variant="volunteer"
@@ -1346,7 +1346,7 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
             variant="outline"
             size="sm"
             cta
-            className="flex-1 basis-0 min-w-0"
+            className="w-full min-w-0"
             leftIcon={<HandHeart size={16} weight="regular" />}
             onClick={onAdoptClick}
           >
@@ -1436,6 +1436,7 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
           service={mentorSheetTarget.service}
           defaultShelterId={shelter.id}
           lockShelter
+          dog={dog}
         />
       )}
     </>

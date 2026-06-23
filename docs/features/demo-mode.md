@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-12
+last-reviewed: 2026-06-22
 tags: [demo, persona-switching, testing, infrastructure, narrative]
 review-trigger: "when adding a new persona, when changing persona-switching surfaces, when wiring per-persona mock data, when the Demo Narrative changes"
 ---
@@ -283,6 +283,11 @@ All three modes share the chrome — dark "system" treatment (`--neutral-850`, W
 - Esc + backdrop-click are NOT bound (would risk skipping a step accidentally).
 
 **Copy.** V2 re-authored the copy direction: step `detail` lines pull back to the persona's goal (instruction = action + light context, detail = the character's stake); platform jargon removed ("trust ladder", "the meet → booking conversion", "content and lead-gen", "there's a deliverable"); em dashes dropped throughout. The interstitial example copy in [[strategy/Demo Narrative]] is the canonical reference.
+
+**Card-copy guideline (refined, Multi-Path Demo 2026-06-22).** Two-piece step cards:
+- **`instruction` (card 1)** = what the tester does + where we are in the arc. Lead with the action; keep it tight.
+- **`detail` (card 2)** = optional — expands on *why/how* the feature lands. **Drop it when the action stands alone**; not every card needs both.
+- Both **concise and jargon-free**: no internal vocabulary in user-facing copy ("doors"/"Ways In", "funnel", "on-ramp", "advocacy loop"/"the loop", "shopfront" is borderline-ok) and no over-warm filler ("gentle/gently", "warm/warmest"). First-time viewers shouldn't infer a surface is narrower than it is — e.g. frame **Discover** broadly (parks, groups, care, shelter dogs), not as "where you get involved" (reads volunteering-only).
 
 ### On-surface step card — the live task reference during a beat
 
