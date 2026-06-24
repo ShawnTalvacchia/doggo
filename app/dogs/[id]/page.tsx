@@ -64,6 +64,8 @@ import {
   getMentorshipHistory,
   getPlatformVolunteerTier,
 } from "@/lib/volunteerTier";
+import { getMentorGroupWalks } from "@/lib/mockMeets";
+import { useWalkthrough } from "@/contexts/WalkthroughContext";
 import { MENTOR_SESSION_DEFAULT_MINIMUM } from "@/lib/constants/services";
 import {
   VACCINATION_LABELS,
@@ -1203,6 +1205,7 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
   const [mentorSheetTarget, setMentorSheetTarget] = useState<
     { mentor: UserProfile; service: CarerMentorSessionServiceConfig } | null
   >(null);
+  const wt = useWalkthrough();
 
   // Adopted dogs have gone home — no walk/adopt actions apply. The hero
   // "Adopted" pill + the "Happy endings" celebration banner carry the state.
@@ -1422,6 +1425,12 @@ function WalkAffordance({ shelter, dog }: { shelter: ShelterProfile; dog: PetPro
         onPick={(entry) => {
           setMentorListOpen(false);
           setMentorSheetTarget(entry);
+          // Auto-advance the walkthrough's "pick a mentor" step — but only for a
+          // mentor who runs a group walk, so Beat 2's group-walk flow is coherent.
+          // No-op outside the walkthrough / off that step.
+          if (getMentorGroupWalks(entry.mentor.id, shelter.id).length > 0) {
+            wt.signalAction("pick-mentor");
+          }
         }}
       />
       {mentorSheetTarget && (

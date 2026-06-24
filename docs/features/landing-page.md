@@ -1,7 +1,7 @@
 ---
 category: feature
 status: active
-last-reviewed: 2026-06-01
+last-reviewed: 2026-06-24
 tags: [landing-page, demo, launcher]
 review-trigger: "when the landing-page launcher or unlock gate changes"
 ---
@@ -10,14 +10,14 @@ review-trigger: "when the landing-page launcher or unlock gate changes"
 
 **Retired 2026-05-19 as a marketing page; reborn as the demo launcher.** The Demo Narrative V2 phase folded `/demo` into the landing page and retired the prior 8-section marketing story (hero → emotional hook → meet types → how it works → archetypes → care → testimonials → bottom CTA). The 2026-05-04 doc that described that page is preserved in git history.
 
-**Files:** `app/page.tsx`, `app/landing.css`
+**Files:** `app/page.tsx`, `app/page.css` (walkthrough card/interstitial chrome lives in `app/landing-extra.css`)
 
 ## What `/` does now
 
-A slim, chrome-free demo launcher — the new brand logo (`public/logo.svg`), no AppNav, no marketing copy. Two paths:
+**Rebuilt for the Multi-Path Demo (2026-06)** into a wide, left-aligned, **single-viewport** launcher (no AppNav, no marketing copy, fits a desktop screen with no scroll; cards stack under ~760px):
 
-1. **Start the walkthrough** (primary) — auto-resets demo state via `clearDemoStorage` and launches the V2 Guided Walkthrough at Beat 1's interstitial.
-2. **Explore freely** (secondary) — persona picker (all 7 personas). Picking writes to localStorage and routes to `/home`; ends any active walkthrough.
+1. **Guided walkthroughs** — a **row of door cards**, one per `WALKTHROUGH_LIST` entry (title + blurb): `new-owner`, `trainer`, `shelter`. Tapping a door calls `start(id)` → `clearDemoStorage` (auto-reset) → that walkthrough's first interstitial. (The earlier single "Start the walkthrough" CTA is gone.)
+2. **Look around freely** — a secondary bar under "Or explore on your own" that drops into the app as the default persona (Tereza). Persona switching then lives on the profile name dropdown — there are no per-persona cards on the launcher anymore.
 
 ## Gating
 
@@ -29,7 +29,7 @@ The landing page itself is behind the unlock gate — a tester arriving at the U
 
 ## Why one front door
 
-The walkthrough *is* the demo's first impression. A marketing splash before the launcher meant a tester opening the demo URL had to bounce off a hero and a how-it-works section before reaching the picker. Folding the picker into the landing page makes the demo start instantly — no extra click, no extra read.
+The launcher *is* the demo's first impression. A marketing splash before it meant a tester opening the demo URL had to bounce off a hero and a how-it-works section before reaching the doors. The launcher-as-landing makes the demo start instantly — pick a walkthrough (or explore) and go.
 
 ## Related
 

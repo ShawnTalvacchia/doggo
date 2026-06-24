@@ -1,6 +1,6 @@
 ---
 status: active
-last-reviewed: 2026-05-05
+last-reviewed: 2026-06-24
 review-trigger: "any time — add items as walkthroughs surface them; run focused passes pre-demo"
 ---
 
@@ -78,3 +78,10 @@ Add to the relevant Surface section as a one-line table row with: what to check,
 | V11 | Ongoing booking "Start from" date — optional field above schedule picker; renders as "Starting May 12" on InquiryCard schedule line. | Pricing & Proposals walkthrough I6 | `components/messaging/InquiryForm.tsx`, `InquiryCard.tsx` | 2026-05-05 |
 | V12 | BookingProposalCard collapse states — declined renders muted "Declined" footer; accepted renders "View booking →" link routing to `/bookings/[id]`; pending stays expanded with three-action row. | Pricing & Proposals walkthrough J2–J4 | `components/messaging/BookingProposalCard.tsx` | 2026-05-05 |
 | V13 | `session_started` notification type renders correctly when delivered — Timer icon + "Care" label in NotificationsPanel + `/notifications`. Verifiable once Inbox & Notifications phase wires actual delivery; no mock seed fires one today. Type + icon mapping already wired in `NotificationsPanel.tsx` + `app/notifications/page.tsx`. | Sessions walkthrough H1 | `lib/types.ts` (NotificationType), `components/ui/NotificationsPanel.tsx`, `app/notifications/page.tsx` | 2026-05-08 |
+
+### Guided Walkthroughs (Multi-Path Demo)
+
+| # | What to check | Came from | Refs | Added |
+|---|---------------|-----------|------|-------|
+| V14 | **W1 (`new-owner`, Daniel) full PO drive-through.** Built + Beat-1-verified + driven programmatically, but never walked end-to-end by the PO. Walk door → both Daniel beats (join → the walk → review/convert/neighbour-care) for copy + flow. | Multi-Path Demo early close (2026-06-24) — walkthrough not fully PO-reviewed | `lib/walkthroughBeats.ts` (`NEW_OWNER_BEATS`) | 2026-06-24 |
+| V15 | **W2 (`trainer`, Klára) full PO drive-through.** Same status — built + driven programmatically, no PO end-to-end walk. Walk door → the single Klára beat (run linked-care session → seal report → share lead-gen post). | Multi-Path Demo early close (2026-06-24) | `lib/walkthroughBeats.ts` (`TRAINER_BEATS`) | 2026-06-24 |

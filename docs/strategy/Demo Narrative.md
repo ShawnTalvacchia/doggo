@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: draft
-last-reviewed: 2026-06-22
+last-reviewed: 2026-06-24
 tags: [demo, narrative, walkthrough, personas]
 review-trigger: "before any change to the persona roster, the anchor meet, or the walkthrough beats"
 ---
@@ -29,7 +29,7 @@ Three single-thesis paths over one shared world, each launched from its own door
 **Build notes (Phase 1):**
 - **`new-owner`** is two consecutive Daniel beats (join → the walk happens → review/convert/neighbour-care); same-persona consecutive beats render as a time-passage handoff ("Later that day."), not a second "You're now Daniel."
 - **`trainer`** is a single Klára beat (run the linked-care session → seal report → share the lead-gen post); the meet→booking *conversion* is carried by the closing line for now (a played-from-Klára's-side conversion beat needs a pre-staged inquiry — A2).
-- **`shelter`** is Eliška's 5-beat arc centered on the **group shelter walk** (FC18): find Nora → **sign up for the mentored group walk** (the appealing, trainer-led first walk) → do the walk + share the recap (+ "a few walks later, vouched") → recap reaches the network → Nora adopted. The group-walk sign-up creates a real meet-linked shelter-walk booking (WS-G). Tomáš's separate mentee arc was not wrapped (redundant) and stays in Open View. The Beat-3 vouch fires via A2; the adoption capstone is tester-driven.
+- **`shelter`** is Eliška's **4-beat desirability cut** (tightened 2026-06-24): (1) the discovery (Discover → Help a Dog → Nora — how a walker finds the shelter's dogs, the original front kept intact), (2) a new walker gets in safely (mentored first walk; the group-walk sign-up creates a real meet-linked shelter-walk booking, WS-G; waiver/pricing/session detail dropped from the guided copy), (3) an interstitial "what happens on your end" (vouch caption + the shelter-did-nothing / kept-every-veto / documented-trail explainer, honest it's described not shown), (4) the shelter's payoff (its wall filling with walk posts → adoption interest carried as an interstitial). The shelter-side turn happens **after** the signup (Beats 3–4 + soft close), not the front. **Soft close** = the registry `closing` screen, addressing the shelter with three light open questions. The walk session start/finish, the operator side, and the adoption-interest landing are **Phase 2 (The Shelter's Side)** — carried by interstitials here, not built. The full 8-beat live-interview script + A1–A10 crosswalk stay in [[strategy/mentor-network-shelter-demo]] (the Phase-2 source). *(Earlier this was a 5-beat arc ending in a tester-driven adoption; that capstone and the walk-session steps were cut as too long / unbuilt.)*
 
 ---
 
@@ -277,6 +277,8 @@ What the V2 narrative needs seeded.
 ---
 
 ## The Adoption-Curious Arc (FC17 source material — built 2026-06-12)
+
+> **Heads-up (2026-06-24):** the shipped guided `shelter` walkthrough is now a **tightened 4-beat desirability cut** (see the bullet under "The three guided walkthroughs"), NOT the 6 beats below. It drops the walk-session steps and the tester-driven adoption capstone (those surfaces are Phase 2) and turns Beat 4 to the shelter's own wall. The beats below remain the fuller source arc the cut was drawn from.
 
 > A **second** guided arc, distinct from the V2 Daniel→Klára spine above. The **content** (persona, surfaces, seed data) shipped in the Adoption-Curious Journey phase (2026-06-12) and is drivable today in **Open View** via `?as=eliska`. The **guided-UI packaging** (interstitials, step card, registry entry, per-arc staging) is **FC17's job** — this section is the beat list FC17 wraps, so its work is authoring a guided shell around beats that already exist, not designing the arc. Registry id: `adoption-curious` ("Try before you adopt").
 

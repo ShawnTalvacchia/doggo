@@ -1,6 +1,6 @@
 ---
 status: living
-last-reviewed: 2026-06-21
+last-reviewed: 2026-06-24
 review-trigger: "Append when a 'noted for later' idea surfaces; promote out when triggered"
 ---
 
@@ -326,6 +326,8 @@ Move the trigger styling to a generic class (e.g. `.sort-menu-trigger`) and re-p
 
 ## FC16. Shelter admin / operator surfaces
 
+> **⤴ GRADUATING 2026-06-24 → Phase 2 "The Shelter's Side"** (the next phase, second half of the two-phase validation arc opened by the Multi-Path Demo phase). Phase 2 builds the shelter *operator* surface — the operator/admin views currently stubbed in the demo as "demo controls" / state-toggles. Phase 2 pulls a slice of the scope below forward; the rest stays here until its trigger fires.
+
 **Trigger:** A real shelter conversation surfaces the need (or Cross-Shelter Mentor Network phase requires admin-side affordances to be walkable in demo).
 
 **Context:** The Mentor Network phase ships everything the *walker* side needs (apply, mentor-vouched apply, mentor session booking, tier progression). It explicitly skips the *shelter admin* side — application review surface, walker pool management, per-shelter waiver authoring, walker tier overrides, historical-walks crediting (the bootstrap affordance from Cold-Start Playbook → mentor-vouching). For the demo, those admin surfaces can be partially faked (state-toggle for application approve/reject, pre-seeded credit counts) so the walker journey is walkable end-to-end without a real admin view.
@@ -360,7 +362,7 @@ The full admin/operator side becomes meaningful when (a) a real shelter wants to
 
 ## FC17. Feature-focused guided walkthroughs (beyond the V2 concept story)
 
-> **⤴ PROMOTED 2026-06-22 → `phases/multi-path-demo.md` (Phase 1 of a two-phase arc).** Re-scoped from the documented four feature-paths to **three audience Worlds** (new-owner / trainer / shelter demand-side); `neighbour-care` absorbs into W1. The shelter's *operator* view (not in FC17's taxonomy) became the real fourth and graduates to **Phase 2 "The Shelter's Side"** (pulls a slice of [[FC16]] forward). Entry retained for the source taxonomy + scope-sketch; the board is now the SOT.
+> **✅ SHIPPED 2026-06-24 via `phases/multi-path-demo.md` (Phase 1 of a two-phase arc).** Delivered as a **named-walkthrough registry** + a **multi-door launcher** (distinct journey doors on `/`) + **three single-thesis guided walkthroughs** — W1 new-owner, W2 trainer, W3 shelter (demand-side). Re-scoped from the documented four feature-paths to **three audience Worlds**; `neighbour-care` absorbed into W1. The shelter's *operator* view (not in FC17's taxonomy) became the real fourth and graduates to **Phase 2 "The Shelter's Side"** (pulls a slice of [[FC16]] forward). Entry retained for the source taxonomy + scope-sketch; the board + `lib/walkthroughBeats.ts` are the SOT.
 
 **Trigger:** After the current feature/surface flesh-out arc settles (Mentor Network closed + Adoption-Curious Doorway / Multi-Path Demo landed, or whenever a demo-packaging pass opens). PO direction given 2026-06-10 during the Mentor Network build. **NOT gated on shelter interviews** (PO clarification 2026-06-11: interview timing is unknown, so the guided shelter-facing walkthrough — concise, clearly and strongly demonstrating the potential features — is on the build path regardless; the live-driven script doc remains the interview artifact for whenever those happen, not a prerequisite).
 
@@ -393,7 +395,7 @@ The full admin/operator side becomes meaningful when (a) a real shelter wants to
 
 ## FC18. Group shelter walk — a Meet that sources its dogs from a shelter (the social on-ramp + mentorship funnel)
 
-> **⤴ GRADUATING 2026-06-22 → `phases/multi-path-demo.md` Workstream G (PO call).** The demo-facing slice is being built now (sign up to walk a shelter dog ON the trainer-led group walk → real shelter-walk `Booking` linked via `dropoffMeetId`; two-tier vouched/mentored; captured walk feeding the advocacy loop) because the `shelter` walkthrough's most appealing on-ramp depends on it. The deferred operational pieces below (multi-dog checkout/release, mentor-as-responsible-party, group waivers) stay faked/narrated — still shelter-interview questions.
+> **✅ DEMO SLICE SHIPPED 2026-06-24 via `phases/multi-path-demo.md` (Workstream G).** Real sign-up to walk a shelter dog ON the trainer-led group walk → a meet-linked shelter-walk `Booking` (`dropoffMeetId`); **two-tier** (vouched = free volunteer walk; un-vouched = paid mentored first walk that counts toward the vouch); captured walk feeds the advocacy loop. **Deferred operational pieces remain future** (still shelter-interview questions): the physical multi-dog checkout/release model, mentor-as-responsible-party, group-context waivers, and the shelter *operator* side (→ Phase 2 "The Shelter's Side" / [[FC16]]). Entry retained for those open logistics + the shipped-design record.
 
 > **✅ SHIPPED 2026-06-13 (Adoption-Curious Journey, Workstream C).** Built as a **mixed** community walk linked to a shelter via `Meet.shelterWalk?: { shelterId }`; shelter dogs ride in `MeetAttendee.dogNames` (name-resolved, badged on the People tab); host = Klára (Super Volunteer) in her care group; Útulek flipped `groupWalksPermitted: true`. The two-tier funnel survives as the un-vouched "Walk with a mentor" eyebrow link. **Reframed from the original spec:** newcomers do NOT attend dogless ("come along socially" was dropped as off-thesis) — the walk is dog-first and the newcomer's path is the mentored first walk, not tagging along. **Carried forward** (logged in Open Questions, not built): the real shelter-dog **checkout/release model** for a group (intended = a shelter-walk `Booking` linked via `Booking.dropoffMeetId`, not an in-meet picker) → shelter interviews. Entry retained for that open logistics question + the shipped-design record.
 

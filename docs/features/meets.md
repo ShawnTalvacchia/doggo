@@ -1,7 +1,7 @@
 ---
 category: feature
 status: active
-last-reviewed: 2026-06-01
+last-reviewed: 2026-06-24
 tags: [meets, groups, community, social]
 review-trigger: "when modifying meets, groups, group detail tabs, or meet discovery"
 ---
@@ -174,6 +174,8 @@ A meet can link to a carer's service. The full model — the four canonical conf
 **Config #2 — linked-care booking on a free meet (book ≠ attend).** A *free* community walk can also advertise a walks_checkins **Care** service: an owner books the carer to walk their dog *without joining the walk themselves*. Two separate paths, never both on one occurrence — join free as a walker, or book the carer. `LinkedCareCallout` renders the callout ("Have {carer} walk your dog" — avatar · title + subline · blue price + caret), sitting *alongside* the intact free RSVP. When the carer offers both delivery methods (pickup / drop-off — see [[explore-and-care]] → Walk Service Delivery), the price reads "From {floor} Kč" + caret; the picker inside the booking sheet is where the choice lands. Tapping it opens `LinkedWalkBookingSheet`, which creates a Care `Booking` and does **not** add the owner to the roster. The booking carries `Booking.dropoffMeetId` back to the meet (typed field name retained; user-facing copy uses "linked-care booking"), so the booked occurrence's Upcoming-dates row shows a blue **"Walk booked"** pill (linking to the Care booking) in place of Join / Skip.
 
 The required-link "About this service" card and the config #2 `LinkedCareCallout` share a layout — one family at two weights: the required card is blue-tinted (the meet's primary path), the config #2 callout is white with a blue accent (a secondary "or, instead" path).
+
+**Shelter-walk meet variant (`Meet.shelterWalk`).** A meet can be a trainer-led group walk where shelter dogs join. A walker signs up — on the meet's `ShelterWalkPanel` (or via a mentor's booking sheet) — to walk a shelter dog on it, which creates a shelter-walk `Booking` linked to the occurrence via the same `Booking.dropoffMeetId` field (un-vouched = a paid mentored first walk). The feature, its tiers, and the deferred checkout model live in [[shelters]] → "Group shelter walk (FC18)"; the booking shape is `lib/groupWalkBooking.ts`.
 
 **Booking sheets** (`components/meets/`): `BookSessionSheet` (Meet-type services — creates a `Booking` with `meetBooking` set + adds to the roster) and `LinkedWalkBookingSheet` (config #2 linked-care booking — creates a plain Care `Booking`, no roster; hosts the delivery picker when the carer offers both pickup + drop-off). The legacy `ServiceBookingSheet` still serves `serviceCTA`-only meets with no resolvable linked service; it retires when `serviceCTA` is fully removed.
 

@@ -58,6 +58,16 @@ export type WalkthroughStep =
        */
       awaitAction?: boolean;
       /**
+       * Named-action advance: the step renders NO "Next" button and advances
+       * when product code fires `signalAction(key)` with this exact key. For an
+       * action that opens a MODAL (no navigation), so the URL-based `advanceOn`
+       * can't fire — e.g. picking a mentor opens the booking sheet. The signal
+       * is a no-op outside the walkthrough / off this step, so the product call
+       * is safe to make unconditionally. Like `awaitAction`, a Continue button
+       * still surfaces if the tester backs into the step (already performed it).
+       */
+      advanceOnAction?: string;
+      /**
        * Fire-off steps surface pre-written content for a one-tap commit.
        * When set, the card renders the image + caption as a post preview and
        * the primary action reads "Share". The matching post is seeded in
@@ -122,6 +132,9 @@ export type WalkthroughStep =
 export type WalkthroughBeat = {
   /** 1-based beat number, for display ("Beat 1 of 3"). */
   n: number;
+  /** Short orienting beat title (chip-sized) shown on the on-surface step card,
+   *  so the tester can see which beat they're in once past the interstitial. */
+  title: string;
   /** Persona to switch to when this beat begins. Must exist in `lib/personas.ts`. */
   personaId: string;
   /** Time-of-day eyebrow. */
@@ -168,6 +181,7 @@ const NEW_OWNER_BEATS: WalkthroughBeat[] = [
   // ── Beat 1 — Daniel: time to get Bára out ────────────────────────────────
   {
     n: 1,
+    title: "Finding a walk",
     personaId: "daniel",
     when: "Earlier this week",
     context:
@@ -203,6 +217,7 @@ const NEW_OWNER_BEATS: WalkthroughBeat[] = [
   // re-intro) because prevBeat.personaId === this beat's personaId.
   {
     n: 2,
+    title: "After the walk",
     personaId: "daniel",
     when: "Later that day",
     context:
@@ -332,6 +347,7 @@ const NEW_OWNER_BEATS: WalkthroughBeat[] = [
 const TRAINER_BEATS: WalkthroughBeat[] = [
   {
     n: 1,
+    title: "The morning walk",
     personaId: "klara",
     when: "Morning",
     context:
@@ -409,24 +425,26 @@ const TRAINER_BEATS: WalkthroughBeat[] = [
 ];
 
 // ── shelter ("Help a shelter dog") ───────────────────────────────────────────
-// W3 — the shelter demand-side arc (E, 2026-06-22). Single POV: Eliška, the
-// adoption-curious explorer, focal dog Nora (Útulek long-stayer). The arc weaves
-// the credentialing mechanism (mentored → vouched) INTO the advocacy→adoption
-// story, so it carries the full W3 thesis on one spine — Tomáš's separate mentee
-// arc would be redundant (same mechanism, second persona) and stays in Open View
-// + feeds the Phase-2 operator/interview material. Several steps run through
-// modals or the demo state-toggles (no URL change) → action steps; A2 will
-// pre-stage the walker/adoption state so those advances aren't hand-driven.
-// See `strategy/Demo Narrative` → "The Adoption-Curious Arc" for the source beats.
+// W3 — the shelter arc, tightened to a Phase-1 DESIRABILITY cut (2026-06-24).
+// POV: Eliška (a brand-new, unvetted would-be walker), focal dog Nora (Útulek
+// long-stayer). Front half is the walker getting in safely (mentored first
+// walk); Beat 4 turns to the shelter's own wall. This guided cut paints the
+// appealing picture ONLY: it does NOT instruct the walk session or any
+// shelter-operator action (those surfaces are Phase 2, "The Shelter's Side") —
+// everything unbuilt is carried by interstitials. The soft close lives in the
+// registry `closing` screen and addresses the shelter with light open questions.
+// The full 8-beat live-interview script + the A1–A10 feasibility crosswalk stay
+// in `strategy/mentor-network-shelter-demo.md` (the Phase-2 source, not edited).
 const SHELTER_BEATS: WalkthroughBeat[] = [
-  // ── Beat 1 — Find Nora, see how it works ──────────────────────────────────
+  // ── Beat 1 — Discovery: how a walker finds your dogs ──────────────────────────────────
   {
     n: 1,
+    title: "Finding a dog",
     personaId: "eliska",
     when: "A quiet Saturday",
     context:
-      "Eliška has been wondering about adopting, but it's a big step and she isn't sure. What she'd like first is to spend time with dogs, the ones who need it most, with no pressure to commit.",
-    summary: "An adoption-curious newcomer looks for a low-pressure way in.",
+      "You're new to the city, considering adopting a dog one day, and curious about volunteering in the meantime. You signed up to Doggo to explore the shelters nearby.",
+    summary: "How a would-be walker discovers a shelter's dogs.",
     startUrl: "/discover",
     steps: [
       {
@@ -434,108 +452,73 @@ const SHELTER_BEATS: WalkthroughBeat[] = [
         instruction:
           "This is **Discover**, where you find what's near you on Doggo. Tap **Help a Dog**.",
         detail:
-          "Parks and groups, local care, and shelter dogs who need walks. Walking one asks nothing more than a walk.",
+          "Parks and groups, local care, and shelter dogs who need walks. It's how a shelter's dogs get found in the first place.",
         advanceOn: "/discover/help-a-dog",
       },
       {
         kind: "card",
         instruction:
-          "This is **Help a Dog**: local shelters and the dogs who need a walk. Browse the list, then open **Nora**, a long-stayer at Útulek who's lovely on the trail.",
+          "This is **Help a Dog**: nearby shelters and the dogs who need a walk. Open **Nora**, a long-stayer at Útulek.",
         detail:
-          "No adoption obligation, just time with a dog. For a long-stayer like Nora, getting out is her best shot at being noticed.",
+          "No adoption obligation, just a walk. For an overlooked dog, getting out is her best shot at being noticed.",
         advanceOn: "/dogs/shelter-dog-nora",
       },
       {
         kind: "card",
         instruction:
-          "Tap **Walk Nora**, choose **Walk with a mentor**, and pick **Klára**. Her booking opens, then tap **Next**.",
-        detail: "Klára's a trainer here who'll mentor your first walks.",
+          "Tap **Walk Nora**, choose **Walk with a mentor**, and pick **Klára**.",
+        detail:
+          "Klára's a trusted Super Volunteer here. New walkers go out supervised first, so the shelter never has to vet a stranger cold.",
+        advanceOnAction: "pick-mentor",
       },
     ],
   },
-  // ── Beat 2 — The mentored walk: waivers, then the group walk ───────────────
+  // ── Beat 2 — A new walker gets in, safely ───────────────
   {
     n: 2,
+    title: "Setting up the walk",
     personaId: "eliska",
     when: "Setting up the walk",
     context:
       "Now to set up the mentored walk with Klára. First the waivers, then the walk. Whichever way Eliška goes out, it counts the same toward walking on her own.",
-    summary: "Agree to the waivers, then sign up for the mentored group walk, all in one place.",
+    summary: "A brand-new walker books a mentored first walk with a trusted Super Volunteer.",
     startUrl: "/dogs/shelter-dog-nora",
     steps: [
       {
         kind: "card",
         instruction:
-          "**Before your first walk**, agree to both waivers and tap **Continue**. They're required either way, group or 1-on-1.",
+          "Agree to the waivers, pick **Klára's group walk**, and **Sign up**. Then tap **Next**.",
         detail:
-          "The Doggo waiver signs once and carries to every shelter; the shelter's own signs here.",
-      },
-      {
-        kind: "interstitial",
-        mode: "explainer",
-        eyebrow: "How this works",
-        heading: "From walker to trusted walker",
-        body:
-          "Your first walks are mentored: the trainer meets you at the shelter, makes the first pickup easy, and you walk in a group. After a few, the trainer vouches for you and you can walk on your own. The shelter keeps the final say throughout.",
-      },
-      {
-        kind: "interstitial",
-        mode: "probe",
-        eyebrow: "For the room",
-        heading: "Would your shelter accept this vouch?",
-        body:
-          "This is the load-bearing question. If your most trusted walker assessed and vouched for a newcomer, supervised and documented, would you accept that in place of your own intake? And today, is your walker count limited by applicants, or by what you can afford to vet?",
-      },
-      {
-        kind: "card",
-        instruction:
-          "Pick **Klára's group walk** (Nora's already set), then **Sign up for the walk**.",
-        detail:
-          "The friendly way in: alongside the group, with Klára to get you started. Eliška's in, walking Nora.",
-        // FC18 in-sheet sign-up: choosing the group walk in MentorSessionBookingSheet
-        // creates the meet-linked shelter-walk booking + begins the mentorship,
-        // no bounce to the meet page. Modal flow → manual advance.
+          "A paid, supervised first walk with the trainer alongside. The safe way in.",
+        // FC18 in-sheet sign-up (MentorSessionBookingSheet): creates the
+        // meet-linked shelter-walk booking + begins the mentorship. The
+        // credentialing detail (waiver layers, session count) is deliberately
+        // dropped from the guided flow — it lives in the Phase-2 interview kit.
       },
     ],
   },
-  // ── Beat 3 — The walk, and the recap ──────────────────────────────────────
+  // ── Beat 3 — What happens on your end (described, not shown) ──────────────────────────────────────
   {
     n: 3,
+    title: "What happens on your end",
     personaId: "eliska",
-    when: "Walk day",
+    when: "A few walks later",
     context:
-      "Eliška's mentored first walk is here. With Klára and the group alongside, she takes Nora out, a real morning in the world for a dog who spends most of hers in a kennel.",
-    summary: "The walk happens, and the recap is the advocacy loop's first move.",
-    startUrl: "/bookings?tab=volunteering",
+      "Three supervised walks in, Klára vouches for Eliška. She can walk Útulek's dogs on her own now, and the shelter never had to run an intake on a stranger.",
+    summary: "The vouch lands: a vetted walker, with the shelter never lifting a finger.",
+    startUrl: "/shelters/utulek-liben",
     steps: [
-      {
-        kind: "card",
-        instruction:
-          "Eliška's mentored walk with Nora is here on the **Volunteering** tab. Open it and **Start** the session.",
-        detail: "Walk day. Nora gets a morning out, in good company.",
-      },
-      {
-        kind: "card",
-        instruction:
-          "The walk's done. **Finish** the session to seal it. You'll land back on Nora's page, then tap **Next**.",
-        detail: "Útulek sees the walk happened, with a record on Nora.",
-      },
-      {
-        kind: "card",
-        instruction:
-          "Nora's page shows a **Share a moment** prompt. Tap it and post the recap (Nora and Útulek are pre-tagged). No pressure, but a recap is the most powerful thing a walker can do.",
-        detail:
-          "The recap is the adoption ad. A dog seen out, happy, in the world, is a dog people fall for.",
-      },
+      // The walk session itself (start/finish) + the operator side are Phase 2 —
+      // NOT instructed here. Carried as a single explainer instead.
       {
         kind: "interstitial",
-        mode: "time-passage",
-        eyebrow: "A few walks later",
-        heading: "A trusted walker now.",
+        mode: "explainer",
+        eyebrow: "What happens on your end",
+        heading: "Nothing, and that's the point.",
         body:
-          "Eliška's walked with the group a few times since. She's calm with the dogs and reliable, so Klára vouches for her and Útulek agrees. She can walk on her own now, no mentor needed.",
-        // Keeps the credentialing payoff visible (the probe's answer in action)
-        // and the A2 vouch mechanism in use; not load-bearing for the adoption.
+          "The mentor did the vetting. You kept every veto the whole way, and you have a documented trail of who walked which dog, and when, none of it asking anything of your staff. (This part is described, not shown. The shelter's own tools are what we'd build next.)",
+        // Make the narrated vouch real (so Eliška's walker state matches the
+        // caption) — fired on Continue. Not load-bearing for the rest of the arc.
         fireWalkerVouch: {
           userId: "eliska",
           shelterId: "utulek-liben",
@@ -544,79 +527,33 @@ const SHELTER_BEATS: WalkthroughBeat[] = [
       },
     ],
   },
-  // ── Beat 4 — The recap reaches the network ────────────────────────────────
+  // ── Beat 4 — The shelter's payoff ────────────────────────────────
   {
     n: 4,
+    title: "The shelter's payoff",
     personaId: "eliska",
-    when: "Later",
+    when: "Weeks on",
     context:
-      "Eliška shared a moment from Nora's walk. Because she follows Útulek, and so do others, that recap doesn't sit in a void. It travels.",
-    summary: "Community exposure is the adoption engine.",
-    startUrl: "/home",
+      "Now look at Útulek's side. Every walk leaves a trace, and they add up into something the shelter could never have built on its own.",
+    summary: "The shelter's wall fills with walk posts, and one turns into an adopter.",
+    startUrl: "/shelters/utulek-liben",
     steps: [
       {
         kind: "card",
         instruction:
-          "Here's the **home feed**. Recaps of Nora keep adding up, yours now among them, and they're working: **Kateřina** saw one and is asking the shelter about adopting her. Tap her comment to read it. She wasn't even one of Nora's walkers.",
+          "Útulek's **feed** is full of walk posts: their dogs, out and happy, photographed by the walkers. Scroll through.",
         detail:
-          "It's working: walkers surface the dog to people who'd never have found her at the kennel.",
+          "The shelter doesn't run a social account, its walkers do. No staff time, no marketing budget, just volunteers, each one quietly advertising a dog who needs a home.",
       },
       {
+        // The adoption-interest landing on the shelter's OWN view is Phase 2 —
+        // carried as an interstitial, not built.
         kind: "interstitial",
         mode: "explainer",
-        eyebrow: "How this works",
-        heading: "The advocacy loop",
+        eyebrow: "Where this leads",
+        heading: "A walk post becomes an adopter.",
         body:
-          "Dogs that get out and get seen are far more likely to be adopted, by a wide margin. The lift almost never comes from the walker adopting; it comes from the dog being photographed, shared, and noticed by someone else. Every walker is an advocate.",
-      },
-      {
-        kind: "interstitial",
-        mode: "probe",
-        eyebrow: "For the room",
-        heading: "How many of your adopters walked first?",
-        body:
-          "If walkers becoming advocates is the engine, this is the number that proves it: of the people who adopted from you, how many spent time with a dog first, walking, fostering, or a day-trip outing, before they committed?",
-      },
-      {
-        kind: "card",
-        instruction:
-          "Kateřina wants to know more about Nora. Tap **Next** to follow where that leads.",
-        detail: "A recap became real interest from a real adopter.",
-      },
-    ],
-  },
-  // ── Beat 5 — Nora finds a home ────────────────────────────────────────────
-  {
-    n: 5,
-    personaId: "eliska",
-    when: "Nora's happy ending",
-    context:
-      "The interest those recaps sparked turns into the thing it was all for: a home for Nora. The adoption path is gentle by design, with off-ramps the whole way.",
-    summary: "The capstone: the network adopts, and the loop closes.",
-    startUrl: "/dogs/shelter-dog-nora",
-    steps: [
-      {
-        kind: "card",
-        instruction:
-          "On Nora's page, open **Adopt Nora**. Read the no-obligation framing and the ladder: walk, then a sleepover or foster, then adopt, returns always welcome, never a failure.",
-        detail:
-          "Útulek curates the meet-and-greet. There's no auto-match, the shelter stays in charge.",
-      },
-      {
-        kind: "card",
-        instruction:
-          "Drive the adoption in the sheet: **Express interest**, then **Arrange meet-and-greet (demo)**, then **Finalise — network adopts (demo)** (Kateřina, from the recap). Nora reads **Adopted**. Then tap **Next**.",
-        detail:
-          "The home that found Nora came from a walk recap, not a kennel listing. The walker surfaced her; the network adopted. That's the engine. (Eliška-adopts is the alternate ending.)",
-        // Adoption stages run through the AdoptInquirySheet demo controls
-        // (interested → pending → adopted) with no URL change → action step.
-      },
-      {
-        kind: "card",
-        instruction:
-          "Nora's page now shows her **Adopted** state and a happy ending. Take it in, then tap **Next** to wrap up.",
-        detail:
-          "One overlooked long-stayer, seen on a walk, shared to the network, home. Multiply that across every walker.",
+          "Someone who saw one of these posts asks the shelter about adopting that dog. The walker never adopted, they surfaced the dog to someone who would. That's the loop: dogs that get out and get seen find homes. (The adoption interest landing on your side is part of the shelter tools we'd build next.)",
       },
     ],
   },
@@ -665,15 +602,15 @@ const SHELTER: Walkthrough = {
   id: "shelter",
   displayName: "Help a shelter dog",
   blurb:
-    "Walk an overlooked shelter dog, share the moment, and watch the network turn that walk into a home.",
+    "Watch a shelter safely open walking to a brand-new volunteer, and turn those walks into an adoption engine.",
   thesis:
     "Vetted community walkers + the advocacy loop turn a shelter's dogs into an adoption engine, easing vetting and coordination without more work or risk.",
   interviewee:
     "A shelter or rescue coordinator (the World-3 partner to win over).",
   closing: {
-    heading: "End of walkthrough.",
+    heading: "If you run a shelter, this part's for you.",
     body:
-      "Eliška came to spend time with a dog, no commitment. She earned a vouch through a mentor, walked Nora, and shared one moment, and that moment found Nora a home. Vetted walkers, a recap that travels, and an adoption, with the shelter keeping every veto. Want to keep exploring?",
+      "Everything you just saw is built to help a stranger become a walker you can trust, without vetting each one from scratch. We'd love your read: could a system like this earn enough of your trust to open walking up to new volunteers? What would you need to see, or keep control over, to feel comfortable? And is your walker count limited more by people applying, or by what it costs to vet them?",
   },
   beats: SHELTER_BEATS,
 };

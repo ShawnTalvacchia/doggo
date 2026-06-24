@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-22
+last-reviewed: 2026-06-24
 tags: [demo, persona-switching, testing, infrastructure, narrative]
 review-trigger: "when adding a new persona, when changing persona-switching surfaces, when wiring per-persona mock data, when the Demo Narrative changes"
 ---
@@ -113,16 +113,13 @@ Picking a persona writes to `localStorage` via `setUserById`, then calls `router
 
 ### 2. Landing page (`/`) — the demo front door
 
-**Files:** `app/page.tsx`, `app/landing.css`
+**Files:** `app/page.tsx`, `app/page.css` (walkthrough card/interstitial chrome lives in `app/landing-extra.css`)
 
-**Rebuilt 2026-05-19** (Demo Narrative V2 — `/demo` folded into the landing page). The standalone `/demo` route was deleted; the landing page is now the demo's single front door — a slim, chrome-free launcher with the new brand logo (`public/logo.svg`), no AppNav, and two paths:
+**Rebuilt for the Multi-Path Demo (2026-06).** The landing page is the demo's single front door (the standalone `/demo` route is gone) — a chrome-free, **single-viewport** launcher: a wide, left-aligned hero, then a **row of guided-walkthrough doors** under "Guided walkthroughs" (one card per `WALKTHROUGH_LIST` entry — title + blurb), then a secondary **"Look around freely"** bar under "Or explore on your own". The earlier single "Start the walkthrough" CTA is gone — each walkthrough now has its own door. Free-explore drops into the app as the default persona (Tereza); persona switching then lives on the profile name dropdown (no per-persona cards on the launcher).
 
-1. **Start the walkthrough** — primary CTA. Auto-resets demo state and launches the V2 Guided Walkthrough at Beat 1's interstitial.
-2. **Explore freely** — secondary persona picker, all 8 personas. Picking writes to localStorage and routes to `/home`; ends any active walkthrough.
+`proxy.ts` gates **everything** (the landing page included — nothing is public but the unlock page + its API + static assets). `exit()`, `AuthGateContext`, `AppNav`, and `ProfileNameDropdown` all route their "back to launcher" exits to `/`.
 
-The prior 8-section marketing landing page was retired. `proxy.ts` now gates **everything** (the landing page included — nothing is public but the unlock page + its API + static assets). `exit()`, `AuthGateContext`, `AppNav`, and `ProfileNameDropdown` all route their "back to launcher" exits to `/`. The `/demo` URL no longer resolves.
-
-**Why a landing page rather than a dedicated route:** the launcher *is* the product's first impression in demo mode. Folding the picker into the landing page means a tester opening the URL goes straight to the demo (after the unlock gate) — no marketing splash to bounce off, no extra click.
+**Why a landing page rather than a dedicated route:** the launcher *is* the product's first impression in demo mode. A tester opening the URL goes straight to the demo (after the unlock gate) — no marketing splash to bounce off.
 
 ### 3. `?as=<personaId>` URL param (preview, non-persistent)
 
@@ -235,9 +232,11 @@ Data-gap surfaces (e.g., Inbox is empty as new-user because mock conversations a
 
 ## Guided Walkthrough — UX design spec
 
-Status: **built — V2 re-authored 2026-05-19** (Demo Narrative V2 phase, closed 2026-06-01). Originally shipped 2026-05-18 (Guided Walkthrough Build); V2 re-authored the narrative + extended the infrastructure (`lib/walkthroughBeats.ts` beat registry, `contexts/WalkthroughContext.tsx` sequencer, `components/walkthrough/WalkthroughInterstitial.tsx`, `components/walkthrough/WalkthroughCard.tsx`, mounted globally in `app/layout.tsx`). This section is the as-built V2 spec — it reflects shipped behaviour.
+Status: **built.** Shipped 2026-05-18 (Guided Walkthrough Build); V2 re-authored 2026-05-19 (single Daniel→Klára→Daniel spine); **re-architected for the Multi-Path Demo (2026-06) into a named-walkthrough registry.** Infrastructure: `lib/walkthroughBeats.ts` (registry + beats), `contexts/WalkthroughContext.tsx` (sequencer), `components/walkthrough/WalkthroughInterstitial.tsx` + `WalkthroughCard.tsx`, mounted globally in `app/layout.tsx`. This section is the as-built spec.
 
-**V2 narrative.** 3 beats, 2 personas: **Daniel → Klára → Daniel** (Daniel's journey is the spine; Beat 2 is a single cut to Klára's POV for the walker-trainer engine). Anchor event = Klára's free Stromovka walk (config #2 linked-care booking). Full spine: [[strategy/Demo Narrative]]. Magda is a supporting character, not a POV; Lena's V1 "graduated to care" arc is absorbed into the closing screen.
+**Named-walkthrough registry (Multi-Path Demo, 2026-06).** `WALKTHROUGH_LIST` holds one entry per community World — `{ id, displayName, blurb, thesis, interviewee, closing, beats }` — and the sequencer runs ONE by id (`start(id)`). Three ship: **`new-owner`** (Daniel), **`trainer`** (Klára), **`shelter`** (Eliška), each a single-thesis arc launched from its own door on `/`. (The old V2 single Daniel→Klára→Daniel spine was split by POV into new-owner + trainer; the shelter arc was added.) Per-walkthrough closing copy lives in the registry `closing`. Same-persona consecutive beats render as a **time-passage handoff** (`isContinuation`: heading = the beat's `when`, no "You're now X" re-intro) — what lets a single-POV path run multiple beats. Each beat also carries a short `title` shown on the step card. Full arcs: [[strategy/Demo Narrative]].
+
+**Step-fired state pre-staging.** Where an arc needs mid-walkthrough state set without the tester grinding demo toggles, a step fires it: e.g. `fireWalkerVouch` on a (time-passage) interstitial step calls the idempotent `vouchViaMentor` on `WalkerApplicationsContext`, so the shelter arc can narrate "a few walks later, you're vouched" and have it be true. Fired on the step's Continue.
 
 ### Two demo modes
 
@@ -246,7 +245,7 @@ The demo runs in two modes that share the same persona infrastructure:
 | Mode | What it is | Infrastructure cost |
 |---|---|---|
 | **Open View** | Today's behavior. Tester picks a persona via the picker / `/demo` / `?as=` and explores freely. No scripted progression. | None new — already shipped. |
-| **Guided Walkthrough** | Auto-switching between personas at scripted beats — a full-screen interstitial sets the scene at each handoff, and a persistent collapsible card carries the step task while the tester works. Linear progression through the [[strategy/Demo Narrative]] spine. Pre-loaded content (posts, messages) fires off via dedicated card-handled steps; the tester performs only one or two hero actions per beat. | Interstitial component (3 modes — persona handoff / time-passage / explainer), on-surface step card (dark chrome, minimise/restore), beat sequencer, fire-off step type, `awaitAction` flag for action-gated nav. |
+| **Guided Walkthrough** | Auto-switching between personas at scripted beats — a full-screen interstitial sets the scene at each handoff, and a persistent collapsible card carries the step task while the tester works. Linear progression through the [[strategy/Demo Narrative]] spine. Pre-loaded content (posts, messages) fires off via dedicated card-handled steps; the tester performs only one or two hero actions per beat. | Interstitial component (4 modes — persona handoff / time-passage / explainer / probe), on-surface step card (dark chrome, minimise/restore), beat sequencer, fire-off step type, `awaitAction` + `advanceOnAction` for action-gated nav. |
 
 Open View is unchanged; this spec is the Guided Walkthrough.
 
@@ -261,11 +260,12 @@ They are separate because they do separate jobs — scene-setting vs. ongoing re
 
 ### Full-screen interstitial — three modes
 
-Renders at scripted moments. Covers the entire viewport (no peek-through to the surface beneath) so the tester never sees what happens behind. **Three modes** (V2 extended from one):
+Renders at scripted moments. Covers the entire viewport (no peek-through to the surface beneath) so the tester never sees what happens behind. **Four modes:**
 
 1. **Persona handoff** — fires at the start of every beat (the original V1 mode). Header heading: "You're now {first name}." Avatar + archetype + 1–2 sentence situational context placing the persona in time and motivation. Primary CTA dismisses + persona-swaps + lands on the beat's start surface, with the on-surface card already present (expanded) on step 1.
 2. **Time-passage** — fires mid-beat to land a temporal jump ("A couple of days later…"). Same layout shape; no persona-swap; the on-surface card re-mounts on the same persona's next step. Pre-seeded state (e.g. a notification dated today) makes the jump read honest.
 3. **Feature explainer** — fires mid-beat to unpack a concept ("What 'Familiar' means", "What happens on a Klára walk", "Private groups, and mutual care"). The on-surface card stands down while the explainer shows; Continue returns to the card.
+4. **Probe** (Multi-Path Demo, 2026-06 — the "guided demo IS the interview" mechanism) — poses the load-bearing question to the viewer/room rather than narrating ("For the room" eyebrow + a teal left-accent bar so it reads as *ask this*, distinct from the explainer). Used sparingly on the recruitment/validation paths (shelter, trainer); the new-owner arc is probe-free. Source: the mentor-script assumption set.
 
 All three modes share the chrome — dark "system" treatment (`--neutral-850`, WCAG AA via `--brand-300` accent + `--neutral-400` muted text) so the walkthrough reads unmistakably as a guide layer, distinct from the light platform UI.
 
@@ -281,6 +281,10 @@ All three modes share the chrome — dark "system" treatment (`--neutral-850`, W
 - Primary CTA dismisses + (for handoff) persona-swaps + lands on the target surface.
 - No tap-anywhere-to-dismiss — the interstitial is a deliberate consent step.
 - Esc + backdrop-click are NOT bound (would risk skipping a step accidentally).
+
+**Two-way node (FC18 nav rework, 2026-06-24).** The beat-handoff interstitial is a real navigable stop in BOTH directions, not a one-way transition. Forward: prev-beat-last-step → interstitial → step 1. Backward: Back from a beat's first step lands on THAT beat's interstitial (not skipping it), and the interstitial's own **Back** (`interstitialBack`) goes to the previous beat's last step. So reading too fast in either direction is recoverable without going forward-then-back. "Skip beat" stays as the forward escape.
+
+**Interstitial action layout — mirrors the step card (2026-06-24).** Every interstitial action row is **space-between**, primary on the **right** (like the card's Next). Mid-walkthrough handoff + mid-beat (explainer/probe) interstitials: **Back** (left) · **Continue** (right) · quiet **Exit walkthrough** link below. The **opening** interstitial has no prior beat, so its left slot holds **Exit walkthrough** instead of Back, and it drops the redundant bottom Exit. The **closing** screen: **Back** (left → last beat's last step, review without restarting) · **Complete walkthrough** (right → launcher + reset demo, i.e. `exit`); the old "Pick another persona / Stay as {name}" pair was replaced.
 
 **Copy.** V2 re-authored the copy direction: step `detail` lines pull back to the persona's goal (instruction = action + light context, detail = the character's stake); platform jargon removed ("trust ladder", "the meet → booking conversion", "content and lead-gen", "there's a deliverable"); em dashes dropped throughout. The interstitial example copy in [[strategy/Demo Narrative]] is the canonical reference.
 
@@ -309,6 +313,7 @@ After the interstitial dismisses, a **persistent, collapsible card** rides along
 **Step kinds (V2).** A step is one of:
 - **Navigation step** (default kind, "tap into Meets", "open Klára's session") — carries an `advanceOn` pathname. The tester can reach that surface either way: by using the in-app control the step describes, or by tapping the card's **Next**, which routes there for them. On arrival the card auto-advances.
 - **`awaitAction` navigation step** (V2 — added for Beat 2's "Start the session") — renders **no card Next**. The card advances only when the tester performs the in-app action AND the resulting navigation reaches `advanceOn`. Used when the walkthrough must not land on a downstream step (e.g. "Finish the session") with the upstream state unstarted.
+- **`advanceOnAction` step** (FC18 — for the shelter arc's "pick a mentor") — renders **no card Next** and advances when product code fires `useWalkthrough().signalAction(key)` with the step's key. For an action that opens a **modal** (no navigation), so the URL-based `advanceOn` can't fire — picking Klára opens the booking sheet and the card jumps straight to the next interstitial. `signalAction` is a no-op outside the walkthrough / off the matching step, so the product call (e.g. in the dog page's mentor `onPick`) is safe unconditionally. Backing into the step surfaces a **Continue** (action already performed), same as `awaitAction`.
 - **Action step** ("mark Familiar", "accept the request") — produces no reliable URL signal. These advance on **manual Next**, and the step copy says so explicitly.
 - **Fire-off step** (V2 — for "send the pre-written content"). The card itself renders a preview of staged content (caption + photo for a post; message body for a thread) plus a **Share** / **Send** button. Tapping it advances to the next beat — no real composer involvement, no dependency on app state. The post / message is pre-seeded in `mockPosts.ts` / `mockNotifications.ts`. The "fire-off" content is the demo-script's, not the persona's authored creation; this is the **Option 1, card-handled** model (decided 2026-05-19).
 
@@ -324,7 +329,7 @@ After the interstitial dismisses, a **persistent, collapsible card** rides along
 
 ### Mode toggle — entering and exiting Guided
 
-**Entry:** landing page (`/`) primary CTA — "Start the walkthrough." Tap → `clearDemoStorage` (auto-reset to canonical seeds) → first interstitial → Beat 1 surface.
+**Entry:** a per-walkthrough door on the landing page (`/`) — one card per `WALKTHROUGH_LIST` entry. Tap → `start(id)` → `clearDemoStorage` (auto-reset to canonical seeds) → that walkthrough's first interstitial → Beat 1 surface.
 
 **Active-walkthrough chrome:** the on-surface step card (above) IS the persistent chrome. Minimised, it's the slim "Walkthrough · {step}/{n}" pill. No separate header bar.
 

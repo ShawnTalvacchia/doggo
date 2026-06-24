@@ -1,5 +1,5 @@
 ---
-status: active
+status: archived
 last-reviewed: 2026-06-22
 review-trigger: When any task is completed or blocked
 ---
@@ -103,6 +103,7 @@ review-trigger: When any task is completed or blocked
 | G6 | **Unified two-step mentored-walk sheet (PO rework 2026-06-23).** `MentorSessionBookingSheet` rebuilt: **Step 1** waivers + shared progress tracker (frames *both* paths), **Step 2** explicit choice between Klára's **group walk** (dog pre-set; completes **in-sheet**, optional "View the walk" link) and a **1-on-1** (date/time). Both feed one vouch tracker (`committedSessions` counts mentored group walks too); 1-on-1 inherits the dog. Extracted `lib/groupWalkBooking.ts` shared by both sign-up surfaces. Beat 1→2 re-authored to sign up in-sheet (no meet-page bounce; open sheet survives the handoff). **Verified end-to-end** (both paths + live walkthrough). | FC18 | done |
 | G7 | **Mentored first walk is a PAID mentor session (PO correction 2026-06-23).** "Free" was wrong on the group option: the choice is *how the mentored session runs*, and the trainer is paid her fee either way (group format just lets several mentees pay at once). A mentored (un-vouched) group walk now carries the host's per-session fee — same price as the 1-on-1 — via `buildGroupWalkBookingInput`'s new `mentorFee`; a vouched walker's plain group walk stays free. Fee surfaced in both sign-up sheets; `priceLabel`/`perSessionPrice` (BookingRow + booking detail) now show "Volunteer · no charge" only when `price.total === 0`, so the paid mentored walk reads "450 Kč / session" on the Volunteering tab. **Verified** (both sheets + Volunteering tab). | FC18 | done |
 | G8 | **Booking surfaces the mentor + group walk (PO note 2026-06-23).** The booking squeezes a 3-party arrangement (shelter owns Nora, walker walks, trainer mentors + is paid) into owner/carer, so Klára went unnamed. Both are now derived from `dropoffMeetId` (→ meet → its creator is the host): the **card** adds a "with Klára · Saturday morning group walk" context line under the service; the **detail Info tab** adds two tappable rows — "Klára Horáčková · Your mentor" (→ profile) and "Saturday morning group walk · Group walk" (→ meet). New `getMeetById` in `lib/mockMeets.ts`. Mentor name resolved full via `getUserById` (the meet stores a short `creatorName`). **Verified** (card + detail). *Deeper modeling of the mentor as a first-class booking party deferred — derived-from-meet is the demo-scope answer.* | FC18 | done |
+| G9 | **`shelter` walkthrough tightened to a 4-beat desirability cut (PO task 2026-06-24).** Was following the 8-beat live-interview script too literally: too long + instructed **unbuilt actions** (walk session start/finish — a real broken step — and operator actions). Re-authored: (1) the discovery (Discover → Help a Dog → Nora — how a walker finds the shelter's dogs; the original front kept), (2) a new walker gets in safely (mentored first walk; waiver/pricing/session detail dropped), (3) interstitial "what happens on your end" (vouch + shelter-did-nothing/veto/documented; described-not-shown), (4) the shelter's payoff (wall fills with walk posts → adoption interest as an interstitial). The shelter-side turn happens AFTER the signup, not the front. Removed the walk-session beat + the tester-driven adoption capstone + both per-beat probes. **Soft close** = registry `closing` screen ("If you run a shelter, this part's for you" + 3 light questions). Session execution / operator side / adoption-interest landing are **Phase 2 (The Shelter's Side)** — interstitialled, not built. `strategy/mentor-network-shelter-demo.md` untouched (Phase-2 source). **Verified end-to-end** via the live walkthrough. | [[strategy/mentor-network-shelter-demo]] | done |
 
 ---
 
@@ -110,9 +111,9 @@ review-trigger: When any task is completed or blocked
 
 - [x] The `/` launcher presents three distinct journey doors; each launches its own guided walkthrough. *(verified)*
 - [x] A named-walkthrough registry drives all three paths; adding/selecting a walkthrough is id-based (no single hardcoded beat list). *(verified)*
-- [ ] **W1** runs end-to-end as the new-owner story (community + a pro + a neighbour), single-thesis, with its probes. *(built + Beat-1 verified; full drive-through in review — V2)*
-- [ ] **W2** runs end-to-end as the trainer story (the walk is the business), single-thesis, with its probes. *(built; full drive-through in review — V3)*
-- [ ] **W3** runs end-to-end as the shelter demand-side story (vetted walkers → advocacy → adoption), with its assumption checkpoints. *(built + Beat-1 + vouch + Walk/Adopt-unlock verified; full drive-through in review — V4)*
+- [~] **W1** (new-owner) — built + driven programmatically; **PO drive-through deferred → verification-checklist V14** (early close).
+- [~] **W2** (trainer) — built + driven programmatically; **PO drive-through deferred → verification-checklist V15** (early close).
+- [~] **W3** (shelter) — built + verified live as the **tightened 4-beat desirability cut**; copy/story intentionally **left for Phase 2 revision** (Phase 2 builds the shelter's side against this path). Probes removed from the guided flow (the A1–A10 kit is Phase 2).
 - [x] Each path starts from correct pre-staged state without manual toggle-driving. *(W1/W2 clean seed; W3 vouch fired by A2 — verified)*
 - [x] Paths share one world; overlap reads as intentional convergence, not contradiction. *(Klára trainer↔mentor; shared Stromovka/Útulek)*
 
@@ -126,3 +127,5 @@ review-trigger: When any task is completed or blocked
 - **Outward-facing artifacts to graduate:** a demo-interview reference (F1), if it lands as its own doc.
 - **Future Considerations to update:** mark FC17 promoted/closed; note FC16's Phase-2 graduation.
 - **Sets up Phase 2** ("The Shelter's Side") — W3's demand-side + the registry/launcher are its foundation.
+
+**Closed 2026-06-24 (early, per PO).** The phase shipped its thesis (named-walkthrough registry + multi-door launcher + three single-thesis walkthroughs + the FC18 group-walk sign-up). The collaborative walkthrough did **not** fully pass — a deliberate early close so Phase 2 (which builds the shelter's side and revises this path) can start: W1/W2 PO drive-throughs carried to `planning/verification-checklist.md` (V14/V15); the shelter path's copy/story carried into Phase 2 as an explicit input. All 26 decision-log entries in the walkthrough were propagated to their home docs (demo-mode, shelters, Demo Narrative, Groups & Care, explore-and-care, design-system, landing-page, meets, Future Considerations, CLAUDE.md, Open Questions, ROADMAP). Structural audit clean; no newly-completed punch-list items to propagate.

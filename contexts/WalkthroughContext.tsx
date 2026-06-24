@@ -98,6 +98,14 @@ type WalkthroughContextValue = PersistedState & {
    *  transition, not navigable content). From the very first step of the
    *  walkthrough, re-opens the opening interstitial. */
   prev: () => void;
+  /** Back from a beat's handoff interstitial → the previous beat's last step
+   *  (no-op / hidden at beat 0). Makes the interstitial a two-way node. */
+  interstitialBack: () => void;
+  /** Advance the current step if it's a card whose `advanceOnAction` matches
+   *  `actionKey`. Product code fires this when a modal-opening action happens
+   *  (no navigation, so `advanceOn` can't); a no-op otherwise, so it's safe to
+   *  call unconditionally. */
+  signalAction: (actionKey: string) => void;
   /** Skip the current beat entirely — jump straight to the next beat's interstitial. */
   skipBeat: () => void;
   /** End the walkthrough, wipe the demo state it mutated, and return to the landing page. */
@@ -265,26 +273,26 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
       }
       return;
     }
-    if (state.beatIndex === 0) {
-      // From the first step of the first beat — re-open the opening
-      // interstitial. Previously this was a dead-end (Back disabled);
-      // returning to the interstitial lets the tester re-read the persona
-      // handoff if they need the framing again.
-      persist({ ...state, phase: "interstitial" });
-      return;
-    }
-    // From the first step of a later beat — jump back to the previous
-    // beat's LAST step (skipping its handoff interstitial, which is a
-    // one-way transition, not content the tester would want to re-watch).
-    // Switch persona AND route to the URL the previous beat ended on so
-    // the on-surface card lands on a coherent context.
+    // From a beat's FIRST step — re-open THIS beat's interstitial. The forward
+    // chain is interstitial → step 1, so Back from step 1 lands on the
+    // interstitial (the tester can re-read the scene), instead of skipping it
+    // to the previous beat. Beat 0 → the opening interstitial. Going further
+    // back, to the previous beat, is the interstitial's own Back
+    // (`interstitialBack`) — so the interstitial is a real two-way node.
+    persist({ ...state, phase: "interstitial" });
+  }, [state, persist, router]);
+
+  const interstitialBack = useCallback(() => {
+    // Back from a beat's handoff interstitial → the PREVIOUS beat's LAST step.
+    // The mirror of stepping forward (prev-beat-last-step → this interstitial).
+    // At beat 0 there's no previous beat, so the interstitial hides its Back.
+    if (state.beatIndex === 0) return;
     const prevBeatIdx = state.beatIndex - 1;
     const prevBeat = getBeat(state.walkthroughId, prevBeatIdx);
     if (!prevBeat) return;
     const lastStepIdx = prevBeat.steps.length - 1;
-    // Route to the surface the previous beat's LAST step is displayed on —
-    // the most-recent `advanceOn` STRICTLY BEFORE it (start at lastStepIdx - 1),
-    // not the last step's own forward destination. Fallback to startUrl.
+    // Route to the surface the previous beat's LAST step is displayed on — the
+    // most-recent `advanceOn` STRICTLY BEFORE it. Fallback to startUrl.
     let targetUrl = prevBeat.startUrl;
     for (let i = lastStepIdx - 1; i >= 0; i--) {
       const step = prevBeat.steps[i];
@@ -302,6 +310,21 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
     setUserById(prevBeat.personaId);
     router.push(targetUrl);
   }, [state, persist, router, setUserById]);
+
+  const signalAction = useCallback(
+    (actionKey: string) => {
+      if (!state.active || state.phase !== "running") return;
+      const beat = getBeat(state.walkthroughId, state.beatIndex);
+      const step = beat?.steps[state.stepIndex];
+      if (!step || step.kind !== "card" || step.advanceOnAction !== actionKey) return;
+      // No visited-past guard here (unlike the URL auto-advance): firing an
+      // action signal is ALWAYS an explicit act (the tester re-performed it),
+      // never a passive landing — so advancing is always what they want, even
+      // after backing into the step.
+      next();
+    },
+    [state, next],
+  );
 
   const skipBeat = useCallback(() => {
     // Jump past the current beat to the next beat's interstitial (or the
@@ -344,6 +367,8 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
       continueToBeat,
       next,
       prev,
+      interstitialBack,
+      signalAction,
       skipBeat,
       exit,
       endAndStay,
@@ -355,6 +380,8 @@ export function WalkthroughProvider({ children }: { children: React.ReactNode })
       continueToBeat,
       next,
       prev,
+      interstitialBack,
+      signalAction,
       skipBeat,
       exit,
       endAndStay,

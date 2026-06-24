@@ -131,6 +131,12 @@ export function WalkthroughCard() {
   // not on the advanceOn URL, not past the step, no button. (Bug report
   // 2026-05-22.)
   const satisfiedStepRef = useRef<string | null>(null);
+  // Set when the tester explicitly taps the card's Next/Continue and it routes
+  // to the step's target. Lets the effect below honour that forward intent even
+  // on a visited-past step — otherwise the visited-past guard (meant to stop a
+  // passive Back-landing from bouncing forward) also swallows the Next, so the
+  // tester has to tap Next twice. Consumed (reset) the moment the effect acts.
+  const nextPressedRef = useRef(false);
   useEffect(() => {
     if (!wt.active || wt.phase !== "running") {
       lastUrlRef.current = currentUrl;
@@ -150,15 +156,25 @@ export function WalkthroughCard() {
 
     const navigated = currentUrl !== lastUrlRef.current;
     lastUrlRef.current = currentUrl;
-    if (!navigated) return;
+    if (!navigated) {
+      return;
+    }
     if (satisfied) {
-      // Skip auto-advance if the tester has already been past this step
-      // (they came here via Back — which routes to the step's URL — and
-      // they want to look at this step's content, not get bounced forward
-      // again immediately). The forward path is via Continue.
+      // Skip auto-advance if the tester has already been past this step AND
+      // landed here passively (e.g. via Back) — they want to look at this
+      // step's content, not get bounced forward again immediately. But an
+      // explicit Next press (nextPressedRef) is a forward intent: honour it
+      // even when visited-past, so Back-then-Next advances in ONE tap.
       const beatMax = wt.beatMaxSteps?.[String(wt.beatIndex)] ?? 0;
-      if (wt.stepIndex < beatMax) return;
+      if (wt.stepIndex < beatMax && !nextPressedRef.current) {
+        nextPressedRef.current = false;
+        return;
+      }
+      nextPressedRef.current = false;
       wt.next();
+    } else {
+      // Navigation that didn't reach the target clears any stale forward intent.
+      nextPressedRef.current = false;
     }
   }, [currentUrl, pathname, searchParams, wt]);
 
@@ -227,6 +243,9 @@ export function WalkthroughCard() {
       step.advanceOn &&
       !matchesAdvanceOn(step.advanceOn, pathname, searchParams)
     ) {
+      // Forward intent — let the auto-advance effect move the card even if this
+      // step was already visited (Back-then-Next), instead of needing two taps.
+      nextPressedRef.current = true;
       router.push(step.advanceOn);
     } else {
       wt.next();
@@ -257,6 +276,8 @@ export function WalkthroughCard() {
         </button>
       </div>
 
+      <p className="wt-card-beat">{beat.title}</p>
+
       <p className="wt-card-instruction">{renderEmphasis(step.instruction)}</p>
 
       {step.fireOff && (
@@ -283,7 +304,7 @@ export function WalkthroughCard() {
           <ArrowLeft size={13} weight="bold" aria-hidden="true" />
           Back
         </button>
-        {step.awaitAction ? (
+        {step.awaitAction || step.advanceOnAction ? (
           // awaitAction normally advances only when the tester performs the
           // in-app action and navigation reaches `advanceOn`. Three cases
           // surface a manual Continue button:

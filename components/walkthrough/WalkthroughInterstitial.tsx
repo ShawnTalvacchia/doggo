@@ -117,6 +117,9 @@ export function WalkthroughInterstitial() {
               <ArrowRight size={16} weight="bold" aria-hidden="true" />
             </button>
           </div>
+          <button type="button" className="wt-card-exit" onClick={wt.exit}>
+            Exit walkthrough
+          </button>
         </div>
       </div>
     );
@@ -124,9 +127,6 @@ export function WalkthroughInterstitial() {
 
   // ── Closing interstitial ───────────────────────────────────────────────
   if (wt.beatIndex >= getBeatCount(wt.walkthroughId)) {
-    const lastBeat = getBeat(wt.walkthroughId, getBeatCount(wt.walkthroughId) - 1);
-    const lastPersona = lastBeat ? getPersona(lastBeat.personaId) : undefined;
-    const lastName = lastPersona?.user.firstName ?? "this persona";
     const closing = getWalkthrough(wt.walkthroughId)?.closing;
     return (
       <div className="wt-interstitial" role="dialog" aria-modal="true" aria-label="End of walkthrough">
@@ -140,20 +140,23 @@ export function WalkthroughInterstitial() {
               "Want to keep exploring?"}
           </p>
           <div className="wt-interstitial-actions">
+            {/* Back to the last beat's last step — review without restarting. */}
+            <button
+              type="button"
+              className="wt-interstitial-btn wt-interstitial-btn--secondary"
+              onClick={wt.interstitialBack}
+            >
+              <ArrowLeft size={16} weight="bold" aria-hidden="true" />
+              Back
+            </button>
+            {/* Finish → back to the launcher + reset the demo (exit). */}
             <button
               type="button"
               className="wt-interstitial-btn wt-interstitial-btn--primary"
               onClick={wt.exit}
             >
-              Pick another persona
+              Complete walkthrough
               <ArrowRight size={16} weight="bold" aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              className="wt-interstitial-btn wt-interstitial-btn--secondary"
-              onClick={wt.endAndStay}
-            >
-              Stay as {lastName}
             </button>
           </div>
         </div>
@@ -221,22 +224,48 @@ export function WalkthroughInterstitial() {
         </div>
         <p className="wt-interstitial-context">{beat.context}</p>
         <div className="wt-interstitial-actions">
+          {/* Left slot mirrors the step card's Back position. Beat > 0 → Back to
+              the previous beat's last step (the interstitial is a two-way node);
+              beat 0 → Exit (no prior beat), so the row always has a left action. */}
+          {wt.beatIndex > 0 ? (
+            <button
+              type="button"
+              className="wt-interstitial-btn wt-interstitial-btn--secondary"
+              onClick={wt.interstitialBack}
+            >
+              <ArrowLeft size={16} weight="bold" aria-hidden="true" />
+              Back
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="wt-interstitial-btn wt-interstitial-btn--secondary"
+              onClick={wt.exit}
+            >
+              {/* Same back arrow as the Back button in later interstitials — it
+                  occupies the Back slot here (beat 0 has no prior beat). */}
+              <ArrowLeft size={16} weight="bold" aria-hidden="true" />
+              Exit walkthrough
+            </button>
+          )}
           <button
             type="button"
             className="wt-interstitial-btn wt-interstitial-btn--primary"
             onClick={wt.continueToBeat}
           >
-            Continue as {user.firstName}
+            {/* A same-persona continuation isn't a handoff — no need to
+                re-announce the persona we're already playing. */}
+            {isContinuation ? "Continue" : `Continue as ${user.firstName}`}
             <ArrowRight size={16} weight="bold" aria-hidden="true" />
           </button>
-          <button
-            type="button"
-            className="wt-interstitial-btn wt-interstitial-btn--secondary"
-            onClick={wt.exit}
-          >
+        </div>
+        {/* Bottom Exit link (matches the step card) — only when the left slot is
+            Back; at beat 0 Exit already sits in the row, so no duplicate. */}
+        {wt.beatIndex > 0 && (
+          <button type="button" className="wt-card-exit" onClick={wt.exit}>
             Exit walkthrough
           </button>
-        </div>
+        )}
       </div>
     </div>
   );

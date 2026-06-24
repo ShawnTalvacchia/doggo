@@ -1,7 +1,7 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-16
+last-reviewed: 2026-06-24
 
 tags: [discover, care, booking, carers, map, payment, trust-gating, volunteering]
 review-trigger: "when modifying Discover Care tab, Carer profiles, booking flows, payment, or map"
@@ -186,27 +186,21 @@ The auto-pricing engine is the canonical source of truth for proposal prices. Pr
 
 `/bookings/[bookingId]` — the deep surface for a single booking. Two tabs: **Info** + **Sessions**.
 
-### Sessions tab anatomy (Sessions & Service Execution, 2026-05-08)
+### Sessions tab anatomy (Sessions & Service Execution, 2026-05-08; header revised Multi-Path Demo & Guided Walkthroughs, 2026-06-22)
 
-Top of the Sessions tab leads with the dog. **`SessionsPetHeader`** renders a full-width hero photo (rounded-panel, max-height 240px mobile / 360px desktop, aspect-preserving) + 28px name heading. No supporting line — photo + name carry identity; the active panel below surfaces session state; service/cadence info lives on the Info tab.
+Top of the Sessions tab leads with the dog. **`SessionsPetHeader`** renders its **`compact`** variant — avatar-left (140px rounded-square dog photo per Avatar Rule B) + name/meta to the right, `gap-xl`, like the dog-profile header. The dog still leads (testers had been hunting through note text to confirm whose dog the booking was for), but in a stable, compact frame rather than a full-bleed hero.
 
-This is a deliberate **pet-as-protagonist** design choice. For an app rooted in trust around your dog, the dog is the experience. Hero treatment over a small avatar:
-
-- Encourages emotional bonding — the dog visually anchors every session interaction
-- Makes scrolling `/bookings` recall each dog instantly
-- Behavioral nudge: owners who see their dog rendered at hero scale tend to upload better photos
-
-Aspect ratio is preserved (no forced crop), so owner-uploaded photos render honestly. If a photo is bad, the hero amplifies that — accepted trade-off (the cost is "this dog has a bad photo," which nudges the owner to fix it).
+**The earlier full-hero "pet-as-protagonist on the Sessions tab" convention was revised here.** The original `full` variant rendered a full-width rounded photo + 24px name heading — a deliberate pet-as-protagonist treatment meant to encourage emotional bonding and nudge owners toward better photo hygiene. In practice the full hero stretched landscape photos into a thin band, and (because the active sub-page uses the same header) tapping "Start session" caused a visible header swap. The `compact` variant fixes both: the header stays identical across the Sessions tab and the active/live sub-page, so only the body content changes; on the live page it also lifts the working actions (Log GPS / Add a note / Finish) above the fold. The `full` variant is **retained in code but currently unused** (see [[design-system]] → SessionsPetHeader variants).
 
 Multi-pet bookings use primary photo + name "&" join for now; full multi-pet design lands when a multi-pet booking enters mock data.
 
-Below the hero: optional booking-cancelled banner → active session panel (when in_progress) → upcoming sessions → past sessions.
+Below the header: optional booking-cancelled banner → active session panel (when in_progress) → upcoming sessions → past sessions.
 
 ### Active session — multi-surface presence
 
 When a session is `in_progress`, four surfaces signal it:
 
-1. **Active session sub-page** (`/bookings/[id]/active`) — focused full-bleed surface dedicated to the live session. Pet hero + ActiveSessionPanel (composition tools — note + photo, GPS for walks) + sticky Finish/Undo footer. Page-level frame with a 4px left amber accent stripe. The page IS the active surface; the panel within renders content only (no card chrome). See "Active session sub-page" below.
+1. **Active session sub-page** (`/bookings/[id]/active`) — focused full-bleed surface dedicated to the live session. Compact `SessionsPetHeader` (same variant as the Sessions tab, so Start session keeps the header stable) + ActiveSessionPanel (composition tools — note + photo, GPS for walks) + sticky Finish/Undo footer. Page-level frame with a 4px left amber accent stripe. The page IS the active surface; the panel within renders content only (no card chrome). See "Active session sub-page" below.
 2. **Sessions tab Active card** — slim "Active session · Tap for live updates" link card on the parent's Sessions tab (warning-tinted, live-pulse dot + chevron). Routes into the sub-page. The Sessions tab does NOT inline the full composition surface anymore — that lives in the sub-page.
 3. **Mobile: floating banner** above bottom nav — `[ACTIVE]  🏠 Sitting Bára · 24 min  ›` (single line, dark pill with yellow text against amber-tinted shell, slim height). Tap routes directly to the active sub-page.
 4. **Desktop: sidebar item** below regular nav — same data, different chrome. Routes directly to the active sub-page.
@@ -220,7 +214,7 @@ Promoted from a query-state branch on the parent (`?view=active`) to a real sub-
 ```
 /bookings                      — list
 /bookings/[id]                 — detail (Info / Sessions tabs, chronicle)
-/bookings/[id]/active          — active session (pet hero + composition + sticky footer)
+/bookings/[id]/active          — active session (compact pet header + composition + sticky footer)
 ```
 
 **Routing in:** booking-detail Start button, Schedule quick-start, mobile cross-app banner, desktop sidebar item — all route directly to the sub-page when a session is in_progress. The carer's most-frequent post-Start path is the engagement surface, not the chronicle.
