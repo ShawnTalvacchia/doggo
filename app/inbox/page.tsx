@@ -8,7 +8,7 @@ import {
 } from "@phosphor-icons/react";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
-import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { useCurrentUserId, useOperatorShelterId } from "@/hooks/useCurrentUser";
 import { getConnectionsByState, getConnectionState } from "@/lib/mockConnections";
 import { getUserById } from "@/lib/mockUsers";
 import { getLastMessage, isConversationUnread } from "@/lib/conversationUtils";
@@ -146,6 +146,31 @@ function NavSearchInput({
 // ── Main page ────────────────────────────────────────────────────
 
 export default function InboxPage() {
+  const operatorShelterId = useOperatorShelterId();
+  if (operatorShelterId) return <ShelterInboxStub />;
+  return <InboxInner />;
+}
+
+/** Operator mode (Phase 2): shelters should have messaging, but institutional
+ *  account messaging isn't built (the Conversation party model needs widening
+ *  beyond user-to-user — FC16 / Open Q §14). Honest stub until then. */
+function ShelterInboxStub() {
+  return (
+    <PageColumn title="Inbox">
+      <div className="page-column-panel-body">
+        <div className="px-lg py-xl">
+          <EmptyState
+            icon={<ChatCircleDots size={32} weight="light" />}
+            title="Shelter messaging is coming"
+            subtitle="Messaging as the shelter (to walkers, applicants, and supporters) is part of the shelter tools we'd build next. For now, walkers coordinate on their own profiles."
+          />
+        </div>
+      </div>
+    </PageColumn>
+  );
+}
+
+function InboxInner() {
   const { conversations } = useConversations();
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
   const currentUserId = useCurrentUserId();

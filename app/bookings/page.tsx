@@ -13,7 +13,9 @@ import {
 } from "@phosphor-icons/react";
 import { useBookings } from "@/contexts/BookingsContext";
 import { usePersistedState } from "@/lib/usePersistedState";
-import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { useCurrentUserId, useOperatorShelterId } from "@/hooks/useCurrentUser";
+import { getShelterById } from "@/lib/mockShelters";
+import { ShelterApplicationsPanel } from "@/components/shelters/ShelterApplicationsPanel";
 import type { Booking } from "@/lib/types";
 import { BookingRow } from "@/components/ui/BookingRow";
 import { TabBar } from "@/components/ui/TabBar";
@@ -324,7 +326,29 @@ function BookingsPageInner() {
 export default function BookingsPage() {
   return (
     <Suspense fallback={null}>
-      <BookingsPageInner />
+      <BookingsRouter />
     </Suspense>
+  );
+}
+
+/** Operator mode (Phase 2): the Bookings slot becomes the shelter's walker
+ *  Application queue (a shelter doesn't book care). Distinct component per
+ *  branch to keep hook counts stable across persona switches. */
+function BookingsRouter() {
+  const operatorShelterId = useOperatorShelterId();
+  if (operatorShelterId) return <OperatorApplications shelterId={operatorShelterId} />;
+  return <BookingsPageInner />;
+}
+
+function OperatorApplications({ shelterId }: { shelterId: string }) {
+  const shelter = getShelterById(shelterId);
+  if (!shelter) return null;
+  return (
+    <PageColumn title="Applications">
+      <div className="page-column-panel-body">
+        <ShelterApplicationsPanel shelter={shelter} />
+        <Spacer />
+      </div>
+    </PageColumn>
   );
 }

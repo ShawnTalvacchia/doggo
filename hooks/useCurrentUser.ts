@@ -32,7 +32,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import type { UserProfile } from "@/lib/types";
 import { useDemoState } from "@/contexts/CurrentUserContext";
-import { getPersona, isNewUser } from "@/lib/personas";
+import { getPersona, isNewUser, getOperatorShelterId } from "@/lib/personas";
 import { getUserById } from "@/lib/mockUsers";
 
 const AS_SESSION_KEY = "doggo-as-preview";
@@ -140,4 +140,16 @@ export function useIsGuest(): boolean {
  */
 export function useIsHydrated(): boolean {
   return useDemoState().hydrated;
+}
+
+/**
+ * The shelter id whose operator (back-office) view is active, or undefined for
+ * any non-operator persona. When set, the app shell adapts to the shelter's
+ * own side: the nav becomes the back-office nav (Sidebar / BottomNav), and the
+ * consumer pages that don't fit a shelter (`/schedule`, `/bookings`, `/inbox`)
+ * branch to operator surfaces. Phase 2 "The Shelter's Side." Respects the
+ * `?as=` override (so previewing the operator persona works too).
+ */
+export function useOperatorShelterId(): string | undefined {
+  return getOperatorShelterId(useCurrentUserId());
 }

@@ -33,8 +33,6 @@ import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { ShelterDogCard } from "@/components/shelters/ShelterDogCard";
 import { ShelterMemberRow } from "@/components/shelters/ShelterMemberRow";
-import { ShelterHandoverBoard } from "@/components/shelters/ShelterHandoverBoard";
-import { ShelterApplicationsPanel } from "@/components/shelters/ShelterApplicationsPanel";
 import { ShelterAdoptionsPanel } from "@/components/shelters/ShelterAdoptionsPanel";
 import { WalkApplicationSheet } from "@/components/shelters/WalkApplicationSheet";
 import { WalkEntrySheet } from "@/components/shelters/WalkEntrySheet";
@@ -1214,44 +1212,37 @@ function GalleryTab() {
 
 /* ── Operator view (Phase 2 "The Shelter's Side") ──────────────────── */
 
-type OperatorSection = "today" | "walkers" | "applications" | "adoptions";
+type OperatorSection = "feed" | "dogs" | "walkers" | "adoptions";
 
 /**
- * The shelter's OWN side — the demo-illustrative operator surface. Entered
- * via the shelter-operator persona (or `?admin=1`). Replaces the public tab
- * chrome with the operator's working surfaces: the handover board (today's
- * walks), the walker pool (the Members tab with controls on), the application
- * queue, and the adoption-interest landing. Built illustrative, not deeply
- * wired — enough to show a shelter "here's how little work this is."
+ * The shelter's OWN hub — the demo-illustrative operator surface. Entered via
+ * the shelter-operator persona (or `?admin=1`). Replaces the public tab chrome
+ * with the shelter's management tabs. The operational daily-drivers (the
+ * handover board → Schedule; the application queue → Applications) live at the
+ * nav level now (Phase 2 back-office shell); the hub holds Feed (the public
+ * wall), Dogs (roster), Walkers (the pool with controls), and Adoptions (the
+ * interest landing). Built illustrative, not deeply wired.
  */
-const OPERATOR_SECTIONS: OperatorSection[] = ["today", "walkers", "applications", "adoptions"];
+const OPERATOR_SECTIONS: OperatorSection[] = ["feed", "dogs", "walkers", "adoptions"];
 
 function OperatorView({ shelter }: { shelter: ShelterProfile }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   // Section is URL-addressable via `?op=` — so it deep-links AND the guided
   // walkthrough can drive it (matchesAdvanceOn supports query params). Other
-  // params (admin / public) are preserved when switching. Defaults to "today".
+  // params (admin / public) are preserved when switching. Defaults to "feed".
   const rawOp = searchParams.get("op") as OperatorSection | null;
-  const section: OperatorSection = rawOp && OPERATOR_SECTIONS.includes(rawOp) ? rawOp : "today";
+  const section: OperatorSection = rawOp && OPERATOR_SECTIONS.includes(rawOp) ? rawOp : "feed";
   const setSection = (k: OperatorSection) => {
     const sp = new URLSearchParams(searchParams.toString());
     sp.set("op", k);
     router.replace(`/shelters/${shelter.id}?${sp.toString()}`, { scroll: false });
   };
 
-  const { applications } = useWalkerApplications();
-  const pendingCount = applications.filter(
-    (a) => a.shelterId === shelter.id && (a.state === "applied" || a.state === "invited"),
-  ).length;
-
   const opTabs = [
-    { key: "today", label: "Today" },
+    { key: "feed", label: "Feed" },
+    { key: "dogs", label: "Dogs" },
     { key: "walkers", label: "Walkers" },
-    {
-      key: "applications",
-      label: pendingCount > 0 ? `Applications · ${pendingCount}` : "Applications",
-    },
     { key: "adoptions", label: "Adoptions" },
   ];
 
@@ -1266,12 +1257,42 @@ function OperatorView({ shelter }: { shelter: ShelterProfile }) {
         />
       </div>
 
-      {section === "today" && <ShelterHandoverBoard shelter={shelter} />}
+      {section === "feed" && <OperatorFeedTab shelter={shelter} />}
+      {section === "dogs" && <DogsTab shelter={shelter} />}
       {section === "walkers" && (
         <MembersTab shelter={shelter} operatorView defaultFilter="walkers" />
       )}
-      {section === "applications" && <ShelterApplicationsPanel shelter={shelter} />}
       {section === "adoptions" && <ShelterAdoptionsPanel shelter={shelter} />}
+    </div>
+  );
+}
+
+/**
+ * The operator's Feed tab — their public wall (the walk-post stream), without
+ * the visitor action row (Follow / Walk a dog don't apply to the shelter
+ * itself). Reuses the public banner + intro + the shelter feed query.
+ */
+function OperatorFeedTab({ shelter }: { shelter: ShelterProfile }) {
+  const posts = getShelterFeed(shelter);
+  return (
+    <div className="shelter-feed">
+      <ShelterBanner shelter={shelter} />
+      <ShelterIntro shelter={shelter} />
+      {posts.length === 0 ? (
+        <div className="px-lg py-xl">
+          <EmptyState
+            icon={<PawPrint size={32} weight="light" />}
+            title="No posts yet"
+            subtitle="Walks, adoption celebrations, and dog stories will land here."
+          />
+        </div>
+      ) : (
+        <div className="shelter-feed-list">
+          {posts.map((post) => (
+            <MomentCardFromPost key={post.id} post={post} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

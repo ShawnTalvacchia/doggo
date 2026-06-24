@@ -461,7 +461,7 @@ const SHELTER_BEATS: WalkthroughBeat[] = [
       {
         kind: "card",
         instruction:
-          "This is **Help a Dog**: nearby shelters and the dogs who need a walk. Open **Nora**, a long-stayer at Útulek.",
+          "Nearby shelters and the dogs who need a walk. Open **Nora**, a long-stayer at Útulek.",
         detail:
           "No adoption obligation, just a walk. For an overlooked dog, getting out is her best shot at being noticed.",
         advanceOn: "/dogs/shelter-dog-nora",
@@ -526,27 +526,27 @@ const SHELTER_BEATS: WalkthroughBeat[] = [
     context:
       "Now switch seats. You're Útulek. A stranger just became a walker you can trust. So what did any of it actually ask of you?",
     summary: "The operator's side: a logged handover trail, an application you control, every veto kept.",
-    startUrl: "/shelters/utulek-liben?op=today",
+    startUrl: "/schedule",
     steps: [
       {
         kind: "card",
         instruction:
-          "This is your **operator view**. The **handover board** lists every dog out, due back, and back safe, with who has them. Read down it.",
+          "This is your side. **Schedule** opens on today's **handover board** — every dog out, due back, and back safe, with who has them.",
         detail:
           "Nobody on staff set this up. It fills in as walkers check dogs out and back. The logged trail an incident would need, without asking anything of you.",
       },
       {
         kind: "card",
         instruction:
-          "Open **Applications**. People waiting to walk for you, each with a note. Eliška arrived mentor-recommended.",
+          "Open **Applications** in the nav. People waiting to walk for you, each with a note. Eliška arrived mentor-recommended.",
         detail:
           "You invite, then vouch, when you're ready. The mentor's vouch is a recommendation, never a bypass. Saying no still routes through you.",
-        advanceOn: "/shelters/utulek-liben?op=applications",
+        advanceOn: "/bookings",
       },
       {
         kind: "card",
         instruction:
-          "Open **Walkers**. Each carries a tier they earned by walking, and a kebab menu to promote or demote.",
+          "Open your shelter, then **Walkers**. Each carries a tier they earned by walking, and a kebab menu to promote or demote.",
         detail:
           "Your call always overrides the walk-count math, both directions. Demote someone and their access goes with it. You keep every veto, all the way up.",
         advanceOn: "/shelters/utulek-liben?op=walkers",
@@ -574,10 +574,10 @@ const SHELTER_BEATS: WalkthroughBeat[] = [
       {
         kind: "card",
         instruction:
-          "Open your **public feed** to see where that interest comes from. Walk posts, your dogs out and happy.",
+          "Open your **Feed** to see where that interest comes from. Walk posts, your dogs out and happy.",
         detail:
           "You never ran a social account. Your walkers do it for you, each post quietly advertising a dog who needs a home.",
-        advanceOn: "/shelters/utulek-liben?public=1",
+        advanceOn: "/shelters/utulek-liben?op=feed",
       },
     ],
   },

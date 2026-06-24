@@ -971,6 +971,56 @@ const handoverNoraGroup: Booking = {
   status: "upcoming",
 };
 
+// Upcoming walks (future-dated) — so the operator Schedule shows more than
+// today (today's handover board + an Upcoming section). No handover state yet
+// (not collectable until their day).
+function upcomingShelterWalk(
+  id: string,
+  carer: { id: string; name: string; avatarUrl: string },
+  dog: string,
+  dayOffset: number,
+): Booking {
+  return {
+    id,
+    conversationId: null,
+    ...SHELTER,
+    carerId: carer.id,
+    carerName: carer.name,
+    carerAvatarUrl: carer.avatarUrl,
+    type: "one_off",
+    serviceType: "walks_checkins",
+    subService: "Solo walk",
+    pets: [dog],
+    startDate: daysFromNow(dayOffset),
+    endDate: daysFromNow(dayOffset),
+    sessions: [{ id: `${id}-s1`, date: daysFromNow(dayOffset), status: "upcoming" }],
+    price: VOLUNTEER_PRICE,
+    signedAt: daysAgoIso(0, "07:00"),
+    status: "upcoming",
+  };
+}
+
+const handoverUpcoming: Booking[] = [
+  upcomingShelterWalk(
+    "booking-shelter-up-1",
+    { id: "marie", name: "Marie B.", avatarUrl: "/images/generated/marie-profile.jpeg" },
+    "Maja",
+    1,
+  ),
+  upcomingShelterWalk(
+    "booking-shelter-up-2",
+    { id: "pavel-d", name: "Pavel D.", avatarUrl: "/images/generated/marek-profile.jpeg" },
+    "Theo",
+    1,
+  ),
+  upcomingShelterWalk(
+    "booking-shelter-up-3",
+    { id: "walker-anna-k", name: "Anna K.", avatarUrl: "/images/generated/hana-profile.jpeg" },
+    "Tonda",
+    2,
+  ),
+];
+
 // ── Exports ─────────────────────────────────────────────────────────────────────
 
 /**
@@ -979,7 +1029,7 @@ const handoverNoraGroup: Booking = {
  * that should appear without requiring testers to hit /demo Reset.
  * P55, 2026-06-02. See `lib/usePersistedState.ts` → `seedVersion`.
  */
-export const BOOKINGS_SEED_VERSION = 2;
+export const BOOKINGS_SEED_VERSION = 3;
 
 export const mockBookings: Booking[] = [
   olgaBooking,
@@ -1007,6 +1057,7 @@ export const mockBookings: Booking[] = [
   handoverTheoAnna,
   handoverEddaGroup,
   handoverNoraGroup,
+  ...handoverUpcoming,
 ];
 
 export function getBooking(id: string): Booking | undefined {

@@ -31,11 +31,13 @@ import {
   PawPrint,
   ArrowsOut,
 } from "@phosphor-icons/react";
-import type { Booking, BookingSession, PetProfile, ShelterProfile } from "@/lib/types";
+import type { Booking, BookingSession, PetProfile, ShelterProfile, WalkerTier } from "@/lib/types";
 import { useBookings } from "@/contexts/BookingsContext";
 import { getMeetById } from "@/lib/mockMeets";
 import { getUserById } from "@/lib/mockUsers";
+import { daysFromNow } from "@/lib/mockDate";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { WalkerTierPill } from "@/components/shelters/WalkerTierPill";
 
 /* ── Handover lifecycle ───────────────────────────────────────────────── */
 
@@ -66,13 +68,25 @@ function nowIso(): string {
 export function ShelterHandoverBoard({ shelter }: { shelter: ShelterProfile }) {
   const { bookings, updateSession } = useBookings();
 
+  // The handover board is the LIVE/today view — walks happening today or
+  // already in motion. Future-dated walks live in the Schedule's Upcoming
+  // section, not here (they're not collectable yet).
+  const today = daysFromNow(0);
   const walks = useMemo(
     () =>
       bookings.filter(
-        (b) => b.ownerKind === "shelter" && b.ownerId === shelter.id,
+        (b) =>
+          b.ownerKind === "shelter" &&
+          b.ownerId === shelter.id &&
+          (b.sessions?.[0]?.date ?? today) <= today,
       ),
-    [bookings, shelter.id],
+    [bookings, shelter.id, today],
   );
+
+  // Resolve a walker's earned tier from the shelter roster (for the credential
+  // pill on each row — vouched progression made visible on the board).
+  const tierFor = (userId: string): WalkerTier | undefined =>
+    shelter.walkers.find((w) => w.userId === userId)?.tier;
 
   // Split solo vs group (group = shares a dropoffMeetId). Group walks get
   // batched into one card per meet so the operator releases them together.
@@ -145,6 +159,7 @@ export function ShelterHandoverBoard({ shelter }: { shelter: ShelterProfile }) {
           meetId={meetId}
           batch={batch}
           dogByName={dogByName}
+          tierFor={tierFor}
           onCheckOutBatch={() => checkOutBatch(batch)}
           onCheckIn={checkIn}
         />
@@ -153,7 +168,7 @@ export function ShelterHandoverBoard({ shelter }: { shelter: ShelterProfile }) {
       {dueSolo.length > 0 && (
         <Section title="Due to collect">
           {dueSolo.map((b) => (
-            <HandoverRow key={b.id} booking={b} dog={dogByName(b.pets[0])} onCheckOut={() => checkOut(b)} />
+            <HandoverRow key={b.id} booking={b} dog={dogByName(b.pets[0])} tier={tierFor(b.carerId)} onCheckOut={() => checkOut(b)} />
           ))}
         </Section>
       )}
@@ -161,7 +176,7 @@ export function ShelterHandoverBoard({ shelter }: { shelter: ShelterProfile }) {
       {outSolo.length > 0 && (
         <Section title="Out now">
           {outSolo.map((b) => (
-            <HandoverRow key={b.id} booking={b} dog={dogByName(b.pets[0])} onCheckIn={() => checkIn(b)} />
+            <HandoverRow key={b.id} booking={b} dog={dogByName(b.pets[0])} tier={tierFor(b.carerId)} onCheckIn={() => checkIn(b)} />
           ))}
         </Section>
       )}
@@ -169,7 +184,7 @@ export function ShelterHandoverBoard({ shelter }: { shelter: ShelterProfile }) {
       {backSolo.length > 0 && (
         <Section title="Back safe today">
           {backSolo.map((b) => (
-            <HandoverRow key={b.id} booking={b} dog={dogByName(b.pets[0])} />
+            <HandoverRow key={b.id} booking={b} dog={dogByName(b.pets[0])} tier={tierFor(b.carerId)} />
           ))}
         </Section>
       )}
@@ -202,11 +217,13 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function HandoverRow({
   booking,
   dog,
+  tier,
   onCheckOut,
   onCheckIn,
 }: {
   booking: Booking;
   dog?: PetProfile;
+  tier?: WalkerTier;
   onCheckOut?: () => void;
   onCheckIn?: () => void;
 }) {
@@ -244,7 +261,8 @@ function HandoverRow({
         <span className="truncate text-sm font-semibold text-fg-primary">{booking.pets[0]}</span>
         <span className="flex items-center gap-xs truncate text-xs text-fg-secondary">
           <img src={booking.carerAvatarUrl} alt="" className="h-4 w-4 rounded-full object-cover" />
-          {booking.carerName}
+          <span className="truncate">{booking.carerName}</span>
+          {tier && <WalkerTierPill tier={tier} />}
         </span>
         <span
           className={`flex items-center gap-tiny text-xs ${
@@ -291,12 +309,14 @@ function GroupBatchCard({
   meetId,
   batch,
   dogByName,
+  tierFor,
   onCheckOutBatch,
   onCheckIn,
 }: {
   meetId: string;
   batch: Booking[];
   dogByName: (name: string) => PetProfile | undefined;
+  tierFor: (userId: string) => WalkerTier | undefined;
   onCheckOutBatch: () => void;
   onCheckIn: (b: Booking) => void;
 }) {
@@ -340,9 +360,12 @@ function GroupBatchCard({
               ) : (
                 <div className="h-8 w-8 flex-shrink-0 rounded-md bg-surface-inset" />
               )}
-              <div className="flex min-w-0 flex-1 flex-col">
+              <div className="flex min-w-0 flex-1 flex-col gap-tiny">
                 <span className="truncate text-xs font-semibold text-fg-primary">{b.pets[0]}</span>
-                <span className="truncate text-xs text-fg-tertiary">{b.carerName}</span>
+                <span className="flex items-center gap-xs text-xs text-fg-tertiary">
+                  <span className="truncate">{b.carerName}</span>
+                  {tierFor(b.carerId) && <WalkerTierPill tier={tierFor(b.carerId)!} />}
+                </span>
               </div>
               {state === "back" ? (
                 <span className="flex items-center gap-tiny text-xs text-success">

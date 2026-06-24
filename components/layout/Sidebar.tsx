@@ -7,18 +7,23 @@ import {
   Briefcase,
   CalendarDots,
   ChatCircleDots,
+  ClipboardText,
+  House,
   Users,
   MagnifyingGlass,
   UserCircle,
 } from "@phosphor-icons/react";
 import type { Icon as PhosphorIcon } from "@phosphor-icons/react";
-import { useCurrentUser, useCurrentUserId } from "@/hooks/useCurrentUser";
+import { useCurrentUser, useCurrentUserId, useOperatorShelterId } from "@/hooks/useCurrentUser";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { countUnreadConversations } from "@/lib/conversationUtils";
+import { getShelterById } from "@/lib/mockShelters";
 import { SidebarActiveSessionLink } from "@/components/bookings/SidebarActiveSessionLink";
 
-const navItems: { label: string; href: string; Icon: PhosphorIcon; match: string[] }[] = [
+type NavItem = { label: string; href: string; Icon: PhosphorIcon; match: string[] };
+
+const navItems: NavItem[] = [
   { label: "Community", href: "/home", Icon: Users, match: ["/home", "/communities", "/groups"] },
   { label: "Discover", href: "/discover", Icon: MagnifyingGlass, match: ["/discover", "/explore"] },
   { label: "My Schedule", href: "/schedule", Icon: CalendarDots, match: ["/schedule"] },
@@ -28,12 +33,36 @@ const navItems: { label: string; href: string; Icon: PhosphorIcon; match: string
   { label: "Profile", href: "/profile", Icon: UserCircle, match: ["/profile"] },
 ];
 
+/**
+ * Operator (shelter) nav — Phase 2 "The Shelter's Side." The app shell adapts
+ * when the shelter-operator persona is active: the hub (the shelter page),
+ * Schedule (walks — replaces My Schedule), Applications (the walker queue —
+ * replaces Bookings), Inbox (stub), Notifications, Profile. Community + Discover
+ * drop (consumer concepts a shelter doesn't use).
+ */
+function operatorNavItems(shelterId: string, shelterName: string): NavItem[] {
+  return [
+    { label: shelterName, href: `/shelters/${shelterId}`, Icon: House, match: ["/shelters"] },
+    { label: "Schedule", href: "/schedule", Icon: CalendarDots, match: ["/schedule"] },
+    { label: "Applications", href: "/bookings", Icon: ClipboardText, match: ["/bookings"] },
+    { label: "Inbox", href: "/inbox", Icon: ChatCircleDots, match: ["/inbox"] },
+    { label: "Notifications", href: "/notifications", Icon: Bell, match: ["/notifications"] },
+    { label: "Profile", href: "/profile", Icon: UserCircle, match: ["/profile"] },
+  ];
+}
+
 export function Sidebar() {
   const pathname = usePathname();
   const currentUser = useCurrentUser();
   const { unreadCount } = useNotifications();
   const { conversations } = useConversations();
   const currentUserId = useCurrentUserId();
+  // Operator mode swaps the whole nav for the shelter's back-office rail.
+  const operatorShelterId = useOperatorShelterId();
+  const operatorShelter = operatorShelterId ? getShelterById(operatorShelterId) : undefined;
+  const items = operatorShelter
+    ? operatorNavItems(operatorShelter.id, operatorShelter.name)
+    : navItems;
   // Inbox badge count — viewer-aware via `countUnreadConversations` so
   // it matches the dots displayed inside `/inbox` AND the mobile-nav
   // badge. Earlier inline formula (`c.unreadCount > 0`) used the
@@ -59,7 +88,7 @@ export function Sidebar() {
       </Link>
 
       <nav className="sidebar-nav" aria-label="Main navigation">
-        {navItems.map(({ label, href, Icon, match }) => {
+        {items.map(({ label, href, Icon, match }) => {
           const active = isOtherProfile ? false : isActive(match);
           const isProfileTab = href === "/profile";
           const showAvatar = isProfileTab && !!currentUser.avatarUrl;

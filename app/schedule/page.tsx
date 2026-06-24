@@ -19,7 +19,9 @@ import { getMeetRole, isOccurrenceCancelled } from "@/lib/meetUtils";
 import { useBookings } from "@/contexts/BookingsContext";
 import { useReviews } from "@/contexts/ReviewsContext";
 import { CareReviewSheet } from "@/components/bookings/CareReviewSheet";
-import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { useCurrentUserId, useOperatorShelterId } from "@/hooks/useCurrentUser";
+import { getShelterById } from "@/lib/mockShelters";
+import { ShelterScheduleView } from "@/components/shelters/ShelterScheduleView";
 import { useDismissedReviews, makeDismissId } from "@/lib/dismissedReviews";
 import type { Meet, Booking, BookingSession } from "@/lib/types";
 import type { MeetRole } from "@/components/meets/CardMeet";
@@ -97,8 +99,30 @@ function meetOccurrenceDismissId(meetId: string, date: string) {
 export default function SchedulePage() {
   return (
     <Suspense>
-      <ScheduleInner />
+      <ScheduleRouter />
     </Suspense>
+  );
+}
+
+/** Operator mode (Phase 2): the shelter's Schedule replaces the consumer one
+ *  (a shelter doesn't join meets or book care). Branches at the wrapper so the
+ *  two surfaces are distinct components (no shared-hook-count issues). */
+function ScheduleRouter() {
+  const operatorShelterId = useOperatorShelterId();
+  if (operatorShelterId) return <OperatorSchedule shelterId={operatorShelterId} />;
+  return <ScheduleInner />;
+}
+
+function OperatorSchedule({ shelterId }: { shelterId: string }) {
+  const shelter = getShelterById(shelterId);
+  if (!shelter) return null;
+  return (
+    <PageColumn title="Schedule">
+      <div className="page-column-panel-body">
+        <ShelterScheduleView shelter={shelter} />
+        <Spacer />
+      </div>
+    </PageColumn>
   );
 }
 
