@@ -45,6 +45,15 @@
   --color-info: var(--status-info-main);
   --color-info-light: var(--status-info-light);
   --color-info-strong: var(--status-info-strong);
+  /* Volunteer (violet) — care=blue, community=green, volunteer=violet.
+     Exposes the existing --status-volunteer-* family as Tailwind utilities
+     (text-volunteer / bg-volunteer-light / border-volunteer-border, etc.)
+     for parity with info/brand. Added Phase 2 "The Shelter's Side". */
+  --color-volunteer: var(--status-volunteer-main);
+  --color-volunteer-soft: var(--status-volunteer-soft);
+  --color-volunteer-light: var(--status-volunteer-light);
+  --color-volunteer-border: var(--status-volunteer-border);
+  --color-volunteer-strong: var(--status-volunteer-strong);
 
   /* ── Spacing ── */
   --spacing-tiny: var(--space-tiny);

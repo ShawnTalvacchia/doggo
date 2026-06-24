@@ -23,7 +23,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CaretDown, ArrowSquareOut, Check, ArrowCounterClockwise } from "@phosphor-icons/react";
-import { personas } from "@/lib/personas";
+import { personas, getOperatorShelterId } from "@/lib/personas";
 import { useDemoState } from "@/contexts/CurrentUserContext";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { clearDemoStorage } from "@/lib/demoReset";
@@ -64,7 +64,11 @@ export function ProfileNameDropdown({ name }: ProfileNameDropdownProps) {
   function pick(personaId: string) {
     setUserById(personaId);
     setOpen(false);
-    router.refresh();
+    // The shelter-operator entry lands on the shelter's own page (operator
+    // view turns on there); everyone else just refreshes in place.
+    const operatorShelterId = getOperatorShelterId(personaId);
+    if (operatorShelterId) router.push(`/shelters/${operatorShelterId}`);
+    else router.refresh();
   }
 
   function handleReset() {

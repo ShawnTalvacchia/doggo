@@ -1,23 +1,35 @@
 /**
  * Persona registry for the demo-mode "View as…" picker.
  *
- * Ordered list of users that the picker exposes for runtime persona switching.
- * Tereza is first (the default — selecting her is equivalent to exiting demo
- * mode), as the routine-owner / community-anchor archetype best represents
- * the happy path. The remaining journey users follow in narrative order
- * from `docs/strategy/User Journeys.pptx` and `docs/implementation/mock-data-plan.md`.
- * Magda was added 2026-05-14 as the Neighborhood Hub Member archetype. In
- * Demo Narrative V2 she's a supporting character — the neighbour Daniel
- * meets on Klára's Stromovka walk — not a walkthrough POV persona.
- * Eliška was added 2026-06-12 (Adoption-Curious Journey) as the non-owner
- * "try before you commit" doorway — she walks shelter dogs to decide whether
- * to adopt; the spine of that phase's narrative.
- * "New User" sits at the end as a deliberately empty profile so reviewers can
- * see what brand-new-account states look like across every surface.
+ * Ordered list of the personas the picker exposes for *free-roam* switching.
+ * This is a deliberately CURATED subset, not every character in the mock
+ * world — the picker is for the distinct, useful vantages a demo viewer
+ * would want to roam in, kept small so the dropdown stays scannable.
+ *
+ * Picker membership ≠ switchability. Any mock-world user can still be
+ * switched to (guided walkthroughs do this, e.g. Magda in the new-owner
+ * walkthrough) — `CurrentUserContext.setUserById` falls back to
+ * `getUserById` for ids not in this list, and `?as=<id>` works for anyone.
+ * So a character can be dropped from the picker without vanishing from the
+ * world or breaking a walkthrough that switches to them.
+ *
+ * Roster trim (Phase 2 "The Shelter's Side," 2026-06-24, PO call): the
+ * picker was carrying too many. Dropped from free-roam — Tomáš (overlaps
+ * Eliška's shelter-mentee vantage; retained as Phase-2 interview material),
+ * Lena (pure care customer, no walkthrough use), Magda (neighbour-hub;
+ * overlaps Tereza, still driven by the new-owner walkthrough). All three
+ * remain full mock-world users.
+ *
+ * Tereza is first (the default — selecting her exits demo mode), as the
+ * routine-owner / community anchor best represents the happy path. Daniel
+ * (anxious new owner, locked profile), Klára (trainer/mentor), and Eliška
+ * (adoption-curious shelter walker) are the three distinct owner/walker
+ * vantages. The **shelter operator** entry (Phase 2) drops the viewer into
+ * the shelter's OWN side — "here's how little work this is." "New User"
+ * sits last as a deliberately empty profile for onboarding/empty states.
  *
  * Shawn was removed from the picker 2026-04-26 — the actual developer's name
- * shouldn't double as a demo character. He still exists in mock-world data as
- * a Vinohrady regular; just no longer a "view as" option.
+ * shouldn't double as a demo character. He still exists in mock-world data.
  *
  * Each entry pairs a UserProfile with the framing copy reviewers see when
  * deciding whose perspective to drop into. Keep `tagline` short (≈8 words);
@@ -25,10 +37,19 @@
  */
 
 import type { UserProfile } from "@/lib/types";
-import { tereza, daniel, klara, tomas, lena, magda, eliska } from "@/lib/mockUsers";
+import { tereza, daniel, klara, eliska } from "@/lib/mockUsers";
 
 /** ID for the empty-state persona. Surfaces that gate on "new account?" check this. */
 export const NEW_USER_ID = "new-user";
+
+/**
+ * Shelter the operator persona acts as. Útulek Liběň is the full-featured
+ * demo shelter; the operator entry drops the viewer into ITS operator view.
+ */
+export const OPERATOR_SHELTER_ID = "utulek-liben";
+
+/** ID for the shelter-operator persona (institutional shared-login account). */
+export const OPERATOR_USER_ID = "op-utulek-liben";
 
 /**
  * Inline SVG placeholder avatar — a generic head-and-shoulders silhouette in
@@ -65,6 +86,34 @@ export const newUserPersona: UserProfile = {
   tagApproval: "approve",
 };
 
+/**
+ * Shelter-operator persona — an institutional shared-login account, NOT a
+ * UserProfile-backed person (shelters are a parallel entity; see
+ * features/shelters.md → Account model). Modeled AS a minimal UserProfile so
+ * it flows through the existing persona machinery (`useCurrentUser`, the
+ * switcher), carrying the shelter logo as its avatar. Selecting it turns on
+ * the shelter's operator view (see `getOperatorShelterId`). Other surfaces
+ * render it as a sparse locked account — acceptable; the operator's natural
+ * home is the shelter page, which the picker routes to on select.
+ */
+export const operatorPersona: UserProfile = {
+  id: OPERATOR_USER_ID,
+  firstName: "Útulek Liběň",
+  lastName: "",
+  email: "team@utulekliben.cz",
+  // Shelter logo (Avatar Rule B — institutional entity renders as a circle,
+  // same as the shelter page). Kept in sync with mockShelters' utulek-liben.
+  avatarUrl: "/images/generated/shelter-utulek-liben-logo.jpeg",
+  bio: "",
+  location: "Libeň, Prague 8",
+  neighbourhood: undefined,
+  memberSince: "2007-01",
+  pets: [],
+  openToHelping: false,
+  profileVisibility: "locked",
+  tagApproval: "approve",
+};
+
 export type PersonaOption = {
   user: UserProfile;
   /** Behavioural archetype label — matches User Archetypes.md vocabulary. */
@@ -73,6 +122,12 @@ export type PersonaOption = {
   tagline: string;
   /** True for the canonical default (Tereza). The picker styles + labels this differently. */
   isDefault?: boolean;
+  /**
+   * Set on the shelter-operator entry — the shelter whose operator view this
+   * persona drops into. Surfaces read it via `getOperatorShelterId`; the
+   * picker routes here to `/shelters/<id>` (not `/home`) on select.
+   */
+  operatorShelterId?: string;
 };
 
 export const personas: PersonaOption[] = [
@@ -93,29 +148,18 @@ export const personas: PersonaOption[] = [
     tagline: "Walker-trainer. Runs a free weekly Stromovka walk.",
   },
   {
-    user: tomas,
-    archetype: "Busy Professional",
-    // Second clause sets up his Mentor Network mentee arc (Cross-Shelter
-    // Mentor Network, 2026-06-10) — the 9-to-6 schedule shelter intake
-    // filters out is exactly what the mentored path unlocks.
-    tagline: "Karlín commuter. Leans on care help; drawn to shelter dogs.",
-  },
-  {
-    user: lena,
-    archetype: "Marketplace Owner",
-    tagline: "Letná tech worker. Pure care customer.",
-  },
-  {
-    user: magda,
-    archetype: "Neighborhood Hub Member",
-    tagline: "Holešovice. Anchors a tight private block.",
-  },
-  {
     user: eliska,
     archetype: "Adoption-Curious Explorer",
     // The non-owner doorway: walks shelter dogs to decide whether to adopt.
     // Spine of the Adoption-Curious Journey phase (2026-06-12).
     tagline: "Žižkov. No dog yet — walking shelter dogs to find out.",
+  },
+  {
+    user: operatorPersona,
+    archetype: "Shelter operator",
+    // Phase 2 "The Shelter's Side" — the other half of the shelter pitch.
+    tagline: "Útulek Liběň. See the shelter's own side.",
+    operatorShelterId: OPERATOR_SHELTER_ID,
   },
   {
     user: newUserPersona,
@@ -127,6 +171,15 @@ export const personas: PersonaOption[] = [
 /** Look up a persona by user ID. */
 export function getPersona(userId: string): PersonaOption | undefined {
   return personas.find((p) => p.user.id === userId);
+}
+
+/**
+ * The shelter id whose operator view this persona drops into, or undefined
+ * for any non-operator persona. Surfaces (the shelter page) turn on the
+ * operator view when this matches the shelter being viewed.
+ */
+export function getOperatorShelterId(userId: string): string | undefined {
+  return personas.find((p) => p.user.id === userId)?.operatorShelterId;
 }
 
 /** The default persona (Tereza). */

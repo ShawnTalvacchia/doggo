@@ -39,8 +39,21 @@ import {
   useState,
 } from "react";
 import type { UserProfile } from "@/lib/types";
-import { tereza } from "@/lib/mockUsers";
+import { tereza, getUserById } from "@/lib/mockUsers";
 import { getPersona } from "@/lib/personas";
+
+/**
+ * Resolve a persona by id: the curated picker registry first (carries
+ * archetype/tagline + the isDefault/operator flags), then ANY mock-world
+ * user via `getUserById`. The fallback decouples switchability from picker
+ * membership — a guided walkthrough can switch to a character that isn't on
+ * the picker (e.g. Magda), and `?as=<id>` works for anyone. Phase 2 trim
+ * (2026-06-24) relies on this so dropping personas from the picker doesn't
+ * break walkthroughs that still drive them.
+ */
+function resolveUserById(id: string): UserProfile | undefined {
+  return getPersona(id)?.user ?? getUserById(id);
+}
 
 const STORAGE_KEY_USER = "doggo-demo-user-id";
 // Guest mode mirrors to sessionStorage (not localStorage) — it survives
@@ -101,8 +114,8 @@ export function CurrentUserProvider({ children }: { children: React.ReactNode })
     try {
       const storedId = localStorage.getItem(STORAGE_KEY_USER);
       if (storedId) {
-        const persona = getPersona(storedId);
-        if (persona) setUser(persona.user);
+        const resolved = resolveUserById(storedId);
+        if (resolved) setUser(resolved);
       }
     } catch {
       // Ignore — prototype, no recovery needed.
@@ -130,14 +143,15 @@ export function CurrentUserProvider({ children }: { children: React.ReactNode })
 
   const setUserById = useCallback((id: string) => {
     const persona = getPersona(id);
-    if (!persona) return;
-    setUser(persona.user);
+    const resolved = persona?.user ?? getUserById(id);
+    if (!resolved) return;
+    setUser(resolved);
     setIsGuest(false); // selecting a persona always exits guest mode
     try {
-      if (persona.isDefault) {
+      if (persona?.isDefault) {
         localStorage.removeItem(STORAGE_KEY_USER);
       } else {
-        localStorage.setItem(STORAGE_KEY_USER, persona.user.id);
+        localStorage.setItem(STORAGE_KEY_USER, resolved.id);
       }
       sessionStorage.removeItem(SESSION_KEY_GUEST);
       // Explicit picker action clears the sticky `?as=` preview override.

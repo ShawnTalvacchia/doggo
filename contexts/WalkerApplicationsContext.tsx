@@ -24,7 +24,54 @@
 
 import { createContext, useContext, useCallback } from "react";
 import { usePersistedState } from "@/lib/usePersistedState";
+import { daysAgoIso } from "@/lib/mockDate";
 import type { WalkerApplication, WalkerApplicationState, WalkerTier } from "@/lib/types";
+
+/**
+ * Seeded pending applications at Útulek (Phase 2 "The Shelter's Side",
+ * 2026-06-24) — illustrative content for the operator's application queue.
+ * Directory-style applicants (not UserProfiles): the denormalized
+ * `applicantName` / `applicantAvatarUrl` render the row without inventing
+ * full user records (mirrors `ShelterWalker.displayName`). A persona's own
+ * runtime application is appended on top of these; these are the "people are
+ * waiting" backdrop the operator acts on (advance / decline).
+ */
+const SEED_APPLICATIONS: WalkerApplication[] = [
+  {
+    id: "app-seed-radek",
+    userId: "applicant-radek-n",
+    applicantName: "Radek N.",
+    applicantAvatarUrl: "/images/generated/martin-profile.jpeg",
+    shelterId: "utulek-liben",
+    state: "applied",
+    message:
+      "Hi! I work shifts so I have free mornings during the week. I grew up with dogs and would love to help walk yours. Happy to come in for the intro visit.",
+    appliedAt: daysAgoIso(2, "08:20"),
+  },
+  {
+    id: "app-seed-petra-s",
+    userId: "applicant-petra-s",
+    applicantName: "Petra S.",
+    applicantAvatarUrl: "/images/generated/zuzana-profile.jpeg",
+    shelterId: "utulek-liben",
+    state: "invited",
+    message:
+      "I live ten minutes away in Libeň and can do weekends. I've fostered two dogs before through another rescue.",
+    appliedAt: daysAgoIso(6, "19:05"),
+    invitedAt: daysAgoIso(4, "10:30"),
+  },
+  {
+    id: "app-seed-jan",
+    userId: "applicant-jan-d",
+    applicantName: "Jan D.",
+    applicantAvatarUrl: "/images/generated/ondrej-profile.jpeg",
+    shelterId: "utulek-liben",
+    state: "applied",
+    message:
+      "Looking to volunteer regularly. I'm calm with nervous dogs and patient. Weekday afternoons work best for me.",
+    appliedAt: daysAgoIso(1, "13:40"),
+  },
+];
 
 /**
  * Derive a WalkerTier from accumulated walkCount per the Shelter
@@ -44,7 +91,7 @@ export function deriveWalkerTier(walkCount: number): WalkerTier {
   return "vetted";
 }
 
-const APPLICATIONS_SEED_VERSION = 1;
+const APPLICATIONS_SEED_VERSION = 2;
 const STORAGE_KEY = "doggo-walker-applications";
 const PLATFORM_WAIVER_KEY = "doggo-platform-waiver";
 const TIER_OVERRIDES_KEY = "doggo-walker-tier-overrides";
@@ -153,7 +200,7 @@ const WalkerApplicationsContext = createContext<WalkerApplicationsContextValue |
 export function WalkerApplicationsProvider({ children }: { children: React.ReactNode }) {
   const [applications, setApplications] = usePersistedState<WalkerApplication[]>(
     STORAGE_KEY,
-    [],
+    SEED_APPLICATIONS,
     { seedVersion: APPLICATIONS_SEED_VERSION },
   );
   // Platform baseline waiver — keyed by userId, value is the ISO signing

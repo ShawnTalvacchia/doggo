@@ -33,6 +33,9 @@ import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { ShelterDogCard } from "@/components/shelters/ShelterDogCard";
 import { ShelterMemberRow } from "@/components/shelters/ShelterMemberRow";
+import { ShelterHandoverBoard } from "@/components/shelters/ShelterHandoverBoard";
+import { ShelterApplicationsPanel } from "@/components/shelters/ShelterApplicationsPanel";
+import { ShelterAdoptionsPanel } from "@/components/shelters/ShelterAdoptionsPanel";
 import { WalkApplicationSheet } from "@/components/shelters/WalkApplicationSheet";
 import { WalkEntrySheet } from "@/components/shelters/WalkEntrySheet";
 import { MentorSessionBookingSheet } from "@/components/shelters/MentorSessionBookingSheet";
@@ -64,6 +67,7 @@ import type {
   WalkerTier,
 } from "@/lib/types";
 import { useCurrentUserId } from "@/hooks/useCurrentUser";
+import { getOperatorShelterId } from "@/lib/personas";
 import {
   useWalkerApplications,
   deriveWalkerTier,
@@ -92,8 +96,21 @@ function ShelterDetailInner() {
   const rawActiveTab = searchParams.get("tab") || "feed";
   const { setDetailHeader, clearDetailHeader } = usePageHeader();
   const { lastListPath } = useNavigationMemory();
+  const currentUserId = useCurrentUserId();
 
   const shelter = getShelterById(params.id as string);
+
+  // Operator view (Phase 2 "The Shelter's Side"): the viewer is the shelter's
+  // own side when they're the shelter-operator persona for THIS shelter, or
+  // via the `?admin=1` escape hatch. `?public=1` flips back to the public page
+  // (the operator banner's "View public page" link). Other shelters always
+  // render public to an operator persona (you only operate your own).
+  const operatorShelterId = getOperatorShelterId(currentUserId);
+  const isOperatorHere =
+    (!!operatorShelterId && operatorShelterId === (params.id as string)) ||
+    searchParams.get("admin") === "1";
+  const publicOverride = searchParams.get("public") === "1";
+  const operatorView = isOperatorHere && !publicOverride;
   // Source-aware back: shelter detail is reachable from /home, future
   // /discover/shelters, post tag click, etc. Walk back to wherever the
   // viewer was last on a list-level surface; fallback /home.
@@ -145,17 +162,26 @@ function ShelterDetailInner() {
 
       <div className="shelter-detail-panel">
         <div className="shelter-detail-body">
-          {/* Tabs are sticky at the top of the scrollable body. Mirrors the
-              community-detail pattern: tabs always accessible, hero scrolls
-              away inside the Feed tab, no banner-jump between tabs. */}
-          <div className="detail-tabs detail-tabs--fill">
-            <TabBar tabs={tabs} activeKey={activeTab} onChange={handleTabChange} />
-          </div>
+          {operatorView ? (
+            <OperatorView shelter={shelter} />
+          ) : (
+            <>
+              {isOperatorHere && publicOverride && (
+                <OperatorReturnStrip shelterId={shelter.id} shelterName={shelter.name} />
+              )}
+              {/* Tabs are sticky at the top of the scrollable body. Mirrors the
+                  community-detail pattern: tabs always accessible, hero scrolls
+                  away inside the Feed tab, no banner-jump between tabs. */}
+              <div className="detail-tabs detail-tabs--fill">
+                <TabBar tabs={tabs} activeKey={activeTab} onChange={handleTabChange} />
+              </div>
 
-          {activeTab === "feed" && <FeedTab shelter={shelter} />}
-          {activeTab === "dogs" && <DogsTab shelter={shelter} />}
-          {activeTab === "members" && <MembersTab shelter={shelter} />}
-          {activeTab === "gallery" && <GalleryTab />}
+              {activeTab === "feed" && <FeedTab shelter={shelter} />}
+              {activeTab === "dogs" && <DogsTab shelter={shelter} />}
+              {activeTab === "members" && <MembersTab shelter={shelter} />}
+              {activeTab === "gallery" && <GalleryTab />}
+            </>
+          )}
 
           <Spacer />
         </div>
@@ -943,16 +969,27 @@ type MembersFilterKey = "all" | "walkers" | "supporters" | "team";
 /** Tier ladder for the operator-stub promote/demote controls (O4). */
 const TIER_LADDER: WalkerTier[] = ["vetted", "experienced", "trusted"];
 
-function MembersTab({ shelter }: { shelter: ShelterProfile }) {
+function MembersTab({
+  shelter,
+  operatorView: forceOperatorView,
+  defaultFilter = "all",
+}: {
+  shelter: ShelterProfile;
+  /** Force the operator controls on (the operator-view Walkers tab passes
+   *  `true`). Falls back to the legacy `?admin=1` escape-hatch read when
+   *  unset — so the public page still honors the URL flag. */
+  operatorView?: boolean;
+  defaultFilter?: MembersFilterKey;
+}) {
   const teamCount = shelter.team?.length ?? 0;
   const currentUserId = useCurrentUserId();
   // Operator actions (promote / demote / credit / remove) are shelter-admin
-  // only — they belong on the FC16 operator surface, which doesn't exist yet.
-  // Until then they're gated behind a demo "operator view" (`?admin=1`,
-  // mirroring the `?as=` preview pattern) so a regular visitor browsing the
-  // Members tab never sees them, but a demo can still exercise the tier
-  // mechanic. When FC16 lands, these graduate to the real admin surface.
-  const operatorView = useSearchParams().get("admin") === "1";
+  // only. In the operator view (shelter-operator persona, or the `?admin=1`
+  // escape hatch) they render; a regular visitor never sees them. Phase 2
+  // ("The Shelter's Side") makes this the Walkers tab of the operator view;
+  // the standalone `?admin=1` path stays for direct testing.
+  const adminFlag = useSearchParams().get("admin") === "1";
+  const operatorView = forceOperatorView ?? adminFlag;
   const { applications, tierOverrides, setTierOverride } = useWalkerApplications();
   const { bookings } = useBookings();
   const { notify: notifyStub } = useStubNotice();
@@ -975,8 +1012,10 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
           (a.walkCount ?? 0) + countCompletedShelterWalks(a.userId, shelter.id, bookings);
         return {
           userId: a.userId,
-          displayName: u ? `${u.firstName} ${u.lastName}` : a.userId,
-          avatarUrl: u?.avatarUrl,
+          // Seeded directory applicants (no UserProfile) carry a denormalized
+          // name/avatar; runtime persona applications resolve via getUserById.
+          displayName: u ? `${u.firstName} ${u.lastName}` : a.applicantName ?? a.userId,
+          avatarUrl: u?.avatarUrl ?? a.applicantAvatarUrl,
           tier: deriveWalkerTier(walkCount),
           vouchedAt: a.vouchedAt ?? a.appliedAt,
           walkCount,
@@ -1017,7 +1056,7 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
     return base;
   }, [shelter, teamCount, allWalkers.length]);
 
-  const [filter, setFilter] = useState<MembersFilterKey>("all");
+  const [filter, setFilter] = useState<MembersFilterKey>(defaultFilter);
 
   // Sortable, typed entries that flow through ShelterMemberRow.
   type WalkerEntry = { kind: "walker"; data: ShelterWalker; sortAt: string };
@@ -1068,7 +1107,7 @@ function MembersTab({ shelter }: { shelter: ShelterProfile }) {
         onChange={(k) => setFilter(k as MembersFilterKey)}
       />
 
-      {operatorView && (
+      {operatorView && !forceOperatorView && (
         <div className="px-md py-sm text-xs text-fg-tertiary border-b border-edge-regular">
           Operator view (demo) — per-walker tier controls are shelter-staff only.
         </div>
@@ -1169,6 +1208,121 @@ function GalleryTab() {
         title="Gallery coming soon"
         subtitle="Photos from walks and shelter posts will live here. Lands with the Photos & Galleries phase."
       />
+    </div>
+  );
+}
+
+/* ── Operator view (Phase 2 "The Shelter's Side") ──────────────────── */
+
+type OperatorSection = "today" | "walkers" | "applications" | "adoptions";
+
+/**
+ * The shelter's OWN side — the demo-illustrative operator surface. Entered
+ * via the shelter-operator persona (or `?admin=1`). Replaces the public tab
+ * chrome with the operator's working surfaces: the handover board (today's
+ * walks), the walker pool (the Members tab with controls on), the application
+ * queue, and the adoption-interest landing. Built illustrative, not deeply
+ * wired — enough to show a shelter "here's how little work this is."
+ */
+const OPERATOR_SECTIONS: OperatorSection[] = ["today", "walkers", "applications", "adoptions"];
+
+function OperatorView({ shelter }: { shelter: ShelterProfile }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  // Section is URL-addressable via `?op=` — so it deep-links AND the guided
+  // walkthrough can drive it (matchesAdvanceOn supports query params). Other
+  // params (admin / public) are preserved when switching. Defaults to "today".
+  const rawOp = searchParams.get("op") as OperatorSection | null;
+  const section: OperatorSection = rawOp && OPERATOR_SECTIONS.includes(rawOp) ? rawOp : "today";
+  const setSection = (k: OperatorSection) => {
+    const sp = new URLSearchParams(searchParams.toString());
+    sp.set("op", k);
+    router.replace(`/shelters/${shelter.id}?${sp.toString()}`, { scroll: false });
+  };
+
+  const { applications } = useWalkerApplications();
+  const pendingCount = applications.filter(
+    (a) => a.shelterId === shelter.id && (a.state === "applied" || a.state === "invited"),
+  ).length;
+
+  const opTabs = [
+    { key: "today", label: "Today" },
+    { key: "walkers", label: "Walkers" },
+    {
+      key: "applications",
+      label: pendingCount > 0 ? `Applications · ${pendingCount}` : "Applications",
+    },
+    { key: "adoptions", label: "Adoptions" },
+  ];
+
+  return (
+    <div className="shelter-operator">
+      <OperatorBanner shelter={shelter} />
+      <div className="detail-tabs detail-tabs--fill">
+        <TabBar
+          tabs={opTabs}
+          activeKey={section}
+          onChange={(k) => setSection(k as OperatorSection)}
+        />
+      </div>
+
+      {section === "today" && <ShelterHandoverBoard shelter={shelter} />}
+      {section === "walkers" && (
+        <MembersTab shelter={shelter} operatorView defaultFilter="walkers" />
+      )}
+      {section === "applications" && <ShelterApplicationsPanel shelter={shelter} />}
+      {section === "adoptions" && <ShelterAdoptionsPanel shelter={shelter} />}
+    </div>
+  );
+}
+
+/** Operator-mode banner — "this is your side" + an exit to the public page. */
+function OperatorBanner({ shelter }: { shelter: ShelterProfile }) {
+  return (
+    <div className="flex items-center gap-sm border-b border-edge-regular bg-volunteer-light/50 px-md py-sm">
+      <img
+        src={shelter.logoUrl}
+        alt=""
+        className="h-9 w-9 flex-shrink-0 rounded-full object-cover"
+      />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <span className="flex items-center gap-xs text-sm font-semibold text-fg-primary">
+          {shelter.name}
+          <span className="rounded-pill bg-volunteer px-xs py-tiny text-xs font-medium text-volunteer-soft">
+            Operator view
+          </span>
+        </span>
+        <span className="text-xs text-fg-tertiary">Your side — illustrative demo.</span>
+      </div>
+      <Link
+        href={`/shelters/${shelter.id}?public=1`}
+        className="flex-shrink-0 text-xs font-medium text-volunteer-strong"
+      >
+        View public page
+      </Link>
+    </div>
+  );
+}
+
+/** Shown on the public page when an operator has flipped to it — a way back. */
+function OperatorReturnStrip({
+  shelterId,
+  shelterName,
+}: {
+  shelterId: string;
+  shelterName: string;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-sm border-b border-edge-regular bg-surface-inset px-md py-xs">
+      <span className="text-xs text-fg-tertiary">
+        Public page — what walkers and supporters see at {shelterName}.
+      </span>
+      <Link
+        href={`/shelters/${shelterId}`}
+        className="flex-shrink-0 text-xs font-medium text-volunteer-strong"
+      >
+        Back to operator view
+      </Link>
     </div>
   );
 }

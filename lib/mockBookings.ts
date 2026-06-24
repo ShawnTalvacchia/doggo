@@ -770,6 +770,207 @@ const puppyBasicsJana: Booking = {
   paymentStatus: "paid",
 };
 
+// ── Shelter handover seed — "today at Útulek" (Phase 2, 2026-06-24) ──────────────
+//
+// Representative shelter-walk Bookings (`ownerKind: "shelter"`) at Útulek Liběň
+// for the operator handover board ("today's walks"). These give the operator
+// view real, illustrative content — a realistic morning across the handover
+// lifecycle: due to collect → out now → back safe. The shelter is the "owner"
+// party; the walker is the carer. Volunteer walks (price 0). The operator's
+// check-out/check-in actions write `session.releasedAt` / `session.returnedAt`
+// (the logged custody trail); the walker's own check-in/finish write
+// `checkedInAt` / `report.completedAt` (the walk itself).
+//
+// The board derives "today" loosely (any shelter walk not yet returned, plus
+// today's returned rows), so these stay populated regardless of the run date.
+
+const SHELTER = {
+  ownerKind: "shelter" as const,
+  ownerId: "utulek-liben",
+  ownerName: "Útulek Liběň",
+  ownerAvatarUrl: "/images/generated/shelter-utulek-liben-logo.jpeg",
+};
+
+const VOLUNTEER_PRICE = {
+  lineItems: [{ label: "Volunteer walk", amount: 0, unit: "volunteer" }],
+  total: 0,
+  currency: "Kč" as const,
+  billingCycle: "total" as const,
+};
+
+const WALK_PHOTO = "/images/generated/group-walk-utulek.jpeg";
+
+// 1. Due to collect — Pavel D. is booked to walk Maja this morning; the
+//    shelter hasn't released her yet (no releasedAt). Board action: Check out.
+const handoverMajaPavel: Booking = {
+  id: "booking-shelter-maja-pavel",
+  conversationId: null,
+  ...SHELTER,
+  carerId: "pavel-d",
+  carerName: "Pavel D.",
+  carerAvatarUrl: "/images/generated/marek-profile.jpeg",
+  type: "one_off",
+  serviceType: "walks_checkins",
+  subService: "Solo walk",
+  pets: ["Maja"],
+  startDate: daysFromNow(0),
+  endDate: daysFromNow(0),
+  sessions: [{ id: "hv-maja-1", date: daysFromNow(0), status: "upcoming" }],
+  price: VOLUNTEER_PRICE,
+  signedAt: daysAgoIso(0, "07:00"),
+  status: "upcoming",
+};
+
+// 2. Out now, walking — Marie B. has Tonda out; released 09:35, she checked
+//    in 09:40, walk in progress. Board shows her live status (visibility axis);
+//    action: Confirm back safe (disabled-feeling until she's done, but allowed).
+const handoverTondaMarie: Booking = {
+  id: "booking-shelter-tonda-marie",
+  conversationId: null,
+  ...SHELTER,
+  carerId: "marie",
+  carerName: "Marie B.",
+  carerAvatarUrl: "/images/generated/marie-profile.jpeg",
+  type: "one_off",
+  serviceType: "walks_checkins",
+  subService: "Solo walk",
+  pets: ["Tonda"],
+  startDate: daysFromNow(0),
+  endDate: daysFromNow(0),
+  sessions: [
+    {
+      id: "hv-tonda-1",
+      date: daysFromNow(0),
+      status: "in_progress",
+      releasedAt: daysAgoIso(0, "09:35"),
+      checkedInAt: daysAgoIso(0, "09:40"),
+    },
+  ],
+  price: VOLUNTEER_PRICE,
+  signedAt: daysAgoIso(0, "07:00"),
+  status: "active",
+};
+
+// 3. Out now, walk finished, awaiting back-safe — Lukáš P. walked Líza and
+//    sealed his report, but the shelter hasn't confirmed her back yet (no
+//    returnedAt). The gap between "walker done" and "shelter confirms back
+//    safe" is exactly what the back-safe check-in closes (accountability axis).
+const handoverLizaLukas: Booking = {
+  id: "booking-shelter-liza-lukas",
+  conversationId: null,
+  ...SHELTER,
+  carerId: "walker-lukas-p",
+  carerName: "Lukáš P.",
+  carerAvatarUrl: "/images/generated/vitek-profile.jpeg",
+  type: "one_off",
+  serviceType: "walks_checkins",
+  subService: "Solo walk",
+  pets: ["Líza"],
+  startDate: daysFromNow(0),
+  endDate: daysFromNow(0),
+  sessions: [
+    {
+      id: "hv-liza-1",
+      date: daysFromNow(0),
+      status: "completed",
+      releasedAt: daysAgoIso(0, "08:30"),
+      checkedInAt: daysAgoIso(0, "08:35"),
+      report: {
+        photos: [WALK_PHOTO],
+        notes: "Good long loop by the river. Líza was a bit hesitant at the gate, all wags once we were out.",
+        walkDistanceKm: 3.2,
+        walkDurationMin: 45,
+        completedAt: daysAgoIso(0, "09:20"),
+      },
+    },
+  ],
+  price: VOLUNTEER_PRICE,
+  signedAt: daysAgoIso(0, "07:00"),
+  status: "active",
+};
+
+// 4. Back safe — Anna K. took Theo out first thing; released 07:50, returned
+//    08:45, confirmed back safe. A completed row on the board (the full trail).
+const handoverTheoAnna: Booking = {
+  id: "booking-shelter-theo-anna",
+  conversationId: null,
+  ...SHELTER,
+  carerId: "walker-anna-k",
+  carerName: "Anna K.",
+  carerAvatarUrl: "/images/generated/hana-profile.jpeg",
+  type: "one_off",
+  serviceType: "walks_checkins",
+  subService: "Solo walk",
+  pets: ["Theo"],
+  startDate: daysFromNow(0),
+  endDate: daysFromNow(0),
+  sessions: [
+    {
+      id: "hv-theo-1",
+      date: daysFromNow(0),
+      status: "completed",
+      releasedAt: daysAgoIso(0, "07:50"),
+      checkedInAt: daysAgoIso(0, "07:55"),
+      returnedAt: daysAgoIso(0, "08:45"),
+      report: {
+        photos: [WALK_PHOTO],
+        notes: "Quick morning walk, Theo did his business and was happy to head back.",
+        walkDistanceKm: 2.1,
+        walkDurationMin: 40,
+        completedAt: daysAgoIso(0, "08:40"),
+      },
+    },
+  ],
+  price: VOLUNTEER_PRICE,
+  signedAt: daysAgoIso(0, "07:00"),
+  status: "completed",
+};
+
+// 5 + 6. Group walk batch — two dogs going out on Klára's trainer-led
+//    Saturday group walk (linked via dropoffMeetId). Both due to collect; the
+//    board groups them so the operator can release the batch at once. This is
+//    the FC18 multi-dog checkout question, shown as a PROPOSAL (mentor as the
+//    responsible party who signs out the group), not a committed model.
+const handoverEddaGroup: Booking = {
+  id: "booking-shelter-edda-group",
+  conversationId: null,
+  ...SHELTER,
+  carerId: "walker-helena-s",
+  carerName: "Helena S.",
+  carerAvatarUrl: "/images/generated/eva-profile.jpeg",
+  type: "one_off",
+  serviceType: "walks_checkins",
+  subService: "Group walk",
+  pets: ["Edda"],
+  startDate: daysFromNow(0),
+  endDate: daysFromNow(0),
+  dropoffMeetId: "meet-klara-stromovka",
+  sessions: [{ id: "hv-edda-1", date: daysFromNow(0), status: "upcoming" }],
+  price: VOLUNTEER_PRICE,
+  signedAt: daysAgoIso(0, "07:00"),
+  status: "upcoming",
+};
+
+const handoverNoraGroup: Booking = {
+  id: "booking-shelter-nora-group",
+  conversationId: null,
+  ...SHELTER,
+  carerId: "walker-karolina-m",
+  carerName: "Karolína M.",
+  carerAvatarUrl: "/images/generated/adela-profile.jpeg",
+  type: "one_off",
+  serviceType: "walks_checkins",
+  subService: "Group walk",
+  pets: ["Nora"],
+  startDate: daysFromNow(0),
+  endDate: daysFromNow(0),
+  dropoffMeetId: "meet-klara-stromovka",
+  sessions: [{ id: "hv-nora-1", date: daysFromNow(0), status: "upcoming" }],
+  price: VOLUNTEER_PRICE,
+  signedAt: daysAgoIso(0, "07:00"),
+  status: "upcoming",
+};
+
 // ── Exports ─────────────────────────────────────────────────────────────────────
 
 /**
@@ -778,7 +979,7 @@ const puppyBasicsJana: Booking = {
  * that should appear without requiring testers to hit /demo Reset.
  * P55, 2026-06-02. See `lib/usePersistedState.ts` → `seedVersion`.
  */
-export const BOOKINGS_SEED_VERSION = 1;
+export const BOOKINGS_SEED_VERSION = 2;
 
 export const mockBookings: Booking[] = [
   olgaBooking,
@@ -799,6 +1000,13 @@ export const mockBookings: Booking[] = [
   meetCare1Tomas,
   workshopDaniel,
   puppyBasicsJana,
+  // Shelter handover seed (today at Útulek)
+  handoverMajaPavel,
+  handoverTondaMarie,
+  handoverLizaLukas,
+  handoverTheoAnna,
+  handoverEddaGroup,
+  handoverNoraGroup,
 ];
 
 export function getBooking(id: string): Booking | undefined {

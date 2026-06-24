@@ -16,7 +16,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CaretDown, Check } from "@phosphor-icons/react";
-import { personas } from "@/lib/personas";
+import { personas, getOperatorShelterId } from "@/lib/personas";
 import { useDemoState } from "@/contexts/CurrentUserContext";
 import { useWalkthrough } from "@/contexts/WalkthroughContext";
 
@@ -50,7 +50,10 @@ export function DemoPersonaDropdown() {
     walkthrough.endAndStay();
     setUserById(personaId);
     setOpen(false);
-    router.push("/home");
+    // The shelter-operator entry lands on the shelter's own page (its operator
+    // view turns on there); every other persona lands on /home.
+    const operatorShelterId = getOperatorShelterId(personaId);
+    router.push(operatorShelterId ? `/shelters/${operatorShelterId}` : "/home");
   }
 
   const active = personas.find((p) => p.user.id === user.id) ?? personas[0];

@@ -498,6 +498,22 @@ export interface BookingSession {
   date: string;         // ISO YYYY-MM-DD
   status: "upcoming" | "in_progress" | "completed" | "cancelled";
   checkedInAt?: string; // ISO timestamp — set when status moves to in_progress
+  /**
+   * Shelter handover trail (Phase 2 "The Shelter's Side," 2026-06-24). Only
+   * meaningful on shelter walks (`Booking.ownerKind === "shelter"`). These are
+   * the SHELTER's actions, distinct from the walker's session rails:
+   *  - `releasedAt` — the operator checked the dog OUT to the walker (the
+   *    physical hand-off). Until set, the dog hasn't left the shelter.
+   *  - `returnedAt` — the operator confirmed the dog BACK SAFE on return
+   *    (the "back safe" reassurance — positioning §3 visibility/accountability
+   *    axes). The full check-out → check-in trail is the logged accountability.
+   * The walker's own `checkedInAt` / `report.completedAt` track the walk
+   * itself; these two track the shelter's custody of the dog around it.
+   * Demo-illustrative: the release model (esp. N dogs at once for a group
+   * walk) is a proposal shelters react to, not a committed flow.
+   */
+  releasedAt?: string;  // ISO timestamp — operator checked the dog out (released)
+  returnedAt?: string;  // ISO timestamp — operator confirmed the dog back safe
   /** Visit report — created lazily when the provider adds the first
    *  artifact during an in-progress session (photo, note, check, metric).
    *  Lives in draft state through in_progress and is sealed when the
@@ -2117,6 +2133,16 @@ export interface WalkerApplication {
    * minimum lives on ShelterPolicy). ASSUMPTION A2.
    */
   shelterWaiverSignedAt?: string;
+  /**
+   * Denormalized display name + avatar for SEEDED directory-style applicants
+   * who aren't `UserProfile`s (mirrors `ShelterWalker.displayName`). Lets the
+   * operator's application queue render a real name/photo for the illustrative
+   * pending applicants without inventing full user records. Runtime
+   * applications (a persona applying) leave these undefined — readers fall
+   * back to `getUserById(userId)`. Phase 2 "The Shelter's Side," 2026-06-24.
+   */
+  applicantName?: string;
+  applicantAvatarUrl?: string;
 }
 
 export interface ShelterSupporter {

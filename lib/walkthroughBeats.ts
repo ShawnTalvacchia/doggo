@@ -425,16 +425,19 @@ const TRAINER_BEATS: WalkthroughBeat[] = [
 ];
 
 // ── shelter ("Help a shelter dog") ───────────────────────────────────────────
-// W3 — the shelter arc, tightened to a Phase-1 DESIRABILITY cut (2026-06-24).
-// POV: Eliška (a brand-new, unvetted would-be walker), focal dog Nora (Útulek
-// long-stayer). Front half is the walker getting in safely (mentored first
-// walk); Beat 4 turns to the shelter's own wall. This guided cut paints the
-// appealing picture ONLY: it does NOT instruct the walk session or any
-// shelter-operator action (those surfaces are Phase 2, "The Shelter's Side") —
-// everything unbuilt is carried by interstitials. The soft close lives in the
-// registry `closing` screen and addresses the shelter with light open questions.
-// The full 8-beat live-interview script + the A1–A10 feasibility crosswalk stay
-// in `strategy/mentor-network-shelter-demo.md` (the Phase-2 source, not edited).
+// W3 — the shelter arc. Phase 2 "The Shelter's Side" (2026-06-24) revised the
+// back half: where the Phase-1 cut NARRATED the shelter's side ("described, not
+// shown"), it now SWITCHES POV to the shelter operator and DEMONSTRATES the real
+// operator surfaces this phase built. Beats 1–2 are the walker (Eliška, focal
+// dog Nora) getting in safely (discovery → mentored first walk → vouched).
+// Beats 3–4 switch to the shelter-operator persona: the handover board +
+// application queue + walker-pool control (Beat 3), then the adoption-interest
+// landing + the public wall (Beat 4). Desirability-first and question-light: no
+// per-beat probes (the full A1–A10 feasibility set lives in the interview kit,
+// driven in conversation). The soft close lives in the registry `closing`
+// screen and addresses the shelter with three light open questions. Full kit:
+// `strategy/Shelter Feasibility Interview Kit.md`; beat source +
+// `strategy/mentor-network-shelter-demo.md` (the live-interview script).
 const SHELTER_BEATS: WalkthroughBeat[] = [
   // ── Beat 1 — Discovery: how a walker finds your dogs ──────────────────────────────────
   {
@@ -495,30 +498,17 @@ const SHELTER_BEATS: WalkthroughBeat[] = [
         // credentialing detail (waiver layers, session count) is deliberately
         // dropped from the guided flow — it lives in the Phase-2 interview kit.
       },
-    ],
-  },
-  // ── Beat 3 — What happens on your end (described, not shown) ──────────────────────────────────────
-  {
-    n: 3,
-    title: "What happens on your end",
-    personaId: "eliska",
-    when: "A few walks later",
-    context:
-      "Three supervised walks in, Klára vouches for Eliška. She can walk Útulek's dogs on her own now, and the shelter never had to run an intake on a stranger.",
-    summary: "The vouch lands: a vetted walker, with the shelter never lifting a finger.",
-    startUrl: "/shelters/utulek-liben",
-    steps: [
-      // The walk session itself (start/finish) + the operator side are Phase 2 —
-      // NOT instructed here. Carried as a single explainer instead.
       {
+        // Time-passage: the vouch lands here (end of Eliška's arc) so Beat 3
+        // can open straight onto the shelter's side with a vetted walker
+        // already in the pool. Firing it on Continue keeps her walker state in
+        // sync with the caption.
         kind: "interstitial",
-        mode: "explainer",
-        eyebrow: "What happens on your end",
-        heading: "Nothing, and that's the point.",
+        mode: "time-passage",
+        eyebrow: "A few walks later",
+        heading: "You're a vouched walker.",
         body:
-          "The mentor did the vetting. You kept every veto the whole way, and you have a documented trail of who walked which dog, and when, none of it asking anything of your staff. (This part is described, not shown. The shelter's own tools are what we'd build next.)",
-        // Make the narrated vouch real (so Eliška's walker state matches the
-        // caption) — fired on Continue. Not load-bearing for the rest of the arc.
+          "Three supervised walks in, Klára vouched for you. You can walk Útulek's dogs on your own now, and the shelter never had to run an intake on a stranger.",
         fireWalkerVouch: {
           userId: "eliska",
           shelterId: "utulek-liben",
@@ -527,33 +517,67 @@ const SHELTER_BEATS: WalkthroughBeat[] = [
       },
     ],
   },
-  // ── Beat 4 — The shelter's payoff ────────────────────────────────
+  // ── Beat 3 — Your side (operator POV) ──────────────────────────────────────
   {
-    n: 4,
-    title: "The shelter's payoff",
-    personaId: "eliska",
-    when: "Weeks on",
+    n: 3,
+    title: "Your side",
+    personaId: "op-utulek-liben",
+    when: "From the shelter's side",
     context:
-      "Now look at Útulek's side. Every walk leaves a trace, and they add up into something the shelter could never have built on its own.",
-    summary: "The shelter's wall fills with walk posts, and one turns into an adopter.",
-    startUrl: "/shelters/utulek-liben",
+      "Now switch seats. You're Útulek. A stranger just became a walker you can trust. So what did any of it actually ask of you?",
+    summary: "The operator's side: a logged handover trail, an application you control, every veto kept.",
+    startUrl: "/shelters/utulek-liben?op=today",
     steps: [
       {
         kind: "card",
         instruction:
-          "Útulek's **feed** is full of walk posts: their dogs, out and happy, photographed by the walkers. Scroll through.",
+          "This is your **operator view**. The **handover board** lists every dog out, due back, and back safe, with who has them. Read down it.",
         detail:
-          "The shelter doesn't run a social account, its walkers do. No staff time, no marketing budget, just volunteers, each one quietly advertising a dog who needs a home.",
+          "Nobody on staff set this up. It fills in as walkers check dogs out and back. The logged trail an incident would need, without asking anything of you.",
       },
       {
-        // The adoption-interest landing on the shelter's OWN view is Phase 2 —
-        // carried as an interstitial, not built.
-        kind: "interstitial",
-        mode: "explainer",
-        eyebrow: "Where this leads",
-        heading: "A walk post becomes an adopter.",
-        body:
-          "Someone who saw one of these posts asks the shelter about adopting that dog. The walker never adopted, they surfaced the dog to someone who would. That's the loop: dogs that get out and get seen find homes. (The adoption interest landing on your side is part of the shelter tools we'd build next.)",
+        kind: "card",
+        instruction:
+          "Open **Applications**. People waiting to walk for you, each with a note. Eliška arrived mentor-recommended.",
+        detail:
+          "You invite, then vouch, when you're ready. The mentor's vouch is a recommendation, never a bypass. Saying no still routes through you.",
+        advanceOn: "/shelters/utulek-liben?op=applications",
+      },
+      {
+        kind: "card",
+        instruction:
+          "Open **Walkers**. Each carries a tier they earned by walking, and a kebab menu to promote or demote.",
+        detail:
+          "Your call always overrides the walk-count math, both directions. Demote someone and their access goes with it. You keep every veto, all the way up.",
+        advanceOn: "/shelters/utulek-liben?op=walkers",
+      },
+    ],
+  },
+  // ── Beat 4 — The payoff (operator POV) ────────────────────────────────
+  {
+    n: 4,
+    title: "The payoff",
+    personaId: "op-utulek-liben",
+    when: "Weeks on",
+    context:
+      "Same seat, weeks on. Look at what the walks have added up to, on your own side.",
+    summary: "The adoption-interest landing fills, and the public wall shows where it came from.",
+    startUrl: "/shelters/utulek-liben?op=adoptions",
+    steps: [
+      {
+        kind: "card",
+        instruction:
+          "This is **Adoptions**. People who saw a walk recap are asking about your dogs, Nora among them.",
+        detail:
+          "The walkers didn't adopt. They surfaced these dogs to people who would. That is the loop: dogs that get out get seen, and seen dogs get homes.",
+      },
+      {
+        kind: "card",
+        instruction:
+          "Open your **public feed** to see where that interest comes from. Walk posts, your dogs out and happy.",
+        detail:
+          "You never ran a social account. Your walkers do it for you, each post quietly advertising a dog who needs a home.",
+        advanceOn: "/shelters/utulek-liben?public=1",
       },
     ],
   },
@@ -610,7 +634,7 @@ const SHELTER: Walkthrough = {
   closing: {
     heading: "If you run a shelter, this part's for you.",
     body:
-      "Everything you just saw is built to help a stranger become a walker you can trust, without vetting each one from scratch. We'd love your read: could a system like this earn enough of your trust to open walking up to new volunteers? What would you need to see, or keep control over, to feel comfortable? And is your walker count limited more by people applying, or by what it costs to vet them?",
+      "You just saw both sides: a stranger becoming a walker you can trust, and your own side staying in control, with a logged trail and nothing asked of your staff. We'd love your read. Could a system like this earn enough of your trust to open walking to new volunteers? What would you need to see, or keep control over, to feel comfortable? And is your walker count limited more by people applying, or by what it costs to vet them?",
   },
   beats: SHELTER_BEATS,
 };
