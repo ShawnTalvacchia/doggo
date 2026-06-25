@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-06-12
+last-reviewed: 2026-06-25
 tags: [rules, workflow, css, conventions]
 review-trigger: "always — read before any working session"
 ---
@@ -27,7 +27,7 @@ Before writing any code for a new phase, complete the **Opening Checklist** on t
 3. **Review Open Questions** (`planning/Open Questions & Assumptions Log.md`). Check if any unresolved questions affect this phase. Resolve or flag them before building.
 4. **Audit for conflicts.** Compare what the phase proposes against what's currently built. Raise anything that contradicts existing code, strategy docs, or feature docs. Don't assume the phase board is correct — it may have been written before recent changes.
 5. **Update stale docs.** If any referenced doc has a `last-reviewed` date older than 2 weeks, review and update it now.
-6. **Scan the Punch List** (`planning/punch-list.md`). Check if any open items overlap with the new phase's scope — adopt them into the phase board or note the overlap.
+6. **Scan the Punch List and Future Considerations** (`planning/punch-list.md`, `planning/Future Considerations.md`). Check if any open items overlap the new phase's scope — adopt them into the board or note the overlap. If this phase **fires a Future Consideration's trigger**, promote that FC onto the board now rather than building blind to it.
 7. **Confirm scope.** If the phase has tasks that feel like they belong in a different phase, or if scope has grown, discuss before starting.
 
 **Enforcement:** The opening checklist items must be checked off on the phase board before the first task moves to `in_progress`. If an agent or human starts building without completing the checklist, stop and finish it first.
@@ -71,10 +71,10 @@ These steps are the **canonical closing process — the single source of truth.*
 1. **Confirm the walkthrough passed.** Closing presumes the collaborative Walkthrough stage (above) is complete — every O and V point checked, acceptance criteria holding against the running app. This is a confirmation that the review landed, not a fresh first-time walk.
 2. **Sweep the walkthrough's "Decisions surfaced" section.** This is a plain log — not a checklist. Every entry there represents an emergent decision that needs to land in a feature doc (or be explicitly marked "no doc update needed"). Process each one in order: update the named home doc per the `→` annotation, then check it off in the phase board's Closing Checklist (not in the walkthrough itself — the walkthrough entries stay as the historical record). **The walkthrough cannot be archived until every entry has been propagated.** This is the single biggest defense against feature-doc staleness — earlier phases shipped many decisions that never made it home, and this step plugs the gap going forward.
 3. **Update all affected feature docs.** Beyond what the Decisions section covers, scan for anything else the phase changed (component patterns, edge cases, copy conventions). The feature docs must reflect the new reality.
-4. **Update the Open Questions log.** Close any questions this phase resolved. Add any new ones that emerged.
+4. **Update the Open Questions log.** Close any questions this phase resolved — and **compress each resolved item to a one-line pointer at its home doc** (don't leave multi-paragraph resolved blocks to pile up; the SOT carries the reasoning). Add any new questions that emerged.
 5. **Update ROADMAP.md — remove the closed phase, then re-orient forward.** First, take the just-finished phase **off** the roadmap (it's done; the archived board is its record) and refresh the current-phase pointer. Then update the forward view *informed by what this phase built and revealed* — reorder, add, cut, or re-scope upcoming phases so the roadmap reflects current understanding. Keep it strictly **future-focused**: let what we learned shape *where we're going*, but never log *what shipped*. No completion summary, no list of recent closes — the archived board is the record. The Roadmap tracks objectives and what's next, not history.
 6. **Review CLAUDE.md.** If the phase changed navigation, key components, or project structure, update the project instructions.
-7. **Review Punch List changes.** Read completed items and change reports in `planning/punch-list.md` since the last phase close. Check if any completed fixes affected feature docs, design-system.md, or design-tokens.md — update anything that was missed.
+7. **Review the running trackers — Punch List and Future Considerations.** Read completed punch-list items since the last close; check if any fix affected feature docs, design-system.md, or design-tokens.md and update what was missed. Then **prune Future Considerations**: every FC this phase **shipped** is removed (the phase archive is the record — no retained ✅ banner); every FC **partly** shipped is rewritten to lead with the remaining open work; every FC whose **trigger fired** is confirmed promoted out.
 8. **Archive the phase board AND walkthrough.** Mark `status: archived` in the frontmatter on both, then `git mv docs/phases/<name>.md docs/archive/phases/` and the same for the walkthrough. Single atomic moves.
 9. **Trim pass.** Skim the Roadmap, CLAUDE.md, and touched docs. Cut anything stale, redundant, or duplicated. See Doc Hygiene Rules.
 9a. **Structural audit.** Run these three checks — any hits get fixed before phase close:
@@ -121,6 +121,36 @@ Some work doesn't fit a phase board. It's bigger than a punch-list nit, smaller 
 **Before spawning a side task, check for file-level overlap with active phase work.** If the side task's declared files overlap with files currently being edited in the active phase, either (a) defer the side task until the phase closes, (b) finish the active phase's edits to those files first so the worktree branches from a settled state, or (c) brief the side-task agent in its spawn prompt about the concurrent changes and what to integrate. Today's worst case (Profile Deep Pass spawned during Pricing & Proposals walkthrough — both touching `ProfileServicesTab.tsx`) is exactly the failure mode this rule prevents.
 
 **Promoting a side task to a phase.** If a side task reveals significant additional scope, stop and propose either (a) resuming a relevant paused phase, (b) opening a new phase, or (c) deferring the rest to the punch list. The user picks.
+
+### System Work
+
+Meta-work on the docs and workflow themselves — restructuring a tracker, rewriting these rules, reorganizing the doc tree, editing CLAUDE.md or the Roadmap's *structure*. It isn't building the product, so it isn't a phase; and it's the **inverse of a side task** — where a side task must NOT touch the governance docs, system work exists *to* touch them.
+
+- **Allowed to touch** CLAUDE.md, CONTRIBUTING, ROADMAP structure, the planning trackers' formats, and the doc tree — the very files side tasks are barred from.
+- **Done with the user, not mid-phase.** Avoid it during an active phase walkthrough; the doc churn collides with phase edits. Between phases, or as a deliberate detour, is the time.
+- **Lands as its own commit** (or PR), described as a system/doc change — never mixed into a product commit.
+- **No phase board, no walkthrough.** State the intent, make the change with the user, done. Keep it lean: a system pass should leave the rule-set the same size or smaller, not bigger.
+
+---
+
+## The Planning Trackers
+
+Three running lists in `planning/` hold work that isn't in a phase yet. Each is a different **stance** on not-yet-done work — keep an item in the one that matches its stance, and move it when the stance changes.
+
+| Tracker | Holds | Unit | Default exit |
+|---------|-------|------|-------------|
+| `punch-list.md` | Known small fixes (≤30 min) | the fix | **Removed** when fixed — the commit is the record |
+| `Open Questions & Assumptions Log.md` | Unanswered questions blocking future work | the question | **Compressed** to a one-line pointer when resolved |
+| `Future Considerations.md` | Known directions waiting for a trigger | the trigger | **Removed** when shipped (archive is the record), or **promoted** when the trigger fires |
+
+**How work flows between them and into phases:**
+
+- An **Open Question** resolves → it becomes a **Future Consideration** (direction now known, trigger pending), a **punch-list** item (small fix), a **phase** (coordinated work), or just a decision recorded in its home doc.
+- A **Future Consideration**'s trigger fires → it **promotes out** to the punch list, a phase board, or feature scope.
+- A **punch-list** item grows past ~30 min or sprouts an open design call → it **promotes** to a phase board (or to Open Questions if the open part is a question).
+- Any of them, once it's multi-task with real design thinking → opens a **phase**.
+
+**Shared rule — prune on resolve.** None of these is an archive. When an item is done it *leaves* — removed, or compressed to a pointer at its home doc / phase archive. Reassessment is ritualized at phase open (scan for overlap + fired triggers) and phase close (prune shipped, compress resolved). Don't let finished items accumulate behind banners or strikethroughs — that bloat is the thing these rules exist to prevent.
 
 ---
 

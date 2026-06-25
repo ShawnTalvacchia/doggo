@@ -1,12 +1,14 @@
 ---
 status: active
-last-reviewed: 2026-06-22
+last-reviewed: 2026-06-25
 review-trigger: "any time — add items as they're noticed, fix them when convenient"
 ---
 
 # Punch List
 
 Running list of small UI tweaks, visual fixes, and quick bugs that live alongside whatever phase is active.
+
+One of three planning trackers — see `CONTRIBUTING.md` → "The Planning Trackers" for how it relates to Open Questions and Future Considerations and how work flows between them.
 
 ---
 

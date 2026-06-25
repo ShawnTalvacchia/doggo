@@ -9,6 +9,7 @@ Read this before every session. These rules override defaults.
 - **Closing a phase:** Follow the canonical Closing Checklist in `docs/CONTRIBUTING.md` → "Closing a Phase" — the single source of truth. The phase board carries only **phase-specific** close items (feature docs touched, outward-facing artifacts to graduate, punch-list items it closes), never a copy of the generic steps.
 - **Before closing:** Show the user the checklist you're about to work through so they can catch anything missed. Phase close is a high-leverage moment — confirm before editing docs.
 - **Side tasks (focused work between/alongside phases):** Follow `docs/CONTRIBUTING.md` → "Side Tasks." A side task lands as one focused PR, updates only the feature docs it touches, and does NOT modify CLAUDE.md, ROADMAP, phase boards, or the Open Questions log. Default for "should I resume a paused phase?" is **no — ask the user first.**
+- **System work (meta-work on the docs/workflow itself):** Restructuring a tracker, rewriting these rules, reorganizing the doc tree, editing CLAUDE.md or the ROADMAP's structure — not a phase, not a side task. It's the **inverse of a side task**: the one mode allowed to touch the governance docs. Done with the user, between phases (not mid-walkthrough), as its own commit. See `docs/CONTRIBUTING.md` → "System Work."
 
 ## Stack
 

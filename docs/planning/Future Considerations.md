@@ -1,19 +1,20 @@
 ---
 status: living
-last-reviewed: 2026-06-24
-review-trigger: "Append when a 'noted for later' idea surfaces; promote out when triggered"
+last-reviewed: 2026-06-25
+review-trigger: "Append when a 'noted for later' idea surfaces; promote out when triggered, remove when shipped"
 ---
 
 # Future Considerations
 
-Long-term ideas, possible add-ons, and improvements to keep on the radar — things that aren't actionable now but are worth not-forgetting.
+Long-term ideas, possible add-ons, and improvements to keep on the radar — things that aren't actionable now but are worth not-forgetting. Each item is a **known direction waiting for a trigger** (the unit here is the trigger, not the task).
 
-**Distinct from:**
-- **Open Questions** (`docs/planning/Open Questions & Assumptions Log.md`) — unresolved questions affecting upcoming work. Future Considerations are NOT questions; the direction is known, just waiting for a trigger.
-- **Punch List** (`docs/planning/punch-list.md`) — concrete, actionable fixes (≤few hours each). Future Considerations are speculative or trigger-gated; usually too big OR too tentative for the punch list.
-- **Phase boards** (`docs/phases/*.md`) — multi-task coordinated goals. A Future Consideration that grows trigger-fired scope can graduate to a phase board.
+This is one of three planning trackers — see `CONTRIBUTING.md` → "The Planning Trackers" for how it relates to the Punch List and Open Questions and how work flows between them.
 
-**Lifecycle:** items live here until their trigger fires (data scale reached, user feedback received, related work surfaces, etc.). When triggered, **promote out** — to the punch list (small fix), a phase board (coordinated work), or feature scope. Don't let items rot here for years without a trigger check.
+**Lifecycle.** An item lives here until either:
+- its **trigger fires** (data scale reached, user feedback received, related work surfaces) → **promote out** to the punch list (small fix), a phase board (coordinated work), or feature scope; or
+- a phase **ships it** → **remove it.** The phase archive is the record — don't retain a shipped entry behind a ✅ banner. If a phase ships only *part* of an item, rewrite the entry to lead with the remaining open work, with the shipped part demoted to a one-line "(slice shipped, see archive)" note.
+
+Reassessment is ritualized at phase open (scan for fired triggers) and phase close (prune shipped). This file is **not an archive** — nothing fully shipped should sit here.
 
 **Item format:**
 - **Title** — one-line summary
@@ -177,12 +178,6 @@ Cards remain the default. A view-mode toggle (Cards · List · Carousel) would s
 
 ---
 
-## FC8. Shelter dog tag system formalization *(resolved 2026-06-02 — Dog Profile phase)*
-
-**Shipped.** Dog Profile phase landed the three-category split: auto-derived chips via `deriveAutoTags` in `lib/petUtils.ts`; controlled `PersonalityTag` vocabulary in `lib/types.ts` with labels + picker order in `lib/constants/dogs.ts`; policy chips via `derivePolicyChips`. `PetProfile.tags: string[]` replaced by `personalityTags: PersonalityTag[]`. Seed migration cleaned redundant auto-derivable entries (Long-stayer / New arrival / Adoption pending dropped from manual seeds; Senior + Puppy kept in vocabulary pending structured-age refactor). PetEditCard surfaces the controlled-vocabulary picker on owned-dog editing; shelter operator authoring deferred to V3+. Full taxonomy doc: [[features/shelters]] → "Dog profile tag taxonomy."
-
----
-
 ## FC9. Locked-profile rendering across surfaces
 
 **Trigger:** The Credentialing Moat phase (Carer Portfolio + Shelter Walker Credentialing) opens. Or sooner if a walkthrough surfaces "I clicked on a walker name and it 404'd" / "Why can't I see this person?"
@@ -228,20 +223,16 @@ This thread overlaps with the **Anxious New Owner** archetype (User Archetypes, 
 
 **Trigger:** Walker bridge to `UserProfile` lands (credentialing-moat phase). Or when a third source of truth needs to feed the post header (supporter authoring, shelter operator surface, etc.).
 
-**Context:** Shelter Foundation introduced two resolvers in `components/feed/MomentCard.tsx`:
-
-- `resolveAuthorHref(authorId)` — routes post-author links to `/shelters/`, `/profile/`, or undefined (for directory-style walkers without a profile).
-- `resolveAuthorAvatarUrl(authorId, fallback)` — overrides the denormalized `Post.authorAvatarUrl` when the author is a walker, pulling from `ShelterWalker.avatarUrl` (single source of truth).
-
-This works cleanly for walkers because their avatars now live on the walker record. Three follow-ups when more cases arise:
+**Context:** Shelter Foundation introduced two resolvers in `components/feed/MomentCard.tsx` — `resolveAuthorHref(authorId)` (routes post-author links to `/shelters/`, `/profile/`, or undefined for directory-style walkers without a profile) and `resolveAuthorAvatarUrl(authorId, fallback)` (overrides the denormalized `Post.authorAvatarUrl` for walkers, pulling from `ShelterWalker.avatarUrl`). Two follow-ups remain when more cases arise:
 
 1. **Extend to supporters.** Today supporters don't author posts (only react/comment), so the resolver has no work to do. When/if supporters post — or when the comment-author treatment gets the same single-source treatment — `findShelterSupporter` would mirror `findShelterWalker`.
 2. **Extend to shelter logos on shelter-authored posts.** Currently shelter posts denormalize `authorAvatarUrl` to the shelter logo path. If the logo URL changes (real shelter onboarding, brand pass), every post would need re-seeding. Switching to resolver-based lookup (`getShelterById(authorId).logoUrl`) eliminates the drift risk. Small change but worth doing the next time we touch shelter posts.
-3. ~~**Promote the violet pair to tokens.**~~ **✅ DONE 2026-06-21 (Design-System Audit WS-B).** The full violet family is now `--violet-50/100/300/700/800` (primitive ramp) + `--status-volunteer-soft/light/border/main/strong` (semantic), surfaced in the styleguide. Every violet hex/rgba across the app migrated onto it; the scoped `--mentor-progress-violet*` one-offs collapsed to family aliases. See `design-tokens.md`.
+
+*(A third sub-item — promote the violet pair to tokens — shipped 2026-06-21, Design-System Audit WS-B; see `archive/phases/design-system-audit-and-cleanup.md` + `design-tokens.md`.)*
 
 **Effort:** ~30min per change. Each is mechanical.
 
-**Refs:** `components/feed/MomentCard.tsx`, `lib/mockShelters.ts` (`findShelterWalker`), `app/globals.css` (violet hex pair in two rules).
+**Refs:** `components/feed/MomentCard.tsx`, `lib/mockShelters.ts` (`findShelterWalker`), `lib/mockPosts.ts` (shelter-authored post seeds).
 
 **Added:** 2026-06-02
 
@@ -279,37 +270,6 @@ When the editable-post store lands, the action should mutate `Post.tags[]` direc
 
 ---
 
-## FC15. Shared `<SortMenu />` primitive
-
-> **✅ SHIPPED 2026-06-21 (Design-System Audit + Cleanup, WS-D).** Extracted to `components/ui/SortMenu.tsx` from the two byte-identical inline copies (shelter Dogs tab + Help a Dog); `.shelter-sort-*` CSS renamed `.sort-menu-*`. Documented in `design-system.md` (Primitives). Entry retained for history.
-
-**Trigger:** Design System Cleanup phase opens. Or a third consumer is about to copy the same component inline — extract first instead of fan-out.
-
-**Context:** The custom-styled sort dropdown (label + caret trigger + outside-click + Esc handlers + `.dropdown-menu` listbox) lives inlined in two places as of 2026-06-08:
-- `app/shelters/[id]/page.tsx` — shelter Dogs tab toolbar
-- `app/discover/help-a-dog/page.tsx` — Help a Dog Dogs view toolbar
-
-The two copies are near-identical. The only meaningful divergence is the trigger's CSS class (`.shelter-sort-trigger` — shelter-prefixed, which would need generalizing as part of the extraction). Effort beyond that: thin — the component shape is already stable.
-
-**Proposed API:**
-```tsx
-<SortMenu
-  value={sortKey}
-  options={SORT_OPTIONS}
-  onChange={setSortKey}
-/>
-```
-
-Move the trigger styling to a generic class (e.g. `.sort-menu-trigger`) and re-point the existing shelter consumer at it. The `dropdown-menu` / `dropdown-menu-item` classes are already generic; reuse those.
-
-**Effort:** ~30-45 min. New `components/ui/SortMenu.tsx`; generalize `.shelter-sort-trigger` → `.sort-menu-trigger` in `app/globals.css`; two migration call sites; document in design-system.md under primitives.
-
-**Refs:** `app/shelters/[id]/page.tsx:496` (current inline copy + helper context), `app/discover/help-a-dog/page.tsx` (second copy), `.dropdown-menu` pattern in `app/globals.css`, P67 (component-consolidation audit — fits the same recurring-pattern theme). Surfaced 2026-06-08 during Help a Dog Discover door build.
-
-**Added:** 2026-06-08
-
----
-
 ## FC14. Instagram-style drag-over-photo sheet on PostLightbox (mobile)
 
 **Trigger:** When a Demo Presentation polish pass opens pre-tester sit-down. Or when user testing surfaces "feels truncated" on the photo area below 55dvh.
@@ -326,9 +286,9 @@ Move the trigger styling to a generic class (e.g. `.sort-menu-trigger`) and re-p
 
 ## FC16. Shelter admin / operator surfaces
 
-> **⤴ GRADUATING 2026-06-24 → Phase 2 "The Shelter's Side"** (the next phase, second half of the two-phase validation arc opened by the Multi-Path Demo phase). Phase 2 builds the shelter *operator* surface — the operator/admin views currently stubbed in the demo as "demo controls" / state-toggles. Phase 2 pulls a slice of the scope below forward; the rest stays here until its trigger fires.
+> **Partly graduated.** Phase 2 "The Shelter's Side" (opened 2026-06-24 off the Multi-Path Demo arc) pulls a slice of the scope below forward — the operator/admin views stubbed in the demo as state-toggles. This entry holds the **remaining** operator scope Phase 2 doesn't build; it stays until its trigger fires. When Phase 2 closes, prune whatever it shipped.
 
-**Trigger:** A real shelter conversation surfaces the need (or Cross-Shelter Mentor Network phase requires admin-side affordances to be walkable in demo).
+**Trigger:** A real shelter conversation surfaces the need (or a phase requires admin-side affordances to be walkable in demo).
 
 **Context:** The Mentor Network phase ships everything the *walker* side needs (apply, mentor-vouched apply, mentor session booking, tier progression). It explicitly skips the *shelter admin* side — application review surface, walker pool management, per-shelter waiver authoring, walker tier overrides, historical-walks crediting (the bootstrap affordance from Cold-Start Playbook → mentor-vouching). For the demo, those admin surfaces can be partially faked (state-toggle for application approve/reject, pre-seeded credit counts) so the walker journey is walkable end-to-end without a real admin view.
 
@@ -360,70 +320,18 @@ The full admin/operator side becomes meaningful when (a) a real shelter wants to
 
 ---
 
-## FC17. Feature-focused guided walkthroughs (beyond the V2 concept story)
+## FC18. Group shelter walk — checkout/release logistics for a multi-dog group walk
 
-> **✅ SHIPPED 2026-06-24 via `phases/multi-path-demo.md` (Phase 1 of a two-phase arc).** Delivered as a **named-walkthrough registry** + a **multi-door launcher** (distinct journey doors on `/`) + **three single-thesis guided walkthroughs** — W1 new-owner, W2 trainer, W3 shelter (demand-side). Re-scoped from the documented four feature-paths to **three audience Worlds**; `neighbour-care` absorbed into W1. The shelter's *operator* view (not in FC17's taxonomy) became the real fourth and graduates to **Phase 2 "The Shelter's Side"** (pulls a slice of [[FC16]] forward). Entry retained for the source taxonomy + scope-sketch; the board + `lib/walkthroughBeats.ts` are the SOT.
+> **Mostly shipped; what remains is the physical hand-off model.** The group-walk concept and its demo sign-up slice both shipped (one-line record at the bottom). This entry now holds only the **open operational question**: how a shelter releases several dogs to one group at once.
 
-**Trigger:** After the current feature/surface flesh-out arc settles (Mentor Network closed + Adoption-Curious Doorway / Multi-Path Demo landed, or whenever a demo-packaging pass opens). PO direction given 2026-06-10 during the Mentor Network build. **NOT gated on shelter interviews** (PO clarification 2026-06-11: interview timing is unknown, so the guided shelter-facing walkthrough — concise, clearly and strongly demonstrating the potential features — is on the build path regardless; the live-driven script doc remains the interview artifact for whenever those happen, not a prerequisite).
+**Open (the remaining work):** the real shelter-dog **checkout/release model** for a group walk — a shelter handing N dogs to a group is operationally heavier than a one-at-a-time hand-off, and mentor-as-responsible-party likely matters. Paired open questions: newcomer-in-a-group **liability** (an un-vouched person where dogs are out — purely social until vouched, or a "supervised handling" middle state?) and **group-context waivers**. These are **shelter-interview questions**, now being tested in Phase 2 "The Shelter's Side" (board item B3 proposes a mentor-signs-out-the-batch model). When Phase 2 settles them, close this entry.
 
-**Context:** The guided-walkthrough infrastructure (auto-switching personas, interstitials, step cards — `WalkthroughContext`, Demo Narrative V2) currently carries ONE story: the 3-beat Daniel → Klára → Daniel concept narrative. The Mentor Network phase drove its shelter-facing demo LIVE via the hidden state-toggles (walkthrough O9) — but per the 2026-06-11 PO direction, **the guided demo IS the interview**: there's no separate live-presentation step before it. The guided shelter walkthrough therefore carries the interview function itself — concise, clearly and strongly demonstrating the potential features, with the Playbook's assumption probes embedded as in-demo checkpoints (step cards / interstitials that pose the question to the viewer: "would your shelter accept this vouch?"), not as a separate crib sheet. The live-driven script doc (`cross-shelter-mentor-network-shelter-demo.md`) is the SOURCE MATERIAL for that conversion — its beats + ASSUMPTION callouts + crosswalk table translate nearly one-to-one — and stops being a standalone delivery plan.
+**Trigger:** A shelter conversation (or Phase 2's feasibility kit) lands a workable hand-off model.
 
-**Walkthrough taxonomy (PO direction 2026-06-11 — names are placeholders, bless at build time):** more than two, by splitting the current main demo. Today's 3-beat story shows the trainer-walker angle AND the private-group "Care from neighbours" surface — two unrelated, somewhat competing care models sharing one long tour. Proposed registry, each path tight and single-thesis, semantic ids + display names anchored to the Ways In doors:
+**Context (for the open question):** The intended data shape is a shelter-walk `Booking` linked to the meet occurrence via `Booking.dropoffMeetId` (not an in-meet dog-picker) — see `lib/groupWalkBooking.ts` and Open Questions (FC18-tension-2). The strategic rationale (warm on-ramp, two-tier vouched/un-vouched roster, mentor retention, adoption engine) lives in the shipped-design records.
 
-| id | Working name | Thesis | Source |
-|---|---|---|---|
-| `trainer-walker` | "Meet your trainer" | Community walk → trust → paid training (the keystone archetype; Daniel → Klára) | Split from the current main demo |
-| `neighbour-care` | "Care from your neighbours" | Private block group, neighbours minding each other's dogs (Magda/Tomáš world) | Split from the current main demo |
-| `shelter-mentor` | "Help a shelter dog" | Mentor-vouched path to walking shelter dogs + shelter authority (Tomáš's mentee arc) | Converted from the Mentor Network script doc |
-| `adoption-curious` | "Try before you adopt" | Walk shelter dogs to explore ownership | **Content + beats SHIPPED** 2026-06-13 (Adoption-Curious Journey); beats in `Demo Narrative.md` → Adoption-Curious Arc. FC17 wraps them in guided UI. |
+*(Shipped: the **concept** — a mixed community Meet linked to a shelter via `Meet.shelterWalk`, shelter dogs on the People tab — landed 2026-06-13, Adoption-Curious Journey. The **demo sign-up slice** — `GroupWalkSignupSheet` → a two-tier meet-linked shelter-walk `Booking` — landed 2026-06-24, Multi-Path Demo WS-G. Records: `archive/phases/adoption-curious-journey.md`, `archive/phases/multi-path-demo.md`.)*
 
-**Scope sketch when triggered:**
-- **Landing-page restructure** (PO, 2026-06-10): the `/` launcher gets walkthrough journey openings as distinct entry doors — not a picker behind the single "Start the walkthrough" CTA. The cast-card half likely reshuffles around them. (Deliberately deferred during the Mentor Network phase — only Tomáš's card copy was updated then.)
-- Walkthrough registry — named walkthroughs (semantic ids above) with their own beat lists; launcher doors map onto them.
-- Per-walkthrough pre-staged state (the pre-staging the Mentor Network deliberately skipped) — likely seeded context snapshots keyed by walkthrough id, so a guided run starts mid-world without hand-driving toggles.
-- **Splitting the main demo** — belongs with the Multi-Path Demo phase's "cut each individual demo path tighter" discipline; the split decision is made there, this entry carries the direction.
-- **Assumption checkpoints in the shelter-mentor walkthrough** — the interview function: in-demo moments that pose the A# probes to a coordinator viewer and (ideally) capture their reaction.
-- **Mentor slots calendar** (production direction, noted 2026-06-11) — the mentor list currently summarizes coarse availability ("6 days a week · mornings & afternoons") + date-picker booking, consistent with every other booking surface. The real version is a calendar of mentors × bookable slots — but a slot model exists NOWHERE in the prototype, so it waits for a scheduling layer rather than being invented for one flow.
-
-**Effort:** Medium-plus — the step-card/interstitial machinery exists; the new work is the registry, per-walkthrough state staging, beat authoring ×3, and the checkpoint pattern.
-
-**Refs:** `features/demo-mode.md` (guided walkthrough spec), `strategy/Demo Narrative.md`, `phases/cross-shelter-mentor-network-shelter-demo.md` (beat script to convert), ROADMAP → Adoption-Curious Doorway + Multi-Path Demo (parallel-paths discipline).
-
-**Added:** 2026-06-10
-
----
-
-## FC18. Group shelter walk — a Meet that sources its dogs from a shelter (the social on-ramp + mentorship funnel)
-
-> **✅ DEMO SLICE SHIPPED 2026-06-24 via `phases/multi-path-demo.md` (Workstream G).** Real sign-up to walk a shelter dog ON the trainer-led group walk → a meet-linked shelter-walk `Booking` (`dropoffMeetId`); **two-tier** (vouched = free volunteer walk; un-vouched = paid mentored first walk that counts toward the vouch); captured walk feeds the advocacy loop. **Deferred operational pieces remain future** (still shelter-interview questions): the physical multi-dog checkout/release model, mentor-as-responsible-party, group-context waivers, and the shelter *operator* side (→ Phase 2 "The Shelter's Side" / [[FC16]]). Entry retained for those open logistics + the shipped-design record.
-
-> **✅ SHIPPED 2026-06-13 (Adoption-Curious Journey, Workstream C).** Built as a **mixed** community walk linked to a shelter via `Meet.shelterWalk?: { shelterId }`; shelter dogs ride in `MeetAttendee.dogNames` (name-resolved, badged on the People tab); host = Klára (Super Volunteer) in her care group; Útulek flipped `groupWalksPermitted: true`. The two-tier funnel survives as the un-vouched "Walk with a mentor" eyebrow link. **Reframed from the original spec:** newcomers do NOT attend dogless ("come along socially" was dropped as off-thesis) — the walk is dog-first and the newcomer's path is the mentored first walk, not tagging along. **Carried forward** (logged in Open Questions, not built): the real shelter-dog **checkout/release model** for a group (intended = a shelter-walk `Booking` linked via `Booking.dropoffMeetId`, not an in-meet picker) → shelter interviews. Entry retained for that open logistics question + the shipped-design record.
-
-**Trigger:** After the Cross-Shelter Mentor Network closes and the solo-walk Booking surface (Workstream G) is solid. Or sooner if a shelter conversation surfaces "we'd rather host group walks than one-at-a-time hand-offs," or the Adoption-Curious Doorway / Multi-Path Demo phase wants a warmer entry than a cold solo shelter visit. PO idea, 2026-06-12.
-
-**Context:** A trainer-walker (Super Volunteer / mentor) promotes a **group walk where members pick up shelter dogs** — they collect a dog from the shelter, others sign up to collect one too. The insight: a friendly group walk is a far more inviting on-ramp than walking into a shelter cold and decoding its process. Volunteering + meeting people + visibly showing you volunteer all compound — the community grows and more dogs get cared for.
-
-This reuses a primitive we already have. "Meets" is the umbrella for organized dog social activities, and the **Meet** service shape is already "sessions with a roster → RSVP" (Services as Catalog). A group shelter walk *is* a Meet — the only new thing is that the roster's dogs come from a `ShelterProfile.dogs[]` instead of members' homes. Not a new concept; a Meet whose dogs are shelter dogs.
-
-What makes it strategically load-bearing is the **two-tier roster**, because walking a shelter dog gates on being vouched (the credentialing machine):
-- **Vouched walkers** → can pick up a dog and walk.
-- **Un-vouched newcomers** → can still *join the walk* (come along, meet people, see how it works) but can't take a dog yet — **and that slot is exactly where a "get mentored by me" CTA lands.** The group walk becomes the warm top-of-funnel; mentorship is the conversion. This is the cold-start answer: nobody walks into a shelter cold.
-
-Second-order unlocks:
-- **The mentor gets a recurring product + a retention mechanic.** Today mentoring is a one-time transaction (3 sessions → vouched → relationship's job is done). A standing group walk gives the Super Volunteer a durable role — newcomers to convert *and* graduates who come back for the social walk, instead of graduating and drifting off.
-- **Convergence surface.** A community Meet (green) that produces shelter care (Help a Dog) and runs on the credentialing layer (violet) — where the Ways In actually meet.
-- **Adoption engine.** A long-stayer (Maja) gets out, is seen on the trail, photographed, posted (posts/photos are one collection); a walker who bonds is the warmest adoption lead there is. Feeds the existing "Adopt {dog}" CTA. Overlaps the deferred adoption-curious / Multi-Path thread.
-
-**The shelter pitch it sharpens:** to a shelter this is **enrichment throughput + a managed, vetted pipeline + an adoption funnel** in one — one mentor enriches N dogs per outing and onboards newcomers simultaneously; it's credentialed, so it answers the liability objection up front; bonded walkers become adopters and advocates. The broader frame the PO is forming: Doggo promotes more dog care, more adoption, more dog knowledge — community grows, more dogs get cared for, and shelters see the appeal.
-
-**Two open tensions to resolve before pitching (not now):**
-1. **Newcomer-in-a-group liability** — an un-vouched person at a walk where dogs are out. Purely social (no dog contact) until vouched, or a "supervised handling" middle state? Shelter-policy question, A2-adjacent.
-2. **Checkout logistics** — a shelter releasing N dogs to a group at once is operationally heavier than one-at-a-time; the mentor-as-responsible-party likely matters here.
-
-**Color note:** both the mentored walk and a plain solo shelter walk sit in **violet (volunteer)**, distinguished by content (mentor present + session counter vs none), not a second color — see the booking-accent discussion. The group walk itself is a community Meet (green) at the top of funnel; the mentorship conversion inside it is violet. That green→violet boundary is the funnel, and it's a feature.
-
-**Effort:** Medium-to-large — likely its own phase (or a workstream within Multi-Path / Adoption-Curious). Reuses the Meet roster + RSVP machinery and the eligibility/vouch check; new work is the shelter-dog roster source, the two-tier roster rendering + newcomer CTA, and the group dog-checkout model. Demo-able earlier than fully built (the roster + CTA carry the story).
-
-**Refs:** `docs/strategy/Groups & Care Model.md` (Meet shape / Services as Catalog), `docs/strategy/Cold-Start Playbook.md` ("Help a Dog" thread + mentor-vouching engine), `docs/features/shelters.md` (`ShelterProfile.dogs[]`, walker eligibility), `phases/cross-shelter-mentor-network-shelter-demo.md` (shelter pitch framing), [[FC7]] (Dogs tab carousel for Help a Dog), [[FC17]] (`adoption-curious` walkthrough). Surfaced 2026-06-12 during Mentor Network booking-sheet polish.
+**Refs:** `docs/features/shelters.md` ("Group shelter walk (FC18)"), `docs/planning/Open Questions & Assumptions Log.md` (FC18-tension-2 checkout/release), `phases/the-shelters-side.md` (B3 — the Phase-2 release proposal), `docs/strategy/Groups & Care Model.md` (config #2 linked-care booking). Surfaced 2026-06-12.
 
 **Added:** 2026-06-12
