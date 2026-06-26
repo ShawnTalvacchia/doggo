@@ -19,6 +19,7 @@ import type { AdoptionStage } from "@/lib/useAdoptionStore";
 import { useAdoptionStore } from "@/lib/useAdoptionStore";
 import type { PetProfile, ShelterProfile } from "@/lib/types";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ButtonAction } from "@/components/ui/ButtonAction";
 
 type DogInterest = {
   dog: PetProfile;
@@ -99,23 +100,25 @@ export function ShelterAdoptionsPanel({ shelter }: { shelter: ShelterProfile }) 
 
           <div className="flex items-center gap-sm">
             {stage === "interested" ? (
-              <button
-                type="button"
+              <ButtonAction
+                variant="volunteer"
+                size="sm"
+                className="w-full"
+                leftIcon={<CalendarCheck size={14} weight="bold" />}
                 onClick={() => setStage(dog.id, "pending", adopterName)}
-                className="flex flex-1 items-center justify-center gap-xs rounded-pill bg-volunteer px-md py-xs text-xs font-semibold text-volunteer-soft"
               >
-                <CalendarCheck size={14} weight="bold" />
                 Arrange meet-and-greet
-              </button>
+              </ButtonAction>
             ) : (
-              <button
-                type="button"
+              <ButtonAction
+                variant="volunteer"
+                size="sm"
+                className="w-full"
+                leftIcon={<House size={14} weight="bold" />}
                 onClick={() => setStage(dog.id, "adopted", adopterName)}
-                className="flex flex-1 items-center justify-center gap-xs rounded-pill bg-volunteer px-md py-xs text-xs font-semibold text-volunteer-soft"
               >
-                <House size={14} weight="bold" />
                 Finalise adoption
-              </button>
+              </ButtonAction>
             )}
           </div>
         </div>

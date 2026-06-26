@@ -29,7 +29,7 @@ import {
   ShieldCheck,
   Camera,
   PawPrint,
-  ArrowsOut,
+  Users,
 } from "@phosphor-icons/react";
 import type { Booking, BookingSession, PetProfile, ShelterProfile, WalkerTier } from "@/lib/types";
 import { useBookings } from "@/contexts/BookingsContext";
@@ -37,6 +37,7 @@ import { getMeetById } from "@/lib/mockMeets";
 import { getUserById } from "@/lib/mockUsers";
 import { daysFromNow } from "@/lib/mockDate";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ButtonAction } from "@/components/ui/ButtonAction";
 import { WalkerTierPill } from "@/components/shelters/WalkerTierPill";
 
 /* ── Handover lifecycle ───────────────────────────────────────────────── */
@@ -143,13 +144,21 @@ export function ShelterHandoverBoard({ shelter }: { shelter: ShelterProfile }) {
 
   return (
     <div className="flex flex-col gap-lg p-md">
-      {/* Glance summary — the "how little work this is" read at a glance. */}
-      <div className="flex items-center gap-lg rounded-panel border border-edge-regular bg-surface-base px-md py-sm">
-        <SummaryStat value={dueSolo.length + groupBatches.flatMap(([, b]) => b).filter((b) => handoverState(b.sessions?.[0]) === "due").length} label="to collect" />
-        <span className="h-7 w-px bg-edge-regular" aria-hidden />
-        <SummaryStat value={outCount} label="out now" tone="volunteer" />
-        <span className="h-7 w-px bg-edge-regular" aria-hidden />
-        <SummaryStat value={backSolo.length} label="back safe" tone="success" />
+      {/* Glance summary — the "how little work this is" read at a glance.
+          Numbers are neutral; the labels carry the meaning (kept restrained
+          on colour per design review). */}
+      <div className="grid grid-cols-3 divide-x divide-edge-regular rounded-panel border border-edge-regular bg-surface-base py-sm">
+        <SummaryStat
+          value={
+            dueSolo.length +
+            groupBatches
+              .flatMap(([, b]) => b)
+              .filter((b) => handoverState(b.sessions?.[0]) === "due").length
+          }
+          label="to collect"
+        />
+        <SummaryStat value={outCount} label="out now" />
+        <SummaryStat value={backSolo.length} label="back safe" />
       </div>
 
       {/* Group walk batch(es) — the multi-dog release proposal. */}
@@ -192,13 +201,11 @@ export function ShelterHandoverBoard({ shelter }: { shelter: ShelterProfile }) {
   );
 }
 
-function SummaryStat({ value, label, tone }: { value: number; label: string; tone?: "volunteer" | "success" }) {
-  const color =
-    tone === "volunteer" ? "text-volunteer" : tone === "success" ? "text-success" : "text-fg-primary";
+function SummaryStat({ value, label }: { value: number; label: string }) {
   return (
-    <div className="flex flex-col">
-      <span className={`text-lg font-semibold leading-none ${color}`}>{value}</span>
-      <span className="text-xs text-fg-tertiary mt-tiny">{label}</span>
+    <div className="flex flex-col items-center">
+      <span className="text-lg font-semibold leading-none text-fg-primary">{value}</span>
+      <span className="mt-tiny text-xs text-fg-tertiary">{label}</span>
     </div>
   );
 }
@@ -280,24 +287,28 @@ function HandoverRow({
       </div>
 
       {onCheckOut && (
-        <button
-          type="button"
-          onClick={onCheckOut}
-          className="flex flex-shrink-0 items-center gap-xs rounded-pill bg-volunteer px-md py-xs text-xs font-semibold text-volunteer-soft"
-        >
-          <DoorOpen size={14} weight="bold" />
-          Check out
-        </button>
+        <div className="flex-shrink-0">
+          <ButtonAction
+            variant="volunteer"
+            size="sm"
+            leftIcon={<DoorOpen size={14} weight="bold" />}
+            onClick={onCheckOut}
+          >
+            Check out
+          </ButtonAction>
+        </div>
       )}
       {onCheckIn && (
-        <button
-          type="button"
-          onClick={onCheckIn}
-          className="flex flex-shrink-0 items-center gap-xs rounded-pill border border-volunteer-border bg-volunteer-light px-md py-xs text-xs font-semibold text-volunteer-strong"
-        >
-          <ShieldCheck size={14} weight="bold" />
-          Back safe
-        </button>
+        <div className="flex-shrink-0">
+          <ButtonAction
+            variant="outline"
+            size="sm"
+            leftIcon={<ShieldCheck size={14} weight="bold" />}
+            onClick={onCheckIn}
+          >
+            Back safe
+          </ButtonAction>
+        </div>
       )}
     </div>
   );
@@ -328,11 +339,9 @@ function GroupBatchCard({
   const anyOut = batch.some((b) => handoverState(b.sessions?.[0]) === "out");
 
   return (
-    <div className="flex flex-col gap-sm rounded-panel border border-volunteer-border bg-volunteer-light/40 p-md">
+    <div className="flex flex-col gap-sm rounded-panel border border-edge-regular bg-surface-base p-md">
       <div className="flex items-start gap-sm">
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-volunteer-light text-volunteer-strong">
-          <ArrowsOut size={18} weight="light" />
-        </div>
+        <Users size={18} weight="light" className="mt-tiny flex-shrink-0 text-fg-tertiary" />
         <div className="flex min-w-0 flex-1 flex-col gap-tiny">
           <span className="text-sm font-semibold text-fg-primary">
             {meet?.title ?? "Group walk"}
@@ -348,13 +357,13 @@ function GroupBatchCard({
         )}
       </div>
 
-      {/* The dogs in the batch. */}
-      <div className="flex flex-col gap-xs">
+      {/* The dogs in the batch — hairline-divided rows, no inset fills. */}
+      <div className="flex flex-col divide-y divide-edge-regular border-y border-edge-regular">
         {batch.map((b) => {
           const dog = dogByName(b.pets[0]);
           const state = handoverState(b.sessions?.[0]);
           return (
-            <div key={b.id} className="flex items-center gap-sm rounded-md bg-surface-base px-sm py-xs">
+            <div key={b.id} className="flex items-center gap-sm py-xs">
               {dog?.imageUrl ? (
                 <img src={dog.imageUrl} alt="" className="h-8 w-8 flex-shrink-0 rounded-md object-cover" />
               ) : (
@@ -372,13 +381,16 @@ function GroupBatchCard({
                   <CheckCircle size={12} weight="fill" /> Back safe
                 </span>
               ) : state === "out" ? (
-                <button
-                  type="button"
-                  onClick={() => onCheckIn(b)}
-                  className="rounded-pill border border-volunteer-border bg-volunteer-light px-sm py-tiny text-xs font-semibold text-volunteer-strong"
-                >
-                  Back safe
-                </button>
+                <div className="flex-shrink-0">
+                  <ButtonAction
+                    variant="outline"
+                    size="sm"
+                    leftIcon={<ShieldCheck size={13} weight="bold" />}
+                    onClick={() => onCheckIn(b)}
+                  >
+                    Back safe
+                  </ButtonAction>
+                </div>
               ) : (
                 <span className="text-xs text-fg-tertiary">Ready</span>
               )}
@@ -387,22 +399,16 @@ function GroupBatchCard({
         })}
       </div>
 
-      {/* The proposal: who is the responsible party for a batch release. */}
-      <p className="m-0 rounded-md bg-surface-base px-sm py-xs text-xs text-fg-tertiary">
-        Proposal: {hostName ?? "the host"} signs out the group as the responsible walker — one
-        check-out for the batch, not one per dog. Does that match how you&rsquo;d hand off several
-        dogs at once?
-      </p>
-
       {allDue && (
-        <button
-          type="button"
+        <ButtonAction
+          variant="volunteer"
+          size="md"
+          className="w-full"
+          leftIcon={<DoorOpen size={16} weight="bold" />}
           onClick={onCheckOutBatch}
-          className="flex items-center justify-center gap-xs rounded-pill bg-volunteer px-md py-sm text-sm font-semibold text-volunteer-soft"
         >
-          <DoorOpen size={16} weight="bold" />
           Check out all · {batch.length} dogs
-        </button>
+        </ButtonAction>
       )}
       {anyOut && !allDue && (
         <span className="text-center text-xs text-fg-tertiary">Group is out — confirm each back safe on return.</span>

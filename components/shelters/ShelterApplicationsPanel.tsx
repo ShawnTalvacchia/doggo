@@ -18,6 +18,7 @@ import type { ShelterProfile, WalkerApplication } from "@/lib/types";
 import { useWalkerApplications } from "@/contexts/WalkerApplicationsContext";
 import { getUserById } from "@/lib/mockUsers";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ButtonAction } from "@/components/ui/ButtonAction";
 
 function applicantDisplay(a: WalkerApplication): { name: string; avatarUrl?: string } {
   if (a.applicantName) return { name: a.applicantName, avatarUrl: a.applicantAvatarUrl };
@@ -114,22 +115,25 @@ export function ShelterApplicationsPanel({ shelter }: { shelter: ShelterProfile 
             )}
 
             <div className="flex items-center gap-sm">
-              <button
-                type="button"
-                onClick={() => advance(a.userId, shelter.id)}
-                className="flex flex-1 items-center justify-center gap-xs rounded-pill bg-volunteer px-md py-xs text-xs font-semibold text-volunteer-soft"
-              >
-                <Check size={14} weight="bold" />
-                {a.state === "applied" ? "Invite to visit" : "Vouch as walker"}
-              </button>
-              <button
-                type="button"
+              <div className="flex-1">
+                <ButtonAction
+                  variant="volunteer"
+                  size="sm"
+                  className="w-full"
+                  leftIcon={<Check size={14} weight="bold" />}
+                  onClick={() => advance(a.userId, shelter.id)}
+                >
+                  {a.state === "applied" ? "Invite to visit" : "Vouch as walker"}
+                </ButtonAction>
+              </div>
+              <ButtonAction
+                variant="outline"
+                size="sm"
+                leftIcon={<X size={14} weight="bold" />}
                 onClick={() => withdraw(a.userId, shelter.id)}
-                className="flex items-center justify-center gap-xs rounded-pill border border-edge-regular px-md py-xs text-xs font-medium text-fg-secondary"
               >
-                <X size={14} weight="bold" />
                 Decline
-              </button>
+              </ButtonAction>
             </div>
           </div>
         );

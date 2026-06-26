@@ -1296,15 +1296,19 @@ body:has(.wt-pill) .discover-floating-btn {
   border-color: var(--brand-strong);
 }
 
+/* Pill radius matches the primary CTA so the hover fill reads as a clean,
+   fully-rounded ghost button (was: no radius → partial corners on hover). */
 .wt-interstitial-btn--secondary {
-  padding: 6px 12px;
+  padding: 12px 18px;
+  border-radius: var(--radius-pill);
   background: none;
-  border: none;
+  border: 1px solid transparent;
   color: var(--neutral-400);
 }
 
 .wt-interstitial-btn--secondary:hover {
   color: var(--text-white);
+  background: var(--transparent-light-8);
 }
 
 @media (max-width: 600px) {
