@@ -27,7 +27,6 @@ import {
   DoorOpen,
   CheckCircle,
   ShieldCheck,
-  Camera,
   PawPrint,
   Users,
 } from "@phosphor-icons/react";
@@ -39,6 +38,7 @@ import { daysFromNow } from "@/lib/mockDate";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ButtonAction } from "@/components/ui/ButtonAction";
 import { WalkerTierPill } from "@/components/shelters/WalkerTierPill";
+import { formatSlotTime } from "@/components/shelters/WalkerHandoverModal";
 
 /* ── Handover lifecycle ───────────────────────────────────────────────── */
 
@@ -66,7 +66,13 @@ function nowIso(): string {
 
 /* ── Board ────────────────────────────────────────────────────────────── */
 
-export function ShelterHandoverBoard({ shelter }: { shelter: ShelterProfile }) {
+export function ShelterHandoverBoard({
+  shelter,
+  onOpenWalker,
+}: {
+  shelter: ShelterProfile;
+  onOpenWalker?: (b: Booking) => void;
+}) {
   const { bookings, updateSession } = useBookings();
 
   // The handover board is the LIVE/today view — walks dated today, plus any
@@ -169,6 +175,7 @@ export function ShelterHandoverBoard({ shelter }: { shelter: ShelterProfile }) {
           batch={batch}
           dogByName={dogByName}
           tierFor={tierFor}
+          onOpenWalker={onOpenWalker}
           onCheckOut={checkOut}
           onCheckOutBatch={() => checkOutBatch(batch)}
           onCheckIn={checkIn}
@@ -178,7 +185,7 @@ export function ShelterHandoverBoard({ shelter }: { shelter: ShelterProfile }) {
       {dueSolo.length > 0 && (
         <Section title="Due to collect">
           {dueSolo.map((b) => (
-            <HandoverRow key={b.id} booking={b} dog={dogByName(b.pets[0])} tier={tierFor(b.carerId)} onCheckOut={() => checkOut(b)} />
+            <HandoverRow key={b.id} booking={b} dog={dogByName(b.pets[0])} tier={tierFor(b.carerId)} onOpenWalker={() => onOpenWalker?.(b)} onCheckOut={() => checkOut(b)} />
           ))}
         </Section>
       )}
@@ -186,7 +193,7 @@ export function ShelterHandoverBoard({ shelter }: { shelter: ShelterProfile }) {
       {outSolo.length > 0 && (
         <Section title="Out now">
           {outSolo.map((b) => (
-            <HandoverRow key={b.id} booking={b} dog={dogByName(b.pets[0])} tier={tierFor(b.carerId)} onCheckIn={() => checkIn(b)} />
+            <HandoverRow key={b.id} booking={b} dog={dogByName(b.pets[0])} tier={tierFor(b.carerId)} onOpenWalker={() => onOpenWalker?.(b)} onCheckIn={() => checkIn(b)} />
           ))}
         </Section>
       )}
@@ -194,7 +201,7 @@ export function ShelterHandoverBoard({ shelter }: { shelter: ShelterProfile }) {
       {backSolo.length > 0 && (
         <Section title="Back safe today">
           {backSolo.map((b) => (
-            <HandoverRow key={b.id} booking={b} dog={dogByName(b.pets[0])} tier={tierFor(b.carerId)} />
+            <HandoverRow key={b.id} booking={b} dog={dogByName(b.pets[0])} tier={tierFor(b.carerId)} onOpenWalker={() => onOpenWalker?.(b)} />
           ))}
         </Section>
       )}
@@ -227,6 +234,7 @@ function HandoverRow({
   dog,
   tier,
   bare,
+  onOpenWalker,
   onCheckOut,
   onCheckIn,
 }: {
@@ -237,21 +245,22 @@ function HandoverRow({
    *  inside another card (the group-walk card), keeping every size identical
    *  to the standalone card. */
   bare?: boolean;
+  /** Open the walker hand-off check (clicking the walker). */
+  onOpenWalker?: () => void;
   onCheckOut?: () => void;
   onCheckIn?: () => void;
 }) {
   const s = booking.sessions?.[0];
   const state = handoverState(s);
   const finishedAt = s?.report?.completedAt;
+  const slot = formatSlotTime(s?.startTime);
 
-  // Short time label — only for out walks (when taken out / finished). Due
-  // rows show no label; "back" rows carry their own confirmed marker below.
-  const outLabel =
-    state === "out"
-      ? finishedAt
-        ? `Walk done ${fmtTime(finishedAt)}`
-        : `Out since ${fmtTime(s?.releasedAt)}`
-      : null;
+  // The dog + time, on one secondary line. The shelter knows the dog, so it's
+  // context — the walker (who they're handing the dog to) is the protagonist.
+  let detail = "";
+  if (state === "due") detail = slot ? `· ${slot}` : "";
+  else if (state === "out")
+    detail = finishedAt ? `· walk done ${fmtTime(finishedAt)}` : `· out since ${fmtTime(s?.releasedAt)}`;
 
   const container = bare
     ? "flex flex-wrap items-center gap-md py-md"
@@ -259,28 +268,42 @@ function HandoverRow({
 
   return (
     <div className={container}>
-      {/* Dog avatar — rounded-square (Avatar Rule B), 56px. */}
-      {dog?.imageUrl ? (
-        <Link href={`/dogs/${dog.id}`} className="flex-shrink-0">
-          <img src={dog.imageUrl} alt="" className="h-14 w-14 rounded-md object-cover" />
-        </Link>
-      ) : (
-        <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-md bg-surface-inset">
-          <PawPrint size={22} weight="light" className="text-fg-tertiary" />
-        </div>
-      )}
+      {/* Walker avatar — circle (Avatar Rule B: a person), 56px, the
+          protagonist on the shelter's side. Clickable → hand-off check. */}
+      <button
+        type="button"
+        onClick={onOpenWalker}
+        className="flex-shrink-0 rounded-full"
+        aria-label={`Check ${booking.carerName}`}
+      >
+        <img src={booking.carerAvatarUrl} alt="" className="h-14 w-14 rounded-full object-cover" />
+      </button>
 
       <div className="flex min-w-0 flex-1 flex-col gap-tiny">
-        <span className="truncate text-base font-semibold text-fg-primary">{booking.pets[0]}</span>
-        <span className="flex items-center gap-xs truncate text-xs text-fg-secondary">
-          <img src={booking.carerAvatarUrl} alt="" className="h-4 w-4 rounded-full object-cover" />
-          <span className="truncate">{booking.carerName}</span>
+        <button
+          type="button"
+          onClick={onOpenWalker}
+          className="flex items-center gap-xs text-left"
+        >
+          <span className="truncate text-base font-semibold text-fg-primary hover:underline">
+            {booking.carerName}
+          </span>
           {tier && <WalkerTierPill tier={tier} />}
+        </button>
+        {/* Secondary: the dog (small thumb + name) + the time / live status. */}
+        <span className="flex items-center gap-xs truncate text-xs text-fg-secondary">
+          {dog?.imageUrl && (
+            <img src={dog.imageUrl} alt="" className="h-5 w-5 flex-shrink-0 rounded-sm object-cover" />
+          )}
+          <span className="truncate">
+            {booking.pets[0]}
+            {detail ? ` ${detail}` : ""}
+          </span>
         </span>
       </div>
 
-      {/* Action + label. On mobile this wraps to its own full-width row so the
-          button never crowds the content; on desktop it sits inline, right. */}
+      {/* Action — wraps to its own full-width row on mobile so it never crowds
+          the content; inline on desktop. "Back" shows the confirmed marker. */}
       <div className="flex w-full flex-col gap-tiny sm:w-auto sm:items-end">
         {onCheckOut && (
           <ButtonAction
@@ -304,16 +327,11 @@ function HandoverRow({
             Back safe
           </ButtonAction>
         )}
-        {state === "back" ? (
+        {state === "back" && (
           <span className="flex items-center gap-tiny text-xs text-success">
             <CheckCircle size={12} weight="fill" /> Back safe {fmtTime(s?.returnedAt)}
           </span>
-        ) : outLabel ? (
-          <span className="flex items-center gap-tiny text-xs text-fg-tertiary">
-            {finishedAt && <Camera size={12} weight="light" />}
-            {outLabel}
-          </span>
-        ) : null}
+        )}
       </div>
     </div>
   );
@@ -326,6 +344,7 @@ function GroupBatchCard({
   batch,
   dogByName,
   tierFor,
+  onOpenWalker,
   onCheckOut,
   onCheckOutBatch,
   onCheckIn,
@@ -334,6 +353,7 @@ function GroupBatchCard({
   batch: Booking[];
   dogByName: (name: string) => PetProfile | undefined;
   tierFor: (userId: string) => WalkerTier | undefined;
+  onOpenWalker?: (b: Booking) => void;
   onCheckOut: (b: Booking) => void;
   onCheckOutBatch: () => void;
   onCheckIn: (b: Booking) => void;
@@ -382,6 +402,7 @@ function GroupBatchCard({
               booking={b}
               dog={dogByName(b.pets[0])}
               tier={tierFor(b.carerId)}
+              onOpenWalker={() => onOpenWalker?.(b)}
               onCheckOut={state === "due" ? () => onCheckOut(b) : undefined}
               onCheckIn={state === "out" ? () => onCheckIn(b) : undefined}
             />

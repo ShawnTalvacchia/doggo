@@ -815,7 +815,7 @@ const handoverMajaPavel: Booking = {
   pets: ["Maja"],
   startDate: daysFromNow(0),
   endDate: daysFromNow(0),
-  sessions: [{ id: "hv-maja-1", date: daysFromNow(0), status: "upcoming" }],
+  sessions: [{ id: "hv-maja-1", date: daysFromNow(0), startTime: "11:00", status: "upcoming" }],
   price: VOLUNTEER_PRICE,
   signedAt: daysAgoIso(0, "07:00"),
   status: "upcoming",
@@ -840,7 +840,7 @@ const handoverTondaMarie: Booking = {
   sessions: [
     {
       id: "hv-tonda-1",
-      date: daysFromNow(0),
+      date: daysFromNow(0), startTime: "09:30",
       status: "in_progress",
       releasedAt: daysAgoIso(0, "09:35"),
       checkedInAt: daysAgoIso(0, "09:40"),
@@ -871,7 +871,7 @@ const handoverLizaLukas: Booking = {
   sessions: [
     {
       id: "hv-liza-1",
-      date: daysFromNow(0),
+      date: daysFromNow(0), startTime: "08:30",
       status: "completed",
       releasedAt: daysAgoIso(0, "08:30"),
       checkedInAt: daysAgoIso(0, "08:35"),
@@ -907,7 +907,7 @@ const handoverTheoAnna: Booking = {
   sessions: [
     {
       id: "hv-theo-1",
-      date: daysFromNow(0),
+      date: daysFromNow(0), startTime: "07:45",
       status: "completed",
       releasedAt: daysAgoIso(0, "07:50"),
       checkedInAt: daysAgoIso(0, "07:55"),
@@ -945,7 +945,7 @@ const handoverEddaGroup: Booking = {
   startDate: daysFromNow(0),
   endDate: daysFromNow(0),
   dropoffMeetId: "meet-klara-stromovka",
-  sessions: [{ id: "hv-edda-1", date: daysFromNow(0), status: "upcoming" }],
+  sessions: [{ id: "hv-edda-1", date: daysFromNow(0), startTime: "10:00", status: "upcoming" }],
   price: VOLUNTEER_PRICE,
   signedAt: daysAgoIso(0, "07:00"),
   status: "upcoming",
@@ -965,7 +965,7 @@ const handoverNoraGroup: Booking = {
   startDate: daysFromNow(0),
   endDate: daysFromNow(0),
   dropoffMeetId: "meet-klara-stromovka",
-  sessions: [{ id: "hv-nora-1", date: daysFromNow(0), status: "upcoming" }],
+  sessions: [{ id: "hv-nora-1", date: daysFromNow(0), startTime: "10:00", status: "upcoming" }],
   price: VOLUNTEER_PRICE,
   signedAt: daysAgoIso(0, "07:00"),
   status: "upcoming",
@@ -979,6 +979,7 @@ function upcomingShelterWalk(
   carer: { id: string; name: string; avatarUrl: string },
   dog: string,
   dayOffset: number,
+  startTime: string,
 ): Booking {
   return {
     id,
@@ -993,7 +994,7 @@ function upcomingShelterWalk(
     pets: [dog],
     startDate: daysFromNow(dayOffset),
     endDate: daysFromNow(dayOffset),
-    sessions: [{ id: `${id}-s1`, date: daysFromNow(dayOffset), status: "upcoming" }],
+    sessions: [{ id: `${id}-s1`, date: daysFromNow(dayOffset), startTime, status: "upcoming" }],
     price: VOLUNTEER_PRICE,
     signedAt: daysAgoIso(0, "07:00"),
     status: "upcoming",
@@ -1006,18 +1007,21 @@ const handoverUpcoming: Booking[] = [
     { id: "marie", name: "Marie B.", avatarUrl: "/images/generated/marie-profile.jpeg" },
     "Maja",
     1,
+    "09:00",
   ),
   upcomingShelterWalk(
     "booking-shelter-up-2",
     { id: "pavel-d", name: "Pavel D.", avatarUrl: "/images/generated/marek-profile.jpeg" },
     "Theo",
     1,
+    "14:00",
   ),
   upcomingShelterWalk(
     "booking-shelter-up-3",
     { id: "walker-anna-k", name: "Anna K.", avatarUrl: "/images/generated/hana-profile.jpeg" },
     "Tonda",
     2,
+    "10:30",
   ),
 ];
 
@@ -1046,6 +1050,7 @@ function pastShelterWalk(
       {
         id: `${id}-s1`,
         date: daysAgo(dayOffset),
+        startTime: "09:00",
         status: "completed",
         releasedAt: daysAgoIso(dayOffset, "09:00"),
         checkedInAt: daysAgoIso(dayOffset, "09:05"),
@@ -1100,7 +1105,7 @@ const handoverPast: Booking[] = [
  * that should appear without requiring testers to hit /demo Reset.
  * P55, 2026-06-02. See `lib/usePersistedState.ts` → `seedVersion`.
  */
-export const BOOKINGS_SEED_VERSION = 4;
+export const BOOKINGS_SEED_VERSION = 5;
 
 export const mockBookings: Booking[] = [
   olgaBooking,

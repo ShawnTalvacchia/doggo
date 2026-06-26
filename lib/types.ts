@@ -496,6 +496,11 @@ export interface VisitReport {
 export interface BookingSession {
   id: string;
   date: string;         // ISO YYYY-MM-DD
+  /** Scheduled start time for this session, "HH:MM" (24h). Optional —
+   *  pre-time-aware seeds + recurring bookings (whose time lives on
+   *  `recurringSchedule`) omit it. Shelter walks carry it so the operator
+   *  handover board can show the collection time. Phase 2 "The Shelter's Side." */
+  startTime?: string;
   status: "upcoming" | "in_progress" | "completed" | "cancelled";
   checkedInAt?: string; // ISO timestamp — set when status moves to in_progress
   /**

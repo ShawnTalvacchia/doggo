@@ -8,11 +8,14 @@
  *   - Upcoming — future walks, smaller cards, no actions, grouped by day, with
  *                a date jump to look further ahead.
  *   - History  — a concise record of past walks (back-safe confirmations).
+ *
+ * On the shelter's side the WALKER is the protagonist (they know the dog; they
+ * need to identify and clear the person). Every row leads with the walker and
+ * opens the hand-off check (WalkerHandoverModal) on tap; the dog is secondary.
  */
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
-import { CalendarBlank, PawPrint, CheckCircle } from "@phosphor-icons/react";
+import { CalendarBlank, CheckCircle } from "@phosphor-icons/react";
 import type { Booking, PetProfile, ShelterProfile, WalkerTier } from "@/lib/types";
 import { useBookings } from "@/contexts/BookingsContext";
 import { daysFromNow } from "@/lib/mockDate";
@@ -20,6 +23,7 @@ import { TabBar } from "@/components/ui/TabBar";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ShelterHandoverBoard } from "./ShelterHandoverBoard";
 import { WalkerTierPill } from "./WalkerTierPill";
+import { WalkerHandoverModal, formatSlotTime } from "./WalkerHandoverModal";
 
 type ScheduleTab = "today" | "upcoming" | "history";
 
@@ -39,6 +43,7 @@ function dateLabel(dateStr: string): string {
 export function ShelterScheduleView({ shelter }: { shelter: ShelterProfile }) {
   const { bookings } = useBookings();
   const [tab, setTab] = useState<ScheduleTab>("today");
+  const [walkerBooking, setWalkerBooking] = useState<Booking | null>(null);
   const today = daysFromNow(0);
 
   const shelterWalks = useMemo(
@@ -62,12 +67,15 @@ export function ShelterScheduleView({ shelter }: { shelter: ShelterProfile }) {
         <TabBar tabs={TABS} activeKey={tab} onChange={(k) => setTab(k as ScheduleTab)} />
       </div>
 
-      {tab === "today" && <ShelterHandoverBoard shelter={shelter} />}
+      {tab === "today" && (
+        <ShelterHandoverBoard shelter={shelter} onOpenWalker={setWalkerBooking} />
+      )}
       {tab === "upcoming" && (
         <UpcomingTab
           walks={shelterWalks.filter((b) => (b.sessions?.[0]?.date ?? "") > today)}
           dogByName={dogByName}
           tierFor={tierFor}
+          onOpenWalker={setWalkerBooking}
         />
       )}
       {tab === "history" && (
@@ -77,8 +85,15 @@ export function ShelterScheduleView({ shelter }: { shelter: ShelterProfile }) {
           )}
           dogByName={dogByName}
           tierFor={tierFor}
+          onOpenWalker={setWalkerBooking}
         />
       )}
+
+      <WalkerHandoverModal
+        booking={walkerBooking}
+        shelter={shelter}
+        onClose={() => setWalkerBooking(null)}
+      />
     </>
   );
 }
@@ -89,10 +104,12 @@ function UpcomingTab({
   walks,
   dogByName,
   tierFor,
+  onOpenWalker,
 }: {
   walks: Booking[];
   dogByName: (name: string) => PetProfile | undefined;
   tierFor: (userId: string) => WalkerTier | undefined;
+  onOpenWalker: (b: Booking) => void;
 }) {
   const [from, setFrom] = useState<string>("");
 
@@ -146,29 +163,41 @@ function UpcomingTab({
             {rows.map((b) => {
               const dog = dogByName(b.pets[0]);
               const tier = tierFor(b.carerId);
+              const slot = formatSlotTime(b.sessions?.[0]?.startTime);
               return (
-                <div
+                <button
                   key={b.id}
-                  className="flex items-center gap-sm rounded-panel border border-edge-regular bg-surface-top p-sm"
+                  type="button"
+                  onClick={() => onOpenWalker(b)}
+                  className="flex w-full items-center gap-md rounded-panel border border-edge-regular bg-surface-top p-sm text-left"
                 >
-                  {dog?.imageUrl ? (
-                    <Link href={`/dogs/${dog.id}`} className="flex-shrink-0">
-                      <img src={dog.imageUrl} alt="" className="h-9 w-9 rounded-md object-cover" />
-                    </Link>
-                  ) : (
-                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-surface-inset">
-                      <PawPrint size={16} weight="light" className="text-fg-tertiary" />
-                    </div>
-                  )}
+                  <img
+                    src={b.carerAvatarUrl}
+                    alt=""
+                    className="h-12 w-12 flex-shrink-0 rounded-full object-cover"
+                  />
                   <div className="flex min-w-0 flex-1 flex-col gap-tiny">
-                    <span className="truncate text-sm font-semibold text-fg-primary">{b.pets[0]}</span>
-                    <span className="flex items-center gap-xs text-xs text-fg-secondary">
-                      <img src={b.carerAvatarUrl} alt="" className="h-4 w-4 rounded-full object-cover" />
-                      <span className="truncate">{b.carerName}</span>
+                    <span className="flex items-center gap-xs">
+                      <span className="truncate text-sm font-semibold text-fg-primary">
+                        {b.carerName}
+                      </span>
                       {tier && <WalkerTierPill tier={tier} />}
                     </span>
+                    <span className="flex items-center gap-xs truncate text-xs text-fg-secondary">
+                      {dog?.imageUrl && (
+                        <img
+                          src={dog.imageUrl}
+                          alt=""
+                          className="h-5 w-5 flex-shrink-0 rounded-sm object-cover"
+                        />
+                      )}
+                      <span className="truncate">
+                        {b.pets[0]}
+                        {slot ? ` · ${slot}` : ""}
+                      </span>
+                    </span>
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -184,12 +213,13 @@ function HistoryTab({
   walks,
   dogByName,
   tierFor,
+  onOpenWalker,
 }: {
   walks: Booking[];
   dogByName: (name: string) => PetProfile | undefined;
   tierFor: (userId: string) => WalkerTier | undefined;
+  onOpenWalker: (b: Booking) => void;
 }) {
-  // Most-recent first.
   const sorted = [...walks].sort((a, b) =>
     (b.sessions?.[0]?.returnedAt ?? "").localeCompare(a.sessions?.[0]?.returnedAt ?? ""),
   );
@@ -217,18 +247,21 @@ function HistoryTab({
           const date = b.sessions?.[0]?.date ?? "";
           const tier = tierFor(b.carerId);
           return (
-            <div key={b.id} className="flex items-center gap-sm py-sm">
-              {dog?.imageUrl ? (
-                <Link href={`/dogs/${dog.id}`} className="flex-shrink-0">
-                  <img src={dog.imageUrl} alt="" className="h-8 w-8 rounded-md object-cover" />
-                </Link>
-              ) : (
-                <div className="h-8 w-8 flex-shrink-0 rounded-md bg-surface-inset" />
-              )}
+            <button
+              key={b.id}
+              type="button"
+              onClick={() => onOpenWalker(b)}
+              className="flex items-center gap-sm py-sm text-left"
+            >
+              <img
+                src={b.carerAvatarUrl}
+                alt=""
+                className="h-9 w-9 flex-shrink-0 rounded-full object-cover"
+              />
               <div className="flex min-w-0 flex-1 flex-col">
                 <span className="flex items-center gap-xs text-sm text-fg-primary">
-                  <span className="truncate font-semibold">{b.pets[0]}</span>
-                  <span className="truncate font-normal text-fg-secondary">· {b.carerName}</span>
+                  <span className="truncate font-semibold">{b.carerName}</span>
+                  {dog && <span className="truncate font-normal text-fg-secondary">· {dog.name}</span>}
                   {tier && <WalkerTierPill tier={tier} />}
                 </span>
                 <span className="text-xs text-fg-tertiary">{dateLabel(date)}</span>
@@ -236,7 +269,7 @@ function HistoryTab({
               <span className="flex flex-shrink-0 items-center gap-tiny text-xs text-success">
                 <CheckCircle size={13} weight="fill" /> Back safe
               </span>
-            </div>
+            </button>
           );
         })}
       </div>
