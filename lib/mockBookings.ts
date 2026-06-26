@@ -1021,6 +1021,77 @@ const handoverUpcoming: Booking[] = [
   ),
 ];
 
+// Past walks — completed + confirmed back safe — so the operator Schedule's
+// History tab holds a concise short record (not an empty stub).
+function pastShelterWalk(
+  id: string,
+  carer: { id: string; name: string; avatarUrl: string },
+  dog: string,
+  dayOffset: number,
+): Booking {
+  return {
+    id,
+    conversationId: null,
+    ...SHELTER,
+    carerId: carer.id,
+    carerName: carer.name,
+    carerAvatarUrl: carer.avatarUrl,
+    type: "one_off",
+    serviceType: "walks_checkins",
+    subService: "Solo walk",
+    pets: [dog],
+    startDate: daysAgo(dayOffset),
+    endDate: daysAgo(dayOffset),
+    sessions: [
+      {
+        id: `${id}-s1`,
+        date: daysAgo(dayOffset),
+        status: "completed",
+        releasedAt: daysAgoIso(dayOffset, "09:00"),
+        checkedInAt: daysAgoIso(dayOffset, "09:05"),
+        returnedAt: daysAgoIso(dayOffset, "10:05"),
+        report: {
+          photos: [WALK_PHOTO],
+          notes: "Good walk. Back safe and happy.",
+          walkDistanceKm: 2.8,
+          walkDurationMin: 50,
+          completedAt: daysAgoIso(dayOffset, "10:00"),
+        },
+      },
+    ],
+    price: VOLUNTEER_PRICE,
+    signedAt: daysAgoIso(dayOffset, "08:00"),
+    status: "completed",
+  };
+}
+
+const handoverPast: Booking[] = [
+  pastShelterWalk(
+    "booking-shelter-past-1",
+    { id: "pavel-d", name: "Pavel D.", avatarUrl: "/images/generated/marek-profile.jpeg" },
+    "Tonda",
+    1,
+  ),
+  pastShelterWalk(
+    "booking-shelter-past-2",
+    { id: "marie", name: "Marie B.", avatarUrl: "/images/generated/marie-profile.jpeg" },
+    "Maja",
+    1,
+  ),
+  pastShelterWalk(
+    "booking-shelter-past-3",
+    { id: "walker-lukas-p", name: "Lukáš P.", avatarUrl: "/images/generated/vitek-profile.jpeg" },
+    "Theo",
+    2,
+  ),
+  pastShelterWalk(
+    "booking-shelter-past-4",
+    { id: "walker-anna-k", name: "Anna K.", avatarUrl: "/images/generated/hana-profile.jpeg" },
+    "Líza",
+    3,
+  ),
+];
+
 // ── Exports ─────────────────────────────────────────────────────────────────────
 
 /**
@@ -1029,7 +1100,7 @@ const handoverUpcoming: Booking[] = [
  * that should appear without requiring testers to hit /demo Reset.
  * P55, 2026-06-02. See `lib/usePersistedState.ts` → `seedVersion`.
  */
-export const BOOKINGS_SEED_VERSION = 3;
+export const BOOKINGS_SEED_VERSION = 4;
 
 export const mockBookings: Booking[] = [
   olgaBooking,
@@ -1058,6 +1129,7 @@ export const mockBookings: Booking[] = [
   handoverEddaGroup,
   handoverNoraGroup,
   ...handoverUpcoming,
+  ...handoverPast,
 ];
 
 export function getBooking(id: string): Booking | undefined {

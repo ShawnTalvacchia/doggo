@@ -69,18 +69,18 @@ function nowIso(): string {
 export function ShelterHandoverBoard({ shelter }: { shelter: ShelterProfile }) {
   const { bookings, updateSession } = useBookings();
 
-  // The handover board is the LIVE/today view — walks happening today or
-  // already in motion. Future-dated walks live in the Schedule's Upcoming
-  // section, not here (they're not collectable yet).
+  // The handover board is the LIVE/today view — walks dated today, plus any
+  // still-out straggler from a prior day (released, not yet returned). Future
+  // walks live in Upcoming; past completed (returned) walks live in History.
   const today = daysFromNow(0);
   const walks = useMemo(
     () =>
-      bookings.filter(
-        (b) =>
-          b.ownerKind === "shelter" &&
-          b.ownerId === shelter.id &&
-          (b.sessions?.[0]?.date ?? today) <= today,
-      ),
+      bookings.filter((b) => {
+        if (b.ownerKind !== "shelter" || b.ownerId !== shelter.id) return false;
+        const s = b.sessions?.[0];
+        const date = s?.date ?? today;
+        return date === today || (!s?.returnedAt && date < today);
+      }),
     [bookings, shelter.id, today],
   );
 
@@ -169,6 +169,7 @@ export function ShelterHandoverBoard({ shelter }: { shelter: ShelterProfile }) {
           batch={batch}
           dogByName={dogByName}
           tierFor={tierFor}
+          onCheckOut={checkOut}
           onCheckOutBatch={() => checkOutBatch(batch)}
           onCheckIn={checkIn}
         />
@@ -252,20 +253,20 @@ function HandoverRow({
   }
 
   return (
-    <div className="flex items-center gap-md rounded-panel border border-edge-regular bg-surface-base p-sm">
-      {/* Dog avatar — rounded-square (Avatar Rule B). */}
+    <div className="flex items-center gap-md rounded-panel border border-edge-regular bg-surface-base p-md">
+      {/* Dog avatar — rounded-square (Avatar Rule B). Today's cards run large. */}
       {dog?.imageUrl ? (
         <Link href={`/dogs/${dog.id}`} className="flex-shrink-0">
-          <img src={dog.imageUrl} alt="" className="h-12 w-12 rounded-md object-cover" />
+          <img src={dog.imageUrl} alt="" className="h-14 w-14 rounded-md object-cover" />
         </Link>
       ) : (
-        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-md bg-surface-inset">
-          <PawPrint size={20} weight="light" className="text-fg-tertiary" />
+        <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-md bg-surface-inset">
+          <PawPrint size={22} weight="light" className="text-fg-tertiary" />
         </div>
       )}
 
       <div className="flex min-w-0 flex-1 flex-col gap-tiny">
-        <span className="truncate text-sm font-semibold text-fg-primary">{booking.pets[0]}</span>
+        <span className="truncate text-base font-semibold text-fg-primary">{booking.pets[0]}</span>
         <span className="flex items-center gap-xs truncate text-xs text-fg-secondary">
           <img src={booking.carerAvatarUrl} alt="" className="h-4 w-4 rounded-full object-cover" />
           <span className="truncate">{booking.carerName}</span>
@@ -289,7 +290,7 @@ function HandoverRow({
       {onCheckOut && (
         <div className="flex-shrink-0">
           <ButtonAction
-            variant="volunteer"
+            variant="neutral"
             size="sm"
             leftIcon={<DoorOpen size={14} weight="bold" />}
             onClick={onCheckOut}
@@ -321,6 +322,7 @@ function GroupBatchCard({
   batch,
   dogByName,
   tierFor,
+  onCheckOut,
   onCheckOutBatch,
   onCheckIn,
 }: {
@@ -328,6 +330,7 @@ function GroupBatchCard({
   batch: Booking[];
   dogByName: (name: string) => PetProfile | undefined;
   tierFor: (userId: string) => WalkerTier | undefined;
+  onCheckOut: (b: Booking) => void;
   onCheckOutBatch: () => void;
   onCheckIn: (b: Booking) => void;
 }) {
@@ -335,43 +338,51 @@ function GroupBatchCard({
   const host = meet ? getUserById(meet.creatorId) : undefined;
   const hostName = host ? `${host.firstName} ${host.lastName}`.trim() : meet?.creatorName;
 
-  const allDue = batch.every((b) => handoverState(b.sessions?.[0]) === "due");
-  const anyOut = batch.some((b) => handoverState(b.sessions?.[0]) === "out");
+  const anyDue = batch.some((b) => handoverState(b.sessions?.[0]) === "due");
 
   return (
     <div className="flex flex-col gap-sm rounded-panel border border-edge-regular bg-surface-base p-md">
-      <div className="flex items-start gap-sm">
-        <Users size={18} weight="light" className="mt-tiny flex-shrink-0 text-fg-tertiary" />
+      <div className="flex items-center gap-sm">
+        {/* Green circle marks this as a community meet (Avatar Rule B — a meet
+            is a circle); sized to match the dog avatars in the rows below. */}
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-light text-brand-strong">
+          <Users size={18} weight="light" />
+        </div>
         <div className="flex min-w-0 flex-1 flex-col gap-tiny">
-          <span className="text-sm font-semibold text-fg-primary">
-            {meet?.title ?? "Group walk"}
-          </span>
+          {meet ? (
+            <Link
+              href={`/meets/${meet.id}`}
+              className="truncate text-sm font-semibold text-fg-primary hover:underline"
+            >
+              {meet.title}
+            </Link>
+          ) : (
+            <span className="text-sm font-semibold text-fg-primary">Group walk</span>
+          )}
           <span className="text-xs text-fg-secondary">
             {batch.length} dogs{hostName ? ` · led by ${hostName}` : ""}
           </span>
         </div>
-        {meet && (
-          <Link href={`/meets/${meet.id}`} className="flex-shrink-0 text-xs font-medium text-volunteer-strong">
-            View walk
-          </Link>
-        )}
       </div>
 
-      {/* The dogs in the batch — hairline-divided rows, no inset fills. */}
+      {/* The dogs in the batch — hairline-divided rows, walker avatars shown
+          (matching the solo cards). Each row can be checked out individually
+          (in case a walker doesn't show) on top of the batch action. */}
       <div className="flex flex-col divide-y divide-edge-regular border-y border-edge-regular">
         {batch.map((b) => {
           const dog = dogByName(b.pets[0]);
           const state = handoverState(b.sessions?.[0]);
           return (
-            <div key={b.id} className="flex items-center gap-sm py-xs">
+            <div key={b.id} className="flex items-center gap-sm py-sm">
               {dog?.imageUrl ? (
-                <img src={dog.imageUrl} alt="" className="h-8 w-8 flex-shrink-0 rounded-md object-cover" />
+                <img src={dog.imageUrl} alt="" className="h-9 w-9 flex-shrink-0 rounded-md object-cover" />
               ) : (
-                <div className="h-8 w-8 flex-shrink-0 rounded-md bg-surface-inset" />
+                <div className="h-9 w-9 flex-shrink-0 rounded-md bg-surface-inset" />
               )}
               <div className="flex min-w-0 flex-1 flex-col gap-tiny">
-                <span className="truncate text-xs font-semibold text-fg-primary">{b.pets[0]}</span>
+                <span className="truncate text-sm font-semibold text-fg-primary">{b.pets[0]}</span>
                 <span className="flex items-center gap-xs text-xs text-fg-tertiary">
+                  <img src={b.carerAvatarUrl} alt="" className="h-4 w-4 rounded-full object-cover" />
                   <span className="truncate">{b.carerName}</span>
                   {tierFor(b.carerId) && <WalkerTierPill tier={tierFor(b.carerId)!} />}
                 </span>
@@ -392,26 +403,32 @@ function GroupBatchCard({
                   </ButtonAction>
                 </div>
               ) : (
-                <span className="text-xs text-fg-tertiary">Ready</span>
+                <div className="flex-shrink-0">
+                  <ButtonAction
+                    variant="neutral"
+                    size="sm"
+                    leftIcon={<DoorOpen size={13} weight="bold" />}
+                    onClick={() => onCheckOut(b)}
+                  >
+                    Check out
+                  </ButtonAction>
+                </div>
               )}
             </div>
           );
         })}
       </div>
 
-      {allDue && (
+      {anyDue && (
         <ButtonAction
-          variant="volunteer"
+          variant="neutral"
           size="md"
           className="w-full"
           leftIcon={<DoorOpen size={16} weight="bold" />}
           onClick={onCheckOutBatch}
         >
-          Check out all · {batch.length} dogs
+          Check out all · {batch.filter((b) => handoverState(b.sessions?.[0]) === "due").length} dogs
         </ButtonAction>
-      )}
-      {anyOut && !allDue && (
-        <span className="text-center text-xs text-fg-tertiary">Group is out — confirm each back safe on return.</span>
       )}
     </div>
   );
