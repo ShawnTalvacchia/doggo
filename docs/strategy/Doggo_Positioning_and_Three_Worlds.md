@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: draft
-last-reviewed: 2026-06-22
+last-reviewed: 2026-06-25
 review-trigger: "when positioning, the give-back model, or the three-worlds framing changes; before adapting for Alyssa or external readers"
 tags: [strategy, positioning, give-back, shelter, socialization]
 ---
@@ -73,7 +73,7 @@ The platform is one place, but three kinds of people enter it for three differen
 
 **What they come for.** Adoptions, animal welfare, and help — without more work or more risk.
 
-**The world we build for them.** Every dog has a profile and a story; vetted community members can walk them; and every walk becomes a recap that surfaces the dog to the wider network. This is the *advocacy loop*, and it is the most proven thing in the whole strategy: dogs that get out are over 4× more likely to be adopted after a day-trip outing, and over 14× after a one-to-two-night sleepover. Crucially, only about 4% of outing walkers and 12% of sleepover hosts adopt the dog themselves — the lift comes from the dog being seen, photographed, and shared to *other* adopters. Every walker becomes an advocate.
+**The world we build for them.** Every dog has a profile and a story; vetted community members can walk them; and every walk becomes a recap that surfaces the dog to the wider network. This is the *advocacy loop*, and it is the most proven thing in the whole strategy: dogs that get out are over 5× more likely to be adopted after a day-trip outing, and over 14× after a one-to-two-night sleepover. Crucially, only about 4% of outing walkers and 12% of sleepover hosts adopt the dog themselves — the lift comes from the dog being seen, photographed, and shared to *other* adopters. Every walker becomes an advocate.
 
 The operational reality we respect honestly: **a human will always need to release and receive the dog, during staff hours.** We do not fight that. Instead, the platform makes everything *around* the handoff faster, safer, and documented — easing the two things that actually cost a shelter (vetting and coordination) and the one thing that scares them (liability). It does this on the four axes that drive a shelter's comfort:
 
@@ -125,4 +125,4 @@ None of these are reasons to slow down. They are the map of what the demos are *
 
 ---
 
-*Sources behind the claims: AVSAB Position Statement on Puppy Socialization (socialization window; behavior problems as leading cause of relinquishment and of death under three). Gunter et al., "The Influence of Brief Outing and Temporary Fostering Programs on Shelter Dog Welfare," Animals (2023), n≈27,901 (the 4× / 14× adoption lift and the ~4% / ~12% self-adoption figures). Cause-marketing field-experiment research; Chewy Gives Back ($180M+ to shelters) as the transparency model.*
+*Sources behind the claims: AVSAB Position Statement on Puppy Socialization (socialization window; behavior problems as leading cause of relinquishment and of death under three). Gunter et al., "The Influence of Brief Outing and Temporary Fostering Programs on Shelter Dog Welfare," Animals (2023), n≈27,901 (the 5× / 14× adoption lift and the ~4% / ~12% self-adoption figures). Cause-marketing field-experiment research; Chewy Gives Back ($180M+ to shelters) as the transparency model.*

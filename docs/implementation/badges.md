@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-06-12
+last-reviewed: 2026-06-25
 
 tags: [badges, person-row, trust, design-system]
 review-trigger: "when adding a new badge, changing display rules, or modifying carer-status semantics"
@@ -101,7 +101,7 @@ Certified Trainer · First Aid Trained · Vet Background · Force-Free Methods �
 
 Verified Identity · Responsive · Consistent
 
-See `strategy/Competitive Research - Prague Dog Care Scene.md` → "Trust Badges for Doggo Provider Profiles" for full descriptions and earning criteria.
+See `strategy/research/competitive/Competitive Research - Prague Dog Care Scene.md` → "Trust Badges for Doggo Provider Profiles" for full descriptions and earning criteria.
 
 ### Volunteer (parallel — earned through shelter walking)
 

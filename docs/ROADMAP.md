@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-06-24
+last-reviewed: 2026-06-25
 tags: [roadmap, phases, planning]
 review-trigger: "at the start and end of every phase"
 ---
@@ -28,7 +28,7 @@ review-trigger: "at the start and end of every phase"
 
 The full product skeleton exists — every page renders with real content and working interactions. Many surfaces are still 60-70%: they tell the story at a glance but don't hold up under scrutiny. The track: deep page-by-page passes → world-building → demo packaging → **validation** (put the demo in front of users and shelters, then decide how to build for real).
 
-A June 2026 strategy refresh reframes that track. The demo is now a *validation instrument*, sharpened by: a positioning + give-back model leading with the socialization wedge (`strategy/Doggo_Positioning_and_Three_Worlds.md`), and a competitive refresh showing a more crowded Prague landscape where the moat is integrating the whole funnel, not running a care marketplace (`strategy/Competitive Research - Prague Snapshot (2026-06 refresh).md`).
+A June 2026 strategy refresh reframes that track. The demo is now a *validation instrument*, sharpened by: a positioning + give-back model leading with the socialization wedge (`strategy/Doggo_Positioning_and_Three_Worlds.md`), and a competitive refresh showing a more crowded Prague landscape where the moat is integrating the whole funnel, not running a care marketplace (`strategy/research/competitive/Competitive Research - Prague Snapshot (2026-06 refresh).md`).
 
 **Up next:** **The Shelter's Side** (Phase 2 of the two-phase validation arc; see *What's Next*) — the shelter operator experience + the feasibility interview kit. Phase 1 (the three community Worlds + a guided-walkthrough registry) shipped; its shelter path deliberately deferred session execution, the operator view, and the adoption-interest landing to Phase 2 — which now both *builds* those and *revises* the shelter walkthrough's back half against the real surfaces. A design-system code-health backlog runs on the punch list — P82.
 

@@ -74,7 +74,7 @@ The interview source-of-record is Roman's flagged-as-most-detailed conversation;
 | Should training become a 5th Care service type? | Open Question — defer until user testing | Open Questions log |
 | Forum / regulatory info | Future Consideration FC10 | `Future Considerations.md` |
 | Grooming | No-op (partially built) | — |
-| Vet services | Strategy doc for PO presentation | `docs/strategy/Vets as a Credentialing Layer.md` (research doc) + Cold-Start Playbook section |
+| Vet services | Strategy doc for PO presentation | `docs/strategy/research/Vets as a Credentialing Layer.md` (research doc) + Cold-Start Playbook section |
 
 ---
 
@@ -102,7 +102,7 @@ This is the same shape as the shelter thesis in the Cold-Start Playbook (credent
 
 Building vet pages is Shelter-Foundation-sized — un-retire vets as an entity type, build a `VetProfile`, design pet ↔ vet relationships, etc. Pre-roadmap until PO has a real conversation with a Prague vet (mirroring how shelters graduated to a phase).
 
-**Output:** Research doc at `docs/strategy/Vets as a Credentialing Layer.md` to present to PO. Open Question §16 referenced from there.
+**Output:** Research doc at `docs/strategy/research/Vets as a Credentialing Layer.md` to present to PO. Open Question §16 referenced from there.
 
 ### Training demand from newcomers + expats
 
@@ -114,7 +114,7 @@ Roman's framing that training is the most-needed service for first-time owners a
 
 - `docs/strategy/Demo Narrative.md` — V2 walkthrough that already centres Daniel's training conversion
 - `docs/strategy/User Archetypes.md` — new "Anxious New Owner" archetype added 2026-06-02
-- `docs/strategy/Vets as a Credentialing Layer.md` — research doc, new 2026-06-02
+- `docs/strategy/research/Vets as a Credentialing Layer.md` — research doc, new 2026-06-02
 - `docs/phases/service-options-and-booking-clarity.md` — phase board, new 2026-06-02
 - `docs/phases/carer-portfolio.md` — Workstreams E + F added 2026-06-02
 - `docs/phases/Open Questions & Assumptions Log.md` — §15 + §16 added 2026-06-02

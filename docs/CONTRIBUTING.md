@@ -221,7 +221,7 @@ When updating existing styles:
 
 | Folder | What goes here |
 |--------|---------------|
-| `strategy/` | Product direction, user models, trust, groups, care, scope |
+| `strategy/` | Product direction, user models, trust, groups, care, scope. Research **inputs** live in `strategy/research/` (competitive teardowns in `research/competitive/`, parked research like Vets-as-Credentialing alongside) — kept separate from the evergreen strategy docs. |
 | `planning/` | Cross-phase running lists that feed scheduling: `Open Questions & Assumptions Log.md`, `Future Considerations.md`, `punch-list.md`, `verification-checklist.md` |
 | `features/` | Feature specs — what's built, key decisions, future plans |
 | `implementation/` | Technical references, coding standards, component catalog |
@@ -243,7 +243,7 @@ Every piece of information has exactly one home doc. Other docs reference it —
 |-----------------|----------|---------------------|
 | Product decisions, strategy | `strategy/` docs | Reference: "See Trust & Connection Model.md" |
 | What a feature does, how it works | `features/` doc for that feature | Reference: "See features/profiles.md" |
-| Competitive research, market insights | `strategy/Competitive Research - *.md` | Reference by name, don't copy action items |
+| Competitive research, market insights | `strategy/research/competitive/Competitive Research - *.md` (start at the Overview & Index) | Reference by name, don't copy action items |
 | Phase-specific tasks | Phase board in `phases/` | Not appear in the Roadmap or feature docs |
 | Open questions | `Open Questions & Assumptions Log.md` | Not be duplicated in strategy or feature docs |
 | Build history, what was shipped | `archive/phases/` | Not be summarized in the Roadmap |

@@ -381,12 +381,12 @@ Added 2026-06-02 from PO user interviews (Roman). Today `VetInfo.vaccinationsUpT
 
 **Still open (V2 — gating + verification, deferred):**
 - Without verification, gating is theatre. Do we ship gating-on-self-declared (social pressure / liability transfer) or wait until verification exists?
-- What verification path? Photo of booklet (moderation) or vet-confirmed via [[strategy/Vets as a Credentialing Layer]] (full institutional)?
+- What verification path? Photo of booklet (moderation) or vet-confirmed via [[strategy/research/Vets as a Credentialing Layer]] (full institutional)?
 - Who sets the gate — meet host, group admin, platform default?
 
 **Forward direction:** the verification path resolves via §16 (Vets as credentialing layer). V2 waits on that decision.
 
-**Refs:** [[strategy/Vets as a Credentialing Layer]] · [[meetings/po-briefing-2026-06-02]] · [[features/profiles]] → Vaccines V1 · `archive/phases/dog-profile.md`
+**Refs:** [[strategy/research/Vets as a Credentialing Layer]] · [[meetings/po-briefing-2026-06-02]] · [[features/profiles]] → Vaccines V1 · `archive/phases/dog-profile.md`
 
 ---
 
@@ -401,9 +401,9 @@ Added 2026-06-02 from PO user interviews. Vaccines without verification are thea
 - "Vet-as-Carer is retired" (§6) — maintained? Suggested yes; vets stay credentialing layer, not Care category.
 - Cold-start partnerships strategy — same playbook structure as shelters, separate investment commitment?
 
-**Resolved (2026-06-02):** the strategic framing is the research doc at [[strategy/Vets as a Credentialing Layer]] — the multi-sided value loop, entity options, tier breakdown, decisions for PO. The doc is for PO presentation; this OQ entry exists to track whether/when the thread graduates.
+**Resolved (2026-06-02):** the strategic framing is the research doc at [[strategy/research/Vets as a Credentialing Layer]] — the multi-sided value loop, entity options, tier breakdown, decisions for PO. The doc is for PO presentation; this OQ entry exists to track whether/when the thread graduates.
 
-**Refs:** [[strategy/Vets as a Credentialing Layer]] · [[meetings/po-briefing-2026-06-02]] · [[strategy/Cold-Start Playbook]] (shelter precedent)
+**Refs:** [[strategy/research/Vets as a Credentialing Layer]] · [[meetings/po-briefing-2026-06-02]] · [[strategy/Cold-Start Playbook]] (shelter precedent)
 
 ---
 

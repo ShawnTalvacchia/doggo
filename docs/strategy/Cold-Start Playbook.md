@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: draft
-last-reviewed: 2026-06-09
+last-reviewed: 2026-06-25
 tags: [cold-start, trainers, shelter, foster, community, account-types, credentialing, future]
 review-trigger: "before any phase touching cold-start, monetization, account types, or category strategy"
 ---
@@ -286,7 +286,7 @@ The mentor-vouching model above is built from first principles + competitive res
 
 ## The vet angle
 
-> **Status: pre-roadmap exploration, separate research doc.** Added 2026-06-02 after Roman's user interviews flagged structured vaccination records (and gating) as a real owner need. The full strategic framing — multi-sided value loop, entity model options, tier breakdown, decisions for PO — lives in [[strategy/Vets as a Credentialing Layer]]. Open Question §16 tracks whether the thread graduates.
+> **Status: pre-roadmap exploration, separate research doc.** Added 2026-06-02 after Roman's user interviews flagged structured vaccination records (and gating) as a real owner need. The full strategic framing — multi-sided value loop, entity model options, tier breakdown, decisions for PO — lives in [[strategy/research/Vets as a Credentialing Layer]]. Open Question §16 tracks whether the thread graduates.
 
 The shape mirrors the shelter angle: vets become an institutional partner type whose presence on the platform produces verified credential signals (vet-confirmed vaccinations). Same playbook structure:
 
