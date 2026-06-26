@@ -6,7 +6,7 @@ import { ButtonIcon } from "@/components/ui/ButtonIcon";
 import { useNotifications } from "@/contexts/NotificationsContext";
 import { useConversations } from "@/contexts/ConversationsContext";
 import { usePageHeader } from "@/contexts/PageHeaderContext";
-import { useCurrentUserId, useIsGuest } from "@/hooks/useCurrentUser";
+import { useCurrentUserId, useIsGuest, useOperatorShelterId } from "@/hooks/useCurrentUser";
 import { countUnreadConversations } from "@/lib/conversationUtils";
 import {
   ArrowLeft,
@@ -119,15 +119,16 @@ function LoggedNavLinks({ hideCreate = false }: { hideCreate?: boolean }) {
 
 const loggedRoutes = ["/home", "/communities", "/groups", "/activity", "/discover", "/meets", "/schedule", "/explore", "/inbox", "/notifications", "/bookings", "/profile", "/help", "/shelters", "/dogs"];
 
-function getPageTitle(pathname: string): string | null {
+function getPageTitle(pathname: string, operator: boolean): string | null {
   if (pathname.startsWith("/discover/care")) return "Dog Care";
   if (pathname.startsWith("/discover/meets")) return "Meets";
   if (pathname.startsWith("/discover/groups")) return "Groups";
   if (pathname.startsWith("/discover/help-a-dog")) return "Help a Dog";
   if (pathname === "/discover") return "Discover";
   if (pathname.startsWith("/home")) return null;
-  if (pathname.startsWith("/schedule")) return "My Schedule";
-  if (pathname.startsWith("/bookings")) return "Bookings";
+  // Operator mode relabels these slots (Phase 2 back-office shell).
+  if (pathname.startsWith("/schedule")) return operator ? "Schedule" : "My Schedule";
+  if (pathname.startsWith("/bookings")) return operator ? "Applications" : "Bookings";
   if (pathname.startsWith("/inbox")) return "Inbox";
   if (pathname === "/profile") return "Profile";
   if (pathname.startsWith("/profile/")) return null; // Detail header handles it
@@ -139,6 +140,7 @@ export function AppNav() {
   const pathname = usePathname();
   const { detailTitle, onBack, rightAction, leadingAvatar } = usePageHeader();
   const isGuest = useIsGuest();
+  const operatorShelterId = useOperatorShelterId();
   // Guest visitors on a normally-logged surface (e.g. /communities/group-1?guest=1)
   // get the guest nav — `Try the demo` + `Sign Up`, no Bell/Inbox/Create. Without
   // this branch, AppNav would key off the route alone and render LoggedNavLinks
@@ -151,7 +153,7 @@ export function AppNav() {
   const isStyleguideRoute = pathname.startsWith("/styleguide");
   const isDiscoverRoute = pathname.startsWith("/discover");
   const isDiscoverSubpage = isDiscoverRoute && pathname !== "/discover";
-  const pageTitle = getPageTitle(pathname);
+  const pageTitle = getPageTitle(pathname, !!operatorShelterId);
   const showDetailHeader = detailTitle !== null;
   const isContainedNav =
     pathname === "/" ||

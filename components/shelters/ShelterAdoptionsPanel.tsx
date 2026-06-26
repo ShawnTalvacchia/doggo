@@ -63,7 +63,7 @@ export function ShelterAdoptionsPanel({ shelter }: { shelter: ShelterProfile }) 
       {interests.map(({ dog, stage, adopterName }) => (
         <div
           key={dog.id}
-          className="flex flex-col gap-sm rounded-panel border border-edge-regular bg-surface-base p-md"
+          className="flex flex-col gap-sm rounded-panel border border-edge-regular bg-surface-top p-md"
         >
           <div className="flex items-center gap-sm">
             {dog.imageUrl ? (
@@ -101,7 +101,7 @@ export function ShelterAdoptionsPanel({ shelter }: { shelter: ShelterProfile }) 
           <div className="flex items-center gap-sm">
             {stage === "interested" ? (
               <ButtonAction
-                variant="volunteer"
+                variant="secondary"
                 size="sm"
                 className="w-full"
                 leftIcon={<CalendarCheck size={14} weight="bold" />}
@@ -111,7 +111,7 @@ export function ShelterAdoptionsPanel({ shelter }: { shelter: ShelterProfile }) 
               </ButtonAction>
             ) : (
               <ButtonAction
-                variant="volunteer"
+                variant="secondary"
                 size="sm"
                 className="w-full"
                 leftIcon={<House size={14} weight="bold" />}

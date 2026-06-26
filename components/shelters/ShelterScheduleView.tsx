@@ -149,7 +149,7 @@ function UpcomingTab({
               return (
                 <div
                   key={b.id}
-                  className="flex items-center gap-sm rounded-panel border border-edge-regular bg-surface-base p-sm"
+                  className="flex items-center gap-sm rounded-panel border border-edge-regular bg-surface-top p-sm"
                 >
                   {dog?.imageUrl ? (
                     <Link href={`/dogs/${dog.id}`} className="flex-shrink-0">

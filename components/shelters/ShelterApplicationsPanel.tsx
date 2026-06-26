@@ -74,7 +74,7 @@ export function ShelterApplicationsPanel({ shelter }: { shelter: ShelterProfile 
         return (
           <div
             key={a.id}
-            className="flex flex-col gap-sm rounded-panel border border-edge-regular bg-surface-base p-md"
+            className="flex flex-col gap-sm rounded-panel border border-edge-regular bg-surface-top p-md"
           >
             <div className="flex items-center gap-sm">
               {avatarUrl ? (
@@ -117,7 +117,7 @@ export function ShelterApplicationsPanel({ shelter }: { shelter: ShelterProfile 
             <div className="flex items-center gap-sm">
               <div className="flex-1">
                 <ButtonAction
-                  variant="volunteer"
+                  variant="secondary"
                   size="sm"
                   className="w-full"
                   leftIcon={<Check size={14} weight="bold" />}

@@ -147,7 +147,7 @@ export function ShelterHandoverBoard({ shelter }: { shelter: ShelterProfile }) {
       {/* Glance summary — the "how little work this is" read at a glance.
           Numbers are neutral; the labels carry the meaning (kept restrained
           on colour per design review). */}
-      <div className="grid grid-cols-3 divide-x divide-edge-regular rounded-panel border border-edge-regular bg-surface-base py-sm">
+      <div className="grid grid-cols-3 divide-x divide-edge-regular rounded-panel border border-edge-regular bg-surface-top py-sm">
         <SummaryStat
           value={
             dueSolo.length +
@@ -226,12 +226,17 @@ function HandoverRow({
   booking,
   dog,
   tier,
+  bare,
   onCheckOut,
   onCheckIn,
 }: {
   booking: Booking;
   dog?: PetProfile;
   tier?: WalkerTier;
+  /** Chromeless variant — drops the card border/fill/padding so the row sits
+   *  inside another card (the group-walk card), keeping every size identical
+   *  to the standalone card. */
+  bare?: boolean;
   onCheckOut?: () => void;
   onCheckIn?: () => void;
 }) {
@@ -239,22 +244,22 @@ function HandoverRow({
   const state = handoverState(s);
   const finishedAt = s?.report?.completedAt;
 
-  let statusLine: string;
-  if (state === "due") {
-    statusLine = "Waiting to be collected";
-  } else if (state === "out") {
-    statusLine = finishedAt
-      ? `Walk finished ${fmtTime(finishedAt)} · confirm back safe`
-      : s?.checkedInAt
-        ? `Out since ${fmtTime(s.releasedAt)} · walking`
-        : `Released ${fmtTime(s?.releasedAt)}`;
-  } else {
-    statusLine = `Back safe ${fmtTime(s?.returnedAt)}`;
-  }
+  // Short time label — only for out walks (when taken out / finished). Due
+  // rows show no label; "back" rows carry their own confirmed marker below.
+  const outLabel =
+    state === "out"
+      ? finishedAt
+        ? `Walk done ${fmtTime(finishedAt)}`
+        : `Out since ${fmtTime(s?.releasedAt)}`
+      : null;
+
+  const container = bare
+    ? "flex flex-wrap items-center gap-md py-md"
+    : "flex flex-wrap items-center gap-md rounded-panel border border-edge-regular bg-surface-top p-md";
 
   return (
-    <div className="flex items-center gap-md rounded-panel border border-edge-regular bg-surface-base p-md">
-      {/* Dog avatar — rounded-square (Avatar Rule B). Today's cards run large. */}
+    <div className={container}>
+      {/* Dog avatar — rounded-square (Avatar Rule B), 56px. */}
       {dog?.imageUrl ? (
         <Link href={`/dogs/${dog.id}`} className="flex-shrink-0">
           <img src={dog.imageUrl} alt="" className="h-14 w-14 rounded-md object-cover" />
@@ -272,45 +277,44 @@ function HandoverRow({
           <span className="truncate">{booking.carerName}</span>
           {tier && <WalkerTierPill tier={tier} />}
         </span>
-        <span
-          className={`flex items-center gap-tiny text-xs ${
-            state === "out" && finishedAt
-              ? "text-volunteer-strong"
-              : state === "back"
-                ? "text-success"
-                : "text-fg-tertiary"
-          }`}
-        >
-          {state === "back" && <CheckCircle size={12} weight="fill" />}
-          {state === "out" && finishedAt && <Camera size={12} weight="light" />}
-          {statusLine}
-        </span>
       </div>
 
-      {onCheckOut && (
-        <div className="flex-shrink-0">
+      {/* Action + label. On mobile this wraps to its own full-width row so the
+          button never crowds the content; on desktop it sits inline, right. */}
+      <div className="flex w-full flex-col gap-tiny sm:w-auto sm:items-end">
+        {onCheckOut && (
           <ButtonAction
-            variant="neutral"
+            variant="secondary"
             size="sm"
+            className="w-full sm:w-auto"
             leftIcon={<DoorOpen size={14} weight="bold" />}
             onClick={onCheckOut}
           >
             Check out
           </ButtonAction>
-        </div>
-      )}
-      {onCheckIn && (
-        <div className="flex-shrink-0">
+        )}
+        {onCheckIn && (
           <ButtonAction
-            variant="outline"
+            variant="secondary"
             size="sm"
+            className="w-full sm:w-auto"
             leftIcon={<ShieldCheck size={14} weight="bold" />}
             onClick={onCheckIn}
           >
             Back safe
           </ButtonAction>
-        </div>
-      )}
+        )}
+        {state === "back" ? (
+          <span className="flex items-center gap-tiny text-xs text-success">
+            <CheckCircle size={12} weight="fill" /> Back safe {fmtTime(s?.returnedAt)}
+          </span>
+        ) : outLabel ? (
+          <span className="flex items-center gap-tiny text-xs text-fg-tertiary">
+            {finishedAt && <Camera size={12} weight="light" />}
+            {outLabel}
+          </span>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -338,26 +342,26 @@ function GroupBatchCard({
   const host = meet ? getUserById(meet.creatorId) : undefined;
   const hostName = host ? `${host.firstName} ${host.lastName}`.trim() : meet?.creatorName;
 
-  const anyDue = batch.some((b) => handoverState(b.sessions?.[0]) === "due");
+  const dueCount = batch.filter((b) => handoverState(b.sessions?.[0]) === "due").length;
 
   return (
-    <div className="flex flex-col gap-sm rounded-panel border border-edge-regular bg-surface-base p-md">
-      <div className="flex items-center gap-sm">
-        {/* Green circle marks this as a community meet (Avatar Rule B — a meet
+    <div className="flex flex-col gap-sm rounded-panel border border-edge-regular bg-surface-top p-md">
+      <div className="flex items-center gap-md">
+        {/* Brand circle marks this as a community meet (Avatar Rule B — a meet
             is a circle); sized to match the dog avatars in the rows below. */}
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-brand-light text-brand-strong">
-          <Users size={18} weight="light" />
+        <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border border-brand-light bg-brand-subtle text-brand-strong">
+          <Users size={24} weight="light" />
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-tiny">
           {meet ? (
             <Link
               href={`/meets/${meet.id}`}
-              className="truncate text-sm font-semibold text-fg-primary hover:underline"
+              className="truncate text-base font-semibold text-fg-primary hover:underline"
             >
               {meet.title}
             </Link>
           ) : (
-            <span className="text-sm font-semibold text-fg-primary">Group walk</span>
+            <span className="text-base font-semibold text-fg-primary">Group walk</span>
           )}
           <span className="text-xs text-fg-secondary">
             {batch.length} dogs{hostName ? ` · led by ${hostName}` : ""}
@@ -365,69 +369,35 @@ function GroupBatchCard({
         </div>
       </div>
 
-      {/* The dogs in the batch — hairline-divided rows, walker avatars shown
-          (matching the solo cards). Each row can be checked out individually
-          (in case a walker doesn't show) on top of the batch action. */}
+      {/* Dogs in the batch — the SAME row as the solo cards (bare variant), so
+          every size matches. Each can be checked out individually (a no-show
+          doesn't block the rest) on top of the batch action below. */}
       <div className="flex flex-col divide-y divide-edge-regular border-y border-edge-regular">
         {batch.map((b) => {
-          const dog = dogByName(b.pets[0]);
           const state = handoverState(b.sessions?.[0]);
           return (
-            <div key={b.id} className="flex items-center gap-sm py-sm">
-              {dog?.imageUrl ? (
-                <img src={dog.imageUrl} alt="" className="h-9 w-9 flex-shrink-0 rounded-md object-cover" />
-              ) : (
-                <div className="h-9 w-9 flex-shrink-0 rounded-md bg-surface-inset" />
-              )}
-              <div className="flex min-w-0 flex-1 flex-col gap-tiny">
-                <span className="truncate text-sm font-semibold text-fg-primary">{b.pets[0]}</span>
-                <span className="flex items-center gap-xs text-xs text-fg-tertiary">
-                  <img src={b.carerAvatarUrl} alt="" className="h-4 w-4 rounded-full object-cover" />
-                  <span className="truncate">{b.carerName}</span>
-                  {tierFor(b.carerId) && <WalkerTierPill tier={tierFor(b.carerId)!} />}
-                </span>
-              </div>
-              {state === "back" ? (
-                <span className="flex items-center gap-tiny text-xs text-success">
-                  <CheckCircle size={12} weight="fill" /> Back safe
-                </span>
-              ) : state === "out" ? (
-                <div className="flex-shrink-0">
-                  <ButtonAction
-                    variant="outline"
-                    size="sm"
-                    leftIcon={<ShieldCheck size={13} weight="bold" />}
-                    onClick={() => onCheckIn(b)}
-                  >
-                    Back safe
-                  </ButtonAction>
-                </div>
-              ) : (
-                <div className="flex-shrink-0">
-                  <ButtonAction
-                    variant="neutral"
-                    size="sm"
-                    leftIcon={<DoorOpen size={13} weight="bold" />}
-                    onClick={() => onCheckOut(b)}
-                  >
-                    Check out
-                  </ButtonAction>
-                </div>
-              )}
-            </div>
+            <HandoverRow
+              key={b.id}
+              bare
+              booking={b}
+              dog={dogByName(b.pets[0])}
+              tier={tierFor(b.carerId)}
+              onCheckOut={state === "due" ? () => onCheckOut(b) : undefined}
+              onCheckIn={state === "out" ? () => onCheckIn(b) : undefined}
+            />
           );
         })}
       </div>
 
-      {anyDue && (
+      {dueCount > 0 && (
         <ButtonAction
-          variant="neutral"
+          variant="secondary"
           size="md"
           className="w-full"
           leftIcon={<DoorOpen size={16} weight="bold" />}
           onClick={onCheckOutBatch}
         >
-          Check out all · {batch.filter((b) => handoverState(b.sessions?.[0]) === "due").length} dogs
+          Check out all · {dueCount} dogs
         </ButtonAction>
       )}
     </div>
