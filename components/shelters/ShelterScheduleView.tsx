@@ -188,7 +188,7 @@ function UpcomingTab({
                         <img
                           src={dog.imageUrl}
                           alt=""
-                          className="h-5 w-5 flex-shrink-0 rounded-[22%] object-cover"
+                          className="h-5 w-5 flex-shrink-0 rounded-dog object-cover"
                         />
                       )}
                       <span className="truncate">

@@ -121,7 +121,7 @@ export function WalkBookingSheet({
             <img
               src={dog.imageUrl}
               alt={dog.name}
-              className="rounded-panel object-cover shrink-0"
+              className="rounded-dog object-cover shrink-0"
               style={{ width: 56, height: 56 }}
             />
             <div className="flex flex-col gap-xs min-w-0">

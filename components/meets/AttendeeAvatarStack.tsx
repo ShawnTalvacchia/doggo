@@ -78,7 +78,7 @@ export function AttendeeAvatarStack({
               // `getDogImageByOwnerAndName` returned a dog photo (preferred)
               // or fell back to the owner avatar. Discover Refinement F
               // sweep, 2026-05-10.
-              className={`border-2 border-surface-top object-cover ${slot.isDogImage ? "rounded-md" : "rounded-full"}`}
+              className={`border-2 border-surface-top object-cover ${slot.isDogImage ? "rounded-dog" : "rounded-full"}`}
               style={{
                 width: size,
                 height: size,

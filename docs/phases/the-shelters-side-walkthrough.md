@@ -75,6 +75,11 @@ Identifier prefix: **`V`**. One check per item.
 
 ## Decisions surfaced during walkthrough
 
+<!-- Design-system note (surfaced during this phase's review, applies app-wide) -->
+
+- **Dog square avatars now use a single `--radius-dog` token (20%, a PERCENTAGE) → `rounded-dog` utility, swept app-wide.** A fixed px radius read inconsistently by size (~40% round on a 20px thumb, ~6% on the 200px hero); a percentage scales the curve so dog avatars look identically rounded everywhere. 20% = the value the dog-profile hero already used. Applied to every SQUARE dog avatar (hero, pet-card avatar/gallery thumbs, sessions pet header compact, person/sched dog avatars, attendee-stack dogs, shelter sheets, the handover/schedule/modal thumbs). **Excluded** rectangular dog *card images* (`.shelter-dog-card-photo`, SessionsPetHeader full variant) — a % radius gives a non-square element elliptical corners; those keep `rounded-panel`. Token + styleguide entry added. → `docs/implementation/design-tokens.md` + `design-system.md` (Avatar Rule B)
+
+
 A running log. Each entry carries a `→ target-doc` for the phase-close sweep.
 
 - **Operator persona = synthetic `UserProfile` (`op-utulek-liben`) + `getOperatorShelterId` helper; picker routes operator picks to `/shelters/<id>`.** Shelter modeled as a minimal persona so it rides the existing switcher. → `features/demo-mode.md` (+ `features/shelters.md` operator-view entry)

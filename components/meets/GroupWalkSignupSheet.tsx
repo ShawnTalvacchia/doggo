@@ -170,7 +170,7 @@ export function GroupWalkSignupSheet({
                     <img
                       src={dog.imageUrl}
                       alt={dog.name}
-                      className="rounded-panel object-cover shrink-0"
+                      className="rounded-dog object-cover shrink-0"
                       style={{ width: 44, height: 44 }}
                     />
                     <span className="flex flex-col min-w-0">

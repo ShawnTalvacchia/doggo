@@ -164,7 +164,7 @@ export function DogsNearYou() {
                   /* Rule B: dogs render as rounded squares; owner-fallback
                      stays a circle. Discover Refinement F sweep,
                      2026-05-10. */
-                  className={dogImg ? "rounded-md" : "rounded-full"}
+                  className={dogImg ? "rounded-dog" : "rounded-full"}
                   style={{
                     width: 160,
                     height: 160,

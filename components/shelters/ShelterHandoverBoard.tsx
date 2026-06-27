@@ -295,7 +295,7 @@ function HandoverRow({
             size (Avatar Rule B — dogs are rounded squares). */}
         <span className="flex items-center gap-xs truncate text-xs text-fg-secondary">
           {dog?.imageUrl && (
-            <img src={dog.imageUrl} alt="" className="h-5 w-5 flex-shrink-0 rounded-[22%] object-cover" />
+            <img src={dog.imageUrl} alt="" className="h-5 w-5 flex-shrink-0 rounded-dog object-cover" />
           )}
           <span className="truncate">
             {booking.pets[0]}

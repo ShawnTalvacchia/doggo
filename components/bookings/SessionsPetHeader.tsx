@@ -54,7 +54,7 @@ export function SessionsPetHeader({
         <img
           src={primary.imageUrl}
           alt={primary.name}
-          className="rounded-panel object-cover bg-surface-inset shrink-0"
+          className="rounded-dog object-cover bg-surface-inset shrink-0"
           style={{ width: 140, height: 140 }}
         />
         <div className="flex flex-col gap-xs min-w-0">

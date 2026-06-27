@@ -109,6 +109,7 @@ const radiusAliases = [
   { alias: "--radius-form", maps: "--radius-xl" },
   { alias: "--radius-pill", maps: "--radius-circle" },
   { alias: "--radius-full", maps: "--radius-circle" },
+  { alias: "--radius-dog", maps: "20% · dog square avatars (Rule B), scales with size" },
 ];
 
 const shadowTokens: ShadowToken[] = [

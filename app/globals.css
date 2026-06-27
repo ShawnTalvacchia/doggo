@@ -81,6 +81,7 @@
   --radius-panel: var(--radius-panel);
   --radius-form: var(--radius-form);
   --radius-pill: var(--radius-pill);
+  --radius-dog: var(--radius-dog);
 
   /* ── Shadows ── */
   --shadow-xs: var(--shadow-xs);
@@ -406,6 +407,12 @@
                                        callsites match. Was 20px previously. */
   --radius-form: var(--radius-xl); /* floating form modals    */
   --radius-pill: var(--radius-circle); /* pill buttons / badges   */
+  /* Dog (square) avatars — Avatar Rule B. A PERCENTAGE radius so the corner
+     curve scales with the avatar size and reads identically rounded at every
+     size (20px thumb → 200px hero), unlike a fixed px which looks ~40% round
+     small and ~6% large. Square avatars only — NOT rectangular card images
+     (a % radius gives a rectangle elliptical corners). Tailwind: `rounded-dog`. */
+  --radius-dog: 20%;
 
   /* ================================================
      SPACING
@@ -10825,7 +10832,7 @@ body:has(.bottom-nav) .bookings-page {
 .pet-profile-avatar {
   width: 80px;
   height: 80px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-dog); /* dog square avatar — Avatar Rule B */
   object-fit: cover;
 }
 
@@ -11010,7 +11017,7 @@ body:has(.bottom-nav) .bookings-page {
 .pet-profile-gallery-thumb {
   width: 64px;
   height: 64px;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-dog); /* dog square avatar — Avatar Rule B */
   object-fit: cover;
   flex-shrink: 0;
 }
@@ -14519,12 +14526,11 @@ a.shelter-intro-social:hover {
 .dog-profile-hero-photo {
   width: 200px;
   height: 200px;
-  /* Percentage radius so the rounded-square character (Avatar Rule B —
-     dogs are squares, NOT circles) scales with the photo size. 20%
-     gives a clearly-rounded portrait that stays distinct from the
-     50% circle used for people. Safe here because the element is
-     square; percentage would warp on a non-square photo. */
-  border-radius: 20%;
+  /* Dog square avatar (Avatar Rule B) — the percentage radius scales with
+     size so dog avatars read identically rounded everywhere. Single source:
+     --radius-dog (was the literal 20% this whole convention is built on).
+     Safe here because the element is square; % would warp a non-square photo. */
+  border-radius: var(--radius-dog);
   object-fit: cover;
   background-color: var(--surface-base);
   display: block;
@@ -17051,9 +17057,10 @@ a.shelter-intro-social:hover {
   height: 32px;
   /* Slightly rounded square, not full circle — Shawn's design call. The
      differentiation from the round owner avatar reads as "person + their
-     pet" rather than "two avatars." `--radius-md` matches the system's
-     other 12px-radius surfaces (panels, etc.). */
-  border-radius: var(--radius-md);
+     pet" rather than "two avatars." Dog square avatar radius (Avatar Rule B,
+     --radius-dog) so it matches dog avatars everywhere; the "+N" overflow
+     tile shares the rule to stay visually consistent with the stack. */
+  border-radius: var(--radius-dog);
   /* Ring on the OUTSIDE so the image stays a true 32×32 — `border` would
      take from the 32px box (border-box default) and shrink the visible
      image to 28×28. Same pattern as `.sched-avatar-pet`. */
@@ -17318,8 +17325,8 @@ a.shelter-intro-social:hover {
   /* Rule B: dogs render as rounded squares (not circles) — shape encodes
      the entity type, not layout role. Matches `.person-avatar-dog`.
      Sessions & Service Execution 2026-05-08; sweep applied app-wide in
-     Discover Refinement F (2026-05-10). */
-  border-radius: var(--radius-md);
+     Discover Refinement F (2026-05-10). Dog square radius (--radius-dog). */
+  border-radius: var(--radius-dog);
   object-fit: cover;
   border: 2px solid var(--surface-top);
   z-index: 2;

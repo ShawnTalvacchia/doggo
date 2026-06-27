@@ -68,10 +68,10 @@ export function ShelterAdoptionsPanel({ shelter }: { shelter: ShelterProfile }) 
           <div className="flex items-center gap-sm">
             {dog.imageUrl ? (
               <Link href={`/dogs/${dog.id}`} className="flex-shrink-0">
-                <img src={dog.imageUrl} alt="" className="h-11 w-11 rounded-md object-cover" />
+                <img src={dog.imageUrl} alt="" className="h-11 w-11 rounded-dog object-cover" />
               </Link>
             ) : (
-              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-md bg-surface-inset">
+              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-dog bg-surface-inset">
                 <PawPrint size={18} weight="light" className="text-fg-tertiary" />
               </div>
             )}
