@@ -176,7 +176,7 @@ function UpcomingTab({
                     alt=""
                     className="h-12 w-12 flex-shrink-0 rounded-full object-cover"
                   />
-                  <div className="flex min-w-0 flex-1 flex-col gap-tiny">
+                  <div className="flex min-w-0 flex-1 flex-col gap-xs">
                     <span className="flex items-center gap-xs">
                       <span className="truncate text-sm font-semibold text-fg-primary">
                         {b.carerName}
@@ -188,7 +188,7 @@ function UpcomingTab({
                         <img
                           src={dog.imageUrl}
                           alt=""
-                          className="h-5 w-5 flex-shrink-0 rounded-sm object-cover"
+                          className="h-5 w-5 flex-shrink-0 rounded-[22%] object-cover"
                         />
                       )}
                       <span className="truncate">

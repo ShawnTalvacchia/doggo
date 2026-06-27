@@ -106,7 +106,7 @@ export function WalkerHandoverModal({
         {/* What they're here for today. */}
         {dog && (
           <div className="flex items-center gap-sm rounded-panel bg-surface-inset px-md py-sm">
-            <img src={dog.imageUrl} alt="" className="h-9 w-9 flex-shrink-0 rounded-md object-cover" />
+            <img src={dog.imageUrl} alt="" className="h-9 w-9 flex-shrink-0 rounded-[22%] object-cover" />
             <div className="flex min-w-0 flex-col">
               <span className="text-sm font-semibold text-fg-primary">Walking {dog.name}</span>
               {slot && <span className="text-xs text-fg-tertiary">Booked for {slot}</span>}

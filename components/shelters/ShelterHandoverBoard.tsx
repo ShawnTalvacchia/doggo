@@ -279,7 +279,7 @@ function HandoverRow({
         <img src={booking.carerAvatarUrl} alt="" className="h-14 w-14 rounded-full object-cover" />
       </button>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-tiny">
+      <div className="flex min-w-0 flex-1 flex-col gap-xs">
         <button
           type="button"
           onClick={onOpenWalker}
@@ -290,10 +290,12 @@ function HandoverRow({
           </span>
           {tier && <WalkerTierPill tier={tier} />}
         </button>
-        {/* Secondary: the dog (small thumb + name) + the time / live status. */}
+        {/* Secondary: the dog (small thumb + name) + the time / live status.
+            Dog avatar uses a % radius so the rounding looks the same at every
+            size (Avatar Rule B — dogs are rounded squares). */}
         <span className="flex items-center gap-xs truncate text-xs text-fg-secondary">
           {dog?.imageUrl && (
-            <img src={dog.imageUrl} alt="" className="h-5 w-5 flex-shrink-0 rounded-sm object-cover" />
+            <img src={dog.imageUrl} alt="" className="h-5 w-5 flex-shrink-0 rounded-[22%] object-cover" />
           )}
           <span className="truncate">
             {booking.pets[0]}
