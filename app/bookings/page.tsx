@@ -16,6 +16,8 @@ import { usePersistedState } from "@/lib/usePersistedState";
 import { useCurrentUserId, useOperatorShelterId } from "@/hooks/useCurrentUser";
 import { getShelterById } from "@/lib/mockShelters";
 import { ShelterApplicationsPanel } from "@/components/shelters/ShelterApplicationsPanel";
+import { ShelterStaysPanel } from "@/components/shelters/ShelterStaysPanel";
+import { ShelterAdoptionsPanel } from "@/components/shelters/ShelterAdoptionsPanel";
 import type { Booking } from "@/lib/types";
 import { BookingRow } from "@/components/ui/BookingRow";
 import { TabBar } from "@/components/ui/TabBar";
@@ -340,13 +342,46 @@ function BookingsRouter() {
   return <BookingsPageInner />;
 }
 
+type ApplicationsTab = "walks" | "stays" | "adoptions";
+
+const APPLICATIONS_TABS = [
+  { key: "walks", label: "Walks" },
+  { key: "stays", label: "Stays" },
+  { key: "adoptions", label: "Adoptions" },
+];
+const APPLICATIONS_TAB_KEYS: ApplicationsTab[] = ["walks", "stays", "adoptions"];
+
+/** Operator Applications — the inbound queue across the commitment ladder:
+ *  Walks (volunteer applications), Stays (sleepover / trial fostering), and
+ *  Adoptions (adoption interest, moved here from the shelter hub). Stays is
+ *  illustrative; Walks + Adoptions drive real demo state.
+ *
+ *  The active tab is URL-addressable via `?tab=` (mirrors the consumer
+ *  Bookings tabs and the shelter hub's `?op=`) so it deep-links AND the guided
+ *  walkthrough can drive it (Beat 4 lands straight on Adoptions). */
 function OperatorApplications({ shelterId }: { shelterId: string }) {
   const shelter = getShelterById(shelterId);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const rawTab = searchParams.get("tab") as ApplicationsTab | null;
+  const tab: ApplicationsTab =
+    rawTab && APPLICATIONS_TAB_KEYS.includes(rawTab) ? rawTab : "walks";
+  const setTab = (k: ApplicationsTab) =>
+    router.replace(`/bookings?tab=${k}`, { scroll: false });
   if (!shelter) return null;
   return (
     <PageColumn title="Applications">
+      <div className="page-column-panel-tabs">
+        <TabBar
+          tabs={APPLICATIONS_TABS}
+          activeKey={tab}
+          onChange={(k) => setTab(k as ApplicationsTab)}
+        />
+      </div>
       <div className="page-column-panel-body">
-        <ShelterApplicationsPanel shelter={shelter} />
+        {tab === "walks" && <ShelterApplicationsPanel shelter={shelter} />}
+        {tab === "stays" && <ShelterStaysPanel shelter={shelter} />}
+        {tab === "adoptions" && <ShelterAdoptionsPanel shelter={shelter} />}
         <Spacer />
       </div>
     </PageColumn>

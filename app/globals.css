@@ -17013,7 +17013,7 @@ a.shelter-intro-social:hover {
 /* Vertical divider between Skip and Review — applied as a left border on
    the second action so we don't add an extra DOM node. */
 .sched-card-recent-action + .sched-card-recent-action {
-  border-left: 1px solid var(--border-strong);
+  border-left: 1px solid var(--border-stronger);
 }
 
 /* Review-card meta row — title-first review cards push time/type/location

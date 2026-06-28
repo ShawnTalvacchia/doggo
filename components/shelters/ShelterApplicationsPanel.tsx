@@ -2,142 +2,207 @@
 
 /**
  * ShelterApplicationsPanel — the operator's walker-application queue (Phase 2
- * "The Shelter's Side", 2026-06-24). Brings the existing applied→invited→
- * vouched state machine (WalkerApplicationsContext) to illustrative parity as
- * a real queue the operator works: each pending applicant with their note, an
- * Invite/Vouch advance, and a decline. Mentor-recommended applicants carry a
- * credibility line (the mentor did supervised sessions).
+ * "The Shelter's Side"). Reframed from a flat list into a decision queue:
+ *   - grouped by what needs action ("New — needs a reply" vs "Invited —
+ *     awaiting their intro visit"),
+ *   - compact triage rows surfacing the key vetting signals (availability,
+ *     matches-need, mentor-recommended) as scannable chips,
+ *   - the full picture, the private note, and Decline live in an
+ *     ApplicantDetailModal (opened by tapping the applicant), mirroring the
+ *     hand-off modal pattern.
  *
- * This is the same `advance` / `withdraw` machine the walker side drives — the
- * operator view just gives it a coordinator-facing surface instead of the
- * hidden demo dropdown.
+ * Invite → vouch → decline drive the real WalkerApplicationsContext machine.
+ * Advancing is undoable: a transient undo bar steps the application back one
+ * state (revertState) — cheap insurance against a misclick, and it earns its
+ * keep on Vouch, where the applicant otherwise leaves the queue silently.
  */
 
-import { UserCircle, Check, X, GraduationCap } from "@phosphor-icons/react";
+import { useState } from "react";
+import { UserCircle, Clock, Sparkle, GraduationCap, Check } from "@phosphor-icons/react";
 import type { ShelterProfile, WalkerApplication } from "@/lib/types";
 import { useWalkerApplications } from "@/contexts/WalkerApplicationsContext";
-import { getUserById } from "@/lib/mockUsers";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { UndoBar } from "@/components/ui/UndoBar";
+import {
+  ApplicantDetailModal,
+  applicantDisplay,
+  appliedAgo,
+} from "@/components/shelters/ApplicantDetailModal";
 
-function applicantDisplay(a: WalkerApplication): { name: string; avatarUrl?: string } {
-  if (a.applicantName) return { name: a.applicantName, avatarUrl: a.applicantAvatarUrl };
-  const u = getUserById(a.userId);
-  return {
-    name: u ? `${u.firstName} ${u.lastName}`.trim() : a.userId,
-    avatarUrl: u?.avatarUrl,
-  };
-}
-
-function daysSince(iso: string): string {
-  try {
-    const diff = Date.now() - new Date(iso).getTime();
-    const days = Math.floor(diff / 86_400_000);
-    if (days <= 0) return "today";
-    if (days === 1) return "yesterday";
-    return `${days} days ago`;
-  } catch {
-    return "";
-  }
-}
+type UndoState = { userId: string; name: string; verb: string } | null;
 
 export function ShelterApplicationsPanel({ shelter }: { shelter: ShelterProfile }) {
-  const { applications, advance, withdraw } = useWalkerApplications();
+  const { applications, advance, revertState, withdraw } = useWalkerApplications();
+  // Track the open applicant by id (not a snapshot) so the modal always
+  // reflects live store changes — e.g. a note saved mid-view.
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const selected = applications.find((a) => a.id === selectedId) ?? null;
+  const [undo, setUndo] = useState<UndoState>(null);
 
-  // Pending queue = applied + invited at this shelter. Vouched walkers live
-  // on the Walkers tab; this surface is "who's waiting on us."
-  const pending = applications
+  // Advancing captures an undo target — verb reflects the state BEFORE the
+  // step (applied → "invited", invited → "vouched as a walker").
+  const handleAdvance = (a: WalkerApplication) => {
+    const { name } = applicantDisplay(a);
+    advance(a.userId, shelter.id);
+    setUndo({
+      userId: a.userId,
+      name,
+      verb: a.state === "applied" ? "invited" : "vouched as a walker",
+    });
+  };
+
+  const forShelter = applications
     .filter((a) => a.shelterId === shelter.id && (a.state === "applied" || a.state === "invited"))
     .sort((a, b) => a.appliedAt.localeCompare(b.appliedAt)); // oldest first — fairness
-
-  if (pending.length === 0) {
-    return (
-      <div className="px-lg py-xl">
-        <EmptyState
-          icon={<UserCircle size={32} weight="light" />}
-          title="No applications waiting"
-          subtitle="When someone applies to walk your dogs, they land here for you to invite and vouch."
-        />
-      </div>
-    );
-  }
+  const newApps = forShelter.filter((a) => a.state === "applied");
+  const invitedApps = forShelter.filter((a) => a.state === "invited");
 
   return (
-    <div className="flex flex-col gap-md p-md">
-      <p className="m-0 text-xs text-fg-tertiary">
-        {pending.length} {pending.length === 1 ? "person is" : "people are"} waiting. Invite them for
-        a quick intro visit, then vouch once you&rsquo;re comfortable.
-      </p>
-      {pending.map((a) => {
-        const { name, avatarUrl } = applicantDisplay(a);
-        const mentor = a.mentorship;
-        return (
-          <div
-            key={a.id}
-            className="flex flex-col gap-sm rounded-panel border border-edge-regular bg-surface-top p-md"
-          >
-            <div className="flex items-center gap-sm">
-              {avatarUrl ? (
-                <img src={avatarUrl} alt="" className="h-10 w-10 flex-shrink-0 rounded-full object-cover" />
-              ) : (
-                <UserCircle size={40} weight="light" className="flex-shrink-0 text-fg-tertiary" />
-              )}
-              <div className="flex min-w-0 flex-1 flex-col">
-                <span className="truncate text-sm font-semibold text-fg-primary">{name}</span>
-                <span className="text-xs text-fg-tertiary">
-                  Applied {daysSince(a.appliedAt)}
-                  {a.state === "invited" ? " · invited" : ""}
-                </span>
-              </div>
-              {a.state === "invited" ? (
-                <span className="flex-shrink-0 rounded-pill bg-volunteer-light px-sm py-tiny text-xs font-medium text-volunteer-strong">
-                  Invited
-                </span>
-              ) : (
-                <span className="flex-shrink-0 rounded-pill bg-surface-inset px-sm py-tiny text-xs font-medium text-fg-secondary">
-                  New
-                </span>
-              )}
-            </div>
+    <div className="flex flex-col gap-lg p-md">
+      {/* Undo lives above the queue so it survives an emptied list — vouching
+          the last applicant still leaves an undo handle. */}
+      {undo && (
+        <UndoBar
+          token={undo}
+          message={
+            <>
+              <span className="font-semibold text-fg-primary">{undo.name}</span> {undo.verb}.
+            </>
+          }
+          onUndo={() => {
+            revertState(undo.userId, shelter.id);
+            setUndo(null);
+          }}
+          onDismiss={() => setUndo(null)}
+        />
+      )}
 
-            {a.message && (
-              <p className="m-0 rounded-md bg-surface-inset px-sm py-xs text-xs text-fg-secondary">
-                &ldquo;{a.message}&rdquo;
-              </p>
+      {forShelter.length === 0 && (
+        <div className="px-lg py-xl">
+          <EmptyState
+            icon={<UserCircle size={32} weight="light" />}
+            title="No applications waiting"
+            subtitle="When someone applies to walk your dogs, they land here for you to invite and vouch."
+          />
+        </div>
+      )}
+
+      {newApps.length > 0 && (
+        <Section title="New — needs a reply">
+          {newApps.map((a) => (
+            <ApplicantRow
+              key={a.id}
+              application={a}
+              onOpen={() => setSelectedId(a.id)}
+              onAdvance={() => handleAdvance(a)}
+            />
+          ))}
+        </Section>
+      )}
+
+      {invitedApps.length > 0 && (
+        <Section title="Invited — awaiting their intro visit">
+          {invitedApps.map((a) => (
+            <ApplicantRow
+              key={a.id}
+              application={a}
+              onOpen={() => setSelectedId(a.id)}
+              onAdvance={() => handleAdvance(a)}
+            />
+          ))}
+        </Section>
+      )}
+
+      <ApplicantDetailModal
+        application={selected}
+        onAdvance={() => selected && handleAdvance(selected)}
+        onDecline={() => selected && withdraw(selected.userId, shelter.id)}
+        onClose={() => setSelectedId(null)}
+      />
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-sm">
+      <h3 className="m-0 text-xs font-semibold uppercase tracking-wide text-fg-tertiary">{title}</h3>
+      <div className="flex flex-col gap-sm">{children}</div>
+    </div>
+  );
+}
+
+/* ── Compact triage row ───────────────────────────────────────────────── */
+
+function ApplicantRow({
+  application: a,
+  onOpen,
+  onAdvance,
+}: {
+  application: WalkerApplication;
+  onOpen: () => void;
+  onAdvance: () => void;
+}) {
+  const { name, avatarUrl } = applicantDisplay(a);
+  const isInvited = a.state === "invited";
+
+  return (
+    <div className="flex flex-wrap items-center gap-md rounded-panel border border-edge-regular bg-surface-top p-md">
+      <button type="button" onClick={onOpen} className="flex-shrink-0 cursor-pointer rounded-full" aria-label={name}>
+        {avatarUrl ? (
+          <img src={avatarUrl} alt="" className="h-11 w-11 rounded-full object-cover" />
+        ) : (
+          <UserCircle size={44} weight="light" className="text-fg-tertiary" />
+        )}
+      </button>
+
+      <div className="flex min-w-0 flex-1 flex-col gap-tiny">
+        <button
+          type="button"
+          onClick={onOpen}
+          className="flex cursor-pointer items-center gap-xs text-left"
+        >
+          <span className="truncate text-sm font-semibold text-fg-primary hover:underline">{name}</span>
+        </button>
+        <span className="flex items-center gap-xs text-xs text-fg-tertiary">
+          Applied {appliedAgo(a.appliedAt)}
+          {a.availability && (
+            <>
+              <span aria-hidden>·</span>
+              <Clock size={12} weight="light" />
+              {a.availability}
+            </>
+          )}
+        </span>
+        {(a.matchesNeed || a.mentorship) && (
+          <div className="flex flex-wrap items-center gap-xs">
+            {a.matchesNeed && (
+              <span className="flex items-center gap-tiny rounded-pill bg-brand-subtle px-sm py-tiny text-xs font-medium text-brand-strong">
+                <Sparkle size={11} weight="fill" /> {a.matchesNeed}
+              </span>
             )}
-
-            {mentor && (
-              <p className="m-0 flex items-center gap-xs text-xs text-volunteer-strong">
-                <GraduationCap size={14} weight="light" />
-                Mentor-recommended · {mentor.sessionsCompleted}{" "}
-                {mentor.sessionsCompleted === 1 ? "session" : "sessions"} with {mentor.mentorName}
-              </p>
+            {a.mentorship && (
+              <span className="flex items-center gap-tiny rounded-pill bg-volunteer-light px-sm py-tiny text-xs font-medium text-volunteer-strong">
+                <GraduationCap size={11} weight="light" /> Mentor-recommended
+              </span>
             )}
-
-            <div className="flex items-center gap-sm">
-              <div className="flex-1">
-                <ButtonAction
-                  variant="secondary"
-                  size="sm"
-                  className="w-full"
-                  leftIcon={<Check size={14} weight="bold" />}
-                  onClick={() => advance(a.userId, shelter.id)}
-                >
-                  {a.state === "applied" ? "Invite to visit" : "Vouch as walker"}
-                </ButtonAction>
-              </div>
-              <ButtonAction
-                variant="outline"
-                size="sm"
-                leftIcon={<X size={14} weight="bold" />}
-                onClick={() => withdraw(a.userId, shelter.id)}
-              >
-                Decline
-              </ButtonAction>
-            </div>
           </div>
-        );
-      })}
+        )}
+      </div>
+
+      {/* One obvious action; the rest (Decline, notes) live in the detail. */}
+      <div className="w-full sm:w-auto">
+        <ButtonAction
+          variant="secondary"
+          size="sm"
+          className="w-full sm:w-auto"
+          leftIcon={<Check size={14} weight="bold" />}
+          onClick={onAdvance}
+        >
+          {isInvited ? "Vouch as walker" : "Invite to visit"}
+        </ButtonAction>
+      </div>
     </div>
   );
 }

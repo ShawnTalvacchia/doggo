@@ -29,6 +29,8 @@ import {
   ShieldCheck,
   PawPrint,
   Users,
+  ArrowCounterClockwise,
+  NotePencil,
 } from "@phosphor-icons/react";
 import type { Booking, BookingSession, PetProfile, ShelterProfile, WalkerTier } from "@/lib/types";
 import { useBookings } from "@/contexts/BookingsContext";
@@ -37,6 +39,7 @@ import { getUserById } from "@/lib/mockUsers";
 import { daysFromNow } from "@/lib/mockDate";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ButtonAction } from "@/components/ui/ButtonAction";
+import { useStubNotice } from "@/contexts/StubFeatureContext";
 import { WalkerTierPill } from "@/components/shelters/WalkerTierPill";
 import { formatSlotTime } from "@/components/shelters/WalkerHandoverModal";
 
@@ -113,15 +116,28 @@ export function ShelterHandoverBoard({
   const outSolo = soloWalks.filter((b) => handoverState(b.sessions?.[0]) === "out");
   const backSolo = soloWalks.filter((b) => handoverState(b.sessions?.[0]) === "back");
 
+  // Check-out / back-safe and their inverses. Undo is a per-row affordance
+  // (not a top alert) so any earlier action stays reversible during a busy
+  // run — checking out several dogs then fixing one from three rows back.
   const checkOut = (b: Booking) => {
     const s = b.sessions?.[0];
     if (!s) return;
     updateSession(b.id, s.id, { releasedAt: nowIso() });
   };
+  const undoCheckOut = (b: Booking) => {
+    const s = b.sessions?.[0];
+    if (!s) return;
+    updateSession(b.id, s.id, { releasedAt: undefined });
+  };
   const checkIn = (b: Booking) => {
     const s = b.sessions?.[0];
     if (!s) return;
     updateSession(b.id, s.id, { returnedAt: nowIso(), status: "completed" });
+  };
+  const undoCheckIn = (b: Booking) => {
+    const s = b.sessions?.[0];
+    if (!s) return;
+    updateSession(b.id, s.id, { returnedAt: undefined, status: "in_progress" });
   };
   const checkOutBatch = (batch: Booking[]) => {
     for (const b of batch) {
@@ -179,6 +195,8 @@ export function ShelterHandoverBoard({
           onCheckOut={checkOut}
           onCheckOutBatch={() => checkOutBatch(batch)}
           onCheckIn={checkIn}
+          onUndoCheckOut={undoCheckOut}
+          onUndoCheckIn={undoCheckIn}
         />
       ))}
 
@@ -193,7 +211,7 @@ export function ShelterHandoverBoard({
       {outSolo.length > 0 && (
         <Section title="Out now">
           {outSolo.map((b) => (
-            <HandoverRow key={b.id} booking={b} dog={dogByName(b.pets[0])} tier={tierFor(b.carerId)} onOpenWalker={() => onOpenWalker?.(b)} onCheckIn={() => checkIn(b)} />
+            <HandoverRow key={b.id} booking={b} dog={dogByName(b.pets[0])} tier={tierFor(b.carerId)} onOpenWalker={() => onOpenWalker?.(b)} onCheckIn={() => checkIn(b)} onUndoCheckOut={() => undoCheckOut(b)} />
           ))}
         </Section>
       )}
@@ -201,7 +219,7 @@ export function ShelterHandoverBoard({
       {backSolo.length > 0 && (
         <Section title="Back safe today">
           {backSolo.map((b) => (
-            <HandoverRow key={b.id} booking={b} dog={dogByName(b.pets[0])} tier={tierFor(b.carerId)} onOpenWalker={() => onOpenWalker?.(b)} />
+            <HandoverRow key={b.id} booking={b} dog={dogByName(b.pets[0])} tier={tierFor(b.carerId)} onOpenWalker={() => onOpenWalker?.(b)} onUndoCheckIn={() => undoCheckIn(b)} />
           ))}
         </Section>
       )}
@@ -227,49 +245,98 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
+/** A flat footer action — slim, fills its share of the footer, divided from
+ *  its neighbour (mirrors the schedule review card's Skip / Review footer).
+ *  `primary` = the main action (stronger neutral). Neutral throughout — undo is
+ *  a utility action, not the volunteer violet. */
+function FooterAction({
+  onClick,
+  icon,
+  children,
+  primary,
+}: {
+  onClick?: () => void;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  primary?: boolean;
+}) {
+  const base = "flex flex-1 items-center justify-center gap-xs px-md py-sm text-xs font-semibold";
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      // Darken on hover (the canonical interaction overlay, matching the
+      // schedule review card) — a translucent tint never blends with the card
+      // the way lightening to white did, so the action keeps its shape.
+      className={`${base} cursor-pointer transition-colors hover:bg-[var(--interaction-hover-darken)] ${primary ? "text-fg-primary" : "text-fg-tertiary"}`}
+    >
+      {icon}
+      {children}
+    </button>
+  );
+}
+
 /* ── Solo handover row ────────────────────────────────────────────────── */
 
 function HandoverRow({
   booking,
   dog,
   tier,
-  bare,
+  nested,
   onOpenWalker,
   onCheckOut,
   onCheckIn,
+  onUndoCheckOut,
+  onUndoCheckIn,
 }: {
   booking: Booking;
   dog?: PetProfile;
   tier?: WalkerTier;
-  /** Chromeless variant — drops the card border/fill/padding so the row sits
-   *  inside another card (the group-walk card), keeping every size identical
-   *  to the standalone card. */
-  bare?: boolean;
+  /** Inside the group card: render as a full-width ROW (no own card chrome) so
+   *  there's no card-in-card. The group card supplies the outer border; rows
+   *  are delineated by dividers + their grey footer bands. */
+  nested?: boolean;
   /** Open the walker hand-off check (clicking the walker). */
   onOpenWalker?: () => void;
   onCheckOut?: () => void;
   onCheckIn?: () => void;
+  /** Per-row undo: reverse a check-out (out → due) or back-safe (back → out).
+   *  Inline so any row stays reversible, not just the most recent action. */
+  onUndoCheckOut?: () => void;
+  onUndoCheckIn?: () => void;
 }) {
+  const { notify: notifyStub } = useStubNotice();
   const s = booking.sessions?.[0];
   const state = handoverState(s);
   const finishedAt = s?.report?.completedAt;
   const slot = formatSlotTime(s?.startTime);
 
-  // The dog + time, on one secondary line. The shelter knows the dog, so it's
-  // context — the walker (who they're handing the dog to) is the protagonist.
-  let detail = "";
-  if (state === "due") detail = slot ? `· ${slot}` : "";
-  else if (state === "out")
-    detail = finishedAt ? `· walk done ${fmtTime(finishedAt)}` : `· out since ${fmtTime(s?.releasedAt)}`;
+  // Dog sub-label: the status/time for this walk — scheduled time (due), live
+  // status (out), or the back-safe confirmation (back). A label, not an action;
+  // the footer stays purely actions.
+  let dogLabelNode: React.ReactNode = null;
+  if (state === "due" && slot) {
+    dogLabelNode = <span className="truncate text-xs text-fg-tertiary">{slot}</span>;
+  } else if (state === "out") {
+    dogLabelNode = (
+      <span className="truncate text-xs text-fg-tertiary">
+        {finishedAt ? `Walk done ${fmtTime(finishedAt)}` : `Out since ${fmtTime(s?.releasedAt)}`}
+      </span>
+    );
+  } else if (state === "back") {
+    dogLabelNode = (
+      <span className="flex items-center gap-tiny truncate text-xs font-medium text-success">
+        <CheckCircle size={12} weight="fill" className="flex-shrink-0" /> Back safe {fmtTime(s?.returnedAt)}
+      </span>
+    );
+  }
 
-  const container = bare
-    ? "flex flex-wrap items-center gap-md py-md"
-    : "flex flex-wrap items-center gap-md rounded-panel border border-edge-regular bg-surface-top p-md";
-
-  return (
-    <div className={container}>
-      {/* Walker avatar — circle (Avatar Rule B: a person), 56px, the
-          protagonist on the shelter's side. Clickable → hand-off check. */}
+  // A hand-off is a PAIRING — two side-by-side mini-profiles: the WALKER (left,
+  // clickable → the hand-off check, the person to identify/clear) and the DOG
+  // (which dog is going out, now legible instead of a tiny thumb). Avatar Rule
+  // B: walker = circle, dog = rounded square.
+  const walkerBlock = (
+    <div className="flex min-w-0 items-center gap-sm sm:flex-1">
       <button
         type="button"
         onClick={onOpenWalker}
@@ -278,63 +345,112 @@ function HandoverRow({
       >
         <img src={booking.carerAvatarUrl} alt="" className="h-14 w-14 rounded-full object-cover" />
       </button>
-
-      <div className="flex min-w-0 flex-1 flex-col gap-xs">
-        <button
-          type="button"
-          onClick={onOpenWalker}
-          className="flex cursor-pointer items-center gap-xs text-left"
-        >
-          <span className="truncate text-base font-semibold text-fg-primary hover:underline">
+      <div className="flex min-w-0 flex-col gap-tiny">
+        <button type="button" onClick={onOpenWalker} className="cursor-pointer text-left">
+          <span className="truncate text-sm font-semibold text-fg-primary hover:underline">
             {booking.carerName}
           </span>
-          {tier && <WalkerTierPill tier={tier} />}
         </button>
-        {/* Secondary: the dog (small thumb + name) + the time / live status.
-            Dog avatar uses a % radius so the rounding looks the same at every
-            size (Avatar Rule B — dogs are rounded squares). */}
-        <span className="flex items-center gap-xs truncate text-xs text-fg-secondary">
-          {dog?.imageUrl && (
-            <img src={dog.imageUrl} alt="" className="h-5 w-5 flex-shrink-0 rounded-dog object-cover" />
-          )}
-          <span className="truncate">
-            {booking.pets[0]}
-            {detail ? ` ${detail}` : ""}
-          </span>
-        </span>
+        {tier && <WalkerTierPill tier={tier} />}
       </div>
+    </div>
+  );
 
-      {/* Action — wraps to its own full-width row on mobile so it never crowds
-          the content; inline on desktop. "Back" shows the confirmed marker. */}
-      <div className="flex w-full flex-col gap-tiny sm:w-auto sm:items-end">
-        {onCheckOut && (
-          <ButtonAction
-            variant="secondary"
-            size="sm"
-            className="w-full sm:w-auto"
-            leftIcon={<DoorOpen size={14} weight="bold" />}
-            onClick={onCheckOut}
-          >
-            Check out
-          </ButtonAction>
-        )}
-        {onCheckIn && (
-          <ButtonAction
-            variant="secondary"
-            size="sm"
-            className="w-full sm:w-auto"
-            leftIcon={<ShieldCheck size={14} weight="bold" />}
-            onClick={onCheckIn}
-          >
-            Back safe
-          </ButtonAction>
-        )}
-        {state === "back" && (
-          <span className="flex items-center gap-tiny text-xs text-success">
-            <CheckCircle size={12} weight="fill" /> Back safe {fmtTime(s?.returnedAt)}
-          </span>
-        )}
+  const dogBlock = (
+    <div className="flex min-w-0 items-center gap-sm sm:flex-1">
+      {dog?.imageUrl ? (
+        <Link href={`/dogs/${dog.id}`} className="flex-shrink-0">
+          <img src={dog.imageUrl} alt="" className="h-14 w-14 rounded-dog object-cover" />
+        </Link>
+      ) : (
+        <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-dog bg-surface-inset">
+          <PawPrint size={20} weight="light" className="text-fg-tertiary" />
+        </div>
+      )}
+      <div className="flex min-w-0 flex-col gap-tiny">
+        <span className="truncate text-sm font-semibold text-fg-primary">{booking.pets[0]}</span>
+        {dogLabelNode}
       </div>
+    </div>
+  );
+
+  // Flat footer actions — slim, divided, mirroring the
+  // schedule review card's Skip / Review footer (no chunky button-in-a-bar).
+  const footerActions: React.ReactNode[] = [];
+  if (state === "due" && onCheckOut) {
+    footerActions.push(
+      <FooterAction key="co" primary icon={<DoorOpen size={13} weight="bold" />} onClick={onCheckOut}>
+        Check out
+      </FooterAction>,
+    );
+  } else if (state === "out") {
+    if (onUndoCheckOut) {
+      footerActions.push(
+        <FooterAction key="undo" icon={<ArrowCounterClockwise size={13} weight="bold" />} onClick={onUndoCheckOut}>
+          Undo check-out
+        </FooterAction>,
+      );
+    }
+    if (onCheckIn) {
+      footerActions.push(
+        <FooterAction key="bs" primary icon={<ShieldCheck size={13} weight="bold" />} onClick={onCheckIn}>
+          Back safe
+        </FooterAction>,
+      );
+    }
+  } else if (state === "back") {
+    // Undo stays on the LEFT (quiet recovery); the post-walk action is on the
+    // right. "Add note" is an illustrative stub for now (note how the dog did /
+    // flag anything) — gives the completed row a forward action, not just undo.
+    if (onUndoCheckIn) {
+      footerActions.push(
+        <FooterAction key="undo" icon={<ArrowCounterClockwise size={13} weight="bold" />} onClick={onUndoCheckIn}>
+          Undo
+        </FooterAction>,
+      );
+    }
+    footerActions.push(
+      <FooterAction
+        key="note"
+        primary
+        icon={<NotePencil size={13} weight="bold" />}
+        onClick={() =>
+          notifyStub({
+            feature: "Walk note",
+            note: "Notes on a finished walk (how the dog did, anything to flag) land with the operator build.",
+          })
+        }
+      >
+        Add note
+      </FooterAction>,
+    );
+  }
+
+  // Content body (walker + dog blocks) + a slim, flat footer action row.
+  // Solo → own card chrome; nested (group) → a bare full-width row (the group
+  // card is the container). Same content + footer either way — parity.
+  return (
+    <div
+      className={
+        nested ? "" : "overflow-hidden rounded-panel border border-edge-regular bg-surface-top"
+      }
+    >
+      <div className="flex items-center gap-lg p-md">
+        {walkerBlock}
+        {dogBlock}
+      </div>
+      {footerActions.length > 0 && (
+        <div
+          className={`flex items-stretch divide-x divide-edge-stronger bg-surface-base${
+            // Solo card: a top border divides content from its action. Nested
+            // (group) rows drop it so the action fuses to the dog above it —
+            // then the only lines are BETWEEN dogs, making ownership clear.
+            nested ? "" : " border-t border-edge-regular"
+          }`}
+        >
+          {footerActions}
+        </div>
+      )}
     </div>
   );
 }
@@ -350,6 +466,8 @@ function GroupBatchCard({
   onCheckOut,
   onCheckOutBatch,
   onCheckIn,
+  onUndoCheckOut,
+  onUndoCheckIn,
 }: {
   meetId: string;
   batch: Booking[];
@@ -359,6 +477,8 @@ function GroupBatchCard({
   onCheckOut: (b: Booking) => void;
   onCheckOutBatch: () => void;
   onCheckIn: (b: Booking) => void;
+  onUndoCheckOut: (b: Booking) => void;
+  onUndoCheckIn: (b: Booking) => void;
 }) {
   const meet = getMeetById(meetId);
   const host = meet ? getUserById(meet.creatorId) : undefined;
@@ -375,12 +495,12 @@ function GroupBatchCard({
   );
 
   return (
-    <div className="flex flex-col gap-sm rounded-panel border border-edge-regular bg-surface-top p-md">
+    <div className="overflow-hidden rounded-panel border border-edge-regular bg-surface-top">
       {/* Header. The avatar + title both link to the meet (one big target, like
           the walker rows) so it reads as clickable; the batch action sits on
           the right (matching the per-row action placement), wrapping to its own
           full-width row on mobile. */}
-      <div className="flex flex-wrap items-center gap-md">
+      <div className="flex flex-wrap items-center gap-md p-md">
         {meet ? (
           <Link href={`/meets/${meet.id}`} className="flex-shrink-0">
             {avatar}
@@ -418,22 +538,26 @@ function GroupBatchCard({
         )}
       </div>
 
-      {/* Dogs in the batch — the SAME row as the solo cards (bare variant), so
-          every size matches. Each can be checked out individually (a no-show
-          doesn't block the rest) on top of the batch action below. */}
-      <div className="flex flex-col divide-y divide-edge-regular border-y border-edge-regular">
+      {/* Dogs in the batch — full-width ROWS (not nested cards), divided by
+          lines, each with the same content + grey footer as a solo card. No
+          card-in-card, so the white group card reads cleanly against the grey
+          page and the footer bands separate the dogs. Per-dog actions sit on
+          top of the header's batch "Check out all". */}
+      <div className="divide-y divide-edge-regular border-t border-edge-regular">
         {batch.map((b) => {
           const state = handoverState(b.sessions?.[0]);
           return (
             <HandoverRow
               key={b.id}
-              bare
+              nested
               booking={b}
               dog={dogByName(b.pets[0])}
               tier={tierFor(b.carerId)}
               onOpenWalker={() => onOpenWalker?.(b)}
               onCheckOut={state === "due" ? () => onCheckOut(b) : undefined}
               onCheckIn={state === "out" ? () => onCheckIn(b) : undefined}
+              onUndoCheckOut={state === "out" ? () => onUndoCheckOut(b) : undefined}
+              onUndoCheckIn={state === "back" ? () => onUndoCheckIn(b) : undefined}
             />
           );
         })}

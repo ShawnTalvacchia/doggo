@@ -47,6 +47,9 @@ const SEED_APPLICATIONS: WalkerApplication[] = [
     message:
       "Hi! I work shifts so I have free mornings during the week. I grew up with dogs and would love to help walk yours. Happy to come in for the intro visit.",
     appliedAt: daysAgoIso(2, "08:20"),
+    availability: "Weekday mornings",
+    experience: "Grew up with dogs",
+    matchesNeed: "Fills your weekday-daytime gap",
   },
   {
     id: "app-seed-petra-s",
@@ -59,6 +62,10 @@ const SEED_APPLICATIONS: WalkerApplication[] = [
       "I live ten minutes away in Libeň and can do weekends. I've fostered two dogs before through another rescue.",
     appliedAt: daysAgoIso(6, "19:05"),
     invitedAt: daysAgoIso(4, "10:30"),
+    availability: "Weekends",
+    experience: "Fostered 2 dogs",
+    nearby: true,
+    matchesNeed: "Fills your weekend gap",
   },
   {
     id: "app-seed-jan",
@@ -70,6 +77,8 @@ const SEED_APPLICATIONS: WalkerApplication[] = [
     message:
       "Looking to volunteer regularly. I'm calm with nervous dogs and patient. Weekday afternoons work best for me.",
     appliedAt: daysAgoIso(1, "13:40"),
+    availability: "Weekday afternoons",
+    experience: "Calm with nervous dogs",
   },
 ];
 
@@ -91,7 +100,7 @@ export function deriveWalkerTier(walkCount: number): WalkerTier {
   return "vetted";
 }
 
-const APPLICATIONS_SEED_VERSION = 2;
+const APPLICATIONS_SEED_VERSION = 3;
 const STORAGE_KEY = "doggo-walker-applications";
 const PLATFORM_WAIVER_KEY = "doggo-platform-waiver";
 const TIER_OVERRIDES_KEY = "doggo-walker-tier-overrides";
@@ -125,6 +134,13 @@ interface WalkerApplicationsContextValue {
   apply: (userId: string, shelterId: string, message: string) => void;
   /** Advance to the next state. No-op at terminal "vouched." */
   advance: (userId: string, shelterId: string) => void;
+  /** Step the application back one state (vouched→invited, invited→applied),
+   *  clearing that step's timestamp. The undo for an accidental advance;
+   *  no-op at "applied." */
+  revertState: (userId: string, shelterId: string) => void;
+  /** Set (or clear, with "") the coordinator's private note. No-op when no
+   *  application exists for (userId, shelterId). */
+  setNote: (userId: string, shelterId: string, note: string) => void;
   /** Withdraw / drop the application entirely. */
   withdraw: (userId: string, shelterId: string) => void;
   /** Increment walkCount for the vouched walker. No-op when not vouched. */
@@ -255,6 +271,42 @@ export function WalkerApplicationsProvider({ children }: { children: React.React
           if (a.state === "invited") return { ...a, state: "vouched", vouchedAt: new Date().toISOString(), vouchedVia: "shelter" as const };
           return a;
         }),
+      );
+    },
+    [setApplications],
+  );
+
+  const revertState = useCallback(
+    (userId: string, shelterId: string) => {
+      setApplications((prev) =>
+        prev.map((a) => {
+          if (a.userId !== userId || a.shelterId !== shelterId) return a;
+          if (a.state === "vouched") {
+            const next = { ...a, state: "invited" as WalkerApplicationState };
+            delete next.vouchedAt;
+            delete next.vouchedVia;
+            return next;
+          }
+          if (a.state === "invited") {
+            const next = { ...a, state: "applied" as WalkerApplicationState };
+            delete next.invitedAt;
+            return next;
+          }
+          return a;
+        }),
+      );
+    },
+    [setApplications],
+  );
+
+  const setNote = useCallback(
+    (userId: string, shelterId: string, note: string) => {
+      setApplications((prev) =>
+        prev.map((a) =>
+          a.userId === userId && a.shelterId === shelterId
+            ? { ...a, coordinatorNote: note.trim() || undefined }
+            : a,
+        ),
       );
     },
     [setApplications],
@@ -476,6 +528,8 @@ export function WalkerApplicationsProvider({ children }: { children: React.React
         getApplication,
         apply,
         advance,
+        revertState,
+        setNote,
         withdraw,
         logWalk,
         beginMentorship,

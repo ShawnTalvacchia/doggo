@@ -562,22 +562,25 @@ const SHELTER_BEATS: WalkthroughBeat[] = [
     context:
       "Same seat, weeks on. Look at what the walks have added up to, on your own side.",
     summary: "The adoption-interest landing fills, and the public wall shows where it came from.",
-    startUrl: "/shelters/utulek-liben?op=adoptions",
+    startUrl: "/bookings?tab=adoptions",
     steps: [
       {
         kind: "card",
         instruction:
-          "This is **Adoptions**. People who saw a walk recap are asking about your dogs, Nora among them.",
+          "Back to **Applications**, now the **Adoptions** tab. People who saw a walk recap are asking about your dogs, Nora among them.",
         detail:
-          "The walkers didn't adopt. They surfaced these dogs to people who would. That is the loop: dogs that get out get seen, and seen dogs get homes.",
+          "Applications gathers everyone reaching toward your dogs (walks, stays, adoptions). The walkers didn't adopt. They surfaced these dogs to people who would. That is the loop: dogs that get out get seen, and seen dogs get homes.",
       },
       {
         kind: "card",
         instruction:
-          "Open your **Feed** to see where that interest comes from. Walk posts, your dogs out and happy.",
+          "Open your shelter's **Feed** to see where that interest comes from. Walk posts, your dogs out and happy.",
         detail:
           "You never ran a social account. Your walkers do it for you, each post quietly advertising a dog who needs a home.",
-        advanceOn: "/shelters/utulek-liben?op=feed",
+        // Pathname-only: from the Applications page the natural hop back is the
+        // home-nav (→ bare hub URL, which defaults to Feed), so don't require
+        // the `?op=feed` param the old in-hub tab-click used to set.
+        advanceOn: "/shelters/utulek-liben",
       },
     ],
   },

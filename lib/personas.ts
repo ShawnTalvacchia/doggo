@@ -7,18 +7,19 @@
  * would want to roam in, kept small so the dropdown stays scannable.
  *
  * Picker membership ≠ switchability. Any mock-world user can still be
- * switched to (guided walkthroughs do this, e.g. Magda in the new-owner
- * walkthrough) — `CurrentUserContext.setUserById` falls back to
- * `getUserById` for ids not in this list, and `?as=<id>` works for anyone.
- * So a character can be dropped from the picker without vanishing from the
- * world or breaking a walkthrough that switches to them.
+ * switched to — `CurrentUserContext.setUserById` falls back to `getUserById`
+ * for ids not in this list, and `?as=<id>` works for anyone. So a character
+ * can be dropped from the picker without vanishing from the world: they still
+ * appear as characters in content/walkthroughs and stay reachable via `?as=`.
+ * (No current walkthrough switches its POV *into* a dropped persona — the
+ * guided arcs run as Daniel / Klára / Eliška / the operator.)
  *
  * Roster trim (Phase 2 "The Shelter's Side," 2026-06-24, PO call): the
  * picker was carrying too many. Dropped from free-roam — Tomáš (overlaps
  * Eliška's shelter-mentee vantage; retained as Phase-2 interview material),
  * Lena (pure care customer, no walkthrough use), Magda (neighbour-hub;
- * overlaps Tereza, still driven by the new-owner walkthrough). All three
- * remain full mock-world users.
+ * overlaps Tereza — appears as a character in the new-owner story but is not
+ * switched into). All three remain full mock-world users.
  *
  * Tereza is first (the default — selecting her exits demo mode), as the
  * routine-owner / community anchor best represents the happy path. Daniel

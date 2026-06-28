@@ -2148,6 +2148,28 @@ export interface WalkerApplication {
    */
   applicantName?: string;
   applicantAvatarUrl?: string;
+  /**
+   * Illustrative structured vetting signals for the operator's application
+   * queue (Phase 2). Seeded for demo applicants; a real intake form would
+   * capture these (the exact set is interview fodder). They let the queue
+   * surface scannable chips instead of burying everything in the free-text
+   * `message`.
+   */
+  availability?: string; // e.g. "Weekday mornings", "Weekends"
+  experience?: string; // e.g. "Fostered 2 dogs", "New to walking"
+  nearby?: boolean; // lives close to the shelter
+  /** Set when this applicant fills a gap the shelter has — surfaced as a
+   *  highlighted "matches your need" signal (the latent-demand thesis made
+   *  concrete). The string is the gap, e.g. "Fills your weekend gap". */
+  matchesNeed?: string;
+  /**
+   * A coordinator's private note on this applicant, editable from the
+   * application detail modal (Phase 2 "The Shelter's Side"). Persists locally
+   * like the rest of the store — illustrative of the capability; fuller
+   * team-shared notes come with the operator build (FC16). Never shown to the
+   * applicant.
+   */
+  coordinatorNote?: string;
 }
 
 export interface ShelterSupporter {

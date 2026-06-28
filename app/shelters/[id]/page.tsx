@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, Suspense } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
@@ -13,6 +13,7 @@ import {
   PawPrint,
   CaretRight,
   CaretDown,
+  ArrowLeft,
   Check,
   Globe,
   FacebookLogo,
@@ -29,11 +30,9 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { SortMenu } from "@/components/ui/SortMenu";
 import { useAdoptionStore } from "@/lib/useAdoptionStore";
 import { ButtonAction } from "@/components/ui/ButtonAction";
-import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { MomentCardFromPost } from "@/components/feed/MomentCard";
 import { ShelterDogCard } from "@/components/shelters/ShelterDogCard";
 import { ShelterMemberRow } from "@/components/shelters/ShelterMemberRow";
-import { ShelterAdoptionsPanel } from "@/components/shelters/ShelterAdoptionsPanel";
 import { WalkApplicationSheet } from "@/components/shelters/WalkApplicationSheet";
 import { WalkEntrySheet } from "@/components/shelters/WalkEntrySheet";
 import { MentorSessionBookingSheet } from "@/components/shelters/MentorSessionBookingSheet";
@@ -164,17 +163,22 @@ function ShelterDetailInner() {
             <OperatorView shelter={shelter} />
           ) : (
             <>
-              {isOperatorHere && publicOverride && (
-                <OperatorReturnStrip shelterId={shelter.id} shelterName={shelter.name} />
-              )}
               {/* Tabs are sticky at the top of the scrollable body. Mirrors the
                   community-detail pattern: tabs always accessible, hero scrolls
-                  away inside the Feed tab, no banner-jump between tabs. */}
+                  away inside the Feed tab, no banner-jump between tabs. The
+                  operator's "back to operator view" exit lives in the Feed hero
+                  (matching the operator hub's "View public page"), not a banner
+                  above the tabs. */}
               <div className="detail-tabs detail-tabs--fill">
                 <TabBar tabs={tabs} activeKey={activeTab} onChange={handleTabChange} />
               </div>
 
-              {activeTab === "feed" && <FeedTab shelter={shelter} />}
+              {activeTab === "feed" && (
+                <FeedTab
+                  shelter={shelter}
+                  showOperatorReturn={isOperatorHere && publicOverride}
+                />
+              )}
               {activeTab === "dogs" && <DogsTab shelter={shelter} />}
               {activeTab === "members" && <MembersTab shelter={shelter} />}
               {activeTab === "gallery" && <GalleryTab />}
@@ -190,7 +194,16 @@ function ShelterDetailInner() {
 
 /* ── Feed tab ──────────────────────────────────────────────────────── */
 
-function FeedTab({ shelter }: { shelter: ShelterProfile }) {
+function FeedTab({
+  shelter,
+  showOperatorReturn,
+}: {
+  shelter: ShelterProfile;
+  /** When the operator has flipped to their own public page (`?public=1`),
+   *  show the "back to operator view" exit in the hero (mirrors the operator
+   *  hub's "View public page" button) instead of a banner above the tabs. */
+  showOperatorReturn?: boolean;
+}) {
   const posts = getShelterFeed(shelter);
   const currentUserId = useCurrentUserId();
   const router = useRouter();
@@ -270,6 +283,21 @@ function FeedTab({ shelter }: { shelter: ShelterProfile }) {
     <div className="shelter-feed">
       <ShelterBanner shelter={shelter} />
       <ShelterIntro shelter={shelter} />
+      {/* Operator previewing their own public page — the exit back to the
+          operator view, mirroring the operator hero's "View public page". */}
+      {showOperatorReturn && (
+        <div className="flex items-center gap-sm px-xl pb-md">
+          <ButtonAction
+            variant="outline"
+            size="sm"
+            href={`/shelters/${shelter.id}`}
+            leftIcon={<ArrowLeft size={15} weight="light" />}
+          >
+            Back to operator view
+          </ButtonAction>
+          <span className="text-xs text-fg-tertiary">Previewing your public page.</span>
+        </div>
+      )}
       <DogsInCareSummaryCard shelter={shelter} />
       <ShelterMetaRow shelter={shelter} />
       <ShelterSocialsRow shelter={shelter} />
@@ -1212,18 +1240,18 @@ function GalleryTab() {
 
 /* ── Operator view (Phase 2 "The Shelter's Side") ──────────────────── */
 
-type OperatorSection = "feed" | "dogs" | "walkers" | "adoptions";
+type OperatorSection = "feed" | "dogs" | "walkers";
 
 /**
  * The shelter's OWN hub — the demo-illustrative operator surface. Entered via
  * the shelter-operator persona (or `?admin=1`). Replaces the public tab chrome
  * with the shelter's management tabs. The operational daily-drivers (the
- * handover board → Schedule; the application queue → Applications) live at the
- * nav level now (Phase 2 back-office shell); the hub holds Feed (the public
- * wall), Dogs (roster), Walkers (the pool with controls), and Adoptions (the
- * interest landing). Built illustrative, not deeply wired.
+ * handover board → Schedule; the inbound queues → Applications, with Walks /
+ * Stays / Adoptions tabs) live at the nav level now (Phase 2 back-office
+ * shell); the hub holds Feed (the public wall), Dogs (roster), and Walkers
+ * (the pool with controls). Built illustrative, not deeply wired.
  */
-const OPERATOR_SECTIONS: OperatorSection[] = ["feed", "dogs", "walkers", "adoptions"];
+const OPERATOR_SECTIONS: OperatorSection[] = ["feed", "dogs", "walkers"];
 
 function OperatorView({ shelter }: { shelter: ShelterProfile }) {
   const router = useRouter();
@@ -1243,12 +1271,13 @@ function OperatorView({ shelter }: { shelter: ShelterProfile }) {
     { key: "feed", label: "Feed" },
     { key: "dogs", label: "Dogs" },
     { key: "walkers", label: "Walkers" },
-    { key: "adoptions", label: "Adoptions" },
   ];
 
   return (
     <div className="shelter-operator">
-      <OperatorBanner shelter={shelter} />
+      {/* No banner above the tabs (PO call 2026-06-28): the back-office shell
+          already signals operator mode. Tabs sit at the top; the "View public
+          page" exit lives in the Feed hero instead. */}
       <div className="detail-tabs detail-tabs--fill">
         <TabBar
           tabs={opTabs}
@@ -1262,7 +1291,6 @@ function OperatorView({ shelter }: { shelter: ShelterProfile }) {
       {section === "walkers" && (
         <MembersTab shelter={shelter} operatorView defaultFilter="walkers" />
       )}
-      {section === "adoptions" && <ShelterAdoptionsPanel shelter={shelter} />}
     </div>
   );
 }
@@ -1278,6 +1306,20 @@ function OperatorFeedTab({ shelter }: { shelter: ShelterProfile }) {
     <div className="shelter-feed">
       <ShelterBanner shelter={shelter} />
       <ShelterIntro shelter={shelter} />
+      {/* Operator hero action — the exit to the public page (replaces the old
+          top banner's link). Sits where the visitor's Follow / Walk-a-dog row
+          would be. */}
+      <div className="flex items-center gap-sm px-xl pb-md">
+        <ButtonAction
+          variant="outline"
+          size="sm"
+          href={`/shelters/${shelter.id}?public=1`}
+          leftIcon={<Globe size={15} weight="light" />}
+        >
+          View public page
+        </ButtonAction>
+        <span className="text-xs text-fg-tertiary">Your operator side (illustrative demo).</span>
+      </div>
       {posts.length === 0 ? (
         <div className="px-lg py-xl">
           <EmptyState
@@ -1297,53 +1339,3 @@ function OperatorFeedTab({ shelter }: { shelter: ShelterProfile }) {
   );
 }
 
-/** Operator-mode banner — "this is your side" + an exit to the public page. */
-function OperatorBanner({ shelter }: { shelter: ShelterProfile }) {
-  return (
-    <div className="flex items-center gap-sm border-b border-edge-regular bg-volunteer-light/50 px-md py-sm">
-      <img
-        src={shelter.logoUrl}
-        alt=""
-        className="h-9 w-9 flex-shrink-0 rounded-full object-cover"
-      />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <span className="flex items-center gap-xs text-sm font-semibold text-fg-primary">
-          {shelter.name}
-          <span className="rounded-pill bg-volunteer px-xs py-tiny text-xs font-medium text-volunteer-soft">
-            Operator view
-          </span>
-        </span>
-        <span className="text-xs text-fg-tertiary">Your side — illustrative demo.</span>
-      </div>
-      <Link
-        href={`/shelters/${shelter.id}?public=1`}
-        className="flex-shrink-0 text-xs font-medium text-volunteer-strong"
-      >
-        View public page
-      </Link>
-    </div>
-  );
-}
-
-/** Shown on the public page when an operator has flipped to it — a way back. */
-function OperatorReturnStrip({
-  shelterId,
-  shelterName,
-}: {
-  shelterId: string;
-  shelterName: string;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-sm border-b border-edge-regular bg-surface-inset px-md py-xs">
-      <span className="text-xs text-fg-tertiary">
-        Public page — what walkers and supporters see at {shelterName}.
-      </span>
-      <Link
-        href={`/shelters/${shelterId}`}
-        className="flex-shrink-0 text-xs font-medium text-volunteer-strong"
-      >
-        Back to operator view
-      </Link>
-    </div>
-  );
-}
