@@ -21,6 +21,7 @@ import { useBookings } from "@/contexts/BookingsContext";
 import { daysFromNow } from "@/lib/mockDate";
 import { TabBar } from "@/components/ui/TabBar";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { DatePicker, DateTrigger } from "@/components/ui/DatePicker";
 import { ShelterHandoverBoard } from "./ShelterHandoverBoard";
 import { WalkerTierPill } from "./WalkerTierPill";
 import { WalkerHandoverModal, formatSlotTime } from "./WalkerHandoverModal";
@@ -112,6 +113,7 @@ function UpcomingTab({
   onOpenWalker: (b: Booking) => void;
 }) {
   const [from, setFrom] = useState<string>("");
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const sorted = [...walks].sort((a, b) =>
     (a.sessions?.[0]?.date ?? "").localeCompare(b.sessions?.[0]?.date ?? ""),
@@ -131,21 +133,36 @@ function UpcomingTab({
 
   return (
     <div className="flex flex-col gap-md p-md">
-      {/* Date jump — look further ahead at a specific day's reservations. */}
-      <label className="flex items-center gap-sm text-xs text-fg-tertiary">
-        <span>Jump to</span>
-        <input
-          type="date"
-          value={from}
-          onChange={(e) => setFrom(e.target.value)}
-          className="rounded-form border border-edge-regular bg-surface-base px-sm py-tiny text-xs text-fg-primary"
+      {/* Date jump — look further ahead at a specific day's reservations.
+          Uses the shared DatePicker modal (same as the booking flows) rather
+          than a raw native input. */}
+      <div className="flex items-center gap-sm">
+        <DateTrigger
+          label="Jump to a date"
+          value={from || null}
+          onClick={() => setPickerOpen(true)}
         />
         {from && (
-          <button type="button" onClick={() => setFrom("")} className="text-volunteer-strong">
+          <button
+            type="button"
+            onClick={() => setFrom("")}
+            className="text-xs font-medium text-volunteer-strong"
+          >
             Clear
           </button>
         )}
-      </label>
+      </div>
+      <DatePicker
+        mode="single"
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        value={from || null}
+        onChange={(iso) => {
+          setFrom(iso);
+          setPickerOpen(false);
+        }}
+        title="Jump to a date"
+      />
 
       {grouped.length === 0 ? (
         <EmptyState
