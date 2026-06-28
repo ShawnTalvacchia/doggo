@@ -136,22 +136,12 @@ function UpcomingTab({
       {/* Date jump — look further ahead at a specific day's reservations.
           Uses the shared DatePicker modal (same as the booking flows) rather
           than a raw native input. */}
-      <div className="flex items-center gap-sm">
-        <DateTrigger
-          label="Jump to a date"
-          value={from || null}
-          onClick={() => setPickerOpen(true)}
-        />
-        {from && (
-          <button
-            type="button"
-            onClick={() => setFrom("")}
-            className="text-xs font-medium text-volunteer-strong"
-          >
-            Clear
-          </button>
-        )}
-      </div>
+      <DateTrigger
+        label="Jump to a date"
+        value={from || null}
+        onClick={() => setPickerOpen(true)}
+        onClear={() => setFrom("")}
+      />
       <DatePicker
         mode="single"
         open={pickerOpen}

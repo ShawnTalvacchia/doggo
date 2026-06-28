@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CalendarBlank } from "@phosphor-icons/react";
+import { CalendarBlank, X } from "@phosphor-icons/react";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
 import { ButtonAction } from "./ButtonAction";
 
@@ -397,6 +397,10 @@ type DateTriggerProps = {
   label: string; // placeholder text
   value: string | null | DateRange;
   onClick: () => void;
+  /** When provided AND a value is set, the trailing calendar icon becomes a
+   *  clear (×) control — the trailing-clear pattern from `SearchInput`, so the
+   *  clear lives inside the field (no external button / layout shift). */
+  onClear?: () => void;
 };
 
 function formatTriggerValue(value: string | null | DateRange): string | null {
@@ -408,7 +412,7 @@ function formatTriggerValue(value: string | null | DateRange): string | null {
   return null;
 }
 
-export function DateTrigger({ label, value, onClick }: DateTriggerProps) {
+export function DateTrigger({ label, value, onClick, onClear }: DateTriggerProps) {
   const display = formatTriggerValue(value);
   return (
     <button
@@ -417,7 +421,33 @@ export function DateTrigger({ label, value, onClick }: DateTriggerProps) {
       onClick={onClick}
     >
       <span>{display ?? label}</span>
-      <CalendarBlank size={16} />
+      {display && onClear ? (
+        // Trailing clear (× inside the field), replacing the calendar icon
+        // once a value is set. A span (not a nested <button>) so it stays
+        // valid inside the trigger button; stops propagation so it clears
+        // without opening the picker.
+        <span
+          role="button"
+          tabIndex={0}
+          className="date-trigger-clear"
+          aria-label="Clear date"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClear();
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              e.stopPropagation();
+              onClear();
+            }
+          }}
+        >
+          <X size={11} weight="bold" />
+        </span>
+      ) : (
+        <CalendarBlank size={16} />
+      )}
     </button>
   );
 }

@@ -4652,6 +4652,27 @@ body.guest-route {
   margin-left: auto;
 }
 
+/* Trailing clear (×) inside the field — mirrors .search-input-clear. Pushed
+   to the right edge like the calendar icon it replaces. */
+.date-trigger-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: auto;
+  border-radius: 50%;
+  background: var(--transparent-dark-10);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.date-trigger-clear:hover {
+  background: var(--transparent-dark-16);
+  color: var(--text-secondary);
+}
+
 /* "View Results" footer — only visible at intermediate breakpoint (768–1009px) */
 .explore-view-results-footer {
   display: none; /* shown via media query */
