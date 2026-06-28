@@ -15,7 +15,7 @@
  */
 
 import Link from "next/link";
-import { CheckCircle, Warning, ArrowRight } from "@phosphor-icons/react";
+import { CheckCircle, Warning } from "@phosphor-icons/react";
 import type { Booking, ShelterProfile } from "@/lib/types";
 import { getUserById } from "@/lib/mockUsers";
 import { ModalSheet } from "@/components/overlays/ModalSheet";
@@ -81,6 +81,12 @@ export function WalkerHandoverModal({
   const vouchedAt = walker?.vouchedAt;
   const dog = shelter.dogs.find((d) => d.name === booking.pets[0]);
   const slot = formatSlotTime(booking.sessions?.[0]?.startTime);
+  // Avatar + name link to the full profile when the walker bridges to one
+  // (same pattern as the rows); plain for directory-only walkers.
+  const profileHref = user ? `/profile/${user.id}` : null;
+  const avatarImg = (
+    <img src={avatarUrl} alt="" className="h-16 w-16 flex-shrink-0 rounded-full object-cover" />
+  );
 
   // Eligibility for THIS dog — tier vs the dog's policy (strictest wins).
   const needsExperienced = !!dog?.experiencedHandlersOnly;
@@ -89,11 +95,26 @@ export function WalkerHandoverModal({
   return (
     <ModalSheet open onClose={onClose} title="Walker check">
       <div className="flex flex-col gap-lg p-md">
-        {/* Identity + standing. */}
+        {/* Identity + standing. The avatar + name are the link to the profile. */}
         <div className="flex items-center gap-md">
-          <img src={avatarUrl} alt="" className="h-16 w-16 flex-shrink-0 rounded-full object-cover" />
+          {profileHref ? (
+            <Link href={profileHref} className="flex-shrink-0">
+              {avatarImg}
+            </Link>
+          ) : (
+            avatarImg
+          )}
           <div className="flex min-w-0 flex-col gap-tiny">
-            <span className="text-lg font-semibold text-fg-primary">{name}</span>
+            {profileHref ? (
+              <Link
+                href={profileHref}
+                className="text-lg font-semibold text-fg-primary hover:underline"
+              >
+                {name}
+              </Link>
+            ) : (
+              <span className="text-lg font-semibold text-fg-primary">{name}</span>
+            )}
             <div className="flex flex-wrap items-center gap-xs">
               {tier && <WalkerTierPill tier={tier} />}
               {vouchedAt && (
@@ -141,15 +162,6 @@ export function WalkerHandoverModal({
               {walker.lastWalkedAt ? ` · last walked ${fmtDate(walker.lastWalkedAt)}` : ""}
             </span>
           </div>
-        )}
-
-        {user && (
-          <Link
-            href={`/profile/${user.id}`}
-            className="flex items-center gap-xs text-sm font-medium text-volunteer-strong"
-          >
-            View full profile <ArrowRight size={14} weight="bold" />
-          </Link>
         )}
       </div>
     </ModalSheet>

@@ -273,7 +273,7 @@ function HandoverRow({
       <button
         type="button"
         onClick={onOpenWalker}
-        className="flex-shrink-0 rounded-full"
+        className="flex-shrink-0 cursor-pointer rounded-full"
         aria-label={`Check ${booking.carerName}`}
       >
         <img src={booking.carerAvatarUrl} alt="" className="h-14 w-14 rounded-full object-cover" />
@@ -283,7 +283,7 @@ function HandoverRow({
         <button
           type="button"
           onClick={onOpenWalker}
-          className="flex items-center gap-xs text-left"
+          className="flex cursor-pointer items-center gap-xs text-left"
         >
           <span className="truncate text-base font-semibold text-fg-primary hover:underline">
             {booking.carerName}

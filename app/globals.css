@@ -590,7 +590,18 @@ body.guest-route {
 
 a {
   color: inherit;
-  text-decoration: none;
+}
+
+/* Layer the no-underline reset so Tailwind text-decoration utilities
+   (hover:underline, underline, no-underline) WIN over it on anchors. Unlayered
+   (Tailwind v4 cascade layers), this reset silently defeats those layered
+   utilities on every <a> — which is why `hover:underline` worked on a <span>
+   but not on a <Link>. Plain links still render un-underlined (this still
+   beats the browser UA default). */
+@layer base {
+  a {
+    text-decoration: none;
+  }
 }
 
 /* ================================================
@@ -4646,7 +4657,9 @@ body.guest-route {
   color: var(--text-secondary);
 }
 
-.date-trigger svg {
+/* Direct child only — the trailing calendar icon. A descendant selector would
+   also hit the × svg nested in .date-trigger-clear and shove it off-centre. */
+.date-trigger > svg {
   flex-shrink: 0;
   color: var(--text-tertiary);
   margin-left: auto;

@@ -176,7 +176,7 @@ function UpcomingTab({
                   key={b.id}
                   type="button"
                   onClick={() => onOpenWalker(b)}
-                  className="flex w-full items-center gap-md rounded-panel border border-edge-regular bg-surface-top p-sm text-left"
+                  className="flex w-full cursor-pointer items-center gap-md rounded-panel border border-edge-regular bg-surface-top p-sm text-left"
                 >
                   <img
                     src={b.carerAvatarUrl}
@@ -258,7 +258,7 @@ function HistoryTab({
               key={b.id}
               type="button"
               onClick={() => onOpenWalker(b)}
-              className="flex items-center gap-sm py-sm text-left"
+              className="flex cursor-pointer items-center gap-sm py-sm text-left"
             >
               <img
                 src={b.carerAvatarUrl}
