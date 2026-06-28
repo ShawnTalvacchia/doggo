@@ -366,14 +366,28 @@ function GroupBatchCard({
 
   const dueCount = batch.filter((b) => handoverState(b.sessions?.[0]) === "due").length;
 
+  // Brand circle marks this as a community meet (Avatar Rule B — a meet is a
+  // circle); sized to match the dog avatars in the rows below.
+  const avatar = (
+    <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border border-brand-light bg-brand-subtle text-brand-strong">
+      <Users size={24} weight="light" />
+    </div>
+  );
+
   return (
     <div className="flex flex-col gap-sm rounded-panel border border-edge-regular bg-surface-top p-md">
-      <div className="flex items-center gap-md">
-        {/* Brand circle marks this as a community meet (Avatar Rule B — a meet
-            is a circle); sized to match the dog avatars in the rows below. */}
-        <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border border-brand-light bg-brand-subtle text-brand-strong">
-          <Users size={24} weight="light" />
-        </div>
+      {/* Header. The avatar + title both link to the meet (one big target, like
+          the walker rows) so it reads as clickable; the batch action sits on
+          the right (matching the per-row action placement), wrapping to its own
+          full-width row on mobile. */}
+      <div className="flex flex-wrap items-center gap-md">
+        {meet ? (
+          <Link href={`/meets/${meet.id}`} className="flex-shrink-0">
+            {avatar}
+          </Link>
+        ) : (
+          avatar
+        )}
         <div className="flex min-w-0 flex-1 flex-col gap-tiny">
           {meet ? (
             <Link
@@ -389,6 +403,19 @@ function GroupBatchCard({
             {batch.length} dogs{hostName ? ` · led by ${hostName}` : ""}
           </span>
         </div>
+        {dueCount > 0 && (
+          <div className="w-full sm:w-auto">
+            <ButtonAction
+              variant="secondary"
+              size="sm"
+              className="w-full sm:w-auto"
+              leftIcon={<DoorOpen size={14} weight="bold" />}
+              onClick={onCheckOutBatch}
+            >
+              Check out all · {dueCount} dogs
+            </ButtonAction>
+          </div>
+        )}
       </div>
 
       {/* Dogs in the batch — the SAME row as the solo cards (bare variant), so
@@ -411,18 +438,6 @@ function GroupBatchCard({
           );
         })}
       </div>
-
-      {dueCount > 0 && (
-        <ButtonAction
-          variant="secondary"
-          size="md"
-          className="w-full"
-          leftIcon={<DoorOpen size={16} weight="bold" />}
-          onClick={onCheckOutBatch}
-        >
-          Check out all · {dueCount} dogs
-        </ButtonAction>
-      )}
     </div>
   );
 }
