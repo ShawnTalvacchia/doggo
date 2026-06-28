@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-06-20
+last-reviewed: 2026-06-28
 tags: [tokens, css, figma, design-system]
 review-trigger: "when adding or changing CSS variables"
 ---
@@ -206,6 +206,11 @@ CSS pattern: `--transparent-{dark|light|gray}-{step}`
 | Radius/XL              | `--radius-xl`     | `24px`            |
 | Radius/Circle          | `--radius-circle` | `9999px`          |
 | Radius/Full _(compat)_ | `--radius-full`   | `--radius-circle` |
+| Radius/Dog             | `--radius-dog`    | `20%` (percentage) |
+
+**`--radius-dog` is a PERCENTAGE, not px** (The Shelter's Side, 2026-06). Dog square avatars (Avatar Rule B) use `rounded-dog` → `20%` so the corner curve scales with the avatar size and looks identically rounded everywhere (a fixed px read ~40% round on a 20px thumb, ~6% on the 200px hero). Applies to every *square* dog avatar; rectangular dog *card images* (`.shelter-dog-card-photo`) keep `rounded-panel` (a % radius gives a non-square element elliptical corners). See `design-system.md` → Avatar Rule B.
+
+**Volunteer Tailwind utilities** (The Shelter's Side, 2026-06): `text-volunteer` / `bg-volunteer-*` / `border-volunteer-*` are `@theme` mappings of the `--status-volunteer-*` family (parity with `info`/`brand`), used across the operator surfaces.
 
 ---
 

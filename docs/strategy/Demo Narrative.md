@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: draft
-last-reviewed: 2026-06-24
+last-reviewed: 2026-06-28
 tags: [demo, narrative, walkthrough, personas]
 review-trigger: "before any change to the persona roster, the anchor meet, or the walkthrough beats"
 ---
@@ -29,7 +29,7 @@ Three single-thesis paths over one shared world, each launched from its own door
 **Build notes (Phase 1):**
 - **`new-owner`** is two consecutive Daniel beats (join → the walk happens → review/convert/neighbour-care); same-persona consecutive beats render as a time-passage handoff ("Later that day."), not a second "You're now Daniel."
 - **`trainer`** is a single Klára beat (run the linked-care session → seal report → share the lead-gen post); the meet→booking *conversion* is carried by the closing line for now (a played-from-Klára's-side conversion beat needs a pre-staged inquiry — A2).
-- **`shelter`** is Eliška's **4-beat desirability cut** (tightened 2026-06-24): (1) the discovery (Discover → Help a Dog → Nora — how a walker finds the shelter's dogs, the original front kept intact), (2) a new walker gets in safely (mentored first walk; the group-walk sign-up creates a real meet-linked shelter-walk booking, WS-G; waiver/pricing/session detail dropped from the guided copy), (3) an interstitial "what happens on your end" (vouch caption + the shelter-did-nothing / kept-every-veto / documented-trail explainer, honest it's described not shown), (4) the shelter's payoff (its wall filling with walk posts → adoption interest carried as an interstitial). The shelter-side turn happens **after** the signup (Beats 3–4 + soft close), not the front. **Soft close** = the registry `closing` screen, addressing the shelter with three light open questions. The walk session start/finish, the operator side, and the adoption-interest landing are **Phase 2 (The Shelter's Side)** — carried by interstitials here, not built. The full 8-beat live-interview script + A1–A10 crosswalk stay in [[strategy/mentor-network-shelter-demo]] (the Phase-2 source). *(Earlier this was a 5-beat arc ending in a tester-driven adoption; that capstone and the walk-session steps were cut as too long / unbuilt.)*
+- **`shelter`** is Eliška's **4-beat cut** (tightened 2026-06-24; back half made real in Phase 2, 2026-06-28): (1) the discovery (Discover → Help a Dog → Nora — how a walker finds the shelter's dogs), (2) a new walker gets in safely (mentored first walk; the group-walk sign-up creates a real meet-linked shelter-walk booking, WS-G), (3) **your side** — switches POV to the shelter-operator persona and shows it (handover board / Applications · Walks / hub Walkers tier controls), (4) the payoff — operator POV, weeks on (Applications · Adoptions fills, the hub Feed shows where it came from). The shelter-side turn happens **after** the signup (Beats 3–4 + soft close), not the front. **Soft close** = the registry `closing` screen, addressing the shelter with three light open questions. **Phase 2 (The Shelter's Side) revised the back half from narration into demonstration** — Beats 3–4 now *switch POV to `op-utulek-liben` and show the real operator surfaces* where it earns it (was "described, not shown"); the vouch fires at the end of Beat 2; Beat 4 deep-links to `/bookings?tab=adoptions`. The walk session start/finish stays interstitial. The full 8-beat live-interview script + A1–A10 crosswalk stay in [[strategy/mentor-network-shelter-demo]]. *(Earlier this was a 5-beat arc ending in a tester-driven adoption; that capstone and the walk-session steps were cut.)*
 
 ---
 

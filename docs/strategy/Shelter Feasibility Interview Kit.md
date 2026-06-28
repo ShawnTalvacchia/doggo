@@ -1,7 +1,7 @@
 ---
 category: strategy
 status: draft
-last-reviewed: 2026-06-24
+last-reviewed: 2026-06-28
 review-trigger: "Before every shelter-coordinator interview; after any interview that confirms or refutes an assumption (edit the affected entry in place)"
 tags: [shelter, interview, feasibility, validation, operator]
 ---
@@ -90,6 +90,10 @@ For each operator surface they reacted to, the frame is the same: **"here's how 
 ### Adoption-interest landing
 - Interest mostly comes from someone seeing a walk recap, not from the adopter having walked the dog themselves. Does that match what you see — that exposure, not the walker becoming the adopter, is what drives adoptions?
 - When someone's interested, you arrange the meet-and-greet (no auto-match). Is shelter-curated the right model, or would you want the platform to do more matching?
+
+### Shelter profile / your existing presence *(the "additive, not a replacement" pitch)*
+- Your Doggo page carries your existing website and socials right alongside your dogs — it's meant as *another* place to be found, not somewhere you have to move to. Would surfacing your existing links here make joining easier, or feel redundant with the site you already run?
+- Selling point to test: most shelters won't (and shouldn't have to) abandon a site they already maintain. Does "more exposure for the dogs and your existing channels, no migration" land as a reason to join, or is that not the friction that's stopping you?
 
 ---
 

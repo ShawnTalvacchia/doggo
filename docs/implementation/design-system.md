@@ -1,7 +1,7 @@
 ---
 category: implementation
 status: active
-last-reviewed: 2026-06-24
+last-reviewed: 2026-06-28
 tags: [design-system, components, patterns, css]
 review-trigger: "when building or refactoring components, adding CSS patterns, or consolidating styles"
 ---
@@ -68,6 +68,7 @@ Living reference for tokens, components, and CSS patterns. This doc should get *
 | `FilterPillRow` | Unified horizontal scrollable filter pills | `pills`, `activePill`, `onChange` |
 | `CameraPlusFill` | Camera icon with plus badge (photo upload prompt) | `size`, `className` |
 | `Alert` | Tinted callout card with icon + title + optional description + optional dismiss × | `kind` (info/success/warning/error), `title`, `description`, `onDismiss`. Photos & Galleries 2026-06-04. Used inline for page-level callouts AND as the body of transient toasts via `<ToastHost>` / `useStubNotice()`. Tone-matched fill + border per variant; icon picked per kind (Info / CheckCircle / WarningCircle / XCircle). |
+| `UndoBar` | Transient "X happened · Undo" strip for reversible actions | `token` (re-arm trigger), `message`, `onUndo`, `onDismiss`, `durationMs?`. The Shelter's Side, 2026-06. Render conditionally while an undo is available; auto-dismisses. Undo is **neutral** (`fg-primary`), NOT volunteer violet — undo is a utility action. First used by the operator application queue (a top bar — because vouch removes the row); the handover board uses a **per-row** undo instead (any earlier action stays reversible). |
 
 ## Layout (`components/layout/`)
 
@@ -159,6 +160,8 @@ Active list of things to merge, simplify, or remove. Work these down over time.
 |------|-------|-------------|
 | Provider ID mismatch | `mockData.ts` uses `olga-m`, `nikola-r`; `mockUsers.ts` uses `jana`, `nikola` | Unify to one naming scheme before backend work |
 | `.feed-card-body--simple` variant | Only used for authorless cards; may be removable | Audit usage, consider removing if unused (part of punch-list P82) |
+| "Quoted note" text block | ~5 variants — `.inquiry-card-notes`, `.proposal-form-notes`, `FeedCareReview` (italic), `BookingProposalCard` override, the shelter applicant/stay quotes (now `surface-base` + `border-edge-regular` + `rounded-sm`) | Promote a single shared quote-block treatment. Flagged The Shelter's Side, 2026-06. |
+| `.btn-neutral` vs `.btn-secondary` | Near-duplicate `ButtonAction` variants; operator surfaces standardized on `secondary` | Consolidate `neutral`→`secondary` once communities/meets usages are migrated |
 
 ---
 
@@ -192,6 +195,17 @@ Pattern for any in-prototype action that isn't wired up yet but should LOOK pres
 - **For the team:** a self-documenting bookmark while walking the app — every stub announces itself.
 
 Lives in `contexts/StubFeatureContext.tsx`, mounted at the app root. Renders the `<Alert kind="info">` (see Primitives table). Photos & Galleries 2026-06-04.
+
+### Operator handover card — content + flat footer-action row (The Shelter's Side, 2026-06)
+
+The operator handover/schedule card (`ShelterHandoverBoard`) pairs a **content body** (two side-by-side blocks — walker · dog, 50/50 desktop / `sm:flex-1`, natural width on mobile) with a **slim flat footer** of divided actions, mirroring the schedule review card's Skip/Review footer (no chunky `ButtonAction`-in-a-bar). Footer actions are `flex-1`, divided by `divide-edge-stronger`, neutral (`fg-primary` primary / `fg-tertiary` secondary), hover **darkens** via `--interaction-hover-darken` (never lighten — lightening blended into the white card). Undo always sits **left**.
+
+- **Walker-as-protagonist exception.** On a *custody/hand-off* surface the WALKER leads (left, clickable → hand-off check — the person to identify/clear), the dog is co-equal but secondary. This intentionally inverts pet-as-protagonist, which is correct for *owner* care surfaces, not custody ones.
+- **Group card = rows, not nested cards.** A batch is one white card (header + full-width dog rows divided by lines), NOT cards-in-a-card — nesting same-fill cards created a low-contrast problem; rows + grey footer bands separate the dogs. Actions **fuse** to the dog above (the nested row's footer drops its top border, so the only lines fall *between* dogs).
+
+### Avatar Rule B — dog square radius is a percentage
+
+Dog square avatars use `rounded-dog` → `--radius-dog: 20%` (a PERCENTAGE) so the curve scales with size and reads identically everywhere. Rectangular dog *card images* keep `rounded-panel` (a % radius would make a non-square element's corners elliptical). See `design-tokens.md` → Radius. The Shelter's Side, 2026-06.
 
 ### Post detail surface — modal lightbox, not a route
 

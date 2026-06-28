@@ -1,8 +1,8 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-24
-tags: [shelters, institutional-accounts, walkers, dogs, cold-start, photos, mentor-network]
+last-reviewed: 2026-06-28
+tags: [shelters, institutional-accounts, walkers, dogs, cold-start, photos, mentor-network, operator]
 review-trigger: "when modifying shelter surfaces, walker tier model, or non-owned dog handling"
 ---
 
@@ -43,7 +43,7 @@ Mirrors the Communities pattern with one substitution (Meets → Dogs, because s
 
 **Route:** `/shelters/[id]` where `id` is a slug-style string (`utulek-liben`).
 
-**Tabs:** `Feed / Dogs / Members / Gallery`. Tabs sit at the top of the scrollable panel body (sticky), not above the banner. Mirrors community-detail: tabs always accessible, hero scrolls away within the Feed tab content, no banner-jump on tab change.
+**Tabs (public page):** `Feed / Dogs / Members / Gallery`. Tabs sit at the top of the scrollable panel body (sticky), not above the banner. Mirrors community-detail: tabs always accessible, hero scrolls away within the Feed tab content, no banner-jump on tab change. (In **operator mode** the hub reshapes to `Feed / Dogs / Walkers` — see "Operator side (back-office)" below.)
 
 **Detail header** — Back arrow + shelter name. No bottom-nav on detail pages (mirrors community-detail).
 
@@ -158,11 +158,33 @@ When both are already signed, the booking sheet collapses the section to a singl
 
 A solo walk is a real `Booking` with `ownerKind: "shelter"` (the shelter is the "owner" party, the walker is the carer) — created from the dog page via `WalkBookingSheet`. It runs on existing Schedule/Bookings + Sessions rails (Start → Finish → visit report); completed walks feed tier escalation. It's volunteer work: price 0, rendered "Volunteer · no charge" (never "0 Kč"). Both mentor sessions and solo walks live on the **Volunteering** tab in `/bookings`, with a violet category accent — see [[explore-and-care]] (Decisions #14 + #15) and [[design-system]] (booking category accent).
 
-### Operator side is stubbed (V3+)
+### Operator side (back-office) — Phase 2 "The Shelter's Side" (2026-06)
 
-All shelter-admin actions are demo state-toggles per the hidden-affordance pattern: the Members-row kebab carries Promote / Demote (real — effect is immediately visible) + Credit walks / Remove-from-walkers (stub toast — the real flows need the operator count + reason forms). The full operator surface is enumerated in FC16. Decisions #5 + #6.
+The shelter's *own* POV — built **illustrative** (real chrome + representative seeded content, enough to show a shelter "here's how little work this is" and interview against), not deeply wired. Graduated a defined slice of FC16; the rest stays faked/future.
 
-**Operator-view gate (2026-06-12).** Those kebab controls are demo-gated behind `?admin=1` on the Members tab — without the flag (the default, and what every persona sees) the tab is read-only. With it, the controls render and an "Operator view (demo)" banner sits above the list. This keeps the persona view honest: a supporter like Eliška shouldn't see staff-only tier controls just by opening the shelter. The flag is the stand-in for real role-based access (operator login is V3+ / FC16); it is not a security boundary, just a demo affordance toggle.
+**Entry + gate.** Operator mode is the **shelter-operator persona** (`op-utulek-liben`, modeled as a synthetic minimal `UserProfile` with the shelter logo as avatar — so it rides the existing switcher / `useCurrentUser` machinery; tradeoff: on non-shelter surfaces it renders as a sparse locked account). `getOperatorShelterId(userId)` / `useOperatorShelterId()` resolve it. Legacy `?admin=1` still enters the operator hub on any shelter; `?public=1` flips back to the public page. An operator persona viewing a *different* shelter sees that shelter's public page (you only operate your own). The flag is a demo affordance, not a security boundary (real operator login is FC16).
+
+**Back-office app shell.** Entering operator mode swaps the whole app nav (via `Sidebar` / `BottomNav` reading `useOperatorShelterId`): **Útulek (hub) · Schedule · Applications · Inbox · Notifications · Profile** (Community + Discover drop). The consumer pages branch by persona: `/schedule` → the shelter walk schedule, `/bookings` → the **Applications** queue, `/inbox` → an honest "shelter messaging is coming" stub (shelter messaging confirmed a real future need — institutional `Conversation` party model widening is FC16 / Open Q §14).
+
+**Shelter hub in operator mode.** `/shelters/[id]` reshapes to **Feed / Dogs / Walkers** (sections URL-addressable via `?op=`). No top banner either in operator or public-preview view — **"View public page"** lives in the Feed hero, and the public preview's **"Back to operator view"** lives in *its* Feed hero (matching hero-button pattern, gated on `?public=1` via a `showOperatorReturn` prop on the shared `FeedTab`). Home-nav (Útulek) is the always-available fallback out of any public non-Feed tab. (Adoptions left the hub for the Applications queue, 2026-06-28.)
+
+**Schedule** = three tabs mirroring the consumer Schedule: **Today** (the handover board — the hero surface), **Upcoming** (future walks, day-grouped, read-only, with a "Jump to a date" picker), **History** (a concise read-only back-safe record; fuller reporting/exports come later). Vouched progression (tier pill) reads on every walker row.
+
+**Handover board (Today).** Tracks the shelter's CUSTODY of each dog around a walk: **check-out** (release to the walker, sets `BookingSession.releasedAt`) → **back-safe check-in** (`returnedAt`) — the logged accountability trail, distinct from the walker's own `checkedInAt` / `report.completedAt`. `BookingSession.startTime` (HH:MM) carries the scheduled collection time. Reads shelter-walk `Booking`s, writes the custody trail via `updateSession`. Seeded "today at Útulek" in `mockBookings.ts`. The board is a glance summary (to-collect / out-now / back-safe) + sections by state.
+  - **Handover card.** A hand-off is a **pairing**, so each card is two side-by-side blocks — **walker** (circle avatar · name · tier, clickable → the hand-off check; the person to identify/clear) and **dog** (rounded-square avatar · name · status-label), 50/50 on desktop, natural-width on mobile. This intentionally inverts pet-as-protagonist (correct for *owner* care, not for a custody surface) — but keeps the dog legible as a co-equal block. The dog's sub-label is the status (scheduled time / "Out since…" / green "Back safe …"). Actions live in a **slim flat footer** (mirroring the schedule review card's Skip/Review footer): undo always on the **left**, primary on the right, divided. **Per-row undo** (not a top alert) reverts check-out/back-safe at any time, so an earlier mistake in a busy run stays recoverable. A finished walk's footer offers **Undo · Add note** (Add note is an honest stub). Footer hover **darkens** (`--interaction-hover-darken`); undo is **neutral** (`fg-primary`/`fg-tertiary`), not volunteer violet (undo is a utility, not a volunteer-path action).
+  - **Group multi-dog release (FC18).** Group walks (bookings sharing a `dropoffMeetId`) batch into one card: a header with **"Check out all"** + each dog as a full-width **row** (not a nested card — avoids the card-in-card contrast problem; rows divided, actions fused to the dog above). Individual check-out/undo per dog (a no-show doesn't block the rest). Shown as a **proposal** (the mentor signs out the group as responsible party), not a committed model — the open FC18 checkout question, which lives in the feasibility kit + Open Q FC18-tension-2, not as in-UI copy.
+  - **Walker hand-off modal.** Tapping a walker opens `WalkerHandoverModal`: identity (avatar/name/tier/vouched-since), what they're here for (dog + booked time), a **Clearance** checklist (identity, platform + shelter waivers with signed dates, eligible-for-this-dog via tier vs the dog's policy), a **Record** line (walks here, last walked), and a profile link when the walker bridges to a `UserProfile`. Waiver dates derive from `vouchedAt` for seeded roster walkers (representative; no real e-sign until FC16).
+
+**Applications** (`/bookings` in operator mode) = the inbound queue across the commitment ladder, tabbed **Walks / Stays / Adoptions** (URL-addressable via `?tab=`, mirroring the consumer Bookings tabs + the hub's `?op=` so they deep-link and the guided walkthrough can drive them).
+  - **Walks** — the walker application **decision queue** (`ShelterApplicationsPanel`): grouped **New — needs a reply** / **Invited — awaiting their intro visit**; compact triage rows with scannable vetting-signal chips (availability, "fills your … gap" matches-need, mentor-recommended) + one inline primary action (Invite / Vouch). The full picture + actions live in `ApplicantDetailModal` (sibling of `WalkerHandoverModal`): identity, signals, the applicant's own words, a **private coordinator note** (`WalkerApplication.coordinatorNote` + `setNote`, persisted locally — demonstrates the capability; team-shared notes are FC16), and Invite/Vouch/Decline. Messaging is the profile link (chat lives on profiles), not a stub button. An **undo bar** (`revertState`; the shared `components/ui/UndoBar.tsx`) protects an accidental Invite/Vouch — kept as a top bar here (not per-row) because **vouch removes the row** from the queue, leaving nothing to attach an inline undo to. Illustrative seeded fields on `WalkerApplication`: `availability` / `experience` / `nearby` / `matchesNeed` / `coordinatorNote`.
+  - **Stays** — illustrative (`ShelterStaysPanel`): the middle rung of the ladder (walk → stay → adopt). One queue, two flavours tagged by intent — **Sleepover** (respite/exposure, leaning into the advocacy loop) and **Adoption trial** (foster-to-adopt). **No data model yet** (deliberate — pending interview signal on which flavour matters); seeded 2 representative requests, "Plan the stay" is an honest stub.
+  - **Adoptions** — the adoption-interest landing (`ShelterAdoptionsPanel`), moved here from the hub. The one genuinely-new operator surface: the adoption stages exist (`useAdoptionStore`) but nowhere did the shelter SEE who's interested. Lists dogs with live interest; the operator advances the funnel (arrange meet-and-greet → finalise) as demo state-toggles. Names the advocacy loop ("interest mostly comes from someone seeing a walk recap, not the adopter walking the dog themselves").
+
+**Walker pool (hub → Walkers).** Per-walker tier controls (operator-stub): the row kebab carries Promote / Demote (real — the shelter's call overrides the walk-count math, both directions, per O4) + Credit walks / Remove-from-walkers (stub toasts — the real flows need count + reason forms). Tier overrides persist per (shelter, walker).
+
+**Quote/note text blocks** (applicant message, stay note) use the bordered-box convention — `surface-base` + full `border-edge-regular` + `rounded-sm` (matches `.inquiry-card-notes`); the left-accent treatment stays reserved for schedule/status cards.
+
+The full future operator surface remains enumerated in FC16; this phase graduated the slice above.
 
 ---
 

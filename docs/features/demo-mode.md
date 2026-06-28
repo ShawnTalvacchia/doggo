@@ -1,8 +1,8 @@
 ---
 category: feature
 status: built
-last-reviewed: 2026-06-24
-tags: [demo, persona-switching, testing, infrastructure, narrative]
+last-reviewed: 2026-06-28
+tags: [demo, persona-switching, testing, infrastructure, narrative, operator]
 review-trigger: "when adding a new persona, when changing persona-switching surfaces, when wiring per-persona mock data, when the Demo Narrative changes"
 ---
 
@@ -33,20 +33,20 @@ What it didn't ship — see "Known limitations" below.
 
 **File:** `lib/personas.ts`
 
-Eight personas, ordered for the picker:
+The free-roam **picker** carries a deliberately curated subset (six), not every mock-world character:
 
 | ID | Name | Archetype | Source |
 |----|------|-----------|--------|
 | `tereza` | Tereza Nováková | Routine Owner / Connector (default) | `lib/mockUsers.ts` |
 | `daniel` | Daniel Procházka | Anxious New Owner | `lib/mockUsers.ts` |
 | `klara` | Klára Horáčková | Professional Provider | `lib/mockUsers.ts` |
-| `tomas` | Tomáš Kovář | Busy Professional | `lib/mockUsers.ts` |
-| `lena` | Lena Marešová | Marketplace Owner | `lib/mockUsers.ts` |
-| `magda` | Magda Vondráková | Neighborhood Hub Member | `lib/mockUsers.ts` |
 | `eliska` | Eliška Dvořáková | Adoption-Curious Explorer | `lib/mockUsers.ts` |
+| `op-utulek-liben` | Útulek Liběň (Shelter operator) | Institutional / back-office POV | `lib/personas.ts` (synthetic) |
 | `new-user` | New User | Just signed up | `lib/personas.ts` (synthetic) |
 
-Shawn was removed from the picker 2026-04-26 — the actual developer's name shouldn't double as a demo character. He still exists in mock-world data as a Vinohrady regular other personas encounter; he's just no longer a "view as" option.
+**Picker membership ≠ switchability (roster trim, Phase 2 "The Shelter's Side", 2026-06-24).** The picker was carrying too many. Dropped from free-roam — **Tomáš** (overlaps Eliška's shelter-mentee vantage; kept as Phase-2 interview material), **Lena** (pure care customer, no walkthrough use), **Magda** (neighbour-hub; overlaps Tereza). All three remain full mock-world users: still reachable via `?as=<id>` (and `setUserById` falls back to `getUserById` for ids not in the picker list), and still appearing as *characters* in content — Magda is the neighbour in Daniel's new-owner story. **No walkthrough switches POV into a dropped persona** (the guided arcs run as Daniel / Klára / Eliška / operator); dropping one can't break a walkthrough. Shawn was likewise removed from the picker 2026-04-26 (the developer's name shouldn't double as a demo character) but still exists in mock-world data.
+
+**Operator persona (Phase 2).** `op-utulek-liben` is synthetic (defined in `personas.ts`, shelter logo as avatar) — modeling the shelter operator AS a minimal persona lets it ride the existing switcher / `useCurrentUser` machinery with no new entity layer. `getOperatorShelterId(userId)` / `useOperatorShelterId()` detect it; selecting it drops the viewer into the shelter's back-office shell (see [[shelters]] → "Operator side (back-office)"). Tradeoff: on non-shelter surfaces it renders as a sparse locked account — acceptable for a demo affordance.
 
 Each entry pairs a `UserProfile` with `archetype` + `tagline` framing copy. The `new-user` persona is defined inline in `personas.ts` — empty `pets[]`, blank bio, no `carerProfile`, generic SVG avatar, locked profile visibility, `tagApproval: "approve"`.
 

@@ -1,6 +1,6 @@
 ---
 status: living
-last-reviewed: 2026-06-25
+last-reviewed: 2026-06-28
 review-trigger: "Append when a 'noted for later' idea surfaces; promote out when triggered, remove when shipped"
 ---
 
@@ -286,7 +286,7 @@ When the editable-post store lands, the action should mutate `Post.tags[]` direc
 
 ## FC16. Shelter admin / operator surfaces
 
-> **Partly graduated.** Phase 2 "The Shelter's Side" (opened 2026-06-24 off the Multi-Path Demo arc) pulls a slice of the scope below forward — the operator/admin views stubbed in the demo as state-toggles. This entry holds the **remaining** operator scope Phase 2 doesn't build; it stays until its trigger fires. When Phase 2 closes, prune whatever it shipped.
+> **Partly graduated — Phase 2 "The Shelter's Side" closed 2026-06-28.** Phase 2 shipped **illustrative (demo)** cuts of several surfaces below: the operator back-office shell, the **Schedule** handover board (check-out → back-safe custody trail), the **Applications** queue (Walks/Stays/Adoptions — incl. the application-review *decision queue* with a real-ish per-applicant coordinator note), the **adoption-interest landing**, and **walker-pool promote/demote** (a real tier-override toggle). **What remains here is the REAL backend operator side** — staff login/roles, real waiver document review + e-sign, real historical-walk crediting + removal/pause forms (with reasons), per-walker dog restrictions, shelter-account messaging, and notification routing: everything that needs a backend or a real admin identity rather than a demo state-toggle. The scope list below describes those real versions; it stays until the trigger fires.
 
 **Trigger:** A real shelter conversation surfaces the need (or a phase requires admin-side affordances to be walkable in demo).
 
