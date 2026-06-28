@@ -412,7 +412,7 @@ function GroupBatchCard({
               leftIcon={<DoorOpen size={14} weight="bold" />}
               onClick={onCheckOutBatch}
             >
-              Check out all · {dueCount} dogs
+              Check out all
             </ButtonAction>
           </div>
         )}
