@@ -1,7 +1,7 @@
 ---
 category: meta
 status: active
-last-reviewed: 2026-06-25
+last-reviewed: 2026-06-28
 tags: [rules, workflow, css, conventions]
 review-trigger: "always — read before any working session"
 ---
@@ -175,6 +175,15 @@ Three running lists in `planning/` hold work that isn't in a phase yet. Each is 
 
 Full component and pattern reference: `implementation/design-system.md`
 Token reference: `implementation/design-tokens.md`
+
+### Reuse-first (check before building new UI)
+
+**Before building ANY new UI, search for an existing pattern to reuse or consolidate with.** This is the first step, not an afterthought — the burden is on the builder to find the existing thing, not on the reviewer to point it out.
+
+- **Applies to everything UI, not just components:** components, button variants, design tokens, CSS classes, and **interaction patterns** (modals, pickers, search/clear/empty-state affordances, sheets). A near-duplicate variant (`btn-neutral` vs `btn-secondary`), an inline value that should be a token, or a raw native control when a built one exists (`<input type="date">` vs `components/ui/DatePicker.tsx`) are all reuse-first failures.
+- **Do the reuse pass first, and state the result before building.** Grep `components/ui/`, `components/overlays/`, `components/layout/`, and `globals.css`; check `/styleguide` and design-system.md's consolidation targets. Lead with "the existing thing is X" (or "nothing matches, because…").
+- **Prefer extending a shared component over a new one** — e.g. add an opt-in prop (`onClear` on `DateTrigger`) rather than a bespoke one-off.
+- **New = flagged, not silent.** When nothing fits and new is genuinely warranted, surface it before creating — what you searched, why nothing fits, the proposed shape. For minor additive cases (an opt-in prop) flag it in the walkthrough's "Open for your call"; for a net-new component / variant / token, get a nod first. Never introduce a parallel variant or token silently. New tokens still follow "No orphan tokens."
 
 ### Tailwind-first authoring (new code)
 1. **Use Tailwind utilities** for new components — layout, spacing, typography, colors

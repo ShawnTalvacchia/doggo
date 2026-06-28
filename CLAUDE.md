@@ -29,7 +29,8 @@ These are non-negotiable. See `docs/implementation/design-system.md` for compone
 3. **Existing CSS classes are fine** — migrate incrementally, not all at once.
 4. **Semantic tokens only.** Never raw hex/rgb. See `docs/implementation/design-tokens.md`.
 5. **No orphan tokens.** Every CSS variable in `globals.css` must appear in the styleguide.
-6. **Check `components/ui/` and `components/layout/` before building anything.** Use existing components instead of raw HTML + utility classes.
+6. **Reuse-first — before building ANY new UI, search for an existing pattern to reuse or consolidate.** Applies to components, button variants, tokens, CSS classes, AND interaction patterns (modals, pickers, clear/affordance patterns) — not just components. Do the reuse pass first (grep `components/ui/`, `components/overlays/`, `components/layout/`, `globals.css`; check `/styleguide` + design-system.md consolidation targets) and **state what you found before building**. Prefer extending an existing shared component (an opt-in prop) over a new one. See `docs/CONTRIBUTING.md` → "Reuse-first."
+7. **New = flagged, not silent.** When the reuse pass finds nothing that fits, surface it before creating (what you searched, why nothing fits) so it can be redirected — never introduce a parallel variant / token / component silently.
 
 ### Tailwind naming conventions
 | Token | Tailwind utility | Example |
